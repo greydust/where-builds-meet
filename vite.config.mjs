@@ -3,5 +3,5 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: command === "build" ? "/wwm-dps-calculator/" : "/",
+  base: command === "build" ? "/where-builds-meet/" : "/",
 }));
