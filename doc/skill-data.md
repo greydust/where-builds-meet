@@ -528,3 +528,6 @@ Divinecraft definitions use the same direct setup-effect shape as food and set
 effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;
 `qiDMGBonus` and a `trigger` with `event: "healing"` are currently stored for
 future implementation and intentionally ignored by the calculation engine.
+
+Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
+for data completeness; healing is not currently simulated.

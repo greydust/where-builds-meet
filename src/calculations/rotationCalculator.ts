@@ -3,6 +3,7 @@ import { emptyRotationBreakdown, type RotationBreakdown, type RotationMetrics, t
 import { calculateDerivedStats } from "./effectiveStats";
 import { buildRotationTimeline, mergeEffectDefinition, requirementsPass, type EditableObject, type EffectDefinition, type InnerWayEffectRule, type TimelineBuildInput, type TimelineRow } from "./rotationTimeline";
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
+import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
 
 export type RotationDamageEntry = {
@@ -48,6 +49,18 @@ export type RotationSimulationBundle = {
   attunementPriority: RotationSimulationVariant[];
   innerWayPriority: RotationSimulationVariant[];
   setupComparisons: Record<string, RotationSimulationVariant[]>;
+};
+
+export type RotationSimulationResult = {
+  metrics: RotationMetrics;
+  timeline: TimelineRow[];
+  anchorTime: number;
+  duration: number;
+  actionBreakdowns: Record<string, DamageBreakdown>;
+};
+
+export type RotationSimulationBaseline = RotationSimulationResult & {
+  baseline: RotationDamageEntry[];
 };
 
 const emptyBreakdown = (): DamageBreakdown => ({
@@ -107,7 +120,9 @@ export function calculateRotationMetrics(bundle: RotationCalculationBundle, base
   ]));
 
   const attunementRows = calculatePriorityRows(baselineDps, duration, bundle.attunementPriority);
-  const penetrationLabels = new Set(["Physical Penetration", "Formless Penetration"]);
+  const penetrationLabels = new Set(Object.values(attunementJson)
+    .filter((definition) => Object.keys(definition.effect?.stat ?? {}).some((key) => key === "physicalPenetration" || key === "formlessPenetration"))
+    .map((definition) => definition.name));
   return {
     totalDamage: baselineDamage,
     dps: baselineDps,
@@ -251,18 +266,13 @@ function timelineDamageEntries(
   }));
 }
 
-export function calculateRotationSimulation(bundle: RotationSimulationBundle) {
+export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
   const timeline = buildRotationTimeline(bundle.timeline);
   const anchorRow = timeline.find((row) => row.id === bundle.startAnchor.rowId) ?? timeline[0];
   const anchorTime = anchorRow ? anchorRow.startTime + (bundle.startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[bundle.startAnchor.actionIndex]?.time ?? 0)) : 0;
   const lastActionTime = timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
   const duration = Math.max(0, lastActionTime - anchorTime);
   const state = { stats: bundle.stats, attunement: bundle.attunement, enemy: bundle.enemy, derivedStats: bundle.derivedStats, weapons: bundle.weapons };
-  const entriesForVariant = (variant: RotationSimulationVariant) => {
-    const timelineInput = variant.timeline ?? bundle.timeline;
-    const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : timeline;
-    return timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
-  };
   const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor);
   let baselineDamage = 0;
   const actionBreakdowns = Object.fromEntries(baseline.filter((entry) => entry.id).map((entry) => {
@@ -270,15 +280,41 @@ export function calculateRotationSimulation(bundle: RotationSimulationBundle) {
     baselineDamage += breakdown.total;
     return [entry.id!, breakdown];
   }));
-  const entryBundle: RotationCalculationBundle = {
+  const metrics = calculateRotationMetrics({
     duration,
     baseline,
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  }, baselineDamage);
+  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
+  return { metrics, timeline, anchorTime, duration, actionBreakdowns, baseline };
+}
+
+export function calculateRotationComparisons(bundle: RotationSimulationBundle, baselineResult: RotationSimulationBaseline): RotationMetrics {
+  const state = { stats: bundle.stats, attunement: bundle.attunement, enemy: bundle.enemy, derivedStats: bundle.derivedStats, weapons: bundle.weapons };
+  const entriesForVariant = (variant: RotationSimulationVariant) => {
+    const timelineInput = variant.timeline ?? bundle.timeline;
+    const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
+    return timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+  };
+  const entryBundle: RotationCalculationBundle = {
+    duration: baselineResult.duration,
+    baseline: baselineResult.baseline,
     statPriority: bundle.statPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
     attunementPriority: bundle.attunementPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
     innerWayPriority: bundle.innerWayPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
     setupComparisons: Object.fromEntries(Object.entries(bundle.setupComparisons).map(([group, variants]) => [group, variants.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) }))])),
   };
-  const metrics = calculateRotationMetrics(entryBundle, baselineDamage);
-  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
-  return { metrics, timeline, anchorTime, duration, actionBreakdowns };
+  const metrics = calculateRotationMetrics(entryBundle, baselineResult.metrics.totalDamage);
+  metrics.breakdown = baselineResult.metrics.breakdown;
+  return metrics;
+}
+
+export function calculateRotationSimulation(bundle: RotationSimulationBundle): RotationSimulationResult {
+  const baselineResult = calculateRotationBaseline(bundle);
+  const metrics = calculateRotationComparisons(bundle, baselineResult);
+  const { baseline: _baseline, ...publicResult } = baselineResult;
+  return { ...publicResult, metrics };
 }

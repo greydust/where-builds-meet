@@ -4,6 +4,7 @@ import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
 import {
   defaultBuildSetup,
+  attunementData,
   exportBuildState,
   gearBaseStats,
   gearData,
@@ -76,7 +77,7 @@ function itemAttributes(item: GearItem) {
     const definition = gearData.affixes[affix.key];
     rows.push({ label: definition?.name ?? affix.key, value: displayValue(affix.value, definition), kind: "Affix" });
   }
-  const attunementDefinition = gearData.attunements[item.attunement.key];
+  const attunementDefinition = attunementData[item.attunement.key];
   rows.push({ label: attunementDefinition?.name ?? item.attunement.key, value: displayValue(item.attunement.value, attunementDefinition), kind: "Attunement" });
   return rows;
 }
@@ -137,7 +138,7 @@ function itemToDraft(item: GearItem): GearDraft {
     rarity: item.rarity,
     baseAffix: savedValueToDraft(item.baseAffix, gearData.affixes),
     additionalAffixes: item.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes)),
-    attunement: savedValueToDraft(item.attunement, gearData.attunements),
+    attunement: savedValueToDraft(item.attunement, attunementData),
   };
 }
 
@@ -348,7 +349,7 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
     if (!definition) return;
     const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes);
     const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes));
-    const attunement = normalizeDraftValue(draft.attunement, gearData.attunements);
+    const attunement = normalizeDraftValue(draft.attunement, attunementData);
     if (!baseAffix || additionalAffixes.some((affix) => !affix) || !attunement) {
       setError("Choose every attribute and enter a non-negative value.");
       return;
@@ -472,7 +473,7 @@ function GearEditor({ definition, definitionName, editingExisting, draft, error,
     <div className="gear-editor-sections">
       <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
       <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
-      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={definition.attunements} definitions={gearData.attunements} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
+      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={definition.attunements} definitions={attunementData} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
     </div>
     {error && <p className="editor-error" role="alert">{error}</p>}
     <div className="editor-actions"><button className="button button-secondary" type="button" onClick={onCancel}>Cancel</button><button className="button button-primary" type="button" onClick={onSave}>{editingExisting ? "Save Changes" : "Save"}</button></div>

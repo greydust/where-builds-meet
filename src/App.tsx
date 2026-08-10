@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type Change
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
 import BuildTab from "./BuildTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
+import { activeBuildStorageKey, attunementData, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import type { CharacterStats, EnemyProfile, StatDefinition, WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
@@ -23,6 +23,7 @@ import moraleChant from "../data/innerway/morale-chant.json";
 import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
+import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
 import statPriorityLines from "../data/stat-priority.json";
 import systemStats from "../data/system.json";
 import defaultSetup from "../data/default-setup.json";
@@ -34,8 +35,8 @@ import foodDefinitions from "../data/food.json";
 import divinecraftDefinitions from "../data/divinecraft.json";
 import snowpartingMartialArt from "../data/martial-art/snowparting-blade.json";
 import phalanxbaneMartialArt from "../data/martial-art/phalanxbane-blade.json";
-import { type RotationSimulationBundle } from "./calculations/rotationCalculator";
-import { requestRotationSimulation } from "./calculations/rotationWorkerClient";
+import { type RotationSimulationBundle, type RotationSimulationResult, type RotationSimulationVariant } from "./calculations/rotationCalculator";
+import { requestRotationBaseline, requestRotationComparisons } from "./calculations/rotationWorkerClient";
 import { type EditableObject, type InnerWayEffectRule, type RotationRecord, type RotationStep, type SkillRecord, type TimelineBuildInput, type TimelineRow } from "./calculations/rotationTimeline";
 import { calculateStatsWithOverrides, type CharacterStatOverrides, type EffectiveStatEffectContainer, type StatEffectContainer } from "./calculations/statEffects";
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
@@ -100,6 +101,7 @@ const innerWayDefinitions = {
   SteadfastDevotion: steadfastDevotion,
   ThroatPiercingArt: throatPiercingArt,
   BreakingPoint: breakingPoint,
+  EnvigoratedWarrior: envigoratedWarrior,
 };
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
@@ -375,22 +377,10 @@ function loadInnerWays() {
   }
 }
 
-const defaultAttunementStats = {
-  physicalPenetration: 0,
-  formlessPenetration: 0,
-  phalanxbaneChargedBoost: 0,
-  phalanxbaneMartialBoost: 0,
-  snowpartingChargedBoost: 0,
-  snowpartingVariedComboBoost: 0,
-  snowpartingMartialBoost: 0,
-} satisfies AttunementStats;
-const percentageAttunementKeys = new Set<keyof AttunementStats>([
-  "phalanxbaneChargedBoost",
-  "phalanxbaneMartialBoost",
-  "snowpartingChargedBoost",
-  "snowpartingVariedComboBoost",
-  "snowpartingMartialBoost",
-]);
+const defaultAttunementStats = Object.fromEntries(Object.keys(attunementData).map((key) => [key, 0])) as AttunementStats;
+const percentageAttunementKeys = new Set<keyof AttunementStats>(Object.entries(attunementData)
+  .filter(([, definition]) => definition.percentage)
+  .map(([key]) => key as keyof AttunementStats));
 type CharacterState = {
   stats: CharacterStats;
   rawStats: CharacterStats;
@@ -638,15 +628,7 @@ function StatsTab({ character, statOverrides, attunementOverrides, buildSetupOve
     ["", "None"],
     ...Object.entries(innerWayDefinitions).map(([value, definition]) => [value, definition.name] as [string, string]),
   ];
-  const attunementFields = [
-    ["physicalPenetration", "Physical Penetration", ""],
-    ["formlessPenetration", "Formless Penetration", ""],
-    ["phalanxbaneChargedBoost", "Phalanxbane Blade - Charged Skill DMG Boost", "%"],
-    ["phalanxbaneMartialBoost", "Phalanxbane Blade - Martial Art Skill DMG Boost", "%"],
-    ["snowpartingChargedBoost", "Snowparting Blade - Charged Skill DMG Boost", "%"],
-    ["snowpartingVariedComboBoost", "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost", "%"],
-    ["snowpartingMartialBoost", "Snowparting Blade - Martial Art Skill DMG Boost", "%"],
-  ] as const;
+  const attunementFields = Object.entries(attunementData).map(([key, definition]) => [key as keyof AttunementStats, definition.name, definition.percentage ? "%" : ""] as const);
   const setupStatus = (group: string, value: string, active: boolean) => {
     if (active) return <small className="setup-active-label">Active</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
@@ -1169,25 +1151,28 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
   const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
   const [eventTimeDrafts, setEventTimeDrafts] = useState<Record<string, string>>({});
   const [eventDurationDrafts, setEventDurationDrafts] = useState<Record<string, string>>({});
-  const [workerMetrics, setWorkerMetrics] = useState<RotationMetrics>();
-  const [workerTimeline, setWorkerTimeline] = useState<TimelineRow[]>([]);
-  const [workerAnchorTime, setWorkerAnchorTime] = useState(0);
-  const [workerDuration, setWorkerDuration] = useState(0);
-  const [workerActionBreakdowns, setWorkerActionBreakdowns] = useState<Record<string, DamageBreakdown>>({});
+  const [rotationResults, setRotationResults] = useState<Record<string, { key: string; result: RotationSimulationResult }>>({});
+  const rotationResultsRef = useRef(rotationResults);
+  const [diffResult, setDiffResult] = useState<{ key: string; rotationId: string; metrics: RotationMetrics } | null>(null);
   const [readableDialogOpen, setReadableDialogOpen] = useState(false);
   const [readableCopyStatus, setReadableCopyStatus] = useState("");
   const readableDialogRef = useRef<HTMLDialogElement>(null);
   const readableTextRef = useRef<HTMLTextAreaElement>(null);
   const editingEntry = rotationEntries.find((entry) => entry.id === editingRotationId);
   const rotationLocked = editingEntry?.isDefault === true;
-  const calculationStateKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, rotation, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup });
+  const calculationContextKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup });
+  const rotationStateKey = `${editingRotationId}:${calculationContextKey}:${JSON.stringify(rotation)}`;
+  const calculationContextKeyRef = useRef(calculationContextKey);
+  calculationContextKeyRef.current = calculationContextKey;
+  rotationResultsRef.current = rotationResults;
 
   function persistRotationEntries(entries: RotationEntry[]) {
     sessionStorage.setItem(rotationListStorageKey, serializeRotationEntries(entries));
   }
 
   useEffect(() => {
-    setRotation((current) => migrateRotation(current));
+    const migrated = migrateRotation(rotation);
+    setRotation(migrated);
     persistRotationEntries(rotationEntries);
   }, []);
 
@@ -1294,6 +1279,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     sessionStorage.setItem("wwm-active-rotation-session-v1", activeRotationId);
     setError("");
     setStatus("Saved for this session");
+    if (editingRotationId === activeRotationId) void calculateDiffsForRotation(editingRotationId, normalized);
   }
   function activateRotation(id: string) {
     if (id === activeRotationId) return;
@@ -1309,6 +1295,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", id);
+    void activateCalculatedRotation(id, nextRotation);
   }
   function editRotation(id: string) {
     if (id === editingRotationId) return;
@@ -1362,7 +1349,10 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     }
     const nextActive = nextEntries[Math.max(0, rotationEntries.findIndex((entry) => entry.id === id) - 1)] ?? nextEntries[0];
     setRotationEntries(nextEntries);
-    if (id === activeRotationId) setActiveRotationId(nextActive.id);
+    if (id === activeRotationId) {
+      setActiveRotationId(nextActive.id);
+      void activateCalculatedRotation(nextActive.id, nextActive.rotation);
+    }
     if (id === editingRotationId) {
       setEditingRotationId(nextActive.id);
       setRotation(JSON.parse(JSON.stringify(nextActive.rotation)) as RotationRecord);
@@ -1419,8 +1409,10 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     }
   }
 
-  const timeline = workerTimeline;
-  const anchorTime = workerAnchorTime;
+  const currentCachedResult = rotationResults[editingRotationId]?.result;
+  const timeline = currentCachedResult?.timeline ?? [];
+  const anchorTime = currentCachedResult?.anchorTime ?? 0;
+  const workerActionBreakdowns = currentCachedResult?.actionBreakdowns ?? {};
   const displayTime = (time: number) => time - anchorTime;
   const calculateTimelineActionBreakdown = (row: TimelineRow, actionIndex: number): DamageBreakdown => workerActionBreakdowns[`${row.id}:${actionIndex}`] ?? { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 };
   const skillExpansionKey = (rowId: string) => `${editingRotationId}:${rowId}`;
@@ -1449,10 +1441,10 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     });
     return entries;
   }).sort((left, right) => left.time - right.time || left.order - right.order);
-  const totalRotationTime = workerDuration;
+  const totalRotationTime = currentCachedResult?.duration ?? 0;
   const readableRotation = readableRotationText(timeline, startAnchor, anchorTime);
-  const totalRotationDamage = workerMetrics?.totalDamage ?? 0;
-  const rotationDps = workerMetrics?.dps ?? 0;
+  const totalRotationDamage = currentCachedResult?.metrics.totalDamage ?? 0;
+  const rotationDps = currentCachedResult?.metrics.dps ?? 0;
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
     return { ...characterStats, [key]: characterStats[key] + amount };
   };
@@ -1483,8 +1475,8 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
       setReadableCopyStatus("Select the text and copy it manually.");
     }
   }
-  const makeTimelineInput = (conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup)): TimelineBuildInput => ({
-    rotation,
+  const makeTimelineInput = (rotationRecord: RotationRecord, conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup)): TimelineBuildInput => ({
+    rotation: rotationRecord,
     skills: Object.assign({}, ...Object.values(defaultSkillMaps)),
     eventDefinitions: rotationEventDefinitions,
     dots: mysticDots as Record<string, SkillRecord>,
@@ -1494,61 +1486,115 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     setupEffects,
     weapons: settings.weapons,
   });
-  const calculationBundle = useMemo<RotationSimulationBundle>(() => ({
-    timeline: makeTimelineInput(),
-    startAnchor,
+  function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
+    const rotationAnchor = rotationRecord.start ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action } : { rowId: "rotation-0" };
+    return {
+    timeline: makeTimelineInput(rotationRecord),
+    startAnchor: rotationAnchor,
     stats: characterStats,
     attunement: attunementStats,
     enemy,
     derivedStats,
     weapons: settings.weapons,
-    statPriority: Object.entries(priorityCharacter).map(([key, amount]) => {
+    statPriority: includeDiffs ? Object.entries(priorityCharacter).map(([key, amount]) => {
       const variantStats = applyPriorityStatLine(key as keyof CharacterStats, Number(amount));
       const definition = allStatDefinitions.find((candidate) => candidate.key === key);
       return { label: definition?.label ?? key, maxRoll: Number(amount) * (definition?.unit === "%" ? 100 : 1), stats: variantStats };
-    }),
-    attunementPriority: Object.entries(priorityAttunement).map(([key, amount]) => {
+    }) : [],
+    attunementPriority: includeDiffs ? Object.entries(priorityAttunement).map(([key, amount]) => {
       const variantAttunement = { ...attunementStats, [key]: attunementStats[key as keyof AttunementStats] + Number(amount) };
-      return { label: ({ physicalPenetration: "Physical Penetration", formlessPenetration: "Formless Penetration", phalanxbaneChargedBoost: "Phalanxbane Blade - Charged Skill DMG Boost", phalanxbaneMartialBoost: "Phalanxbane Blade - Martial Art Skill DMG Boost", snowpartingChargedBoost: "Snowparting Blade - Charged Skill DMG Boost", snowpartingVariedComboBoost: "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost", snowpartingMartialBoost: "Snowparting Blade - Martial Art Skill DMG Boost" } as Record<string, string>)[key] ?? key, maxRoll: Number(amount) * (percentageAttunementKeys.has(key as keyof AttunementStats) ? 100 : 1), attunement: variantAttunement };
-    }),
-    innerWayPriority: selectedInnerWays.map((selected) => {
+      return { label: attunementData[key]?.name ?? key, maxRoll: Number(amount) * (percentageAttunementKeys.has(key as keyof AttunementStats) ? 100 : 1), attunement: variantAttunement };
+    }) : [],
+    innerWayPriority: includeDiffs ? selectedInnerWays.map((selected) => {
       const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
       const variantConditions = loadInnerWayConditions(selected.innerWay);
-      return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
-    }),
-    setupComparisons: {
+      return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
+    }) : [],
+    setupComparisons: includeDiffs ? {
       arsenal: Object.keys(typedArsenalDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { arsenal: value }) })),
       bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }) })),
       food: Object.keys(typedFoodDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }) })),
       divinecraft: Object.entries(typedDivinecraftDefinitions).filter(([, definition]) => definition.available !== false).map(([value]) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }) })),
       "gear:Cleftpeak": [0, 2, 4].filter((tier) => tier > currentGearSets.Cleftpeak).map((tier) => {
         const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: tier as 0 | 2 | 4, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) as 0 | 2 | 4 } });
-        return { label: String(tier), setupEffects, timeline: makeTimelineInput(innerWayConditions, innerWayEffectRules, setupEffects) };
+        return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
       }),
       "gear:RainWhisper": [0, 2, 4].filter((tier) => tier > currentGearSets.RainWhisper).map((tier) => {
         const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: Math.min(currentGearSets.Cleftpeak, 4 - tier) as 0 | 2 | 4, RainWhisper: tier as 0 | 2 | 4 } });
-        return { label: String(tier), setupEffects, timeline: makeTimelineInput(innerWayConditions, innerWayEffectRules, setupEffects) };
+        return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
       }),
-    },
-  }), [calculationStateKey, startAnchor.rowId, startAnchor.actionIndex]);
-  const localRotationCalculation: RotationMetrics = { totalDamage: totalRotationDamage, dps: rotationDps, breakdown: emptyRotationBreakdown(), statPriority: priorityStats, attunementPriority: priorityAttunementRows, innerWayPriority: priorityInnerWays, setupComparisons };
-  const rotationCalculation = workerMetrics ?? localRotationCalculation;
+    } : ({} as Record<string, RotationSimulationVariant[]>),
+    };
+  }
+
+  const resultKeyFor = (id: string, rotationRecord: RotationRecord, contextKey = calculationContextKey) => `${id}:${contextKey}:${JSON.stringify(rotationRecord)}`;
+  const workerCacheKeyFor = (resultKey: string) => `rotation:${resultKey}`;
+
+  function storeBaselineResult(id: string, key: string, result: RotationSimulationResult) {
+    const next = { ...rotationResultsRef.current, [id]: { key, result } };
+    rotationResultsRef.current = next;
+    setRotationResults(next);
+  }
+
+  async function calculateBaselineForRotation(id: string, rotationRecord: RotationRecord, priority = 100, force = false) {
+    const contextKey = calculationContextKey;
+    const resultKey = resultKeyFor(id, rotationRecord, contextKey);
+    const cached = rotationResultsRef.current[id];
+    if (!force && cached?.key === resultKey) return cached.result;
+    const result = await requestRotationBaseline(calculationBundleFor(rotationRecord, false), workerCacheKeyFor(resultKey), { key: `baseline:${id}`, priority });
+    storeBaselineResult(id, resultKey, result);
+    return result;
+  }
+
+  async function calculateDiffsForRotation(id: string, rotationRecord: RotationRecord, forceBaseline = false) {
+    const contextKey = calculationContextKey;
+    const resultKey = resultKeyFor(id, rotationRecord, contextKey);
+    const baselinePromise = calculateBaselineForRotation(id, rotationRecord, 400, forceBaseline);
+    const comparisonsPromise = requestRotationComparisons(calculationBundleFor(rotationRecord, true), workerCacheKeyFor(resultKey), { key: `diff:${id}`, priority: 350 });
+    try {
+      await baselinePromise;
+      const metrics = await comparisonsPromise;
+      if (calculationContextKeyRef.current !== contextKey) return;
+      setDiffResult({ key: resultKey, rotationId: id, metrics });
+    } catch {
+      void comparisonsPromise.catch(() => {});
+      // A newer keyed request superseded this calculation.
+    }
+  }
+
+  async function activateCalculatedRotation(id: string, rotationRecord: RotationRecord) {
+    await calculateDiffsForRotation(id, rotationRecord);
+  }
+
+  const localRotationCalculation: RotationMetrics = { totalDamage: totalRotationDamage, dps: rotationDps, breakdown: currentCachedResult?.metrics.breakdown ?? emptyRotationBreakdown(), statPriority: priorityStats, attunementPriority: priorityAttunementRows, innerWayPriority: priorityInnerWays, setupComparisons };
+  const rotationCalculation = currentCachedResult?.metrics ?? localRotationCalculation;
+  const refreshContextRef = useRef<string | null>(null);
   useEffect(() => {
-    let cancelled = false;
-    requestRotationSimulation(calculationBundle).then((result) => {
-      if (!cancelled) {
-        setWorkerMetrics(result.metrics);
-        setWorkerTimeline(result.timeline as TimelineRow[]);
-        setWorkerAnchorTime(result.anchorTime);
-        setWorkerDuration(result.duration);
-        setWorkerActionBreakdowns(result.actionBreakdowns);
+    const contextChanged = refreshContextRef.current !== calculationContextKey;
+    refreshContextRef.current = calculationContextKey;
+    if (!contextChanged) {
+      const editPriority = editingRotationId === activeRotationId ? 400 : 200;
+      void calculateBaselineForRotation(editingRotationId, rotation, editPriority).catch(() => {});
+      return;
+    }
+    const entries = rotationEntries.map((entry) => entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: migrateRotation(rotation) } : entry);
+    const activeEntry = entries.find((entry) => entry.id === activeRotationId) ?? entries[0];
+    if (!activeEntry) return;
+    void (async () => {
+      await calculateDiffsForRotation(activeEntry.id, activeEntry.rotation, true);
+      if (calculationContextKeyRef.current !== calculationContextKey) return;
+      for (const entry of entries) {
+        if (entry.id === activeEntry.id) continue;
+        try { await calculateBaselineForRotation(entry.id, entry.rotation, 100, true); } catch { /* Superseded by newer work. */ }
       }
-    }).catch(() => {
-      // Keep the synchronous calculation visible if a worker is unavailable.
-    });
-    return () => { cancelled = true; };
-  }, [calculationBundle]);
-  useEffect(() => onMetricsChange(rotationCalculation, editingRotationId === activeRotationId), [JSON.stringify(rotationCalculation), editingRotationId, activeRotationId]);
+    })();
+  }, [calculationContextKey, rotationStateKey]);
+  useEffect(() => {
+    if (!diffResult || diffResult.rotationId !== activeRotationId) return;
+    const activeRecord = activeRotationId === editingRotationId ? rotation : rotationEntries.find((entry) => entry.id === activeRotationId)?.rotation;
+    if (!activeRecord || diffResult.key !== resultKeyFor(activeRotationId, activeRecord)) return;
+    onMetricsChange(diffResult.metrics, true);
+  }, [diffResult, activeRotationId, editingRotationId, rotation, rotationEntries]);
   return <section className="panel rotation-editor-panel"><div className="rotation-editor-layout">
     <aside className="rotation-list">
       <div className="rotation-list-heading"><span>Rotations</span><button className="icon-button" type="button" aria-label="Add rotation" onClick={addRotation}>＋</button></div>

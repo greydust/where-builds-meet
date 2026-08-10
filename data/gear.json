@@ -35,15 +35,6 @@
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
   },
-  "attunements": {
-    "physicalPenetration": { "name": "Physical Penetration" },
-    "formlessPenetration": { "name": "Formless Penetration" },
-    "phalanxbaneChargedBoost": { "name": "Phalanxbane Blade - Charged Skill DMG Boost", "percentage": true },
-    "phalanxbaneMartialBoost": { "name": "Phalanxbane Blade - Martial Art Skill DMG Boost", "percentage": true },
-    "snowpartingChargedBoost": { "name": "Snowparting Blade - Charged Skill DMG Boost", "percentage": true },
-    "snowpartingVariedComboBoost": { "name": "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost", "percentage": true },
-    "snowpartingMartialBoost": { "name": "Snowparting Blade - Martial Art Skill DMG Boost", "percentage": true }
-  },
   "gear": {
     "hengBlade": {
       "name": "Heng Blade",

@@ -410,7 +410,7 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.575,
+        "phyCoef": 0.5,
         "phyBonus": 0,
         "attrBonus": 0,
         "time": 0
@@ -431,6 +431,7 @@
     "modifier": [],
     "tags": [
       "DirectDamage",
+      "Charged",
       "MartialArts",
       "MartialArtTrigger",
       "MoBlade",
@@ -445,7 +446,7 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 1.03,
+        "phyCoef": 0.9,
         "phyBonus": 0,
         "attrBonus": 0,
         "time": 0
@@ -466,6 +467,7 @@
     "modifier": [],
     "tags": [
       "DirectDamage",
+      "Charged",
       "MartialArts",
       "MartialArtTrigger",
       "MoBlade",

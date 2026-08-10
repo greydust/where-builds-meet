@@ -3,7 +3,7 @@ import { createServer } from "vite";
 const viteServer = await createServer({ root: process.cwd(), configFile: false, server: { middlewareMode: true }, appType: "custom", logLevel: "silent" });
 
 try {
-  const { calculateRotationSimulation } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { calculateRotationBaseline, calculateRotationComparisons, calculateRotationSimulation } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
@@ -52,7 +52,7 @@ try {
     setupEffects: [],
     weapons: [],
   };
-  const result = calculateRotationSimulation({
+  const bundle = {
     timeline,
     startAnchor: { rowId: "rotation-0", actionIndex: 2 },
     stats,
@@ -60,11 +60,14 @@ try {
     enemy,
     derivedStats: calculateDerivedStats(stats, enemy.judgementResistance),
     weapons: [],
-    statPriority: [],
+    statPriority: [{ label: "Maximum Physical Attack", stats: { ...stats, maxPhys: 110 } }],
     attunementPriority: [],
     innerWayPriority: [],
     setupComparisons: {},
-  });
+  };
+  const result = calculateRotationSimulation(bundle);
+  const cachedBaseline = calculateRotationBaseline(bundle);
+  const cachedComparisons = calculateRotationComparisons(bundle, cachedBaseline);
 
   assert(!result.actionBreakdowns["rotation-0:0"], "An action before the anchor time must be ignored.");
   assert(!result.actionBreakdowns["rotation-0:1"], "An earlier action at the anchor timestamp must be ignored.");
@@ -72,6 +75,9 @@ try {
   assert(result.actionBreakdowns["rotation-0:3"], "Actions after the anchor must be calculated.");
   assert(result.metrics.breakdown.skills[0]?.hits === 2, "Ignored actions must not contribute to hit count.");
   assert(result.metrics.totalDamage > 0, "Calculated actions must still contribute damage.");
+  assert(cachedBaseline.metrics.statPriority.length === 0, "A baseline-only calculation must not calculate comparison rows.");
+  assert(cachedComparisons.totalDamage === result.metrics.totalDamage, "Cached comparison metrics must reuse the baseline total damage.");
+  assert(cachedComparisons.statPriority[0]?.dpsDifference === result.metrics.statPriority[0]?.dpsDifference, "Cached comparison results must match a full simulation.");
   const triggerTimeline = buildRotationTimeline({
     rotation: { name: "Trigger source probe", steps: [{ type: "skill", skill: "SourceSkill" }] },
     skills: {

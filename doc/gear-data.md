@@ -1,14 +1,18 @@
 # Gear data and inventory
 
-The Build tab is driven by `data/gear.json`. It defines the eight gear slots,
-fixed base stats by level and rarity, selectable affixes, and selectable
-attunements. UI code should not hard-code slot-specific option lists.
+The Build tab is driven by `data/gear.json` and `data/attunement.json`. Gear
+defines the eight gear slots, fixed base stats by level and rarity, selectable
+affixes, and allowed attunement IDs. Attunement definitions contain their
+display names, percentage units, source tags, stat targets, and skill-match
+tags. UI code should not hard-code slot-specific option lists.
 
 ## Definitions
 
-Every `affixes` object key is directly a `CharacterStats` key, and every
-`attunements` object key is directly an `AttunementStats` key. There is no
-second mapping field. Entries marked `percentage` are entered as percentage
+Every `affixes` object key is directly a `CharacterStats` key. Attunement IDs
+are defined in `data/attunement.json`. Equipped values remain keyed by their
+definition ID so multiple armor attunements retain their individual skill-match
+tags. Each definition's `effect.stat` maps that value to Physical Penetration,
+Formless Penetration, or the shared `attunementDMGBonus` formula input. Entries marked `percentage` are entered as percentage
 points in the UI and stored as decimal ratios: an input of `6.2` is stored as
 `0.062`.
 
@@ -110,8 +114,10 @@ weapon order changes.
 
 Fixed base stats and all five affixes from the active build are summed directly
 by their saved keys into one `CharacterStats` effect and passed through the
-shared character/derived-stat pipeline. Equipped attunements are summed directly
-by key into the centralized `AttunementStats` input. The active build's gear
+shared character/derived-stat pipeline. Equipped attunements are summed by
+definition ID into the centralized `AttunementStats` input. Damage calculation
+resolves each definition's stat target and requires every configured skill tag
+before applying it. The active build's gear
 sets, bow/ring set, and arsenal form the setup baseline. Main-tab changes to
 those selections are session overrides and can be reset individually or with
 the global Reset control. The Build tab does not

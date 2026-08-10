@@ -35,7 +35,9 @@ assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpe
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(Object.keys(gear.gearData.affixes).every((key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key])), "Every gear affix key must directly match CharacterStats.");
 const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]);
-assert(Object.keys(gear.gearData.attunements).every((key) => attunementStatKeys.has(key) && !("stat" in gear.gearData.attunements[key])), "Every gear attunement key must directly match AttunementStats.");
+assert(Object.keys(gear.attunementData).every((key) => attunementStatKeys.has(key)), "Every attunement definition ID must have a centralized AttunementStats input.");
+assert(gear.attunementData.physicalPenetration.effect.stat.physicalPenetration === 1 && gear.attunementData.formlessPenetration.effect.stat.formlessPenetration === 1, "Weapon attunements must target their penetration channels.");
+assert(Object.entries(gear.attunementData).filter(([, definition]) => definition.tags.includes("Armor")).every(([, definition]) => definition.effect.stat.attunementDMGBonus === 1 && definition.effect.tags.length > 0), "Armor attunements must target the tagged standalone attunement DMG Bonus.");
 
 const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
 assert(preset, "Expected the fully relayed min default build.");
@@ -55,7 +57,7 @@ assert(Math.abs(presetEffects.stats.precision - 0.1504) < 1e-9, "Unexpected pres
 assert(Math.abs(presetEffects.attunement.physicalPenetration - 44) < 1e-9, "Unexpected preset Physical Penetration total.");
 assert(Math.abs(presetEffects.attunement.phalanxbaneChargedBoost - 0.24) < 1e-9, "Unexpected preset Phalanxbane Charged total.");
 const presetSetup = gear.resolveBuildSetup({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id });
-assert(presetSetup.gearSets.Cleftpeak === 4 && presetSetup.gearSets.RainWhisper === 0 && presetSetup.bowRingSet === "Precision" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
+assert(presetSetup.gearSets.Cleftpeak === 4 && presetSetup.gearSets.RainWhisper === 0 && presetSetup.bowRingSet === "Critical" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
 const emptyPreset = gear.defaultBuildPresets.find((candidate) => candidate.id === "empty");
 assert(emptyPreset, "Expected the empty default build.");
 const emptyPresetInventory = gear.buildPresetInventory(emptyPreset);

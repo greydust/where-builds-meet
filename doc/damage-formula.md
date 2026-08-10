@@ -110,7 +110,13 @@ Divinecraft `qiDMGBonus` and healing-triggered Vitality gain are retained in
 `data/divinecraft.json` as future-facing data, but neither mechanic is currently
 evaluated by the simulator.
 
-Attunement uses weapon and skill tags. Charged, varied-combo, and martial-art boosts are selected according to the matching Snowparting or Phalanxbane tags.
+Attunement definitions in `data/attunement.json` provide the target stat and
+required skill-match tags. Armor definitions target `attunementDMGBonus`;
+matching values are summed and applied through the standalone
+`1 + matching Attunement DMG Bonus` multiplier above. Charged, varied-combo,
+and martial-art boosts apply only when all configured tags are present on the
+skill. Physical and Formless Penetration target their corresponding penetration
+channels and have no skill-match restriction.
 
 Global DMG Bonus is another independent multiplier. The `Exhausted` debuff currently supplies `globalDmgBonus: 0.1`.
 

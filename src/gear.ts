@@ -1,4 +1,5 @@
 import gearJson from "../data/gear.json";
+import attunementJson from "../data/attunement.json";
 import arsenalJson from "../data/arsenal.json";
 import bowRingSetJson from "../data/bow-ring-set.json";
 import defaultSetupJson from "../data/default-setup.json";
@@ -78,6 +79,14 @@ export type GearValueDefinition = {
   percentage?: boolean;
 };
 
+export type AttunementDefinition = GearValueDefinition & {
+  tags: string[];
+  effect: {
+    stat: Record<string, number>;
+    tags?: string[];
+  };
+};
+
 export type GearDefinition = {
   name: string;
   slots: GearSlot[];
@@ -91,11 +100,11 @@ export type GearDefinition = {
 type GearData = {
   slots: Record<GearSlot, string>;
   affixes: Record<string, GearValueDefinition>;
-  attunements: Record<string, GearValueDefinition>;
   gear: Record<string, GearDefinition>;
 };
 
 export const gearData = gearJson as unknown as GearData;
+export const attunementData = attunementJson as unknown as Record<string, AttunementDefinition>;
 const gearSetDefinitions = gearSetJson as Record<string, { options: Record<string, unknown> }>;
 const bowRingSetDefinitions = bowRingSetJson as Record<string, unknown>;
 const arsenalDefinitions = arsenalJson as Record<string, unknown>;
@@ -209,7 +218,7 @@ function parseGearItem(value: unknown): GearItem | undefined {
   if (!Array.isArray(candidate.additionalAffixes) || candidate.additionalAffixes.length !== 4) return undefined;
   if (!candidate.additionalAffixes.every((affix) => validGearValue(affix, definition.additionalAffixes[levelKey] ?? [], gearData.affixes))) return undefined;
   if (new Set(candidate.additionalAffixes.map((affix) => affix.key)).size !== 4) return undefined;
-  if (!validGearValue(candidate.attunement, definition.attunements, gearData.attunements)) return undefined;
+  if (!validGearValue(candidate.attunement, definition.attunements, attunementData)) return undefined;
   return {
     id: candidate.id,
     ...(definition.weapon ? {} : { slot }),
@@ -271,7 +280,7 @@ export function buildPresetInventory(preset: BuildPreset): GearInventory {
     const levelKey = String(presetGear.level);
     if (!validGearValue(presetGear.baseAffix, definition.baseAffixes[levelKey] ?? [], gearData.affixes)) throw new Error(`Invalid base affix in build preset ${preset.id}.`);
     if (presetGear.additionalAffixes.length !== 4 || !presetGear.additionalAffixes.every((affix) => validGearValue(affix, definition.additionalAffixes[levelKey] ?? [], gearData.affixes)) || new Set(presetGear.additionalAffixes.map((affix) => affix.key)).size !== 4) throw new Error(`Invalid additional affixes in build preset ${preset.id}.`);
-    if (!validGearValue(presetGear.attunement, definition.attunements, gearData.attunements)) throw new Error(`Invalid attunement in build preset ${preset.id}.`);
+    if (!validGearValue(presetGear.attunement, definition.attunements, attunementData)) throw new Error(`Invalid attunement in build preset ${preset.id}.`);
     return [{ slot, item: {
       id: `preset:${preset.id}:${slot}`,
       ...(definition.weapon ? {} : { slot }),
@@ -458,7 +467,7 @@ export function calculateEquippedGearEffects(inventory: GearInventory, weapons: 
     for (const affix of [item.baseAffix, ...item.additionalAffixes]) {
       if (gearData.affixes[affix.key]) addStat(affix.key as keyof CharacterStats, affix.value);
     }
-    if (gearData.attunements[item.attunement.key]) addAttunement(item.attunement.key as keyof AttunementStats, item.attunement.value);
+    if (attunementData[item.attunement.key]) addAttunement(item.attunement.key as keyof AttunementStats, item.attunement.value);
   }
 
   return { stats, attunement };

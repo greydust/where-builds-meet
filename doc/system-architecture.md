@@ -20,11 +20,11 @@ User edits ─────────────────┘           │
                                        │ build immutable calculation bundle
                                        v
                               Persistent worker client
-                              one running + latest pending
+                              keyed priority queue
                                        │
                                        v
                               Rotation simulation worker
-                              timeline -> damage -> variants
+                              cached baselines -> variants
                                        │
                                        v
                               Central RotationMetrics store
@@ -49,8 +49,9 @@ data/
   martial-art/    weapon talent arrays
   rotation/       bundled default rotations
   build/          bundled default build presets
-  gear.json       gear slots, item bases, affix choices, and attunements
+  gear.json       gear slots, item bases, affix choices, and allowed attunement IDs
   system.json     innate character stats, enhancement bonuses, talent nodes, and attribute conversions
+  attunement.json attunement names, source tags, stat targets, and skill-match tags
   default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
   enemy.json      enemy profiles
   arsenal.json
@@ -212,9 +213,11 @@ The active baseline effects reconstruct the overridden value there, while setup,
 priority, and other comparison variants apply their changed effects to the same
 base. Modified stats therefore remain responsive in delta calculations.
 
-Gear attunements are the calculated attunement baseline. An attunement override
-replaces its final displayed baseline value, but priority variants still add
-their tested amount to that value.
+Gear attunements are the calculated attunement baseline and remain keyed by
+definition ID. Damage resolution maps weapon definitions to penetration and
+maps tag-matching armor definitions to the standalone `attunementDMGBonus`
+multiplier. An attunement override replaces its final displayed baseline value,
+but priority variants still add their tested amount to that value.
 
 `effectiveStats.ts` owns minimum/maximum normalization, Void/Formless folding,
 Judgement Resistance, effective-rate caps, and final outcome rates. Damage code
@@ -277,35 +280,43 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - arsenal, bow/ring, food, Divinecraft, and gear-set comparisons
 - equipped gear stats and attunements
 
-The bundle is memoized from a serialized calculation-state key. React sends it
-to `requestRotationSimulation()` and returns to rendering; the main thread does
-not run the rotation simulation.
+Baseline bundles omit every comparison variant. Comparison bundles contain the
+same baseline inputs plus all variants, but the worker consumes an already
+cached baseline instead of rebuilding its timeline or recalculating its DPS.
+The main thread does not run the rotation simulation.
 
 `rotationWorkerClient.ts` owns one persistent module worker. Its queue policy is:
 
 1. If idle, dispatch immediately.
-2. If a job is running, retain one pending request.
-3. A newer request replaces the pending request and rejects the superseded
-   promise.
-4. When the running job finishes, dispatch the newest pending bundle.
+2. If a job is running, retain pending requests in priority order.
+3. A newer pending request with the same key replaces the stale request.
+4. Active baseline work has highest refresh priority, followed by active
+   comparisons and then inactive baselines.
+5. Equal-priority work remains first-in, first-out.
 
-The running calculation is not cancelled. This coalesces rapid edits while
-ensuring the next calculation uses the newest complete state.
+The running calculation is not cancelled. Keyed replacement coalesces rapid
+edits without discarding queued calculations for other rotations.
 
-`rotationWorker.ts` has no React or storage dependency. It invokes the pure
-calculation entry point and posts the result or a serialized error.
+`rotationWorker.ts` has no React or browser-storage dependency. It owns a
+bounded in-memory baseline cache keyed by rotation ID, calculation context, and
+rotation content. A comparison job reads that exact entry and posts only the
+completed metrics.
 
 ## Baseline and variant calculation
 
-`calculateRotationSimulation()` performs work in this order:
+`calculateRotationBaseline()` performs work in this order:
 
 1. Build the baseline timeline once.
 2. Resolve the selected start anchor and duration through the final action.
 3. Create baseline damage entries and one detailed breakdown per damage action
    at or after the anchor; keep earlier actions only in the timeline display.
 4. Calculate baseline total damage and DPS once.
-5. Evaluate every priority and setup variant against that baseline.
-6. Produce skill, skill-category, and physical/attribute breakdowns.
+5. Produce skill, skill-category, and physical/attribute breakdowns.
+
+`calculateRotationComparisons()` then evaluates priority and setup variants
+against the cached timeline, damage entries, duration, total damage, and
+breakdown. `calculateRotationSimulation()` remains as a combined entry point for
+focused probes and callers that need both phases at once.
 
 Pure stat and attunement variants reuse the baseline timeline and its effect
 snapshots. Inner Way removal variants rebuild the timeline because triggers,
@@ -319,7 +330,7 @@ so their rows sort by the most negative DPS change first.
 
 ## Result publication
 
-The worker returns:
+Each public baseline result contains:
 
 - `RotationMetrics`
 - baseline timeline
@@ -332,9 +343,18 @@ rows; their damage actions inherit the originating base skill's expansion state
 and contribute to its displayed damage total. DOT actions always remain visible.
 A displayed damage action without a breakdown was before the start anchor and
 has an empty damage cell.
-If the edited rotation is active, it publishes `RotationMetrics` to the central
-module store. Main and DPS Breakdown update from that single result. While a new
-worker request runs, the previous complete result remains visible.
+The editor keeps one public baseline result per rotation, keyed by the complete
+character/build calculation context and rotation record. Switching viewed or
+active rotations reuses a valid cached result immediately. These results are
+in-memory calculation caches and are intentionally not written to browser
+storage.
+
+Only the active rotation publishes to the central module store, and baseline
+work never publishes an incomplete metrics object. Main and DPS Breakdown keep
+the previous complete baseline-plus-comparisons result throughout a refresh,
+then atomically swap to the replacement after its comparison pass completes. An
+active-rotation Save and Make Active request comparisons; saving an inactive
+rotation does not.
 
 ## Static data composition
 
@@ -343,7 +363,7 @@ static assets. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Mystic, and General skill editor categories
 - Snowparting and Phalanxbane weapon IDs
-- five Inner Ways
+- six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
 - Exhausted and Controlled manual events
 - the bundled Stonesplit Strength default rotation
@@ -414,9 +434,6 @@ hard-coded rather than loaded from data.
 - Skill Editor overrides are saved and displayed for the session, but the
   rotation simulator currently builds its skill map from defaults, so overrides
   do not affect DPS yet.
-- If a different rotation is being edited, character changes do not currently
-  recalculate the active rotation in the background; only active edited results
-  are published.
 - Manual event definitions and supported weapons are hard-coded.
 - The primary attribute resolver only knows the current Stonesplit weapons.
 - DMG Bonus Category 2 is specified but not implemented.
@@ -425,6 +442,23 @@ hard-coded rather than loaded from data.
   the remaining base rotation.
 - There is no automated test suite yet; `npm run build` is the current type and
   production-bundle verification step.
+
+### Rotation editor calculation lifecycle
+
+Editing any rotation calculates and caches only that rotation's baseline
+timeline, expected damage, DPS, and action breakdowns. Saving requests
+comparisons only when the edited rotation is active. Making an inactive rotation
+active reuses its valid baseline cache and requests comparisons.
+
+When character stats, attunements, Inner Ways, food, Divinecraft, build, enemy,
+or settings change, the refresh order is: active baseline, active comparisons,
+then every inactive baseline. A context key prevents an older result from being
+treated as current or published after a newer refresh begins. The Rotation
+Editor keeps the last completed timeline for each rotation mounted during its
+replacement calculation so scroll position and focused controls survive the
+refresh. The central DPS result similarly retains its previous diff rows until
+the replacement comparison result is ready, then swaps the complete result at
+once.
 
 ## Development and deployment
 

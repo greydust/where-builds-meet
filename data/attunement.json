@@ -1,0 +1,42 @@
+{
+  "physicalPenetration": {
+    "name": "Physical Penetration",
+    "tags": ["Weapon"],
+    "effect": { "stat": { "physicalPenetration": 1 } }
+  },
+  "formlessPenetration": {
+    "name": "Formless Penetration",
+    "tags": ["Weapon"],
+    "effect": { "stat": { "formlessPenetration": 1 } }
+  },
+  "phalanxbaneChargedBoost": {
+    "name": "Phalanxbane Blade - Charged Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitStrength"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["PhalanxbaneBlade", "Charged"] }
+  },
+  "phalanxbaneMartialBoost": {
+    "name": "Phalanxbane Blade - Martial Art Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitStrength"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["PhalanxbaneBlade", "MartialArt"] }
+  },
+  "snowpartingChargedBoost": {
+    "name": "Snowparting Blade - Charged Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitStrength"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["SnowpartingBlade", "Charged"] }
+  },
+  "snowpartingVariedComboBoost": {
+    "name": "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitStrength"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["SnowpartingBlade", "VariedCombo"] }
+  },
+  "snowpartingMartialBoost": {
+    "name": "Snowparting Blade - Martial Art Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitStrength"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["SnowpartingBlade", "MartialArt"] }
+  }
+}

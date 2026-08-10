@@ -1,7 +1,11 @@
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
+import attunementJson from "../../data/attunement.json";
 import { calculateRates } from "./effectiveStats";
 import type { DerivedStats } from "./effectiveStats";
 import { calculateStatsWithEffects, resolveFormulaValue, type EffectiveStatEffectContainer, type StatEffectContainer, type StatFormula } from "./statEffects";
+
+type AttunementDefinition = { effect?: { stat?: Record<string, number>; tags?: string[] } };
+const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
 
 export type AttunementStats = {
   physicalPenetration: number;
@@ -91,11 +95,16 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
     + effectValue(effect.stonesplitPenetration), 0);
   const effectCritDmgBonus = effects.reduce((total, effect) => total
     + (typeof effect.critDmgBonus === "number" ? effect.critDmgBonus : 0), 0);
-  const attunementBonus = skillTags.includes("PhalanxbaneBlade")
-    ? (skillTags.includes("Charged") ? attunement.phalanxbaneChargedBoost : skillTags.includes("MartialArt") ? attunement.phalanxbaneMartialBoost : 0)
-    : skillTags.includes("SnowpartingBlade")
-      ? (skillTags.includes("Charged") ? attunement.snowpartingChargedBoost : skillTags.includes("VariedCombo") ? attunement.snowpartingVariedComboBoost : skillTags.includes("MartialArt") ? attunement.snowpartingMartialBoost : 0)
-      : 0;
+  const attunementStat = (target: string) => Object.entries(attunement).reduce((total, [key, value]) => {
+    const definition = attunementDefinitions[key];
+    const matchTags = definition?.effect?.tags;
+    if (matchTags && !matchTags.every((tag) => skillTags.includes(tag))) return total;
+    const multiplier = definition.effect?.stat?.[target];
+    return total + (typeof multiplier === "number" && Number.isFinite(multiplier) ? value * multiplier : 0);
+  }, 0);
+  const attunementBonus = attunementStat("attunementDMGBonus");
+  const attunementPhysicalPenetration = attunementStat("physicalPenetration");
+  const attunementFormlessPenetration = attunementStat("formlessPenetration");
   const weaponArtBonus = skillTags.includes("MoBlade")
     ? stats.moBladeDmgBoost
     : skillTags.includes("HengBlade")
@@ -116,7 +125,7 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
     const attack = mode === "min" ? minAttack : mode === "max" ? maxAttack : (minAttack + maxAttack) / 2;
     const resistanceAdjustment = effects.reduce((sum, effect) => sum + effectValue(effect[`${attribute}Resistance`]), 0);
     const damage = (coefficient * attack + (attribute === path ? attributeBonus : 0))
-      * penetrationMultiplier(penetration + (attribute === "stonesplit" ? effectStonesplitPenetration : 0) + (attribute === path ? attunement.formlessPenetration : 0), resistance + resistanceAdjustment)
+      * penetrationMultiplier(penetration + (attribute === "stonesplit" ? effectStonesplitPenetration : 0) + (attribute === path ? attunementFormlessPenetration : 0), resistance + resistanceAdjustment)
       * (1 + damageBonus)
       * (attribute === path ? 1.5 : 1);
     return { ...total, [attribute]: total[attribute as keyof typeof total] + damage };
@@ -124,7 +133,7 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
   const calculateVariant = (damageType: "min" | "average" | "max", specialBonus: number) => {
     const physicalAttack = damageType === "min" ? minPhysicalAttack : damageType === "max" ? maxPhysicalAttack : averagePhysicalAttack;
     const physicalDamage = (coefficient * (physicalAttack - enemy.defense) + physicalBonus)
-      * penetrationMultiplier(attunement.physicalPenetration + effectPhysicalPenetration, enemy.physicalResistance)
+      * penetrationMultiplier(attunementPhysicalPenetration + effectPhysicalPenetration, enemy.physicalResistance)
       * (1 + stats.physDmgBonus);
     const multiplier = sharedBonus * (1 + specialBonus);
     const attributeDamage = calculateAttributeDamage(damageType);

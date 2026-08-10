@@ -1,22 +1,34 @@
 import type { RotationMetrics } from "./rotationMetrics";
-import type { RotationCalculationBundle, RotationSimulationBundle } from "./rotationCalculator";
+import type { RotationCalculationBundle, RotationSimulationBundle, RotationSimulationResult } from "./rotationCalculator";
 import type { TimelineRow } from "./rotationTimeline";
 import type { DamageBreakdown } from "./damage";
 
-export type RotationSimulationResult = { metrics: RotationMetrics; timeline: TimelineRow[]; anchorTime: number; duration: number; actionBreakdowns: Record<string, DamageBreakdown> };
 type WorkerResult = RotationSimulationResult | { metrics: RotationMetrics };
+type RequestMode = "calculation" | "simulation" | "baseline" | "comparisons";
+type RequestOptions = { key?: string; priority?: number };
 
 type CalculationRequest = {
   bundle: RotationCalculationBundle | RotationSimulationBundle;
-  simulation: boolean;
+  mode: RequestMode;
+  cacheKey?: string;
+  key: string;
+  priority: number;
+  sequence: number;
   resolve: (result: WorkerResult) => void;
   reject: (error: Error) => void;
 };
 
 let worker: Worker | undefined;
 let requestId = 0;
+let requestSequence = 0;
 let running: { id: number; request: CalculationRequest } | undefined;
-let pending: CalculationRequest | undefined;
+let pending: CalculationRequest[] = [];
+
+function dispatchNext() {
+  if (running || pending.length === 0) return;
+  pending.sort((left, right) => right.priority - left.priority || left.sequence - right.sequence);
+  dispatch(pending.shift()!);
+}
 
 function getWorker() {
   if (worker) return worker;
@@ -26,25 +38,22 @@ function getWorker() {
     const completed = running.request;
     running = undefined;
     if (event.data.error) completed.reject(new Error(event.data.error));
-    else if (event.data.metrics) completed.resolve(completed.simulation ? {
+    else if (event.data.metrics) completed.resolve(completed.mode === "simulation" || completed.mode === "baseline" ? {
       metrics: event.data.metrics,
       timeline: event.data.timeline ?? [],
       anchorTime: event.data.anchorTime ?? 0,
       duration: event.data.duration ?? 0,
       actionBreakdowns: event.data.actionBreakdowns ?? {},
     } : { metrics: event.data.metrics });
-    if (pending) {
-      const next = pending;
-      pending = undefined;
-      dispatch(next);
-    }
+    dispatchNext();
   });
   worker.addEventListener("error", (event) => {
     if (!running) return;
     const completed = running.request;
     running = undefined;
     completed.reject(new Error(event.message || "Rotation calculation worker failed"));
-    pending = undefined;
+    pending.forEach((request) => request.reject(new Error("Rotation calculation worker failed")));
+    pending = [];
   });
   return worker;
 }
@@ -52,43 +61,55 @@ function getWorker() {
 function dispatch(request: CalculationRequest) {
   const id = ++requestId;
   running = { id, request };
-  getWorker().postMessage({ id, bundle: request.bundle, simulation: request.simulation });
+  getWorker().postMessage({ id, bundle: request.bundle, mode: request.mode, cacheKey: request.cacheKey });
 }
 
-/**
- * Starts one calculation and coalesces later requests while it is running.
- * The pending request is replaced with the newest bundle, so stale state is
- * never calculated after the current worker job completes.
- */
-export function requestRotationCalculation(bundle: RotationCalculationBundle) {
+function enqueue(request: Omit<CalculationRequest, "key" | "priority" | "sequence">, options: RequestOptions = {}) {
+  const queued: CalculationRequest = {
+    ...request,
+    key: options.key ?? `${request.mode}:${++requestSequence}`,
+    priority: options.priority ?? 0,
+    sequence: ++requestSequence,
+  };
+  const replacedIndex = pending.findIndex((candidate) => candidate.key === queued.key);
+  if (replacedIndex >= 0) {
+    pending[replacedIndex].reject(new Error("Calculation superseded by a newer request"));
+    pending.splice(replacedIndex, 1);
+  }
+  pending.push(queued);
+  dispatchNext();
+}
+
+/** Queue requests by priority and replace stale pending work with the same key. */
+export function requestRotationCalculation(bundle: RotationCalculationBundle, options?: RequestOptions) {
   return new Promise<RotationMetrics>((resolve, reject) => {
-    const request: CalculationRequest = { bundle, simulation: false, resolve: (result) => resolve(result.metrics), reject };
-    if (running) {
-      if (pending) pending.reject(new Error("Calculation superseded by a newer request"));
-      pending = request;
-      return;
-    }
-    dispatch(request);
+    enqueue({ bundle, mode: "calculation", resolve: (result) => resolve(result.metrics), reject }, options);
   });
 }
 
-export function requestRotationSimulation(bundle: RotationSimulationBundle) {
+export function requestRotationSimulation(bundle: RotationSimulationBundle, options?: RequestOptions) {
   return new Promise<RotationSimulationResult>((resolve, reject) => {
-    const request: CalculationRequest = { bundle, simulation: true, resolve: (result) => resolve(result as RotationSimulationResult), reject };
-    if (running) {
-      if (pending) pending.reject(new Error("Calculation superseded by a newer request"));
-      pending = request;
-      return;
-    }
-    dispatch(request);
+    enqueue({ bundle, mode: "simulation", resolve: (result) => resolve(result as RotationSimulationResult), reject }, options);
+  });
+}
+
+export function requestRotationBaseline(bundle: RotationSimulationBundle, cacheKey: string, options?: RequestOptions) {
+  return new Promise<RotationSimulationResult>((resolve, reject) => {
+    enqueue({ bundle, mode: "baseline", cacheKey, resolve: (result) => resolve(result as RotationSimulationResult), reject }, options);
+  });
+}
+
+export function requestRotationComparisons(bundle: RotationSimulationBundle, cacheKey: string, options?: RequestOptions) {
+  return new Promise<RotationMetrics>((resolve, reject) => {
+    enqueue({ bundle, mode: "comparisons", cacheKey, resolve: (result) => resolve(result.metrics), reject }, options);
   });
 }
 
 export function disposeRotationCalculationWorker() {
   worker?.terminate();
   worker = undefined;
-  if (pending) pending.reject(new Error("Calculation worker disposed"));
+  pending.forEach((request) => request.reject(new Error("Calculation worker disposed")));
   if (running) running.request.reject(new Error("Calculation worker disposed"));
-  pending = undefined;
+  pending = [];
   running = undefined;
 }

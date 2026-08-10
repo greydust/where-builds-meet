@@ -1,0 +1,37 @@
+{
+  "name": "Envigorated Warrior",
+  "effect": {
+    "EnvigoratedWarriorT0": {},
+    "EnvigoratedWarriorT1": {},
+    "EnvigoratedWarriorT2": {
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 67
+          }
+        }
+      ]
+    },
+    "EnvigoratedWarriorT3": {},
+    "EnvigoratedWarriorT4": {},
+    "EnvigoratedWarriorT5": {
+      "effect": [
+        {
+          "effect": {
+            "physicalPenetration": 5.1
+          }
+        }
+      ]
+    },
+    "EnvigoratedWarriorT6": {
+      "effect": [
+        {
+          "effect": {
+            "dmgBonus": 0.08,
+            "healingBonus": 0.08
+          }
+        }
+      ]
+    }
+  }
+}
