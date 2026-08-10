@@ -1,6 +1,6 @@
 import type { CharacterStats } from "../types";
 
-// Level 100 baseline. Keep this as a named setting so it can become user-configurable later.
+// Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
 export const JUDGEMENT_RESISTANCE = 0.65;
 
 export type DerivedStats = {

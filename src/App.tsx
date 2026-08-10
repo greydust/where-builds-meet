@@ -181,7 +181,7 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
 
 const defaultRotation = normalizeRotation(dummyRotation as RotationRecord);
 const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
-const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "level100" };
+const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "level96" };
 
 type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { requirement?: unknown; trigger?: EditableObject; target?: string; modify?: EditableObject };
 type SystemStatsDefinition = {
@@ -205,7 +205,7 @@ type GearSetOption = { name: string; effect?: SetupEffect };
 type GearSetDefinition = { name: string; options: Record<string, GearSetOption> };
 const typedGearSetDefinitions = gearSetDefinitions as Record<string, GearSetDefinition>;
 const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>;
-type DivinecraftDefinition = ArsenalDefinition & { description: string; image: string; available?: boolean };
+type DivinecraftDefinition = ArsenalDefinition & { description: string; image?: string; available?: boolean };
 const typedDivinecraftDefinitions = divinecraftDefinitions as Record<string, DivinecraftDefinition>;
 type MartialArtDefinition = { name: string; talent: Array<{ name: string; effect?: SetupEffect[] }> };
 const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
@@ -338,9 +338,10 @@ function loadSettings(): CalculatorSettings {
     const weapons: [WeaponId, WeaponId] = savedWeapons.length === 2 && savedWeapons[0] !== savedWeapons[1]
       ? [savedWeapons[0], savedWeapons[1]]
       : [legacyWeapon, legacyWeapon === "snowparting" ? "phalanxbane" : "snowparting"];
+    const savedEnemy = saved?.enemy === "level100" ? "level96" : saved?.enemy;
     return {
       weapons,
-      enemy: typeof saved?.enemy === "string" && typedEnemyProfiles[saved.enemy] ? saved.enemy : defaultSettings.enemy,
+      enemy: typeof savedEnemy === "string" && typedEnemyProfiles[savedEnemy] ? savedEnemy : defaultSettings.enemy,
     };
   } catch {
     return { ...defaultSettings };
@@ -738,7 +739,7 @@ function StatsTab({ character, statOverrides, attunementOverrides, buildSetupOve
               {Object.entries(typedDivinecraftDefinitions).map(([value, definition]) => {
                 const available = definition.available !== false;
                 return <button className={`divinecraft-option ${divinecraft === value ? "selected" : ""}`} type="button" key={value} disabled={!available} title={`${definition.name}: ${definition.description}${available ? "" : " Not available yet."}`} onClick={() => { setDivinecraft(value); sessionStorage.setItem(divinecraftStorageKey, value); onInnerWayChange(); }}>
-                  <span className="divinecraft-image-frame"><img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" /></span>
+                  <span className="divinecraft-image-frame">{definition.image ? <img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" /> : <span className="divinecraft-none-mark" aria-hidden="true">—</span>}</span>
                   <strong>{definition.name}</strong>
                   <span className="divinecraft-option-status">{available ? setupStatus("divinecraft", value, divinecraft === value) : <small>Not available yet</small>}</span>
                 </button>;

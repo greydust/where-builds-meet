@@ -2,7 +2,7 @@
 
 This document describes the formula currently implemented by the rotation simulator. Unless stated otherwise, percentage values are stored internally as decimal ratios: `0.11` means `11%`. The UI converts between ratios and percentage points.
 
-Enemy defense, path resistances, and Judgement Resistance come from the selected profile in `data/enemy.json`. The only profile currently shipped is Level 100: 405 defense, zero base resistance, and 65% Judgement Resistance.
+Enemy defense, path resistances, and Judgement Resistance come from the selected profile in `data/enemy.json`. The only profile currently shipped is Level 96: 405 defense, zero base resistance, and 65% Judgement Resistance.
 
 ## Stat resolution
 

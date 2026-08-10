@@ -13,7 +13,7 @@ export type AttunementStats = {
   snowpartingMartialBoost: number;
 };
 
-// Current level-100 test target. Move this to user-configurable encounter data later.
+// Current level-96 test target. Move this to user-configurable encounter data later.
 export const ENEMY_DEFENSE = 405;
 
 export type DamageAction = {

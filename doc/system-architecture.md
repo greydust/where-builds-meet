@@ -344,7 +344,7 @@ static assets. The application currently recognizes:
 - Snowparting, Phalanxbane, Mystic, and General skill editor categories
 - Snowparting and Phalanxbane weapon IDs
 - five Inner Ways
-- seven Divinecraft definitions, including two unavailable choices
+- eight Divinecraft definitions, including a no-effect choice and two unavailable choices
 - Exhausted and Controlled manual events
 - the bundled Stonesplit Strength default rotation
 - eight gear slots and their affix/attunement options

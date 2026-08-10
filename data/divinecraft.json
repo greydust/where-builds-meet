@@ -1,4 +1,9 @@
 {
+  "None": {
+    "name": "None",
+    "description": "No Divinecraft effect.",
+    "effect": {}
+  },
   "Fire": {
     "name": "Fire",
     "description": "HP DMG +1.5%.",
