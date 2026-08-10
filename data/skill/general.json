@@ -15,7 +15,7 @@
     "action": [
       {
         "type": "damage",
-          "phyCoef": 1,
+        "phyCoef": 1,
         "phyBonus": 0,
         "attrBonus": 0,
         "time": 0
@@ -29,6 +29,66 @@
       "Triggered"
     ]
   },
+  "PerfectDodgeCancel": {
+    "name": "Perfect Dodge [Cancel]",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Disintegration",
+        "stack": 5,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "BreakingPointT6"
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "MysteryDMGBoost",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Mystery"
+              },
+              {
+                "target": "self",
+                "value": "MysteryUmbra"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodge",
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "General",
+      "PerfectDodge"
+    ]
+  },
   "PerfectDodge": {
     "name": "Perfect Dodge",
     "castTime": 0.8333,
@@ -39,7 +99,6 @@
         "value": "Disintegration",
         "stack": 5,
         "reapply": true,
-        "cooldown": 15,
         "time": 0,
         "requirement": [
           {
@@ -47,6 +106,41 @@
             "value": "BreakingPointT6"
           }
         ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "MysteryDMGBoost",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Mystery"
+              },
+              {
+                "target": "self",
+                "value": "MysteryUmbra"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodge",
+        "time": 0
       }
     ],
     "modifier": [],

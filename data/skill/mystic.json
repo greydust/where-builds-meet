@@ -890,5 +890,61 @@
       "FluteOfTheTides",
       "Triggered"
     ]
+  },
+  "GhostlySteps": {
+    "name": "Ghostly Step",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Mystery",
+        "reapply": true,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "Mystic",
+      "GhostlySteps"
+    ]
+  },
+  "GhostlyStepsUmbra": {
+    "name": "Ghostly Step - Umbra",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "MysteryUmbra",
+        "reapply": true,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "Mystic",
+      "GhostlySteps"
+    ]
+  },
+  "GhostlyStepsUmbraDodge": {
+    "name": "Ghostly Step - Umbra Dodge",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "Mystic",
+      "GhostlySteps",
+      "Triggered"
+    ]
   }
 }

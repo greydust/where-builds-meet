@@ -3,6 +3,7 @@
     "name": "Disintegration",
     "description": "Increase physical penetraion by 5 and critical damage by 5% per stack.",
     "duration": 3,
+    "cooldown": 15,
     "maxStack": 3,
     "stackEffects": [
       [

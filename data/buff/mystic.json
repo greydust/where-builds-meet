@@ -5,5 +5,32 @@
     "duration": 12.5,
     "maxStack": 1,
     "effect": []
+  },
+  "Mystery": {
+    "name": "Mystery",
+    "description": "From Ghostly Steps",
+    "duration": 20,
+    "maxStack": 1,
+    "effect": []
+  },
+  "MysteryUmbra": {
+    "name": "Mystery - Umbra",
+    "description": "From Ghostly Steps - Umbra",
+    "duration": 20,
+    "maxStack": 1,
+    "effect": []
+  },
+  "MysteryDMGBoost": {
+    "name": "Mystery DMG Boost",
+    "description": "From Ghostly Steps",
+    "duration": 20,
+    "maxStack": 1,
+    "effect": [
+      {
+        "effect": {
+          "dmgBonus": 0.15
+        }
+      }
+    ]
   }
 }
