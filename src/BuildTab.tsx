@@ -257,7 +257,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
     </aside>
     <div className="build-editor-content">
       <div className="build-detail-heading"><div><span className="detail-kicker">Build</span>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
-        <button className="button button-small build-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active Build" : "Make Active"}</button>
+        <button className="button button-small detail-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}</button>
       </div>
       <BuildManagement key={editingEntry.id} weapons={weapons} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>

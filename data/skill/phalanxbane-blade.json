@@ -410,7 +410,7 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.5,
+        "phyCoef": 0.575,
         "phyBonus": 0,
         "attrBonus": 0,
         "time": 0
@@ -445,7 +445,7 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.9,
+        "phyCoef": 1.03,
         "phyBonus": 0,
         "attrBonus": 0,
         "time": 0
