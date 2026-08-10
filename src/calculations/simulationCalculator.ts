@@ -15,6 +15,7 @@ export type SimulationSummary = {
   duration: number;
   results: {
     best: SimulationRunResult;
+    p99: SimulationRunResult;
     p95: SimulationRunResult;
     p90: SimulationRunResult;
     p75: SimulationRunResult;
@@ -80,6 +81,7 @@ export function simulateRotation(
     duration: baseline.duration,
     results: {
       best: runs[0] ?? emptyRun(),
+      p99: selectedPercentile(runs, 0.99),
       p95: selectedPercentile(runs, 0.95),
       p90: selectedPercentile(runs, 0.9),
       p75: selectedPercentile(runs, 0.75),
