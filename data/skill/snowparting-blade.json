@@ -1,6 +1,7 @@
 {
   "SnowpartingLightCharged": {
     "name": "Grave Frost",
+    "shortName": "Heng LC",
     "castTime": 1.617,
     "action": [
       {
@@ -65,6 +66,7 @@
   },
   "SnowpartingHeavyVC": {
     "name": "Snowbreak Spring",
+    "shortName": "Heng VC",
     "castTime": 0.867,
     "action": [
       {
@@ -204,6 +206,7 @@
   },
   "SnowpartingSpecial": {
     "name": "Fleeting Trace",
+    "shortName": "Heng Special",
     "castTime": 2.083,
     "action": [
       {
@@ -311,6 +314,7 @@
   },
   "SnowpartingQSlide": {
     "name": "General's Bane - Slide",
+    "shortName": "Heng Q",
     "castTime": 0.7,
     "action": [],
     "modifier": [],
@@ -325,6 +329,7 @@
   },
   "SnowpartingQ": {
     "name": "General's Bane",
+    "shortName": "Heng Q",
     "castTime": 0.7,
     "action": [
       {
@@ -347,6 +352,7 @@
   },
   "SnowpartingQSlash": {
     "name": "General's Bane: Slash",
+    "shortName": "Heng Q",
     "castTime": 1.383,
     "action": [
       {
@@ -377,6 +383,7 @@
   },
   "SnowpartingQStab": {
     "name": "General's Bane: Stab",
+    "shortName": "Heng Q",
     "castTime": 1.883,
     "action": [
       {
@@ -439,6 +446,7 @@
   },
   "SnowpartingConversion": {
     "name": "Snowparting Conversion",
+    "shortName": "Heng Tab",
     "castTime": 0.583,
     "action": [
       {
@@ -499,7 +507,8 @@
       "MartialArtTrigger",
       "HengBlade",
       "SnowpartingBlade",
-      "AnxiSoldier"
+      "AnxiSoldier",
+      "Triggered"
     ]
   },
   "AnxiSoldierGeneralsBaneStab": {
@@ -542,7 +551,8 @@
       "MartialArtTrigger",
       "HengBlade",
       "SnowpartingBlade",
-      "AnxiSoldier"
+      "AnxiSoldier",
+      "Triggered"
     ]
   }
 }

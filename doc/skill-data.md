@@ -9,6 +9,7 @@ Combat data is split by responsibility:
 - `data/innerway/`: cumulative tier effects, triggers, and modifications
 - `data/martial-art/`: weapon talent arrays
 - `data/rotation/`: default rotation records
+- `data/divinecraft.json`: selectable Divinecraft setup effects and availability
 
 Maps use stable internal IDs as keys. References such as `trigger.value`,
 `apply.value`, and `modify.target` must use those IDs. User-facing text belongs
@@ -35,6 +36,7 @@ type SkillMap = Record<string, SkillDefinition>;
 
 type SkillDefinition = {
   name: string;
+  shortName?: string;
   castTime: number;
   cooldown?: number;
   action: SkillAction[];
@@ -42,6 +44,10 @@ type SkillDefinition = {
   tags: string[];
 };
 ```
+
+`shortName` is optional presentation metadata. Skill lists, selectors, timeline
+rows, and breakdowns display it as `Long Name (Short Name)` without changing the
+stable skill ID used by rotations and trigger actions.
 
 Actions must be listed in nondecreasing `time` order. Equal times are valid and
 array order breaks ties. Triggered events inherit a causal ordering so their
@@ -51,6 +57,8 @@ Current tag conventions include:
 
 - `DirectDamage` for direct-damage skills
 - `DOT` for DOT definitions
+- `Triggered` for skills that can only be inserted by a `trigger` action; these
+  skills are excluded from the Rotation Editor's castable skill dropdown
 - `MartialArts` for the All Martial Arts bonus
 - `Mystic` for breakdown grouping
 - weapon, move, and behavior tags such as `SnowpartingBlade`, `MoBlade`,
@@ -452,7 +460,7 @@ type RotationRecord = {
     | { type: "skill"; skill: string }
     | { type: "event"; event: "Exhausted" | "Controlled"; startTime: number; duration?: number }
   >;
-  start?: { step: number; action: number };
+  start?: { step: number; action?: number };
 };
 ```
 
@@ -463,14 +471,40 @@ event's editable `duration` overrides it.
 
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
-action index.
+action index. Omitting `action` means the skill's cast start; providing it means
+that exact zero-based action index. Base-skill damage actions are collapsed in the Rotation Editor by
+default and can be revealed per skill. A triggered skill does not receive its
+own row; its damage actions are associated with the base skill that caused the
+trigger and follow that base skill's expand/collapse state. The base skill
+containing the starting action opens initially, and that action remains visible
+if the skill is collapsed. DOT ticks remain visible independently of skill
+expansion state. Pre-start actions remain visible when their row is expanded,
+but their damage cell is empty.
+
+### Readable rotation format
+
+The Rotation Editor's Readable Format dialog renders the effective base-skill
+sequence as `Short Name > Short Name > ...`; a skill without `shortName` falls
+back to its long name. The native modal dialog makes the editor inert until the
+dialog is closed and provides both selectable text and a Copy button.
+
+- The starting skill uses `(start)`, or `(start at hit N)` when the anchor is a
+  damage action. Hit numbers are one-based and count damage actions only.
+- A skill containing an `Exhausted` event, or carrying `causesBreak`, uses
+  `(break)`.
+- Skills before the fight anchor use `at N`, where `N` is seconds before start
+  rounded to the nearest 0.5 seconds.
+- Starting status takes precedence over break status, which takes precedence
+  over the pre-fight countdown.
 
 ### Rotation export and import
 
-The Rotation Editor sidebar exports all current rotation records as a formatted
+The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
 version 1. The snapshot includes the current in-memory editor value, even before
-the Save button is pressed.
+the Save button is pressed. The bundled default dummy rotation is reconstructed
+from its JSON source rather than saved in session storage or exports. It is
+read-only in the editor; Duplicate creates an editable custom copy.
 
 Import validates every step and appends custom rotations to the current session
 without replacing existing rotations or changing the active rotation. ID
@@ -489,3 +523,8 @@ copy of its custom rotations.
 - Use `duration` for lifetimes and extension amounts; do not use `extension`.
 - Prefer explicit requirements over hard-coded skill-ID checks.
 - Give every direct skill `DirectDamage` and every DOT definition `DOT`.
+
+Divinecraft definitions use the same direct setup-effect shape as food and set
+effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;
+`qiDMGBonus` and a `trigger` with `event: "healing"` are currently stored for
+future implementation and intentionally ignored by the calculation engine.

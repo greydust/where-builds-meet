@@ -51,12 +51,13 @@ data/
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and attunements
   system.json     innate character stats, enhancement bonuses, talent nodes, and attribute conversions
-  default-setup.json  first-load Inner Ways and setup selections
+  default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
   enemy.json      enemy profiles
   arsenal.json
   bow-ring-set.json
   gear-set.json
   food.json       setup choices and their effects
+  divinecraft.json  Divinecraft choices, availability, images, and effects
   stat-priority.json
 
 doc/
@@ -68,6 +69,7 @@ src/
   App.tsx                         UI, data composition, and current orchestration
   BuildTab.tsx                    equipped slots, inventory, and gear editor
   gear.ts                         persisted gear model and equipped effects
+  readableRotation.ts             pure readable-sequence formatter
   types.ts                       character and enemy contracts
   data/statDefinitions.ts        stat labels, units, and defaults
   calculations/
@@ -79,6 +81,9 @@ src/
     rotationWorker.ts            worker entry point
     rotationWorkerClient.ts      persistent worker and request coalescing
     rotationMetrics.ts           central published result store
+
+public/
+  divinecraft/                   static selector images copied into the build
 ```
 
 ## Application and UI state
@@ -114,7 +119,8 @@ manager and rotation table use the remaining height and scroll internally.
 Other tabs retain normal document scrolling.
 
 The currently viewed build and active build are separate concepts. Only the
-active build contributes gear stats and attunement to calculations. The same
+active build contributes gear stats, attunement, gear sets, bow/ring set, and
+arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
 
@@ -133,32 +139,33 @@ tab session.
 | Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
 | Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
 | Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
-| Arsenal | `sessionStorage`, `wwm-arsenal-session-v1` |
-| Bow/ring set | `sessionStorage`, `wwm-bow-ring-set-session-v1` |
-| Gear sets | `sessionStorage`, `wwm-gear-set-session-v1` |
+| Build setup overrides | `sessionStorage`, `wwm-build-setup-overrides-v1` |
 | Food | `sessionStorage`, `wwm-food-session-v1` |
+| Divinecraft | `sessionStorage`, `wwm-divinecraft-session-v1` |
 | Rotation list | `sessionStorage`, `wwm-rotation-list-session-v1` |
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
 
 Loaders validate enough shape to fall back to defaults and include migrations
 for older percentage, penetration, attunement, rotation, per-build inventory,
-and single-inventory gear formats. Non-zero values from the former raw character and attunement
+single-inventory gear, and session-wide build setup formats. Non-zero values from the former raw character and attunement
 storage keys migrate to overrides, preserving existing manual inputs. Calculated
-metrics and timelines are not persisted.
+metrics and timelines are not persisted. Bundled default builds and rotations
+are reconstructed from repository data and omitted from browser persistence;
+formerly edited default rotations migrate to custom copies.
 
-Build export produces a versioned JSON snapshot of shared gear and build
+Build export produces a versioned JSON snapshot of shared gear and custom build
 loadouts. Import validates that snapshot and appends it to the current state,
 remapping colliding gear and build IDs without replacing existing data or
 duplicating bundled default presets.
 
-Rotation export similarly produces a versioned JSON snapshot of all rotation
+Rotation export similarly produces a versioned JSON snapshot of custom rotation
 records. Rotation import validates skill and event step shapes, appends custom
 rotations with collision-safe IDs, preserves the active rotation, and skips the
 bundled default rotation.
 
-When the corresponding session key is absent, `data/default-setup.json` supplies
-the first-load Inner Ways, gear sets, bow/ring set, arsenal, and food. Once a
-user changes a selection, the stored session value continues to take priority.
+`data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
+plus fallback build setup values for older build records. Bundled builds define setup choices
+in their own `data/build/*.json` records.
 
 ## Character stat pipeline
 
@@ -178,7 +185,8 @@ simulation base stats
 Equipped gear contributes one data-derived `stat` effect to this same pipeline.
 With no overrides, the simulation base is the empty character and all displayed
 stats come from the innate character system, character talents, gear, Inner
-Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food.
+Ways, martial-art talents, arsenal, bow/ring set, gear sets, food, and
+Divinecraft.
 
 `data/system.json` keeps innate `baseStats`, level-derived `levelBonusStats`,
 ordered `enhancementStats`, ordered `talentStats`, regional
@@ -192,8 +200,9 @@ shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
 
 Editing a Main-tab field creates a final-value override. The field is marked as
-modified and gains an individual reset control; Reset Stats clears all character
-and attunement overrides. `calculateStatsWithOverrides()` repeatedly runs the
+modified and gains an individual reset control. Gear-set, bow/ring, and arsenal
+changes similarly override the active build's selections. Reset clears all
+character, attunement, and build-setup overrides. `calculateStatsWithOverrides()` repeatedly runs the
 shared pipeline and solves the simulation base offset required to produce every
 overridden final value. This means later baseline input changes cannot move an
 override, while overridden source stats still feed formula-derived stats.
@@ -265,7 +274,7 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - one-stat-line variants
 - attunement variants
 - Inner Way removal variants
-- arsenal, bow/ring, food, and gear-set comparisons
+- arsenal, bow/ring, food, Divinecraft, and gear-set comparisons
 - equipped gear stats and attunements
 
 The bundle is memoized from a serialized calculation-state key. React sends it
@@ -292,7 +301,8 @@ calculation entry point and posts the result or a serialized error.
 
 1. Build the baseline timeline once.
 2. Resolve the selected start anchor and duration through the final action.
-3. Create baseline damage entries and one detailed breakdown per damage action.
+3. Create baseline damage entries and one detailed breakdown per damage action
+   at or after the anchor; keep earlier actions only in the timeline display.
 4. Calculate baseline total damage and DPS once.
 5. Evaluate every priority and setup variant against that baseline.
 6. Produce skill, skill-category, and physical/attribute breakdowns.
@@ -317,6 +327,11 @@ The worker returns:
 - per-action `DamageBreakdown` map
 
 The Rotation Editor uses the timeline and action map for its table and tooltips.
+Base skills have collapsible action groups. Triggered skills do not add skill
+rows; their damage actions inherit the originating base skill's expansion state
+and contribute to its displayed damage total. DOT actions always remain visible.
+A displayed damage action without a breakdown was before the start anchor and
+has an empty damage cell.
 If the edited rotation is active, it publishes `RotationMetrics` to the central
 module store. Main and DPS Breakdown update from that single result. While a new
 worker request runs, the previous complete result remains visible.
@@ -329,6 +344,7 @@ static assets. The application currently recognizes:
 - Snowparting, Phalanxbane, Mystic, and General skill editor categories
 - Snowparting and Phalanxbane weapon IDs
 - five Inner Ways
+- seven Divinecraft definitions, including two unavailable choices
 - Exhausted and Controlled manual events
 - the bundled Stonesplit Strength default rotation
 - eight gear slots and their affix/attunement options

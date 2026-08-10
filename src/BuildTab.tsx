@@ -1,13 +1,21 @@
 import { useMemo, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import arsenalDefinitions from "../data/arsenal.json";
+import bowRingSetDefinitions from "../data/bow-ring-set.json";
+import gearSetDefinitions from "../data/gear-set.json";
 import {
+  defaultBuildSetup,
   exportBuildState,
   gearBaseStats,
   gearData,
   gearDefinitionForSlot,
+  gearItemSupportsSlot,
   gearSlots,
   isGearItemCompatible,
   mergeImportedBuildState,
+  normalizeBuildSetup,
   resolveBuildInventory,
+  resolveBuildSetup,
+  type BuildSetup,
   type BuildState,
   type GearDefinition,
   type GearInventory,
@@ -37,8 +45,10 @@ type BuildTabProps = {
 type BuildManagementProps = {
   weapons: [WeaponId, WeaponId];
   inventory: GearInventory;
+  setup: BuildSetup;
   locked: boolean;
   onInventoryChange: Dispatch<SetStateAction<GearInventory>>;
+  onSetupChange: (setup: BuildSetup) => void;
 };
 
 const blankValue = (): GearValueDraft => ({ key: "", value: "" });
@@ -138,6 +148,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
   const editingEntry = buildState.entries.find((entry) => entry.id === editingBuildId) ?? buildState.entries[0];
   if (!editingEntry) return null;
   const inventory = resolveBuildInventory(editingEntry, buildState.gearItems);
+  const setup = resolveBuildSetup(editingEntry);
 
   function updateInventory(update: SetStateAction<GearInventory>) {
     if (editingEntry.isDefault) return;
@@ -146,7 +157,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
       if (!currentEntry || currentEntry.isDefault) return current;
       const currentInventory = { items: current.gearItems, equipped: currentEntry.equipped ?? {} };
       const nextInventory = typeof update === "function" ? update(currentInventory) : update;
-      const availableIds = new Map(nextInventory.items.map((item) => [item.id, item.slot]));
+      const availableItems = new Map(nextInventory.items.map((item) => [item.id, item]));
       return {
         ...current,
         gearItems: nextInventory.items,
@@ -155,7 +166,8 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
           const candidateEquipped = entry.id === editingEntry.id ? nextInventory.equipped : entry.equipped ?? {};
           const equipped = Object.fromEntries(gearSlots.flatMap((slot) => {
             const itemId = candidateEquipped[slot];
-            return itemId && availableIds.get(itemId) === slot ? [[slot, itemId]] : [];
+            const item = itemId ? availableItems.get(itemId) : undefined;
+            return item && gearItemSupportsSlot(item, slot) ? [[slot, itemId]] : [];
           })) as Partial<Record<GearSlot, string>>;
           return { ...entry, equipped };
         }),
@@ -169,13 +181,21 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
 
   function addBuild() {
     const id = `build-${Date.now()}`;
-    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", equipped: {} }] }));
+    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", equipped: {}, setup: normalizeBuildSetup(defaultBuildSetup) }] }));
     setEditingBuildId(id);
     setEditingName(true);
   }
 
   function activateBuild() {
     onBuildStateChange((current) => ({ ...current, activeBuildId: editingEntry.id }));
+  }
+
+  function updateSetup(nextSetup: BuildSetup) {
+    if (editingEntry.isDefault) return;
+    onBuildStateChange((current) => ({
+      ...current,
+      entries: current.entries.map((entry) => entry.id === editingEntry.id ? { ...entry, setup: normalizeBuildSetup(nextSetup) } : entry),
+    }));
   }
 
   function removeBuild(id: string) {
@@ -192,6 +212,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
   }
 
   function exportBuilds() {
+    const exportedBuildCount = buildState.entries.filter((entry) => !entry.isDefault).length;
     const blob = new Blob([exportBuildState(buildState)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -201,7 +222,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({ message: `Exported ${buildState.gearItems.length} gear and ${buildState.entries.length} builds.` });
+    setTransferStatus({ message: `Exported ${buildState.gearItems.length} gear and ${exportedBuildCount} builds.` });
   }
 
   async function importBuilds(event: ChangeEvent<HTMLInputElement>) {
@@ -238,12 +259,46 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
       <div className="build-detail-heading"><div><span className="detail-kicker">Build</span>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
         <button className="button button-small build-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active Build" : "Make Active"}</button>
       </div>
-      <BuildManagement key={editingEntry.id} weapons={weapons} inventory={inventory} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} />
+      <BuildManagement key={editingEntry.id} weapons={weapons} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>
   </div></section>;
 }
 
-function BuildManagement({ weapons, inventory, locked, onInventoryChange }: BuildManagementProps) {
+function BuildSetupPanel({ setup, locked, onChange }: { setup: BuildSetup; locked: boolean; onChange: (setup: BuildSetup) => void }) {
+  function updateGearSet(setName: keyof BuildSetup["gearSets"], tier: 0 | 2 | 4) {
+    const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
+    onChange({ ...setup, gearSets: { ...setup.gearSets, [setName]: tier, [otherSet]: Math.min(setup.gearSets[otherSet], 4 - tier) as 0 | 2 | 4 } });
+  }
+
+  const lockedTitle = locked ? "Fixed by this default preset" : undefined;
+  return <div className="build-setup-column" aria-label="Build setup">
+    <section className="panel setup-placeholder-panel build-setup-panel">
+      <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
+      <div className="gear-set-list">
+        {Object.entries(gearSetDefinitions).map(([setName, definition]) => {
+          const selectedTier = setup.gearSets[setName as keyof BuildSetup["gearSets"]];
+          return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">
+            {[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} disabled={locked} title={lockedTitle} onClick={() => updateGearSet(setName as keyof BuildSetup["gearSets"], tier as 0 | 2 | 4)}>{tier === 0 ? "0 piece" : `${tier} pieces`}</button>)}
+          </div></div></div>;
+        })}
+      </div>
+    </section>
+    <section className="panel setup-placeholder-panel build-setup-panel">
+      <div className="panel-heading"><div><h2>Bow/Ring Set</h2></div></div>
+      <div className="setup-option-list setup-option-list-wide">
+        {Object.entries(bowRingSetDefinitions).map(([value, definition]) => <button className={setup.bowRingSet === value ? "selected" : ""} type="button" key={value} disabled={locked} title={lockedTitle} onClick={() => onChange({ ...setup, bowRingSet: value })}>{definition.name}</button>)}
+      </div>
+    </section>
+    <section className="panel setup-placeholder-panel build-setup-panel">
+      <div className="panel-heading"><div><h2>Arsenal</h2></div></div>
+      <div className="setup-option-list setup-option-list-wide">
+        {Object.entries(arsenalDefinitions).map(([value, definition]) => <button className={setup.arsenal === value ? "selected" : ""} type="button" key={value} disabled={locked} title={lockedTitle} onClick={() => onChange({ ...setup, arsenal: value })}>{definition.name}</button>)}
+      </div>
+    </section>
+  </div>;
+}
+
+function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon");
   const [editing, setEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -251,11 +306,11 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
   const [draft, setDraft] = useState<GearDraft>(newDraft);
   const [error, setError] = useState("");
   const selected = gearDefinitionForSlot(selectedSlot, weapons);
-  const availableItems = inventory.items.filter((item) => item.slot === selectedSlot && item.definitionId === selected.definitionId);
+  const availableItems = inventory.items.filter((item) => item.definitionId === selected.definitionId && gearItemSupportsSlot(item, selectedSlot));
   const equippedItems = useMemo(() => Object.fromEntries(gearSlots.map((slot) => {
     const equippedId = inventory.equipped[slot];
-    const item = inventory.items.find((candidate) => candidate.id === equippedId && candidate.slot === slot);
-    return [slot, item && (locked || isGearItemCompatible(item, weapons)) ? item : undefined];
+    const item = inventory.items.find((candidate) => candidate.id === equippedId && gearItemSupportsSlot(candidate, slot));
+    return [slot, item && (locked || isGearItemCompatible(item, slot, weapons)) ? item : undefined];
   })) as Partial<Record<GearSlot, GearItem>>, [inventory, weapons, locked]);
 
   function selectSlot(slot: GearSlot) {
@@ -305,7 +360,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
     }
     const item: GearItem = {
       id: editingItemId ?? createGearId(),
-      slot: selectedSlot,
+      ...(definition.weapon ? {} : { slot: selectedSlot }),
       definitionId: selected.definitionId,
       level: draft.level,
       rarity: draft.rarity,
@@ -327,7 +382,13 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
 
   function equip(item: GearItem) {
     setPendingDeleteId(null);
-    onInventoryChange((current) => ({ ...current, equipped: { ...current.equipped, [item.slot]: item.id } }));
+    onInventoryChange((current) => ({
+      ...current,
+      equipped: {
+        ...Object.fromEntries(Object.entries(current.equipped).filter(([, itemId]) => itemId !== item.id)),
+        [selectedSlot]: item.id,
+      },
+    }));
   }
 
   function remove(item: GearItem) {
@@ -337,7 +398,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
     }
     onInventoryChange((current) => ({
       items: current.items.filter((candidate) => candidate.id !== item.id),
-      equipped: current.equipped[item.slot] === item.id ? { ...current.equipped, [item.slot]: undefined } : current.equipped,
+      equipped: Object.fromEntries(Object.entries(current.equipped).filter(([, itemId]) => itemId !== item.id)),
     }));
     setPendingDeleteId(null);
     if (editingItemId === item.id) {
@@ -354,7 +415,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
   const selectedAdditionalKeys = new Set(draft.additionalAffixes.map((affix) => affix.key).filter(Boolean));
 
   return <div className="build-page">
-    <section className="panel build-equipped-panel">
+    <div className="build-overview-grid"><section className="panel build-equipped-panel">
       <div className="panel-heading"><div><h2>Equipped Gear</h2><p>{locked ? "This default build uses fixed preset gear." : "Select a slot to equip gear from the shared inventory."}</p></div></div>
       <div className="equipped-gear-grid">
         {gearSlots.map((slot) => {
@@ -366,7 +427,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
           </button>;
         })}
       </div>
-    </section>
+    </section><BuildSetupPanel setup={setup} locked={locked} onChange={onSetupChange} /></div>
 
     {!locked && <section className="panel build-inventory-panel">
       <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p></div></div>

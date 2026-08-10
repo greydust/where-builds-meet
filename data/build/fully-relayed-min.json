@@ -1,7 +1,15 @@
 {
-  "id": "full-relayed-min",
-  "name": "Full Relayed Min Build",
+  "id": "fully-relayed-min",
+  "name": "Fully Relayed Min Build",
   "order": 1,
+  "setup": {
+    "gearSets": {
+      "Cleftpeak": 4,
+      "RainWhisper": 0
+    },
+    "bowRingSet": "Critical",
+    "arsenal": "Stonesplit"
+  },
   "gear": {
     "leftWeapon": {
       "definitionId": "hengBlade",
@@ -21,8 +29,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "precision",
+          "value": 0.0752
         },
         {
           "key": "maxStonesplit",
@@ -132,8 +140,8 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "precision",
-        "value": 0.0752
+        "key": "crit",
+        "value": 0.0846
       },
       "additionalAffixes": [
         {
@@ -145,8 +153,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "precision",
+          "value": 0.0752
         },
         {
           "key": "maxStonesplit",
@@ -163,8 +171,8 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "precision",
-        "value": 0.0752
+        "key": "crit",
+        "value": 0.0846
       },
       "additionalAffixes": [
         {
@@ -176,8 +184,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "minBellstrike",
+          "value": 41.548
         },
         {
           "key": "maxStonesplit",
@@ -194,8 +202,8 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "precision",
-        "value": 0.0752
+        "key": "crit",
+        "value": 0.0846
       },
       "additionalAffixes": [
         {
@@ -226,7 +234,7 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0752
+        "value": 0.0846
       },
       "additionalAffixes": [
         {

@@ -2,5 +2,11 @@
   "id": "empty",
   "name": "Empty Build",
   "order": 2,
+  "test": true,
+  "setup": {
+    "gearSets": { "Cleftpeak": 0, "RainWhisper": 0 },
+    "bowRingSet": "None",
+    "arsenal": "Stonesplit"
+  },
   "gear": {}
 }

@@ -6,7 +6,7 @@ Enemy defense, path resistances, and Judgement Resistance come from the selected
 
 ## Stat resolution
 
-The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
+The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set and gear sets (with any Main-tab overrides), food, and the selected Divinecraft through these stages:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
@@ -105,6 +105,11 @@ Category 1 currently contains:
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
 
+The selected Divinecraft contributes its `hpDMGBonus` through this category.
+Divinecraft `qiDMGBonus` and healing-triggered Vitality gain are retained in
+`data/divinecraft.json` as future-facing data, but neither mechanic is currently
+evaluated by the simulator.
+
 Attunement uses weapon and skill tags. Charged, varied-combo, and martial-art boosts are selected according to the matching Snowparting or Phalanxbane tags.
 
 Global DMG Bonus is another independent multiplier. The `Exhausted` debuff currently supplies `globalDmgBonus: 0.1`.
@@ -199,7 +204,7 @@ Expected Component =
   + Affinity Damage × Affinity Rate
 ```
 
-The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut damage. Rotation total damage is the sum of all damage actions, including triggered skills and DOT ticks. DPS is total damage divided by the time from the selected start anchor to the final action in the timeline.
+The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut damage. Rotation total damage is the sum of damage actions at or after the selected start anchor, including triggered skills and DOT ticks. An action earlier than the anchor remains in the timeline but is omitted from damage, hit count, and outcome-rate aggregation. Actions at the same timestamp use timeline order, so earlier actions in the starting skill are also omitted. DPS is total damage divided by the time from the selected start anchor to the final action in the timeline.
 
 ## Damage-over-time exception
 

@@ -4,6 +4,7 @@ export type EditableObject = Record<string, unknown>;
 export type SkillRecord = {
   [key: string]: unknown;
   name?: string;
+  shortName?: string;
   castTime?: number;
   cooldown?: number;
   tick?: number;
@@ -14,7 +15,7 @@ export type SkillRecord = {
 };
 export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolean; condition?: string }
   | { type: "event"; event: "Exhausted" | "Controlled"; startTime: number; duration?: number };
-export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action: number } };
+export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number } };
 export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number };
 export type InnerWayEffectRule = { requirement?: unknown; effect: EditableObject; trigger?: EditableObject; target?: string; modify?: EditableObject; source: string; tier: number };
 export type TimelineRowKind = "rotation" | "trigger" | "dot";
@@ -242,7 +243,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     };
     const applyTriggerAction = (triggerAction: EditableObject) => {
       if (triggerAction.type === "trigger" && typeof triggerAction.value === "string") {
-        enqueueTriggeredSkill(triggerAction.value);
+        enqueueTriggeredSkill(triggerAction.value, event.row.sourceRowId ?? event.row.id);
         return;
       }
       if (triggerAction.type !== "apply" || typeof triggerAction.value !== "string" || (cooldowns[triggerAction.value] ?? 0) > event.time) return;

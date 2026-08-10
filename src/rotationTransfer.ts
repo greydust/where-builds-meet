@@ -8,6 +8,10 @@ export type RotationEntry = {
   isDefault?: boolean;
 };
 
+export function serializeRotationEntries(entries: RotationEntry[]) {
+  return JSON.stringify(entries.filter((entry) => !entry.isDefault).map(({ id, rotation }) => ({ id, rotation })));
+}
+
 function parseRotationStep(value: unknown): RotationStep | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const step = value as Record<string, unknown>;
@@ -40,10 +44,12 @@ function parseRotation(value: unknown): RotationRecord | undefined {
   const startValue = candidate.start && typeof candidate.start === "object" && !Array.isArray(candidate.start)
     ? candidate.start as { step?: unknown; action?: unknown }
     : undefined;
-  const start = startValue
-    && typeof startValue.step === "number" && Number.isInteger(startValue.step) && startValue.step >= 0 && startValue.step < parsedSteps.length
-    && typeof startValue.action === "number" && Number.isInteger(startValue.action) && startValue.action >= 0
-    ? { step: startValue.step, action: startValue.action }
+  const validStartStep = startValue
+    && typeof startValue.step === "number" && Number.isInteger(startValue.step) && startValue.step >= 0 && startValue.step < parsedSteps.length;
+  const validStartAction = startValue?.action === undefined
+    || typeof startValue.action === "number" && Number.isInteger(startValue.action) && startValue.action >= 0;
+  const start = validStartStep && validStartAction
+    ? { step: startValue.step as number, ...(typeof startValue.action === "number" ? { action: startValue.action } : {}) }
     : undefined;
   return { name: candidate.name, steps: parsedSteps, ...(start ? { start } : {}) };
 }
@@ -66,7 +72,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
     format: rotationExportFormat,
     version: 1,
     exportedAt: new Date().toISOString(),
-    rotations: entries,
+    rotations: entries.filter((entry) => !entry.isDefault).map(({ id, rotation }) => ({ id, rotation })),
   }, null, 2);
 }
 

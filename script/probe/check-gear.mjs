@@ -30,18 +30,20 @@ const assert = (condition, message) => {
 };
 
 assert(gear.gearSlots.length === 8, "Expected eight gear slots.");
-assert(gear.defaultBuildPresets.length === 2, "Expected the full and empty default builds.");
+assert(gear.defaultBuildPresets.length >= 2, "Expected populated and empty default builds.");
 assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpected Heng Blade base stat.");
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(Object.keys(gear.gearData.affixes).every((key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key])), "Every gear affix key must directly match CharacterStats.");
 const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]);
 assert(Object.keys(gear.gearData.attunements).every((key) => attunementStatKeys.has(key) && !("stat" in gear.gearData.attunements[key])), "Every gear attunement key must directly match AttunementStats.");
 
-const preset = gear.defaultBuildPresets[0];
+const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
+assert(preset, "Expected the fully relayed min default build.");
 const presetInventory = gear.buildPresetInventory(preset);
-assert(preset.name === "Full Relayed Min Build", "Unexpected default build name.");
+assert(preset.name === "Fully Relayed Min Build" || preset.name === "Full Relayed Min Build", "Unexpected default build name.");
 assert(presetInventory.items.length === 8 && Object.keys(presetInventory.equipped).length === 8, "The default build must resolve all eight synthetic gear slots.");
-const presetLeftWeapon = presetInventory.items.find((item) => item.slot === "leftWeapon");
+const presetLeftWeapon = presetInventory.items.find((item) => item.id === presetInventory.equipped.leftWeapon);
+assert(presetLeftWeapon && !("slot" in presetLeftWeapon), "Preset weapon gear must use its definition ID instead of a stored slot.");
 assert(presetLeftWeapon.baseAffix.value === 73.132, "Preset affixes must preserve their explicit saved values.");
 assert(presetLeftWeapon.attunement.value === 11, "Preset attunements must preserve their explicit saved values.");
 const presetEffects = gear.calculateEquippedGearEffects(presetInventory, ["snowparting", "phalanxbane"], false);
@@ -49,15 +51,20 @@ assert(Math.abs(presetEffects.stats.minPhys - 1093.584) < 1e-9, "Unexpected pres
 assert(Math.abs(presetEffects.stats.maxPhys - 431) < 1e-9, "Unexpected preset maximum Physical Attack total.");
 assert(Math.abs(presetEffects.stats.agility - 371.488) < 1e-9, "Unexpected preset Agility total.");
 assert(Math.abs(presetEffects.stats.maxStonesplit - 332.384) < 1e-9, "Unexpected preset Stonesplit total.");
-assert(Math.abs(presetEffects.stats.precision - 0.2256) < 1e-9, "Unexpected preset Precision total.");
+assert(Math.abs(presetEffects.stats.precision - 0.1504) < 1e-9, "Unexpected preset Precision total.");
 assert(Math.abs(presetEffects.attunement.physicalPenetration - 44) < 1e-9, "Unexpected preset Physical Penetration total.");
 assert(Math.abs(presetEffects.attunement.phalanxbaneChargedBoost - 0.24) < 1e-9, "Unexpected preset Phalanxbane Charged total.");
-const emptyPresetInventory = gear.buildPresetInventory(gear.defaultBuildPresets[1]);
-assert(gear.defaultBuildPresets[1].name === "Empty Build" && emptyPresetInventory.items.length === 0 && Object.keys(emptyPresetInventory.equipped).length === 0, "The empty default build must not synthesize gear.");
+const presetSetup = gear.resolveBuildSetup({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id });
+assert(presetSetup.gearSets.Cleftpeak === 4 && presetSetup.gearSets.RainWhisper === 0 && presetSetup.bowRingSet === "Precision" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
+const emptyPreset = gear.defaultBuildPresets.find((candidate) => candidate.id === "empty");
+assert(emptyPreset, "Expected the empty default build.");
+const emptyPresetInventory = gear.buildPresetInventory(emptyPreset);
+assert(emptyPreset.name === "Empty Build" && emptyPresetInventory.items.length === 0 && Object.keys(emptyPresetInventory.equipped).length === 0, "The empty default build must not synthesize gear.");
+const emptySetup = gear.resolveBuildSetup({ id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id });
+assert(emptySetup.gearSets.Cleftpeak === 0 && emptySetup.gearSets.RainWhisper === 0 && emptySetup.bowRingSet === "None", "The empty default build must use its empty setup preset.");
 
 const hengBlade = {
   id: "test-heng",
-  slot: "leftWeapon",
   definitionId: "hengBlade",
   level: 96,
   rarity: "Gold",
@@ -83,6 +90,9 @@ assert(effects.attunement.physicalPenetration === 11, "Gear attunement was not a
 
 const incompatible = gear.calculateEquippedGearEffects(inventory, ["phalanxbane", "snowparting"]);
 assert(Object.keys(incompatible.stats).length === 0, "An incompatible weapon item should not affect the build.");
+const movedInventory = { items: [hengBlade], equipped: { rightWeapon: hengBlade.id } };
+const movedEffects = gear.calculateEquippedGearEffects(movedInventory, ["phalanxbane", "snowparting"]);
+assert(movedEffects.stats.minPhys === 65, "A slotless weapon item must be reusable in the compatible opposite weapon position.");
 
 const duplicatedItem = {
   ...hengBlade,
@@ -98,17 +108,23 @@ globalThis.localStorage = { getItem: (key) => key === gear.legacyGearStorageKey 
 const loaded = gear.loadGearInventory();
 assert(loaded.items.length === 0, "Persisted duplicate additional affixes should be rejected.");
 
-const legacyInventoryJson = JSON.stringify({ items: [hengBlade], equipped: { leftWeapon: hengBlade.id } });
+const legacyHengBlade = { ...hengBlade, slot: "leftWeapon" };
+const legacyInventoryJson = JSON.stringify({ items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } });
+globalThis.sessionStorage = { getItem: (key) => key === "wwm-gear-set-session-v1" ? JSON.stringify({ Cleftpeak: 2, RainWhisper: 2 }) : key === "wwm-bow-ring-set-session-v1" ? "Critical" : key === "wwm-arsenal-session-v1" ? "General" : null };
 globalThis.localStorage = { getItem: (key) => key === gear.legacyGearStorageKey ? legacyInventoryJson : null };
 const migratedBuildState = gear.loadBuildState();
 assert(migratedBuildState.entries[0].isDefault === true && migratedBuildState.entries[0].inventory === undefined, "Default builds must not persist real gear.");
 assert(migratedBuildState.entries.some((entry) => entry.id === "migrated-build"), "Legacy saved gear should migrate into a custom build.");
 assert(migratedBuildState.activeBuildId === "migrated-build", "Legacy gear migration should preserve the active calculation behavior.");
 assert(migratedBuildState.gearItems.length === 1 && migratedBuildState.entries.find((entry) => entry.id === "migrated-build")?.equipped.leftWeapon === hengBlade.id, "Legacy single-inventory gear must migrate into shared storage.");
+assert(!("slot" in migratedBuildState.gearItems[0]), "Legacy weapon slots must be removed during migration.");
+assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).gearSets.RainWhisper === 2 && gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).bowRingSet === "Critical", "Legacy global setup selections must migrate into custom builds.");
+const migratedSerialized = JSON.parse(gear.serializeBuildState(migratedBuildState));
+assert(migratedSerialized.entries.length === 1 && migratedSerialized.entries.every((entry) => !("isDefault" in entry)), "Bundled default builds must not be persisted.");
 
 const legacyBuildList = [
-  { id: "legacy-a", name: "Legacy A", inventory: { items: [hengBlade], equipped: { leftWeapon: hengBlade.id } } },
-  { id: "legacy-b", name: "Legacy B", inventory: { items: [hengBlade], equipped: { leftWeapon: hengBlade.id } } },
+  { id: "legacy-a", name: "Legacy A", inventory: { items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } } },
+  { id: "legacy-b", name: "Legacy B", inventory: { items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } } },
 ];
 globalThis.localStorage = { getItem: (key) => key === gear.buildListStorageKey ? JSON.stringify(legacyBuildList) : key === gear.activeBuildStorageKey ? "legacy-b" : null };
 const migratedPerBuildState = gear.loadBuildState();
@@ -131,15 +147,19 @@ const sharedA = sharedBuildState.entries.find((entry) => entry.id === "shared-a"
 const sharedB = sharedBuildState.entries.find((entry) => entry.id === "shared-b");
 assert(sharedBuildState.gearItems.length === 1 && sharedA?.equipped.leftWeapon === hengBlade.id && sharedB?.equipped.leftWeapon === hengBlade.id, "One shared gear item must be reusable in multiple build loadouts.");
 const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState));
-assert(serializedBuildState.version === 2 && serializedBuildState.gearItems.length === 1 && serializedBuildState.entries.every((entry) => !("inventory" in entry)), "Build persistence must use the shared-inventory schema.");
+assert(serializedBuildState.version === 4 && serializedBuildState.gearItems.length === 1 && !("slot" in serializedBuildState.gearItems[0]) && serializedBuildState.entries.every((entry) => !("inventory" in entry) && entry.setup?.gearSets), "Build persistence must include setup data in the shared-inventory schema.");
 const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState));
-assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 1 && exportedBuildState.gearItems.length === 1, "Build export must use the versioned transfer schema.");
+assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 3 && exportedBuildState.gearItems.length === 1 && !("slot" in exportedBuildState.gearItems[0]) && exportedBuildState.builds.every((entry) => entry.setup), "Build export must include setup data with slotless weapons.");
 const mergedImport = gear.mergeImportedBuildState(sharedBuildState, exportedBuildState);
 assert(mergedImport.importedGearCount === 1 && mergedImport.importedBuildCount === 2, "Import must append shared gear and custom builds while skipping default presets.");
 assert(mergedImport.state.activeBuildId === sharedBuildState.activeBuildId && mergedImport.state.gearItems.length === 2, "Import must preserve the active build and existing gear.");
 const firstImportedBuild = mergedImport.state.entries.find((entry) => entry.id === mergedImport.importedBuildIds[0]);
 const secondImportedBuild = mergedImport.state.entries.find((entry) => entry.id === mergedImport.importedBuildIds[1]);
 assert(firstImportedBuild?.equipped.leftWeapon && firstImportedBuild.equipped.leftWeapon === secondImportedBuild?.equipped.leftWeapon && firstImportedBuild.equipped.leftWeapon !== hengBlade.id, "Imported builds must share the same remapped gear without colliding with existing IDs.");
+assert(firstImportedBuild.setup.bowRingSet === sharedA.setup.bowRingSet && firstImportedBuild.setup.arsenal === sharedA.setup.arsenal, "Imported builds must preserve their setup selections.");
+const legacyTransfer = { ...exportedBuildState, version: 1, gearItems: [legacyHengBlade], builds: exportedBuildState.builds.map(({ setup: _setup, ...entry }) => entry) };
+const migratedTransfer = gear.mergeImportedBuildState(sharedBuildState, legacyTransfer);
+assert(migratedTransfer.importedGearCount === 1 && !("slot" in migratedTransfer.state.gearItems.at(-1)) && migratedTransfer.state.entries.find((entry) => entry.id === migratedTransfer.importedBuildIds[0]).setup.arsenal === gear.defaultBuildSetup.arsenal, "Version 1 exports must migrate weapon gear and missing setup data.");
 let invalidImportRejected = false;
 try {
   gear.mergeImportedBuildState(sharedBuildState, { version: 1, gearItems: [], builds: [] });
@@ -237,7 +257,7 @@ const defaultCriticalEffects = [
   steadfastDevotion.effect.SteadfastDevotionT2.effect[0],
 ];
 const defaultCritical = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, defaultCriticalEffects, 0).stats.crit;
-assert(Math.abs(defaultCritical - 1.12961088) < 1e-9, "Unexpected Full Relayed Min Build Critical total.");
+assert(Math.abs(defaultCritical - 1.13901088) < 1e-9, "Unexpected Fully Relayed Min Build Critical total.");
 assert(defaultSetup.innerWays.length === 4 && defaultSetup.innerWays.every((row) => row.innerWay !== "BreakingPoint" && row.tier === "T6"), "Unexpected default Inner Way selection.");
 assert(defaultSetup.gearSets.Cleftpeak === 4 && defaultSetup.gearSets.RainWhisper === 0, "Unexpected default gear-set selection.");
 assert(defaultSetup.bowRingSet === "Precision" && defaultSetup.arsenal === "Stonesplit" && defaultSetup.food === "SimmeringFishSlices", "Unexpected default setup choices.");

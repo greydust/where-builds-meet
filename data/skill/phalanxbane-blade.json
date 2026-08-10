@@ -1,6 +1,7 @@
 {
   "PhalanxbaneHeavyCharged1": {
     "name": "Burning Heart 1st Stage",
+    "shortName": "Mo Charged",
     "castTime": 1.4375,
     "action": [
       {
@@ -87,6 +88,7 @@
   },
   "PhalanxbaneHeavyCharged2": {
     "name": "Burning Heart 2nd Stage",
+    "shortName": "Mo Charged",
     "castTime": 2.375,
     "action": [
       {
@@ -204,6 +206,7 @@
   },
   "PhalanxbaneHeavyCharged3": {
     "name": "Burning Heart 3rd Stage",
+    "shortName": "Mo Charged",
     "castTime": 3,
     "action": [
       {
@@ -332,6 +335,7 @@
   },
   "PhalanxbaneSpecial": {
     "name": "Legion Summon",
+    "shortName": "Mo Special",
     "castTime": 1.183,
     "action": [
       {
@@ -367,6 +371,7 @@
   },
   "PhalanxbaneQ": {
     "name": "Total Annihilation",
+    "shortName": "Mo QQ",
     "castTime": 0.817,
     "action": [
       {
@@ -430,7 +435,8 @@
       "MartialArtTrigger",
       "MoBlade",
       "PhalanxbaneBlade",
-      "AnxiSoldier"
+      "AnxiSoldier",
+      "Triggered"
     ]
   },
   "AnxiSoldierBurningHeart3": {
@@ -464,7 +470,8 @@
       "MartialArtTrigger",
       "MoBlade",
       "PhalanxbaneBlade",
-      "AnxiSoldier"
+      "AnxiSoldier",
+      "Triggered"
     ]
   },
   "AnxiSoldierTotalAnnihilation": {
@@ -498,7 +505,8 @@
       "MartialArtTrigger",
       "MoBlade",
       "PhalanxbaneBlade",
-      "AnxiSoldier"
+      "AnxiSoldier",
+      "Triggered"
     ]
   }
 }

@@ -1,6 +1,7 @@
 {
   "SoaringSpin1": {
     "name": "Soaring Spin 1-Hit",
+    "shortName": "Soaring 1 Hit",
     "castTime": 1,
     "action": [
       {
@@ -21,6 +22,7 @@
   },
   "SoaringSpin2": {
     "name": "Soaring Spin",
+    "shortName": "Soaring",
     "castTime": 2,
     "action": [
       {
@@ -48,6 +50,7 @@
   },
   "LeapingToad": {
     "name": "Leaping Toad [Cancel]",
+    "shortName": "Toad",
     "castTime": 1.2,
     "action": [
       {
@@ -81,6 +84,7 @@
   },
   "DrunkenPoetDrink": {
     "name": "Drunken Poet Drink [Cancel]",
+    "shortName": "Drink",
     "castTime": 0,
     "action": [
       {
@@ -101,6 +105,7 @@
   },
   "DrunkenPoet1": {
     "name": "Drunken Poet 1st Hit",
+    "shortName": "Poet",
     "castTime": 1.3833,
     "action": [
       {
@@ -169,6 +174,7 @@
   },
   "DrunkenPoet2": {
     "name": "Drunken Poet 2nd Hit",
+    "shortName": "Poet",
     "castTime": 1.45,
     "action": [
       {
@@ -237,6 +243,7 @@
   },
   "DrunkenPoet3": {
     "name": "Drunken Poet 3rd Hit",
+    "shortName": "Poet",
     "castTime": 1.5,
     "action": [
       {
@@ -305,6 +312,7 @@
   },
   "DrunkenPoet4": {
     "name": "Drunken Poet 4th Hit",
+    "shortName": "Poet",
     "castTime": 1.55,
     "action": [
       {
@@ -373,6 +381,7 @@
   },
   "DrunkenPoet5": {
     "name": "Drunken Poet 5th Hit [Cancel]",
+    "shortName": "Poet",
     "castTime": 1.6833,
     "action": [
       {
@@ -481,7 +490,8 @@
       "DirectDamage",
       "Mystic",
       "SingleTargetMystic",
-      "DrunkenPoet"
+      "DrunkenPoet",
+      "Triggered"
     ]
   },
   "SmolderExplosion": {
@@ -508,11 +518,13 @@
       "DirectDamage",
       "Mystic",
       "SingleTargetMystic",
-      "DrunkenPoet"
+      "DrunkenPoet",
+      "Triggered"
     ]
   },
   "DragonsBreath1": {
     "name": "Dragon's Breath 1-Hit [Cancel]",
+    "shortName": "Breath 1 Hit",
     "castTime": 1.5667,
     "action": [
       {
@@ -567,6 +579,7 @@
   },
   "DragonsBreathSmolder1": {
     "name": "Dragon's Breath - Smolder 1-Hit [Cancel]",
+    "shortName": "Smolder 1 Hit",
     "castTime": 1.5667,
     "action": [
       {
@@ -621,6 +634,7 @@
   },
   "DragonsBreath2": {
     "name": "Dragon's Breath 2-Hit [Cancel]",
+    "shortName": "Breath Full",
     "castTime": 2.5667,
     "action": [
       {
@@ -696,6 +710,7 @@
   },
   "DragonsBreathSmolder2": {
     "name": "Dragon's Breath - Smolder 2-Hit [Cancel]",
+    "shortName": "Smolder Full",
     "castTime": 2.5667,
     "action": [
       {
@@ -763,6 +778,7 @@
   },
   "FluteOfTheTidesCancel": {
     "name": "Flute of the Tides [Cancel]",
+    "shortName": "Flute Cancel",
     "castTime": 0.8,
     "action": [
       {
@@ -788,6 +804,7 @@
   },
   "FluteOfTheTides": {
     "name": "Flute of the Tides Full",
+    "shortName": "Flute Full",
     "castTime": 3.275,
     "action": [
       {
@@ -870,7 +887,8 @@
       "DirectDamage",
       "Mystic",
       "AreaMystic",
-      "FluteOfTheTides"
+      "FluteOfTheTides",
+      "Triggered"
     ]
   }
 }

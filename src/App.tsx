@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
 import BuildTab from "./BuildTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, resolveBuildInventory, serializeBuildState, type BuildState } from "./gear";
+import { activeBuildStorageKey, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import type { CharacterStats, EnemyProfile, StatDefinition, WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
@@ -31,13 +31,15 @@ import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
 import foodDefinitions from "../data/food.json";
+import divinecraftDefinitions from "../data/divinecraft.json";
 import snowpartingMartialArt from "../data/martial-art/snowparting-blade.json";
 import phalanxbaneMartialArt from "../data/martial-art/phalanxbane-blade.json";
 import { type RotationSimulationBundle } from "./calculations/rotationCalculator";
 import { requestRotationSimulation } from "./calculations/rotationWorkerClient";
 import { type EditableObject, type InnerWayEffectRule, type RotationRecord, type RotationStep, type SkillRecord, type TimelineBuildInput, type TimelineRow } from "./calculations/rotationTimeline";
 import { calculateStatsWithOverrides, type CharacterStatOverrides, type EffectiveStatEffectContainer, type StatEffectContainer } from "./calculations/statEffects";
-import { exportRotationEntries, mergeImportedRotationEntries, type RotationEntry } from "./rotationTransfer";
+import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
+import { readableRotationText } from "./readableRotation";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
@@ -52,6 +54,8 @@ const arsenalStorageKey = "wwm-arsenal-session-v1";
 const bowRingSetStorageKey = "wwm-bow-ring-set-session-v1";
 const gearSetStorageKey = "wwm-gear-set-session-v1";
 const foodStorageKey = "wwm-food-session-v1";
+const divinecraftStorageKey = "wwm-divinecraft-session-v1";
+const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key));
 
 type SkillMap = Record<string, SkillRecord>;
@@ -64,6 +68,7 @@ type DefaultSetup = {
   bowRingSet: string;
   arsenal: string;
   food: string;
+  divinecraft: string;
 };
 const typedDefaultSetup = defaultSetup as DefaultSetup;
 
@@ -98,7 +103,10 @@ const innerWayDefinitions = {
 };
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
+const defaultRotationId = "dummy-1-min";
+const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
 const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).flatMap((category) => Object.keys(defaultSkillMaps[category]));
+const rotationSkillIds = allSkillIds.filter((skillId) => !allSkillDefinitions[skillId]?.tags?.includes("Triggered"));
 const rotationEventOptionIds = ["__event:Exhausted", "__event:Controlled"];
 const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; action?: unknown[] }>;
 const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
@@ -197,53 +205,20 @@ type GearSetOption = { name: string; effect?: SetupEffect };
 type GearSetDefinition = { name: string; options: Record<string, GearSetOption> };
 const typedGearSetDefinitions = gearSetDefinitions as Record<string, GearSetDefinition>;
 const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>;
+type DivinecraftDefinition = ArsenalDefinition & { description: string; image: string; available?: boolean };
+const typedDivinecraftDefinitions = divinecraftDefinitions as Record<string, DivinecraftDefinition>;
 type MartialArtDefinition = { name: string; talent: Array<{ name: string; effect?: SetupEffect[] }> };
 const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
   snowparting: snowpartingMartialArt as MartialArtDefinition,
   phalanxbane: phalanxbaneMartialArt as MartialArtDefinition,
 };
 
-function loadArsenal() {
-  const saved = sessionStorage.getItem(arsenalStorageKey);
-  return saved && typedArsenalDefinitions[saved] ? saved : typedDefaultSetup.arsenal;
-}
-
-function selectedArsenalEffect() {
-  return typedArsenalDefinitions[loadArsenal()]?.effect ?? {};
-}
-
 function arsenalEffectFor(value: string) {
   return typedArsenalDefinitions[value]?.effect ?? {};
 }
 
-function loadBowRingSet() {
-  const saved = sessionStorage.getItem(bowRingSetStorageKey);
-  return saved && typedBowRingSetDefinitions[saved] ? saved : typedDefaultSetup.bowRingSet;
-}
-
-function selectedBowRingSetEffect() {
-  return typedBowRingSetDefinitions[loadBowRingSet()]?.effect ?? {};
-}
-
 function bowRingSetEffectFor(value: string) {
   return typedBowRingSetDefinitions[value]?.effect ?? {};
-}
-
-function loadGearSets() {
-  const defaults = { ...typedDefaultSetup.gearSets };
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(gearSetStorageKey) ?? "null") as Record<string, unknown> | null;
-    return {
-      Cleftpeak: saved && (saved.Cleftpeak === 0 || saved.Cleftpeak === 2 || saved.Cleftpeak === 4) ? saved.Cleftpeak : defaults.Cleftpeak,
-      RainWhisper: saved && (saved.RainWhisper === 0 || saved.RainWhisper === 2 || saved.RainWhisper === 4) ? saved.RainWhisper : defaults.RainWhisper,
-    };
-  } catch {
-    return defaults;
-  }
-}
-
-function selectedGearSetEffects() {
-  return gearSetEffectsFor(loadGearSets());
 }
 
 function loadFood() {
@@ -255,20 +230,60 @@ function selectedFoodEffect() {
   return typedFoodDefinitions[loadFood()]?.effect ?? {};
 }
 
+function loadDivinecraft() {
+  const saved = sessionStorage.getItem(divinecraftStorageKey);
+  return saved && typedDivinecraftDefinitions[saved]?.available !== false ? saved : typedDefaultSetup.divinecraft;
+}
+
+function divinecraftEffectFor(value: string) {
+  return typedDivinecraftDefinitions[value]?.effect ?? {};
+}
+
 function selectedMartialArtEffects(settings: CalculatorSettings) {
   return settings.weapons.flatMap((weapon) => (martialArtDefinitions[weapon]?.talent ?? []).flatMap((talent) => talent.effect ?? []));
 }
 
-function selectedSetupEffects(settings: CalculatorSettings = loadSettings(), gearStatEffect: StatEffectContainer = {}) {
-  return [...systemStatEffects, ...selectedMartialArtEffects(settings), selectedArsenalEffect(), selectedBowRingSetEffect(), ...selectedGearSetEffects(), selectedFoodEffect(), gearStatEffect];
+function selectedSetupEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup, overrides: Partial<BuildSetup> & { food?: string; divinecraft?: string } = {}) {
+  const selectedBuildSetup = { ...buildSetup, ...overrides, gearSets: overrides.gearSets ?? buildSetup.gearSets };
+  const foodEffect = overrides.food ? typedFoodDefinitions[overrides.food]?.effect ?? {} : selectedFoodEffect();
+  const divinecraftEffect = divinecraftEffectFor(overrides.divinecraft ?? loadDivinecraft());
+  return [...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(selectedBuildSetup.arsenal), bowRingSetEffectFor(selectedBuildSetup.bowRingSet), ...gearSetEffectsFor(selectedBuildSetup.gearSets), foodEffect, divinecraftEffect, gearStatEffect];
 }
 
 function gearSetEffectsFor(selected: { Cleftpeak: number; RainWhisper: number }) {
   return Object.entries(selected).map(([setName, tier]) => typedGearSetDefinitions[setName]?.options[String(tier)]?.effect ?? {});
 }
 
+function sameBuildSetupValue(key: keyof BuildSetup, left: BuildSetup[keyof BuildSetup], right: BuildSetup[keyof BuildSetup]) {
+  return key === "gearSets" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
+}
+
+function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
+  try {
+    const saved = sessionStorage.getItem(buildSetupOverrideStorageKey);
+    if (saved !== null) return normalizeBuildSetupOverrides(JSON.parse(saved));
+    const legacy: Record<string, unknown> = {};
+    const legacyGearSets = sessionStorage.getItem(gearSetStorageKey);
+    const legacyBowRingSet = sessionStorage.getItem(bowRingSetStorageKey);
+    const legacyArsenal = sessionStorage.getItem(arsenalStorageKey);
+    if (legacyGearSets !== null) legacy.gearSets = JSON.parse(legacyGearSets);
+    if (legacyBowRingSet !== null) legacy.bowRingSet = legacyBowRingSet;
+    if (legacyArsenal !== null) legacy.arsenal = legacyArsenal;
+    const parsed = normalizeBuildSetupOverrides(legacy);
+    return Object.fromEntries(Object.entries(parsed).filter(([key, value]) => !sameBuildSetupValue(key as keyof BuildSetup, value as BuildSetup[keyof BuildSetup], baseline[key as keyof BuildSetup]))) as BuildSetupOverrides;
+  } catch {
+    return {};
+  }
+}
+
 function formatNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+function skillDisplayName(skill: SkillRecord | undefined, fallback = "") {
+  const name = skill?.name?.trim() || fallback;
+  const shortName = skill?.shortName?.trim();
+  return shortName ? `${name} (${shortName})` : name;
 }
 
 function loadStats(): CharacterStats {
@@ -384,6 +399,7 @@ type CharacterState = {
   derivedStats: DerivedStats;
   innerWayRevision: number;
   gearStatEffect: StatEffectContainer;
+  buildSetup: BuildSetup;
 };
 
 function loadAttunementStats() {
@@ -421,37 +437,48 @@ function loadAttunementOverrides(): AttunementOverrides {
   }
 }
 
-function loadRotation(): RotationRecord {
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(rotationStorageKey) ?? "null") as RotationRecord | null;
-    return saved && Array.isArray(saved.steps) ? migrateRotation({ name: saved.name ?? "", steps: saved.steps, start: saved.start ?? defaultRotation.start }) : JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord;
-  } catch {
-    return JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord;
-  }
-}
-
 function loadRotationEntries(): RotationEntry[] {
+  const bundledDefault = (): RotationEntry => ({ id: defaultRotationId, rotation: JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord, isDefault: true });
   try {
     const saved = JSON.parse(sessionStorage.getItem(rotationListStorageKey) ?? "null") as RotationEntry[] | null;
-    if (Array.isArray(saved) && saved.length > 0) {
-      return saved.filter((entry) => entry && typeof entry.id === "string" && entry.rotation && Array.isArray(entry.rotation.steps))
-        .map((entry) => ({ id: entry.id, rotation: migrateRotation(entry.rotation), isDefault: entry.isDefault === true || entry.id === "dummy-1-min" }));
+    const customEntries: RotationEntry[] = [];
+    const usedIds = new Set([defaultRotationId]);
+    const addCustom = (preferredId: string, rotation: RotationRecord) => {
+      let id = preferredId;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${preferredId}:${suffix++}`;
+      usedIds.add(id);
+      customEntries.push({ id, rotation });
+    };
+    const preserveFormerDefault = (rotation: RotationRecord) => {
+      const migrated = migrateRotation(rotation);
+      if (JSON.stringify(migrated) === JSON.stringify(defaultRotation)) return;
+      addCustom("migrated-default-rotation", { ...migrated, name: `${migrated.name || defaultRotation.name} Copy` });
+    };
+    if (Array.isArray(saved)) {
+      saved.forEach((entry) => {
+        if (!entry || typeof entry.id !== "string" || !entry.id || !entry.rotation || !Array.isArray(entry.rotation.steps)) return;
+        if (entry.isDefault === true || entry.id === defaultRotationId) preserveFormerDefault(entry.rotation);
+        else addCustom(entry.id, migrateRotation(entry.rotation));
+      });
+      return [bundledDefault(), ...customEntries];
     }
     const legacy = JSON.parse(sessionStorage.getItem(rotationStorageKey) ?? "null") as RotationRecord | null;
-    return [{ id: "dummy-1-min", rotation: legacy && Array.isArray(legacy.steps) ? migrateRotation(legacy) : JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord, isDefault: true }];
+    if (legacy && Array.isArray(legacy.steps)) preserveFormerDefault(legacy);
+    return [bundledDefault(), ...customEntries];
   } catch {
-    return [{ id: "dummy-1-min", rotation: JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord, isDefault: true }];
+    return [bundledDefault()];
   }
 }
 
-function globalStatEffects(settings: CalculatorSettings = loadSettings(), gearStatEffect: StatEffectContainer = {}) {
+function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
   const innerWayStatEffects = loadInnerWayEffectRules().filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
-  return [...selectedSetupEffects(settings, gearStatEffect), ...innerWayStatEffects];
+  return [...selectedSetupEffects(settings, gearStatEffect, buildSetup), ...innerWayStatEffects];
 }
 
-function calculateGlobalStatState(overrides: CharacterStatOverrides, settings: CalculatorSettings = loadSettings(), gearStatEffect: StatEffectContainer = {}) {
+function calculateGlobalStatState(overrides: CharacterStatOverrides, settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
   const enemy = typedEnemyProfiles[settings.enemy] ?? typedEnemyProfiles[defaultSettings.enemy];
-  return calculateStatsWithOverrides(emptyStats, globalStatEffects(settings, gearStatEffect), enemy.judgementResistance, overrides);
+  return calculateStatsWithOverrides(emptyStats, globalStatEffects(settings, gearStatEffect, buildSetup), enemy.judgementResistance, overrides);
 }
 
 function StatField({ definition, stats, onChange, onReset, modified = false, derivedLabel, derivedValue, derivedUnit, compact }: {
@@ -519,7 +546,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   if (!metrics) return <section className="panel breakdown-empty"><h2>DPS Breakdown</h2><p>Open the Rotation Editor to calculate the active rotation.</p></section>;
   const { breakdown } = metrics;
   return <div className="breakdown-page">
-    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Skill Breakdown</h2></div><div className="breakdown-totals"><span>Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong></span><span>DPS <strong>{formatNumber(metrics.dps)}</strong></span></div></div><div className="breakdown-table breakdown-skill-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Triggers</span><span>Hits</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span><span>Damage</span><span>% Total</span></div>{breakdown.skills.map((row) => <div className="breakdown-table-row" key={row.id}><span>{row.name}</span><strong>{row.casts || ""}</strong><strong>{row.triggers || ""}</strong><strong>{row.hits || ""}</strong><strong>{formatNumber(row.abrasionRate)}%</strong><strong>{formatNumber(row.normalRate)}%</strong><strong>{formatNumber(row.criticalRate)}%</strong><strong>{formatNumber(row.affinityRate)}%</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
+    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Skill Breakdown</h2></div><div className="breakdown-totals"><span>Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong></span><span>DPS <strong>{formatNumber(metrics.dps)}</strong></span></div></div><div className="breakdown-table breakdown-skill-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Triggers</span><span>Hits</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span><span>Damage</span><span>% Total</span></div>{breakdown.skills.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.id], row.name)}</span><strong>{row.casts || ""}</strong><strong>{row.triggers || ""}</strong><strong>{row.hits || ""}</strong><strong>{formatNumber(row.abrasionRate)}%</strong><strong>{formatNumber(row.normalRate)}%</strong><strong>{formatNumber(row.criticalRate)}%</strong><strong>{formatNumber(row.affinityRate)}%</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
     <BreakdownGroupTable title="Skill Type Breakdown" rows={breakdown.categories} />
     <BreakdownGroupTable title="Physical and Attribute Breakdown" rows={breakdown.damageTypes} colored />
   </div>;
@@ -530,31 +557,32 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
   return <span className={`damage-breakdown-wrap ${className}`}><span>{formatNumber(breakdown.total)}</span><span className="damage-breakdown-tooltip">{parts.map(([key, label]) => <span className={`damage-breakdown-part damage-${key}`} key={key}><i>{label}</i>{formatNumber(breakdown[key] as number)}</span>)}</span></span>;
 }
 
-function StatsTab({ character, statOverrides, attunementOverrides, onStatChange, onStatReset, onAttunementChange, onAttunementReset, onResetAll, rotationMetrics, onInnerWayChange }: {
+function StatsTab({ character, statOverrides, attunementOverrides, buildSetupOverrides, onStatChange, onStatReset, onAttunementChange, onAttunementReset, onBuildSetupChange, onBuildSetupReset, onResetAll, rotationMetrics, onInnerWayChange }: {
   character: CharacterState;
   statOverrides: CharacterStatOverrides;
   attunementOverrides: AttunementOverrides;
+  buildSetupOverrides: BuildSetupOverrides;
   onStatChange: (key: keyof CharacterStats, value: number) => void;
   onStatReset: (key: keyof CharacterStats) => void;
   onAttunementChange: (key: keyof AttunementStats, value: number) => void;
   onAttunementReset: (key: keyof AttunementStats) => void;
+  onBuildSetupChange: <K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) => void;
+  onBuildSetupReset: (key: keyof BuildSetup) => void;
   onResetAll: () => void;
   rotationMetrics?: RotationMetrics;
   onInnerWayChange: () => void;
 }) {
-  const { stats, derivedStats, attunementStats } = character;
+  const { stats, derivedStats, attunementStats, buildSetup } = character;
   const [innerWays, setInnerWays] = useState(loadInnerWays);
-  const [arsenal, setArsenal] = useState(loadArsenal);
-  const [bowRingSet, setBowRingSet] = useState(loadBowRingSet);
-  const [gearSets, setGearSets] = useState(loadGearSets);
   const [food, setFood] = useState(loadFood);
+  const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
 
   useEffect(() => sessionStorage.setItem(innerWayStorageKey, JSON.stringify(innerWays)), [innerWays]);
-  useEffect(() => sessionStorage.setItem(arsenalStorageKey, arsenal), [arsenal]);
-  useEffect(() => sessionStorage.setItem(bowRingSetStorageKey, bowRingSet), [bowRingSet]);
-  useEffect(() => sessionStorage.setItem(gearSetStorageKey, JSON.stringify(gearSets)), [gearSets]);
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
+  useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
+
+  const { arsenal, bowRingSet, gearSets } = buildSetup;
 
   function updateStat(key: keyof CharacterStats, value: number) {
     onStatChange(key, Number.isFinite(value) ? value : 0);
@@ -629,7 +657,7 @@ function StatsTab({ character, statOverrides, attunementOverrides, onStatChange,
       <div className="app-layout">
         <div className="character-stats-column">
         <section className="panel stats-panel">
-          <div className="panel-heading"><div><h2>Character Stats</h2></div><button className="button button-secondary" type="button" onClick={reset}>Reset Stats</button></div>
+          <div className="panel-heading"><div><h2>Character Stats</h2></div><button className="button button-secondary" type="button" onClick={reset}>Reset</button></div>
           <div className="stats-grid">
             {physicalRows.map(([left, right], index) => (
               <div className="stat-row" key={left.key}>
@@ -686,24 +714,37 @@ function StatsTab({ character, statOverrides, attunementOverrides, onStatChange,
             </div>
           </section>
           <section className="panel setup-placeholder-panel">
-            <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
+            <div className="panel-heading"><div><h2>Gear Set</h2></div>{buildSetupOverrides.gearSets && <button className="stat-reset-button" type="button" aria-label="Reset Gear Set" title="Reset to build value" onClick={() => onBuildSetupReset("gearSets")}>↺</button>}</div>
             <div className="gear-set-list">
               {Object.entries(typedGearSetDefinitions).map(([setName, definition]) => {
                 const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
-                return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">{[0, 2, 4].map((tier) => <button className={gearSets[setName as keyof typeof gearSets] === tier ? "selected" : ""} type="button" key={tier} onClick={() => { const updated = { ...gearSets, [setName]: tier as 0 | 2 | 4, [otherSet]: Math.min(gearSets[otherSet as keyof typeof gearSets], 4 - tier) }; setGearSets(updated); sessionStorage.setItem(gearSetStorageKey, JSON.stringify(updated)); onInnerWayChange(); }}>{tier === 0 ? "0 piece" : `${tier} pieces`}<span>{setupStatus(`gear:${setName}`, String(tier), gearSets[setName as keyof typeof gearSets] === tier)}</span></button>)}</div></div></div>;
+                return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">{[0, 2, 4].map((tier) => <button className={gearSets[setName as keyof typeof gearSets] === tier ? "selected" : ""} type="button" key={tier} onClick={() => { const updated = { ...gearSets, [setName]: tier as 0 | 2 | 4, [otherSet]: Math.min(gearSets[otherSet as keyof typeof gearSets], 4 - tier) as 0 | 2 | 4 }; onBuildSetupChange("gearSets", updated); }}>{tier === 0 ? "0 piece" : `${tier} pieces`}<span>{setupStatus(`gear:${setName}`, String(tier), gearSets[setName as keyof typeof gearSets] === tier)}</span></button>)}</div></div></div>;
               })}
             </div>
           </section>
           <section className="panel setup-placeholder-panel">
-            <div className="panel-heading"><div><h2>Bow/Ring Set</h2></div></div>
-            <div className="setup-option-list setup-option-list-wide">{Object.entries(typedBowRingSetDefinitions).map(([value, definition]) => <button className={bowRingSet === value ? "selected" : ""} type="button" key={value} onClick={() => { setBowRingSet(value); sessionStorage.setItem(bowRingSetStorageKey, value); onInnerWayChange(); }}>{definition.name}<span>{setupStatus("bowRingSet", value, bowRingSet === value)}</span></button>)}</div>
+            <div className="panel-heading"><div><h2>Bow/Ring Set</h2></div>{buildSetupOverrides.bowRingSet !== undefined && <button className="stat-reset-button" type="button" aria-label="Reset Bow/Ring Set" title="Reset to build value" onClick={() => onBuildSetupReset("bowRingSet")}>↺</button>}</div>
+            <div className="setup-option-list setup-option-list-wide">{Object.entries(typedBowRingSetDefinitions).map(([value, definition]) => <button className={bowRingSet === value ? "selected" : ""} type="button" key={value} onClick={() => onBuildSetupChange("bowRingSet", value)}>{definition.name}<span>{setupStatus("bowRingSet", value, bowRingSet === value)}</span></button>)}</div>
           </section>
           <section className="panel setup-placeholder-panel">
-            <div className="panel-heading"><div><h2>Arsenal</h2></div></div>
-            <div className="setup-option-list setup-option-list-wide">{Object.entries(typedArsenalDefinitions).map(([value, definition]) => <button className={arsenal === value ? "selected" : ""} type="button" key={value} onClick={() => { setArsenal(value); sessionStorage.setItem(arsenalStorageKey, value); onInnerWayChange(); }}>{definition.name}<span>{setupStatus("arsenal", value, arsenal === value)}</span></button>)}</div>
+            <div className="panel-heading"><div><h2>Arsenal</h2></div>{buildSetupOverrides.arsenal !== undefined && <button className="stat-reset-button" type="button" aria-label="Reset Arsenal" title="Reset to build value" onClick={() => onBuildSetupReset("arsenal")}>↺</button>}</div>
+            <div className="setup-option-list setup-option-list-wide">{Object.entries(typedArsenalDefinitions).map(([value, definition]) => <button className={arsenal === value ? "selected" : ""} type="button" key={value} onClick={() => onBuildSetupChange("arsenal", value)}>{definition.name}<span>{setupStatus("arsenal", value, arsenal === value)}</span></button>)}</div>
           </section>
           <section className="panel setup-placeholder-panel"><div className="panel-heading"><div><h2>Food</h2></div></div><div className="setup-option-list setup-option-list-wide">{Object.entries(typedFoodDefinitions).map(([value, definition]) => <button className={food === value ? "selected" : ""} type="button" key={value} onClick={() => { setFood(value); sessionStorage.setItem(foodStorageKey, value); onInnerWayChange(); }}>{definition.name}<span>{setupStatus("food", value, food === value)}</span></button>)}</div></section>
           <section className="panel setup-placeholder-panel"><div className="panel-heading"><div><h2>Script</h2></div></div><p>Details will be added later.</p></section>
+          <section className="panel setup-placeholder-panel divinecraft-panel">
+            <div className="panel-heading"><div><h2>Divinecraft</h2></div></div>
+            <div className="divinecraft-option-list">
+              {Object.entries(typedDivinecraftDefinitions).map(([value, definition]) => {
+                const available = definition.available !== false;
+                return <button className={`divinecraft-option ${divinecraft === value ? "selected" : ""}`} type="button" key={value} disabled={!available} title={`${definition.name}: ${definition.description}${available ? "" : " Not available yet."}`} onClick={() => { setDivinecraft(value); sessionStorage.setItem(divinecraftStorageKey, value); onInnerWayChange(); }}>
+                  <span className="divinecraft-image-frame"><img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" /></span>
+                  <strong>{definition.name}</strong>
+                  <span className="divinecraft-option-status">{available ? setupStatus("divinecraft", value, divinecraft === value) : <small>Not available yet</small>}</span>
+                </button>;
+              })}
+            </div>
+          </section>
         </section>
         <aside className="results-column">
           <section className="panel dps-panel"><div className="panel-heading"><div><h2>DPS</h2></div></div><div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div></section>
@@ -717,10 +758,11 @@ function StatsTab({ character, statOverrides, attunementOverrides, onStatChange,
 }
 
 function skillToDraft(skill: SkillRecord) {
-  const { name = "", castTime = 0, action = [], modifier = [], tags = [] } = skill;
+  const { name = "", shortName = "", castTime = 0, action = [], modifier = [], tags = [] } = skill;
   const toObjects = (items: unknown[]) => items.map((item) => item && typeof item === "object" && !Array.isArray(item) ? item as EditableObject : {});
   return {
     name,
+    shortName,
     castTime: String(castTime),
     tags: tags.join(", "),
     actionItems: toObjects(action),
@@ -991,6 +1033,7 @@ function SkillEditorTab() {
       if (!Number.isFinite(castTime)) throw new Error("Cast time must be a number.");
       const updatedSkill: SkillRecord = {
         name: draft.name,
+        ...(draft.shortName.trim() ? { shortName: draft.shortName.trim() } : {}),
         castTime,
         action,
         modifier,
@@ -1033,18 +1076,19 @@ function SkillEditorTab() {
           <aside className="skill-list" aria-label={`${category} skills`}>
             {skillIds.map((id) => (
               <button key={id} className={`skill-list-item ${selectedSkill === id ? "active" : ""}`} type="button" onClick={() => selectSkill(id)}>
-                <strong>{skills[id].name ?? id}</strong>
+                <strong>{skillDisplayName(skills[id], id)}</strong>
                 <small>{id}</small>
               </button>
             ))}
           </aside>
           <div className="skill-detail">
             <div className="skill-detail-heading">
-              <div><span className="detail-kicker">{category}</span><h3>{selectedSkill}</h3></div>
+              <div><span className="detail-kicker">{category}</span><h3>{skillDisplayName(skills[selectedSkill], selectedSkill)}</h3></div>
               {status && <span className="editor-status">{status}</span>}
             </div>
             <div className="skill-basic-fields">
               <label className="editor-field"><span>Name</span><input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
+              <label className="editor-field"><span>Short Name</span><input value={draft.shortName} onChange={(event) => setDraft({ ...draft, shortName: event.target.value })} /></label>
               <label className="editor-field"><span>Cast Time</span><input type="number" min="0" step="0.0001" value={draft.castTime} onChange={(event) => setDraft({ ...draft, castTime: event.target.value })} /></label>
               <label className="editor-field editor-field-wide"><span>Tags <small>(comma separated)</small></span><input value={draft.tags} onChange={(event) => setDraft({ ...draft, tags: event.target.value })} /></label>
             </div>
@@ -1100,7 +1144,7 @@ function SettingsTab({ settings, enemy, onSettingsChange }: {
 }
 
 function RotationEditorTab({ character, onMetricsChange }: { character: CharacterState; onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void }) {
-  const { rawStats: characterStats, attunementStats, settings, enemy, derivedStats, innerWayRevision: _innerWayRevision, gearStatEffect } = character;
+  const { rawStats: characterStats, attunementStats, settings, enemy, derivedStats, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup } = character;
   const innerWayConditions = loadInnerWayConditions();
   const innerWayEffectRules = loadInnerWayEffectRules();
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(loadRotationEntries);
@@ -1117,6 +1161,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     const start = initialEntries.find((entry) => entry.id === initialId)?.rotation.start;
     return start ? { rowId: `rotation-${start.step}`, actionIndex: start.action } : { rowId: "rotation-0" };
   });
+  const [expandedSkillRows, setExpandedSkillRows] = useState<Set<string>>(() => new Set());
   const [editingName, setEditingName] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -1128,12 +1173,35 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
   const [workerAnchorTime, setWorkerAnchorTime] = useState(0);
   const [workerDuration, setWorkerDuration] = useState(0);
   const [workerActionBreakdowns, setWorkerActionBreakdowns] = useState<Record<string, DamageBreakdown>>({});
+  const [readableDialogOpen, setReadableDialogOpen] = useState(false);
+  const [readableCopyStatus, setReadableCopyStatus] = useState("");
+  const readableDialogRef = useRef<HTMLDialogElement>(null);
+  const readableTextRef = useRef<HTMLTextAreaElement>(null);
   const editingEntry = rotationEntries.find((entry) => entry.id === editingRotationId);
-  const calculationStateKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, rotation, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect });
+  const rotationLocked = editingEntry?.isDefault === true;
+  const calculationStateKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, rotation, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup });
+
+  function persistRotationEntries(entries: RotationEntry[]) {
+    sessionStorage.setItem(rotationListStorageKey, serializeRotationEntries(entries));
+  }
 
   useEffect(() => {
     setRotation((current) => migrateRotation(current));
+    persistRotationEntries(rotationEntries);
   }, []);
+
+  useEffect(() => {
+    if (startAnchor.actionIndex === undefined) return;
+    const key = `${editingRotationId}:${startAnchor.rowId}`;
+    setExpandedSkillRows((current) => current.has(key) ? current : new Set(current).add(key));
+  }, [editingRotationId, startAnchor.rowId, startAnchor.actionIndex]);
+
+  useEffect(() => {
+    const dialog = readableDialogRef.current;
+    if (!dialog) return;
+    if (readableDialogOpen && !dialog.open) dialog.showModal();
+    else if (!readableDialogOpen && dialog.open) dialog.close();
+  }, [readableDialogOpen]);
 
   function findSkill(skillId: string) {
     for (const category of Object.keys(defaultSkillMaps) as SkillCategory[]) {
@@ -1148,9 +1216,11 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
   }
 
   function updateStep(index: number, changes: Record<string, unknown>) {
+    if (rotationLocked) return;
     setRotation((current) => ({ ...current, steps: current.steps.map((step, stepIndex) => stepIndex === index ? { ...step, ...changes } as RotationStep : step) }));
   }
   function selectRotationItem(index: number, value: string) {
+    if (rotationLocked) return;
     const previousSkills = timeline.filter((row) => row.kind === "rotation" && (row.rotationIndex ?? -1) < index && row.step.type === "skill");
     const previousSkill = previousSkills[previousSkills.length - 1];
     setRotation((current) => ({
@@ -1186,12 +1256,15 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     });
   }
   function addStepBelow(index: number) {
-    setRotation((current) => ({ ...current, steps: [...current.steps.slice(0, index + 1), { type: "skill", skill: allSkillIds[0] }, ...current.steps.slice(index + 1)] }));
+    if (rotationLocked) return;
+    setRotation((current) => ({ ...current, steps: [...current.steps.slice(0, index + 1), { type: "skill", skill: rotationSkillIds[0] }, ...current.steps.slice(index + 1)] }));
   }
   function addExhaustedEvent() {
+    if (rotationLocked) return;
     setRotation((current) => ({ ...current, steps: [...current.steps, { type: "event", event: "Exhausted", startTime: 0 }] }));
   }
   function moveStep(index: number, direction: number) {
+    if (rotationLocked) return;
     setRotation((current) => {
       const nextIndex = index + direction;
       if (nextIndex < 0 || nextIndex >= current.steps.length) return current;
@@ -1201,28 +1274,25 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     });
   }
   function removeStep(index: number) {
+    if (rotationLocked) return;
     setRotation((current) => ({ ...current, steps: current.steps.filter((_, stepIndex) => stepIndex !== index) }));
   }
   function selectStart(step: number, action?: number) {
+    if (rotationLocked) return;
     setStartAnchor({ rowId: `rotation-${step}`, actionIndex: action });
-    setRotation((current) => ({ ...current, start: { step, action: action ?? 0 } }));
+    setRotation((current) => ({ ...current, start: { step, ...(action === undefined ? {} : { action }) } }));
   }
   function save() {
+    if (rotationLocked) return;
     if (!rotation.name.trim()) { setError("Rotation name is required."); setStatus(""); return; }
     const normalized = migrateRotation(rotation);
     const nextEntries = rotationEntries.map((entry) => entry.id === editingRotationId ? { ...entry, rotation: normalized } : entry);
     setRotationEntries(nextEntries);
     setRotation(normalized);
-    sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+    persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", activeRotationId);
     setError("");
     setStatus("Saved for this session");
-  }
-  function restoreDefault() {
-    const restored = JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord;
-    setRotation(restored);
-    setError("");
-    setStatus("");
   }
   function activateRotation(id: string) {
     if (id === activeRotationId) return;
@@ -1236,7 +1306,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     setRotation(JSON.parse(JSON.stringify(nextRotation)) as RotationRecord);
     setStartAnchor(nextRotation.start ? { rowId: `rotation-${nextRotation.start.step}`, actionIndex: nextRotation.start.action } : { rowId: "rotation-0" });
     setEventTimeDrafts({});
-    sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+    persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", id);
   }
   function editRotation(id: string) {
@@ -1250,19 +1320,35 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     setRotation(JSON.parse(JSON.stringify(nextRotation)) as RotationRecord);
     setStartAnchor(nextRotation.start ? { rowId: `rotation-${nextRotation.start.step}`, actionIndex: nextRotation.start.action } : { rowId: "rotation-0" });
     setEventTimeDrafts({});
-    sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+    persistRotationEntries(nextEntries);
   }
   function addRotation() {
     const current = migrateRotation(rotation);
     const id = `rotation-${Date.now()}`;
-    const nextRotation: RotationRecord = { name: "New Rotation", steps: [{ type: "skill", skill: allSkillIds[0] }] };
+    const nextRotation: RotationRecord = { name: "New Rotation", steps: [{ type: "skill", skill: rotationSkillIds[0] }] };
     const nextEntries = [...rotationEntries.map((entry) => entry.id === editingRotationId ? { ...entry, rotation: current } : entry), { id, rotation: nextRotation }];
     setRotationEntries(nextEntries);
     setEditingRotationId(id);
     setRotation(nextRotation);
     setStartAnchor({ rowId: "rotation-0" });
     setEventTimeDrafts({});
-    sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+    persistRotationEntries(nextEntries);
+  }
+  function duplicateRotation() {
+    const id = `rotation-${Date.now()}`;
+    const source = migrateRotation(rotation);
+    const duplicate: RotationRecord = JSON.parse(JSON.stringify({ ...source, name: `${source.name || "Rotation"} Copy` })) as RotationRecord;
+    const nextEntries = [...rotationEntries, { id, rotation: duplicate }];
+    setRotationEntries(nextEntries);
+    setEditingRotationId(id);
+    setRotation(duplicate);
+    setStartAnchor(duplicate.start ? { rowId: `rotation-${duplicate.start.step}`, actionIndex: duplicate.start.action } : { rowId: "rotation-0" });
+    setEventTimeDrafts({});
+    setEventDurationDrafts({});
+    setEditingName(false);
+    setStatus("");
+    setError("");
+    persistRotationEntries(nextEntries);
   }
   function removeRotation(id: string) {
     if (rotationEntries.find((entry) => entry.id === id)?.isDefault) return;
@@ -1270,7 +1356,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     const nextEntries = rotationEntries.filter((entry) => entry.id !== id);
     if (id !== editingRotationId && id !== activeRotationId) {
       setRotationEntries(nextEntries);
-      sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+      persistRotationEntries(nextEntries);
       return;
     }
     const nextActive = nextEntries[Math.max(0, rotationEntries.findIndex((entry) => entry.id === id) - 1)] ?? nextEntries[0];
@@ -1282,17 +1368,18 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
       setStartAnchor(nextActive.rotation.start ? { rowId: `rotation-${nextActive.rotation.start.step}`, actionIndex: nextActive.rotation.start.action } : { rowId: "rotation-0" });
     }
     setEventTimeDrafts({});
-    sessionStorage.setItem(rotationListStorageKey, JSON.stringify(nextEntries));
+    persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", id === activeRotationId ? nextActive.id : activeRotationId);
   }
 
   function currentRotationEntries() {
     const current = migrateRotation(rotation);
-    return rotationEntries.map((entry) => entry.id === editingRotationId ? { ...entry, rotation: current } : entry);
+    return rotationEntries.map((entry) => entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: current } : entry);
   }
 
   function exportRotations() {
     const entries = currentRotationEntries();
+    const exportedCount = entries.filter((entry) => !entry.isDefault).length;
     const blob = new Blob([exportRotationEntries(entries)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -1302,7 +1389,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({ message: `Exported ${entries.length} rotations.` });
+    setTransferStatus({ message: `Exported ${exportedCount} rotations.` });
   }
 
   async function importRotations(event: ChangeEvent<HTMLInputElement>) {
@@ -1313,7 +1400,7 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     try {
       const result = mergeImportedRotationEntries(currentRotationEntries(), JSON.parse(await file.text()) as unknown);
       setRotationEntries(result.entries);
-      sessionStorage.setItem(rotationListStorageKey, JSON.stringify(result.entries));
+      persistRotationEntries(result.entries);
       const importedEntry = result.entries.find((entry) => entry.id === result.importedIds[0]);
       if (importedEntry) {
         setEditingRotationId(importedEntry.id);
@@ -1335,16 +1422,34 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
   const anchorTime = workerAnchorTime;
   const displayTime = (time: number) => time - anchorTime;
   const calculateTimelineActionBreakdown = (row: TimelineRow, actionIndex: number): DamageBreakdown => workerActionBreakdowns[`${row.id}:${actionIndex}`] ?? { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 };
+  const skillExpansionKey = (rowId: string) => `${editingRotationId}:${rowId}`;
+  const skillActionsExpanded = (rowId: string) => expandedSkillRows.has(skillExpansionKey(rowId));
+  const toggleSkillActions = (rowId: string) => setExpandedSkillRows((current) => {
+    const next = new Set(current);
+    const key = skillExpansionKey(rowId);
+    if (next.has(key)) next.delete(key); else next.add(key);
+    return next;
+  });
+  const timelineRowsById = new Map(timeline.map((row) => [row.id, row]));
+  const triggerSourceExpanded = (row: TimelineRow) => {
+    if (row.kind !== "trigger") return false;
+    const sourceRow = row.sourceRowId ? timelineRowsById.get(row.sourceRowId) : undefined;
+    return Boolean(sourceRow && (sourceRow.kind === "dot" || sourceRow.step.type !== "skill" || skillActionsExpanded(sourceRow.id)));
+  };
   const displayEntries = timeline.flatMap((row) => {
     if (row.skipped) return [];
     const entries: Array<{ row: TimelineRow; kind: "skill" | "action"; time: number; order: number; actionIndex?: number }> = [];
+    const triggeredSkillVisible = triggerSourceExpanded(row);
     if (row.kind === "rotation") entries.push({ row, kind: "skill", time: row.startTime, order: row.order });
     row.actions.forEach((action, actionIndex) => {
-      if (action.type === "damage") entries.push({ row, kind: "action", actionIndex, time: row.startTime + (typeof action.time === "number" ? action.time : 0), order: row.order + 10 + actionIndex });
+      const isStartingAction = startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex;
+      const actionsVisible = row.kind === "dot" || row.kind === "trigger" && triggeredSkillVisible || row.step.type !== "skill" || skillActionsExpanded(row.id) || isStartingAction;
+      if (action.type === "damage" && actionsVisible) entries.push({ row, kind: "action", actionIndex, time: row.startTime + (typeof action.time === "number" ? action.time : 0), order: row.order + 10 + actionIndex });
     });
     return entries;
   }).sort((left, right) => left.time - right.time || left.order - right.order);
   const totalRotationTime = workerDuration;
+  const readableRotation = readableRotationText(timeline, startAnchor, anchorTime);
   const totalRotationDamage = workerMetrics?.totalDamage ?? 0;
   const rotationDps = workerMetrics?.dps ?? 0;
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
@@ -1353,12 +1458,31 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
   const priorityCharacter = statPriorityLines.character as Partial<Record<keyof CharacterStats, number>>;
   const priorityAttunement = statPriorityLines.attunement as Partial<Record<keyof AttunementStats, number>>;
   const selectedInnerWays = loadInnerWays().filter((row) => row.innerWay);
-  const currentGearSets = loadGearSets();
+  const currentGearSets = buildSetup.gearSets;
   const priorityStats: RotationPriority[] = [];
   const priorityAttunementRows: RotationPriority[] = [];
   const priorityInnerWays: RotationPriority[] = [];
   const setupComparisons: Record<string, RotationPriority[]> = {};
-  const makeTimelineInput = (conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect)): TimelineBuildInput => ({
+  function openReadableRotation() {
+    setReadableCopyStatus("");
+    setReadableDialogOpen(true);
+  }
+  async function copyReadableRotation() {
+    try {
+      if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(readableRotation);
+      else {
+        readableTextRef.current?.focus();
+        readableTextRef.current?.select();
+        if (!document.execCommand("copy")) throw new Error("Copy is unavailable");
+      }
+      setReadableCopyStatus("Copied");
+    } catch {
+      readableTextRef.current?.focus();
+      readableTextRef.current?.select();
+      setReadableCopyStatus("Select the text and copy it manually.");
+    }
+  }
+  const makeTimelineInput = (conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup)): TimelineBuildInput => ({
     rotation,
     skills: Object.assign({}, ...Object.values(defaultSkillMaps)),
     eventDefinitions: rotationEventDefinitions,
@@ -1392,15 +1516,16 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
       return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
     }),
     setupComparisons: {
-      arsenal: Object.keys(typedArsenalDefinitions).map((value) => ({ label: value, setupEffects: [...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(value), selectedBowRingSetEffect(), ...selectedGearSetEffects(), selectedFoodEffect(), gearStatEffect] })),
-      bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({ label: value, setupEffects: [...systemStatEffects, ...selectedMartialArtEffects(settings), selectedArsenalEffect(), bowRingSetEffectFor(value), ...selectedGearSetEffects(), selectedFoodEffect(), gearStatEffect] })),
-      food: Object.keys(typedFoodDefinitions).map((value) => ({ label: value, setupEffects: [...systemStatEffects, ...selectedMartialArtEffects(settings), selectedArsenalEffect(), selectedBowRingSetEffect(), ...selectedGearSetEffects(), typedFoodDefinitions[value]?.effect ?? {}, gearStatEffect] })),
+      arsenal: Object.keys(typedArsenalDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { arsenal: value }) })),
+      bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }) })),
+      food: Object.keys(typedFoodDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }) })),
+      divinecraft: Object.entries(typedDivinecraftDefinitions).filter(([, definition]) => definition.available !== false).map(([value]) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }) })),
       "gear:Cleftpeak": [0, 2, 4].filter((tier) => tier > currentGearSets.Cleftpeak).map((tier) => {
-        const setupEffects = [...systemStatEffects, ...selectedMartialArtEffects(settings), selectedArsenalEffect(), selectedBowRingSetEffect(), ...gearSetEffectsFor({ Cleftpeak: tier, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) }), selectedFoodEffect(), gearStatEffect];
+        const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: tier as 0 | 2 | 4, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) as 0 | 2 | 4 } });
         return { label: String(tier), setupEffects, timeline: makeTimelineInput(innerWayConditions, innerWayEffectRules, setupEffects) };
       }),
       "gear:RainWhisper": [0, 2, 4].filter((tier) => tier > currentGearSets.RainWhisper).map((tier) => {
-        const setupEffects = [...systemStatEffects, ...selectedMartialArtEffects(settings), selectedArsenalEffect(), selectedBowRingSetEffect(), ...gearSetEffectsFor({ Cleftpeak: Math.min(currentGearSets.Cleftpeak, 4 - tier), RainWhisper: tier }), selectedFoodEffect(), gearStatEffect];
+        const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: Math.min(currentGearSets.Cleftpeak, 4 - tier) as 0 | 2 | 4, RainWhisper: tier as 0 | 2 | 4 } });
         return { label: String(tier), setupEffects, timeline: makeTimelineInput(innerWayConditions, innerWayEffectRules, setupEffects) };
       }),
     },
@@ -1430,8 +1555,8 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
       <div className="rotation-transfer-actions"><div><button className="button button-secondary button-small" type="button" onClick={exportRotations}>Export</button><label className="button button-secondary button-small rotation-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import rotations" onChange={importRotations} /></label></div>{transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}</div>
     </aside>
     <div className="rotation-editor-content">
-    <div className="skill-detail-heading"><div><span className="detail-kicker">Rotation</span>{editingName ? <input className="rotation-name-input" autoFocus value={rotation.name} onChange={(event) => setRotation({ ...rotation, name: event.target.value })} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{rotation.name || "Unnamed Rotation"}<button className="icon-button" type="button" aria-label="Edit rotation name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>{status && <span className="editor-status">{status}</span>}</div>
-    <div className="rotation-toolbar"><button className="button button-small rotation-active-button" type="button" disabled={editingRotationId === activeRotationId} onClick={() => activateRotation(editingRotationId)}>{editingRotationId === activeRotationId ? "Active Rotation" : "Make Active"}</button><span>{rotation.steps.filter((step) => step.type === "skill").length} steps · {formatNumber(totalRotationTime)}s total time</span><span className="rotation-results"><span>Total Damage: {formatNumber(rotationCalculation.totalDamage)}</span><span>DPS: {formatNumber(rotationCalculation.dps)}</span></span></div>
+    <div className="skill-detail-heading"><div><span className="detail-kicker">Rotation</span>{editingName && !rotationLocked ? <input className="rotation-name-input" autoFocus value={rotation.name} onChange={(event) => setRotation({ ...rotation, name: event.target.value })} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{rotation.name || "Unnamed Rotation"}{!rotationLocked && <button className="icon-button" type="button" aria-label="Edit rotation name" onClick={() => setEditingName(true)}>✎</button>}</h3>}{rotationLocked && <p className="rotation-default-note">This is a prebuilt default rotation and cannot be changed. Duplicate it to edit.</p>}</div>{status && <span className="editor-status">{status}</span>}</div>
+    <div className="rotation-toolbar"><span className="rotation-toolbar-actions"><button className="button button-small rotation-active-button" type="button" disabled={editingRotationId === activeRotationId} onClick={() => activateRotation(editingRotationId)}>{editingRotationId === activeRotationId ? "Active Rotation" : "Make Active"}</button><button className="button button-secondary button-small" type="button" disabled={!readableRotation} onClick={openReadableRotation}>Readable Format</button></span><span>{rotation.steps.filter((step) => step.type === "skill").length} steps · {formatNumber(totalRotationTime)}s total time</span><span className="rotation-results"><span>Total Damage: {formatNumber(rotationCalculation.totalDamage)}</span><span>DPS: {formatNumber(rotationCalculation.dps)}</span></span></div>
     <div className="rotation-scroll-content"><div className="rotation-table">
       <div className="rotation-table-header"><span></span><span>#</span><span>Start Time</span><span>Cast Time</span><span>Skill</span><span>Damage</span><span>Buff</span><span>Debuff</span><span>Actions</span></div>
       <div className="rotation-step-list">
@@ -1445,10 +1570,11 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
           const actionTime = entry.time;
           const isManualEvent = step.type === "event";
           const stepSkill = step.type === "skill" ? step.skill : undefined;
+          const actionsExpanded = skillActionsExpanded(row.id);
           const actionState = actionIndex === undefined ? undefined : row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs };
           const actionBuffs = actionState?.buffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
           const actionDebuffs = actionState?.debuffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
-          const skillDamageRows = [row, ...timeline.filter((candidate) => candidate.kind === "trigger" && candidate.sourceRowId === row.id)];
+          const skillDamageRows = row.kind === "rotation" ? [row, ...timeline.filter((candidate) => candidate.kind === "trigger" && candidate.sourceRowId === row.id)] : [row];
           const skillBreakdown = skillDamageRows.reduce<DamageBreakdown>((skillTotal, damageRow) => damageRow.actions.reduce<DamageBreakdown>((total, action, damageIndex) => {
             if (action.type !== "damage") return total;
             const breakdown = calculateTimelineActionBreakdown(damageRow, damageIndex);
@@ -1456,27 +1582,41 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
           }, skillTotal), { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 } as DamageBreakdown);
           return <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
             {!isAction && <div className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""}`}>
-              <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`} type="button" aria-label="Set fight start here" onClick={() => selectStart(row.rotationIndex ?? 0)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}</button>
+              {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}</button> : <span aria-hidden="true" />}
               <span className="rotation-index">{isManualEvent ? "" : row.rotationIndex}</span>
-              {isManualEvent ? <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
-              {isManualEvent && step.event === "Controlled" ? <input className="rotation-event-time" type="number" min="0" step="0.01" value={eventDurationDrafts[row.id] ?? String(step.duration ?? 3)} onChange={(event) => setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}</span>}
-              {row.kind === "rotation" ? <select className="rotation-skill-select" value={isManualEvent ? `__event:${step.event}` : stepSkill ?? ""} onChange={(event) => selectRotationItem(row.rotationIndex ?? 0, event.target.value)}>{allSkillIds.map((id) => <option key={id} value={id}>{findSkill(id)?.name ?? id}</option>)}{rotationEventOptionIds.map((id) => <option key={id} value={id}>{rotationEventDefinitions[id.slice(8)]?.name ?? id}</option>)}</select> : <span className="rotation-skill-name">{skill?.name ?? stepSkill}</span>}
+              {isManualEvent ? <input className="rotation-event-time" type="number" step="0.01" disabled={rotationLocked} value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
+              {isManualEvent && step.event === "Controlled" ? <input className="rotation-event-time" type="number" min="0" step="0.01" disabled={rotationLocked} value={eventDurationDrafts[row.id] ?? String(step.duration ?? 3)} onChange={(event) => setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}</span>}
+              {row.kind === "rotation" ? <select className="rotation-skill-select" value={isManualEvent ? `__event:${step.event}` : stepSkill ?? ""} disabled={rotationLocked} onChange={(event) => selectRotationItem(row.rotationIndex ?? 0, event.target.value)}>{rotationSkillIds.map((id) => <option key={id} value={id}>{skillDisplayName(findSkill(id), id)}</option>)}{rotationEventOptionIds.map((id) => <option key={id} value={id}>{rotationEventDefinitions[id.slice(8)]?.name ?? id}</option>)}</select> : <span className="rotation-skill-name"><span>{skillDisplayName(skill, stepSkill ?? "")}</span></span>}
               <span className="rotation-damage-value">{isManualEvent ? "" : step.type === "skill" && skillBreakdown.total > 0 ? <DamageBreakdownValue breakdown={skillBreakdown} /> : ""}</span>
               <span>{isManualEvent ? "" : effectNames(row.buffs)}</span>
               <span>{isManualEvent ? "" : effectNames(row.debuffs)}</span>
-              <span className="rotation-controls">{!isManualEvent && <><button type="button" aria-label="Move up" disabled={(row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={(row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>}<button type="button" aria-label="Delete step" onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{!isManualEvent && <button type="button" aria-label="Add step below" onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</span>
+              <span className="rotation-controls">{row.kind === "rotation" && !isManualEvent && <button className="rotation-expand-button" type="button" aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`} aria-expanded={actionsExpanded} onClick={() => toggleSkillActions(row.id)}>{actionsExpanded ? "▾" : "▸"}</button>}{row.kind === "rotation" && !isManualEvent && <><button type="button" aria-label="Move up" disabled={rotationLocked || (row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>} {row.kind === "rotation" && <><button type="button" aria-label="Delete step" disabled={rotationLocked} onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{!isManualEvent && <button type="button" aria-label="Add step below" disabled={rotationLocked} onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</>}</span>
             </div>
             }
-            {isAction && <div className={`rotation-action-row ${row.kind === "trigger" ? "rotation-action-trigger" : row.kind === "dot" ? "rotation-action-dot" : ""}`}><button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "active" : ""}`} type="button" aria-label="Set fight start here" onClick={() => selectStart(row.rotationIndex ?? 0, actionIndex)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "→" : "•"}</button><span className="rotation-action-time">{formatNumber(displayTime(actionTime))}s</span><span className="rotation-action-skill">{skill?.name ?? stepSkill}</span><span className="rotation-action-damage"><DamageBreakdownValue breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)} /></span><span className="rotation-action-buff">{effectNames(actionBuffs)}</span><span className="rotation-action-debuff">{effectNames(actionDebuffs)}</span></div>}
+            {isAction && (() => {
+              const actionKey = `${row.id}:${actionIndex ?? 0}`;
+              const actionCalculated = Object.prototype.hasOwnProperty.call(workerActionBreakdowns, actionKey);
+              return <div className={`rotation-action-row ${row.kind === "trigger" ? "rotation-action-trigger" : row.kind === "dot" ? "rotation-action-dot" : ""}`}>
+                {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0, actionIndex)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "→" : "•"}</button> : <span aria-hidden="true" />}
+                <span className="rotation-action-time">{formatNumber(displayTime(actionTime))}s</span><span className="rotation-action-skill">{skillDisplayName(skill, stepSkill ?? "")}</span><span className="rotation-action-damage">{actionCalculated ? <DamageBreakdownValue breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)} /> : null}</span><span className="rotation-action-buff">{effectNames(actionBuffs)}</span><span className="rotation-action-debuff">{effectNames(actionDebuffs)}</span>
+              </div>;
+            })()}
           </div>;
         })}
       </div>
     </div>
     </div>
     {error && <p className="editor-error">{error}</p>}
-    <div className="editor-actions">{editingEntry?.isDefault && <button className="button button-secondary" type="button" onClick={restoreDefault}>Reset to default</button>}<button className="button button-primary" type="button" onClick={save}>Save</button></div>
+    <div className="editor-actions"><button className="button button-secondary" type="button" onClick={duplicateRotation}>Duplicate</button><button className="button button-primary" type="button" disabled={rotationLocked} title={rotationLocked ? "Duplicate the default rotation to edit it" : undefined} onClick={save}>Save</button></div>
     </div>
-  </div></section>;
+  </div>
+  <dialog className="rotation-readable-dialog" ref={readableDialogRef} onClose={() => setReadableDialogOpen(false)}>
+    <div className="rotation-readable-heading"><div><span className="detail-kicker">Readable Format</span><h3>{rotation.name || "Unnamed Rotation"}</h3></div><button className="icon-button" type="button" aria-label="Close readable rotation" onClick={() => readableDialogRef.current?.close()}>×</button></div>
+    <p>Skills before the start use a rounded pre-fight countdown in 0.5-second increments.</p>
+    <textarea ref={readableTextRef} readOnly value={readableRotation} aria-label="Readable rotation" onFocus={(event) => event.currentTarget.select()} />
+    <div className="rotation-readable-actions"><span role="status">{readableCopyStatus}</span><button className="button button-secondary" type="button" onClick={() => readableDialogRef.current?.close()}>Close</button><button className="button button-primary" type="button" onClick={copyReadableRotation}>Copy</button></div>
+  </dialog>
+  </section>;
 }
 
 export default function App() {
@@ -1489,10 +1629,17 @@ export default function App() {
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
   const enemy = typedEnemyProfiles[settings.enemy] ?? typedEnemyProfiles[defaultSettings.enemy];
   const activeBuild = buildState.entries.find((entry) => entry.id === buildState.activeBuildId) ?? buildState.entries[0];
+  const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild]);
+  const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() => loadBuildSetupOverrides(activeBuildSetup));
+  const buildSetup = useMemo<BuildSetup>(() => ({
+    gearSets: { ...(buildSetupOverrides.gearSets ?? activeBuildSetup.gearSets) },
+    bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,
+    arsenal: buildSetupOverrides.arsenal ?? activeBuildSetup.arsenal,
+  }), [activeBuildSetup, buildSetupOverrides]);
   const activeGearInventory = useMemo(() => activeBuild ? resolveBuildInventory(activeBuild, buildState.gearItems) : { items: [], equipped: {} }, [activeBuild, buildState.gearItems]);
   const equippedGearEffects = useMemo(() => calculateEquippedGearEffects(activeGearInventory, settings.weapons, activeBuild?.isDefault !== true), [activeGearInventory, settings.weapons, activeBuild?.isDefault]);
   const gearStatEffect = useMemo<StatEffectContainer>(() => ({ stat: equippedGearEffects.stats }), [equippedGearEffects]);
-  const globalStatState = useMemo(() => calculateGlobalStatState(statOverrides, settings, gearStatEffect), [statOverrides, settings, gearStatEffect, innerWayRevision]);
+  const globalStatState = useMemo(() => calculateGlobalStatState(statOverrides, settings, gearStatEffect, buildSetup), [statOverrides, settings, gearStatEffect, buildSetup, innerWayRevision]);
   const displayedStats = globalStatState.stats;
   const derivedStats = globalStatState.derivedStats;
   const displayedAttunementStats = useMemo(() => Object.fromEntries(Object.keys(defaultAttunementStats).map((key) => {
@@ -1501,7 +1648,7 @@ export default function App() {
       ? attunementOverrides[statKey]
       : equippedGearEffects.attunement[statKey] ?? 0];
   })) as AttunementStats, [attunementOverrides, equippedGearEffects]);
-  const character = useMemo(() => ({ stats: displayedStats, rawStats: globalStatState.baseStats, attunementStats: displayedAttunementStats, settings, enemy, derivedStats, innerWayRevision, gearStatEffect }), [displayedStats, globalStatState.baseStats, displayedAttunementStats, settings, enemy, derivedStats, innerWayRevision, gearStatEffect]);
+  const character = useMemo(() => ({ stats: displayedStats, rawStats: globalStatState.baseStats, attunementStats: displayedAttunementStats, settings, enemy, derivedStats, innerWayRevision, gearStatEffect, buildSetup }), [displayedStats, globalStatState.baseStats, displayedAttunementStats, settings, enemy, derivedStats, innerWayRevision, gearStatEffect, buildSetup]);
   const updateStatOverride = (key: keyof CharacterStats, value: number) => {
     setStatOverrides((current) => ({ ...current, [key]: value }));
   };
@@ -1518,9 +1665,23 @@ export default function App() {
     delete next[key];
     return next;
   });
+  function updateBuildSetupOverride<K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) {
+    setBuildSetupOverrides((current) => {
+      if (!sameBuildSetupValue(key, value, activeBuildSetup[key])) return { ...current, [key]: value };
+      const next = { ...current };
+      delete next[key];
+      return next;
+    });
+  }
+  const resetBuildSetupOverride = (key: keyof BuildSetup) => setBuildSetupOverrides((current) => {
+    const next = { ...current };
+    delete next[key];
+    return next;
+  });
   const resetAllStatOverrides = () => {
     setStatOverrides({});
     setAttunementOverrides({});
+    setBuildSetupOverrides({});
   };
   const handleRotationMetrics = (metrics: RotationMetrics, isActive: boolean) => {
     if (isActive) publishRotationMetrics(metrics);
@@ -1530,6 +1691,7 @@ export default function App() {
   useEffect(() => localStorage.setItem(buildListStorageKey, serializeBuildState(buildState)), [buildState]);
   useEffect(() => localStorage.setItem(activeBuildStorageKey, buildState.activeBuildId), [buildState.activeBuildId]);
   useEffect(() => sessionStorage.setItem(attunementOverrideStorageKey, JSON.stringify(attunementOverrides)), [attunementOverrides]);
+  useEffect(() => sessionStorage.setItem(buildSetupOverrideStorageKey, JSON.stringify(buildSetupOverrides)), [buildSetupOverrides]);
   useEffect(() => sessionStorage.setItem(settingsStorageKey, JSON.stringify(settings)), [settings]);
 
   return (
@@ -1548,7 +1710,7 @@ export default function App() {
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
-      {activeTab === "main" ? <StatsTab character={character} statOverrides={statOverrides} attunementOverrides={attunementOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onResetAll={resetAllStatOverrides} rotationMetrics={rotationMetrics} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} onSettingsChange={setSettings} /> : null}
+      {activeTab === "main" ? <StatsTab character={character} statOverrides={statOverrides} attunementOverrides={attunementOverrides} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} onResetAll={resetAllStatOverrides} rotationMetrics={rotationMetrics} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} onSettingsChange={setSettings} /> : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} /></div>
       <footer className="page-footer">
         <span>Author: greydust (WWM IGN) / greydust (Discord)</span>

@@ -135,12 +135,13 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
     row.actions.forEach((action, actionIndex) => {
       if (action.type === "damage") {
         const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
+        if (!breakdown) return;
         current.hits += 1;
-        current.damage += breakdown?.total ?? 0;
-        current.abrasionTotal += breakdown?.outcomeRates?.abrasion ?? 0;
-        current.normalTotal += breakdown?.outcomeRates?.normal ?? 0;
-        current.criticalTotal += breakdown?.outcomeRates?.critical ?? 0;
-        current.affinityTotal += breakdown?.outcomeRates?.affinity ?? 0;
+        current.damage += breakdown.total;
+        current.abrasionTotal += breakdown.outcomeRates?.abrasion ?? 0;
+        current.normalTotal += breakdown.outcomeRates?.normal ?? 0;
+        current.criticalTotal += breakdown.outcomeRates?.critical ?? 0;
+        current.affinityTotal += breakdown.outcomeRates?.affinity ?? 0;
       }
     });
     skills.set(id, current);
@@ -198,6 +199,7 @@ function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
   state: Pick<RotationSimulationBundle, "stats" | "attunement" | "enemy" | "derivedStats" | "weapons">,
+  startAnchor: RotationSimulationBundle["startAnchor"],
   overrides: RotationSimulationVariant = { label: "" },
 ): RotationDamageEntry[] {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
@@ -206,8 +208,15 @@ function timelineDamageEntries(
   const stats = overrides.stats ?? state.stats;
   const attunement = overrides.attunement ?? state.attunement;
   const derivedStats = overrides.stats ? calculateDerivedStats(stats, state.enemy.judgementResistance) : state.derivedStats;
+  const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
+  const anchorActionIndex = startAnchor.actionIndex;
+  const anchorTime = anchorRow ? anchorRow.startTime + (anchorActionIndex === undefined ? 0 : Number(anchorRow.actions[anchorActionIndex]?.time ?? 0)) : 0;
+  const anchorOrder = anchorRow ? anchorRow.order + (anchorActionIndex === undefined ? 0 : 10 + anchorActionIndex) : 0;
   return timeline.flatMap((row) => row.skipped ? [] : row.actions.flatMap((action, actionIndex) => {
     if (action.type !== "damage") return [];
+    const actionTime = row.startTime + Number(action.time ?? 0);
+    const actionOrder = row.order + 10 + actionIndex;
+    if (actionTime < anchorTime || (actionTime === anchorTime && actionOrder < anchorOrder)) return [];
     const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
@@ -252,9 +261,9 @@ export function calculateRotationSimulation(bundle: RotationSimulationBundle) {
   const entriesForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : timeline;
-    return timelineDamageEntries(variantTimeline, timelineInput, state, variant);
+    return timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
   };
-  const baseline = timelineDamageEntries(timeline, bundle.timeline, state);
+  const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor);
   let baselineDamage = 0;
   const actionBreakdowns = Object.fromEntries(baseline.filter((entry) => entry.id).map((entry) => {
     const breakdown = calculateDamageBreakdown(entry.action, entry.context);

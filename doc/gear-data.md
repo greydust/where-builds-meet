@@ -24,21 +24,26 @@ Each record in `gear` contains:
 The current level keys are `91` and `96`; rarities are `Purple` and `Gold`.
 Snowparting Blade settings select Heng Blade gear, while Phalanxbane Blade
 settings select Mo Blade gear. The first configured weapon maps to Left Weapon
-and the second maps to Right Weapon.
+and the second maps to Right Weapon. Weapon items are identified by this
+definition ID and do not store a left/right slot, so the same saved weapon can
+move between the two positions when the martial-art order changes.
 
 ## Builds and persisted inventory
 
 Build data is stored in `localStorage` under `wwm-build-list-v1`, with the active
-build ID in `wwm-active-build-v1`. The stored payload uses schema version 2 and
+build ID in `wwm-active-build-v1`. The stored payload uses schema version 4 and
 contains one shared `gearItems` array plus the build entries. Each custom build
-stores only an `equipped` map from its eight slots to shared item IDs. The same
+stores an `equipped` map from its eight slots to shared item IDs plus its gear
+sets, bow/ring set, and arsenal selection. The same
 gear item can therefore be equipped by any number of builds, while changing one
 build's loadout does not change another build's equipped choices. Only the
 active build contributes to character and rotation calculations.
 
-Each shared item stores its slot, definition ID, level, rarity, one base affix,
-four additional affixes, and one attunement. Editing an item updates it for every
-build that equips it. Deleting an item removes it from the shared inventory and
+Each shared item stores its definition ID, level, rarity, one base affix, four
+additional affixes, and one attunement. Non-weapon items also store their armor
+slot; weapon items leave positioning to the build's `equipped.leftWeapon` and
+`equipped.rightWeapon` references. Editing an item updates it for every build
+that equips it. Deleting an item removes it from the shared inventory and
 unequips it from every build.
 
 The loader migrates the previous array payload, where each build owned a full
@@ -47,7 +52,11 @@ colliding item IDs are remapped and their original build's equipped references
 are updated. The older `wwm-gear-inventory-v1` single-inventory value is also
 migration-only. When no build data exists and legacy gear is present, it becomes
 shared gear equipped by an active custom build named `My Build`, without
-changing or deleting the old value.
+changing or deleting the old value. Loading older slot-bound Heng Blade and Mo
+Blade records removes their `slot` field while preserving their definition,
+values, IDs, and build references. Builds from older schemas receive the former
+session-wide setup selections when available, then persist those choices with
+the build.
 
 Load validation rejects malformed items, options that are not allowed by the
 current definition, and duplicate additional affixes. Changing weapon settings
@@ -61,11 +70,13 @@ Delete` button and the second click removes the item globally.
 
 ## Export and import
 
-The Build sidebar can export the complete shared gear inventory and all build
-records as a formatted JSON file. Export files use the
-`where-builds-meet-builds` format identifier and schema version 1. Default build
-records are included for completeness, but their preset gear remains defined by
-`data/build/*.json`.
+The Build sidebar can export the complete shared gear inventory and all custom
+build records as a formatted JSON file. Export files use the
+`where-builds-meet-builds` format identifier and schema version 3. Bundled
+default builds are reconstructed from `data/build/*.json`, so they are omitted
+from browser persistence and exports. Versions 1 and 2 remain importable, with
+slot-bound weapons and missing setup
+data migrated.
 
 Import merges into the current browser state rather than replacing it. Valid
 gear items are appended, custom builds are appended, and the current active
@@ -79,11 +90,14 @@ independent copy of its custom builds and gear.
 
 Default builds live in `data/build/*.json`. Vite eagerly discovers every JSON
 file in that directory, so adding a preset does not require a TypeScript import.
-The optional numeric `order` field controls display order. A preset contains
-gear choices and roll multipliers, not persisted `GearItem` records. Missing
+The optional numeric `order` field controls display order. Presets marked with
+`"test": true` are loaded only by the Vite development server and are omitted
+from production builds. A preset contains
+its `setup` selections and exact gear choices, not persisted `GearItem` records. Missing
 slots are allowed for presets such as `Empty Build`; populated slots resolve to
 synthetic items at runtime. The UI disables gear switching and prevents removal
-of a default build. Its display name may still be changed locally.
+of a default build. Its setup is also fixed by the preset. Its display name may
+still be changed locally.
 
 Preset gear records use the same value shape as editor-created gear: every base
 affix, additional affix, and attunement stores an explicit `{ "key", "value" }`
@@ -97,7 +111,10 @@ weapon order changes.
 Fixed base stats and all five affixes from the active build are summed directly
 by their saved keys into one `CharacterStats` effect and passed through the
 shared character/derived-stat pipeline. Equipped attunements are summed directly
-by key into the centralized `AttunementStats` input. The Build tab does not
+by key into the centralized `AttunementStats` input. The active build's gear
+sets, bow/ring set, and arsenal form the setup baseline. Main-tab changes to
+those selections are session overrides and can be reset individually or with
+the global Reset control. The Build tab does not
 calculate effective stats, rates, or DPS.
 
 The two Mystic affixes use existing skill tags:

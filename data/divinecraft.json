@@ -1,0 +1,92 @@
+{
+  "Fire": {
+    "name": "Fire",
+    "description": "HP DMG +1.5%.",
+    "image": "fire.png",
+    "effect": {
+      "hpDMGBonus": 0.015
+    }
+  },
+  "FireWater": {
+    "name": "Fire-Water",
+    "description": "HP DMG +1.5% and Qi DMG +4%.",
+    "image": "firewater.png",
+    "effect": {
+      "hpDMGBonus": 0.015,
+      "qiDMGBonus": 0.04
+    }
+  },
+  "FirePoison": {
+    "name": "Fire-Poison",
+    "description": "HP DMG +1.5%. Healing grants 0.8 Vitality with a 3s cooldown.",
+    "image": "firepoison.png",
+    "effect": {
+      "hpDMGBonus": 0.015,
+      "trigger": {
+        "event": "healing",
+        "cooldown": 3,
+        "effect": {
+          "vitalityGain": 0.8
+        }
+      }
+    }
+  },
+  "WaterFire": {
+    "name": "Water-Fire",
+    "description": "HP DMG +1.4%. Healing grants 1 Vitality with a 3s cooldown.",
+    "image": "waterfire.png",
+    "effect": {
+      "hpDMGBonus": 0.014,
+      "trigger": {
+        "event": "healing",
+        "cooldown": 3,
+        "effect": {
+          "vitalityGain": 1
+        }
+      }
+    }
+  },
+  "WaterPoison": {
+    "name": "Water-Poison",
+    "description": "HP DMG +1%, Qi DMG +4%, and healing grants 1 Vitality with a 3s cooldown.",
+    "image": "waterpoison.png",
+    "effect": {
+      "hpDMGBonus": 0.01,
+      "qiDMGBonus": 0.04,
+      "trigger": {
+        "event": "healing",
+        "cooldown": 3,
+        "effect": {
+          "vitalityGain": 1
+        }
+      }
+    }
+  },
+  "PoisonFire": {
+    "name": "Poison-Fire",
+    "description": "HP DMG +1.4% and Qi DMG +5%.",
+    "image": "poisonfire.png",
+    "available": false,
+    "effect": {
+      "hpDMGBonus": 0.014,
+      "qiDMGBonus": 0.05
+    }
+  },
+  "PoisonWater": {
+    "name": "Poison-Water",
+    "description": "HP DMG +1%, Qi DMG +5%, and healing grants 0.8 Vitality with a 3s cooldown.",
+    "image": "poisonwater.png",
+    "available": false,
+    "effect": {
+      "hpDMGBonus": 0.01,
+      "qiDMGBonus": 0.05,
+      "trigger": {
+        "event": "healing",
+        "cooldown": 3,
+        "effect": {
+          "vitalityGain": 0.8
+        }
+      }
+    }
+  }
+}
