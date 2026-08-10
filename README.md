@@ -45,10 +45,11 @@ For more detail, start with:
 - [System architecture](doc/system-architecture.md)
 - [Damage formula](doc/damage-formula.md)
 - [Skill and combat-effect data](doc/skill-data.md)
+- [Gear data and inventory](doc/gear-data.md)
 
 ## Contributing
 
-Before changing calculations or combat data, read all three documents above. A few important rules:
+Before changing calculations or combat data, read the relevant documents above. A few important rules:
 
 - Prefer representing mechanics in `data/*.json` instead of adding skill-specific code.
 - Store percentages as decimal ratios (`0.1` means 10%); convert them only at the UI boundary.

@@ -1,0 +1,255 @@
+{
+  "id": "full-relayed-min",
+  "name": "Full Relayed Min Build",
+  "order": 1,
+  "gear": {
+    "leftWeapon": {
+      "definitionId": "hengBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "minPhys",
+        "value": 73.132
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "rightWeapon": {
+      "definitionId": "moBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "minPhys",
+        "value": 73.132
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "moBladeDmgBoost",
+          "value": 0.05828
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "disc": {
+      "definitionId": "disc",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "minPhys",
+        "value": 73.132
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "pendant": {
+      "definitionId": "pendant",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "minPhys",
+        "value": 73.132
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "helmet": {
+      "definitionId": "helmet",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "precision",
+        "value": 0.0752
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    "chestpiece": {
+      "definitionId": "chestpiece",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "precision",
+        "value": 0.0752
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    "greaves": {
+      "definitionId": "greaves",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "precision",
+        "value": 0.0752
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    "bracer": {
+      "definitionId": "bracer",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0752
+      },
+      "additionalAffixes": [
+        {
+          "key": "minPhys",
+          "value": 73.132
+        },
+        {
+          "key": "agility",
+          "value": 46.436
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    }
+  }
+}

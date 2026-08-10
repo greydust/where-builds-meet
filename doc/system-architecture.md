@@ -48,6 +48,10 @@ data/
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
   rotation/       bundled default rotations
+  build/          bundled default build presets
+  gear.json       gear slots, item bases, affix choices, and attunements
+  system.json     innate character stats, talent nodes, and attribute conversions
+  default-setup.json  first-load Inner Ways and setup selections
   enemy.json      enemy profiles
   arsenal.json
   bow-ring-set.json
@@ -62,6 +66,8 @@ doc/
 
 src/
   App.tsx                         UI, data composition, and current orchestration
+  BuildTab.tsx                    equipped slots, inventory, and gear editor
+  gear.ts                         persisted gear model and equipped effects
   types.ts                       character and enemy contracts
   data/statDefinitions.ts        stat labels, units, and defaults
   calculations/
@@ -79,20 +85,22 @@ src/
 
 `App.tsx` owns the shared character state:
 
-- raw character stats
-- attunement stats
+- final-value character stat overrides
+- final-value attunement overrides
 - two equipped weapons
+- build list and active build ID
 - selected enemy
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
 
-It renders five tabs:
+It renders six tabs:
 
 1. Main
-2. DPS Breakdown
-3. Rotation Editor
-4. Skill Editor
-5. Settings
+2. Build
+3. DPS Breakdown
+4. Rotation Editor
+5. Skill Editor
+6. Settings
 
 The Rotation Editor subtree remains mounted when another tab is selected and is
 hidden with CSS. This preserves its local state and lets its worker calculation
@@ -100,21 +108,25 @@ continue. Main and DPS Breakdown subscribe to `rotationMetrics.ts` with
 `useSyncExternalStore`; they render the latest published immutable metrics rather
 than calculating independently.
 
-The currently edited rotation and active rotation are separate concepts. An
-edited rotation publishes metrics globally only when it is also active.
+The currently viewed build and active build are separate concepts. Only the
+active build contributes gear stats and attunement to calculations. The same
+viewed-versus-active distinction applies to rotations; an edited rotation
+publishes metrics globally only when it is also active.
 
 ## Browser persistence
 
-Raw character stats use `localStorage`, so they persist across browser sessions.
+Character stat overrides use `localStorage`, so they persist across browser sessions.
 Most editor and setup state uses `sessionStorage`, so it lasts for the current
 tab session.
 
 | State | Storage |
 | --- | --- |
-| Raw character stats | `localStorage`, `wwm-character-stats-v3` |
+| Character stat overrides | `localStorage`, `wwm-stat-overrides-v1` |
+| Build list and per-build gear | `localStorage`, `wwm-build-list-v1` |
+| Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
 | Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
-| Attunement | `sessionStorage`, `wwm-attunement-session-v2` |
+| Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
 | Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
 | Arsenal | `sessionStorage`, `wwm-arsenal-session-v1` |
 | Bow/ring set | `sessionStorage`, `wwm-bow-ring-set-session-v1` |
@@ -124,16 +136,22 @@ tab session.
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
 
 Loaders validate enough shape to fall back to defaults and include migrations
-for older percentage, penetration, attunement, and rotation formats. Calculated
+for older percentage, penetration, attunement, rotation, and single-inventory
+gear formats. Non-zero values from the former raw character and attunement
+storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted.
+
+When the corresponding session key is absent, `data/default-setup.json` supplies
+the first-load Inner Ways, gear sets, bow/ring set, arsenal, and food. Once a
+user changes a selection, the stored session value continues to take priority.
 
 ## Character stat pipeline
 
-`calculateStatsWithEffects()` is the canonical path from raw stats to the
-character values used for damage:
+`calculateStatsWithEffects()` is the canonical path from simulation base stats
+to the character values used for damage:
 
 ```text
-raw stats
+simulation base stats
   -> fixed base-stat effects
   -> base-stat formula effects
   -> initial effective stats
@@ -142,10 +160,37 @@ raw stats
   -> final stats + final derived stats
 ```
 
-The Main tab displays the globally adjusted base stats, not a separate copy.
-Editing an adjusted field subtracts the active global adjustment before updating
-the raw value. This keeps the raw object authoritative while allowing selected
-Inner Ways and setup effects to appear directly in the UI.
+Equipped gear contributes one data-derived `stat` effect to this same pipeline.
+With no overrides, the simulation base is the empty character and all displayed
+stats come from the innate character system, character talents, gear, Inner
+Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food.
+
+`data/system.json` keeps innate `baseStats`, level-derived `levelBonusStats`,
+ordered `talentStats`, regional
+Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
+`imperialPalaceOddityStats`, `hexiOddityStats`,
+`hiddenMountainOddityStats`, and `attributeConversions` separate. Talent and
+Oddity rewards remain individual
+effects so their source progression is auditable even when several rewards
+grant the same stat. Attribute conversions are regular formula effects in the
+shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
+source use the same conversion rules.
+
+Editing a Main-tab field creates a final-value override. The field is marked as
+modified and gains an individual reset control; Reset Stats clears all character
+and attunement overrides. `calculateStatsWithOverrides()` repeatedly runs the
+shared pipeline and solves the simulation base offset required to produce every
+overridden final value. This means later baseline input changes cannot move an
+override, while overridden source stats still feed formula-derived stats.
+
+The solved simulation base—not an overlaid display object—is sent to the worker.
+The active baseline effects reconstruct the overridden value there, while setup,
+priority, and other comparison variants apply their changed effects to the same
+base. Modified stats therefore remain responsive in delta calculations.
+
+Gear attunements are the calculated attunement baseline. An attunement override
+replaces its final displayed baseline value, but priority variants still add
+their tested amount to that value.
 
 `effectiveStats.ts` owns minimum/maximum normalization, Void/Formless folding,
 Judgement Resistance, effective-rate caps, and final outcome rates. Damage code
@@ -206,6 +251,7 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - attunement variants
 - Inner Way removal variants
 - arsenal, bow/ring, food, and gear-set comparisons
+- equipped gear stats and attunements
 
 The bundle is memoized from a serialized calculation-state key. React sends it
 to `requestRotationSimulation()` and returns to rendering; the main thread does
@@ -270,6 +316,8 @@ static assets. The application currently recognizes:
 - five Inner Ways
 - Exhausted and Controlled manual events
 - the bundled Stonesplit Strength default rotation
+- eight gear slots and their affix/attunement options
+- innate character, talent, and base-attribute conversion stats
 
 Effect definitions are merged into one ID map from buff, debuff, and DOT files.
 IDs must therefore be globally unique or a later spread will replace an earlier
@@ -299,6 +347,21 @@ the selected tier.
 
 Add a complete `EnemyProfile` entry to `data/enemy.json`. The settings UI reads
 the imported map.
+
+### Gear definition
+
+Add or update the slot definition, fixed base stats, allowed affixes, and
+attunements in `data/gear.json`. See `gear-data.md` for the persisted item shape,
+percentage conversion, and weapon-slot mapping.
+
+### Character system stats
+
+Update `data/system.json`. Keep innate values under `baseStats`, level-derived
+values under `levelBonusStats`, every talent grant as its own ordered
+`talentStats` entry, and every regional Oddity reward
+under its own ordered collection such as `qingheOddityStats` or
+`kaifengOddityStats`. Express base-attribute relationships under
+`attributeConversions` using standard stat formulas.
 
 ### Weapon or primary path
 

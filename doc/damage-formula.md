@@ -6,7 +6,7 @@ Enemy defense, path resistances, and Judgement Resistance come from the selected
 
 ## Stat resolution
 
-The editable character object contains raw stats. Before damage is evaluated, the calculator applies selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
+The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
@@ -15,6 +15,8 @@ The editable character object contains raw stats. Before damage is evaluated, th
 5. Add `effectiveStat` values and calculate the final derived stats.
 
 Fixed effects are applied before formulas, regardless of JSON order. Internal floating-point results are normalized to nine decimal places.
+
+A manually edited Main-tab stat is stored as a final-value override. The calculator solves the base-stat offset that makes the shared pipeline produce that exact value under the current baseline inputs. Changing the active build, Inner Ways, food, or another baseline input causes the offset to be solved again, so the modified final value remains fixed. The solved base is also used for comparison variants; adding or removing a tested effect therefore still changes the stat and contributes to the reported DPS delta.
 
 ### Effective attack ranges
 
@@ -99,6 +101,7 @@ Category 1 currently contains:
 - `vsBossDmg` (the current encounter is treated as a boss)
 - `allMartialArts` for skills tagged `MartialArts`
 - Art of Mo Blade for `MoBlade`, or Art of Heng Blade for `HengBlade`
+- Single-Target Mystic Skill DMG Boost for `SingleTargetMystic`, or Area Mystic Skill DMG Boost for `AreaMystic`
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
 
@@ -204,7 +207,7 @@ DOT damage ignores the action's flat Physical Bonus and Attribute Bonus. Its coe
 
 ## Stat-priority conversion
 
-Max-roll values are stored in `data/stat-priority.json`. A priority variant adds one max roll and recalculates DPS. Power, Agility, and Momentum also apply these per-point conversions:
+Max-roll values are stored in `data/stat-priority.json`. A priority variant adds one max roll and recalculates DPS. The base-attribute conversion rules are stored in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
 
 ```text
 1 Power    = 0.225 Min Physical Attack + 1.36 Max Physical Attack
@@ -212,7 +215,7 @@ Max-roll values are stored in `data/stat-priority.json`. A priority variant adds
 1 Momentum = 0.9 Max Physical Attack + 0.00038 Affinity Rate
 ```
 
-The source game relationships recorded for future defensive priority work are:
+The defensive base-attribute relationships are:
 
 ```text
 1 Body    = 60 HP

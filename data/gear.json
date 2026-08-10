@@ -1,0 +1,157 @@
+{
+  "slots": {
+    "leftWeapon": "Left Weapon",
+    "rightWeapon": "Right Weapon",
+    "disc": "Disc",
+    "pendant": "Pendant",
+    "helmet": "Helmet",
+    "chestpiece": "Chestpiece",
+    "greaves": "Greaves",
+    "bracer": "Bracer"
+  },
+  "affixes": {
+    "minPhys": { "name": "Min Physical Attack" },
+    "maxPhys": { "name": "Max Physical Attack" },
+    "minVoidAttack": { "name": "Min Void/Formless Attack" },
+    "maxVoidAttack": { "name": "Max Void/Formless Attack" },
+    "minBellstrike": { "name": "Min Bellstrike Attack" },
+    "maxBellstrike": { "name": "Max Bellstrike Attack" },
+    "minStonesplit": { "name": "Min Stonesplit Attack" },
+    "maxStonesplit": { "name": "Max Stonesplit Attack" },
+    "minSilkbind": { "name": "Min Silkbind Attack" },
+    "maxSilkbind": { "name": "Max Silkbind Attack" },
+    "minBamboocut": { "name": "Min Bamboocut Attack" },
+    "maxBamboocut": { "name": "Max Bamboocut Attack" },
+    "power": { "name": "Power" },
+    "agility": { "name": "Agility" },
+    "momentum": { "name": "Momentum" },
+    "precision": { "name": "Precision", "percentage": true },
+    "crit": { "name": "Critical", "percentage": true },
+    "affinity": { "name": "Affinity", "percentage": true },
+    "allMartialArts": { "name": "All Martial Arts", "percentage": true },
+    "hengBladeDmgBoost": { "name": "Art of Heng", "percentage": true },
+    "moBladeDmgBoost": { "name": "Art of Mo", "percentage": true },
+    "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
+    "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
+    "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
+  },
+  "attunements": {
+    "physicalPenetration": { "name": "Physical Penetration" },
+    "formlessPenetration": { "name": "Formless Penetration" },
+    "phalanxbaneChargedBoost": { "name": "Phalanxbane Blade - Charged Skill DMG Boost", "percentage": true },
+    "phalanxbaneMartialBoost": { "name": "Phalanxbane Blade - Martial Art Skill DMG Boost", "percentage": true },
+    "snowpartingChargedBoost": { "name": "Snowparting Blade - Charged Skill DMG Boost", "percentage": true },
+    "snowpartingVariedComboBoost": { "name": "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost", "percentage": true },
+    "snowpartingMartialBoost": { "name": "Snowparting Blade - Martial Art Skill DMG Boost", "percentage": true }
+  },
+  "gear": {
+    "hengBlade": {
+      "name": "Heng Blade",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "snowparting",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"]
+      },
+      "attunements": ["physicalPenetration", "formlessPenetration"]
+    },
+    "moBlade": {
+      "name": "Mo Blade",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "phalanxbane",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "moBladeDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "moBladeDmgBoost"]
+      },
+      "attunements": ["physicalPenetration", "formlessPenetration"]
+    },
+    "disc": {
+      "name": "Disc",
+      "slots": ["disc"],
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 86 }, "Purple": { "minPhys": 78 } },
+        "91": { "Gold": { "minPhys": 71 }, "Purple": { "minPhys": 64 } }
+      },
+      "baseAffixes": { "96": ["minPhys", "maxPhys"], "91": ["minPhys", "maxPhys"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
+      },
+      "attunements": ["physicalPenetration", "formlessPenetration"]
+    },
+    "pendant": {
+      "name": "Pendant",
+      "slots": ["pendant"],
+      "baseStats": {
+        "96": { "Gold": { "maxPhys": 129 }, "Purple": { "maxPhys": 116 } },
+        "91": { "Gold": { "maxPhys": 106 }, "Purple": { "maxPhys": 96 } }
+      },
+      "baseAffixes": { "96": ["minPhys", "maxPhys"], "91": ["minPhys", "maxPhys"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
+      },
+      "attunements": ["physicalPenetration", "formlessPenetration"]
+    },
+    "helmet": {
+      "name": "Helmet",
+      "slots": ["helmet"],
+      "baseStats": {},
+      "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
+      },
+      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]
+    },
+    "chestpiece": {
+      "name": "Chestpiece",
+      "slots": ["chestpiece"],
+      "baseStats": {},
+      "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
+      },
+      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]
+    },
+    "greaves": {
+      "name": "Greaves",
+      "slots": ["greaves"],
+      "baseStats": {},
+      "baseAffixes": { "96": ["crit", "precision", "affinity", "power"], "91": ["crit", "precision", "affinity", "power"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
+      },
+      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]
+    },
+    "bracer": {
+      "name": "Bracer",
+      "slots": ["bracer"],
+      "baseStats": {},
+      "baseAffixes": { "96": ["crit", "precision", "affinity", "power"], "91": ["crit", "precision", "affinity", "power"] },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
+        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
+      },
+      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost"]
+    }
+  }
+}

@@ -21,6 +21,15 @@ export const martialArtsStats: StatDefinition[] = [
   { key: "maxVoidAttack", label: "Max Void/Formless Attack" },
 ];
 
+export const survivalStats: StatDefinition[] = [
+  { key: "body", label: "Body" },
+  { key: "defense", label: "Defense" },
+  { key: "maxHp", label: "Max HP" },
+  { key: "physicalDefense", label: "Physical Defense" },
+  { key: "maxEndurance", label: "Max Endurance" },
+  { key: "maxVitality", label: "Max Vitality" },
+];
+
 export const defenseStats: StatDefinition[] = [
   { key: "bellstrikePenetration", label: "Bellstrike Penetration" },
   { key: "silkbindPenetration", label: "Silkbind Penetration" },
@@ -37,9 +46,11 @@ export const defenseStats: StatDefinition[] = [
   { key: "hengBladeDmgBoost", label: "Art of Heng Blade", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "critDmgBonus", label: "Crit DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "affinityDmgBonus", label: "Affinity DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "singleTargetMysticDmgBoost", label: "Single-Target Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "areaMysticDmgBoost", label: "Area Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
 ];
 
-export const allStatDefinitions = [...combatStats, ...martialArtsStats, ...defenseStats];
+export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialArtsStats, ...defenseStats];
 
 export const emptyStats = Object.fromEntries(
   allStatDefinitions.map(({ key }) => [key, 0]),

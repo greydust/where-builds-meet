@@ -101,9 +101,15 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
     : skillTags.includes("HengBlade")
       ? stats.hengBladeDmgBoost
       : 0;
+  const mysticSkillBonus = skillTags.includes("SingleTargetMystic")
+    ? stats.singleTargetMysticDmgBoost
+    : skillTags.includes("AreaMystic")
+      ? stats.areaMysticDmgBoost
+      : 0;
   const damageBonusCategory1 = stats.vsBossDmg
     + (skillTags.includes("MartialArts") ? stats.allMartialArts : 0)
     + weaponArtBonus
+    + mysticSkillBonus
     + innerWayDmgBonus;
   const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus) * (1 + globalDmgBonus);
   const calculateAttributeDamage = (mode: "min" | "average" | "max") => attributeRanges.reduce((total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {

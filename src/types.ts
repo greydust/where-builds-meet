@@ -9,6 +9,12 @@ export type CharacterStats = {
   power: number;
   agility: number;
   momentum: number;
+  body: number;
+  defense: number;
+  maxHp: number;
+  physicalDefense: number;
+  maxEndurance: number;
+  maxVitality: number;
   minSilkbind: number;
   maxSilkbind: number;
   minBellstrike: number;
@@ -34,6 +40,8 @@ export type CharacterStats = {
   vsBossDmg: number;
   moBladeDmgBoost: number;
   hengBladeDmgBoost: number;
+  singleTargetMysticDmgBoost: number;
+  areaMysticDmgBoost: number;
 };
 
 export type EnemyProfile = {

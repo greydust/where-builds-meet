@@ -93,3 +93,33 @@ export function calculateStatsWithEffects(baseStats: CharacterStats, effects: Ar
   const derivedStats = calculateDerivedStats(stats, judgementResistance, effectiveStat);
   return { stats, effectiveStat, derivedStats };
 }
+
+export type CharacterStatOverrides = Partial<CharacterStats>;
+
+export function calculateStatsWithOverrides(
+  baseStats: CharacterStats,
+  effects: Array<StatEffectContainer & EffectiveStatEffectContainer>,
+  judgementResistance: number,
+  overrides: CharacterStatOverrides,
+) {
+  const adjustedBaseStats = { ...baseStats };
+  const overrideEntries = Object.entries(overrides).filter((entry): entry is [keyof CharacterStats, number] => (
+    entry[0] in adjustedBaseStats && typeof entry[1] === "number" && Number.isFinite(entry[1])
+  ));
+
+  // Solve the raw input required to produce each requested final value. Re-running
+  // the shared pipeline after every correction also lets an overridden source
+  // stat feed formula effects before a dependent overridden stat is corrected.
+  for (let iteration = 0; iteration < 8; iteration += 1) {
+    const result = calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance);
+    let largestCorrection = 0;
+    for (const [key, targetValue] of overrideEntries) {
+      const correction = targetValue - result.stats[key];
+      adjustedBaseStats[key] = normalizeInternalValue(adjustedBaseStats[key] + correction);
+      largestCorrection = Math.max(largestCorrection, Math.abs(correction));
+    }
+    if (largestCorrection < 1e-9) return { baseStats: adjustedBaseStats, ...result };
+  }
+
+  return { baseStats: adjustedBaseStats, ...calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance) };
+}
