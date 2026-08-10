@@ -88,7 +88,7 @@ src/
 - final-value character stat overrides
 - final-value attunement overrides
 - two equipped weapons
-- build list and active build ID
+- build list, shared gear inventory, and active build ID
 - selected enemy
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
@@ -108,6 +108,11 @@ continue. Main and DPS Breakdown subscribe to `rotationMetrics.ts` with
 `useSyncExternalStore`; they render the latest published immutable metrics rather
 than calculating independently.
 
+When Build or Rotation Editor is active, the page shell is constrained to the
+visible viewport. The header, tabs, and footer remain visible while the build
+manager and rotation table use the remaining height and scroll internally.
+Other tabs retain normal document scrolling.
+
 The currently viewed build and active build are separate concepts. Only the
 active build contributes gear stats and attunement to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
@@ -122,7 +127,7 @@ tab session.
 | State | Storage |
 | --- | --- |
 | Character stat overrides | `localStorage`, `wwm-stat-overrides-v1` |
-| Build list and per-build gear | `localStorage`, `wwm-build-list-v1` |
+| Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1` |
 | Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
 | Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
@@ -136,10 +141,20 @@ tab session.
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
 
 Loaders validate enough shape to fall back to defaults and include migrations
-for older percentage, penetration, attunement, rotation, and single-inventory
-gear formats. Non-zero values from the former raw character and attunement
+for older percentage, penetration, attunement, rotation, per-build inventory,
+and single-inventory gear formats. Non-zero values from the former raw character and attunement
 storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted.
+
+Build export produces a versioned JSON snapshot of shared gear and build
+loadouts. Import validates that snapshot and appends it to the current state,
+remapping colliding gear and build IDs without replacing existing data or
+duplicating bundled default presets.
+
+Rotation export similarly produces a versioned JSON snapshot of all rotation
+records. Rotation import validates skill and event step shapes, appends custom
+rotations with collision-safe IDs, preserves the active rotation, and skips the
+bundled default rotation.
 
 When the corresponding session key is absent, `data/default-setup.json` supplies
 the first-load Inner Ways, gear sets, bow/ring set, arsenal, and food. Once a

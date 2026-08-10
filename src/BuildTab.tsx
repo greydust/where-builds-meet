@@ -1,10 +1,12 @@
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import { useMemo, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import {
+  exportBuildState,
   gearBaseStats,
   gearData,
   gearDefinitionForSlot,
   gearSlots,
   isGearItemCompatible,
+  mergeImportedBuildState,
   resolveBuildInventory,
   type BuildState,
   type GearDefinition,
@@ -132,20 +134,33 @@ function itemToDraft(item: GearItem): GearDraft {
 export default function BuildTab({ weapons, buildState, onBuildStateChange }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
+  const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
   const editingEntry = buildState.entries.find((entry) => entry.id === editingBuildId) ?? buildState.entries[0];
   if (!editingEntry) return null;
-  const inventory = resolveBuildInventory(editingEntry);
+  const inventory = resolveBuildInventory(editingEntry, buildState.gearItems);
 
   function updateInventory(update: SetStateAction<GearInventory>) {
     if (editingEntry.isDefault) return;
-    onBuildStateChange((current) => ({
-      ...current,
-      entries: current.entries.map((entry) => {
-        if (entry.id !== editingEntry.id) return entry;
-        const currentInventory = entry.inventory ?? { items: [], equipped: {} };
-        return { ...entry, inventory: typeof update === "function" ? update(currentInventory) : update };
-      }),
-    }));
+    onBuildStateChange((current) => {
+      const currentEntry = current.entries.find((entry) => entry.id === editingEntry.id);
+      if (!currentEntry || currentEntry.isDefault) return current;
+      const currentInventory = { items: current.gearItems, equipped: currentEntry.equipped ?? {} };
+      const nextInventory = typeof update === "function" ? update(currentInventory) : update;
+      const availableIds = new Map(nextInventory.items.map((item) => [item.id, item.slot]));
+      return {
+        ...current,
+        gearItems: nextInventory.items,
+        entries: current.entries.map((entry) => {
+          if (entry.isDefault) return entry;
+          const candidateEquipped = entry.id === editingEntry.id ? nextInventory.equipped : entry.equipped ?? {};
+          const equipped = Object.fromEntries(gearSlots.flatMap((slot) => {
+            const itemId = candidateEquipped[slot];
+            return itemId && availableIds.get(itemId) === slot ? [[slot, itemId]] : [];
+          })) as Partial<Record<GearSlot, string>>;
+          return { ...entry, equipped };
+        }),
+      };
+    });
   }
 
   function renameBuild(name: string) {
@@ -154,7 +169,7 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
 
   function addBuild() {
     const id = `build-${Date.now()}`;
-    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", inventory: { items: [], equipped: {} } }] }));
+    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", equipped: {} }] }));
     setEditingBuildId(id);
     setEditingName(true);
   }
@@ -169,19 +184,55 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
     const remaining = buildState.entries.filter((candidate) => candidate.id !== id);
     const fallback = remaining.find((candidate) => candidate.isDefault) ?? remaining[0];
     onBuildStateChange((current) => ({
+      ...current,
       entries: current.entries.filter((candidate) => candidate.id !== id),
       activeBuildId: current.activeBuildId === id ? fallback?.id ?? "" : current.activeBuildId,
     }));
     if (editingBuildId === id) setEditingBuildId(fallback?.id ?? "");
   }
 
+  function exportBuilds() {
+    const blob = new Blob([exportBuildState(buildState)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `where-builds-meet-builds-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setTransferStatus({ message: `Exported ${buildState.gearItems.length} gear and ${buildState.entries.length} builds.` });
+  }
+
+  async function importBuilds(event: ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    input.value = "";
+    if (!file) return;
+    try {
+      const result = mergeImportedBuildState(buildState, JSON.parse(await file.text()) as unknown);
+      onBuildStateChange(result.state);
+      if (result.importedBuildIds[0]) {
+        setEditingBuildId(result.importedBuildIds[0]);
+        setEditingName(false);
+      }
+      setTransferStatus({ message: `Imported ${result.importedGearCount} gear and ${result.importedBuildCount} builds.` });
+    } catch (error) {
+      setTransferStatus({ message: error instanceof Error ? error.message : "The build file could not be imported.", error: true });
+    }
+  }
+
   return <section className="panel build-manager-panel"><div className="build-manager-layout">
     <aside className="build-list">
       <div className="build-list-heading"><span>Builds</span><button className="icon-button" type="button" aria-label="Add build" onClick={addBuild}>＋</button></div>
-      {buildState.entries.map((entry) => <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => { setEditingBuildId(entry.id); setEditingName(false); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { setEditingBuildId(entry.id); setEditingName(false); } }}>
-        <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build">●</i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
-        <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} disabled={entry.isDefault} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}>×</button>
-      </div>)}
+      <div className="build-list-entries">{buildState.entries.map((entry) => <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => { setEditingBuildId(entry.id); setEditingName(false); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { setEditingBuildId(entry.id); setEditingName(false); } }}>
+          <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build">●</i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
+          <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} disabled={entry.isDefault} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}>×</button>
+        </div>)}</div>
+      <div className="build-transfer-actions">
+        <div><button className="button button-secondary button-small" type="button" onClick={exportBuilds}>Export</button><label className="button button-secondary button-small build-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import builds and gear" onChange={importBuilds} /></label></div>
+        {transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}
+      </div>
     </aside>
     <div className="build-editor-content">
       <div className="build-detail-heading"><div><span className="detail-kicker">Build</span>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
@@ -217,6 +268,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
   }
 
   function beginAdd() {
+    if (editing && editingItemId === null) return;
     setDraft(newDraft());
     setError("");
     setEditingItemId(null);
@@ -303,7 +355,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
 
   return <div className="build-page">
     <section className="panel build-equipped-panel">
-      <div className="panel-heading"><div><h2>Equipped Gear</h2><p>{locked ? "This default build uses fixed preset gear." : "Select a slot to manage its saved gear."}</p></div></div>
+      <div className="panel-heading"><div><h2>Equipped Gear</h2><p>{locked ? "This default build uses fixed preset gear." : "Select a slot to equip gear from the shared inventory."}</p></div></div>
       <div className="equipped-gear-grid">
         {gearSlots.map((slot) => {
           const item = equippedItems[slot];
@@ -317,7 +369,7 @@ function BuildManagement({ weapons, inventory, locked, onInventoryChange }: Buil
     </section>
 
     {!locked && <section className="panel build-inventory-panel">
-      <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Available {selected.definition?.name ?? "gear"}</p></div></div>
+      <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p></div></div>
       <div className="available-gear-grid">
         {availableItems.map((item) => <article className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""}`} key={item.id}>
           <div className="available-gear-heading"><div><strong>{selected.definition?.name}</strong><small>{item.level} {item.rarity}</small><GearBaseStatSummary item={item} /></div>{inventory.equipped[selectedSlot] === item.id && <span>Equipped</span>}</div>

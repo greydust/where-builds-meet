@@ -17,8 +17,8 @@ export const martialArtsStats: StatDefinition[] = [
   { key: "maxSilkbind", label: "Max Silkbind Attack" },
   { key: "minBamboocut", label: "Min Bamboocut Attack" },
   { key: "maxBamboocut", label: "Max Bamboocut Attack" },
-  { key: "minVoidAttack", label: "Min Void/Formless Attack" },
-  { key: "maxVoidAttack", label: "Max Void/Formless Attack" },
+  { key: "minVoidAttack", label: "Min Void Attack" },
+  { key: "maxVoidAttack", label: "Max Void Attack" },
 ];
 
 export const survivalStats: StatDefinition[] = [

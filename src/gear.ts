@@ -5,6 +5,7 @@ import type { CharacterStats, WeaponId } from "./types";
 export const legacyGearStorageKey = "wwm-gear-inventory-v1";
 export const buildListStorageKey = "wwm-build-list-v1";
 export const activeBuildStorageKey = "wwm-active-build-v1";
+export const buildExportFormat = "where-builds-meet-builds";
 
 export const gearSlots = ["leftWeapon", "rightWeapon", "helmet", "chestpiece", "disc", "pendant", "greaves", "bracer"] as const;
 export type GearSlot = typeof gearSlots[number];
@@ -49,12 +50,13 @@ export type BuildEntry = {
   name: string;
   isDefault?: boolean;
   presetId?: string;
-  inventory?: GearInventory;
+  equipped?: Partial<Record<GearSlot, string>>;
 };
 
 export type BuildState = {
   entries: BuildEntry[];
   activeBuildId: string;
+  gearItems: GearItem[];
 };
 
 export type GearValueDefinition = {
@@ -145,18 +147,32 @@ function parseGearItem(value: unknown): GearItem | undefined {
   };
 }
 
-export function parseGearInventory(value: unknown): GearInventory {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return { items: [], equipped: {} };
-  const saved = value as { items?: unknown; equipped?: unknown };
-  const items = Array.isArray(saved.items) ? saved.items.map(parseGearItem).filter((item): item is GearItem => Boolean(item)) : [];
-  const equippedValues = saved.equipped && typeof saved.equipped === "object" && !Array.isArray(saved.equipped)
-    ? saved.equipped as Record<string, unknown>
+function parseGearItems(value: unknown): GearItem[] {
+  if (!Array.isArray(value)) return [];
+  const seenIds = new Set<string>();
+  return value.flatMap((candidate): GearItem[] => {
+    const item = parseGearItem(candidate);
+    if (!item || seenIds.has(item.id)) return [];
+    seenIds.add(item.id);
+    return [item];
+  });
+}
+
+function parseEquipped(value: unknown, items: GearItem[]) {
+  const equippedValues = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
     : {};
-  const equipped = Object.fromEntries(gearSlots.flatMap((slot) => {
+  return Object.fromEntries(gearSlots.flatMap((slot) => {
     const id = equippedValues[slot];
     return typeof id === "string" && items.some((item) => item.id === id && item.slot === slot) ? [[slot, id]] : [];
   })) as Partial<Record<GearSlot, string>>;
-  return { items, equipped };
+}
+
+export function parseGearInventory(value: unknown): GearInventory {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return { items: [], equipped: {} };
+  const saved = value as { items?: unknown; equipped?: unknown };
+  const items = parseGearItems(saved.items);
+  return { items, equipped: parseEquipped(saved.equipped, items) };
 }
 
 export function loadGearInventory(): GearInventory {
@@ -191,19 +207,122 @@ export function buildPresetInventory(preset: BuildPreset): GearInventory {
   return { items, equipped: Object.fromEntries(items.map((item) => [item.slot, item.id])) };
 }
 
-export function resolveBuildInventory(entry: BuildEntry): GearInventory {
+export function resolveBuildInventory(entry: BuildEntry, sharedItems: GearItem[] = []): GearInventory {
   if (entry.isDefault) {
     const preset = defaultBuildPresets.find((candidate) => candidate.id === entry.presetId);
     return preset ? buildPresetInventory(preset) : { items: [], equipped: {} };
   }
-  return entry.inventory ?? { items: [], equipped: {} };
+  return { items: sharedItems, equipped: entry.equipped ?? {} };
+}
+
+function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sharedItems: GearItem[]) {
+  const usedIds = new Set(sharedItems.map((item) => item.id));
+  const migratedIds = new Map<string, string>();
+  for (const item of inventory.items) {
+    let id = item.id;
+    if (usedIds.has(id)) {
+      const baseId = `${id}:migrated:${ownerId}`;
+      id = baseId;
+      let suffix = 2;
+      while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
+    }
+    usedIds.add(id);
+    migratedIds.set(item.id, id);
+    sharedItems.push(id === item.id ? item : { ...item, id });
+  }
+  return Object.fromEntries(gearSlots.flatMap((slot) => {
+    const legacyId = inventory.equipped[slot];
+    const migratedId = legacyId ? migratedIds.get(legacyId) : undefined;
+    return migratedId ? [[slot, migratedId]] : [];
+  })) as Partial<Record<GearSlot, string>>;
+}
+
+export function serializeBuildState(state: BuildState) {
+  return JSON.stringify({
+    version: 2,
+    entries: state.entries.map((entry) => entry.isDefault
+      ? { id: entry.id, name: entry.name, isDefault: true, presetId: entry.presetId }
+      : { id: entry.id, name: entry.name, equipped: entry.equipped ?? {} }),
+    gearItems: state.gearItems,
+  });
+}
+
+export function exportBuildState(state: BuildState) {
+  return JSON.stringify({
+    format: buildExportFormat,
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    gearItems: state.gearItems,
+    builds: state.entries.map((entry) => entry.isDefault
+      ? { id: entry.id, name: entry.name, isDefault: true, presetId: entry.presetId }
+      : { id: entry.id, name: entry.name, equipped: entry.equipped ?? {} }),
+  }, null, 2);
+}
+
+function importedId(originalId: string, usedIds: Set<string>) {
+  if (!usedIds.has(originalId)) {
+    usedIds.add(originalId);
+    return originalId;
+  }
+  const baseId = `${originalId}:imported`;
+  let id = baseId;
+  let suffix = 2;
+  while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
+  usedIds.add(id);
+  return id;
+}
+
+export function mergeImportedBuildState(current: BuildState, value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet export file.");
+  const source = value as { format?: unknown; version?: unknown; gearItems?: unknown; builds?: unknown };
+  if (source.format !== buildExportFormat || source.version !== 1 || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
+    throw new Error("This file uses an unsupported build export format.");
+  }
+
+  const importedItems = parseGearItems(source.gearItems);
+  const usedGearIds = new Set(current.gearItems.map((item) => item.id));
+  const gearIdMap = new Map<string, string>();
+  const addedItems = importedItems.map((item) => {
+    const id = importedId(item.id, usedGearIds);
+    gearIdMap.set(item.id, id);
+    return id === item.id ? item : { ...item, id };
+  });
+
+  const usedBuildIds = new Set(current.entries.map((entry) => entry.id));
+  const addedBuilds = source.builds.flatMap((value): BuildEntry[] => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return [];
+    const candidate = value as { id?: unknown; name?: unknown; isDefault?: unknown; equipped?: unknown };
+    if (candidate.isDefault === true || typeof candidate.id !== "string" || !candidate.id || typeof candidate.name !== "string" || !candidate.name.trim()) return [];
+    const sourceEquipped = parseEquipped(candidate.equipped, importedItems);
+    const equipped = Object.fromEntries(gearSlots.flatMap((slot) => {
+      const originalId = sourceEquipped[slot];
+      const id = originalId ? gearIdMap.get(originalId) : undefined;
+      return id ? [[slot, id]] : [];
+    })) as Partial<Record<GearSlot, string>>;
+    return [{ id: importedId(candidate.id, usedBuildIds), name: candidate.name, equipped }];
+  });
+
+  return {
+    state: {
+      ...current,
+      gearItems: [...current.gearItems, ...addedItems],
+      entries: [...current.entries, ...addedBuilds],
+    },
+    importedGearCount: addedItems.length,
+    importedBuildCount: addedBuilds.length,
+    importedBuildIds: addedBuilds.map((entry) => entry.id),
+  };
 }
 
 export function loadBuildState(): BuildState {
   try {
     const savedValue = localStorage.getItem(buildListStorageKey);
     const saved = JSON.parse(savedValue ?? "null") as unknown;
-    const savedEntries = Array.isArray(saved) ? saved : [];
+    const savedRecord = saved && typeof saved === "object" && !Array.isArray(saved)
+      ? saved as { entries?: unknown; gearItems?: unknown }
+      : undefined;
+    const savedEntries = Array.isArray(saved) ? saved : Array.isArray(savedRecord?.entries) ? savedRecord.entries : [];
+    const sharedItems = savedRecord ? parseGearItems(savedRecord.gearItems) : [];
     const defaultIds = new Set(defaultBuildPresets.map((preset) => preset.id));
     const defaults: BuildEntry[] = defaultBuildPresets.map((preset) => {
       const savedDefault = savedEntries.find((entry) => entry && typeof entry === "object" && !Array.isArray(entry) && (entry as { id?: unknown }).id === preset.id) as { name?: unknown } | undefined;
@@ -211,22 +330,25 @@ export function loadBuildState(): BuildState {
     });
     const customEntries = savedEntries.flatMap((value): BuildEntry[] => {
       if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-      const candidate = value as { id?: unknown; name?: unknown; inventory?: unknown };
+      const candidate = value as { id?: unknown; name?: unknown; inventory?: unknown; equipped?: unknown };
       if (typeof candidate.id !== "string" || !candidate.id || defaultIds.has(candidate.id) || typeof candidate.name !== "string" || !candidate.name.trim()) return [];
-      return [{ id: candidate.id, name: candidate.name, inventory: parseGearInventory(candidate.inventory) }];
+      const equipped = candidate.inventory
+        ? migrateInventoryToShared(parseGearInventory(candidate.inventory), candidate.id, sharedItems)
+        : parseEquipped(candidate.equipped, sharedItems);
+      return [{ id: candidate.id, name: candidate.name, equipped }];
     });
     const entries = [...defaults, ...customEntries];
     if (savedValue === null) {
       const legacyInventory = loadGearInventory();
-      if (legacyInventory.items.length > 0) entries.push({ id: "migrated-build", name: "My Build", inventory: legacyInventory });
+      if (legacyInventory.items.length > 0) entries.push({ id: "migrated-build", name: "My Build", equipped: migrateInventoryToShared(legacyInventory, "migrated-build", sharedItems) });
     }
     const requestedActiveId = localStorage.getItem(activeBuildStorageKey);
     const fallbackActiveId = savedValue === null && entries.some((entry) => entry.id === "migrated-build") ? "migrated-build" : defaults[0]?.id;
     const activeBuildId = requestedActiveId && entries.some((entry) => entry.id === requestedActiveId) ? requestedActiveId : fallbackActiveId ?? entries[0]?.id ?? "";
-    return { entries, activeBuildId };
+    return { entries, activeBuildId, gearItems: sharedItems };
   } catch {
     const entries = defaultBuildPresets.map((preset): BuildEntry => ({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }));
-    return { entries, activeBuildId: entries[0]?.id ?? "" };
+    return { entries, activeBuildId: entries[0]?.id ?? "", gearItems: [] };
   }
 }
 

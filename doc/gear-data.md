@@ -28,25 +28,52 @@ and the second maps to Right Weapon.
 
 ## Builds and persisted inventory
 
-Build entries are stored in `localStorage` under `wwm-build-list-v1`, with the
-active build ID in `wwm-active-build-v1`. Each custom build owns an inventory;
-each item stores its slot, definition ID, level, rarity, one base affix, four
-additional affixes, and one attunement. Equipped state maps each slot to an item
-ID. Only the active build contributes to character and rotation calculations.
+Build data is stored in `localStorage` under `wwm-build-list-v1`, with the active
+build ID in `wwm-active-build-v1`. The stored payload uses schema version 2 and
+contains one shared `gearItems` array plus the build entries. Each custom build
+stores only an `equipped` map from its eight slots to shared item IDs. The same
+gear item can therefore be equipped by any number of builds, while changing one
+build's loadout does not change another build's equipped choices. Only the
+active build contributes to character and rotation calculations.
 
-The previous `wwm-gear-inventory-v1` value is migration-only. When no build list
-exists and legacy gear is present, it is moved into an active custom build named
-`My Build` without changing or deleting the old value.
+Each shared item stores its slot, definition ID, level, rarity, one base affix,
+four additional affixes, and one attunement. Editing an item updates it for every
+build that equips it. Deleting an item removes it from the shared inventory and
+unequips it from every build.
+
+The loader migrates the previous array payload, where each build owned a full
+inventory, into shared gear plus per-build loadouts. All items are retained;
+colliding item IDs are remapped and their original build's equipped references
+are updated. The older `wwm-gear-inventory-v1` single-inventory value is also
+migration-only. When no build data exists and legacy gear is present, it becomes
+shared gear equipped by an active custom build named `My Build`, without
+changing or deleting the old value.
 
 Load validation rejects malformed items, options that are not allowed by the
 current definition, and duplicate additional affixes. Changing weapon settings
 does not delete incompatible saved items; they become available again if the
 matching martial art is selected later.
 
-Saved gear can be equipped, edited in place, or deleted from its slot inventory.
-Editing keeps the item's ID, so an equipped item remains equipped after its
-values change. Deletion is a two-step action: the first click arms a red
-`Confirm Delete` button and the second click removes the item.
+Saved gear can be equipped, edited in place, or deleted from the shared slot
+inventory. Editing keeps the item's ID, so it remains equipped in every build
+that uses it. Deletion is a two-step action: the first click arms a red `Confirm
+Delete` button and the second click removes the item globally.
+
+## Export and import
+
+The Build sidebar can export the complete shared gear inventory and all build
+records as a formatted JSON file. Export files use the
+`where-builds-meet-builds` format identifier and schema version 1. Default build
+records are included for completeness, but their preset gear remains defined by
+`data/build/*.json`.
+
+Import merges into the current browser state rather than replacing it. Valid
+gear items are appended, custom builds are appended, and the current active
+build is left unchanged. Gear and build ID collisions are remapped. All imported
+build references use the remapped IDs, so a gear item shared by multiple builds
+in the export remains shared after import. Bundled default builds are skipped to
+avoid duplicating them. Importing the same file again therefore creates another
+independent copy of its custom builds and gear.
 
 ## Default build presets
 

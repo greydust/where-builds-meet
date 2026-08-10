@@ -465,6 +465,20 @@ The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
 action index.
 
+### Rotation export and import
+
+The Rotation Editor sidebar exports all current rotation records as a formatted
+JSON file with the `where-builds-meet-rotations` format identifier and schema
+version 1. The snapshot includes the current in-memory editor value, even before
+the Save button is pressed.
+
+Import validates every step and appends custom rotations to the current session
+without replacing existing rotations or changing the active rotation. ID
+collisions are remapped, and the bundled default rotation is skipped to prevent
+duplication. The first imported rotation is opened for review but is not made
+active automatically. Importing the same file again creates another independent
+copy of its custom rotations.
+
 ## Data conventions
 
 - Use decimal ratios for percentages.

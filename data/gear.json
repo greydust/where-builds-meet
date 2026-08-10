@@ -12,8 +12,8 @@
   "affixes": {
     "minPhys": { "name": "Min Physical Attack" },
     "maxPhys": { "name": "Max Physical Attack" },
-    "minVoidAttack": { "name": "Min Void/Formless Attack" },
-    "maxVoidAttack": { "name": "Max Void/Formless Attack" },
+    "minVoidAttack": { "name": "Min Void Attack" },
+    "maxVoidAttack": { "name": "Max Void Attack" },
     "minBellstrike": { "name": "Min Bellstrike Attack" },
     "maxBellstrike": { "name": "Max Bellstrike Attack" },
     "minStonesplit": { "name": "Min Stonesplit Attack" },
