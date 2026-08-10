@@ -1,0 +1,67 @@
+{
+  "Cleftpeak": {
+    "name": "Cleftpeak",
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {
+          "stat": {}
+        }
+      },
+      "2": {
+        "name": "2",
+        "effect": {
+          "stat": {
+            "minPhys": 78
+          }
+        }
+      },
+      "4": {
+        "name": "4",
+        "effect": {
+          "stat": {
+            "minPhys": 78
+          },
+          "trigger": {
+            "event": "damage",
+            "action": {
+              "type": "apply",
+              "target": "self",
+              "value": "Cleftpeak",
+              "stack": 1,
+              "reapply": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "RainWhisper": {
+    "name": "Rain Whisper",
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {
+          "stat": {}
+        }
+      },
+      "2": {
+        "name": "2",
+        "effect": {
+          "stat": {
+            "precision": 0.08
+          }
+        }
+      },
+      "4": {
+        "name": "4",
+        "effect": {
+          "stat": {
+            "precision": 0.08,
+            "critDmgBonus": 0.1
+          }
+        }
+      }
+    }
+  }
+}

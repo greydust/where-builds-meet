@@ -1,0 +1,50 @@
+{
+  "Disintegration": {
+    "name": "Disintegration",
+    "description": "Increase physical penetraion by 5 and critical damage by 5% per stack.",
+    "duration": 3,
+    "maxStack": 3,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "physicalPenetration": 5,
+            "critDmgBonus": 0.05
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalPenetration": 10,
+            "critDmgBonus": 0.1
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalPenetration": 15,
+            "critDmgBonus": 0.15
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalPenetration": 20,
+            "critDmgBonus": 0.2
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalPenetration": 25,
+            "critDmgBonus": 0.25
+          }
+        }
+      ]
+    ]
+  }
+}

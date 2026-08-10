@@ -1,0 +1,32 @@
+{
+  "None": {
+    "name": "None",
+    "effect": {
+      "stat": {}
+    }
+  },
+  "Precision": {
+    "name": "Precision",
+    "effect": {
+      "stat": {
+        "precision": 0.04
+      }
+    }
+  },
+  "Critical": {
+    "name": "Critical",
+    "effect": {
+      "stat": {
+        "crit": 0.045
+      }
+    }
+  },
+  "Affinity": {
+    "name": "Affinity",
+    "effect": {
+      "stat": {
+        "affinity": 0.022
+      }
+    }
+  }
+}

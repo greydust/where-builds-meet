@@ -1,0 +1,95 @@
+{
+  "ToadVenom": {
+    "name": "Toad Venom",
+    "tick": 5,
+    "duration": 5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.6218,
+        "phyBonus": 232,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "LesserToadVenom",
+        "reapply": true,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DOT",
+      "Mystic",
+      "AreaMystic",
+      "LeapingToad"
+    ]
+  },
+  "LesserToadVenom": {
+    "name": "Lesser Toad Venom",
+    "tick": 5,
+    "duration": 5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.6218,
+        "phyBonus": 232,
+        "attrBonus": 0,
+        "time": 5
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DOT",
+      "Mystic",
+      "AreaMystic",
+      "LeapingToad"
+    ]
+  },
+  "Combustion": {
+    "name": "Combustion",
+    "tick": 0.5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2954,
+        "phyBonus": 42,
+        "attrBonus": 0,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DOT",
+      "Mystic",
+      "SingleTargetMystic",
+      "DrunkenPoet"
+    ]
+  },
+  "Smolder": {
+    "name": "Smolder",
+    "tick": 0.5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2787,
+        "phyBonus": 40,
+        "attrBonus": 0,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DOT",
+      "Mystic",
+      "SingleTargetMystic",
+      "DrunkenPoet"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "character": {
+    "power": 49.4,
+    "agility": 49.4,
+    "momentum": 49.4,
+    "minPhys": 77.8,
+    "maxPhys": 77.8,
+    "precision": 0.08,
+    "crit": 0.09,
+    "affinity": 0.044,
+    "minBellstrike": 44.2,
+    "maxBellstrike": 44.2,
+    "minStonesplit": 44.2,
+    "maxStonesplit": 44.2,
+    "minSilkbind": 44.2,
+    "maxSilkbind": 44.2,
+    "minBamboocut": 44.2,
+    "maxBamboocut": 44.2,
+    "minVoidAttack": 44.2,
+    "maxVoidAttack": 44.2,
+    "allMartialArts": 0.032,
+    "moBladeDmgBoost": 0.062,
+    "hengBladeDmgBoost": 0.062,
+    "vsBossDmg": 0.032
+  },
+  "attunement": {
+    "physicalPenetration": 11,
+    "formlessPenetration": 13,
+    "phalanxbaneChargedBoost": 0.06,
+    "phalanxbaneMartialBoost": 0.06,
+    "snowpartingChargedBoost": 0.06,
+    "snowpartingVariedComboBoost": 0.06,
+    "snowpartingMartialBoost": 0.06
+  }
+}

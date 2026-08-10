@@ -1,0 +1,56 @@
+{
+  "name": "Steadfast Devotion",
+  "effect": {
+    "SteadfastDevotionT0": {},
+    "SteadfastDevotionT1": {},
+    "SteadfastDevotionT2": {
+      "effect": [
+        {
+          "stat": {
+            "crit": 0.077
+          }
+        }
+      ]
+    },
+    "SteadfastDevotionT3": {},
+    "SteadfastDevotionT4": {},
+    "SteadfastDevotionT5": {
+      "effect": [
+        {
+          "stat": {
+            "critDmgBonus": 0.04
+          }
+        }
+      ]
+    },
+    "SteadfastDevotionT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Exhausted"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "BurningHeart"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "AnxiSoldier"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "SteadfastGuaranteedCrit": true,
+            "critDmgBonus": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,548 @@
+{
+  "SnowpartingLightCharged": {
+    "name": "Grave Frost",
+    "castTime": 1.617,
+    "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "Forgetfulness",
+        "stack": 1,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4899,
+        "phyBonus": 135.333,
+        "attrBonus": 73.667,
+        "time": 0.667
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4899,
+        "phyBonus": 135.333,
+        "attrBonus": 73.667,
+        "time": 0.667
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4899,
+        "phyBonus": 135.333,
+        "attrBonus": 73.667,
+        "time": 0.667
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.9798,
+        "phyBonus": 271,
+        "attrBonus": 147,
+        "time": 1.617
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Forgetfulness"
+          }
+        ],
+        "effect": {
+          "castTimeModifier": -0.667
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Light",
+      "VC",
+      "Charged",
+      "HengBlade",
+      "SnowpartingBlade",
+      "GraveFrost"
+    ]
+  },
+  "SnowpartingHeavyVC": {
+    "name": "Snowbreak Spring",
+    "castTime": 0.867,
+    "action": [
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT4"
+          }
+        ],
+        "target": "self",
+        "value": "InnerPassion",
+        "stack": 1,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 2.8245,
+        "phyBonus": 782,
+        "attrBonus": 425,
+        "time": 0.867
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "InnerPassion",
+        "stack": 1,
+        "time": 0.867
+      },
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT1"
+          },
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierSnowbreakSpring",
+        "time": 0.867
+      },
+      {
+        "type": "extend",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT6"
+          },
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "target": "target",
+        "value": "Dread",
+        "duration": 2,
+        "time": 0.867
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT6"
+          }
+        ],
+        "target": "self",
+        "value": "Forgetfulness",
+        "stack": 1,
+        "time": 0.867
+      },
+      {
+        "type": "clearCD",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT6"
+          },
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "target": "self",
+        "value": "Forgetfulness",
+        "time": 0.867
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              [
+                {
+                  "target": "self",
+                  "value": "FrostCladNightT4"
+                },
+                {
+                  "target": "self",
+                  "value": "InnerPassion"
+                }
+              ],
+              [
+                {
+                  "target": "self",
+                  "value": "FrostCladNightT6"
+                },
+                {
+                  "target": "target",
+                  "value": "Exhausted"
+                }
+              ]
+            ]
+          }
+        ],
+        "effect": {
+          "hpDMGBonus": 0.4
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "VC",
+      "VariedCombo",
+      "HengBlade",
+      "SnowpartingBlade",
+      "SnowbreakSpring",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "SnowpartingSpecial": {
+    "name": "Fleeting Trace",
+    "castTime": 2.083,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.378,
+        "phyBonus": 104,
+        "attrBonus": 57,
+        "time": 1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.377975,
+        "phyBonus": 104.5,
+        "attrBonus": 57,
+        "time": 1.5
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.377975,
+        "phyBonus": 104.5,
+        "attrBonus": 57,
+        "time": 1.5
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.377975,
+        "phyBonus": 104.5,
+        "attrBonus": 57,
+        "time": 1.5
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.377975,
+        "phyBonus": 104.5,
+        "attrBonus": 57,
+        "time": 1.5
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.47245,
+        "phyBonus": 130.75,
+        "attrBonus": 130.75,
+        "time": 1.8
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.47245,
+        "phyBonus": 130.75,
+        "attrBonus": 130.75,
+        "time": 1.8
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.47245,
+        "phyBonus": 130.75,
+        "attrBonus": 130.75,
+        "time": 1.8
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.47245,
+        "phyBonus": 130.75,
+        "attrBonus": 130.75,
+        "time": 1.8
+      },
+      {
+        "type": "apply",
+        "requirement": [],
+        "target": "self",
+        "value": "InnerPassion",
+        "stack": 3,
+        "time": 2.083
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT4"
+          }
+        ],
+        "target": "self",
+        "value": "InnerPassion",
+        "stack": 1,
+        "time": 2.083
+      },
+      {
+        "type": "apply",
+        "requirement": [],
+        "target": "target",
+        "value": "Dread",
+        "stack": 1,
+        "time": 2.083
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Special",
+      "HengBlade",
+      "SnowpartingBlade",
+      "FleetingTrace"
+    ]
+  },
+  "SnowpartingQSlide": {
+    "name": "General's Bane - Slide",
+    "castTime": 0.7,
+    "action": [],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane"
+    ]
+  },
+  "SnowpartingQ": {
+    "name": "General's Bane",
+    "castTime": 0.7,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.2338,
+        "phyBonus": 342,
+        "attrBonus": 186,
+        "time": 0.7
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane"
+    ]
+  },
+  "SnowpartingQSlash": {
+    "name": "General's Bane: Slash",
+    "castTime": 1.383,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.74545,
+        "phyBonus": 206.5,
+        "attrBonus": 112.5,
+        "time": 1.383
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.74545,
+        "phyBonus": 206.5,
+        "attrBonus": 112.5,
+        "time": 1.383
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane",
+      "General's Bane: Slash"
+    ]
+  },
+  "SnowpartingQStab": {
+    "name": "General's Bane: Stab",
+    "castTime": 1.883,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.0662,
+        "phyBonus": 295,
+        "attrBonus": 161,
+        "time": 0.9
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.0662,
+        "phyBonus": 295,
+        "attrBonus": 161,
+        "time": 1.883
+      },
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT1"
+          },
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierGeneralsBaneStab",
+        "time": 1.883
+      },
+      {
+        "type": "apply",
+        "requirement": [],
+        "target": "target",
+        "value": "FearfulBlade",
+        "stack": 1,
+        "time": 1.883
+      },
+      {
+        "type": "extend",
+        "requirement": [],
+        "target": "target",
+        "value": "Dread",
+        "duration": 6,
+        "time": 1.883
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane",
+      "General's Bane: Stab",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "SnowpartingConversion": {
+    "name": "Snowparting Conversion",
+    "castTime": 0.583,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.6486,
+        "phyBonus": 180,
+        "attrBonus": 98,
+        "time": 0.583
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Conversion",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane"
+    ]
+  },
+  "AnxiSoldierSnowbreakSpring": {
+    "name": "Anxi Soldier Snowbreak Spring",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "HengBlade",
+      "SnowpartingBlade",
+      "AnxiSoldier"
+    ]
+  },
+  "AnxiSoldierGeneralsBaneStab": {
+    "name": "Anxi Soldier General's Bane: Stab",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.35,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "HengBlade",
+      "SnowpartingBlade",
+      "AnxiSoldier"
+    ]
+  }
+}

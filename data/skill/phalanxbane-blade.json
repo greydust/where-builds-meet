@@ -1,0 +1,504 @@
+{
+  "PhalanxbaneHeavyCharged1": {
+    "name": "Burning Heart 1st Stage",
+    "castTime": 1.4375,
+    "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": [
+            "InnerPassion",
+            "ChargeEnhancement"
+          ]
+        },
+        "stack": 1,
+        "time": 0.4
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3972,
+        "phyBonus": 110,
+        "attrBonus": 60,
+        "time": 0.8875
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.9269,
+        "phyBonus": 256,
+        "attrBonus": 140,
+        "time": 0.8875
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT6"
+          },
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "target": "self",
+        "value": "ChargeEnhancement",
+        "stack": 3,
+        "time": 0.8875
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "InnerPassion"
+              },
+              {
+                "target": "self",
+                "value": "ChargeEnhancement"
+              }
+            ]
+          },
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT4"
+          }
+        ],
+        "effect": {
+          "baseDMGBonus": 0.32
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "BurningHeart",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "PhalanxbaneHeavyCharged2": {
+    "name": "Burning Heart 2nd Stage",
+    "castTime": 2.375,
+    "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": [
+            "InnerPassion",
+            "ChargeEnhancement"
+          ]
+        },
+        "stack": 1,
+        "time": 1.6
+      },
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierBurningHeart2",
+        "time": 1.8
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.8827,
+        "phyBonus": 244,
+        "attrBonus": 133,
+        "time": 2.025
+      },
+      {
+        "type": "damage",
+        "phyCoef": 2.0597,
+        "phyBonus": 569,
+        "attrBonus": 310,
+        "time": 2.025
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT6"
+          },
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "target": "self",
+        "value": "ChargeEnhancement",
+        "stack": 3,
+        "time": 2.025
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "InnerPassion"
+              },
+              {
+                "target": "self",
+                "value": "ChargeEnhancement"
+              }
+            ]
+          },
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT4"
+          }
+        ],
+        "effect": {
+          "baseDMGBonus": 0.32
+        }
+      },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "InnerPassion"
+              },
+              {
+                "target": "self",
+                "value": "ChargeEnhancement"
+              }
+            ]
+          }
+        ],
+        "effect": {
+          "castTimeMultiplier": 0.8333
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "BurningHeart",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "PhalanxbaneHeavyCharged3": {
+    "name": "Burning Heart 3rd Stage",
+    "castTime": 3,
+    "action": [
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierBurningHeart2",
+        "time": 1.8
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": [
+            "InnerPassion",
+            "ChargeEnhancement"
+          ]
+        },
+        "stack": 1,
+        "time": 2.1
+      },
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierBurningHeart3",
+        "time": 2.3625
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.7199,
+        "phyBonus": 475,
+        "attrBonus": 259,
+        "time": 2.675
+      },
+      {
+        "type": "damage",
+        "phyCoef": 4.0131,
+        "phyBonus": 1110,
+        "attrBonus": 604,
+        "time": 2.675
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT6"
+          },
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "target": "self",
+        "value": "ChargeEnhancement",
+        "stack": 3,
+        "time": 2.675
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "InnerPassion"
+              },
+              {
+                "target": "self",
+                "value": "ChargeEnhancement"
+              }
+            ]
+          },
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT4"
+          }
+        ],
+        "effect": {
+          "baseDMGBonus": 0.32
+        }
+      },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "InnerPassion"
+              },
+              {
+                "target": "self",
+                "value": "ChargeEnhancement"
+              }
+            ]
+          }
+        ],
+        "effect": {
+          "castTimeMultiplier": 0.8333
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "BurningHeart",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "PhalanxbaneSpecial": {
+    "name": "Legion Summon",
+    "castTime": 1.183,
+    "action": [
+      {
+        "type": "apply",
+        "requirement": [],
+        "target": "self",
+        "value": "IronGuard",
+        "stack": 1,
+        "time": 1.183
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SteadfastDevotionT1"
+          }
+        ],
+        "effect": {
+          "duration": 40
+        }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Special",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "LegionSummon"
+    ]
+  },
+  "PhalanxbaneQ": {
+    "name": "Total Annihilation",
+    "castTime": 0.817,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.8943,
+        "phyBonus": 438,
+        "attrBonus": 245,
+        "time": 0.817
+      },
+      {
+        "type": "trigger",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "IronGuard"
+          }
+        ],
+        "value": "AnxiSoldierTotalAnnihilation",
+        "time": 0.817
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "TotalAnnihilation",
+      "TriggerAnxiSolder"
+    ]
+  },
+  "AnxiSoldierBurningHeart2": {
+    "name": "Anxi Soldier Burning Heart 2nd Stage",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.5,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "InnerPassion"
+          }
+        ],
+        "target": "self",
+        "value": "MountainSplitter",
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "AnxiSoldier"
+    ]
+  },
+  "AnxiSoldierBurningHeart3": {
+    "name": "Anxi Soldier Burning Heart 3rd Stage",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.9,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "InnerPassion"
+          }
+        ],
+        "target": "self",
+        "value": "MountainSplitter",
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "AnxiSoldier"
+    ]
+  },
+  "AnxiSoldierTotalAnnihilation": {
+    "name": "Anxi Soldier Total Annihilation",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "InnerPassion"
+          }
+        ],
+        "target": "self",
+        "value": "MountainSplitter",
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "AnxiSoldier"
+    ]
+  }
+}

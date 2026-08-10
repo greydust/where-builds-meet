@@ -1,0 +1,119 @@
+{
+  "name": "Throat-Piercing Art",
+  "effect": {
+    "ThroatPiercingArtT0": {
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Light"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "VariedCombo"
+                  }
+                ],
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Heavy"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "VariedCombo"
+                  }
+                ]
+              ]
+            }
+          ],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "ThroatPierced",
+              "stack": 1,
+              "reapply": true
+            }
+          ]
+        }
+      ]
+    },
+    "ThroatPiercingArtT1": {
+      "effect": [
+        {
+          "target": "ThroatPierced",
+          "modify": {
+            "duration": 15
+          }
+        }
+      ]
+    },
+    "ThroatPiercingArtT2": {
+      "effect": [
+        {
+          "stat": {
+            "minStonesplit": 12.7,
+            "maxStonesplit": 25.3
+          }
+        }
+      ]
+    },
+    "ThroatPiercingArtT3": {},
+    "ThroatPiercingArtT4": {
+      "effect": [
+        {
+          "target": "ThroatPierced",
+          "modify": {
+            "maxStack": 5
+          }
+        }
+      ]
+    },
+    "ThroatPiercingArtT5": {
+      "effect": [
+        {
+          "stat": {
+            "stonesplitPenetration": 6
+          }
+        }
+      ]
+    },
+    "ThroatPiercingArtT6": {
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  {
+                    "target": "skillTag",
+                    "value": "AnxiSoldier"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "TriggerAnxiSolder"
+                  }
+                ]
+              }
+          ],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "ThroatPierced",
+              "stack": 1,
+              "reapply": true
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

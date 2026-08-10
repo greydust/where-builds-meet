@@ -1,0 +1,126 @@
+{
+  "YiRiver": {
+    "name": "Yi River",
+    "description": "Increase damage by 1% and physical penetration by 2 per stack.",
+    "duration": 8,
+    "cooldown": 2,
+    "maxStack": 5,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "dmgBonus": 0.01,
+            "physicalPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Controlled"
+            },
+            {
+              "target": "self",
+              "value": "MoraleChantT3"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.01
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dmgBonus": 0.02,
+            "physicalPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Controlled"
+            },
+            {
+              "target": "self",
+              "value": "MoraleChantT3"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.02
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dmgBonus": 0.03,
+            "physicalPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Controlled"
+            },
+            {
+              "target": "self",
+              "value": "MoraleChantT3"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.03
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dmgBonus": 0.04,
+            "physicalPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Controlled"
+            },
+            {
+              "target": "self",
+              "value": "MoraleChantT3"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.04
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dmgBonus": 0.05,
+            "physicalPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Controlled"
+            },
+            {
+              "target": "self",
+              "value": "MoraleChantT3"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.05
+          }
+        }
+      ]
+    ]
+  }
+}

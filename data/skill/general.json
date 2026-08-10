@@ -1,0 +1,57 @@
+{
+  "Deflect": {
+    "name": "Deflect",
+    "castTime": 0.4167,
+    "action": [],
+    "modifier": [],
+    "tags": [
+      "Deflect"
+    ]
+  },
+  "MoraleChant": {
+    "name": "Morale Chant",
+    "castTime": 0,
+    "cooldown": 10,
+    "action": [
+      {
+        "type": "damage",
+          "phyCoef": 1,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "General",
+      "MoraleChant"
+    ]
+  },
+  "PerfectDodge": {
+    "name": "Perfect Dodge",
+    "castTime": 0.8333,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Disintegration",
+        "stack": 5,
+        "reapply": true,
+        "cooldown": 15,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "BreakingPointT6"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "General",
+      "PerfectDodge"
+    ]
+  }
+}

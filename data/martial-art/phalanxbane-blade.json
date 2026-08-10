@@ -1,0 +1,69 @@
+{
+  "name": "Phalanxbane Blade",
+  "talent": [
+    {
+      "name": "Critical Rate Up",
+      "effect": [
+        {
+          "stat": {
+            "crit": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.0003035714285714286,
+                "max": 0.085
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Iron Guard Penetration Up",
+      "effect": [
+        {
+          "target": "IronGuard",
+          "modify": {
+            "effect": [
+              {
+                "effect": {
+                  "physicalPenetration": {
+                    "formula": {
+                      "source": "minPhys",
+                      "multiplier": 0.016,
+                      "max": 12
+                    }
+                  },
+                  "stonesplitPenetration": {
+                    "formula": {
+                      "source": "minPhys",
+                      "multiplier": 0.016,
+                      "max": 12
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stonesplit Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minStonesplit": 98,
+            "maxStonesplit": 196,
+            "stonesplitPenetration": {
+              "formula": {
+                "source": "effectiveMinStonesplit",
+                "multiplier": 0.06707317073170732,
+                "max": 22
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

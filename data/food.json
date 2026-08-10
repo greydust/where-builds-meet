@@ -1,0 +1,17 @@
+{
+  "None": {
+    "name": "None",
+    "effect": {
+      "stat": {}
+    }
+  },
+  "SimmeringFishSlices": {
+    "name": "Simmering Fish Slices",
+    "effect": {
+      "effectiveStat": {
+        "minPhys": 120,
+        "maxPhys": 240
+      }
+    }
+  }
+}

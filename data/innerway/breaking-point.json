@@ -1,0 +1,67 @@
+{
+  "name": "Breaking Point",
+  "effect": {
+    "BreakingPointT0": {
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+            {
+              "target": "target",
+              "value": "Exhausted"
+            }
+          ],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "Disintegration",
+              "stack": 1,
+              "reapply": true
+            }
+          ]
+        }
+      ]
+    },
+    "BreakingPointT1": {
+      "effect": [
+        {
+          "target": "Disintegration",
+          "modify": {
+            "duration": 5
+          }
+        }
+      ]
+    },
+    "BreakingPointT2": {
+      "effect": [
+        {
+          "stat": {
+            "precision": 0.069
+          }
+        }
+      ]
+    },
+    "BreakingPointT3": {},
+    "BreakingPointT4": {
+      "effect": [
+        {
+          "target": "Disintegration",
+          "modify": {
+            "maxStack": 5
+          }
+        }
+      ]
+    },
+    "BreakingPointT5": {
+      "effect": [
+        {
+          "stat": {
+            "directCrit": 0.041
+          }
+        }
+      ]
+    },
+    "BreakingPointT6": {}
+  }
+}

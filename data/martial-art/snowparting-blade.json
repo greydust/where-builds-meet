@@ -1,0 +1,55 @@
+{
+  "name": "Snowparting Blade",
+  "talent": [
+    {
+      "name": "Physical Attack Up",
+      "effect": [
+        {
+          "stat": {
+            "minPhys": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.26392857,
+                "max": 73.9
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical DMG Up",
+      "effect": [
+        {
+          "effectiveStat": {
+            "critDmgBonus": {
+              "formula": {
+                "source": "crit",
+                "multiplier": 0.35,
+                "max": 0.21
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stonesplit Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minStonesplit": 98,
+            "maxStonesplit": 196,
+            "stonesplitDmgBonus": {
+              "formula": {
+                "source": "effectiveMinStonesplit",
+                "multiplier": 0.0003353658536585366,
+                "max": 0.11
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

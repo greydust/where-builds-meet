@@ -1,0 +1,47 @@
+{
+  "General": {
+    "name": "General",
+    "effect": {
+      "stat": {
+        "minPhys": 131,
+        "maxPhys": 263
+      }
+    }
+  },
+  "Bellstrike": {
+    "name": "Bellstrike",
+    "effect": {
+      "stat": {
+        "minBellstrike": 131,
+        "maxBellstrike": 263
+      }
+    }
+  },
+  "Stonesplit": {
+    "name": "Stonesplit",
+    "effect": {
+      "stat": {
+        "minStonesplit": 131,
+        "maxStonesplit": 263
+      }
+    }
+  },
+  "Silkbind": {
+    "name": "Silkbind",
+    "effect": {
+      "stat": {
+        "minSilkbind": 131,
+        "maxSilkbind": 263
+      }
+    }
+  },
+  "Bamboocut": {
+    "name": "Bamboocut",
+    "effect": {
+      "stat": {
+        "minBamboocut": 131,
+        "maxBamboocut": 263
+      }
+    }
+  }
+}

@@ -1,0 +1,275 @@
+import { calculateDamageBreakdown, type DamageBreakdown, type DamageContext, type DamageAction } from "./damage";
+import { emptyRotationBreakdown, type RotationBreakdown, type RotationMetrics, type RotationPriority } from "./rotationMetrics";
+import { calculateDerivedStats } from "./effectiveStats";
+import { buildRotationTimeline, mergeEffectDefinition, requirementsPass, type EditableObject, type EffectDefinition, type InnerWayEffectRule, type TimelineBuildInput, type TimelineRow } from "./rotationTimeline";
+import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
+import type { AttunementStats } from "./damage";
+
+export type RotationDamageEntry = {
+  id?: string;
+  action: DamageAction;
+  context: DamageContext;
+};
+
+export type RotationCalculationVariant = {
+  key: string;
+  entries: RotationDamageEntry[];
+};
+
+export type RotationCalculationBundle = {
+  duration: number;
+  baseline: RotationDamageEntry[];
+  statPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
+  attunementPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
+  innerWayPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
+  setupComparisons: Record<string, Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>>;
+};
+
+export type RotationSimulationVariant = {
+  label: string;
+  maxRoll?: number;
+  stats?: CharacterStats;
+  attunement?: AttunementStats;
+  timeline?: TimelineBuildInput;
+  innerWayRules?: InnerWayEffectRule[];
+  innerWayConditions?: string[];
+  setupEffects?: EditableObject[];
+};
+
+export type RotationSimulationBundle = {
+  timeline: TimelineBuildInput;
+  startAnchor: { rowId: string; actionIndex?: number };
+  stats: CharacterStats;
+  attunement: AttunementStats;
+  enemy: EnemyProfile;
+  derivedStats: DamageContext["derivedStats"];
+  weapons: WeaponId[];
+  statPriority: RotationSimulationVariant[];
+  attunementPriority: RotationSimulationVariant[];
+  innerWayPriority: RotationSimulationVariant[];
+  setupComparisons: Record<string, RotationSimulationVariant[]>;
+};
+
+const emptyBreakdown = (): DamageBreakdown => ({
+  physical: 0,
+  bellstrike: 0,
+  stonesplit: 0,
+  silkbind: 0,
+  bamboocut: 0,
+  total: 0,
+});
+
+function sumEntries(entries: RotationDamageEntry[]) {
+  return entries.reduce((total, entry) => {
+    const breakdown = calculateDamageBreakdown(entry.action, entry.context);
+    return {
+      physical: total.physical + breakdown.physical,
+      bellstrike: total.bellstrike + breakdown.bellstrike,
+      stonesplit: total.stonesplit + breakdown.stonesplit,
+      silkbind: total.silkbind + breakdown.silkbind,
+      bamboocut: total.bamboocut + breakdown.bamboocut,
+      total: total.total + breakdown.total,
+    };
+  }, emptyBreakdown());
+}
+
+function priorityRow(label: string, baselineDps: number, variantDps: number, maxRoll?: number): RotationPriority {
+  return {
+    label,
+    maxRoll,
+    increase: baselineDps > 0 ? (variantDps / baselineDps - 1) * 100 : 0,
+    dpsDifference: variantDps - baselineDps,
+  };
+}
+
+function calculatePriorityRows(
+  baselineDps: number,
+  duration: number,
+  variants: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>,
+  order: "ascending" | "descending" = "descending",
+) {
+  return variants
+    .map(({ label, maxRoll, entries }) => priorityRow(label, baselineDps, duration > 0 ? sumEntries(entries).total / duration : 0, maxRoll))
+    .sort((left, right) => order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference);
+}
+
+/**
+ * Pure calculation entry point. It has no React or browser storage dependency;
+ * callers build the timeline and provide all state needed for each variant.
+ */
+export function calculateRotationMetrics(bundle: RotationCalculationBundle, baselineDamageOverride?: number): RotationMetrics {
+  const duration = Math.max(0, bundle.duration);
+  const baselineDamage = baselineDamageOverride ?? sumEntries(bundle.baseline).total;
+  const baselineDps = duration > 0 ? baselineDamage / duration : 0;
+  const setupComparisons = Object.fromEntries(Object.entries(bundle.setupComparisons).map(([group, variants]) => [
+    group,
+    calculatePriorityRows(baselineDps, duration, variants),
+  ]));
+
+  const attunementRows = calculatePriorityRows(baselineDps, duration, bundle.attunementPriority);
+  const penetrationLabels = new Set(["Physical Penetration", "Formless Penetration"]);
+  return {
+    totalDamage: baselineDamage,
+    dps: baselineDps,
+    breakdown: emptyRotationBreakdown(),
+    statPriority: calculatePriorityRows(baselineDps, duration, bundle.statPriority),
+    attunementPriority: [
+      ...attunementRows.filter((row) => penetrationLabels.has(row.label)).sort((left, right) => right.dpsDifference - left.dpsDifference),
+      ...attunementRows.filter((row) => !penetrationLabels.has(row.label)).sort((left, right) => right.dpsDifference - left.dpsDifference),
+    ],
+    innerWayPriority: calculatePriorityRows(baselineDps, duration, bundle.innerWayPriority, "ascending"),
+    setupComparisons,
+  };
+}
+
+function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<string, DamageBreakdown>, totalDamage: number): RotationBreakdown {
+  const percentage = (damage: number) => totalDamage > 0 ? damage / totalDamage * 100 : 0;
+  const skills = new Map<string, { id: string; name: string; casts: number; triggers: number; hits: number; abrasionTotal: number; normalTotal: number; criticalTotal: number; affinityTotal: number; damage: number; tags: string[] }>();
+
+  timeline.forEach((row) => {
+    if (row.skipped || row.step.type !== "skill" || !row.step.skill) return;
+    const id = row.step.skill;
+    const current = skills.get(id) ?? { id, name: row.skill?.name ?? id, casts: 0, triggers: 0, hits: 0, abrasionTotal: 0, normalTotal: 0, criticalTotal: 0, affinityTotal: 0, damage: 0, tags: row.skill?.tags ?? [] };
+    if (row.kind === "rotation") current.casts += 1;
+    else current.triggers += 1;
+    row.actions.forEach((action, actionIndex) => {
+      if (action.type === "damage") {
+        const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
+        current.hits += 1;
+        current.damage += breakdown?.total ?? 0;
+        current.abrasionTotal += breakdown?.outcomeRates?.abrasion ?? 0;
+        current.normalTotal += breakdown?.outcomeRates?.normal ?? 0;
+        current.criticalTotal += breakdown?.outcomeRates?.critical ?? 0;
+        current.affinityTotal += breakdown?.outcomeRates?.affinity ?? 0;
+      }
+    });
+    skills.set(id, current);
+  });
+
+  const categoryTotals = { martialArts: 0, mystic: 0, other: 0 };
+  skills.forEach((skill) => {
+    if (skill.tags.includes("MartialArts")) categoryTotals.martialArts += skill.damage;
+    else if (skill.tags.includes("Mystic")) categoryTotals.mystic += skill.damage;
+    else categoryTotals.other += skill.damage;
+  });
+
+  const damageTotals = Object.values(actionBreakdowns).reduce((total, breakdown) => ({
+    physical: total.physical + breakdown.physical,
+    bellstrike: total.bellstrike + breakdown.bellstrike,
+    stonesplit: total.stonesplit + breakdown.stonesplit,
+    silkbind: total.silkbind + breakdown.silkbind,
+    bamboocut: total.bamboocut + breakdown.bamboocut,
+  }), { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 });
+
+  return {
+    skills: [...skills.values()].map(({ tags: _tags, abrasionTotal, normalTotal, criticalTotal, affinityTotal, ...skill }) => ({
+      ...skill,
+      abrasionRate: skill.hits > 0 ? abrasionTotal / skill.hits * 100 : 0,
+      normalRate: skill.hits > 0 ? normalTotal / skill.hits * 100 : 0,
+      criticalRate: skill.hits > 0 ? criticalTotal / skill.hits * 100 : 0,
+      affinityRate: skill.hits > 0 ? affinityTotal / skill.hits * 100 : 0,
+      percentage: percentage(skill.damage),
+    }))
+      .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
+    categories: [
+      { id: "martialArts", name: "Martial Arts", damage: categoryTotals.martialArts, percentage: percentage(categoryTotals.martialArts) },
+      { id: "mystic", name: "Mystic", damage: categoryTotals.mystic, percentage: percentage(categoryTotals.mystic) },
+      { id: "other", name: "Other", damage: categoryTotals.other, percentage: percentage(categoryTotals.other) },
+    ],
+    damageTypes: [
+      { id: "physical", name: "Physical", damage: damageTotals.physical, percentage: percentage(damageTotals.physical) },
+      { id: "bellstrike", name: "Bellstrike", damage: damageTotals.bellstrike, percentage: percentage(damageTotals.bellstrike) },
+      { id: "stonesplit", name: "Stonesplit", damage: damageTotals.stonesplit, percentage: percentage(damageTotals.stonesplit) },
+      { id: "silkbind", name: "Silkbind", damage: damageTotals.silkbind, percentage: percentage(damageTotals.silkbind) },
+      { id: "bamboocut", name: "Bamboocut", damage: damageTotals.bamboocut, percentage: percentage(damageTotals.bamboocut) },
+    ],
+  };
+}
+
+function effectsForTrackedEffect(stack: number | undefined, definition: EffectDefinition | undefined) {
+  if (Array.isArray(definition?.stackEffects)) {
+    const stackEffects = definition.stackEffects[Math.max(0, (stack ?? 1) - 1)];
+    return Array.isArray(stackEffects) ? stackEffects : [];
+  }
+  return definition?.effect ?? [];
+}
+
+function timelineDamageEntries(
+  timeline: TimelineRow[],
+  input: TimelineBuildInput,
+  state: Pick<RotationSimulationBundle, "stats" | "attunement" | "enemy" | "derivedStats" | "weapons">,
+  overrides: RotationSimulationVariant = { label: "" },
+): RotationDamageEntry[] {
+  const rules = overrides.innerWayRules ?? input.innerWayRules;
+  const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
+  const setupEffects = overrides.setupEffects ?? input.setupEffects;
+  const stats = overrides.stats ?? state.stats;
+  const attunement = overrides.attunement ?? state.attunement;
+  const derivedStats = overrides.stats ? calculateDerivedStats(stats, state.enemy.judgementResistance) : state.derivedStats;
+  return timeline.flatMap((row) => row.skipped ? [] : row.actions.flatMap((action, actionIndex) => {
+    if (action.type !== "damage") return [];
+    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs };
+    const buffs = actionState.buffs;
+    const debuffs = actionState.debuffs;
+    const skillTags = row.skill?.tags ?? [];
+    const activeInnerWayEffects = rules.filter((rule) => requirementsPass(rule.requirement, buffs, debuffs, skillTags, conditions, state.weapons)).map((rule) => rule.effect);
+    const activeTrackedEffects = [...buffs, ...debuffs].flatMap((tracked) => {
+      const setupModifiers = setupEffects.filter((effect) => effect.target === tracked.name && effect.modify && typeof effect.modify === "object" && !Array.isArray(effect.modify) && requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
+        .map((effect) => effect.modify as EditableObject);
+      const innerWayModifiers = rules.filter((rule) => rule.target === tracked.name && rule.modify && requirementsPass(rule.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
+        .map((rule) => rule.modify!);
+      const definition = [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, { ...(input.effectDefinitions[tracked.name] ?? {}) });
+      return effectsForTrackedEffect(tracked.stack, definition);
+    })
+      .filter((effect): effect is EditableObject => Boolean(effect) && typeof effect === "object" && !Array.isArray(effect))
+      .filter((effect) => requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
+      .map((effect) => effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect) ? effect.effect as EditableObject : effect);
+    return [{
+      id: `${row.id}:${actionIndex}`,
+      action,
+      context: {
+        stats,
+        attunement,
+        skillTags,
+        weapons: state.weapons,
+        buffs: buffs.map((effect) => effect.name),
+        enemy: state.enemy,
+        derivedStats,
+        effects: [...setupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
+        isDot: row.kind === "dot",
+      },
+    }];
+  }));
+}
+
+export function calculateRotationSimulation(bundle: RotationSimulationBundle) {
+  const timeline = buildRotationTimeline(bundle.timeline);
+  const anchorRow = timeline.find((row) => row.id === bundle.startAnchor.rowId) ?? timeline[0];
+  const anchorTime = anchorRow ? anchorRow.startTime + (bundle.startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[bundle.startAnchor.actionIndex]?.time ?? 0)) : 0;
+  const lastActionTime = timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
+  const duration = Math.max(0, lastActionTime - anchorTime);
+  const state = { stats: bundle.stats, attunement: bundle.attunement, enemy: bundle.enemy, derivedStats: bundle.derivedStats, weapons: bundle.weapons };
+  const entriesForVariant = (variant: RotationSimulationVariant) => {
+    const timelineInput = variant.timeline ?? bundle.timeline;
+    const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : timeline;
+    return timelineDamageEntries(variantTimeline, timelineInput, state, variant);
+  };
+  const baseline = timelineDamageEntries(timeline, bundle.timeline, state);
+  let baselineDamage = 0;
+  const actionBreakdowns = Object.fromEntries(baseline.filter((entry) => entry.id).map((entry) => {
+    const breakdown = calculateDamageBreakdown(entry.action, entry.context);
+    baselineDamage += breakdown.total;
+    return [entry.id!, breakdown];
+  }));
+  const entryBundle: RotationCalculationBundle = {
+    duration,
+    baseline,
+    statPriority: bundle.statPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
+    attunementPriority: bundle.attunementPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
+    innerWayPriority: bundle.innerWayPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
+    setupComparisons: Object.fromEntries(Object.entries(bundle.setupComparisons).map(([group, variants]) => [group, variants.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) }))])),
+  };
+  const metrics = calculateRotationMetrics(entryBundle, baselineDamage);
+  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
+  return { metrics, timeline, anchorTime, duration, actionBreakdowns };
+}

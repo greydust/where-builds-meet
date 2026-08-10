@@ -1,0 +1,222 @@
+# Damage Formula Specification
+
+This document describes the formula currently implemented by the rotation simulator. Unless stated otherwise, percentage values are stored internally as decimal ratios: `0.11` means `11%`. The UI converts between ratios and percentage points.
+
+Enemy defense, path resistances, and Judgement Resistance come from the selected profile in `data/enemy.json`. The only profile currently shipped is Level 100: 405 defense, zero base resistance, and 65% Judgement Resistance.
+
+## Stat resolution
+
+The editable character object contains raw stats. Before damage is evaluated, the calculator applies selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
+
+1. Add fixed `stat` values.
+2. Resolve `stat` formulas whose source is another base stat.
+3. Calculate effective attack ranges and rates.
+4. Resolve `stat` formulas whose source is a derived stat.
+5. Add `effectiveStat` values and calculate the final derived stats.
+
+Fixed effects are applied before formulas, regardless of JSON order. Internal floating-point results are normalized to nine decimal places.
+
+### Effective attack ranges
+
+For physical, Bellstrike, Silkbind, and Bamboocut attack:
+
+```text
+Effective Minimum = Minimum
+Effective Maximum = max(Minimum, Maximum)
+```
+
+Void/Formless Attack is folded into the primary attribute after Stonesplit's first minimum/maximum normalization:
+
+```text
+Normalized Stonesplit Maximum = max(Min Stonesplit, Max Stonesplit)
+Effective Min Stonesplit = Min Stonesplit + Min Void/Formless
+Effective Max Stonesplit = max(
+  Effective Min Stonesplit,
+  Normalized Stonesplit Maximum + Max Void/Formless
+)
+```
+
+Snowparting Blade and Phalanxbane Blade currently use Stonesplit as their primary attribute. Because these are the only supported weapon settings, Stonesplit is the active primary path in the current application.
+
+## Damage outcomes
+
+Every damage action is evaluated as four possible outcomes and then rate weighted:
+
+| Outcome | Physical attack | Attribute attack | Outcome bonus |
+| --- | --- | --- | --- |
+| Abrasion | effective minimum | effective minimum | none |
+| Normal | effective average | effective average | none |
+| Critical | effective average | effective average | Critical DMG Bonus |
+| Affinity | effective maximum | effective maximum | Affinity DMG Bonus |
+
+The effective average is `(effective minimum + effective maximum) / 2`.
+
+## Per-outcome damage
+
+For an action with physical coefficient `C`, physical bonus `Bp`, attribute bonus `Ba`, and outcome-specific attacks `P` and `Ai`:
+
+```text
+Base Physical = C × (P − Enemy Defense) + Bp
+Base Attribute i = C × Ai + (Ba when i is the primary path, otherwise 0)
+```
+
+Physical damage is clamped to zero after multiplication. Bellstrike, Stonesplit, Silkbind, and Bamboocut are calculated independently and are not reduced by physical defense.
+
+```text
+Physical = max(0,
+  Base Physical
+  × Physical Penetration Multiplier
+  × (1 + Physical DMG Bonus)
+  × Shared Multiplier
+  × Outcome Multiplier
+)
+
+Attribute i =
+  Base Attribute i
+  × Attribute i Penetration Multiplier
+  × (1 + Attribute i DMG Bonus)
+  × Path Multiplier
+  × Shared Multiplier
+  × Outcome Multiplier
+```
+
+The action's `attrBonus` is added only to the primary path. The same action `phyCoef` is used by physical damage and all four attribute paths.
+
+### Shared multiplier
+
+```text
+Shared Multiplier =
+  (1 + Base DMG Bonus)
+  × (1 + DMG Bonus Category 1)
+  × (1 + matching Attunement DMG Bonus)
+  × (1 + Global DMG Bonus)
+```
+
+`baseDMGBonus` applies to physical damage and all four attributes. It is a separate multiplier from Category 1.
+
+Category 1 currently contains:
+
+- `vsBossDmg` (the current encounter is treated as a boss)
+- `allMartialArts` for skills tagged `MartialArts`
+- Art of Mo Blade for `MoBlade`, or Art of Heng Blade for `HengBlade`
+- active `dmgBonus` effects
+- active `hpDMGBonus` effects whose requirements pass
+
+Attunement uses weapon and skill tags. Charged, varied-combo, and martial-art boosts are selected according to the matching Snowparting or Phalanxbane tags.
+
+Global DMG Bonus is another independent multiplier. The `Exhausted` debuff currently supplies `globalDmgBonus: 0.1`.
+
+DMG Bonus Category 2 is reserved for effects such as Mortal Rope Dart Vendetta Token, but it is not implemented in the calculator yet.
+
+### Outcome multiplier
+
+```text
+Abrasion or Normal = 1
+Critical = 1 + Effective Critical DMG Bonus + active critDmgBonus effects
+Affinity = 1 + Affinity DMG Bonus
+```
+
+Critical and affinity bonuses multiply physical and every attribute component.
+
+### Path multiplier
+
+```text
+Primary path = 1.5
+Other paths = 1.0
+```
+
+## Penetration and resistance
+
+When penetration is greater than or equal to resistance:
+
+```text
+Penetration Multiplier = 1 + (Penetration − Resistance) / 200
+```
+
+When penetration is lower than resistance:
+
+```text
+Penetration Multiplier = 1 + (Penetration − Resistance) / 100
+```
+
+Physical penetration consists of attunement Physical Penetration plus active `physicalPenetration` effects.
+
+Each attribute starts with its corresponding character penetration stat. Stonesplit additionally receives active `stonesplitPenetration` effects. Formless Penetration is added to the primary attribute.
+
+Effects may adjust resistance directly with `bellstrikeResistance`, `stonesplitResistance`, `silkbindResistance`, or `bamboocutResistance`. These values are added to enemy resistance. For example, Fearful Blade contributes `-16` to each attribute resistance.
+
+## Rate calculation
+
+For Judgement Resistance `J`:
+
+```text
+Effective Precision = min(1, (Precision − J) / (1 + J) + J)
+Effective Critical  = min(0.8, Critical / (1 + J))
+Effective Affinity  = min(0.4, Affinity / (1 + J))
+Final Affinity = Effective Affinity + Direct Affinity
+```
+
+When `Final Affinity + Direct Critical + Effective Critical <= 1`:
+
+```text
+Final Critical = (Effective Critical + Direct Critical) × Effective Precision
+```
+
+Otherwise:
+
+```text
+Final Critical = (1 − Final Affinity) × Effective Precision
+```
+
+The outcome distribution is:
+
+```text
+Affinity Rate = Final Affinity
+Critical Rate = Final Critical
+Abrasion Rate = (1 − Effective Precision) × (1 − Final Affinity)
+Normal Rate   = max(0, 1 − Abrasion Rate − Affinity Rate − Critical Rate)
+```
+
+`SteadfastGuaranteedCrit` is a skill-specific rate override and only applies to skills tagged `BurningHeart` or `AnxiSoldier`:
+
+- If the normal Final Critical is at least 75%, Critical Rate becomes 100% and every other outcome rate becomes zero.
+- Otherwise, 15% Direct Critical is added and the rates are recalculated.
+
+The associated 10% Critical DMG effects are represented separately as `critDmgBonus: 0.1` in effect data; they are not part of the rate function.
+
+## Expected action damage
+
+For every physical or attribute component:
+
+```text
+Expected Component =
+    Abrasion Damage × Abrasion Rate
+  + Normal Damage × Normal Rate
+  + Critical Damage × Critical Rate
+  + Affinity Damage × Affinity Rate
+```
+
+The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut damage. Rotation total damage is the sum of all damage actions, including triggered skills and DOT ticks. DPS is total damage divided by the time from the selected start anchor to the final action in the timeline.
+
+## Damage-over-time exception
+
+DOT damage ignores the action's flat Physical Bonus and Attribute Bonus. Its coefficient, attacks, penetration, path bonus, active effects, and outcome rates are otherwise calculated normally.
+
+## Stat-priority conversion
+
+Max-roll values are stored in `data/stat-priority.json`. A priority variant adds one max roll and recalculates DPS. Power, Agility, and Momentum also apply these per-point conversions:
+
+```text
+1 Power    = 0.225 Min Physical Attack + 1.36 Max Physical Attack
+1 Agility  = 0.9 Min Physical Attack + 0.00076 Critical Rate
+1 Momentum = 0.9 Max Physical Attack + 0.00038 Affinity Rate
+```
+
+The source game relationships recorded for future defensive priority work are:
+
+```text
+1 Body    = 60 HP
+1 Defense = 17 HP + 0.5 defense
+```
+
+Inner Way priority is calculated by removing each selected Inner Way, rebuilding the timeline, and measuring the resulting DPS loss. Setup comparisons replace the selected setup option with the candidate; variants that introduce timeline behavior, such as Cleftpeak 4-piece, rebuild the timeline.

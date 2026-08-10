@@ -1,0 +1,22 @@
+{
+  "Exhausted": {
+    "name": "Exhausted",
+    "description": "Increases global damage taken by 10%.",
+    "duration": 10,
+    "maxStack": 1,
+    "shared": true,
+    "effect": [
+      {
+        "effect": {
+          "globalDmgBonus": 0.1
+        }
+      }
+    ]
+  },
+  "Controlled": {
+    "name": "Controlled",
+    "description": "Marks a target as controlled for conditional effects.",
+    "maxStack": 1,
+    "shared": true
+  }
+}

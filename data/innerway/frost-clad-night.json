@@ -1,0 +1,44 @@
+{
+  "name": "Frost-Clad Night",
+  "effect": {
+    "FrostCladNightT0": {},
+    "FrostCladNightT1": {},
+    "FrostCladNightT2": {
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 74.4
+          }
+        }
+      ]
+    },
+    "FrostCladNightT3": {},
+    "FrostCladNightT4": {
+      "effect": []
+    },
+    "FrostCladNightT5": {
+      "effect": [
+        {
+          "stat": {
+            "directCrit": 0.046
+          }
+        }
+      ]
+    },
+    "FrostCladNightT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "SnowbreakSpring"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.1
+          }
+        }
+      ]
+    }
+  }
+}
