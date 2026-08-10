@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
 import BuildTab from "./BuildTab";
+import SimulationTab from "./SimulationTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
 import { activeBuildStorageKey, attunementData, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import type { CharacterStats, EnemyProfile, StatDefinition, WeaponId } from "./types";
@@ -1126,7 +1127,7 @@ function SettingsTab({ settings, enemy, onSettingsChange }: {
   </section>;
 }
 
-function RotationEditorTab({ character, onMetricsChange }: { character: CharacterState; onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void }) {
+function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundleChange }: { character: CharacterState; onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void; onActiveSimulationBundleChange: (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => void }) {
   const { rawStats: characterStats, attunementStats, settings, enemy, derivedStats, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup } = character;
   const innerWayConditions = loadInnerWayConditions();
   const innerWayEffectRules = loadInnerWayEffectRules();
@@ -1527,6 +1528,13 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
     };
   }
 
+  useEffect(() => {
+    const activeRotation = activeRotationId === editingRotationId
+      ? rotation
+      : rotationEntries.find((entry) => entry.id === activeRotationId)?.rotation;
+    if (activeRotation) onActiveSimulationBundleChange(calculationBundleFor(activeRotation, false), activeRotation.name || "Active rotation", `${activeRotationId}:${calculationContextKey}:${JSON.stringify(activeRotation)}`);
+  }, [activeRotationId, editingRotationId, rotation, rotationEntries, calculationContextKey, onActiveSimulationBundleChange]);
+
   const resultKeyFor = (id: string, rotationRecord: RotationRecord, contextKey = calculationContextKey) => `${id}:${contextKey}:${JSON.stringify(rotationRecord)}`;
   const workerCacheKeyFor = (resultKey: string) => `rotation:${resultKey}`;
 
@@ -1667,7 +1675,8 @@ function RotationEditorTab({ character, onMetricsChange }: { character: Characte
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<"main" | "build" | "breakdown" | "rotations" | "skills" | "settings">("main");
+  const [activeTab, setActiveTab] = useState<"main" | "build" | "breakdown" | "rotations" | "simulation" | "skills" | "settings">("main");
+  const [activeSimulation, setActiveSimulation] = useState<{ bundle: RotationSimulationBundle; rotationName: string; bundleKey: string }>();
   const rotationMetrics = useSyncExternalStore(subscribeToRotationMetrics, getRotationMetrics, getRotationMetrics);
   const [innerWayRevision, setInnerWayRevision] = useState(0);
   const [statOverrides, setStatOverrides] = useState<CharacterStatOverrides>(loadStatOverrides);
@@ -1733,6 +1742,7 @@ export default function App() {
   const handleRotationMetrics = (metrics: RotationMetrics, isActive: boolean) => {
     if (isActive) publishRotationMetrics(metrics);
   };
+  const handleActiveSimulationBundle = useCallback((bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => setActiveSimulation({ bundle, rotationName, bundleKey }), []);
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
   useEffect(() => localStorage.setItem(buildListStorageKey, serializeBuildState(buildState)), [buildState]);
@@ -1754,11 +1764,13 @@ export default function App() {
         <button className={activeTab === "build" ? "active" : ""} type="button" onClick={() => setActiveTab("build")}>Build</button>
         <button className={activeTab === "breakdown" ? "active" : ""} type="button" onClick={() => setActiveTab("breakdown")}>DPS Breakdown</button>
         <button className={activeTab === "rotations" ? "active" : ""} type="button" onClick={() => setActiveTab("rotations")}>Rotation Editor</button>
+        <button className={activeTab === "simulation" ? "active" : ""} type="button" onClick={() => setActiveTab("simulation")}>Simulation</button>
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
       {activeTab === "main" ? <StatsTab character={character} statOverrides={statOverrides} attunementOverrides={attunementOverrides} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} onResetAll={resetAllStatOverrides} rotationMetrics={rotationMetrics} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} onSettingsChange={setSettings} /> : null}
-      <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} /></div>
+      <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} onActiveSimulationBundleChange={handleActiveSimulationBundle} /></div>
+      <div className={activeTab === "simulation" ? "" : "tab-hidden"}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} /></div>
       <footer className="page-footer">
         <span>Author: greydust (WWM IGN) / greydust (Discord)</span>
         <a href="https://github.com/greydust/where-builds-meet" target="_blank" rel="noreferrer">GitHub</a>

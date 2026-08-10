@@ -25,8 +25,10 @@ export type DamageAction = {
   phyBonus?: unknown;
   attrBonus?: unknown;
 };
+export type DamageOutcome = "abrasion" | "normal" | "critical" | "affinity";
 export type DamageOutcomeRates = { abrasion: number; normal: number; critical: number; affinity: number };
-export type DamageBreakdown = { physical: number; bellstrike: number; stonesplit: number; silkbind: number; bamboocut: number; total: number; outcomeRates?: DamageOutcomeRates };
+export type DamageBreakdown = { physical: number; bellstrike: number; stonesplit: number; silkbind: number; bamboocut: number; total: number; outcomeRates?: DamageOutcomeRates; outcome?: DamageOutcome };
+type AttackRollMode = "min" | "average" | "max" | "simulate";
 
 export type DamageContext = {
   stats: CharacterStats;
@@ -53,7 +55,7 @@ function mainAttribute(weapons: WeaponId[]) {
   return undefined;
 }
 
-export function calculateDamageBreakdown(action: DamageAction, context: DamageContext): DamageBreakdown {
+function calculateDamageBreakdownInternal(action: DamageAction, context: DamageContext, random?: () => number): DamageBreakdown {
   const { stats: baseStats, attunement, skillTags, weapons, enemy, derivedStats: baseDerivedStats, effects } = context;
   const hasStatEffects = effects.some((effect) => (effect.stat && typeof effect.stat === "object") || (effect.effectiveStat && typeof effect.effectiveStat === "object"));
   const calculatedStats = hasStatEffects
@@ -121,8 +123,16 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
     + mysticSkillBonus
     + innerWayDmgBonus;
   const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus) * (1 + globalDmgBonus);
-  const calculateAttributeDamage = (mode: "min" | "average" | "max") => attributeRanges.reduce((total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {
-    const attack = mode === "min" ? minAttack : mode === "max" ? maxAttack : (minAttack + maxAttack) / 2;
+  const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
+  const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => mode === "min"
+    ? minimum
+    : mode === "max"
+      ? maximum
+      : mode === "simulate"
+        ? minimum === maximum ? minimum : minimum + (maximum - minimum) * randomUnit()
+        : (minimum + maximum) / 2;
+  const calculateAttributeDamage = (mode: AttackRollMode) => attributeRanges.reduce((total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {
+    const attack = attackValue(minAttack, maxAttack, mode);
     const resistanceAdjustment = effects.reduce((sum, effect) => sum + effectValue(effect[`${attribute}Resistance`]), 0);
     const damage = (coefficient * attack + (attribute === path ? attributeBonus : 0))
       * penetrationMultiplier(penetration + (attribute === "stonesplit" ? effectStonesplitPenetration : 0) + (attribute === path ? attunementFormlessPenetration : 0), resistance + resistanceAdjustment)
@@ -130,8 +140,8 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
       * (attribute === path ? 1.5 : 1);
     return { ...total, [attribute]: total[attribute as keyof typeof total] + damage };
   }, { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 });
-  const calculateVariant = (damageType: "min" | "average" | "max", specialBonus: number) => {
-    const physicalAttack = damageType === "min" ? minPhysicalAttack : damageType === "max" ? maxPhysicalAttack : averagePhysicalAttack;
+  const calculateVariant = (damageType: AttackRollMode, specialBonus: number) => {
+    const physicalAttack = damageType === "average" ? averagePhysicalAttack : attackValue(minPhysicalAttack, maxPhysicalAttack, damageType);
     const physicalDamage = (coefficient * (physicalAttack - enemy.defense) + physicalBonus)
       * penetrationMultiplier(attunementPhysicalPenetration + effectPhysicalPenetration, enemy.physicalResistance)
       * (1 + stats.physDmgBonus);
@@ -159,6 +169,32 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
         directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
       }),
     };
+  if (random) {
+    const outcomeRoll = randomUnit();
+    const outcome: DamageOutcome = outcomeRoll < rates.abrasionRate
+      ? "abrasion"
+      : outcomeRoll < rates.abrasionRate + rates.normalRate
+        ? "normal"
+        : outcomeRoll < rates.abrasionRate + rates.normalRate + rates.critRate
+          ? "critical"
+          : "affinity";
+    const selectedDamage = outcome === "abrasion"
+      ? calculateVariant("min", 0)
+      : outcome === "affinity"
+        ? calculateVariant("max", stats.affinityDmgBonus)
+        : calculateVariant("simulate", outcome === "critical" ? derivedStats.effectiveCritDmgBonus + effectCritDmgBonus : 0);
+    return {
+      ...selectedDamage,
+      total: selectedDamage.physical + selectedDamage.bellstrike + selectedDamage.stonesplit + selectedDamage.silkbind + selectedDamage.bamboocut,
+      outcome,
+      outcomeRates: {
+        abrasion: outcome === "abrasion" ? 1 : 0,
+        normal: outcome === "normal" ? 1 : 0,
+        critical: outcome === "critical" ? 1 : 0,
+        affinity: outcome === "affinity" ? 1 : 0,
+      },
+    };
+  }
   const abrasionDamage = calculateVariant("min", 0);
   const normalDamage = calculateVariant("average", 0);
   const critDamage = calculateVariant("average", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
@@ -183,6 +219,14 @@ export function calculateDamageBreakdown(action: DamageAction, context: DamageCo
       affinity: rates.affinityRate,
     },
   };
+}
+
+export function calculateDamageBreakdown(action: DamageAction, context: DamageContext): DamageBreakdown {
+  return calculateDamageBreakdownInternal(action, context);
+}
+
+export function calculateSimulatedDamageBreakdown(action: DamageAction, context: DamageContext, random: () => number = Math.random): DamageBreakdown & { outcome: DamageOutcome } {
+  return calculateDamageBreakdownInternal(action, context, random) as DamageBreakdown & { outcome: DamageOutcome };
 }
 
 export function calculateDamage(action: DamageAction, context: DamageContext) {

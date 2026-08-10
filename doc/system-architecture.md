@@ -5,8 +5,9 @@
 Where Builds Meet is a client-only Where Winds Meet build and rotation simulator.
 It is implemented with React, TypeScript, and Vite and is intended to run on
 GitHub Pages without a backend. Game definitions are JSON files imported at
-build time. User changes remain in browser storage and calculation work runs in
-a persistent Web Worker.
+build time. User changes remain in browser storage. Deterministic calculation
+work runs in a persistent Web Worker, while requested Monte Carlo simulations
+run in their own disposable worker.
 
 The long-term product direction is to accept complete character and gear data,
 simulate rotations, compare alternatives, and recommend builds or rotations.
@@ -32,10 +33,12 @@ User edits ─────────────────┘           │
                          ┌─────────────┼─────────────┐
                          v             v             v
                        Main       DPS Breakdown   Rotation Editor
+
+Active rotation snapshot ─> Disposable simulation worker ─> Simulation tab
 ```
 
-The UI never needs a server request. The worker receives a structured-cloneable
-bundle containing every value required for a deterministic calculation.
+The UI never needs a server request. Both workers receive structured-cloneable
+bundles containing every value required for their calculation.
 
 ## Source layout
 
@@ -81,6 +84,9 @@ src/
     rotationCalculator.ts        baseline, variants, metrics, and breakdowns
     rotationWorker.ts            worker entry point
     rotationWorkerClient.ts      persistent worker and request coalescing
+    simulationCalculator.ts      Monte Carlo run aggregation and percentiles
+    simulationWorker.ts          isolated Monte Carlo worker entry point
+    simulationWorkerClient.ts    per-run worker lifecycle and cancellation
     rotationMetrics.ts           central published result store
 
 public/
@@ -99,14 +105,15 @@ public/
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
 
-It renders six tabs:
+It renders seven tabs:
 
 1. Main
 2. Build
 3. DPS Breakdown
 4. Rotation Editor
-5. Skill Editor
-6. Settings
+5. Simulation
+6. Skill Editor
+7. Settings
 
 The Rotation Editor subtree remains mounted when another tab is selected and is
 hidden with CSS. This preserves its local state and lets its worker calculation
@@ -267,6 +274,10 @@ The function computes abrasion, normal, critical, and affinity variants, then
 rate-weights each component. See `damage-formula.md` for the exact formula and
 bonus categories.
 
+`calculateSimulatedDamageBreakdown()` uses the same internal formula with its
+attack-roll mode set to `simulate`. It selects one outcome and samples the
+normal/critical attack ranges instead of rate-weighting expected variants.
+
 ## Calculation bundle and worker
 
 The Rotation Editor currently composes a `RotationSimulationBundle`. It contains:
@@ -301,6 +312,19 @@ edits without discarding queued calculations for other rotations.
 bounded in-memory baseline cache keyed by rotation ID, calculation context, and
 rotation content. A comparison job reads that exact entry and posts only the
 completed metrics.
+
+The Simulation tab receives an immutable baseline-only snapshot for the active
+rotation. Starting a simulation creates a separate `simulationWorker.ts`
+instance. That worker builds the combat timeline once, repeatedly samples its
+damage entries, reports progress, sorts completed runs by DPS, and returns the
+best, P95, P90, P75, and median runs. Cancel terminates that disposable worker;
+it cannot disturb the persistent deterministic worker or its queue. Simulation
+results are UI-local and are not published as `RotationMetrics` or persisted.
+Like the Rotation Editor, the Simulation subtree remains mounted while another
+tab is visible, so an in-progress worker and its completed result survive tab
+switches. Each result retains the calculation-context and rotation key used to
+start it. A later stat, build, setup, or active-rotation change marks that result
+outdated without clearing it; the next completed simulation replaces it.
 
 ## Baseline and variant calculation
 

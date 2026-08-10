@@ -53,6 +53,26 @@ Every damage action is evaluated as four possible outcomes and then rate weighte
 
 The effective average is `(effective minimum + effective maximum) / 2`.
 
+### Monte Carlo outcome and attack sampling
+
+The deterministic calculator and Monte Carlo simulator share the same
+per-action damage implementation. The calculator's `average` attack-roll mode
+uses the effective average shown above. The simulator uses a `simulate` mode:
+
+1. Generate one uniform random value in `[0, 1]` for the hit and select
+   abrasion, normal, critical, or affinity from the cumulative outcome rates.
+2. Abrasion still uses effective minimum attacks and affinity still uses
+   effective maximum attacks.
+3. For normal or critical damage, independently sample each physical and
+   attribute attack from its inclusive effective minimum/maximum range before
+   applying the same penetration, bonus, and outcome multipliers.
+
+Every simulated run uses the deterministic timeline, start anchor, and duration
+for the active rotation snapshot. Its outcome percentages are hit-count shares,
+not damage shares. Runs are sorted by DPS; Best, P95, P90, P75, and Median select
+the nearest actual run at each percentile rather than interpolating damage from
+two runs.
+
 ## Per-outcome damage
 
 For an action with physical coefficient `C`, physical bonus `Bp`, attribute bonus `Ba`, and outcome-specific attacks `P` and `Ai`:
