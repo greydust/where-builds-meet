@@ -2,8 +2,8 @@
   "baseStats": {
     "stat": {
       "precision": 0.65,
-      "minPhys": 479,
-      "maxPhys": 937,
+      "minPhys": 263,
+      "maxPhys": 505,
       "critDmgBonus": 0.35,
       "affinityDmgBonus": 0.2,
       "maxEndurance": 80,
@@ -20,6 +20,12 @@
       "defense": 138
     }
   },
+  "enhancementStats": [
+    { "id": "enhancement-01", "stat": { "minPhys": 108, "maxPhys": 72 } },
+    { "id": "enhancement-02", "stat": { "minPhys": 108, "maxPhys": 72 } },
+    { "id": "enhancement-03", "stat": { "maxPhys": 144 } },
+    { "id": "enhancement-04", "stat": { "maxPhys": 144 } }
+  ],
   "talentStats": [
     { "id": "talent-01", "stat": { "crit": 0.04 } },
     { "id": "talent-02", "stat": { "critDmgBonus": 0.05 } },

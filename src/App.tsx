@@ -179,6 +179,7 @@ type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { requir
 type SystemStatsDefinition = {
   baseStats: SetupEffect;
   levelBonusStats: SetupEffect;
+  enhancementStats: Array<SetupEffect & { id: string }>;
   talentStats: Array<SetupEffect & { id: string }>;
   qingheOddityStats: Array<SetupEffect & { id: string }>;
   kaifengOddityStats: Array<SetupEffect & { id: string }>;
@@ -188,7 +189,7 @@ type SystemStatsDefinition = {
   attributeConversions: Array<SetupEffect & { id: string }>;
 };
 const typedSystemStats = systemStats as SystemStatsDefinition;
-const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...typedSystemStats.attributeConversions];
+const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.enhancementStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...typedSystemStats.attributeConversions];
 type ArsenalDefinition = { name: string; effect?: SetupEffect };
 const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>;
 const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>;

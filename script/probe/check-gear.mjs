@@ -209,8 +209,11 @@ const comparison = statEffects.calculateStatsWithEffects(locked.baseStats, [{ st
 assert(Math.abs(comparison.stats.agility - 110) < 1e-9, "Comparison variants must still apply their stat delta to a modified stat.");
 assert(Math.abs(comparison.stats.minPhys - 159) < 1e-9, "Comparison variants must preserve dependent formula deltas.");
 
-const systemEffects = [systemStats.baseStats, systemStats.levelBonusStats, ...systemStats.talentStats, ...systemStats.qingheOddityStats, ...systemStats.kaifengOddityStats, ...systemStats.imperialPalaceOddityStats, ...systemStats.hexiOddityStats, ...systemStats.hiddenMountainOddityStats, ...systemStats.attributeConversions];
+const systemEffects = [systemStats.baseStats, systemStats.levelBonusStats, ...systemStats.enhancementStats, ...systemStats.talentStats, ...systemStats.qingheOddityStats, ...systemStats.kaifengOddityStats, ...systemStats.imperialPalaceOddityStats, ...systemStats.hexiOddityStats, ...systemStats.hiddenMountainOddityStats, ...systemStats.attributeConversions];
 const systemCharacter = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, systemEffects, 0).stats;
+assert(systemStats.enhancementStats.length === 4, "Enhancement stat entries must remain individually represented.");
+assert(systemStats.baseStats.stat.minPhys === 263 && systemStats.baseStats.stat.maxPhys === 505, "Enhancement Physical Attack must be separated from innate Physical Attack.");
+assert(systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.minPhys ?? 0), 0) === 216 && systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.maxPhys ?? 0), 0) === 432, "Unexpected Enhancement Physical Attack totals.");
 assert(systemStats.talentStats.length === 57, "Talent stat entries must remain individually represented.");
 assert(systemStats.qingheOddityStats.length === 29, "Qinghe Oddity stat entries must remain individually represented.");
 assert(systemStats.kaifengOddityStats.length === 39, "Kaifeng Oddity stat entries must remain individually represented.");

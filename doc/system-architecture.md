@@ -50,7 +50,7 @@ data/
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and attunements
-  system.json     innate character stats, talent nodes, and attribute conversions
+  system.json     innate character stats, enhancement bonuses, talent nodes, and attribute conversions
   default-setup.json  first-load Inner Ways and setup selections
   enemy.json      enemy profiles
   arsenal.json
@@ -181,7 +181,7 @@ stats come from the innate character system, character talents, gear, Inner
 Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food.
 
 `data/system.json` keeps innate `baseStats`, level-derived `levelBonusStats`,
-ordered `talentStats`, regional
+ordered `enhancementStats`, ordered `talentStats`, regional
 Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
 `imperialPalaceOddityStats`, `hexiOddityStats`,
 `hiddenMountainOddityStats`, and `attributeConversions` separate. Talent and
@@ -372,7 +372,8 @@ percentage conversion, and weapon-slot mapping.
 ### Character system stats
 
 Update `data/system.json`. Keep innate values under `baseStats`, level-derived
-values under `levelBonusStats`, every talent grant as its own ordered
+values under `levelBonusStats`, every Enhancement bonus under its own ordered
+`enhancementStats` entry, every talent grant as its own ordered
 `talentStats` entry, and every regional Oddity reward
 under its own ordered collection such as `qingheOddityStats` or
 `kaifengOddityStats`. Express base-attribute relationships under

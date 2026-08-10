@@ -6,7 +6,7 @@ Enemy defense, path resistances, and Judgement Resistance come from the selected
 
 ## Stat resolution
 
-The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
+The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, arsenal, bow/ring set, gear sets, and food through these stages:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
