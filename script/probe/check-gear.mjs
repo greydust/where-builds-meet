@@ -21,6 +21,7 @@ const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts")
 const statEffects = await loadBundledModule("./src/calculations/statEffects.ts");
 const systemStats = (await import("../../data/system.json", { with: { type: "json" } })).default;
 const defaultSetup = (await import("../../data/default-setup.json", { with: { type: "json" } })).default;
+const gearSetDefinitions = (await import("../../data/gear-set.json", { with: { type: "json" } })).default;
 const phalanxbaneMartialArt = (await import("../../data/martial-art/phalanxbane-blade.json", { with: { type: "json" } })).default;
 const steadfastDevotion = (await import("../../data/innerway/steadfast-devotion.json", { with: { type: "json" } })).default;
 
@@ -223,7 +224,7 @@ assert(Math.abs(systemCharacter.precision - 0.968) < 1e-9, "Unexpected system Pr
 assert(Math.abs(systemCharacter.crit - 0.35628) < 1e-9, "Unexpected system Critical total.");
 assert(Math.abs(systemCharacter.affinity - 0.17814) < 1e-9, "Unexpected system Affinity total.");
 assert(Math.abs(systemCharacter.critDmgBonus - 0.5) < 1e-9 && Math.abs(systemCharacter.affinityDmgBonus - 0.35) < 1e-9, "Unexpected innate and talent outcome damage totals.");
-assert(Math.abs(systemCharacter.minPhys - 800.725) < 1e-9 && Math.abs(systemCharacter.maxPhys - 1460.38) < 1e-9, "Unexpected innate and system Physical Attack totals.");
+assert(Math.abs(systemCharacter.minPhys - 800.725) < 1e-9 && Math.abs(systemCharacter.maxPhys - 1468.38) < 1e-9, "Unexpected innate and system Physical Attack totals.");
 assert(Math.abs(systemCharacter.physicalDefense - 203.7) < 1e-9 && systemCharacter.maxHp === 25931, "Unexpected system defensive totals.");
 assert(systemCharacter.maxEndurance === 120 && systemCharacter.maxVitality === 100, "Unexpected innate and Oddity resource totals.");
 const defaultCriticalEffects = [
@@ -237,6 +238,11 @@ assert(Math.abs(defaultCritical - 1.12961088) < 1e-9, "Unexpected Full Relayed M
 assert(defaultSetup.innerWays.length === 4 && defaultSetup.innerWays.every((row) => row.innerWay !== "BreakingPoint" && row.tier === "T6"), "Unexpected default Inner Way selection.");
 assert(defaultSetup.gearSets.Cleftpeak === 4 && defaultSetup.gearSets.RainWhisper === 0, "Unexpected default gear-set selection.");
 assert(defaultSetup.bowRingSet === "Precision" && defaultSetup.arsenal === "Stonesplit" && defaultSetup.food === "SimmeringFishSlices", "Unexpected default setup choices.");
+const cleftpeakZero = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, [gearSetDefinitions.Cleftpeak.options["0"].effect], 0).stats;
+const cleftpeakTwo = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, [gearSetDefinitions.Cleftpeak.options["2"].effect], 0).stats;
+const cleftpeakFour = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, [gearSetDefinitions.Cleftpeak.options["4"].effect], 0).stats;
+assert(cleftpeakTwo.minPhys - cleftpeakZero.minPhys === 78, "Cleftpeak 2-piece must add 78 minimum Physical Attack over 0-piece.");
+assert(cleftpeakFour.minPhys === cleftpeakTwo.minPhys, "Cleftpeak 4-piece must keep the same static minimum Physical Attack as 2-piece.");
 
 console.log("Gear, system-stat, equipped-effect, and stat-override checks passed.");
 await viteServer.close();

@@ -233,8 +233,8 @@ function loadGearSets() {
   try {
     const saved = JSON.parse(sessionStorage.getItem(gearSetStorageKey) ?? "null") as Record<string, unknown> | null;
     return {
-      Cleftpeak: saved && (saved.Cleftpeak === 2 || saved.Cleftpeak === 4) ? saved.Cleftpeak : defaults.Cleftpeak,
-      RainWhisper: saved && (saved.RainWhisper === 2 || saved.RainWhisper === 4) ? saved.RainWhisper : defaults.RainWhisper,
+      Cleftpeak: saved && (saved.Cleftpeak === 0 || saved.Cleftpeak === 2 || saved.Cleftpeak === 4) ? saved.Cleftpeak : defaults.Cleftpeak,
+      RainWhisper: saved && (saved.RainWhisper === 0 || saved.RainWhisper === 2 || saved.RainWhisper === 4) ? saved.RainWhisper : defaults.RainWhisper,
     };
   } catch {
     return defaults;
