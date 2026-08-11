@@ -10,7 +10,6 @@ import snowpartingSkills from "../data/skill/snowparting-blade.json";
 import phalanxbaneSkills from "../data/skill/phalanxbane-blade.json";
 import mysticSkills from "../data/skill/mystic.json";
 import generalSkills from "../data/skill/general.json";
-import dummyRotation from "../data/rotation/stonesplit-strength/dummy-1-min.json";
 import mysticBuffs from "../data/buff/mystic.json";
 import generalBuffs from "../data/buff/general.json";
 import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
@@ -106,7 +105,6 @@ const innerWayDefinitions = {
 };
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
-const defaultRotationId = "dummy-1-min";
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
 const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).flatMap((category) => Object.keys(defaultSkillMaps[category]));
 const rotationSkillIds = allSkillIds.filter((skillId) => !allSkillDefinitions[skillId]?.tags?.includes("Triggered"));
@@ -176,13 +174,24 @@ function normalizeRotation(rotation: RotationRecord): RotationRecord {
   return { name: rotation.name, steps, start: rotation.start };
 }
 
+const rotationPresetModules = import.meta.glob("../data/rotation/**/*.json", { eager: true, import: "default" }) as Record<string, RotationRecord>;
+const defaultRotationEntries = Object.entries(rotationPresetModules)
+  .sort(([left], [right]) => left.localeCompare(right))
+  .map(([path, rotation]): RotationEntry => ({
+    id: path.split("/").pop()?.replace(/\.json$/, "") ?? path,
+    rotation: normalizeRotation(rotation),
+    isDefault: true,
+  }));
+const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "Default Rotation", steps: [] };
+const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
+const formerDefaultRotationIds = new Set(["dummy-1-min"]);
+
 function migrateRotation(rotation: RotationRecord): RotationRecord {
   const migrated = normalizeRotation(rotation);
   if (migrated.steps[6]?.type === "skill" && migrated.steps[6].skill === "SnowpartingQ") migrated.steps[6] = { ...migrated.steps[6], skill: "SnowpartingQStab" };
   return migrated;
 }
 
-const defaultRotation = normalizeRotation(dummyRotation as RotationRecord);
 const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
 const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "level96" };
 
@@ -430,11 +439,12 @@ function loadAttunementOverrides(): AttunementOverrides {
 }
 
 function loadRotationEntries(): RotationEntry[] {
-  const bundledDefault = (): RotationEntry => ({ id: defaultRotationId, rotation: JSON.parse(JSON.stringify(defaultRotation)) as RotationRecord, isDefault: true });
+  const bundledDefaults = (): RotationEntry[] => defaultRotationEntries.map((entry) => ({ ...entry, rotation: JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord }));
   try {
     const saved = JSON.parse(sessionStorage.getItem(rotationListStorageKey) ?? "null") as RotationEntry[] | null;
     const customEntries: RotationEntry[] = [];
-    const usedIds = new Set([defaultRotationId]);
+    const bundledDefaultIds = new Set(defaultRotationEntries.map((entry) => entry.id));
+    const usedIds = new Set(bundledDefaultIds);
     const addCustom = (preferredId: string, rotation: RotationRecord) => {
       let id = preferredId;
       let suffix = 2;
@@ -444,23 +454,28 @@ function loadRotationEntries(): RotationEntry[] {
     };
     const preserveFormerDefault = (rotation: RotationRecord) => {
       const migrated = migrateRotation(rotation);
-      if (JSON.stringify(migrated) === JSON.stringify(defaultRotation)) return;
+      if (defaultRotationEntries.some((entry) => JSON.stringify(migrated) === JSON.stringify(entry.rotation))) return;
       addCustom("migrated-default-rotation", { ...migrated, name: `${migrated.name || defaultRotation.name} Copy` });
     };
     if (Array.isArray(saved)) {
       saved.forEach((entry) => {
         if (!entry || typeof entry.id !== "string" || !entry.id || !entry.rotation || !Array.isArray(entry.rotation.steps)) return;
-        if (entry.isDefault === true || entry.id === defaultRotationId) preserveFormerDefault(entry.rotation);
+        if (entry.isDefault === true || bundledDefaultIds.has(entry.id) || formerDefaultRotationIds.has(entry.id)) preserveFormerDefault(entry.rotation);
         else addCustom(entry.id, migrateRotation(entry.rotation));
       });
-      return [bundledDefault(), ...customEntries];
+      return [...bundledDefaults(), ...customEntries];
     }
     const legacy = JSON.parse(sessionStorage.getItem(rotationStorageKey) ?? "null") as RotationRecord | null;
     if (legacy && Array.isArray(legacy.steps)) preserveFormerDefault(legacy);
-    return [bundledDefault(), ...customEntries];
+    return [...bundledDefaults(), ...customEntries];
   } catch {
-    return [bundledDefault()];
+    return bundledDefaults();
   }
+}
+
+function initialRotationId(entries: RotationEntry[]) {
+  const savedId = sessionStorage.getItem("wwm-active-rotation-session-v1");
+  return savedId && entries.some((entry) => entry.id === savedId) ? savedId : entries[0]?.id ?? defaultRotationId;
 }
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
@@ -1132,16 +1147,16 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const innerWayConditions = loadInnerWayConditions();
   const innerWayEffectRules = loadInnerWayEffectRules();
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(loadRotationEntries);
-  const [activeRotationId, setActiveRotationId] = useState(() => sessionStorage.getItem("wwm-active-rotation-session-v1") ?? loadRotationEntries()[0]?.id ?? "dummy-1-min");
-  const [editingRotationId, setEditingRotationId] = useState(() => sessionStorage.getItem("wwm-active-rotation-session-v1") ?? loadRotationEntries()[0]?.id ?? "dummy-1-min");
+  const [activeRotationId, setActiveRotationId] = useState(() => initialRotationId(loadRotationEntries()));
+  const [editingRotationId, setEditingRotationId] = useState(() => initialRotationId(loadRotationEntries()));
   const [rotation, setRotation] = useState<RotationRecord>(() => {
     const entries = loadRotationEntries();
-    const activeId = sessionStorage.getItem("wwm-active-rotation-session-v1") ?? entries[0]?.id;
+    const activeId = initialRotationId(entries);
     return JSON.parse(JSON.stringify(entries.find((entry) => entry.id === activeId)?.rotation ?? entries[0]?.rotation ?? defaultRotation)) as RotationRecord;
   });
   const [startAnchor, setStartAnchor] = useState<{ rowId: string; actionIndex?: number }>(() => {
     const initialEntries = loadRotationEntries();
-    const initialId = sessionStorage.getItem("wwm-active-rotation-session-v1") ?? initialEntries[0]?.id;
+    const initialId = initialRotationId(initialEntries);
     const start = initialEntries.find((entry) => entry.id === initialId)?.rotation.start;
     return start ? { rowId: `rotation-${start.step}`, actionIndex: start.action } : { rowId: "rotation-0" };
   });
@@ -1606,7 +1621,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   return <section className="panel rotation-editor-panel"><div className="rotation-editor-layout">
     <aside className="rotation-list">
       <div className="rotation-list-heading"><span>Rotations</span><button className="icon-button" type="button" aria-label="Add rotation" onClick={addRotation}>＋</button></div>
-      <div className="rotation-list-entries">{rotationEntries.map((entry) => <div className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => editRotation(entry.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") editRotation(entry.id); }}><strong>{entry.id === activeRotationId && <span className="active-rotation-icon" title="Active rotation">●</span>}{entry.rotation.name || "Unnamed Rotation"}</strong><span className="rotation-list-actions"><button className="rotation-remove-button" type="button" aria-label={`Remove ${entry.rotation.name || "rotation"}`} title={entry.isDefault ? "The default rotation cannot be removed" : "Remove rotation"} disabled={entry.isDefault === true || rotationEntries.length <= 1} onClick={(event) => { event.stopPropagation(); removeRotation(entry.id); }}>×</button></span></div>)}</div>
+      <div className="rotation-list-entries">{rotationEntries.map((entry) => <div className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => editRotation(entry.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") editRotation(entry.id); }}><strong>{entry.id === activeRotationId && <span className="active-rotation-icon" title="Active rotation">●</span>}{entry.rotation.name || "Unnamed Rotation"}</strong>{!entry.isDefault && <span className="rotation-list-actions"><button className="rotation-remove-button" type="button" aria-label={`Remove ${entry.rotation.name || "rotation"}`} title="Remove rotation" disabled={rotationEntries.length <= 1} onClick={(event) => { event.stopPropagation(); removeRotation(entry.id); }}>×</button></span>}</div>)}</div>
       <div className="rotation-transfer-actions"><div><button className="button button-secondary button-small" type="button" onClick={exportRotations}>Export</button><label className="button button-secondary button-small rotation-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import rotations" onChange={importRotations} /></label></div>{transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}</div>
     </aside>
     <div className="rotation-editor-content">
@@ -1662,7 +1677,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     </div>
     </div>
     {error && <p className="editor-error">{error}</p>}
-    <div className="editor-actions"><button className="button button-secondary" type="button" onClick={duplicateRotation}>Duplicate</button><button className="button button-primary" type="button" disabled={rotationLocked} title={rotationLocked ? "Duplicate the default rotation to edit it" : undefined} onClick={save}>Save</button></div>
+    <div className="editor-actions"><button className="button button-secondary" type="button" onClick={duplicateRotation}>Duplicate</button>{!rotationLocked && <button className="button button-primary" type="button" onClick={save}>Save</button>}</div>
     </div>
   </div>
   <dialog className="rotation-readable-dialog" ref={readableDialogRef} onClose={() => setReadableDialogOpen(false)}>

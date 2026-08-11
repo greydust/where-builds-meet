@@ -1,6 +1,6 @@
 {
-  "id": "fully-relayed-min",
-  "name": "Fully Relayed Min Build",
+  "id": "mixed-fully-relayed-min",
+  "name": "Mixed Fully Relayed Min Build",
   "order": 1,
   "setup": {
     "gearSets": {

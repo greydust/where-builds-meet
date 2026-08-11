@@ -1,6 +1,6 @@
 {
-  "id": "fully-relayed-max",
-  "name": "Fully Relayed Max Build",
+  "id": "mixed-fully-relayed-max",
+  "name": "Mixed Fully Relayed Max Build",
   "order": 1,
   "setup": {
     "gearSets": {

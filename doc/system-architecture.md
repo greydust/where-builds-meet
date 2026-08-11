@@ -168,8 +168,8 @@ duplicating bundled default presets.
 
 Rotation export similarly produces a versioned JSON snapshot of custom rotation
 records. Rotation import validates skill and event step shapes, appends custom
-rotations with collision-safe IDs, preserves the active rotation, and skips the
-bundled default rotation.
+rotations with collision-safe IDs, preserves the active rotation, and skips
+bundled default rotations.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define setup choices
@@ -384,7 +384,8 @@ rotation does not.
 
 ## Static data composition
 
-JSON is imported explicitly in `App.tsx`, so Vite includes it in the generated
+Rotation and build presets are loaded eagerly from their data directories; the
+remaining JSON is imported explicitly, so Vite includes it all in the generated
 static assets. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Mystic, and General skill editor categories
@@ -392,7 +393,8 @@ static assets. The application currently recognizes:
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
 - Exhausted and Controlled manual events
-- the bundled Stonesplit Strength default rotation
+- bundled Stonesplit Strength default rotations discovered from
+  `data/rotation/**/*.json`
 - eight gear slots and their affix/attunement options
 - innate character, talent, and base-attribute conversion stats
 

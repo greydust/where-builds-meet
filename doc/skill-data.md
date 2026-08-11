@@ -502,13 +502,14 @@ dialog is closed and provides both selectable text and a Copy button.
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
 version 1. The snapshot includes the current in-memory editor value, even before
-the Save button is pressed. The bundled default dummy rotation is reconstructed
-from its JSON source rather than saved in session storage or exports. It is
-read-only in the editor; Duplicate creates an editable custom copy.
+the Save button is pressed. Bundled default rotations are discovered from
+`data/rotation/**/*.json` and reconstructed from their JSON sources rather than
+saved in session storage or exports. They are read-only in the editor; Duplicate
+creates an editable custom copy.
 
 Import validates every step and appends custom rotations to the current session
 without replacing existing rotations or changing the active rotation. ID
-collisions are remapped, and the bundled default rotation is skipped to prevent
+collisions are remapped, and bundled default rotations are skipped to prevent
 duplication. The first imported rotation is opened for review but is not made
 active automatically. Importing the same file again creates another independent
 copy of its custom rotations.
