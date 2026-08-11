@@ -7,6 +7,7 @@ type SimulationTabProps = {
   bundle?: RotationSimulationBundle;
   bundleKey?: string;
   rotationName?: string;
+  buildName?: string;
 };
 
 const rows: Array<[keyof SimulationSummary["results"], string]> = [
@@ -21,13 +22,14 @@ const rows: Array<[keyof SimulationSummary["results"], string]> = [
 const formatNumber = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 const formatPercentage = (value: number) => `${value.toFixed(2)}%`;
 
-export default function SimulationTab({ bundle, bundleKey, rotationName }: SimulationTabProps) {
+export default function SimulationTab({ bundle, bundleKey, rotationName, buildName }: SimulationTabProps) {
   const [count, setCount] = useState("100");
   const [progress, setProgress] = useState({ completed: 0, total: 100 });
   const [running, setRunning] = useState(false);
   const [summary, setSummary] = useState<SimulationSummary>();
   const [simulatedBundleKey, setSimulatedBundleKey] = useState("");
   const [simulatedRotationName, setSimulatedRotationName] = useState("");
+  const [simulatedBuildName, setSimulatedBuildName] = useState("");
   const [error, setError] = useState("");
   const taskRef = useRef<SimulationTask | undefined>(undefined);
 
@@ -47,6 +49,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName }: Simul
     setProgress({ completed: 0, total: runCount });
     setRunning(true);
     setSimulatedRotationName(rotationName ?? "Active rotation");
+    setSimulatedBuildName(buildName ?? "Active build");
     const simulationBundleKey = bundleKey ?? "";
     const task = startSimulation(bundle, runCount, (completed, total) => setProgress({ completed, total }));
     taskRef.current = task;
@@ -64,7 +67,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName }: Simul
   const percentComplete = progress.total > 0 ? progress.completed / progress.total * 100 : 0;
   const outdated = Boolean(summary && simulatedBundleKey !== (bundleKey ?? ""));
   return <section className="panel simulation-panel">
-    <div className="panel-heading"><div><h2>Simulation {outdated && <span className="simulation-outdated">Outdated</span>}</h2>{summary && <p>{simulatedRotationName} · {summary.runCount.toLocaleString()} runs · {formatNumber(summary.duration)}s rotation</p>}</div></div>
+    <div className="panel-heading"><div><h2>Simulation {outdated && <span className="simulation-outdated">Outdated</span>}</h2>{summary && <p>Rotation: {simulatedRotationName} · Build: {simulatedBuildName} · {summary.runCount.toLocaleString()} runs · {formatNumber(summary.duration)}s</p>}</div></div>
     <div className="simulation-controls">
       <label className="editor-field">Simulation count<input type="number" min="1" step="1" value={count} disabled={running} onChange={(event) => setCount(event.target.value)} /></label>
       <button className={`button ${running ? "button-secondary" : "button-primary"}`} type="button" disabled={!bundle && !running} onClick={simulate}>{running ? "Cancel" : "Simulate"}</button>

@@ -325,6 +325,8 @@ tab is visible, so an in-progress worker and its completed result survive tab
 switches. Each result retains the calculation-context and rotation key used to
 start it. A later stat, build, setup, or active-rotation change marks that result
 outdated without clearing it; the next completed simulation replaces it.
+The result heading displays the rotation and build names captured when that run
+started, so outdated results remain identifiable.
 
 ## Baseline and variant calculation
 
