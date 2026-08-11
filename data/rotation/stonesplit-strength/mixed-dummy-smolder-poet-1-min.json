@@ -137,7 +137,7 @@
     {
       "type": "event",
       "event": "Exhausted",
-      "startTime": 37.4271
+      "startTime": 33
     },
     {
       "type": "skill",
