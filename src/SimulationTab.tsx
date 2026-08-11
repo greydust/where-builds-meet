@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { RotationSimulationBundle } from "./calculations/rotationCalculator";
-import type { SimulationSummary } from "./calculations/simulationCalculator";
+import { selectSimulationPercentile, type SimulationRunResult, type SimulationSummary } from "./calculations/simulationCalculator";
 import { startSimulation, type SimulationTask } from "./calculations/simulationWorkerClient";
 
 type SimulationTabProps = {
@@ -10,14 +10,18 @@ type SimulationTabProps = {
   buildName?: string;
 };
 
-const rows: Array<[keyof SimulationSummary["results"], string]> = [
-  ["best", "Best"],
-  ["p99", "P99"],
-  ["p95", "P95"],
-  ["p90", "P90"],
-  ["p75", "P75"],
-  ["median", "Median"],
-];
+const customPercentileStorageKey = "wwm-simulation-percentiles-v1";
+const presetPercentiles = new Set([99, 95, 90, 75, 50]);
+
+function loadCustomPercentiles() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(customPercentileStorageKey) ?? "[]") as unknown;
+    if (!Array.isArray(saved)) return [];
+    return [...new Set(saved.filter((value): value is number => typeof value === "number" && Number.isFinite(value) && value >= 0 && value < 100 && !presetPercentiles.has(value)))].sort((left, right) => right - left);
+  } catch {
+    return [];
+  }
+}
 
 const formatNumber = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 const formatPercentage = (value: number) => `${value.toFixed(2)}%`;
@@ -30,10 +34,35 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
   const [simulatedBundleKey, setSimulatedBundleKey] = useState("");
   const [simulatedRotationName, setSimulatedRotationName] = useState("");
   const [simulatedBuildName, setSimulatedBuildName] = useState("");
+  const [customPercentiles, setCustomPercentiles] = useState<number[]>(loadCustomPercentiles);
+  const [addingPercentile, setAddingPercentile] = useState(false);
+  const [percentileDraft, setPercentileDraft] = useState("");
+  const [percentileError, setPercentileError] = useState("");
   const [error, setError] = useState("");
   const taskRef = useRef<SimulationTask | undefined>(undefined);
 
   useEffect(() => () => taskRef.current?.cancel(), []);
+  useEffect(() => sessionStorage.setItem(customPercentileStorageKey, JSON.stringify(customPercentiles)), [customPercentiles]);
+
+  const addPercentile = () => {
+    const percentile = Number(percentileDraft);
+    if (!percentileDraft.trim() || !Number.isFinite(percentile) || percentile < 0 || percentile >= 100) {
+      setPercentileError("Enter a percentile from 0 up to, but not including, 100.");
+      return;
+    }
+    if (presetPercentiles.has(percentile)) {
+      setPercentileError(`P${percentile} is already a preset result.`);
+      return;
+    }
+    if (customPercentiles.includes(percentile)) {
+      setPercentileError(`P${percentile} has already been added.`);
+      return;
+    }
+    setCustomPercentiles((current) => [...current, percentile].sort((left, right) => right - left));
+    setPercentileDraft("");
+    setPercentileError("");
+    setAddingPercentile(false);
+  };
 
   const simulate = async () => {
     if (running) {
@@ -66,11 +95,26 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
 
   const percentComplete = progress.total > 0 ? progress.completed / progress.total * 100 : 0;
   const outdated = Boolean(summary && simulatedBundleKey !== (bundleKey ?? ""));
+  const resultRows: Array<{ label: string; percentile: number; result: SimulationRunResult }> = summary ? [
+    { label: "Best", percentile: 101, result: summary.results.best },
+    { label: "P99", percentile: 99, result: summary.results.p99 },
+    { label: "P95", percentile: 95, result: summary.results.p95 },
+    { label: "P90", percentile: 90, result: summary.results.p90 },
+    { label: "P75", percentile: 75, result: summary.results.p75 },
+    { label: "Median", percentile: 50, result: summary.results.median },
+    ...customPercentiles.map((percentile) => ({ label: `P${percentile}`, percentile, result: selectSimulationPercentile(summary.runs, percentile / 100) })),
+  ].sort((left, right) => right.percentile - left.percentile) : [];
   return <section className="panel simulation-panel">
     <div className="panel-heading"><div><h2>Simulation {outdated && <span className="simulation-outdated">Outdated</span>}</h2>{summary && <p>Rotation: {simulatedRotationName} · Build: {simulatedBuildName} · {summary.runCount.toLocaleString()} runs · {formatNumber(summary.duration)}s</p>}</div></div>
     <div className="simulation-controls">
       <label className="editor-field">Simulation count<input type="number" min="1" step="1" value={count} disabled={running} onChange={(event) => setCount(event.target.value)} /></label>
       <button className={`button ${running ? "button-secondary" : "button-primary"}`} type="button" disabled={!bundle && !running} onClick={simulate}>{running ? "Cancel" : "Simulate"}</button>
+    </div>
+    <div className="simulation-percentile-settings">
+      <div className="simulation-percentile-heading"><strong>Custom percentiles</strong><button className="button button-secondary button-small" type="button" disabled={running || addingPercentile} onClick={() => { setAddingPercentile(true); setPercentileError(""); }}>Add Percentile</button></div>
+      {customPercentiles.length > 0 && <div className="simulation-percentile-chips">{customPercentiles.map((percentile) => <span className="simulation-percentile-chip" key={percentile}>P{percentile}<button type="button" aria-label={`Remove P${percentile}`} disabled={running} onClick={() => setCustomPercentiles((current) => current.filter((value) => value !== percentile))}>×</button></span>)}</div>}
+      {addingPercentile && <div className="simulation-percentile-add"><label><span>P</span><input type="number" min="0" max="99.999999" step="any" autoFocus value={percentileDraft} onChange={(event) => setPercentileDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addPercentile(); if (event.key === "Escape") setAddingPercentile(false); }} /></label><button className="button button-primary button-small" type="button" onClick={addPercentile}>Add</button><button className="button button-secondary button-small" type="button" onClick={() => { setAddingPercentile(false); setPercentileError(""); }}>Cancel</button></div>}
+      {percentileError && <p className="simulation-percentile-error" role="alert">{percentileError}</p>}
     </div>
     {running && <div className="simulation-progress" role="status" aria-live="polite">
       <progress max={progress.total} value={progress.completed} />
@@ -80,10 +124,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
     {summary && <div className="simulation-results">
       <div className="simulation-table" role="table" aria-label="Simulation percentile results">
         <div className="simulation-table-row simulation-table-header" role="row"><span>Result</span><span>Total Damage</span><span>DPS</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span></div>
-        {rows.map(([key, label]) => {
-          const result = summary.results[key];
-          return <div className="simulation-table-row" role="row" key={key}><strong>{label}</strong><span>{formatNumber(result.totalDamage)}</span><span>{formatNumber(result.dps)}</span><span>{formatPercentage(result.abrasionPercentage)}</span><span>{formatPercentage(result.normalPercentage)}</span><span>{formatPercentage(result.criticalPercentage)}</span><span>{formatPercentage(result.affinityPercentage)}</span></div>;
-        })}
+        {resultRows.map(({ label, result }) => <div className="simulation-table-row" role="row" key={label}><strong>{label}</strong><span>{formatNumber(result.totalDamage)}</span><span>{formatNumber(result.dps)}</span><span>{formatPercentage(result.abrasionPercentage)}</span><span>{formatPercentage(result.normalPercentage)}</span><span>{formatPercentage(result.criticalPercentage)}</span><span>{formatPercentage(result.affinityPercentage)}</span></div>)}
       </div>
     </div>}
   </section>;

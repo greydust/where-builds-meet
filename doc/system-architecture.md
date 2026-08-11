@@ -152,6 +152,7 @@ tab session.
 | Divinecraft | `sessionStorage`, `wwm-divinecraft-session-v1` |
 | Rotation list | `sessionStorage`, `wwm-rotation-list-session-v1` |
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
+| Custom simulation percentiles | `sessionStorage`, `wwm-simulation-percentiles-v1` |
 
 Loaders validate enough shape to fall back to defaults and include migrations
 for older percentage, penetration, attunement, rotation, per-build inventory,
@@ -327,6 +328,11 @@ start it. A later stat, build, setup, or active-rotation change marks that resul
 outdated without clearing it; the next completed simulation replaces it.
 The result heading displays the rotation and build names captured when that run
 started, so outdated results remain identifiable.
+Users can add custom percentiles in `[0, 100)`, including decimal values, except
+for the locked preset rows P99, P95, P90, P75, and P50/Median. The completed
+worker result retains its DPS-sorted runs, so adding or removing a display row
+updates the current result immediately without making it outdated. Custom row
+choices persist for the browser session.
 
 ## Baseline and variant calculation
 

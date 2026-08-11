@@ -4,7 +4,7 @@ const viteServer = await createServer({ root: process.cwd(), configFile: false, 
 
 try {
   const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
-  const { simulateRotation } = await viteServer.ssrLoadModule("/src/calculations/simulationCalculator.ts");
+  const { selectSimulationPercentile, simulateRotation } = await viteServer.ssrLoadModule("/src/calculations/simulationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
@@ -29,10 +29,12 @@ try {
   const random = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
   let finalProgress;
   const summary = simulateRotation(bundle, 101, random, (completed, total) => { finalProgress = { completed, total }; });
-  const ordered = [summary.results.best, summary.results.p99, summary.results.p95, summary.results.p90, summary.results.p75, summary.results.median];
+  const customResult = selectSimulationPercentile(summary.runs, 0.855);
+  const ordered = [summary.results.best, summary.results.p99, summary.results.p95, summary.results.p90, customResult, summary.results.p75, summary.results.median];
 
   assert(summary.runCount === 101, "The simulator must produce the requested number of runs.");
   assert(finalProgress?.completed === 101 && finalProgress.total === 101, "Progress must finish at the requested run count.");
+  assert(summary.runs.length === 101 && customResult, "Sorted runs must remain available for immediate arbitrary-percentile display.");
   assert(ordered.every((result, index) => index === 0 || ordered[index - 1].dps >= result.dps), "Displayed DPS percentiles must remain sorted.");
   assert(ordered.every((result) => result.normalPercentage === 100), "Outcome percentages must count the sampled hit outcomes.");
   console.log("Shared simulated-damage mode, progress, and percentile checks passed.");

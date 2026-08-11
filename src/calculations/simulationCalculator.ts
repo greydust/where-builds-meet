@@ -13,6 +13,7 @@ export type SimulationRunResult = {
 export type SimulationSummary = {
   runCount: number;
   duration: number;
+  runs: SimulationRunResult[];
   results: {
     best: SimulationRunResult;
     p99: SimulationRunResult;
@@ -32,7 +33,7 @@ const emptyRun = (): SimulationRunResult => ({
   affinityPercentage: 0,
 });
 
-function selectedPercentile(runs: SimulationRunResult[], percentile: number) {
+export function selectSimulationPercentile(runs: SimulationRunResult[], percentile: number) {
   if (runs.length === 0) return emptyRun();
   return runs[Math.round((1 - percentile) * (runs.length - 1))];
 }
@@ -79,13 +80,14 @@ export function simulateRotation(
   return {
     runCount: count,
     duration: baseline.duration,
+    runs,
     results: {
       best: runs[0] ?? emptyRun(),
-      p99: selectedPercentile(runs, 0.99),
-      p95: selectedPercentile(runs, 0.95),
-      p90: selectedPercentile(runs, 0.9),
-      p75: selectedPercentile(runs, 0.75),
-      median: selectedPercentile(runs, 0.5),
+      p99: selectSimulationPercentile(runs, 0.99),
+      p95: selectSimulationPercentile(runs, 0.95),
+      p90: selectSimulationPercentile(runs, 0.9),
+      p75: selectSimulationPercentile(runs, 0.75),
+      median: selectSimulationPercentile(runs, 0.5),
     },
   };
 }
