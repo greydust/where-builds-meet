@@ -175,6 +175,14 @@
       "skill": "SnowpartingHeavyVC"
     },
     {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
       "type": "event",
       "event": "Exhausted",
       "startTime": 33.0003
