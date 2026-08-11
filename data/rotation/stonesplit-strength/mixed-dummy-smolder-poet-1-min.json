@@ -194,6 +194,11 @@
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
     }
   ]
 }

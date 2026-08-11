@@ -190,6 +190,11 @@
       "type": "event",
       "event": "Exhausted",
       "startTime": 33.0003
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
     }
   ]
 }

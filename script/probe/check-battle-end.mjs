@@ -57,7 +57,18 @@ try {
   assert(Math.abs(result.duration - 2.5) < 1e-9, `Battle End must cap duration at 2.5 seconds, received ${result.duration}.`);
   assert(Object.keys(result.actionBreakdowns).length === 3, `Expected three damage actions through Battle End, received ${Object.keys(result.actionBreakdowns).length}.`);
   assert(!result.actionBreakdowns["rotation-4:0"], "Damage after Battle End must not be calculated.");
-  console.log("Fight-relative event timing and Battle End cutoff checks passed.");
+  const dummyRotationPaths = [
+    "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
+    "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
+    "/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json",
+  ];
+  for (const path of dummyRotationPaths) {
+    const preset = (await viteServer.ssrLoadModule(path)).default;
+    const battleEnds = preset.steps.filter((step) => step.type === "event" && step.event === "BattleEnd");
+    assert(preset.eventTimeReference === "battleStart", `${preset.name} must use battle-start-relative events.`);
+    assert(battleEnds.length === 1 && battleEnds[0].startTime === 60, `${preset.name} must contain exactly one Battle End event at 60 seconds.`);
+  }
+  console.log("Fight-relative event timing, Battle End cutoff, and dummy preset checks passed.");
 } finally {
   await viteServer.close();
 }
