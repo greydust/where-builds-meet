@@ -11,6 +11,7 @@ type SimulationTabProps = {
 
 const rows: Array<[keyof SimulationSummary["results"], string]> = [
   ["best", "Best"],
+  ["p99", "P99"],
   ["p95", "P95"],
   ["p90", "P90"],
   ["p75", "P75"],

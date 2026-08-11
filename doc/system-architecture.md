@@ -317,7 +317,7 @@ The Simulation tab receives an immutable baseline-only snapshot for the active
 rotation. Starting a simulation creates a separate `simulationWorker.ts`
 instance. That worker builds the combat timeline once, repeatedly samples its
 damage entries, reports progress, sorts completed runs by DPS, and returns the
-best, P95, P90, P75, and median runs. Cancel terminates that disposable worker;
+best, P99, P95, P90, P75, and median runs. Cancel terminates that disposable worker;
 it cannot disturb the persistent deterministic worker or its queue. Simulation
 results are UI-local and are not published as `RotationMetrics` or persisted.
 Like the Rotation Editor, the Simulation subtree remains mounted while another

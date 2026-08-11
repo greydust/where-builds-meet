@@ -69,7 +69,7 @@ uses the effective average shown above. The simulator uses a `simulate` mode:
 
 Every simulated run uses the deterministic timeline, start anchor, and duration
 for the active rotation snapshot. Its outcome percentages are hit-count shares,
-not damage shares. Runs are sorted by DPS; Best, P95, P90, P75, and Median select
+not damage shares. Runs are sorted by DPS; Best, P99, P95, P90, P75, and Median select
 the nearest actual run at each percentile rather than interpolating damage from
 two runs.
 

@@ -29,7 +29,7 @@ try {
   const random = () => ((seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296);
   let finalProgress;
   const summary = simulateRotation(bundle, 101, random, (completed, total) => { finalProgress = { completed, total }; });
-  const ordered = [summary.results.best, summary.results.p95, summary.results.p90, summary.results.p75, summary.results.median];
+  const ordered = [summary.results.best, summary.results.p99, summary.results.p95, summary.results.p90, summary.results.p75, summary.results.median];
 
   assert(summary.runCount === 101, "The simulator must produce the requested number of runs.");
   assert(finalProgress?.completed === 101 && finalProgress.total === 101, "Progress must finish at the requested run count.");
