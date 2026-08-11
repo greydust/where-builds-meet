@@ -15,15 +15,16 @@ export type RotationDamageEntry = {
 export type RotationCalculationVariant = {
   key: string;
   entries: RotationDamageEntry[];
+  duration?: number;
 };
 
 export type RotationCalculationBundle = {
   duration: number;
   baseline: RotationDamageEntry[];
-  statPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
-  attunementPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
-  innerWayPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>;
-  setupComparisons: Record<string, Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>>;
+  statPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
+  attunementPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
+  innerWayPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
+  setupComparisons: Record<string, Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>>;
 };
 
 export type RotationSimulationVariant = {
@@ -98,11 +99,11 @@ function priorityRow(label: string, baselineDps: number, variantDps: number, max
 function calculatePriorityRows(
   baselineDps: number,
   duration: number,
-  variants: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[] }>,
+  variants: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>,
   order: "ascending" | "descending" = "descending",
 ) {
   return variants
-    .map(({ label, maxRoll, entries }) => priorityRow(label, baselineDps, duration > 0 ? sumEntries(entries).total / duration : 0, maxRoll))
+    .map(({ label, maxRoll, entries, duration: variantDuration = duration }) => priorityRow(label, baselineDps, variantDuration > 0 ? sumEntries(entries).total / variantDuration : 0, maxRoll))
     .sort((left, right) => order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference);
 }
 
@@ -266,12 +267,16 @@ function timelineDamageEntries(
   }));
 }
 
+function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulationBundle["startAnchor"]) {
+  const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
+  const anchorTime = anchorRow ? anchorRow.startTime + (startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[startAnchor.actionIndex]?.time ?? 0)) : 0;
+  const lastActionTime = timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
+  return { anchorTime, duration: Math.max(0, lastActionTime - anchorTime) };
+}
+
 export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
   const timeline = buildRotationTimeline(bundle.timeline);
-  const anchorRow = timeline.find((row) => row.id === bundle.startAnchor.rowId) ?? timeline[0];
-  const anchorTime = anchorRow ? anchorRow.startTime + (bundle.startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[bundle.startAnchor.actionIndex]?.time ?? 0)) : 0;
-  const lastActionTime = timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
-  const duration = Math.max(0, lastActionTime - anchorTime);
+  const { anchorTime, duration } = timelineTiming(timeline, bundle.startAnchor);
   const state = { stats: bundle.stats, attunement: bundle.attunement, enemy: bundle.enemy, derivedStats: bundle.derivedStats, weapons: bundle.weapons };
   const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor);
   let baselineDamage = 0;
@@ -294,18 +299,21 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
 
 export function calculateRotationComparisons(bundle: RotationSimulationBundle, baselineResult: RotationSimulationBaseline): RotationMetrics {
   const state = { stats: bundle.stats, attunement: bundle.attunement, enemy: bundle.enemy, derivedStats: bundle.derivedStats, weapons: bundle.weapons };
-  const entriesForVariant = (variant: RotationSimulationVariant) => {
+  const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
-    return timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+    return {
+      entries: timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant),
+      duration: variant.timeline ? timelineTiming(variantTimeline, bundle.startAnchor).duration : baselineResult.duration,
+    };
   };
   const entryBundle: RotationCalculationBundle = {
     duration: baselineResult.duration,
     baseline: baselineResult.baseline,
-    statPriority: bundle.statPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
-    attunementPriority: bundle.attunementPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
-    innerWayPriority: bundle.innerWayPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) })),
-    setupComparisons: Object.fromEntries(Object.entries(bundle.setupComparisons).map(([group, variants]) => [group, variants.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, entries: entriesForVariant(variant) }))])),
+    statPriority: bundle.statPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, ...calculationForVariant(variant) })),
+    attunementPriority: bundle.attunementPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, ...calculationForVariant(variant) })),
+    innerWayPriority: bundle.innerWayPriority.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, ...calculationForVariant(variant) })),
+    setupComparisons: Object.fromEntries(Object.entries(bundle.setupComparisons).map(([group, variants]) => [group, variants.map((variant) => ({ label: variant.label, maxRoll: variant.maxRoll, ...calculationForVariant(variant) }))])),
   };
   const metrics = calculateRotationMetrics(entryBundle, baselineResult.metrics.totalDamage);
   metrics.breakdown = baselineResult.metrics.breakdown;

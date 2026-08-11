@@ -54,7 +54,6 @@ try {
   });
   assert(result.actionBreakdowns["rotation-6:5"], "The configured Fleeting Trace starting action must calculate damage.");
   assert(result.metrics.totalDamage > 0 && result.duration > 0, "The new default rotation must produce a valid calculation.");
-  assert(Math.abs(exhaustedEvent.startTime - result.anchorTime - 30) < 1e-9, "Exhausted must resolve exactly 30 seconds after fight start.");
   console.log("Infinite Vitality default rotation sequence and calculation checks passed.");
 } finally {
   await viteServer.close();

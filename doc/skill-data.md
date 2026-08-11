@@ -478,7 +478,9 @@ own row; its damage actions are associated with the base skill that caused the
 trigger and follow that base skill's expand/collapse state. The base skill
 containing the starting action opens initially, and that action remains visible
 if the skill is collapsed. DOT ticks remain visible independently of skill
-expansion state. Pre-start actions remain visible when their row is expanded,
+expansion state. Preset rotations render skill names and event times as plain
+labels; custom rotations render editable selectors and inputs. Pre-start
+actions remain visible when their row is expanded,
 but their damage cell is empty.
 
 ### Readable rotation format

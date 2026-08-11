@@ -93,6 +93,26 @@ try {
     weapons: [],
   });
   assert(triggerTimeline.find((row) => row.kind === "trigger")?.sourceRowId === "rotation-0", "Inner Way-triggered actions must retain their originating base skill row.");
+  const durationTimeline = {
+    rotation: { name: "Duration probe", steps: [{ type: "skill", skill: "DurationSkill" }] },
+    skills: { DurationSkill: { name: "Duration Skill", castTime: 1, tags: [], action: [{ type: "damage", time: 1, phyCoef: 1 }] } },
+    eventDefinitions: {}, dots: {}, effectDefinitions: {}, innerWayConditions: [], innerWayRules: [], setupEffects: [], weapons: [],
+  };
+  const longerDurationTimeline = {
+    ...durationTimeline,
+    skills: { DurationSkill: { name: "Duration Skill", castTime: 2, tags: [], action: [{ type: "damage", time: 2, phyCoef: 1 }] } },
+  };
+  const durationBundle = {
+    ...bundle,
+    timeline: durationTimeline,
+    startAnchor: { rowId: "rotation-0" },
+    statPriority: [],
+    innerWayPriority: [{ label: "Longer timeline", timeline: longerDurationTimeline }],
+  };
+  const durationBaseline = calculateRotationBaseline(durationBundle);
+  const durationComparison = calculateRotationComparisons(durationBundle, durationBaseline);
+  assert(durationBaseline.duration === 1, "The duration probe baseline must last one second.");
+  assert(Math.abs(durationComparison.innerWayPriority[0].dpsDifference + durationBaseline.metrics.dps / 2) < 1e-9, "A rebuilt two-second variant must use its own duration instead of the one-second baseline duration.");
   console.log("Rotation start-anchor damage and hit-count checks passed.");
 } finally {
   await viteServer.close();

@@ -348,7 +348,9 @@ Pure stat and attunement variants reuse the baseline timeline and its effect
 snapshots. Inner Way removal variants rebuild the timeline because triggers,
 cooldowns, durations, stacks, and cast times may change. Setup candidates reuse
 the baseline timeline when they only change stats; a behavior-changing candidate
-must provide a replacement timeline. Cleftpeak 4-piece currently does so.
+must provide a replacement timeline. Cleftpeak 4-piece currently does so. Every
+replacement timeline resolves its own start anchor and duration for DPS; only
+timeline-reusing variants share the baseline duration.
 
 Each priority row stores absolute DPS difference and percentage change. Character
 and attunement priorities sort by descending DPS gain. Inner Ways are removed,
