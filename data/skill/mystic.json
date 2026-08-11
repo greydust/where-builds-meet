@@ -2,14 +2,14 @@
   "SoaringSpin1": {
     "name": "Soaring Spin 1-Hit",
     "shortName": "Soaring 1 Hit",
-    "castTime": 1,
+    "castTime": 0.875,
     "action": [
       {
         "type": "damage",
         "phyCoef": 3.1956,
         "phyBonus": 459,
         "attrBonus": 0,
-        "time": 1
+        "time": 0.875
       }
     ],
     "modifier": [],
@@ -23,21 +23,21 @@
   "SoaringSpin2": {
     "name": "Soaring Spin",
     "shortName": "Soaring",
-    "castTime": 2,
+    "castTime": 2.1,
     "action": [
       {
         "type": "damage",
         "phyCoef": 3.1956,
         "phyBonus": 459,
         "attrBonus": 0,
-        "time": 1
+        "time": 0.875
       },
       {
         "type": "damage",
         "phyCoef": 3.9058,
         "phyBonus": 561,
         "attrBonus": 0,
-        "time": 1
+        "time": 2.05
       }
     ],
     "modifier": [],
@@ -51,7 +51,7 @@
   "LeapingToad": {
     "name": "Leaping Toad [Cancel]",
     "shortName": "Toad",
-    "castTime": 1.2,
+    "castTime": 1.25,
     "action": [
       {
         "type": "damage",
@@ -65,13 +65,13 @@
         "phyCoef": 3.2435,
         "phyBonus": 465,
         "attrBonus": 0,
-        "time": 1.2
+        "time": 1.15
       },
       {
         "type": "apply",
         "target": "target",
         "value": "ToadVenom",
-        "time": 1.2
+        "time": 1.15
       }
     ],
     "modifier": [],
@@ -607,8 +607,8 @@
         "type": "apply",
         "target": "target",
         "value": "Smolder",
-        "duration": 4,
         "reapply": false,
+        "duration": 4,
         "time": 1.5667
       }
     ],
@@ -671,7 +671,7 @@
         "phyCoef": 1.3604,
         "phyBonus": 195.5,
         "attrBonus": 0,
-        "time": 1.5667
+        "time": 2.5667
       },
       {
         "type": "damage",
@@ -728,10 +728,18 @@
         "time": 1.5667
       },
       {
+        "type": "extend",
+        "target": "target",
+        "value": "Smolder",
+        "duration": 4,
+        "time": 1.5667
+      },
+      {
         "type": "apply",
         "target": "target",
         "value": "Smolder",
         "duration": 4,
+        "reapply": false,
         "time": 1.5667
       },
       {
@@ -749,7 +757,7 @@
         "time": 2.5667
       },
       {
-        "type": "apply",
+        "type": "extend",
         "target": "target",
         "value": "Smolder",
         "duration": 7.5,
@@ -786,12 +794,12 @@
         "target": "self",
         "value": "Flute",
         "reapply": true,
-        "time": 2.7
+        "time": 3.275
       },
       {
         "type": "trigger",
         "value": "FluteRipple",
-        "time": 2.7
+        "time": 3.275
       }
     ],
     "modifier": [],

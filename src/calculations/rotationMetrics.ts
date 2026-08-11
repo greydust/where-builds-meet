@@ -23,6 +23,8 @@ type Listener = () => void;
 
 let currentMetrics: RotationMetrics | undefined;
 const listeners = new Set<Listener>();
+let recalculating = false;
+const recalculatingListeners = new Set<Listener>();
 
 export function getRotationMetrics() {
   return currentMetrics;
@@ -36,4 +38,19 @@ export function publishRotationMetrics(metrics: RotationMetrics) {
 export function subscribeToRotationMetrics(listener: Listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
+}
+
+export function getRotationRecalculating() {
+  return recalculating;
+}
+
+export function publishRotationRecalculating(next: boolean) {
+  if (recalculating === next) return;
+  recalculating = next;
+  recalculatingListeners.forEach((listener) => listener());
+}
+
+export function subscribeToRotationRecalculating(listener: Listener) {
+  recalculatingListeners.add(listener);
+  return () => recalculatingListeners.delete(listener);
 }

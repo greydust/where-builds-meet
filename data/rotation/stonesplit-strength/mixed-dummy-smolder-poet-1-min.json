@@ -1,8 +1,8 @@
 {
-  "name": "Mixed Dummy Rotation Infinite Vitality 1 Min",
+  "name": "Mixed Dummy Rotation Smolder Poet 1 Min",
   "eventTimeReference": "battleStart",
   "start": {
-    "step": 6,
+    "step": 7,
     "action": 5
   },
   "steps": [
@@ -12,11 +12,15 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQ"
+      "skill": "DrunkenPoetDrink"
     },
     {
       "type": "skill",
-      "skill": "GhostlySteps"
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
     },
     {
       "type": "skill",
@@ -40,7 +44,11 @@
     },
     {
       "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "skill": "DragonsBreathSmolder2"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "skill",
@@ -56,11 +64,7 @@
     },
     {
       "type": "skill",
-      "skill": "PerfectDodgeCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "SoaringSpin2"
+      "skill": "PhalanxbaneHeavyCharged3"
     },
     {
       "type": "skill",
@@ -68,23 +72,31 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingConversion"
+      "skill": "DragonsBreathSmolder2"
     },
     {
       "type": "skill",
-      "skill": "SnowpartingHeavyVC"
+      "skill": "DrunkenPoet1"
     },
     {
       "type": "skill",
-      "skill": "SnowpartingLightCharged"
+      "skill": "DrunkenPoet2"
     },
     {
       "type": "skill",
-      "skill": "SnowpartingHeavyVC"
+      "skill": "DrunkenPoet3"
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQ"
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "skill",
@@ -92,59 +104,11 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingSpecial"
-    },
-    {
-      "type": "skill",
-      "skill": "FluteOfTheTidesCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingQStab"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneQ"
-    },
-    {
-      "type": "skill",
       "skill": "SnowpartingQ"
     },
     {
       "type": "skill",
-      "skill": "LeapingToad"
+      "skill": "FluteOfTheTidesCancel"
     },
     {
       "type": "skill",
@@ -153,14 +117,6 @@
     {
       "type": "skill",
       "skill": "SnowpartingSpecial"
-    },
-    {
-      "type": "skill",
-      "skill": "FluteOfTheTidesCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
     },
     {
       "type": "skill",
@@ -173,14 +129,6 @@
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneQ"
     },
     {
       "type": "skill",
@@ -189,7 +137,63 @@
     {
       "type": "event",
       "event": "Exhausted",
-      "startTime": 33.0003
+      "startTime": 37.4271
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
     }
   ]
 }

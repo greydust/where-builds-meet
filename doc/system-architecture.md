@@ -170,7 +170,8 @@ duplicating bundled default presets.
 Rotation export similarly produces a versioned JSON snapshot of custom rotation
 records. Rotation import validates skill and event step shapes, appends custom
 rotations with collision-safe IDs, preserves the active rotation, and skips
-bundled default rotations.
+bundled default rotations. Older rotations with absolute manual-event timestamps
+are migrated to fight-relative timestamps using their stored start anchor.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define setup choices
@@ -241,8 +242,10 @@ It produces three row kinds:
 - `trigger`: a skill inserted by a trigger action
 - `dot`: generated DOT actions
 
-Base skill casts are initially placed sequentially. Manual events use absolute
-times and consume no cast time. The event queue is sorted by timestamp and then
+Base skill casts are initially placed sequentially. Manual-event `startTime`
+values are offsets from the selected fight-start anchor and consume no cast time.
+If pre-start cast modifiers move that anchor, queued manual events move with it.
+The event queue is sorted by timestamp and then
 by a lexicographic causal order. This lets casts, actions, triggers, and DOTs
 interleave while ensuring a zero-time action caused by one event resolves before
 an unrelated next cast at the same time.
@@ -339,9 +342,11 @@ choices persist for the browser session.
 `calculateRotationBaseline()` performs work in this order:
 
 1. Build the baseline timeline once.
-2. Resolve the selected start anchor and duration through the final action.
+2. Resolve the selected start anchor and duration through Battle End, or through
+   the final action when no Battle End event exists.
 3. Create baseline damage entries and one detailed breakdown per damage action
-   at or after the anchor; keep earlier actions only in the timeline display.
+   at or after the anchor and no later than Battle End; keep excluded actions in
+   the timeline display.
 4. Calculate baseline total damage and DPS once.
 5. Produce skill, skill-category, and physical/attribute breakdowns.
 
@@ -372,9 +377,11 @@ Each public baseline result contains:
 - per-action `DamageBreakdown` map
 
 The Rotation Editor uses the timeline and action map for its table and tooltips.
-Base skills have collapsible action groups. Triggered skills do not add skill
-rows; their damage actions inherit the originating base skill's expansion state
-and contribute to its displayed damage total. DOT actions always remain visible.
+Base skills have collapsible action groups. Triggered skills and DOTs do not add
+skill rows; their damage actions inherit the originating base skill's expansion
+state and contribute to its displayed damage total. A DOT application records
+that source cast, and a later refresh or extension transfers all subsequent ticks
+to the cast that performed it. Nested DOTs inherit the original base cast.
 A displayed damage action without a breakdown was before the start anchor and
 has an empty damage cell.
 The editor keeps one public baseline result per rotation, keyed by the complete
@@ -388,7 +395,10 @@ work never publishes an incomplete metrics object. Main and DPS Breakdown keep
 the previous complete baseline-plus-comparisons result throughout a refresh,
 then atomically swap to the replacement after its comparison pass completes. An
 active-rotation Save and Make Active request comparisons; saving an inactive
-rotation does not.
+rotation does not. The same central store publishes a recalculation status for
+active comparison requests. The Main DPS block keeps displaying the last
+complete value and shows `Recalculating` beneath it until the matching current
+result is published; superseded requests cannot clear the status of newer work.
 
 ## Static data composition
 
@@ -403,7 +413,7 @@ static assets. The application currently recognizes:
 - Exhausted and Controlled manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
-- eight gear slots and their affix/attunement options
+- eight gear slots, relayed status, and affix/attunement options
 - innate character, talent, and base-attribute conversion stats
 
 Effect definitions are merged into one ID map from buff, debuff, and DOT files.
@@ -459,8 +469,11 @@ art imports, attunement matching, and `mainAttribute()` in `damage.ts`.
 ### Manual event
 
 Add the event to the `RotationStep` union, `rotationEventDefinitions`, editor
-options, and any special duration UI. General event definitions are currently
-hard-coded rather than loaded from data.
+options, transfer validation, and any special duration UI. `Exhausted`,
+`Controlled`, and `BattleEnd` use fight-relative timestamps. Battle End has no
+actions; the calculator treats its ordered timestamp as the damage and duration
+cutoff. General event definitions are currently hard-coded rather than loaded
+from data.
 
 ## Known architectural limitations
 
@@ -473,9 +486,6 @@ hard-coded rather than loaded from data.
 - Manual event definitions and supported weapons are hard-coded.
 - The primary attribute resolver only knows the current Stonesplit weapons.
 - DMG Bonus Category 2 is specified but not implemented.
-- DOT tick generation uses the DOT definition's duration, not an individual
-  apply action's duration. Definitions without duration currently tick through
-  the remaining base rotation.
 - There is no automated test suite yet; `npm run build` is the current type and
   production-bundle verification step.
 
@@ -494,7 +504,8 @@ Editor keeps the last completed timeline for each rotation mounted during its
 replacement calculation so scroll position and focused controls survive the
 refresh. The central DPS result similarly retains its previous diff rows until
 the replacement comparison result is ready, then swaps the complete result at
-once.
+once. Its recalculation status changes independently of the retained metrics so
+the UI can identify that displayed DPS as temporarily stale.
 
 ## Development and deployment
 

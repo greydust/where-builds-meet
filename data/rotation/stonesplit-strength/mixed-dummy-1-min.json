@@ -1,5 +1,6 @@
 {
   "name": "Mixed Dummy Rotation 1 Min",
+  "eventTimeReference": "battleStart",
   "start": {
     "step": 5,
     "action": 5
@@ -176,7 +177,7 @@
     {
       "type": "event",
       "event": "Exhausted",
-      "startTime": 38.6
+      "startTime": 33.0003
     }
   ]
 }

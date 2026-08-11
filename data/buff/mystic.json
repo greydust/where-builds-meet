@@ -1,4 +1,10 @@
 {
+  "Intoxicated": {
+    "name": "Intoxicated",
+    "description": "Allow using Drunken Poet or Dragon's Breath.",
+    "maxStack": 1,
+    "effect": []
+  },
   "Flute": {
     "name": "Flute",
     "description": "Buff damage by the distance to the target.",

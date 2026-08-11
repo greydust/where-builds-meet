@@ -1,10 +1,11 @@
-import { useMemo, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardEvent as ReactClipboardEvent, type Dispatch, type DragEvent, type SetStateAction } from "react";
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
 import {
   defaultBuildSetup,
   attunementData,
+  clampGearRoll,
   exportBuildState,
   gearBaseStats,
   gearData,
@@ -12,6 +13,7 @@ import {
   gearItemSupportsSlot,
   gearSlots,
   isGearItemCompatible,
+  maxGearRoll,
   mergeImportedBuildState,
   normalizeBuildSetup,
   resolveBuildInventory,
@@ -27,11 +29,13 @@ import {
   type GearValueDefinition,
 } from "./gear";
 import type { WeaponId } from "./types";
+import { recognizeGearImage } from "./gearOcr";
 
 type GearValueDraft = { key: string; value: string };
 type GearDraft = {
   level: GearLevel;
   rarity: GearRarity;
+  relayed: boolean;
   baseAffix: GearValueDraft;
   additionalAffixes: GearValueDraft[];
   attunement: GearValueDraft;
@@ -56,13 +60,14 @@ const blankValue = (): GearValueDraft => ({ key: "", value: "" });
 const newDraft = (): GearDraft => ({
   level: 96,
   rarity: "Gold",
+  relayed: false,
   baseAffix: blankValue(),
   additionalAffixes: Array.from({ length: 4 }, blankValue),
   attunement: blankValue(),
 });
 
 function formatNumber(value: number) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return Number.isInteger(value) ? String(value) : value.toFixed(5).replace(/0+$/, "").replace(/\.$/, "");
 }
 
 function displayValue(value: number, definition?: { percentage?: boolean }) {
@@ -96,21 +101,51 @@ function GearAttributes({ item, compact = false }: { item: GearItem; compact?: b
   return <div className={`gear-attribute-list ${compact ? "compact" : ""}`}>{itemAttributes(item).map((row, index) => <div className={`gear-attribute ${row.kind === "Attunement" ? "gear-attunement-attribute" : ""}`} key={`${row.kind}-${row.label}-${index}`}><span>{row.kind === "Attunement" && <small>{row.kind}</small>}{row.label}</span><strong>{row.value}</strong></div>)}</div>;
 }
 
-function GearValueEditor({ label, value, options, definitions, disabledKeys = new Set(), onChange }: {
+function RelayedIndicator({ item }: { item?: GearItem }) {
+  return item?.relayed ? <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear">↑</span> : null;
+}
+
+function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
+  const maximum = maxGearRoll(key, category, relayed);
+  if (typeof maximum !== "number") return undefined;
+  return definitions[key]?.percentage ? maximum * 100 : maximum;
+}
+
+function capDraftValue(value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
+  const maximum = draftRollCap(value.key, definitions, category, relayed);
+  const numericValue = Number(value.value);
+  if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue) || numericValue <= maximum) return value;
+  return { ...value, value: formatNumber(maximum) };
+}
+
+function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
+  return {
+    ...draft,
+    relayed,
+    baseAffix: capDraftValue(draft.baseAffix, gearData.affixes, "affix", relayed),
+    additionalAffixes: draft.additionalAffixes.map((affix) => capDraftValue(affix, gearData.affixes, "affix", relayed)),
+    attunement: capDraftValue(draft.attunement, attunementData, "attunement", relayed),
+  };
+}
+
+function GearValueEditor({ label, value, options, definitions, category, relayed, disabledKeys = new Set(), onChange }: {
   label: string;
   value: GearValueDraft;
   options: string[];
   definitions: Record<string, GearValueDefinition>;
+  category: "affix" | "attunement";
+  relayed: boolean;
   disabledKeys?: Set<string>;
   onChange: (next: GearValueDraft) => void;
 }) {
   const selectedDefinition = definitions[value.key];
+  const maximum = draftRollCap(value.key, definitions, category, relayed);
   return <div className="gear-value-editor">
-    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange({ ...value, key: event.target.value })}>
+    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed))}>
       <option value="">Select an attribute</option>
       {options.map((key) => <option key={key} value={key} disabled={key !== value.key && disabledKeys.has(key)}>{definitions[key]?.name ?? key}</option>)}
     </select></label>
-    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" step="0.01" value={value.value} onChange={(event) => onChange({ ...value, value: event.target.value })} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
+    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" max={maximum} step="0.01" value={value.value} onChange={(event) => onChange(capDraftValue({ ...value, value: event.target.value }, definitions, category, relayed))} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
   </div>;
 }
 
@@ -118,11 +153,12 @@ function createGearId() {
   return globalThis.crypto?.randomUUID?.() ?? `gear-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>) {
+function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
   const definition = definitions[draft.key];
   const value = Number(draft.value);
   if (!definition || !draft.value.trim() || !Number.isFinite(value) || value < 0) return undefined;
-  return { key: draft.key, value: definition.percentage ? value / 100 : value };
+  const storedValue = definition.percentage ? value / 100 : value;
+  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed) };
 }
 
 function savedValueToDraft(value: { key: string; value: number }, definitions: Record<string, GearValueDefinition>): GearValueDraft {
@@ -136,6 +172,7 @@ function itemToDraft(item: GearItem): GearDraft {
   return {
     level: item.level,
     rarity: item.rarity,
+    relayed: item.relayed === true,
     baseAffix: savedValueToDraft(item.baseAffix, gearData.affixes),
     additionalAffixes: item.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes)),
     attunement: savedValueToDraft(item.attunement, attunementData),
@@ -292,7 +329,7 @@ function BuildSetupPanel({ setup, locked, onChange }: { setup: BuildSetup; locke
     </section>
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Arsenal</h2></div></div>
-      <div className="setup-option-list setup-option-list-wide">
+      <div className="setup-option-list setup-option-list-arsenal">
         {Object.entries(arsenalDefinitions).map(([value, definition]) => <button className={setup.arsenal === value ? "selected" : ""} type="button" key={value} disabled={locked} title={lockedTitle} onClick={() => onChange({ ...setup, arsenal: value })}>{definition.name}</button>)}
       </div>
     </section>
@@ -347,9 +384,9 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
   function save() {
     const definition = selected.definition;
     if (!definition) return;
-    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes);
-    const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes));
-    const attunement = normalizeDraftValue(draft.attunement, attunementData);
+    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed);
+    const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed));
+    const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed);
     if (!baseAffix || additionalAffixes.some((affix) => !affix) || !attunement) {
       setError("Choose every attribute and enter a non-negative value.");
       return;
@@ -365,6 +402,7 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
       definitionId: selected.definitionId,
       level: draft.level,
       rarity: draft.rarity,
+      ...(draft.relayed ? { relayed: true } : {}),
       baseAffix,
       additionalAffixes: normalizedAdditional,
       attunement,
@@ -423,6 +461,7 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
           const item = equippedItems[slot];
           const definition = item ? gearData.gear[item.definitionId] : gearDefinitionForSlot(slot, weapons).definition;
           return <button className={`equipped-gear-card ${!locked && selectedSlot === slot ? "selected" : ""}`} type="button" key={slot} disabled={locked} onClick={() => selectSlot(slot)} data-testid={`equipped-${slot}`}>
+            <RelayedIndicator item={item} />
             <span className="gear-slot-name">{gearData.slots[slot]}</span>
             {item ? <><strong>{definition?.name}</strong><small>{item.level} {item.rarity}</small><GearBaseStatSummary item={item} /><GearAttributes item={item} compact /></> : <span className="gear-empty">No gear equipped</span>}
           </button>;
@@ -433,7 +472,8 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
     {!locked && <section className="panel build-inventory-panel">
       <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p></div></div>
       <div className="available-gear-grid">
-        {availableItems.map((item) => <article className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""}`} key={item.id}>
+        {availableItems.map((item) => <article className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""} ${item.relayed ? "relayed" : ""}`} key={item.id}>
+          <RelayedIndicator item={item} />
           <div className="available-gear-heading"><div><strong>{selected.definition?.name}</strong><small>{item.level} {item.rarity}</small><GearBaseStatSummary item={item} /></div>{inventory.equipped[selectedSlot] === item.id && <span>Equipped</span>}</div>
           <GearAttributes item={item} />
           <div className="gear-card-actions">
@@ -446,12 +486,13 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
       </div>
     </section>}
 
-    {!locked && editing && selected.definition && <GearEditor definition={selected.definition} definitionName={selected.definition.name} editingExisting={editingItemId !== null} draft={draft} error={error} baseAffixOptions={baseAffixOptions} additionalAffixOptions={additionalAffixOptions} selectedAdditionalKeys={selectedAdditionalKeys} onDraftChange={setDraft} onLevelChange={updateLevel} onCancel={() => { setEditing(false); setEditingItemId(null); setError(""); }} onSave={save} />}
+    {!locked && editing && selected.definition && <GearEditor definition={selected.definition} definitionId={selected.definitionId} definitionName={selected.definition.name} editingExisting={editingItemId !== null} draft={draft} error={error} baseAffixOptions={baseAffixOptions} additionalAffixOptions={additionalAffixOptions} selectedAdditionalKeys={selectedAdditionalKeys} onDraftChange={setDraft} onLevelChange={updateLevel} onCancel={() => { setEditing(false); setEditingItemId(null); setError(""); }} onSave={save} />}
   </div>;
 }
 
-function GearEditor({ definition, definitionName, editingExisting, draft, error, baseAffixOptions, additionalAffixOptions, selectedAdditionalKeys, onDraftChange, onLevelChange, onCancel, onSave }: {
+function GearEditor({ definition, definitionId, definitionName, editingExisting, draft, error, baseAffixOptions, additionalAffixOptions, selectedAdditionalKeys, onDraftChange, onLevelChange, onCancel, onSave }: {
   definition: GearDefinition;
+  definitionId: string;
   definitionName: string;
   editingExisting: boolean;
   draft: GearDraft;
@@ -464,18 +505,141 @@ function GearEditor({ definition, definitionName, editingExisting, draft, error,
   onCancel: () => void;
   onSave: () => void;
 }) {
+  const ocrDialogRef = useRef<HTMLDialogElement>(null);
+  const ocrInputRef = useRef<HTMLInputElement>(null);
+  const [ocrOpen, setOcrOpen] = useState(false);
+  const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocrDragging, setOcrDragging] = useState(false);
+  const [ocrError, setOcrError] = useState("");
+  const [ocrStatus, setOcrStatus] = useState("");
+  const [ocrProgress, setOcrProgress] = useState(0);
+  const [ocrPreview, setOcrPreview] = useState("");
+
+  useEffect(() => {
+    const dialog = ocrDialogRef.current;
+    if (!dialog) return;
+    if (ocrOpen && !dialog.open) dialog.showModal();
+    else if (!ocrOpen && dialog.open) dialog.close();
+  }, [ocrOpen]);
+
+  useEffect(() => () => {
+    if (ocrPreview) URL.revokeObjectURL(ocrPreview);
+  }, [ocrPreview]);
+
+  const openOcr = () => {
+    setOcrPreview((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return "";
+    });
+    if (ocrInputRef.current) ocrInputRef.current.value = "";
+    setOcrError("");
+    setOcrStatus("");
+    setOcrProgress(0);
+    setOcrDragging(false);
+    setOcrOpen(true);
+  };
+  const closeOcr = () => {
+    if (!ocrBusy) setOcrOpen(false);
+  };
+  const importImage = async (file?: File) => {
+    if (!file || ocrBusy) return;
+    if (file.size > 15 * 1024 * 1024) {
+      setOcrError("The image is larger than 15 MB. Crop or resize it and try again.");
+      return;
+    }
+    setOcrError("");
+    setOcrBusy(true);
+    setOcrStatus("Loading OCR model");
+    setOcrProgress(0);
+    setOcrPreview((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return URL.createObjectURL(file);
+    });
+    try {
+      const result = await recognizeGearImage(file, (progress, status) => {
+        setOcrProgress(Math.max(0, Math.min(1, progress)));
+        setOcrStatus(status);
+      });
+      if (result.definitionId !== definitionId) {
+        const recognizedName = gearData.gear[result.definitionId]?.name ?? result.definitionId;
+        throw new Error(`This image contains ${recognizedName}, but the current editor expects ${definitionName}. Open the matching gear slot and try again.`);
+      }
+      onDraftChange((current) => capGearDraft({
+        ...current,
+        level: result.level,
+        rarity: result.rarity,
+        relayed: result.relayed,
+        baseAffix: savedValueToDraft(result.baseAffix, gearData.affixes),
+        additionalAffixes: result.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes)),
+        attunement: savedValueToDraft(result.attunement, attunementData),
+      }));
+      setOcrOpen(false);
+    } catch (caught) {
+      setOcrError(caught instanceof Error ? caught.message : "The image could not be imported.");
+    } finally {
+      setOcrBusy(false);
+      setOcrStatus("");
+    }
+  };
+  const selectOcrFile = (event: ChangeEvent<HTMLInputElement>) => {
+    void importImage(event.target.files?.[0]);
+    event.target.value = "";
+  };
+  const dropOcrFile = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setOcrDragging(false);
+    void importImage(event.dataTransfer.files?.[0]);
+  };
+  const pasteOcrImage = (event: ReactClipboardEvent<HTMLDialogElement>) => {
+    const clipboardFile = Array.from(event.clipboardData.items)
+      .find((item) => item.kind === "file" && item.type.startsWith("image/"))
+      ?.getAsFile()
+      ?? Array.from(event.clipboardData.files).find((file) => file.type.startsWith("image/"));
+    if (!clipboardFile) {
+      setOcrError("The clipboard does not contain an image. Copy a screenshot and paste again.");
+      return;
+    }
+    event.preventDefault();
+    void importImage(clipboardFile);
+  };
+  const maxValue = (value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) => {
+    const roll = maxGearRoll(value.key, category, relayed);
+    return typeof roll === "number" ? savedValueToDraft({ key: value.key, value: roll }, definitions) : value;
+  };
+  const applyMax = () => onDraftChange((current) => {
+    return {
+      ...current,
+      baseAffix: maxValue(current.baseAffix, gearData.affixes, "affix", current.relayed),
+      additionalAffixes: current.additionalAffixes.map((affix) => maxValue(affix, gearData.affixes, "affix", current.relayed)),
+      attunement: maxValue(current.attunement, attunementData, "attunement", current.relayed),
+    };
+  });
   return <section className="panel gear-editor-panel" data-testid="gear-editor">
-    <div className="panel-heading"><div><h2>{editingExisting ? "Edit" : "Add"} {definitionName}</h2><p>Percentage values are entered as percentage points.</p></div></div>
+    <div className="panel-heading"><div><h2>{editingExisting ? "Edit" : "Add"} {definitionName}</h2><p>Percentage values are entered as percentage points.</p></div>{!editingExisting && <button className="button button-secondary button-small" type="button" onClick={openOcr}>Import from Image</button>}</div>
     <div className="gear-editor-meta">
       <label className="editor-field"><span>Level</span><select value={draft.level} onChange={(event) => onLevelChange(Number(event.target.value) as GearLevel)}><option value={96}>96</option><option value={91}>91</option></select></label>
       <label className="editor-field"><span>Rarity</span><select value={draft.rarity} onChange={(event) => onDraftChange((current) => ({ ...current, rarity: event.target.value as GearRarity }))}><option>Gold</option><option>Purple</option></select></label>
+      <div className="gear-editor-roll-controls"><label className="gear-relayed-toggle"><input type="checkbox" checked={draft.relayed} onChange={(event) => { const relayed = event.target.checked; onDraftChange((current) => capGearDraft(current, relayed)); }} /><span>Relayed</span></label><button className="button button-secondary button-small" type="button" onClick={applyMax}>Max</button></div>
     </div>
     <div className="gear-editor-sections">
-      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
-      <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
-      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={definition.attunements} definitions={attunementData} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
+      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
+      <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
+      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={definition.attunements} definitions={attunementData} category="attunement" relayed={draft.relayed} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
     </div>
     {error && <p className="editor-error" role="alert">{error}</p>}
     <div className="editor-actions"><button className="button button-secondary" type="button" onClick={onCancel}>Cancel</button><button className="button button-primary" type="button" onClick={onSave}>{editingExisting ? "Save Changes" : "Save"}</button></div>
+    <dialog className="gear-ocr-dialog" ref={ocrDialogRef} onPaste={pasteOcrImage} onCancel={(event) => { if (ocrBusy) event.preventDefault(); }} onClose={() => setOcrOpen(false)}>
+      <div className="gear-ocr-heading"><div><h2>Import {definitionName} from image</h2><p>Use a clear, uncropped gear details screenshot. Recognition runs locally in your browser.</p></div><button className="button button-secondary button-small" type="button" disabled={ocrBusy} onClick={closeOcr}>Close</button></div>
+      <div className="gear-ocr-grid">
+        <div className={`gear-ocr-dropzone ${ocrDragging ? "dragging" : ""}`} onDragEnter={(event) => { event.preventDefault(); setOcrDragging(true); }} onDragOver={(event) => event.preventDefault()} onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOcrDragging(false); }} onDrop={dropOcrFile}>
+          {ocrPreview ? <img src={ocrPreview} alt="Selected gear screenshot" /> : <div><strong>Drop a screenshot or directly paste</strong><span>Press Ctrl+V, or use PNG, JPEG, or WebP; up to 15 MB</span></div>}
+          <input ref={ocrInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={selectOcrFile} hidden />
+          <button className="button button-primary" type="button" disabled={ocrBusy} onClick={() => ocrInputRef.current?.click()}>{ocrPreview ? "Choose another image" : "Choose image"}</button>
+        </div>
+        <figure className="gear-ocr-example"><img src={`${import.meta.env.BASE_URL}ocr/mo-blade-example.png`} alt="Example Mo Blade gear details screenshot" /><figcaption>Example: include the rarity color, gear type, tier, every affix, and attunement.</figcaption></figure>
+      </div>
+      {ocrBusy && <div className="gear-ocr-progress" aria-live="polite"><div><span>{ocrStatus || "Reading image"}</span><span>{Math.round(ocrProgress * 100)}%</span></div><progress max={1} value={ocrProgress} /></div>}
+      {ocrError && <p className="editor-error gear-ocr-error" role="alert">{ocrError}</p>}
+    </dialog>
   </section>;
 }

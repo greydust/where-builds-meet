@@ -23,7 +23,7 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
       ...(typeof step.condition === "string" ? { condition: step.condition } : {}),
     };
   }
-  if (step.type === "event" && (step.event === "Exhausted" || step.event === "Controlled") && typeof step.startTime === "number" && Number.isFinite(step.startTime)) {
+  if (step.type === "event" && (step.event === "Exhausted" || step.event === "Controlled" || step.event === "BattleEnd") && typeof step.startTime === "number" && Number.isFinite(step.startTime)) {
     return {
       type: "event",
       event: step.event,
@@ -36,7 +36,7 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
 
 function parseRotation(value: unknown): RotationRecord | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  const candidate = value as { name?: unknown; steps?: unknown; start?: unknown };
+  const candidate = value as { name?: unknown; steps?: unknown; start?: unknown; eventTimeReference?: unknown };
   if (typeof candidate.name !== "string" || !candidate.name.trim() || !Array.isArray(candidate.steps)) return undefined;
   const steps = candidate.steps.map(parseRotationStep);
   if (steps.some((step) => !step)) return undefined;
@@ -51,7 +51,7 @@ function parseRotation(value: unknown): RotationRecord | undefined {
   const start = validStartStep && validStartAction
     ? { step: startValue.step as number, ...(typeof startValue.action === "number" ? { action: startValue.action } : {}) }
     : undefined;
-  return { name: candidate.name, steps: parsedSteps, ...(start ? { start } : {}) };
+  return { name: candidate.name, steps: parsedSteps, ...(start ? { start } : {}), ...(candidate.eventTimeReference === "battleStart" ? { eventTimeReference: "battleStart" as const } : {}) };
 }
 
 function importedId(originalId: string, usedIds: Set<string>) {

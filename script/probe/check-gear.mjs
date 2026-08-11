@@ -39,15 +39,23 @@ assert(Object.keys(gear.attunementData).every((key) => attunementStatKeys.has(ke
 assert(gear.attunementData.physicalPenetration.effect.stat.physicalPenetration === 1 && gear.attunementData.formlessPenetration.effect.stat.formlessPenetration === 1, "Weapon attunements must target their penetration channels.");
 assert(Object.entries(gear.attunementData).filter(([, definition]) => definition.tags.includes("Armor")).every(([, definition]) => definition.effect.stat.attunementDMGBonus === 1 && definition.effect.tags.length > 0), "Armor attunements must target the tagged standalone attunement DMG Bonus.");
 
-const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
+const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "mixed-fully-relayed-min" || candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
 assert(preset, "Expected the fully relayed min default build.");
 const presetInventory = gear.buildPresetInventory(preset);
-assert(preset.name === "Fully Relayed Min Build" || preset.name === "Full Relayed Min Build", "Unexpected default build name.");
+assert(preset.name === "Mixed Fully Relayed Min Build" || preset.name === "Fully Relayed Min Build" || preset.name === "Full Relayed Min Build", "Unexpected default build name.");
 assert(presetInventory.items.length === 8 && Object.keys(presetInventory.equipped).length === 8, "The default build must resolve all eight synthetic gear slots.");
+assert(presetInventory.items.every((item) => item.relayed === true), "Fully relayed presets must mark every synthetic gear item as relayed.");
 const presetLeftWeapon = presetInventory.items.find((item) => item.id === presetInventory.equipped.leftWeapon);
 assert(presetLeftWeapon && !("slot" in presetLeftWeapon), "Preset weapon gear must use its definition ID instead of a stored slot.");
 assert(presetLeftWeapon.baseAffix.value === 73.132, "Preset affixes must preserve their explicit saved values.");
 assert(presetLeftWeapon.attunement.value === 11, "Preset attunements must preserve their explicit saved values.");
+assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Normal Max must use the full stat-priority affix roll.");
+assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9, "Relayed Max must use 94% of the stat-priority affix roll.");
+assert(gear.maxGearRoll("physicalPenetration", "attunement", true) === 11, "Relayed Max must keep the full attunement roll.");
+assert(gear.clampGearRoll("minPhys", 100, "affix", false) === 77.8, "Normal affix input must clamp to its stat-priority roll.");
+assert(Math.abs(gear.clampGearRoll("minPhys", 77.8, "affix", true) - 73.132) < 1e-9, "Enabling Relayed must clamp an existing affix to 94%.");
+assert(gear.clampGearRoll("physicalPenetration", 20, "attunement", true) === 11, "Relayed attunement input must retain its full cap.");
+assert(gear.clampGearRoll("minPhys", 60, "affix", true) === 60, "Values below the cap must remain unchanged.");
 const presetEffects = gear.calculateEquippedGearEffects(presetInventory, ["snowparting", "phalanxbane"], false);
 assert(Math.abs(presetEffects.stats.minPhys - 1093.584) < 1e-9, "Unexpected preset minimum Physical Attack total.");
 assert(Math.abs(presetEffects.stats.maxPhys - 431) < 1e-9, "Unexpected preset maximum Physical Attack total.");
@@ -109,6 +117,11 @@ const duplicateInventoryJson = JSON.stringify({ items: [duplicatedItem], equippe
 globalThis.localStorage = { getItem: (key) => key === gear.legacyGearStorageKey ? duplicateInventoryJson : null };
 const loaded = gear.loadGearInventory();
 assert(loaded.items.length === 0, "Persisted duplicate additional affixes should be rejected.");
+
+const relayedHengBlade = { ...hengBlade, relayed: true };
+globalThis.localStorage = { getItem: (key) => key === gear.legacyGearStorageKey ? JSON.stringify({ items: [relayedHengBlade], equipped: { leftWeapon: relayedHengBlade.id } }) : null };
+const loadedRelayed = gear.loadGearInventory();
+assert(loadedRelayed.items[0]?.relayed === true, "Relayed metadata must survive persisted gear validation.");
 
 const legacyHengBlade = { ...hengBlade, slot: "leftWeapon" };
 const legacyInventoryJson = JSON.stringify({ items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } });

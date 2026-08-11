@@ -43,8 +43,8 @@ gear item can therefore be equipped by any number of builds, while changing one
 build's loadout does not change another build's equipped choices. Only the
 active build contributes to character and rotation calculations.
 
-Each shared item stores its definition ID, level, rarity, one base affix, four
-additional affixes, and one attunement. Non-weapon items also store their armor
+Each shared item stores its definition ID, level, rarity, optional `relayed`
+status, one base affix, four additional affixes, and one attunement. Non-weapon items also store their armor
 slot; weapon items leave positioning to the build's `equipped.leftWeapon` and
 `equipped.rightWeapon` references. Editing an item updates it for every build
 that equips it. Deleting an item removes it from the shared inventory and
@@ -71,6 +71,40 @@ Saved gear can be equipped, edited in place, or deleted from the shared slot
 inventory. Editing keeps the item's ID, so it remains equipped in every build
 that uses it. Deletion is a two-step action: the first click arms a red `Confirm
 Delete` button and the second click removes the item globally.
+
+Relayed items display an upward arrow on equipped and inventory cards. The gear
+editor's Max action fills every currently selected affix and attunement from
+`data/stat-priority.json` without changing attribute selections. Normal affixes
+use 100% of the saved max roll; relayed base and additional affixes use 94%.
+Attunements always use 100%. Max writes those concrete values into the item, so
+calculation never depends on an implicit multiplier. Manual value entry uses
+the same values as hard upper limits. Turning Relayed on immediately clamps any
+base or additional affix above its new 94% limit; turning it off preserves the
+current rolls. Attunement values remain capped at 100% in either state. Save
+also applies these limits defensively so non-UI imports cannot persist an
+over-cap roll.
+
+## Image import
+
+The add-gear editor can populate a draft from a selected, dropped, or
+clipboard-pasted gear details screenshot. OCR is
+performed entirely in the browser with Tesseract; its worker, English language
+model, and WebAssembly core are served from `public/ocr`, so the static GitHub
+Pages build does not depend on an OCR service or upload user images. The bundled
+Mo Blade screenshot is displayed only as a composition example.
+
+Recognition is deliberately strict. The importer reads rarity from the Gold or
+Purple color bar beside the item name, while OCR supplies the definition, tier,
+relaying marker, five affix rows, attunement, and their displayed values. Labels
+are normalized to the existing IDs in `data/gear.json` and
+`data/attunement.json`; percentage points are converted to decimal ratios at
+this UI boundary. Sparse-layout recognition is preferred; if it misses a row,
+the importer validates the block-layout result already produced during the same
+scan before rejecting the image. An import is rejected instead of partially applied when the
+gear definition does not match the editor, rarity or tier is unclear, a row is
+missing, an affix is duplicated or unavailable for that definition, or the
+attunement is invalid. A successful import fills the ordinary gear draft and
+still requires the user to press Save.
 
 ## Export and import
 
@@ -106,7 +140,9 @@ still be changed locally.
 Preset gear records use the same value shape as editor-created gear: every base
 affix, additional affix, and attunement stores an explicit `{ "key", "value" }`
 object. A preset therefore records the exact build values and does not depend on
-`data/stat-priority.json` or a roll multiplier. Preset weapon definitions are
+`data/stat-priority.json` or a roll multiplier. A preset-level `relayed: true`
+marks all of its synthetic gear as relayed for display without altering those
+explicit values. Preset weapon definitions are
 fixed and are applied as authored rather than being replaced when the Settings
 weapon order changes.
 

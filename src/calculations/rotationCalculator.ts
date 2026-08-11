@@ -211,6 +211,13 @@ function effectsForTrackedEffect(stack: number | undefined, definition: EffectDe
   return definition?.effect ?? [];
 }
 
+function battleEndCutoff(timeline: TimelineRow[]) {
+  const row = timeline
+    .filter((candidate) => !candidate.skipped && candidate.kind === "rotation" && candidate.step.type === "event" && candidate.step.event === "BattleEnd")
+    .sort((left, right) => left.startTime - right.startTime || left.order - right.order)[0];
+  return row ? { time: row.startTime, order: row.order } : undefined;
+}
+
 function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
@@ -228,11 +235,13 @@ function timelineDamageEntries(
   const anchorActionIndex = startAnchor.actionIndex;
   const anchorTime = anchorRow ? anchorRow.startTime + (anchorActionIndex === undefined ? 0 : Number(anchorRow.actions[anchorActionIndex]?.time ?? 0)) : 0;
   const anchorOrder = anchorRow ? anchorRow.order + (anchorActionIndex === undefined ? 0 : 10 + anchorActionIndex) : 0;
+  const battleEnd = battleEndCutoff(timeline);
   return timeline.flatMap((row) => row.skipped ? [] : row.actions.flatMap((action, actionIndex) => {
     if (action.type !== "damage") return [];
     const actionTime = row.startTime + Number(action.time ?? 0);
     const actionOrder = row.order + 10 + actionIndex;
     if (actionTime < anchorTime || (actionTime === anchorTime && actionOrder < anchorOrder)) return [];
+    if (battleEnd && (actionTime > battleEnd.time || actionTime === battleEnd.time && actionOrder >= battleEnd.order)) return [];
     const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
@@ -270,7 +279,8 @@ function timelineDamageEntries(
 function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulationBundle["startAnchor"]) {
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorTime = anchorRow ? anchorRow.startTime + (startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[startAnchor.actionIndex]?.time ?? 0)) : 0;
-  const lastActionTime = timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
+  const battleEnd = battleEndCutoff(timeline);
+  const lastActionTime = battleEnd?.time ?? timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
   return { anchorTime, duration: Math.max(0, lastActionTime - anchorTime) };
 }
 

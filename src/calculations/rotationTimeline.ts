@@ -14,8 +14,8 @@ export type SkillRecord = {
   tags?: string[];
 };
 export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolean; condition?: string }
-  | { type: "event"; event: "Exhausted" | "Controlled"; startTime: number; duration?: number };
-export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number } };
+  | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number };
+export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };
 export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number };
 export type InnerWayEffectRule = { requirement?: unknown; effect: EditableObject; trigger?: EditableObject; target?: string; modify?: EditableObject; source: string; tier: number };
 export type TimelineRowKind = "rotation" | "trigger" | "dot";
@@ -125,11 +125,25 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
   const innerWayConditions = new Set(input.innerWayConditions);
   const rows: TimelineRow[] = [];
   const events: TimelineEvent[] = [];
+  const startStepIndex = rotation.start?.step ?? 0;
+  const initialAnchorTime = (() => {
+    let time = 0;
+    for (const [stepIndex, step] of rotation.steps.entries()) {
+      if (stepIndex === startStepIndex) {
+        if (step.type !== "skill") return time;
+        const skill = skills[step.skill ?? ""];
+        const actionIndex = rotation.start?.action;
+        return time + (actionIndex === undefined || !Array.isArray(skill?.action) ? 0 : Number((skill.action[actionIndex] as EditableObject | undefined)?.time ?? 0));
+      }
+      if (step.type === "skill") time += typeof skills[step.skill ?? ""]?.castTime === "number" ? skills[step.skill ?? ""].castTime! : 0;
+    }
+    return 0;
+  })();
   let elapsed = 0;
   for (const [rowIndex, step] of rotation.steps.entries()) {
     const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
     const castTime = step.type === "skill" && typeof skill?.castTime === "number" ? skill.castTime : 0;
-    const startTime = step.type === "event" ? step.startTime : elapsed;
+    const startTime = step.type === "event" ? step.startTime + (rotation.eventTimeReference === "battleStart" ? initialAnchorTime : 0) : elapsed;
     const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({ ...action, ...(step.type === "event" && step.event === "Controlled" && action.type === "apply" ? { duration: step.duration ?? skill?.castTime ?? 3 } : {}) })) : [];
     const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowIndex * 1000, step, startTime, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
     rows.push(row);
@@ -149,16 +163,56 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       .map((rule) => rule.modify!);
     return [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, { ...(effectDefinitions[name] ?? {}) });
   };
-  const createDotActions = (dot: SkillRecord, startTime: number) => {
-    const baseActions = Array.isArray(dot.action) ? dot.action as EditableObject[] : [];
-    const tick = typeof dot.tick === "number" && dot.tick > 0 ? dot.tick : undefined;
-    const lifetime = typeof dot.duration === "number" ? dot.duration : Math.max(0, elapsed - startTime);
-    if (!tick) return baseActions.map((action) => ({ ...action, time: typeof action.time === "number" ? action.time : 0 }));
-    const generated: EditableObject[] = [];
-    for (let tickTime = tick; tickTime <= lifetime + 1e-6; tickTime += tick) baseActions.forEach((action) => generated.push({ ...action, time: tickTime }));
-    return generated;
-  };
   let nextDerivedOrder = rotation.steps.length * 1000 + 1;
+  type ActiveDot = {
+    dot: SkillRecord;
+    appliedAt: number;
+    expiresAt: number;
+    sourceRowId: string;
+    rows: TimelineRow[];
+  };
+  const activeDots: Record<string, ActiveDot> = {};
+  const removePendingDotRows = (activeDot: ActiveDot, afterTime: number) => {
+    const pendingRows = new Set(activeDot.rows.filter((row) => row.startTime > afterTime + 1e-6 && Object.keys(row.actionStates).length === 0));
+    if (pendingRows.size === 0) return;
+    activeDot.rows = activeDot.rows.filter((row) => !pendingRows.has(row));
+    for (let index = rows.length - 1; index >= 0; index -= 1) if (pendingRows.has(rows[index])) rows.splice(index, 1);
+    for (let index = events.length - 1; index >= 0; index -= 1) if (pendingRows.has(events[index].row)) events.splice(index, 1);
+  };
+  const scheduleDotTicks = (name: string, activeDot: ActiveDot, afterTime: number, causalSortOrder: number[], sourceOrder: number) => {
+    const tick = typeof activeDot.dot.tick === "number" && activeDot.dot.tick > 0 ? activeDot.dot.tick : undefined;
+    const baseActions = Array.isArray(activeDot.dot.action) ? activeDot.dot.action as EditableObject[] : [];
+    if (!tick || baseActions.length === 0) return;
+    const firstTickIndex = Math.max(1, Math.floor((afterTime - activeDot.appliedAt + 1e-6) / tick) + 1);
+    for (let tickIndex = firstTickIndex; ; tickIndex += 1) {
+      const tickTime = activeDot.appliedAt + tickIndex * tick;
+      if (tickTime > activeDot.expiresAt + 1e-6) break;
+      const derivedId = nextDerivedOrder++;
+      const derivedSortOrder = [...causalSortOrder, derivedId];
+      const actions = baseActions.map((action) => ({ ...action, time: 0 }));
+      const row: TimelineRow = { id: `dot-${derivedId}`, kind: "dot", sourceRowId: activeDot.sourceRowId, order: sourceOrder + 10 + tickIndex / 1000, step: { type: "skill", skill: name }, startTime: tickTime, effectiveCastTime: 0, skill: activeDot.dot, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
+      activeDot.rows.push(row);
+      rows.push(row);
+      events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
+      actions.forEach((_action, actionIndex) => events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 1, actionIndex], kind: "action", row, actionIndex }));
+    }
+  };
+  const transferAndRescheduleDot = (name: string, expiresAt: number, eventTime: number, sourceRowId: string, causalSortOrder: number[], sourceOrder: number) => {
+    const activeDot = activeDots[name];
+    if (!activeDot) return;
+    removePendingDotRows(activeDot, eventTime);
+    activeDot.expiresAt = expiresAt;
+    activeDot.sourceRowId = sourceRowId;
+    scheduleDotTicks(name, activeDot, eventTime, causalSortOrder, sourceOrder);
+  };
+  const shiftFightRelativeEvents = (shift: number) => {
+    if (!shift || rotation.eventTimeReference !== "battleStart") return;
+    rows.forEach((row) => {
+      if (row.kind !== "rotation" || row.step.type !== "event") return;
+      row.startTime += shift;
+      events.forEach((queued) => { if (queued.row === row) queued.time += shift; });
+    });
+  };
   let processedEvents = 0;
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
     const modifier = row.modifierEffects.reduce((total, effect) => total + (typeof effect.castTimeModifier === "number" ? effect.castTimeModifier : 0), 0);
@@ -188,6 +242,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
           row.startTime -= skippedCastTime;
           events.forEach((queued) => { if (queued.row === row) queued.time -= skippedCastTime; });
         });
+        if ((event.row.rotationIndex ?? Number.POSITIVE_INFINITY) < startStepIndex) shiftFightRelativeEvents(-skippedCastTime);
         continue;
       }
       if (event.row.kind === "rotation" && event.row.step.type === "skill" && typeof event.row.skill?.cooldown === "number") cooldowns[`skill:${skillId}`] = event.time + event.row.skill.cooldown;
@@ -196,6 +251,9 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       const modifiers = Array.isArray(event.row.skill?.modifier) ? event.row.skill.modifier as EditableObject[] : [];
       event.row.modifierEffects = modifiers.filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons)).map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? item.effect as EditableObject : {});
       const previousCastTime = event.row.effectiveCastTime;
+      const previousAnchorActionTime = event.row.rotationIndex === startStepIndex && rotation.start?.action !== undefined
+        ? Number(event.row.actions[rotation.start.action]?.time ?? 0)
+        : 0;
       const adjustedCastTime = applyCastTimingModifiers(event.row, typeof event.row.skill?.castTime === "number" ? event.row.skill.castTime : 0);
       if (event.row.kind === "rotation" && event.row.step.type === "skill") {
         const shift = adjustedCastTime - previousCastTime;
@@ -204,6 +262,12 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
           row.startTime += shift;
           events.forEach((queued) => { if (queued.row === row) queued.time += shift; });
         });
+        const anchorShift = (event.row.rotationIndex ?? Number.POSITIVE_INFINITY) < startStepIndex
+          ? shift
+          : event.row.rotationIndex === startStepIndex && rotation.start?.action !== undefined
+            ? Number(event.row.actions[rotation.start.action]?.time ?? 0) - previousAnchorActionTime
+            : 0;
+        shiftFightRelativeEvents(anchorShift);
       }
       continue;
     }
@@ -276,19 +340,21 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     if (action.type === "apply" && action.target === "target" && typeof action.value === "string" && dots[action.value]) {
       const dot = dots[action.value];
       const existing = debuffs.find((effect) => effect.name === action.value);
-      const maxStack = effectDefinitions[action.value]?.maxStack;
-      if ((!existing || action.reapply !== false) && (!existing || maxStack === undefined || (existing.stack ?? 0) < maxStack)) {
+      if (!existing || action.reapply !== false) {
         const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
         const duration = typeof action.duration === "number" ? action.duration : typeof dot.duration === "number" ? dot.duration : definition.duration;
-        debuffs = applyTrackedEffect(debuffs, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack);
-        const actions = createDotActions(dot, event.time);
-        const derivedId = nextDerivedOrder++;
-        const derivedSortOrder = [...event.sortOrder, derivedId];
-        const rowOrder = event.row.order + 10 + (event.actionIndex ?? 0) + 0.5;
-        const row: TimelineRow = { id: `dot-${derivedId}`, kind: "dot", order: rowOrder, step: { type: "skill", skill: action.value }, startTime: event.time, effectiveCastTime: typeof dot.castTime === "number" ? dot.castTime : 0, skill: dot, actions, buffs: [...buffs], debuffs: [...debuffs], modifierEffects: [], actionStates: {} };
-        rows.push(row);
-        events.push({ time: event.time, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
-        actions.forEach((item, index) => events.push({ time: event.time + (typeof item.time === "number" ? item.time : 0), sortOrder: [...derivedSortOrder, 1, index], kind: "action", row, actionIndex: index }));
+        if (typeof duration === "number") {
+          debuffs = applyTrackedEffect(debuffs, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack);
+          const sourceRowId = event.row.sourceRowId ?? event.row.id;
+          const expiresAt = event.time + duration;
+          if (existing && activeDots[action.value]) {
+            transferAndRescheduleDot(action.value, expiresAt, event.time, sourceRowId, event.sortOrder, event.row.order + (event.actionIndex ?? 0));
+          } else {
+            const activeDot: ActiveDot = { dot, appliedAt: event.time, expiresAt, sourceRowId, rows: [] };
+            activeDots[action.value] = activeDot;
+            scheduleDotTicks(action.value, activeDot, event.time, event.sortOrder, event.row.order + (event.actionIndex ?? 0));
+          }
+        }
       }
     }
     if ((action.type === "apply" || action.type === "extend") && typeof action.value === "string") {
@@ -296,8 +362,12 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       const modifierDuration = event.row.modifierEffects.find((effect) => typeof effect.duration === "number");
       const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
       const duration = typeof action.duration === "number" ? action.duration : typeof modifierDuration?.duration === "number" ? modifierDuration.duration : definition.duration;
+      const existing = targetEffects.find((effect) => effect.name === action.value);
       const next = action.type === "extend" && typeof duration === "number" ? extendTrackedEffect(targetEffects, action.value, duration, event.time) : action.type === "apply" && !dots[action.value] ? applyTrackedEffect(targetEffects, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack) : targetEffects;
       if (action.target === "target") debuffs = next; else buffs = next;
+      if (action.type === "extend" && action.target === "target" && typeof duration === "number" && existing?.expiresAt !== undefined && existing.expiresAt > event.time && dots[action.value]) {
+        transferAndRescheduleDot(action.value, existing.expiresAt + duration, event.time, event.row.sourceRowId ?? event.row.id, event.sortOrder, event.row.order + (event.actionIndex ?? 0));
+      }
       if (action.type === "apply" && effectDefinitions[action.value]?.cooldown !== undefined) cooldowns[action.value] = event.time + effectDefinitions[action.value].cooldown!;
     }
     if (typeof action.cooldown === "number") cooldowns[actionCooldownKey] = event.time + action.cooldown;

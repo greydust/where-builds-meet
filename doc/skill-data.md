@@ -438,36 +438,39 @@ DOT definitions use the skill shape plus `tick`, `duration`, and `maxStack`:
 ```
 
 The scheduler creates ticks at `tick`, `2 × tick`, and so on, including a tick
-exactly at the DOT duration. DOT rows are interleaved globally with casts and
-triggered skills. DOT damage ignores flat physical and attribute bonuses.
+exactly at the resolved DOT duration. `apply.duration` takes precedence over the
+DOT definition and effect definition. A DOT without a resolved duration does not
+schedule ticks. DOT rows are interleaved globally with casts and triggered
+skills. DOT damage ignores flat physical and attribute bonuses.
 
-Current implementation note: generated tick count uses `duration` on the DOT
-definition. An `apply.duration` controls the tracked debuff lifetime but is not
-yet forwarded to tick generation. If a DOT definition omits `duration`, ticks
-currently continue to the end of the base rotation. This should be corrected
-before relying on action-specific DOT durations.
-
-For DOT applications, `reapply: false` prevents a second DOT row while the state
-exists. `maxStack` also limits additional DOT rows. Regular buffs and debuffs
-always refresh their duration when successfully reapplied.
+For DOT applications, `reapply: false` leaves an active instance unchanged. A
+successful reapplication refreshes its expiration while preserving the original
+tick cadence. `extend` adds to the current expiration instead. In both cases,
+future ticks are associated with the cast that refreshed or extended the DOT.
+Regular buffs and debuffs always refresh their duration when successfully
+reapplied.
 
 ## Rotation records and events
 
 ```ts
 type RotationRecord = {
   name: string;
+  eventTimeReference?: "battleStart";
   steps: Array<
     | { type: "skill"; skill: string }
-    | { type: "event"; event: "Exhausted" | "Controlled"; startTime: number; duration?: number }
+    | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number }
   >;
   start?: { step: number; action?: number };
 };
 ```
 
-Skill steps are placed sequentially by effective cast time. Events use absolute
-timeline times and do not consume cast time. `Exhausted` uses its definition's
-10-second duration. `Controlled` defaults to three seconds and the rotation
-event's editable `duration` overrides it.
+Skill steps are placed sequentially by effective cast time. With
+`eventTimeReference: "battleStart"`, every event `startTime` is relative to the
+selected fight start and events consume no cast time. Pre-start cast-time changes
+move the events with the anchor. `Exhausted` uses its definition's 10-second
+duration. `Controlled` defaults to three seconds and the rotation event's
+editable `duration` overrides it. `BattleEnd` has no action and excludes damage
+ordered after it; it also fixes the rotation duration at that timestamp.
 
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
@@ -475,10 +478,12 @@ action index. Omitting `action` means the skill's cast start; providing it means
 that exact zero-based action index. Base-skill damage actions are collapsed in the Rotation Editor by
 default and can be revealed per skill. A triggered skill does not receive its
 own row; its damage actions are associated with the base skill that caused the
-trigger and follow that base skill's expand/collapse state. The base skill
-containing the starting action opens initially, and that action remains visible
-if the skill is collapsed. DOT ticks remain visible independently of skill
-expansion state. Preset rotations render skill names and event times as plain
+trigger and follow that base skill's expand/collapse state. DOT damage is
+associated with the cast that applied it; future ticks transfer to a cast that
+refreshes or extends it. DOT ticks follow that owning base skill's expansion
+state, including nested DOT applications such as Lesser Toad Venom. The base
+skill containing the starting action opens initially, and that action remains
+visible if the skill is collapsed. Preset rotations render skill names and event times as plain
 labels; custom rotations render editable selectors and inputs. Pre-start
 actions remain visible when their row is expanded,
 but their damage cell is empty.

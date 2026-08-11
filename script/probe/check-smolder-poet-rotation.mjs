@@ -1,0 +1,46 @@
+import { createServer } from "vite";
+
+const viteServer = await createServer({ root: process.cwd(), configFile: false, server: { middlewareMode: true }, appType: "custom", logLevel: "silent" });
+
+try {
+  const rotation = (await viteServer.ssrLoadModule("/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json")).default;
+  const snowparting = (await viteServer.ssrLoadModule("/data/skill/snowparting-blade.json")).default;
+  const phalanxbane = (await viteServer.ssrLoadModule("/data/skill/phalanxbane-blade.json")).default;
+  const mystic = (await viteServer.ssrLoadModule("/data/skill/mystic.json")).default;
+  const general = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
+  const dots = (await viteServer.ssrLoadModule("/data/dot/mystic.json")).default;
+  const mysticBuffs = (await viteServer.ssrLoadModule("/data/buff/mystic.json")).default;
+  const generalBuffs = (await viteServer.ssrLoadModule("/data/buff/general.json")).default;
+  const stonesplitBuffs = (await viteServer.ssrLoadModule("/data/buff/stonesplit-strength.json")).default;
+  const generalDebuffs = (await viteServer.ssrLoadModule("/data/debuff/general.json")).default;
+  const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
+  const assert = (condition, message) => { if (!condition) throw new Error(message); };
+  const conditions = ["FrostCladNight", "MoraleChant", "SteadfastDevotion", "ThroatPiercingArt"].flatMap((name) => Array.from({ length: 7 }, (_, tier) => `${name}T${tier}`));
+  const timeline = buildRotationTimeline({
+    rotation,
+    skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
+    eventDefinitions: { Exhausted: { name: "Event: Exhausted", castTime: 0, action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }], tags: ["Event"] } }, dots,
+    effectDefinitions: { ...mysticBuffs, ...generalBuffs, ...stonesplitBuffs, ...generalDebuffs, ...dots },
+    innerWayConditions: conditions,
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["snowparting", "phalanxbane"],
+  });
+  const skillSteps = rotation.steps.filter((step) => step.type === "skill");
+  const cancelSkillIds = new Set(["DrunkenPoetDrink", "FluteOfTheTidesCancel", "DragonsBreathSmolder2", "DrunkenPoet5"]);
+  skillSteps.forEach((step, index) => {
+    if (cancelSkillIds.has(step.skill)) assert(skillSteps[index + 1]?.skill === "Deflect", `${step.skill} must be followed by Deflect.`);
+  });
+  assert(rotation.start?.step === 7 && rotation.start.action === 5, "The rotation must start at Sideway Fleeting Trace action index 5.");
+  assert(skillSteps.slice(18, 23).map((step) => step.skill).join(",") === "DrunkenPoet1,DrunkenPoet2,DrunkenPoet3,DrunkenPoet4,DrunkenPoet5", "Poet x5 must use all five ordered hit definitions.");
+  const exhaustedEvent = rotation.steps[33];
+  assert(exhaustedEvent?.type === "event" && exhaustedEvent.event === "Exhausted", "Exhausted must immediately precede the fourth slam in the seven-slam group.");
+  const fourthSevenSlam = timeline.find((row) => row.id === "rotation-34");
+  assert(fourthSevenSlam?.step.type === "skill" && fourthSevenSlam.step.skill === "PhalanxbaneHeavyCharged3", "The fourth slam in the seven-slam group must follow Exhausted.");
+  const damageTime = fourthSevenSlam.startTime + Number(fourthSevenSlam.actions[3]?.time ?? 0);
+  assert(exhaustedEvent.startTime < damageTime && damageTime - exhaustedEvent.startTime < 0.001, "Exhausted must occur immediately before the fourth slam damage timestamp.");
+  assert(fourthSevenSlam.actionStates[3]?.debuffs.some((effect) => effect.name === "Exhausted"), "Exhausted must apply before the fourth slam damage action resolves.");
+  console.log("Smolder Poet default rotation sequence and Exhausted timing checks passed.");
+} finally {
+  await viteServer.close();
+}

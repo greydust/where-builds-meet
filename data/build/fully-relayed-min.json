@@ -2,6 +2,7 @@
   "id": "mixed-fully-relayed-min",
   "name": "Mixed Fully Relayed Min Build",
   "order": 1,
+  "relayed": true,
   "setup": {
     "gearSets": {
       "Cleftpeak": 4,

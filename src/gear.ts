@@ -4,6 +4,7 @@ import arsenalJson from "../data/arsenal.json";
 import bowRingSetJson from "../data/bow-ring-set.json";
 import defaultSetupJson from "../data/default-setup.json";
 import gearSetJson from "../data/gear-set.json";
+import statPriorityJson from "../data/stat-priority.json";
 import type { AttunementStats } from "./calculations/damage";
 import type { CharacterStats, WeaponId } from "./types";
 
@@ -31,6 +32,7 @@ export type GearItem = {
   definitionId: string;
   level: GearLevel;
   rarity: GearRarity;
+  relayed?: boolean;
   baseAffix: GearValue;
   additionalAffixes: GearValue[];
   attunement: GearValue;
@@ -45,6 +47,7 @@ export type BuildPresetGear = {
   definitionId: string;
   level: GearLevel;
   rarity: GearRarity;
+  relayed?: boolean;
   baseAffix: GearValue;
   additionalAffixes: GearValue[];
   attunement: GearValue;
@@ -55,6 +58,7 @@ export type BuildPreset = {
   name: string;
   order?: number;
   test?: boolean;
+  relayed?: boolean;
   setup?: BuildSetup;
   gear: Partial<Record<GearSlot, BuildPresetGear>>;
 };
@@ -105,6 +109,17 @@ type GearData = {
 
 export const gearData = gearJson as unknown as GearData;
 export const attunementData = attunementJson as unknown as Record<string, AttunementDefinition>;
+const statPriorityData = statPriorityJson as { character: Record<string, number>; attunement: Record<string, number> };
+export const relayedAffixMultiplier = 0.94;
+export function maxGearRoll(key: string, category: "affix" | "attunement", relayed = false) {
+  const value = (category === "affix" ? statPriorityData.character : statPriorityData.attunement)[key];
+  if (typeof value !== "number") return undefined;
+  return value * (category === "affix" && relayed ? relayedAffixMultiplier : 1);
+}
+export function clampGearRoll(key: string, value: number, category: "affix" | "attunement", relayed = false) {
+  const maximum = maxGearRoll(key, category, relayed);
+  return typeof maximum === "number" ? Math.min(value, maximum) : value;
+}
 const gearSetDefinitions = gearSetJson as Record<string, { options: Record<string, unknown> }>;
 const bowRingSetDefinitions = bowRingSetJson as Record<string, unknown>;
 const arsenalDefinitions = arsenalJson as Record<string, unknown>;
@@ -225,6 +240,7 @@ function parseGearItem(value: unknown): GearItem | undefined {
     definitionId: candidate.definitionId,
     level,
     rarity,
+    ...(candidate.relayed === true ? { relayed: true } : {}),
     baseAffix: candidate.baseAffix,
     additionalAffixes: candidate.additionalAffixes,
     attunement: candidate.attunement,
@@ -287,6 +303,7 @@ export function buildPresetInventory(preset: BuildPreset): GearInventory {
       definitionId: presetGear.definitionId,
       level: presetGear.level,
       rarity: presetGear.rarity,
+      ...(presetGear.relayed === true || preset.relayed === true ? { relayed: true } : {}),
       baseAffix: { ...presetGear.baseAffix },
       additionalAffixes: presetGear.additionalAffixes.map((affix) => ({ ...affix })),
       attunement: { ...presetGear.attunement },

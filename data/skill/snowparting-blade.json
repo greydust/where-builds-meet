@@ -49,7 +49,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.667
+          "castTimeModifier": -0.619
         }
       }
     ],
@@ -67,7 +67,7 @@
   "SnowpartingHeavyVC": {
     "name": "Snowbreak Spring",
     "shortName": "Heng VC",
-    "castTime": 0.867,
+    "castTime": 0.85,
     "action": [
       {
         "type": "apply",
@@ -87,14 +87,14 @@
         "phyCoef": 2.8245,
         "phyBonus": 782,
         "attrBonus": 425,
-        "time": 0.867
+        "time": 0.588
       },
       {
         "type": "consume",
         "target": "self",
         "value": "InnerPassion",
         "stack": 1,
-        "time": 0.867
+        "time": 0.588
       },
       {
         "type": "trigger",
@@ -109,7 +109,7 @@
           }
         ],
         "value": "AnxiSoldierSnowbreakSpring",
-        "time": 0.867
+        "time": 0.588
       },
       {
         "type": "extend",
@@ -126,7 +126,7 @@
         "target": "target",
         "value": "Dread",
         "duration": 2,
-        "time": 0.867
+        "time": 0.588
       },
       {
         "type": "apply",
@@ -139,7 +139,7 @@
         "target": "self",
         "value": "Forgetfulness",
         "stack": 1,
-        "time": 0.867
+        "time": 0.588
       },
       {
         "type": "clearCD",
@@ -155,7 +155,7 @@
         ],
         "target": "self",
         "value": "Forgetfulness",
-        "time": 0.867
+        "time": 0.588
       }
     ],
     "modifier": [
@@ -207,70 +207,70 @@
   "SnowpartingSpecial": {
     "name": "Fleeting Trace",
     "shortName": "Heng Special",
-    "castTime": 2.083,
+    "castTime": 2.177,
     "action": [
       {
         "type": "damage",
         "phyCoef": 0.378,
         "phyBonus": 104,
         "attrBonus": 57,
-        "time": 1
+        "time": 0.5
       },
       {
         "type": "damage",
         "phyCoef": 0.377975,
         "phyBonus": 104.5,
         "attrBonus": 57,
-        "time": 1.5
+        "time": 0.878
       },
       {
         "type": "damage",
         "phyCoef": 0.377975,
         "phyBonus": 104.5,
         "attrBonus": 57,
-        "time": 1.5
+        "time": 0.878
       },
       {
         "type": "damage",
         "phyCoef": 0.377975,
         "phyBonus": 104.5,
         "attrBonus": 57,
-        "time": 1.5
+        "time": 0.878
       },
       {
         "type": "damage",
         "phyCoef": 0.377975,
         "phyBonus": 104.5,
         "attrBonus": 57,
-        "time": 1.5
+        "time": 0.878
       },
       {
         "type": "damage",
         "phyCoef": 0.47245,
         "phyBonus": 130.75,
         "attrBonus": 130.75,
-        "time": 1.8
+        "time": 1.843
       },
       {
         "type": "damage",
         "phyCoef": 0.47245,
         "phyBonus": 130.75,
         "attrBonus": 130.75,
-        "time": 1.8
+        "time": 1.843
       },
       {
         "type": "damage",
         "phyCoef": 0.47245,
         "phyBonus": 130.75,
         "attrBonus": 130.75,
-        "time": 1.8
+        "time": 1.843
       },
       {
         "type": "damage",
         "phyCoef": 0.47245,
         "phyBonus": 130.75,
         "attrBonus": 130.75,
-        "time": 1.8
+        "time": 1.843
       },
       {
         "type": "apply",
@@ -278,7 +278,7 @@
         "target": "self",
         "value": "InnerPassion",
         "stack": 3,
-        "time": 2.083
+        "time": 2.177
       },
       {
         "type": "apply",
@@ -291,7 +291,7 @@
         "target": "self",
         "value": "InnerPassion",
         "stack": 1,
-        "time": 2.083
+        "time": 2.177
       },
       {
         "type": "apply",
@@ -299,7 +299,7 @@
         "target": "target",
         "value": "Dread",
         "stack": 1,
-        "time": 2.083
+        "time": 2.177
       }
     ],
     "modifier": [],
@@ -315,7 +315,7 @@
   "SnowpartingQSlide": {
     "name": "General's Bane - Slide",
     "shortName": "Heng Q",
-    "castTime": 0.7,
+    "castTime": 0.711,
     "action": [],
     "modifier": [],
     "tags": [
@@ -330,14 +330,14 @@
   "SnowpartingQ": {
     "name": "General's Bane",
     "shortName": "Heng Q",
-    "castTime": 0.7,
+    "castTime": 0.711,
     "action": [
       {
         "type": "damage",
         "phyCoef": 1.2338,
         "phyBonus": 342,
         "attrBonus": 186,
-        "time": 0.7
+        "time": 0.549
       }
     ],
     "modifier": [],
@@ -384,21 +384,37 @@
   "SnowpartingQStab": {
     "name": "General's Bane: Stab",
     "shortName": "Heng Q",
-    "castTime": 1.883,
+    "castTime": 1.166,
     "action": [
       {
         "type": "damage",
         "phyCoef": 1.0662,
         "phyBonus": 295,
         "attrBonus": 161,
-        "time": 0.9
+        "time": 0.263
       },
       {
         "type": "damage",
         "phyCoef": 1.0662,
         "phyBonus": 295,
         "attrBonus": 161,
-        "time": 1.883
+        "time": 0.821
+      },
+      {
+        "type": "apply",
+        "requirement": [],
+        "target": "target",
+        "value": "FearfulBlade",
+        "stack": 1,
+        "time": 0.821
+      },
+      {
+        "type": "extend",
+        "requirement": [],
+        "target": "target",
+        "value": "Dread",
+        "duration": 6,
+        "time": 0.821
       },
       {
         "type": "trigger",
@@ -413,23 +429,7 @@
           }
         ],
         "value": "AnxiSoldierGeneralsBaneStab",
-        "time": 1.883
-      },
-      {
-        "type": "apply",
-        "requirement": [],
-        "target": "target",
-        "value": "FearfulBlade",
-        "stack": 1,
-        "time": 1.883
-      },
-      {
-        "type": "extend",
-        "requirement": [],
-        "target": "target",
-        "value": "Dread",
-        "duration": 6,
-        "time": 1.883
+        "time": 1.166
       }
     ],
     "modifier": [],
@@ -447,14 +447,14 @@
   "SnowpartingConversion": {
     "name": "Snowparting Conversion",
     "shortName": "Heng Tab",
-    "castTime": 0.583,
+    "castTime": 0.575,
     "action": [
       {
         "type": "damage",
         "phyCoef": 0.6486,
         "phyBonus": 180,
         "attrBonus": 98,
-        "time": 0.583
+        "time": 0.5
       }
     ],
     "modifier": [],
