@@ -1,6 +1,7 @@
 {
   "name": "Snowparting Blade",
   "weapon": "HengBlade",
+  "tag": "SnowpartingBlade",
   "talent": [
     {
       "name": "Physical Attack Up",

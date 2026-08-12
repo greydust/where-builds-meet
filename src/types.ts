@@ -40,6 +40,9 @@ export type CharacterStats = {
   vsBossDmg: number;
   moBladeDmgBoost: number;
   hengBladeDmgBoost: number;
+  umbrellaDmgBoost: number;
+  ropeDartDmgBoost: number;
+  gauntletDmgBoost: number;
   singleTargetMysticDmgBoost: number;
   areaMysticDmgBoost: number;
 };
@@ -56,7 +59,8 @@ export type EnemyProfile = {
   judgementResistance: number;
 };
 
-export type WeaponId = "snowparting" | "phalanxbane";
+export const weaponIds = ["snowparting", "phalanxbane", "everspring", "unfettered", "heavenwill", "skygrasp"] as const;
+export type WeaponId = typeof weaponIds[number];
 
 export type StatKey = keyof CharacterStats;
 

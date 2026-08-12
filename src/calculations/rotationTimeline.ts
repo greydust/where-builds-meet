@@ -13,8 +13,13 @@ export type SkillRecord = {
   modifier?: unknown[];
   tags?: string[];
 };
+export type AttachedEventTarget = { action: number | "start"; trigger?: number };
 export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolean; condition?: string }
-  | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+  | { type: "event"; event: "Exhausted"; after: AttachedEventTarget }
+  | { type: "event"; event: "Exhausted"; before: AttachedEventTarget }
+  | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
+  | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+  | { type: "event"; event: "Exhausted"; startTime: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
 export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };
 export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number };
@@ -134,6 +139,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   const innerWayConditions = new Set(input.innerWayConditions);
   const rows: TimelineRow[] = [];
   const events: TimelineEvent[] = [];
+  const attachedEvent = (step: RotationStep) => {
+    if (step.type !== "event") return undefined;
+    if (step.event === "Move" && "before" in step) return { target: step.before, placement: "before" as const };
+    if (step.event === "Exhausted") {
+      if ("after" in step) return { target: step.after, placement: "after" as const };
+      if ("before" in step) return { target: step.before, placement: "after" as const };
+    }
+    return undefined;
+  };
   const startStepIndex = rotation.start?.step ?? 0;
   const initialAnchorTime = (() => {
     let time = 0;
@@ -152,22 +166,53 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   for (const [rowIndex, step] of rotation.steps.entries()) {
     const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
     const castTime = step.type === "skill" && typeof skill?.castTime === "number" ? skill.castTime : 0;
-    const startTime = step.type === "event" ? step.startTime + (rotation.eventTimeReference === "battleStart" ? resolvedAnchorTime ?? initialAnchorTime : 0) : elapsed;
+    const startTime = step.type === "event"
+      ? "startTime" in step ? step.startTime + (rotation.eventTimeReference === "battleStart" ? resolvedAnchorTime ?? initialAnchorTime : 0) : 0
+      : elapsed;
     const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({
       ...action,
       ...(step.type === "event" && step.event === "Controlled" && action.type === "apply" ? { duration: step.duration ?? skill?.castTime ?? 3 } : {}),
       ...(step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {}),
     })) : [];
-    // Manual events resolve before every skill/derived row at an equal timestamp,
-    // regardless of where the event is stored in the rotation step array.
+    // Fixed-time and Move events resolve before other rows at an equal timestamp.
+    // Exhausted attachments receive a causal order after their target action below.
     const rowOrder = step.type === "event" ? -((rotation.steps.length - rowIndex) * 1000) : rowIndex * 1000;
     const sortPrefix = step.type === "event" ? [-1, rowIndex] : [0, rowIndex];
     const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowOrder, step, startTime, distance: 1, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
     rows.push(row);
-    events.push({ time: startTime, sortOrder: [...sortPrefix, 0], kind: "start", row });
-    actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [...sortPrefix, 1, actionIndex], kind: "action", row, actionIndex }));
+    if (!attachedEvent(step)) {
+      events.push({ time: startTime, sortOrder: [...sortPrefix, 0], kind: "start", row });
+      actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [...sortPrefix, 1, actionIndex], kind: "action", row, actionIndex }));
+    }
     if (step.type === "skill") elapsed += castTime;
   }
+
+  type ResolvedAttachment = { eventRow: TimelineRow; target: AttachedEventTarget; placement: "before" | "after" };
+  const directAttachments = new Map<string, ResolvedAttachment[]>();
+  const triggeredAttachments = new Map<string, ResolvedAttachment[]>();
+  const queueAttachedEvent = (attachment: ResolvedAttachment, targetTime: number, targetSortOrder: number[], targetDisplayOrder: number) => {
+    const { eventRow } = attachment;
+    eventRow.startTime = targetTime;
+    if (attachment.placement === "after") eventRow.order = targetDisplayOrder + 0.5;
+    const prefix = attachment.placement === "before" ? [-1, eventRow.rotationIndex ?? 0] : [...targetSortOrder, 1];
+    events.push({ time: targetTime, sortOrder: [...prefix, 0], kind: "start", row: eventRow });
+    eventRow.actions.forEach((action, actionIndex) => events.push({ time: targetTime + Number(action.time ?? 0), sortOrder: [...prefix, 1, actionIndex], kind: "action", row: eventRow, actionIndex }));
+  };
+  rows.forEach((eventRow) => {
+    const resolved = attachedEvent(eventRow.step);
+    if (!resolved) return;
+    const targetRow = rows.find((candidate) => candidate.kind === "rotation" && candidate.step.type === "skill" && (candidate.rotationIndex ?? -1) > (eventRow.rotationIndex ?? -1));
+    if (!targetRow) { eventRow.skipped = true; return; }
+    eventRow.sourceRowId = targetRow.id;
+    const attachment = { eventRow, ...resolved };
+    const collection = attachment.target.trigger === undefined ? directAttachments : triggeredAttachments;
+    collection.set(targetRow.id, [...(collection.get(targetRow.id) ?? []), attachment]);
+    if (attachment.target.trigger !== undefined) return;
+    const targetTime = attachment.target.action === "start" ? targetRow.startTime : targetRow.startTime + Number(targetRow.actions[attachment.target.action]?.time ?? 0);
+    const targetSortOrder = attachment.target.action === "start" ? [0, targetRow.rotationIndex ?? 0, 0] : [0, targetRow.rotationIndex ?? 0, 1, attachment.target.action];
+    const targetDisplayOrder = attachment.target.action === "start" ? targetRow.order : targetRow.order + 10 + attachment.target.action;
+    queueAttachedEvent(attachment, targetTime, targetSortOrder, targetDisplayOrder);
+  });
 
   let buffs: TrackedEffect[] = [];
   let debuffs: TrackedEffect[] = [];
@@ -231,6 +276,14 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     row.effectiveCastTime = adjust(baseCastTime);
     row.actions = row.actions.map((action) => ({ ...action, ...(typeof action.time === "number" ? { time: adjust(action.time) } : {}) }));
     events.forEach((queued) => { if (queued.row === row && queued.kind === "action") queued.time = row.startTime + (typeof row.actions[queued.actionIndex ?? -1]?.time === "number" ? row.actions[queued.actionIndex ?? -1].time as number : 0); });
+    (directAttachments.get(row.id) ?? []).forEach((attachment) => {
+      const targetTime = attachment.target.action === "start" ? row.startTime : row.startTime + Number(row.actions[attachment.target.action]?.time ?? 0);
+      attachment.eventRow.startTime = targetTime;
+      events.forEach((queued) => {
+        if (queued.row !== attachment.eventRow) return;
+        queued.time = targetTime + (queued.kind === "action" ? Number(attachment.eventRow.actions[queued.actionIndex ?? -1]?.time ?? 0) : 0);
+      });
+    });
     return row.effectiveCastTime;
   };
 
@@ -247,6 +300,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         event.row.skipped = true;
         event.row.actions = [];
         event.row.effectiveCastTime = 0;
+        [...(directAttachments.get(event.row.id) ?? []), ...(triggeredAttachments.get(event.row.id) ?? [])].forEach(({ eventRow }) => {
+          eventRow.skipped = true;
+          for (let index = events.length - 1; index >= 0; index -= 1) if (events[index].row === eventRow) events.splice(index, 1);
+        });
         rows.forEach((row) => {
           if (row.kind !== "rotation" || (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) || row.step.type !== "skill") return;
           row.startTime -= skippedCastTime;
@@ -296,7 +353,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         if (action.target === "target") debuffs = next; else buffs = next;
       }
     }
-    const enqueueTriggeredSkill = (skillId: string, sourceRowId?: string) => {
+    const enqueueTriggeredSkill = (skillId: string, sourceRowId?: string, attachedTriggerOrdinal?: number) => {
       const triggeredSkill = skills[skillId];
       const key = `skill:${skillId}`;
       if (!triggeredSkill || (cooldowns[key] ?? 0) > event.time) return;
@@ -308,6 +365,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       rows.push(row);
       events.push({ time: event.time, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
       actions.forEach((item, index) => events.push({ time: event.time + (typeof item.time === "number" ? item.time : 0), sortOrder: [...derivedSortOrder, 1, index], kind: "action", row, actionIndex: index }));
+      if (sourceRowId && attachedTriggerOrdinal !== undefined) {
+        (triggeredAttachments.get(sourceRowId) ?? []).filter((attachment) => attachment.target.trigger === attachedTriggerOrdinal).forEach((attachment) => {
+          directAttachments.set(row.id, [...(directAttachments.get(row.id) ?? []), attachment]);
+          const targetTime = attachment.target.action === "start" ? row.startTime : row.startTime + Number(row.actions[attachment.target.action]?.time ?? 0);
+          const targetSortOrder = attachment.target.action === "start" ? [...derivedSortOrder, 0] : [...derivedSortOrder, 1, attachment.target.action];
+          const targetDisplayOrder = attachment.target.action === "start" ? row.order : row.order + 10 + attachment.target.action;
+          queueAttachedEvent(attachment, targetTime, targetSortOrder, targetDisplayOrder);
+        });
+      }
       if (typeof triggeredSkill.cooldown === "number") cooldowns[key] = event.time + triggeredSkill.cooldown;
     };
     const applyTriggerAction = (triggerAction: EditableObject) => {
@@ -340,7 +406,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       });
     }
     if (action.type === "trigger" && typeof action.value === "string") {
-      enqueueTriggeredSkill(action.value, event.row.sourceRowId ?? event.row.id);
+      const triggerOrdinal = event.row.kind === "rotation"
+        ? event.row.actions.slice(0, (event.actionIndex ?? 0) + 1).filter((candidate) => candidate.type === "trigger").length - 1
+        : undefined;
+      enqueueTriggeredSkill(action.value, event.row.sourceRowId ?? event.row.id, triggerOrdinal);
     }
     if (action.type === "apply" && action.target === "target" && typeof action.value === "string" && dots[action.value]) {
       const dot = dots[action.value];

@@ -1,11 +1,23 @@
 {
-  "name": "Mixed Dummy Rotation 1 Min",
+  "name": "Mixed Dummy 1 Min",
+  "martialArts": [
+    "snowparting",
+    "phalanxbane"
+  ],
   "eventTimeReference": "battleStart",
   "start": {
-    "step": 5,
+    "step": 7,
     "action": 5
   },
   "steps": [
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 19
+    },
     {
       "type": "skill",
       "skill": "PhalanxbaneSpecial"
@@ -27,28 +39,156 @@
       "skill": "Deflect"
     },
     {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 3
+    },
+    {
       "type": "skill",
       "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
     },
     {
       "type": "skill",
       "skill": "SnowpartingQStab"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
     },
     {
       "type": "skill",
@@ -95,32 +235,229 @@
       "skill": "PhalanxbaneSpecial"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Exhausted",
+      "after": {
+        "action": 3
+      }
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
     },
     {
       "type": "skill",
@@ -151,20 +488,132 @@
       "skill": "SnowpartingQStab"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
     },
     {
       "type": "skill",
@@ -188,319 +637,8 @@
     },
     {
       "type": "event",
-      "event": "Exhausted",
-      "startTime": 31
-    },
-    {
-      "type": "event",
       "event": "BattleEnd",
       "startTime": 60
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": -5.703,
-      "distance": 19
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": -1.843,
-      "distance": 3
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 0.334,
-      "distance": 1
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 2.97,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 3.4294,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 3.6029,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 5.42,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 5.8794,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 6.0529,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 7.87,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 8.3294,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 8.5029,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 10.32,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 10.7794,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 10.9529,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 11.3,
-      "distance": 1
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 23.785,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 24.2444,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 24.4179,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 26.235,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 26.6944,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 26.8679,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 28.685,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 29.1444,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 29.3179,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 31.135,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 31.5944,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 31.7679,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 33.585,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 34.0444,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 34.2179,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 36.035,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 36.4944,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 36.6679,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 38.485,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 38.9444,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 39.1179,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 39.465,
-      "distance": 1
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 47.552,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 48.0114,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 48.1849,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 50.002,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 50.4614,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 50.6349,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 52.452,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 52.9114,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 53.0849,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 54.902,
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 55.3614,
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 55.5349,
-      "distance": 2
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "startTime": 55.882,
-      "distance": 1
     }
   ]
 }

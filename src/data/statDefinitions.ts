@@ -48,6 +48,9 @@ export const defenseStats: StatDefinition[] = [
   { key: "affinityDmgBonus", label: "Affinity DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "singleTargetMysticDmgBoost", label: "Single-Target Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "areaMysticDmgBoost", label: "Area Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "umbrellaDmgBoost", label: "Art of Umbrella", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "ropeDartDmgBoost", label: "Art of Rope Dart", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "gauntletDmgBoost", label: "Art of Gauntlet", unit: "%", showUnitInLabel: false, showUnitInInput: true },
 ];
 
 export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialArtsStats, ...defenseStats];

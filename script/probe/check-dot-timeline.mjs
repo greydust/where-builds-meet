@@ -49,10 +49,13 @@ try {
     weapons: ["snowparting", "phalanxbane"],
   });
   const fullSmolderTicks = fullTimeline.filter((row) => row.kind === "dot" && row.step.skill === "Smolder");
-  const lastSmolderCast = fullTimeline.filter((row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "DragonsBreathSmolder2").at(-1);
-  const lastSmolderApplyIndex = lastSmolderCast.actions.findLastIndex((action) => action.type === "apply" && action.value === "Smolder");
-  const lastSmolderApply = lastSmolderCast.actions[lastSmolderApplyIndex];
-  const expectedLatestSmolderTime = lastSmolderCast.startTime + Number(lastSmolderApply.time ?? 0) + Number(lastSmolderApply.duration ?? 0);
+  const smolderCasts = fullTimeline.filter((row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "DragonsBreathSmolder2");
+  let expectedLatestSmolderTime = 0;
+  smolderCasts.flatMap((row) => row.actions.map((action) => ({ row, action, time: row.startTime + Number(action.time ?? 0) }))).sort((left, right) => left.time - right.time).forEach(({ action, time }) => {
+    if (action.value !== "Smolder" || typeof action.duration !== "number") return;
+    if (action.type === "apply" && expectedLatestSmolderTime <= time) expectedLatestSmolderTime = time + action.duration;
+    if (action.type === "extend" && expectedLatestSmolderTime > time) expectedLatestSmolderTime += action.duration;
+  });
   const latestSmolderTime = fullSmolderTicks.at(-1)?.startTime ?? 0;
   assert(latestSmolderTime <= expectedLatestSmolderTime + 0.0001, `Smolder ticked at ${latestSmolderTime}s after its ${expectedLatestSmolderTime}s expiration.`);
   assert(fullSmolderTicks.every((row) => fullTimeline.find((candidate) => candidate.id === row.sourceRowId)?.step.skill === "DragonsBreathSmolder2"), "Every full-rotation Smolder tick must belong to a Smolder cast.");

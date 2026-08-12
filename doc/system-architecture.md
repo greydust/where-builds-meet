@@ -176,6 +176,10 @@ records. Rotation import validates skill and event step shapes, appends custom
 rotations with collision-safe IDs, preserves the active rotation, and skips
 bundled default rotations. Older rotations with absolute manual-event timestamps
 are migrated to fight-relative timestamps using their stored start anchor.
+Legacy fixed-time Move and Exhausted events are then attached to the nearest
+skill start, direct action, or directly declared triggered-skill action and moved
+immediately before that target skill. Legacy Exhausted `before` attachments are
+migrated to post-action `after` attachments.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define setup choices
@@ -231,17 +235,19 @@ definition ID. Damage resolution maps weapon definitions to penetration and
 maps tag-matching armor definitions to the standalone `attunementDMGBonus`
 multiplier. Every Armor-tagged definition shares the `attunement.armor` maximum
 roll from `data/stat-priority.json`; weapon attunements retain definition-ID
-priority values. A non-Mixed path displays only attunement fields carrying its
-path tag plus the shared Weapon-tagged penetration fields, while hidden values
-and overrides remain intact in the calculation. Attunement priority variants
-use this same visible-field filter.
+priority values. Armor definitions also carry the owning martial-art tag from
+`data/martial-art/*.json`. The UI requires both the current path tag (when one
+exists) and at least one selected martial-art tag; Mixed skips only the path
+check. Shared Weapon-tagged penetration fields remain available for every
+weapon. Hidden values and overrides remain intact in the calculation, and
+attunement priority variants use the same visible-field filter.
 An attunement override replaces its final displayed baseline value, but priority
 variants still add their tested amount to that value.
 
-Gear-set definitions carry path eligibility `tags`. Mixed exposes and applies
-all gear sets. A tagged path shows only matching gear sets in both Main and
-Build, and only matching definitions contribute setup effects. Hidden stored
-tiers are retained so switching back restores the prior selection.
+Gear-set definitions carry both path and martial-art eligibility `tags`. Main,
+Build, and setup-effect resolution require every selected martial-art tag plus
+the current non-Mixed path tag. Hidden stored tiers are retained so switching
+back restores the prior selection.
 
 `effectiveStats.ts` owns minimum/maximum normalization, Void/Formless folding,
 Judgement Resistance, effective-rate caps, and final outcome rates. Damage code
@@ -257,15 +263,19 @@ It produces three row kinds:
 - `trigger`: a skill inserted by a trigger action
 - `dot`: generated DOT actions
 
-Base skill casts are initially placed sequentially. Manual-event `startTime`
+Base skill casts are initially placed sequentially. Move rows run before a
+following skill's cast start, direct action, or triggered-skill action. Exhausted
+rows run after their attached direct or triggered action. Both are rescheduled
+with that target. Timed manual-event `startTime`
 values are offsets from the selected fight-start anchor and consume no cast time.
 The builder resolves cast-time modifiers and the fight-start anchor in a bounded
 convergence pass, then processes manual events at their final absolute times.
 This prevents an already-processed event from being retroactively moved across
 a skill when pre-start cast timing changes.
 The event queue is sorted by timestamp and then by a lexicographic causal order.
-Manual events have priority over every skill, trigger, and DOT at the same
-timestamp, regardless of their position in the stored rotation steps. Within
+Fixed-time and Move events have priority over skills, triggers, and DOTs at the
+same timestamp, while Exhausted attachments sort immediately after their target
+action. Within
 each row, cast start still precedes its zero-time actions. This lets casts,
 actions, triggers, and DOTs interleave while preserving causal order.
 Timestamps within `0.0001s` are treated as equal so rounded rotation data and floating-point arithmetic
@@ -432,10 +442,13 @@ result is published; superseded requests cannot clear the status of newer work.
 
 Rotation and build presets are loaded eagerly from their data directories; the
 remaining JSON is imported explicitly, so Vite includes it all in the generated
-static assets. The application currently recognizes:
+static assets. Preset rotations declare `martialArts`, while build presets and
+custom builds declare `weapons`; selectors show only records matching the
+current pair. A preset with `test: true` is included only by the local Vite dev
+environment. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Mystic, General, Buff, Debuff, and DOT editor categories
-- Snowparting and Phalanxbane weapon IDs
+- six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
 - Exhausted, Controlled, Battle End, and Move manual events
@@ -482,9 +495,9 @@ percentage conversion, and weapon-slot mapping.
 
 ### Gear set
 
-Add the definition to `data/gear-set.json` with a display `name`, path
-eligibility `tags`, and its tier `options`. The Main and Build selectors and the
-setup-effect pipeline all use the selected path's shared tag.
+Add the definition to `data/gear-set.json` with a display `name`, path and
+martial-art eligibility `tags`, and its tier `options`. Main, Build, and the
+setup-effect pipeline use the same tags.
 
 ### Character system stats
 
@@ -502,8 +515,14 @@ Add the path metadata to `data/path.json`. A path can declare a shared `tag`
 and a fixed `[left, right]` `lockedWeapons` pair; paths without a weapon lock
 allow either martial art in either slot. New weapons still require changes to
 `WeaponId`, settings validation, martial-art imports, attunement matching, and
-`mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares the
-weapon-family tag used by its skills and Art-of stat (`HengBlade` or `MoBlade`).
+`mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares its
+physical weapon family and a shared `tag`; Art-of field visibility is derived
+from the weapon family, while attunement and gear-set eligibility use the tag.
+Paths may also declare `wip: true`; they are selectable with a WIP badge only in
+the local Vite dev environment and are omitted from production selectors.
+The Bamboocut - Dust and Bamboocut - Kite entries are currently filter-only WIP
+shells: their weapons and armor attunements are registered, but their skills,
+talents, gear values, and Bamboocut damage calculation are not implemented.
 
 ### Manual event
 

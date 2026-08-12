@@ -2,6 +2,7 @@
   "id": "mixed-fully-relayed-double-min",
   "name": "Mixed Fully Relayed Double Min Build",
   "order": 1,
+  "weapons": ["snowparting", "phalanxbane"],
   "relayed": true,
   "setup": {
     "gearSets": {

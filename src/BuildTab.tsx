@@ -5,6 +5,7 @@ import gearSetDefinitions from "../data/gear-set.json";
 import {
   defaultBuildSetup,
   attunementData,
+  buildEntryAvailableForWeapons,
   clampGearRoll,
   exportBuildState,
   gearBaseStats,
@@ -43,6 +44,7 @@ type GearDraft = {
 
 type BuildTabProps = {
   weapons: [WeaponId, WeaponId];
+  martialArtTags: string[];
   pathTag?: string;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
@@ -50,6 +52,7 @@ type BuildTabProps = {
 
 type BuildManagementProps = {
   weapons: [WeaponId, WeaponId];
+  martialArtTags: string[];
   pathTag?: string;
   inventory: GearInventory;
   setup: BuildSetup;
@@ -181,12 +184,22 @@ function itemToDraft(item: GearItem): GearDraft {
   };
 }
 
-export default function BuildTab({ weapons, pathTag, buildState, onBuildStateChange }: BuildTabProps) {
+export default function BuildTab({ weapons, martialArtTags, pathTag, buildState, onBuildStateChange }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
   const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
-  const editingEntry = buildState.entries.find((entry) => entry.id === editingBuildId) ?? buildState.entries[0];
-  if (!editingEntry) return null;
+  const visibleEntries = buildState.entries.filter((entry) => buildEntryAvailableForWeapons(entry, weapons));
+  const editingEntry = visibleEntries.find((entry) => entry.id === editingBuildId) ?? visibleEntries[0];
+  useEffect(() => {
+    if (editingEntry && editingEntry.id !== editingBuildId) setEditingBuildId(editingEntry.id);
+  }, [editingBuildId, editingEntry]);
+  function addBuild() {
+    const id = `build-${Date.now()}`;
+    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", weapons: [...weapons], equipped: {}, setup: normalizeBuildSetup(defaultBuildSetup) }] }));
+    setEditingBuildId(id);
+    setEditingName(true);
+  }
+  if (!editingEntry) return <section className="panel build-manager-panel"><div className="build-manager-layout"><aside className="build-list"><div className="build-list-heading"><span>Builds</span><button className="icon-button" type="button" aria-label="Add build" onClick={addBuild}>＋</button></div><p className="array-editor-empty">No builds match the selected weapons.</p></aside></div></section>;
   const inventory = resolveBuildInventory(editingEntry, buildState.gearItems);
   const setup = resolveBuildSetup(editingEntry);
 
@@ -219,13 +232,6 @@ export default function BuildTab({ weapons, pathTag, buildState, onBuildStateCha
     onBuildStateChange((current) => ({ ...current, entries: current.entries.map((entry) => entry.id === editingEntry.id ? { ...entry, name } : entry) }));
   }
 
-  function addBuild() {
-    const id = `build-${Date.now()}`;
-    onBuildStateChange((current) => ({ ...current, entries: [...current.entries, { id, name: "New Build", equipped: {}, setup: normalizeBuildSetup(defaultBuildSetup) }] }));
-    setEditingBuildId(id);
-    setEditingName(true);
-  }
-
   function activateBuild() {
     onBuildStateChange((current) => ({ ...current, activeBuildId: editingEntry.id }));
   }
@@ -241,7 +247,7 @@ export default function BuildTab({ weapons, pathTag, buildState, onBuildStateCha
   function removeBuild(id: string) {
     const entry = buildState.entries.find((candidate) => candidate.id === id);
     if (!entry || entry.isDefault || !window.confirm(`Delete build "${entry.name}"?`)) return;
-    const remaining = buildState.entries.filter((candidate) => candidate.id !== id);
+    const remaining = visibleEntries.filter((candidate) => candidate.id !== id);
     const fallback = remaining.find((candidate) => candidate.isDefault) ?? remaining[0];
     onBuildStateChange((current) => ({
       ...current,
@@ -286,7 +292,7 @@ export default function BuildTab({ weapons, pathTag, buildState, onBuildStateCha
   return <section className="panel build-manager-panel"><div className="build-manager-layout">
     <aside className="build-list">
       <div className="build-list-heading"><span>Builds</span><button className="icon-button" type="button" aria-label="Add build" onClick={addBuild}>＋</button></div>
-      <div className="build-list-entries">{buildState.entries.map((entry) => <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => { setEditingBuildId(entry.id); setEditingName(false); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { setEditingBuildId(entry.id); setEditingName(false); } }}>
+      <div className="build-list-entries">{visibleEntries.map((entry) => <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => { setEditingBuildId(entry.id); setEditingName(false); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { setEditingBuildId(entry.id); setEditingName(false); } }}>
           <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build">●</i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
           {!entry.isDefault && <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}>×</button>}
         </div>)}</div>
@@ -299,12 +305,12 @@ export default function BuildTab({ weapons, pathTag, buildState, onBuildStateCha
       <div className="build-detail-heading"><div>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
         <button className="button button-small detail-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}</button>
       </div>
-      <BuildManagement key={editingEntry.id} weapons={weapons} pathTag={pathTag} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
+      <BuildManagement key={editingEntry.id} weapons={weapons} martialArtTags={martialArtTags} pathTag={pathTag} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>
   </div></section>;
 }
 
-function BuildSetupPanel({ setup, pathTag, locked, onChange }: { setup: BuildSetup; pathTag?: string; locked: boolean; onChange: (setup: BuildSetup) => void }) {
+function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: { setup: BuildSetup; martialArtTags: string[]; pathTag?: string; locked: boolean; onChange: (setup: BuildSetup) => void }) {
   function updateGearSet(setName: keyof BuildSetup["gearSets"], tier: 0 | 2 | 4) {
     const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
     onChange({ ...setup, gearSets: { ...setup.gearSets, [setName]: tier, [otherSet]: Math.min(setup.gearSets[otherSet], 4 - tier) as 0 | 2 | 4 } });
@@ -315,7 +321,7 @@ function BuildSetupPanel({ setup, pathTag, locked, onChange }: { setup: BuildSet
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
       <div className="gear-set-list">
-        {Object.entries(gearSetDefinitions).filter(([, definition]) => !pathTag || definition.tags.includes(pathTag)).map(([setName, definition]) => {
+        {Object.entries(gearSetDefinitions).filter(([, definition]) => (!pathTag || definition.tags.includes(pathTag)) && [...new Set(martialArtTags)].every((tag) => definition.tags.includes(tag))).map(([setName, definition]) => {
           const selectedTier = setup.gearSets[setName as keyof BuildSetup["gearSets"]];
           return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">
             {[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} disabled={locked} title={lockedTitle} onClick={() => updateGearSet(setName as keyof BuildSetup["gearSets"], tier as 0 | 2 | 4)}>{tier === 0 ? "0 piece" : `${tier} pieces`}</button>)}
@@ -338,7 +344,7 @@ function BuildSetupPanel({ setup, pathTag, locked, onChange }: { setup: BuildSet
   </div>;
 }
 
-function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
+function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon");
   const [editing, setEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -391,6 +397,10 @@ function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInvento
     const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed);
     if (!baseAffix || additionalAffixes.some((affix) => !affix) || !attunement) {
       setError("Choose every attribute and enter a non-negative value.");
+      return;
+    }
+    if (!attunementOptions.includes(attunement.key)) {
+      setError("Choose an attunement available for the current path.");
       return;
     }
     const normalizedAdditional = additionalAffixes.filter((affix): affix is { key: string; value: number } => Boolean(affix));
@@ -453,6 +463,11 @@ function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInvento
   const levelKey = String(draft.level);
   const baseAffixOptions = selected.definition?.baseAffixes[levelKey] ?? [];
   const additionalAffixOptions = selected.definition?.additionalAffixes[levelKey] ?? [];
+  const attunementOptions = (selected.definition?.attunements ?? []).filter((key) => {
+    const tags = attunementData[key]?.tags ?? [];
+    if (tags.includes("Weapon")) return true;
+    return (!pathTag || tags.includes(pathTag)) && martialArtTags.some((tag) => tags.includes(tag));
+  });
   const selectedAdditionalKeys = new Set(draft.additionalAffixes.map((affix) => affix.key).filter(Boolean));
 
   return <div className="build-page">
@@ -469,7 +484,7 @@ function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInvento
           </button>;
         })}
       </div>
-    </section><BuildSetupPanel setup={setup} pathTag={pathTag} locked={locked} onChange={onSetupChange} /></div>
+    </section><BuildSetupPanel setup={setup} martialArtTags={martialArtTags} pathTag={pathTag} locked={locked} onChange={onSetupChange} /></div>
 
     {!locked && <section className="panel build-inventory-panel">
       <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p></div></div>
@@ -488,11 +503,11 @@ function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInvento
       </div>
     </section>}
 
-    {!locked && editing && selected.definition && <GearEditor definition={selected.definition} definitionId={selected.definitionId} definitionName={selected.definition.name} editingExisting={editingItemId !== null} draft={draft} error={error} baseAffixOptions={baseAffixOptions} additionalAffixOptions={additionalAffixOptions} selectedAdditionalKeys={selectedAdditionalKeys} onDraftChange={setDraft} onLevelChange={updateLevel} onCancel={() => { setEditing(false); setEditingItemId(null); setError(""); }} onSave={save} />}
+    {!locked && editing && selected.definition && <GearEditor definition={selected.definition} definitionId={selected.definitionId} definitionName={selected.definition.name} editingExisting={editingItemId !== null} draft={draft} error={error} baseAffixOptions={baseAffixOptions} additionalAffixOptions={additionalAffixOptions} attunementOptions={attunementOptions} selectedAdditionalKeys={selectedAdditionalKeys} onDraftChange={setDraft} onLevelChange={updateLevel} onCancel={() => { setEditing(false); setEditingItemId(null); setError(""); }} onSave={save} />}
   </div>;
 }
 
-function GearEditor({ definition, definitionId, definitionName, editingExisting, draft, error, baseAffixOptions, additionalAffixOptions, selectedAdditionalKeys, onDraftChange, onLevelChange, onCancel, onSave }: {
+function GearEditor({ definition, definitionId, definitionName, editingExisting, draft, error, baseAffixOptions, additionalAffixOptions, attunementOptions, selectedAdditionalKeys, onDraftChange, onLevelChange, onCancel, onSave }: {
   definition: GearDefinition;
   definitionId: string;
   definitionName: string;
@@ -501,6 +516,7 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
   error: string;
   baseAffixOptions: string[];
   additionalAffixOptions: string[];
+  attunementOptions: string[];
   selectedAdditionalKeys: Set<string>;
   onDraftChange: Dispatch<SetStateAction<GearDraft>>;
   onLevelChange: (level: GearLevel) => void;
@@ -626,7 +642,7 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
     <div className="gear-editor-sections">
       <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
       <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
-      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={definition.attunements} definitions={attunementData} category="attunement" relayed={draft.relayed} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
+      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={attunementOptions} definitions={attunementData} category="attunement" relayed={draft.relayed} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
     </div>
     {error && <p className="editor-error" role="alert">{error}</p>}
     <div className="editor-actions"><button className="button button-secondary" type="button" onClick={onCancel}>Cancel</button><button className="button button-primary" type="button" onClick={onSave}>{editingExisting ? "Save Changes" : "Save"}</button></div>

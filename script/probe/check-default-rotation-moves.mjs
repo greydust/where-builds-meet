@@ -28,76 +28,69 @@ try {
     BattleEnd: { name: "Battle End", castTime: 0, action: [], tags: ["Event"] },
     Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], tags: ["Event"] },
   };
-  const round = (value) => Number(value.toFixed(4));
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
+  const move = (distance, before) => ({ type: "event", event: "Move", before, distance });
+
+  function expectedRotation(rotation) {
+    const exhaustedIndex = rotation.steps.findIndex((step) => step.type === "event" && step.event === "Exhausted");
+    const exhaustedSkillOrdinal = exhaustedIndex < 0 ? -1 : rotation.steps.slice(0, exhaustedIndex).filter((step) => step.type === "skill").length;
+    const retained = rotation.steps.filter((step) => step.type !== "event" || step.event !== "Move" && step.event !== "Exhausted");
+    const skillsWithIndexes = retained.flatMap((step, index) => step.type === "skill" ? [{ step, index }] : []);
+    const before = new Map();
+    const add = (index, event) => before.set(index, [...(before.get(index) ?? []), event]);
+    const first = skillsWithIndexes[0];
+    add(first.index, move(19, { action: "start" }));
+    const fleeting = skillsWithIndexes.find(({ step }) => step.skill === "SnowpartingSpecial");
+    add(fleeting.index, move(3, { action: "start" }));
+    const afterFleeting = skillsWithIndexes.find(({ index }) => index > fleeting.index);
+    if (afterFleeting) add(afterFleeting.index, move(1, { action: "start" }));
+
+    const burning = skillsWithIndexes.filter(({ step }) => step.skill === "PhalanxbaneHeavyCharged3");
+    burning.forEach(({ index }) => {
+      add(index, move(6, { trigger: 0, action: 0 }));
+      add(index, move(4, { trigger: 1, action: 0 }));
+      add(index, move(2, { action: 3 }));
+    });
+    burning.forEach(({ index }, burningIndex) => {
+      const nextBurning = burning[burningIndex + 1];
+      const nextSkill = skillsWithIndexes.find((candidate) => candidate.index > index);
+      if (!nextSkill || nextSkill.index === nextBurning?.index) return;
+      add(nextSkill.index, move(1, { action: "start" }));
+    });
+
+    // Preserve each preset's intentional break after the same fourth Burning
+    // Heart damage action selected by the former fixed-time row.
+    const exhaustedTarget = rotation.name.includes("Smolder Poet") ? burning[7] : skillsWithIndexes[exhaustedSkillOrdinal];
+    if (exhaustedTarget) add(exhaustedTarget.index, { type: "event", event: "Exhausted", after: { action: 3 } });
+
+    const oldStartSkill = rotation.steps[rotation.start?.step];
+    const steps = retained.flatMap((step, index) => step.type === "skill" ? [...(before.get(index) ?? []), step] : [step]);
+    const startStep = oldStartSkill ? steps.indexOf(oldStartSkill) : undefined;
+    return { ...rotation, steps, ...(startStep === undefined || startStep < 0 ? {} : { start: { step: startStep, ...(rotation.start?.action === undefined ? {} : { action: rotation.start.action }) } }) };
+  }
 
   for (const path of rotationPaths) {
     const rotation = (await viteServer.ssrLoadModule(path)).default;
-    const timeline = buildRotationTimeline({ rotation, skills, eventDefinitions, dots, effectDefinitions, innerWayConditions: conditions, innerWayRules: [], setupEffects: [], weapons: ["snowparting", "phalanxbane"] });
-    const anchorRow = timeline.find((row) => row.id === `rotation-${rotation.start.step}`);
-    const anchorTime = anchorRow.startTime + Number(anchorRow.actions[rotation.start.action]?.time ?? 0);
-    const relative = (value) => value - anchorTime;
-    const skillRows = timeline.filter((row) => row.kind === "rotation" && row.step.type === "skill" && !row.skipped);
-    const firstActionTime = Math.min(...timeline.filter((row) => row.step.type === "skill" && !row.skipped).map((row) => row.startTime));
-    const firstFleetingTrace = skillRows.find((row) => row.step.skill === "SnowpartingSpecial");
-    const moves = [
-      { reason: "before first action", distance: 19, startTime: round(relative(firstActionTime)) },
-      { reason: "before first Fleeting Trace", distance: 3, startTime: round(relative(firstFleetingTrace.startTime)) },
-      { reason: "after first Fleeting Trace", distance: 1, startTime: round(relative(firstFleetingTrace.startTime + firstFleetingTrace.effectiveCastTime)) },
-    ];
-
-    for (const row of skillRows.filter((candidate) => candidate.step.skill === "PhalanxbaneHeavyCharged3")) {
-      const firstAnxi = row.actions.findIndex((action) => action.type === "trigger" && action.value === "AnxiSoldierBurningHeart2");
-      const secondAnxi = row.actions.findIndex((action) => action.type === "trigger" && action.value === "AnxiSoldierBurningHeart3");
-      const firstDamage = row.actions.findIndex((action) => action.type === "damage");
-      moves.push(
-        { reason: `before first Anxi (${row.rotationIndex})`, distance: 6, startTime: round(relative(row.startTime + Number(row.actions[firstAnxi]?.time ?? 0))) },
-        { reason: `before second Anxi (${row.rotationIndex})`, distance: 4, startTime: round(relative(row.startTime + Number(row.actions[secondAnxi]?.time ?? 0))) },
-        { reason: `before first damage (${row.rotationIndex})`, distance: 2, startTime: round(relative(row.startTime + Number(row.actions[firstDamage]?.time ?? 0))) },
-      );
-    }
-
-    const burningIndexes = rotation.steps.flatMap((step, index) => step.type === "skill" && step.skill === "PhalanxbaneHeavyCharged3" ? [index] : []);
-    burningIndexes.forEach((stepIndex, index) => {
-      const nextBurningIndex = burningIndexes[index + 1];
-      const interveningSkills = nextBurningIndex === undefined ? true : rotation.steps.slice(stepIndex + 1, nextBurningIndex).some((step) => step.type === "skill");
-      if (!interveningSkills) return;
-      const row = skillRows.find((candidate) => candidate.rotationIndex === stepIndex);
-      moves.push({ reason: `after Burning Heart section (${stepIndex})`, distance: 1, startTime: round(relative(row.startTime + row.effectiveCastTime)) });
-    });
-
-    moves.sort((left, right) => left.startTime - right.startTime);
+    const expected = expectedRotation(rotation);
     if (process.argv.includes("--write")) {
-      const updated = {
-        ...rotation,
-        steps: [
-          ...rotation.steps.filter((step) => step.type !== "event" || step.event !== "Move"),
-          ...moves.map(({ startTime, distance }) => ({ type: "event", event: "Move", startTime, distance })),
-        ],
-      };
-      await writeFile(new URL(`../..${path}`, import.meta.url), `${JSON.stringify(updated, null, 2)}\n`);
-      console.log(`${rotation.name}: wrote ${moves.length} Move events.`);
-    } else {
-      const actualMoves = rotation.steps.filter((step) => step.type === "event" && step.event === "Move").map(({ startTime, distance }) => ({ startTime, distance })).sort((left, right) => left.startTime - right.startTime);
-      assert(actualMoves.length === moves.length, `${rotation.name} must contain ${moves.length} generated Move events.`);
-      moves.forEach((move, index) => {
-        assert(actualMoves[index].distance === move.distance, `${rotation.name} Move ${index + 1} must move to ${move.distance}m.`);
-      });
-      const firstSkillAction = skillRows.flatMap((row) => row.actions.map((action, actionIndex) => ({ row, action, actionIndex, time: row.startTime + Number(action.time ?? 0) }))).sort((left, right) => left.time - right.time)[0];
-      const firstVisibleSkill = timeline.filter((row) => row.step.type === "skill" && !row.skipped).sort((left, right) => left.startTime - right.startTime || left.order - right.order)[0];
-      assert(firstVisibleSkill?.distance === 19, `${rotation.name} must show its first skill at 19m (received ${firstVisibleSkill?.distance}m).`);
-      assert(firstSkillAction.row.actionStates[firstSkillAction.actionIndex]?.distance === 19, `${rotation.name} must begin its first skill action at 19m (received ${firstSkillAction.row.actionStates[firstSkillAction.actionIndex]?.distance}m at ${firstSkillAction.time - anchorTime}s).`);
-      assert(firstFleetingTrace.distance === 3, `${rotation.name} must begin its first Fleeting Trace at 3m.`);
-      for (const row of skillRows.filter((candidate) => candidate.step.skill === "PhalanxbaneHeavyCharged3")) {
-        const firstAnxi = row.actions.findIndex((action) => action.type === "trigger" && action.value === "AnxiSoldierBurningHeart2");
-        const secondAnxi = row.actions.findIndex((action) => action.type === "trigger" && action.value === "AnxiSoldierBurningHeart3");
-        const firstDamage = row.actions.findIndex((action) => action.type === "damage");
-        assert(row.actionStates[firstAnxi]?.distance === 6, `${rotation.name} Burning Heart ${row.rotationIndex} first Anxi must trigger at 6m (received ${row.actionStates[firstAnxi]?.distance}m).`);
-        assert(row.actionStates[secondAnxi]?.distance === 4, `${rotation.name} Burning Heart ${row.rotationIndex} second Anxi must trigger at 4m (received ${row.actionStates[secondAnxi]?.distance}m).`);
-        assert(row.actionStates[firstDamage]?.distance === 2, `${rotation.name} Burning Heart ${row.rotationIndex} first damage must occur at 2m (received ${row.actionStates[firstDamage]?.distance}m).`);
-      }
-      console.log(`${rotation.name}: ${actualMoves.length} Move events verified.`);
+      await writeFile(new URL(`../..${path}`, import.meta.url), `${JSON.stringify(expected, null, 2)}\n`);
+      console.log(`${rotation.name}: wrote attached events.`);
+      continue;
     }
+    assert(JSON.stringify(rotation.steps) === JSON.stringify(expected.steps), `${rotation.name} attached event structure is out of date.`);
+    const timeline = buildRotationTimeline({ rotation, skills, eventDefinitions, dots, effectDefinitions, innerWayConditions: conditions, innerWayRules: [], setupEffects: [], weapons: ["snowparting", "phalanxbane"] });
+    const firstSkill = timeline.filter((row) => row.step.type === "skill" && !row.skipped).sort((left, right) => left.startTime - right.startTime || left.order - right.order)[0];
+    assert(firstSkill.distance === 19, `${rotation.name} must begin at 19m.`);
+    const fleeting = timeline.find((row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "SnowpartingSpecial");
+    assert(fleeting?.distance === 3, `${rotation.name} first Fleeting Trace must begin at 3m.`);
+    for (const row of timeline.filter((candidate) => candidate.kind === "rotation" && candidate.step.type === "skill" && candidate.step.skill === "PhalanxbaneHeavyCharged3" && !candidate.skipped)) {
+      const firstAnxi = timeline.find((candidate) => candidate.kind === "trigger" && candidate.sourceRowId === row.id && candidate.step.type === "skill" && candidate.step.skill === "AnxiSoldierBurningHeart2");
+      const secondAnxi = timeline.find((candidate) => candidate.kind === "trigger" && candidate.sourceRowId === row.id && candidate.step.type === "skill" && candidate.step.skill === "AnxiSoldierBurningHeart3");
+      assert(firstAnxi?.actionStates[0]?.distance === 6, `${rotation.name} Burning Heart ${row.rotationIndex} first Anxi must be 6m.`);
+      assert(secondAnxi?.actionStates[0]?.distance === 4, `${rotation.name} Burning Heart ${row.rotationIndex} second Anxi must be 4m.`);
+      assert(row.actionStates[3]?.distance === 2, `${rotation.name} Burning Heart ${row.rotationIndex} first damage must be 2m.`);
+    }
+    console.log(`${rotation.name}: attached Move and Exhausted events verified.`);
   }
 } finally {
   await viteServer.close();

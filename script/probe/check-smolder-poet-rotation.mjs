@@ -27,20 +27,24 @@ try {
     weapons: ["snowparting", "phalanxbane"],
   });
   const skillSteps = rotation.steps.filter((step) => step.type === "skill");
-  const cancelSkillIds = new Set(["DrunkenPoetDrink", "FluteOfTheTidesCancel", "DragonsBreathSmolder2", "DrunkenPoet5"]);
+  const cancelSkillIds = new Set(["DrunkenPoetDrink", "FluteOfTheTidesCancel", "DrunkenPoet5"]);
   skillSteps.forEach((step, index) => {
     if (cancelSkillIds.has(step.skill)) assert(skillSteps[index + 1]?.skill === "Deflect", `${step.skill} must be followed by Deflect.`);
   });
-  assert(rotation.start?.step === 7 && rotation.start.action === 5, "The rotation must start at Sideway Fleeting Trace action index 5.");
-  assert(skillSteps.slice(18, 23).map((step) => step.skill).join(",") === "DrunkenPoet1,DrunkenPoet2,DrunkenPoet3,DrunkenPoet4,DrunkenPoet5", "Poet x5 must use all five ordered hit definitions.");
-  const exhaustedEvent = rotation.steps[33];
-  assert(exhaustedEvent?.type === "event" && exhaustedEvent.event === "Exhausted", "Exhausted must immediately precede the fourth slam in the seven-slam group.");
-  const fourthSevenSlam = timeline.find((row) => row.id === "rotation-34");
+  const startSkillIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "SnowpartingSpecial");
+  assert(rotation.start?.step === startSkillIndex && rotation.start.action === 5, "The rotation must start at Sideway Fleeting Trace action index 5.");
+  assert(skillSteps.slice(17, 22).map((step) => step.skill).join(",") === "DrunkenPoet1,DrunkenPoet2,DrunkenPoet3,DrunkenPoet4,DrunkenPoet5", "Poet x5 must use all five ordered hit definitions.");
+  const exhaustedIndex = rotation.steps.findIndex((step) => step.type === "event" && step.event === "Exhausted");
+  const exhaustedEvent = rotation.steps[exhaustedIndex];
+  assert(exhaustedEvent?.type === "event" && exhaustedEvent.event === "Exhausted" && "after" in exhaustedEvent && exhaustedEvent.after.action === 3, "Exhausted must attach after the fourth slam's first damage action.");
+  const fourthSevenSlam = timeline.find((row) => row.id === `rotation-${exhaustedIndex + 1}`);
   assert(fourthSevenSlam?.step.type === "skill" && fourthSevenSlam.step.skill === "PhalanxbaneHeavyCharged3", "The fourth slam in the seven-slam group must follow Exhausted.");
   const damageTime = fourthSevenSlam.startTime + Number(fourthSevenSlam.actions[3]?.time ?? 0);
-  assert(exhaustedEvent.startTime < damageTime && damageTime - exhaustedEvent.startTime < 0.001, "Exhausted must occur immediately before the fourth slam damage timestamp.");
-  assert(fourthSevenSlam.actionStates[3]?.debuffs.some((effect) => effect.name === "Exhausted"), "Exhausted must apply before the fourth slam damage action resolves.");
-  console.log("Smolder Poet default rotation sequence and Exhausted timing checks passed.");
+  const exhaustedRow = timeline.find((row) => row.id === `rotation-${exhaustedIndex}`);
+  assert(exhaustedRow?.startTime === damageTime, "Exhausted must resolve at its attached damage timestamp.");
+  assert(!fourthSevenSlam.actionStates[3]?.debuffs.some((effect) => effect.name === "Exhausted"), "The attached damage action must resolve before Exhausted applies.");
+  assert(fourthSevenSlam.actionStates[4]?.debuffs.some((effect) => effect.name === "Exhausted"), "The damage action after the break must receive Exhausted.");
+  console.log("Smolder Poet default rotation sequence and post-action Exhausted timing checks passed.");
 } finally {
   await viteServer.close();
 }

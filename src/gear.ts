@@ -6,7 +6,7 @@ import defaultSetupJson from "../data/default-setup.json";
 import gearSetJson from "../data/gear-set.json";
 import statPriorityJson from "../data/stat-priority.json";
 import type { AttunementStats } from "./calculations/damage";
-import type { CharacterStats, WeaponId } from "./types";
+import { weaponIds, type CharacterStats, type WeaponId } from "./types";
 
 export const legacyGearStorageKey = "wwm-gear-inventory-v1";
 export const buildListStorageKey = "wwm-build-list-v1";
@@ -59,6 +59,7 @@ export type BuildPreset = {
   order?: number;
   test?: boolean;
   relayed?: boolean;
+  weapons: WeaponId[];
   setup?: BuildSetup;
   gear: Partial<Record<GearSlot, BuildPresetGear>>;
 };
@@ -68,6 +69,7 @@ export type BuildEntry = {
   name: string;
   isDefault?: boolean;
   presetId?: string;
+  weapons?: WeaponId[];
   equipped?: Partial<Record<GearSlot, string>>;
   setup?: BuildSetup;
 };
@@ -178,10 +180,35 @@ const buildPresetModules = import.meta.glob("../data/build/*.json", { eager: tru
 export const defaultBuildPresets = Object.values(buildPresetModules)
   .filter((preset) => !preset.test || import.meta.env.DEV)
   .sort((left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) || left.name.localeCompare(right.name));
+const weaponIdSet = new Set<WeaponId>(weaponIds);
+
+function normalizedWeaponTags(value: unknown, equipped: Partial<Record<GearSlot, string>> = {}, items: GearItem[] = []) {
+  const explicit = Array.isArray(value) ? value.filter((item): item is WeaponId => typeof item === "string" && weaponIdSet.has(item as WeaponId)) : [];
+  if (explicit.length) return explicit;
+  const inferred = ["leftWeapon", "rightWeapon"].flatMap((slot) => {
+    const itemId = equipped[slot as GearSlot];
+    const item = itemId ? items.find((candidate) => candidate.id === itemId) : undefined;
+    const weapon = item ? gearData.gear[item.definitionId]?.weapon : undefined;
+    return weapon ? [weapon] : [];
+  });
+  return inferred.length === 2 ? inferred : [...weaponIds];
+}
+
+export function buildEntryAvailableForWeapons(entry: BuildEntry, selectedWeapons: [WeaponId, WeaponId]) {
+  const tags = entry.isDefault
+    ? defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.weapons ?? entry.weapons ?? []
+    : entry.weapons ?? [];
+  if (weaponIds.every((weapon) => tags.includes(weapon))) return true;
+  return tags.length === 2 && tags[0] === selectedWeapons[0] && tags[1] === selectedWeapons[1];
+}
 
 const weaponDefinitionIds: Record<WeaponId, string> = {
   snowparting: "hengBlade",
   phalanxbane: "moBlade",
+  everspring: "umbrella",
+  unfettered: "unfetteredRopeDart",
+  heavenwill: "gauntlet",
+  skygrasp: "skygraspRopeDart",
 };
 
 export function gearDefinitionForSlot(slot: GearSlot, weapons: [WeaponId, WeaponId]) {
@@ -353,8 +380,8 @@ function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sha
 
 export function serializeBuildState(state: BuildState) {
   return JSON.stringify({
-    version: 4,
-    entries: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
+    version: 5,
+    entries: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
     gearItems: state.gearItems.map(withoutWeaponSlot),
   });
 }
@@ -362,10 +389,10 @@ export function serializeBuildState(state: BuildState) {
 export function exportBuildState(state: BuildState) {
   return JSON.stringify({
     format: buildExportFormat,
-    version: 3,
+    version: 4,
     exportedAt: new Date().toISOString(),
     gearItems: state.gearItems.map(withoutWeaponSlot),
-    builds: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
+    builds: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
   }, null, 2);
 }
 
@@ -391,7 +418,7 @@ function withoutWeaponSlot(item: GearItem): GearItem {
 export function mergeImportedBuildState(current: BuildState, value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet export file.");
   const source = value as { format?: unknown; version?: unknown; gearItems?: unknown; builds?: unknown };
-  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
+  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
     throw new Error("This file uses an unsupported build export format.");
   }
 
@@ -407,7 +434,7 @@ export function mergeImportedBuildState(current: BuildState, value: unknown) {
   const usedBuildIds = new Set(current.entries.map((entry) => entry.id));
   const addedBuilds = source.builds.flatMap((value): BuildEntry[] => {
     if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-    const candidate = value as { id?: unknown; name?: unknown; isDefault?: unknown; equipped?: unknown; setup?: unknown };
+    const candidate = value as { id?: unknown; name?: unknown; isDefault?: unknown; weapons?: unknown; equipped?: unknown; setup?: unknown };
     if (candidate.isDefault === true || typeof candidate.id !== "string" || !candidate.id || typeof candidate.name !== "string" || !candidate.name.trim()) return [];
     const sourceEquipped = parseEquipped(candidate.equipped, importedItems);
     const equipped = Object.fromEntries(gearSlots.flatMap((slot) => {
@@ -415,7 +442,7 @@ export function mergeImportedBuildState(current: BuildState, value: unknown) {
       const id = originalId ? gearIdMap.get(originalId) : undefined;
       return id ? [[slot, id]] : [];
     })) as Partial<Record<GearSlot, string>>;
-    return [{ id: importedId(candidate.id, usedBuildIds), name: candidate.name, equipped, setup: normalizeBuildSetup(candidate.setup) }];
+    return [{ id: importedId(candidate.id, usedBuildIds), name: candidate.name, weapons: normalizedWeaponTags(candidate.weapons, equipped, addedItems), equipped, setup: normalizeBuildSetup(candidate.setup) }];
   });
 
   return {
@@ -443,28 +470,31 @@ export function loadBuildState(): BuildState {
     const defaultIds = new Set(defaultBuildPresets.map((preset) => preset.id));
     const defaults: BuildEntry[] = defaultBuildPresets.map((preset) => {
       const savedDefault = savedEntries.find((entry) => entry && typeof entry === "object" && !Array.isArray(entry) && (entry as { id?: unknown }).id === preset.id) as { name?: unknown } | undefined;
-      return { id: preset.id, name: typeof savedDefault?.name === "string" && savedDefault.name.trim() ? savedDefault.name : preset.name, isDefault: true, presetId: preset.id };
+      return { id: preset.id, name: typeof savedDefault?.name === "string" && savedDefault.name.trim() ? savedDefault.name : preset.name, isDefault: true, presetId: preset.id, weapons: [...preset.weapons] };
     });
     const customEntries = savedEntries.flatMap((value): BuildEntry[] => {
       if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-      const candidate = value as { id?: unknown; name?: unknown; inventory?: unknown; equipped?: unknown; setup?: unknown };
+      const candidate = value as { id?: unknown; name?: unknown; weapons?: unknown; inventory?: unknown; equipped?: unknown; setup?: unknown };
       if (typeof candidate.id !== "string" || !candidate.id || defaultIds.has(candidate.id) || typeof candidate.name !== "string" || !candidate.name.trim()) return [];
       const equipped = candidate.inventory
         ? migrateInventoryToShared(parseGearInventory(candidate.inventory), candidate.id, sharedItems)
         : parseEquipped(candidate.equipped, sharedItems);
-      return [{ id: candidate.id, name: candidate.name, equipped, setup: normalizeBuildSetup(candidate.setup, legacySetup) }];
+      return [{ id: candidate.id, name: candidate.name, weapons: normalizedWeaponTags(candidate.weapons, equipped, sharedItems), equipped, setup: normalizeBuildSetup(candidate.setup, legacySetup) }];
     });
     const entries = [...defaults, ...customEntries];
     if (savedValue === null) {
       const legacyInventory = loadGearInventory();
-      if (legacyInventory.items.length > 0) entries.push({ id: "migrated-build", name: "My Build", equipped: migrateInventoryToShared(legacyInventory, "migrated-build", sharedItems), setup: legacySetup });
+      if (legacyInventory.items.length > 0) {
+        const equipped = migrateInventoryToShared(legacyInventory, "migrated-build", sharedItems);
+        entries.push({ id: "migrated-build", name: "My Build", weapons: normalizedWeaponTags(undefined, equipped, sharedItems), equipped, setup: legacySetup });
+      }
     }
     const requestedActiveId = localStorage.getItem(activeBuildStorageKey);
     const fallbackActiveId = savedValue === null && entries.some((entry) => entry.id === "migrated-build") ? "migrated-build" : defaults[0]?.id;
     const activeBuildId = requestedActiveId && entries.some((entry) => entry.id === requestedActiveId) ? requestedActiveId : fallbackActiveId ?? entries[0]?.id ?? "";
     return { entries, activeBuildId, gearItems: sharedItems };
   } catch {
-    const entries = defaultBuildPresets.map((preset): BuildEntry => ({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }));
+    const entries = defaultBuildPresets.map((preset): BuildEntry => ({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id, weapons: [...preset.weapons] }));
     return { entries, activeBuildId: entries[0]?.id ?? "", gearItems: [] };
   }
 }

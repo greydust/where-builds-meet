@@ -17,8 +17,9 @@ try {
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
   const skillIds = rotation.steps.filter((step) => step.type === "skill").map((step) => step.skill);
+  const startSkillIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "SnowpartingSpecial");
   assert(rotation.name === "Mixed Dummy Rotation Infinite Vitality 1 Min", "The bundled rotation name must match the requested name.");
-  assert(rotation.start?.step === 6 && rotation.start.action === 5, "Fleeting Trace action index 5 must be the fight anchor.");
+  assert(rotation.start?.step === startSkillIndex && rotation.start.action === 5, "Fleeting Trace action index 5 must be the fight anchor.");
   assert(skillIds.length === 45, "The expanded rotation must contain 45 skill steps including Deflect cancels.");
   assert(skillIds.filter((id) => id === "SnowpartingQ").length === 4, "Every plain Heng Q must use SnowpartingQ.");
   assert(skillIds.filter((id) => id === "PhalanxbaneHeavyCharged3").length === 15, "The slam groups must expand to 4 + 7 + 3 + 1 casts.");
@@ -33,7 +34,11 @@ try {
     timeline: {
       rotation,
       skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
-      eventDefinitions: {},
+      eventDefinitions: {
+        Exhausted: { name: "Exhausted", castTime: 0, action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }] },
+        Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }] },
+        BattleEnd: { name: "Battle End", castTime: 0, action: [] },
+      },
       dots,
       effectDefinitions: { ...mysticBuffs, ...generalBuffs, ...dots },
       innerWayConditions: [],
@@ -52,7 +57,7 @@ try {
     innerWayPriority: [],
     setupComparisons: {},
   });
-  assert(result.actionBreakdowns["rotation-6:5"], "The configured Fleeting Trace starting action must calculate damage.");
+  assert(result.actionBreakdowns[`rotation-${startSkillIndex}:5`], "The configured Fleeting Trace starting action must calculate damage.");
   assert(result.metrics.totalDamage > 0 && result.duration > 0, "The new default rotation must produce a valid calculation.");
   console.log("Infinite Vitality default rotation sequence and calculation checks passed.");
 } finally {

@@ -468,28 +468,61 @@ type RotationRecord = {
   eventTimeReference?: "battleStart";
   steps: Array<
     | { type: "skill"; skill: string }
-    | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number }
-    | { type: "event"; event: "Move"; startTime: number; distance: number }
+    | { type: "event"; event: "Exhausted"; after: AttachedEventTarget }
+    | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
+    | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
   >;
   start?: { step: number; action?: number };
 };
+
+type RotationPreset = RotationRecord & {
+  martialArts: WeaponId[];
+  test?: boolean;
+};
+
+type AttachedEventTarget = {
+  action: number | "start";
+  trigger?: number;
+};
 ```
 
-Skill steps are placed sequentially by effective cast time. With
-`eventTimeReference: "battleStart"`, every event `startTime` is relative to the
-selected fight start and events consume no cast time. Pre-start cast-time changes
-move the events with the anchor. `Exhausted` uses its definition's 10-second
-duration. `Controlled` defaults to three seconds and the rotation event's
-editable `duration` overrides it. `BattleEnd` has no action and excludes damage
-ordered after it; it also fixes the rotation duration at that timestamp.
+Skill steps are placed sequentially by effective cast time. `Move` and
+`Exhausted` are action-attached events and must be stored immediately before
+their target skill. Move uses `before`; Exhausted uses `after`. The attachment's
+`action` is a zero-based action index in that skill; `"start"` is valid for Move
+and targets cast start. When `trigger` is present, it is the
+zero-based ordinal of a `trigger` action declared by the target skill, and
+`action` selects an action inside that triggered skill. Move resolves before its
+target; Exhausted resolves after its target, so the breaking hit does not receive
+Exhausted bonuses while subsequent hits do. The editor displays these zero-based values as one-based action and
+trigger numbers internally, but attached-event rows do not expose those indices
+as editable text. Their up/down controls move the attachment through skill
+starts (for Move), direct damage actions, and declared triggered-skill damage
+actions in effective timeline order. Exhausted skips skill-start targets. Moving to an action expands its owning skill so the
+attachment and target remain visible together; leaving that skill collapses the
+auto-expanded action list. The editor preserves the attached-event row's visual
+scroll position while moving it. A newly inserted skill receives focus, and
+converting it to Move or Exhausted attaches the event to the following skill.
+
+Bundled rotation JSON records declare the martial-art IDs they use in
+`martialArts`. The Rotation Editor shows a preset only when those tags match the
+current weapon selection. The all-tagged empty rotation is a local-development
+fixture and uses `test: true`, so it is omitted from production builds.
+
+With `eventTimeReference: "battleStart"`, timed encounter events use a
+`startTime` relative to the selected fight start and consume no cast time.
+`Exhausted` uses its definition's 10-second duration. `Controlled` defaults to
+three seconds and the rotation event's editable `duration` overrides it.
+`BattleEnd` has no action and excludes damage ordered after it; it also fixes
+the rotation duration at that timestamp.
 The Rotation Editor skill selector offers skills from the currently selected
 weapon categories plus Mystic and General. Triggered skills remain excluded.
 An existing step from another martial art is preserved and marked unavailable
 until the user replaces it or restores a compatible weapon selection.
-Distance starts at 1m. A `Move` event changes it to its integer `distance` from
-that event onward. Timeline rows store cast-start distance, while every action
-stores its own distance snapshot so an event interleaved with a cast affects only
-the later actions.
+Distance starts at 1m. An attached `Move` event changes it to its integer
+`distance` immediately before the selected action. An attached Exhausted event
+applies at the same timestamp immediately after the selected action. Timeline rows store
+cast-start distance, while every action stores its own distance snapshot.
 
 Bundled mixed-dummy rotations include fight-relative movement events for Flute
 distance modeling. They open at 19m, enter the first Fleeting Trace at 3m, then
@@ -549,8 +582,10 @@ dialog is closed and provides both selectable text and a Copy button.
 
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
-version 1. The snapshot includes the current in-memory editor value, even before
-the Save button is pressed. Bundled default rotations are discovered from
+version 3. Versions 1 and 2 remain importable, and legacy Exhausted `before`
+attachments migrate to `after`. The snapshot includes each custom rotation's `martialArts`
+eligibility and the current in-memory editor value, even before the Save button
+is pressed. Bundled default rotations are discovered from
 `data/rotation/**/*.json` and reconstructed from their JSON sources rather than
 saved in session storage or exports. They are read-only in the editor; Duplicate
 creates an editable custom copy.

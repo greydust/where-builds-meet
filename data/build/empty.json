@@ -3,6 +3,7 @@
   "name": "Empty Build",
   "order": 2,
   "test": true,
+  "weapons": ["snowparting", "phalanxbane", "everspring", "unfettered", "heavenwill", "skygrasp"],
   "setup": {
     "gearSets": { "Cleftpeak": 0, "RainWhisper": 0 },
     "bowRingSet": "None",

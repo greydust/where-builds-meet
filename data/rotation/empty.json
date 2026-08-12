@@ -1,0 +1,7 @@
+{
+  "name": "Empty Rotation",
+  "martialArts": ["snowparting", "phalanxbane", "everspring", "unfettered", "heavenwill", "skygrasp"],
+  "test": true,
+  "eventTimeReference": "battleStart",
+  "steps": []
+}

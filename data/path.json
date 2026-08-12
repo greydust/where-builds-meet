@@ -10,5 +10,25 @@
       "snowparting",
       "phalanxbane"
     ]
+  },
+  "bamboocutDust": {
+    "name": "Bamboocut - Dust",
+    "icon": "dust.png",
+    "tag": "BamboocutDust",
+    "wip": true,
+    "lockedWeapons": [
+      "everspring",
+      "unfettered"
+    ]
+  },
+  "bamboocutKite": {
+    "name": "Bamboocut - Kite",
+    "icon": "kite.png",
+    "tag": "BamboocutKite",
+    "wip": true,
+    "lockedWeapons": [
+      "heavenwill",
+      "skygrasp"
+    ]
   }
 }

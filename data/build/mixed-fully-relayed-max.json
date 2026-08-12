@@ -1,7 +1,8 @@
 {
-  "id": "mixed-fully-relayed-min",
-  "name": "Mixed Fully Relayed Min Build",
+  "id": "mixed-fully-relayed-max",
+  "name": "Mixed Fully Relayed Max Build",
   "order": 1,
+  "weapons": ["snowparting", "phalanxbane"],
   "relayed": true,
   "setup": {
     "gearSets": {
@@ -17,25 +18,25 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "minPhys",
+        "key": "maxPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
+        },
+        {
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "agility",
           "value": 46.436
         },
         {
-          "key": "precision",
-          "value": 0.0752
-        },
-        {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "minPhys",
+          "value": 73.132
         }
       ],
       "attunement": {
@@ -48,16 +49,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "minPhys",
+        "key": "maxPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
         },
         {
-          "key": "agility",
+          "key": "power",
           "value": 46.436
         },
         {
@@ -65,8 +66,8 @@
           "value": 0.05828
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "minPhys",
+          "value": 73.132
         }
       ],
       "attunement": {
@@ -79,16 +80,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "minPhys",
+        "key": "maxPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
         },
         {
-          "key": "agility",
+          "key": "power",
           "value": 46.436
         },
         {
@@ -96,8 +97,8 @@
           "value": 0.03008
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -110,16 +111,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "minPhys",
+        "key": "maxPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
         },
         {
-          "key": "agility",
+          "key": "power",
           "value": 46.436
         },
         {
@@ -127,8 +128,8 @@
           "value": 0.03008
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -146,8 +147,12 @@
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
+        },
+        {
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "agility",
@@ -156,10 +161,6 @@
         {
           "key": "precision",
           "value": 0.0752
-        },
-        {
-          "key": "maxStonesplit",
-          "value": 41.548
         }
       ],
       "attunement": {
@@ -177,20 +178,20 @@
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
+        },
+        {
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "agility",
           "value": 46.436
         },
         {
-          "key": "minBellstrike",
-          "value": 41.548
-        },
-        {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "precision",
+          "value": 0.0752
         }
       ],
       "attunement": {
@@ -203,16 +204,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "crit",
-        "value": 0.0846
+        "key": "power",
+        "value": 46.436
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
         },
         {
-          "key": "agility",
+          "key": "power",
           "value": 46.436
         },
         {
@@ -220,8 +221,8 @@
           "value": 0.03008
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -234,16 +235,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "crit",
-        "value": 0.0846
+        "key": "power",
+        "value": 46.436
       },
       "additionalAffixes": [
         {
-          "key": "minPhys",
+          "key": "maxPhys",
           "value": 73.132
         },
         {
-          "key": "agility",
+          "key": "power",
           "value": 46.436
         },
         {
@@ -251,8 +252,8 @@
           "value": 0.03008
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {

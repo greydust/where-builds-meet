@@ -15,6 +15,16 @@ export type AttunementStats = {
   snowpartingChargedBoost: number;
   snowpartingVariedComboBoost: number;
   snowpartingMartialBoost: number;
+  everspringMartialBoost: number;
+  everspringSpecialBoost: number;
+  unfetteredChargedBoost: number;
+  unfetteredSpecialBoost: number;
+  unfetteredMartialBoost: number;
+  heavenwillChargedBoost: number;
+  heavenwillMartialBoost: number;
+  heavenwillLightVariedComboBoost: number;
+  skygraspHeavyBoost: number;
+  skygraspSpecialBoost: number;
 };
 
 // Current level-96 test target. Move this to user-configurable encounter data later.

@@ -55,6 +55,28 @@ try {
   assert(equalTimestampSkill?.distance === 7, "An appended Move event must resolve before a skill at the same displayed timestamp despite floating-point noise.");
   assert(equalTimestampSkill?.actionStates[0]?.distance === 7, "An appended Move event must resolve before a damage action at the same displayed timestamp despite floating-point noise.");
 
+  const attachedTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Attached event probe",
+      steps: [
+        { type: "event", event: "Move", before: { trigger: 0, action: 0 }, distance: 8 },
+        { type: "skill", skill: "TriggerProbe" },
+      ],
+    },
+    skills: {
+      TriggerProbe: { name: "Trigger Probe", castTime: 2, action: [{ type: "damage", time: 0 }, { type: "trigger", value: "DeclaredTrigger", time: 1 }], modifier: [], tags: [] },
+      SetupTrigger: { name: "Setup Trigger", castTime: 0, action: [{ type: "apply", target: "self", value: "SetupMarker", time: 0 }], modifier: [], tags: ["Triggered"] },
+      DeclaredTrigger: { name: "Declared Trigger", castTime: 0, action: [{ type: "damage", time: 0 }], modifier: [], tags: ["Triggered"] },
+    },
+    eventDefinitions: { Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], modifier: [], tags: ["Event"] } },
+    dots: {}, effectDefinitions: {}, innerWayConditions: [], innerWayRules: [],
+    setupEffects: [{ trigger: { event: "damage", action: { type: "trigger", value: "SetupTrigger" } } }], weapons: [],
+  });
+  const setupTrigger = attachedTimeline.find((row) => row.step.type === "skill" && row.step.skill === "SetupTrigger");
+  const declaredTrigger = attachedTimeline.find((row) => row.step.type === "skill" && row.step.skill === "DeclaredTrigger");
+  assert(setupTrigger?.actionStates[0]?.distance === 1, "Reactive setup triggers must not consume a base skill's declared trigger ordinal.");
+  assert(declaredTrigger?.actionStates[0]?.distance === 8, "An attached event must resolve before the selected declared triggered-skill action.");
+
   const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
   const enemy = { name: "Probe", level: 96, defense: 0, physicalResistance: 0, bellstrikeResistance: 0, stonesplitResistance: 0, silkbindResistance: 0, bamboocutResistance: 0, judgementResistance: 0 };
   const baseContext = { stats, attunement: {}, skillTags: [], weapons: [], buffs: ["Flute"], enemy, derivedStats: calculateDerivedStats(stats, 0), effects: [] };
