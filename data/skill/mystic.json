@@ -2,14 +2,14 @@
   "SoaringSpin1": {
     "name": "Soaring Spin 1-Hit",
     "shortName": "Soaring 1 Hit",
-    "castTime": 0.875,
+    "castTime": 1.26,
     "action": [
       {
         "type": "damage",
         "phyCoef": 3.1956,
         "phyBonus": 459,
         "attrBonus": 0,
-        "time": 0.875
+        "time": 1.26
       }
     ],
     "modifier": [],
@@ -30,7 +30,7 @@
         "phyCoef": 3.1956,
         "phyBonus": 459,
         "attrBonus": 0,
-        "time": 0.875
+        "time": 1.26
       },
       {
         "type": "damage",
