@@ -259,11 +259,17 @@ It produces three row kinds:
 
 Base skill casts are initially placed sequentially. Manual-event `startTime`
 values are offsets from the selected fight-start anchor and consume no cast time.
-If pre-start cast modifiers move that anchor, queued manual events move with it.
-The event queue is sorted by timestamp and then
-by a lexicographic causal order. This lets casts, actions, triggers, and DOTs
-interleave while ensuring a zero-time action caused by one event resolves before
-an unrelated next cast at the same time.
+The builder resolves cast-time modifiers and the fight-start anchor in a bounded
+convergence pass, then processes manual events at their final absolute times.
+This prevents an already-processed event from being retroactively moved across
+a skill when pre-start cast timing changes.
+The event queue is sorted by timestamp and then by a lexicographic causal order.
+Manual events have priority over every skill, trigger, and DOT at the same
+timestamp, regardless of their position in the stored rotation steps. Within
+each row, cast start still precedes its zero-time actions. This lets casts,
+actions, triggers, and DOTs interleave while preserving causal order.
+Timestamps within `0.0001s` are treated as equal so rounded rotation data and floating-point arithmetic
+cannot place a displayed equal-time skill ahead of its event.
 
 The timeline owns mutable simulation state while it is being built:
 

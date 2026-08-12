@@ -235,7 +235,7 @@ Expected Component =
   + Affinity Damage × Affinity Rate
 ```
 
-The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut damage. Rotation total damage is the sum of damage actions at or after the selected start anchor and no later than the ordered Battle End event, including triggered skills and DOT ticks. An action outside those bounds remains in the timeline but is omitted from damage, hit count, and outcome-rate aggregation. Actions at the same timestamp use timeline order, so earlier actions in the starting skill are omitted and a hit at Battle End counts only when it resolves before the event. DPS is total damage divided by the time from the selected start anchor to Battle End, or to the final timeline action when Battle End is absent.
+The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut damage. Rotation total damage is the sum of damage actions at or after the selected start anchor and before the ordered Battle End event, including triggered skills and DOT ticks. An action outside those bounds remains in the timeline but is omitted from damage, hit count, and outcome-rate aggregation. Manual events resolve before skills and damage actions at the same timestamp, so a hit timestamped exactly at Battle End does not count. Actions at the starting timestamp still use timeline order to omit earlier actions in the starting skill. DPS is total damage divided by the time from the selected start anchor to Battle End, or to the final timeline action when Battle End is absent.
 
 ## Damage-over-time exception
 

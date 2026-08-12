@@ -262,6 +262,7 @@ h1, h2, p { margin-top: 0; } h1 { margin-bottom: 8px; font-size: clamp(28px, 5vw
 .rotation-table-header { position: sticky; top: 0; z-index: 2; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); border-radius: 7px 7px 0 0; background: #202431; box-shadow: 0 1px 0 rgba(48, 54, 70, .75); color: var(--muted); font-size: var(--rotation-table-font-size); font-weight: 750; text-transform: uppercase; }
 .rotation-table-row { min-height: 62px; border-bottom: 1px solid rgba(48, 54, 70, .65); color: var(--text); font-size: var(--rotation-table-font-size); }
 .rotation-event-row { background: rgba(217, 168, 93, .22); }
+.rotation-move-event-row { background: rgba(72, 142, 116, .12); }
 .rotation-dot-row { background: rgba(177, 112, 201, .14); }
 .rotation-row-group:last-child .rotation-table-row { border-bottom: 0; }
 .rotation-index { color: var(--accent); font-weight: 750; }

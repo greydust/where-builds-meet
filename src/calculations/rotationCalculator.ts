@@ -1,7 +1,7 @@
 import { calculateDamageBreakdown, type DamageBreakdown, type DamageContext, type DamageAction } from "./damage";
 import { emptyRotationBreakdown, type RotationBreakdown, type RotationMetrics, type RotationPriority } from "./rotationMetrics";
 import { calculateDerivedStats } from "./effectiveStats";
-import { buildRotationTimeline, mergeEffectDefinition, requirementsPass, type EditableObject, type EffectDefinition, type InnerWayEffectRule, type TimelineBuildInput, type TimelineRow } from "./rotationTimeline";
+import { buildRotationTimeline, compareTimelineTime, mergeEffectDefinition, requirementsPass, type EditableObject, type EffectDefinition, type InnerWayEffectRule, type TimelineBuildInput, type TimelineRow } from "./rotationTimeline";
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
@@ -214,7 +214,7 @@ function effectsForTrackedEffect(stack: number | undefined, definition: EffectDe
 function battleEndCutoff(timeline: TimelineRow[]) {
   const row = timeline
     .filter((candidate) => !candidate.skipped && candidate.kind === "rotation" && candidate.step.type === "event" && candidate.step.event === "BattleEnd")
-    .sort((left, right) => left.startTime - right.startTime || left.order - right.order)[0];
+    .sort((left, right) => compareTimelineTime(left.startTime, right.startTime) || left.order - right.order)[0];
   return row ? { time: row.startTime, order: row.order } : undefined;
 }
 
@@ -240,8 +240,10 @@ function timelineDamageEntries(
     if (action.type !== "damage") return [];
     const actionTime = row.startTime + Number(action.time ?? 0);
     const actionOrder = row.order + 10 + actionIndex;
-    if (actionTime < anchorTime || (actionTime === anchorTime && actionOrder < anchorOrder)) return [];
-    if (battleEnd && (actionTime > battleEnd.time || actionTime === battleEnd.time && actionOrder >= battleEnd.order)) return [];
+    const anchorTimeOrder = compareTimelineTime(actionTime, anchorTime);
+    if (anchorTimeOrder < 0 || (anchorTimeOrder === 0 && actionOrder < anchorOrder)) return [];
+    const battleEndTimeOrder = battleEnd ? compareTimelineTime(actionTime, battleEnd.time) : -1;
+    if (battleEnd && (battleEndTimeOrder > 0 || battleEndTimeOrder === 0 && actionOrder >= battleEnd.order)) return [];
     const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;

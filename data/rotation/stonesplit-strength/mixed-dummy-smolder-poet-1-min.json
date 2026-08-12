@@ -203,307 +203,307 @@
     {
       "type": "event",
       "event": "Move",
-      "startTime": -6.05,
+      "startTime": -6.041,
       "distance": 19
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": -1.8431,
+      "startTime": -1.843,
       "distance": 3
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 0.3341,
+      "startTime": 0.334,
       "distance": 1
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 4.9746,
+      "startTime": 4.9747,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 5.434,
+      "startTime": 5.4341,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 5.6075,
+      "startTime": 5.6076,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 7.4246,
+      "startTime": 7.4247,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 7.884,
+      "startTime": 7.8841,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 8.0575,
+      "startTime": 8.0576,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 9.8746,
+      "startTime": 9.8747,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 10.334,
+      "startTime": 10.3341,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 10.5075,
+      "startTime": 10.5076,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 12.3246,
+      "startTime": 12.3247,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 12.784,
+      "startTime": 12.7841,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 12.9575,
+      "startTime": 12.9576,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 13.3048,
+      "startTime": 13.3047,
       "distance": 1
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 27.1379,
+      "startTime": 27.138,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 27.5973,
+      "startTime": 27.5974,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 27.7708,
+      "startTime": 27.7709,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 29.5879,
+      "startTime": 29.588,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 30.0473,
+      "startTime": 30.0474,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 30.2208,
+      "startTime": 30.2209,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 32.0379,
+      "startTime": 32.038,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 32.4973,
+      "startTime": 32.4974,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 32.6708,
+      "startTime": 32.6709,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 34.4879,
+      "startTime": 34.488,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 34.9473,
+      "startTime": 34.9474,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 35.1208,
+      "startTime": 35.1209,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 36.9379,
+      "startTime": 36.938,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 37.3973,
+      "startTime": 37.3974,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 37.5708,
+      "startTime": 37.5709,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 39.3879,
+      "startTime": 39.388,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 39.8473,
+      "startTime": 39.8474,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 40.0208,
+      "startTime": 40.0209,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 41.8379,
+      "startTime": 41.838,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 42.2973,
+      "startTime": 42.2974,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 42.4708,
+      "startTime": 42.4709,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 42.8181,
+      "startTime": 42.818,
       "distance": 1
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 50.2799,
+      "startTime": 50.28,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 50.7393,
+      "startTime": 50.7394,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 50.9128,
+      "startTime": 50.9129,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 52.7299,
+      "startTime": 52.73,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 53.1893,
+      "startTime": 53.1894,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 53.3628,
+      "startTime": 53.3629,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 55.1799,
+      "startTime": 55.18,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 55.6393,
+      "startTime": 55.6394,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 55.8128,
+      "startTime": 55.8129,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 57.6299,
+      "startTime": 57.63,
       "distance": 6
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 58.0893,
+      "startTime": 58.0894,
       "distance": 4
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 58.2628,
+      "startTime": 58.2629,
       "distance": 2
     },
     {
       "type": "event",
       "event": "Move",
-      "startTime": 58.6101,
+      "startTime": 58.61,
       "distance": 1
     }
   ]

@@ -38,7 +38,7 @@ import snowpartingMartialArt from "../data/martial-art/snowparting-blade.json";
 import phalanxbaneMartialArt from "../data/martial-art/phalanxbane-blade.json";
 import { type RotationSimulationBundle, type RotationSimulationResult, type RotationSimulationVariant } from "./calculations/rotationCalculator";
 import { requestRotationBaseline, requestRotationComparisons } from "./calculations/rotationWorkerClient";
-import { type EditableObject, type InnerWayEffectRule, type RotationRecord, type RotationStep, type SkillRecord, type TimelineBuildInput, type TimelineRow } from "./calculations/rotationTimeline";
+import { compareTimelineTime, type EditableObject, type InnerWayEffectRule, type RotationRecord, type RotationStep, type SkillRecord, type TimelineBuildInput, type TimelineRow } from "./calculations/rotationTimeline";
 import { calculateStatsWithOverrides, type CharacterStatOverrides, type EffectiveStatEffectContainer, type StatEffectContainer } from "./calculations/statEffects";
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
@@ -1741,7 +1741,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       if (action.type === "damage" && actionsVisible) entries.push({ row, kind: "action", actionIndex, time: row.startTime + (typeof action.time === "number" ? action.time : 0), order: row.order + 10 + actionIndex });
     });
     return entries;
-  }).sort((left, right) => left.time - right.time || left.order - right.order);
+  }).sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
   const totalRotationTime = currentCachedResult?.duration ?? 0;
   const readableRotation = readableRotationText(timeline, startAnchor, anchorTime);
   const totalRotationDamage = currentCachedResult?.metrics.totalDamage ?? 0;
@@ -1946,7 +1946,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
             return { physical: total.physical + breakdown.physical, bellstrike: total.bellstrike + breakdown.bellstrike, stonesplit: total.stonesplit + breakdown.stonesplit, silkbind: total.silkbind + breakdown.silkbind, bamboocut: total.bamboocut + breakdown.bamboocut, total: total.total + breakdown.total };
           }, skillTotal), { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 } as DamageBreakdown);
           return <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
-            {!isAction && <div className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""}`}>
+            {!isAction && <div className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""} ${isManualEvent && step.event === "Move" ? "rotation-move-event-row" : ""}`}>
               {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}</button> : <span aria-hidden="true" />}
               <span className="rotation-index">{isManualEvent ? "" : row.rotationIndex}</span>
               {isManualEvent ? rotationLocked ? <span>{formatNumber(displayTime(startTime))}s</span> : <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}

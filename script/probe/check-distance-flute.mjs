@@ -38,6 +38,23 @@ try {
   assert(firstSkill?.actionStates[1]?.distance === 5, "Damage after Move must use the new distance even within an earlier cast.");
   assert(secondSkill?.distance === 5, "Skills after Move must display the new distance.");
 
+  const equalTimestampTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Equal timestamp event probe",
+      steps: [
+        { type: "skill", skill: "Probe" },
+        { type: "skill", skill: "Probe" },
+        { type: "event", event: "Move", startTime: 2 + 5e-10, distance: 7 },
+      ],
+    },
+    skills: { Probe: { name: "Probe", castTime: 2, action: [{ type: "damage", time: 0 }], modifier: [], tags: [] } },
+    eventDefinitions: { Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], modifier: [], tags: ["Event"] } },
+    dots: {}, effectDefinitions: {}, innerWayConditions: [], innerWayRules: [], setupEffects: [], weapons: [],
+  });
+  const equalTimestampSkill = equalTimestampTimeline.find((row) => row.id === "rotation-1");
+  assert(equalTimestampSkill?.distance === 7, "An appended Move event must resolve before a skill at the same displayed timestamp despite floating-point noise.");
+  assert(equalTimestampSkill?.actionStates[0]?.distance === 7, "An appended Move event must resolve before a damage action at the same displayed timestamp despite floating-point noise.");
+
   const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
   const enemy = { name: "Probe", level: 96, defense: 0, physicalResistance: 0, bellstrikeResistance: 0, stonesplitResistance: 0, silkbindResistance: 0, bamboocutResistance: 0, judgementResistance: 0 };
   const baseContext = { stats, attunement: {}, skillTags: [], weapons: [], buffs: ["Flute"], enemy, derivedStats: calculateDerivedStats(stats, 0), effects: [] };

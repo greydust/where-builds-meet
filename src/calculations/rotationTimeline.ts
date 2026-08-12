@@ -61,6 +61,13 @@ export type TimelineBuildInput = {
   weapons: WeaponId[];
 };
 
+export const TIMELINE_TIME_EPSILON = 1e-4;
+
+export function compareTimelineTime(left: number, right: number): number {
+  const difference = left - right;
+  return Math.abs(difference) <= TIMELINE_TIME_EPSILON ? 0 : difference;
+}
+
 export function mergeEffectDefinition(definition: EffectDefinition, modify: EditableObject): EffectDefinition {
   const appendedEffects = Array.isArray(modify.effect)
     ? [...(Array.isArray(definition.effect) ? definition.effect : []), ...modify.effect]
@@ -114,7 +121,7 @@ function consumeTrackedEffect(effects: TrackedEffect[], name: string, stack: num
   });
 }
 
-export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
+function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime?: number): TimelineRow[] {
   type TimelineEvent = { time: number; sortOrder: number[]; kind: "start" | "action"; row: TimelineRow; actionIndex?: number };
   const compareSortOrder = (left: number[], right: number[]) => {
     const sharedLength = Math.min(left.length, right.length);
@@ -145,16 +152,20 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
   for (const [rowIndex, step] of rotation.steps.entries()) {
     const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
     const castTime = step.type === "skill" && typeof skill?.castTime === "number" ? skill.castTime : 0;
-    const startTime = step.type === "event" ? step.startTime + (rotation.eventTimeReference === "battleStart" ? initialAnchorTime : 0) : elapsed;
+    const startTime = step.type === "event" ? step.startTime + (rotation.eventTimeReference === "battleStart" ? resolvedAnchorTime ?? initialAnchorTime : 0) : elapsed;
     const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({
       ...action,
       ...(step.type === "event" && step.event === "Controlled" && action.type === "apply" ? { duration: step.duration ?? skill?.castTime ?? 3 } : {}),
       ...(step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {}),
     })) : [];
-    const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowIndex * 1000, step, startTime, distance: 1, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
+    // Manual events resolve before every skill/derived row at an equal timestamp,
+    // regardless of where the event is stored in the rotation step array.
+    const rowOrder = step.type === "event" ? -((rotation.steps.length - rowIndex) * 1000) : rowIndex * 1000;
+    const sortPrefix = step.type === "event" ? [-1, rowIndex] : [0, rowIndex];
+    const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowOrder, step, startTime, distance: 1, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
     rows.push(row);
-    events.push({ time: startTime, sortOrder: [rowIndex, 0], kind: "start", row });
-    actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [rowIndex, 1, actionIndex], kind: "action", row, actionIndex }));
+    events.push({ time: startTime, sortOrder: [...sortPrefix, 0], kind: "start", row });
+    actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [...sortPrefix, 1, actionIndex], kind: "action", row, actionIndex }));
     if (step.type === "skill") elapsed += castTime;
   }
 
@@ -212,14 +223,6 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     activeDot.sourceRowId = sourceRowId;
     scheduleDotTicks(name, activeDot, eventTime, causalSortOrder, sourceOrder);
   };
-  const shiftFightRelativeEvents = (shift: number) => {
-    if (!shift || rotation.eventTimeReference !== "battleStart") return;
-    rows.forEach((row) => {
-      if (row.kind !== "rotation" || row.step.type !== "event") return;
-      row.startTime += shift;
-      events.forEach((queued) => { if (queued.row === row) queued.time += shift; });
-    });
-  };
   let processedEvents = 0;
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
     const modifier = row.modifierEffects.reduce((total, effect) => total + (typeof effect.castTimeModifier === "number" ? effect.castTimeModifier : 0), 0);
@@ -232,7 +235,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
   };
 
   while (events.length && processedEvents < 2000) {
-    events.sort((left, right) => left.time - right.time || compareSortOrder(left.sortOrder, right.sortOrder));
+    events.sort((left, right) => compareTimelineTime(left.time, right.time) || compareSortOrder(left.sortOrder, right.sortOrder));
     const event = events.shift()!;
     processedEvents += 1;
     buffs = prune(buffs, event.time);
@@ -249,7 +252,6 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
           row.startTime -= skippedCastTime;
           events.forEach((queued) => { if (queued.row === row) queued.time -= skippedCastTime; });
         });
-        if ((event.row.rotationIndex ?? Number.POSITIVE_INFINITY) < startStepIndex) shiftFightRelativeEvents(-skippedCastTime);
         continue;
       }
       if (event.row.kind === "rotation" && event.row.step.type === "skill" && typeof event.row.skill?.cooldown === "number") cooldowns[`skill:${skillId}`] = event.time + event.row.skill.cooldown;
@@ -259,9 +261,6 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       const modifiers = Array.isArray(event.row.skill?.modifier) ? event.row.skill.modifier as EditableObject[] : [];
       event.row.modifierEffects = modifiers.filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons)).map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? item.effect as EditableObject : {});
       const previousCastTime = event.row.effectiveCastTime;
-      const previousAnchorActionTime = event.row.rotationIndex === startStepIndex && rotation.start?.action !== undefined
-        ? Number(event.row.actions[rotation.start.action]?.time ?? 0)
-        : 0;
       const adjustedCastTime = applyCastTimingModifiers(event.row, typeof event.row.skill?.castTime === "number" ? event.row.skill.castTime : 0);
       if (event.row.kind === "rotation" && event.row.step.type === "skill") {
         const shift = adjustedCastTime - previousCastTime;
@@ -270,12 +269,6 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
           row.startTime += shift;
           events.forEach((queued) => { if (queued.row === row) queued.time += shift; });
         });
-        const anchorShift = (event.row.rotationIndex ?? Number.POSITIVE_INFINITY) < startStepIndex
-          ? shift
-          : event.row.rotationIndex === startStepIndex && rotation.start?.action !== undefined
-            ? Number(event.row.actions[rotation.start.action]?.time ?? 0) - previousAnchorActionTime
-            : 0;
-        shiftFightRelativeEvents(anchorShift);
       }
       continue;
     }
@@ -384,5 +377,22 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     }
     if (typeof action.cooldown === "number") cooldowns[actionCooldownKey] = event.time + action.cooldown;
   }
-  return rows.sort((left, right) => left.startTime - right.startTime || (left.kind === "rotation" ? -1 : right.kind === "rotation" ? 1 : 0));
+  return rows.sort((left, right) => compareTimelineTime(left.startTime, right.startTime) || left.order - right.order || (left.kind === "rotation" ? -1 : right.kind === "rotation" ? 1 : 0));
+}
+
+export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
+  if (input.rotation.eventTimeReference !== "battleStart") return buildRotationTimelinePass(input);
+  let anchorTime: number | undefined;
+  let rows: TimelineRow[] = [];
+  for (let pass = 0; pass < 8; pass += 1) {
+    rows = buildRotationTimelinePass(input, anchorTime);
+    const anchorRow = rows.find((row) => row.id === `rotation-${input.rotation.start?.step ?? 0}`);
+    const actionIndex = input.rotation.start?.action;
+    const nextAnchorTime = anchorRow
+      ? anchorRow.startTime + (actionIndex === undefined ? 0 : Number(anchorRow.actions[actionIndex]?.time ?? 0))
+      : 0;
+    if (anchorTime !== undefined && compareTimelineTime(nextAnchorTime, anchorTime) === 0) return rows;
+    anchorTime = nextAnchorTime;
+  }
+  return buildRotationTimelinePass(input, anchorTime);
 }

@@ -55,7 +55,8 @@ try {
   assert(Math.abs(exhausted.startTime - result.anchorTime - 2) < 1e-9, "Exhausted must remain two seconds after the dynamically shifted fight start.");
   assert(Math.abs(battleEnd.startTime - result.anchorTime - 2.5) < 1e-9, "Battle End must remain 2.5 seconds after the dynamically shifted fight start.");
   assert(Math.abs(result.duration - 2.5) < 1e-9, `Battle End must cap duration at 2.5 seconds, received ${result.duration}.`);
-  assert(Object.keys(result.actionBreakdowns).length === 3, `Expected three damage actions through Battle End, received ${Object.keys(result.actionBreakdowns).length}.`);
+  assert(Object.keys(result.actionBreakdowns).length === 2, `Expected two damage actions before Battle End, received ${Object.keys(result.actionBreakdowns).length}.`);
+  assert(!result.actionBreakdowns["rotation-1:2"], "Damage at the same timestamp as Battle End must not be calculated.");
   assert(!result.actionBreakdowns["rotation-4:0"], "Damage after Battle End must not be calculated.");
   const dummyRotationPaths = [
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
