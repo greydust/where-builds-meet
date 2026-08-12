@@ -105,7 +105,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
     ...customPercentiles.map((percentile) => ({ label: `P${percentile}`, percentile, result: selectSimulationPercentile(summary.runs, percentile / 100) })),
   ].sort((left, right) => right.percentile - left.percentile) : [];
   return <section className="panel simulation-panel">
-    <div className="panel-heading"><div><h2>Simulation {outdated && <span className="simulation-outdated">Outdated</span>}</h2>{summary && <p>Rotation: {simulatedRotationName} · Build: {simulatedBuildName} · {summary.runCount.toLocaleString()} runs · {formatNumber(summary.duration)}s</p>}</div></div>
+    {summary && <div className="panel-heading"><div><p>Rotation: {simulatedRotationName} · Build: {simulatedBuildName} · {summary.runCount.toLocaleString()} runs · {formatNumber(summary.duration)}s {outdated && <span className="simulation-outdated">Outdated</span>}</p></div></div>}
     <div className="simulation-controls">
       <label className="editor-field">Simulation count<input type="number" min="1" step="1" value={count} disabled={running} onChange={(event) => setCount(event.target.value)} /></label>
       <button className={`button ${running ? "button-secondary" : "button-primary"}`} type="button" disabled={!bundle && !running} onClick={simulate}>{running ? "Cancel" : "Simulate"}</button>
