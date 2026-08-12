@@ -10,7 +10,17 @@
     "description": "Buff damage by the distance to the target.",
     "duration": 12.5,
     "maxStack": 1,
-    "effect": []
+    "effect": [
+      {
+        "effect": {
+          "dmgBonus": {
+            "function": "by",
+            "param1": "distance",
+            "param2": [0.02, 0.03, 0.04, 0.05, 0.08, 0.11, 0.14, 0.17, 0.2]
+          }
+        }
+      }
+    ]
   },
   "Mystery": {
     "name": "Mystery",

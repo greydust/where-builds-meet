@@ -125,6 +125,11 @@ Category 1 currently contains:
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
 
+Flute supplies `dmgBonus` from the damage action's distance snapshot: 2%, 3%,
+4%, 5%, 8%, 11%, 14%, 17%, and 20% at 1m through 9m respectively. Distances
+beyond 9m retain the 20% value. A Move event changes distance for subsequent
+timeline actions; the initial distance is 1m.
+
 The selected Divinecraft contributes its `hpDMGBonus` through this category.
 Divinecraft `qiDMGBonus` and healing-triggered Vitality gain are retained in
 `data/divinecraft.json` as future-facing data, but neither mechanic is currently

@@ -1,6 +1,7 @@
 {
   "Cleftpeak": {
     "name": "Cleftpeak",
+    "tags": ["StonesplitStrength"],
     "options": {
       "0": {
         "name": "0",
@@ -38,6 +39,7 @@
   },
   "RainWhisper": {
     "name": "Rain Whisper",
+    "tags": ["StonesplitStrength"],
     "options": {
       "0": {
         "name": "0",

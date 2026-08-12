@@ -112,7 +112,8 @@ export const attunementData = attunementJson as unknown as Record<string, Attune
 const statPriorityData = statPriorityJson as { character: Record<string, number>; attunement: Record<string, number> };
 export const relayedAffixMultiplier = 0.94;
 export function maxGearRoll(key: string, category: "affix" | "attunement", relayed = false) {
-  const value = (category === "affix" ? statPriorityData.character : statPriorityData.attunement)[key];
+  const priorityKey = category === "attunement" && attunementData[key]?.tags.includes("Armor") ? "armor" : key;
+  const value = (category === "affix" ? statPriorityData.character : statPriorityData.attunement)[priorityKey];
   if (typeof value !== "number") return undefined;
   return value * (category === "affix" && relayed ? relayedAffixMultiplier : 1);
 }

@@ -39,6 +39,7 @@ export type DamageContext = {
   enemy: EnemyProfile;
   derivedStats: DerivedStats;
   effects: Record<string, unknown>[];
+  distance?: number;
   isDot?: boolean;
 };
 
@@ -65,8 +66,17 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
   const derivedStats = calculatedStats?.derivedStats ?? baseDerivedStats;
   const effectValue = (value: unknown) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
-    if (!value || typeof value !== "object" || Array.isArray(value) || !("formula" in value)) return 0;
-    const formula = (value as { formula?: unknown }).formula;
+    if (!value || typeof value !== "object" || Array.isArray(value)) return 0;
+    const objectValue = value as Record<string, unknown>;
+    if (objectValue.function === "by" && typeof objectValue.param1 === "string" && Array.isArray(objectValue.param2)) {
+      const values = objectValue.param2.filter((item): item is number => typeof item === "number" && Number.isFinite(item));
+      if (values.length === 0) return 0;
+      if (objectValue.param1 !== "distance") return 0;
+      const parameter = context.distance ?? 1;
+      const index = Math.min(values.length - 1, Math.max(0, Math.floor(parameter) - 1));
+      return values[index];
+    }
+    const formula = objectValue.formula;
     return formula && typeof formula === "object" && !Array.isArray(formula)
       ? resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0
       : 0;
@@ -85,18 +95,18 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
     [derivedStats.effectiveMinBamboocut, derivedStats.effectiveMaxBamboocut, stats.bamboocutPenetration, stats.bamboocutDmgBonus, "bamboocut", enemy.bamboocutResistance],
   ] as Array<[number, number, number, number, string, number]>;
   const innerWayDmgBonus = effects.reduce((total, effect) => total
-    + (typeof effect.dmgBonus === "number" ? effect.dmgBonus : 0)
-    + (typeof effect.hpDMGBonus === "number" && (!Array.isArray(effect.hpDMGBonusWeapons) || effect.hpDMGBonusWeapons.some((weapon) => weapons.includes(weapon as WeaponId))) ? effect.hpDMGBonus : 0), 0);
+    + effectValue(effect.dmgBonus)
+    + (!Array.isArray(effect.hpDMGBonusWeapons) || effect.hpDMGBonusWeapons.some((weapon) => weapons.includes(weapon as WeaponId)) ? effectValue(effect.hpDMGBonus) : 0), 0);
   const baseDmgBonus = effects.reduce((total, effect) => total
-    + (typeof effect.baseDMGBonus === "number" ? effect.baseDMGBonus : 0), 0);
+    + effectValue(effect.baseDMGBonus), 0);
   const globalDmgBonus = effects.reduce((total, effect) => total
-    + (typeof effect.globalDmgBonus === "number" ? effect.globalDmgBonus : 0), 0);
+    + effectValue(effect.globalDmgBonus), 0);
   const effectPhysicalPenetration = effects.reduce((total, effect) => total
     + effectValue(effect.physicalPenetration), 0);
   const effectStonesplitPenetration = effects.reduce((total, effect) => total
     + effectValue(effect.stonesplitPenetration), 0);
   const effectCritDmgBonus = effects.reduce((total, effect) => total
-    + (typeof effect.critDmgBonus === "number" ? effect.critDmgBonus : 0), 0);
+    + effectValue(effect.critDmgBonus), 0);
   const attunementStat = (target: string) => Object.entries(attunement).reduce((total, [key, value]) => {
     const definition = attunementDefinitions[key];
     const matchTags = definition?.effect?.tags;

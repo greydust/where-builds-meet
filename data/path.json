@@ -1,0 +1,14 @@
+{
+  "mixed": {
+    "name": "Mixed"
+  },
+  "stonesplitStrength": {
+    "name": "Stonesplit - Strength",
+    "icon": "strength.png",
+    "tag": "StonesplitStrength",
+    "lockedWeapons": [
+      "snowparting",
+      "phalanxbane"
+    ]
+  }
+}

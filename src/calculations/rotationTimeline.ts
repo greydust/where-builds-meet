@@ -14,7 +14,8 @@ export type SkillRecord = {
   tags?: string[];
 };
 export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolean; condition?: string }
-  | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number };
+  | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+  | { type: "event"; event: "Move"; startTime: number; distance: number };
 export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };
 export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number };
 export type InnerWayEffectRule = { requirement?: unknown; effect: EditableObject; trigger?: EditableObject; target?: string; modify?: EditableObject; source: string; tier: number };
@@ -27,13 +28,14 @@ export type TimelineRow = {
   order: number;
   step: RotationStep;
   startTime: number;
+  distance: number;
   effectiveCastTime: number;
   skill?: SkillRecord;
   actions: EditableObject[];
   buffs: TrackedEffect[];
   debuffs: TrackedEffect[];
   modifierEffects: EditableObject[];
-  actionStates: Record<number, { buffs: TrackedEffect[]; debuffs: TrackedEffect[] }>;
+  actionStates: Record<number, { buffs: TrackedEffect[]; debuffs: TrackedEffect[]; distance: number }>;
   skipped?: boolean;
 };
 
@@ -144,8 +146,12 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
     const castTime = step.type === "skill" && typeof skill?.castTime === "number" ? skill.castTime : 0;
     const startTime = step.type === "event" ? step.startTime + (rotation.eventTimeReference === "battleStart" ? initialAnchorTime : 0) : elapsed;
-    const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({ ...action, ...(step.type === "event" && step.event === "Controlled" && action.type === "apply" ? { duration: step.duration ?? skill?.castTime ?? 3 } : {}) })) : [];
-    const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowIndex * 1000, step, startTime, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
+    const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({
+      ...action,
+      ...(step.type === "event" && step.event === "Controlled" && action.type === "apply" ? { duration: step.duration ?? skill?.castTime ?? 3 } : {}),
+      ...(step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {}),
+    })) : [];
+    const row: TimelineRow = { id: `rotation-${rowIndex}`, kind: "rotation", rotationIndex: rowIndex, order: rowIndex * 1000, step, startTime, distance: 1, effectiveCastTime: castTime, skill, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
     rows.push(row);
     events.push({ time: startTime, sortOrder: [rowIndex, 0], kind: "start", row });
     actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [rowIndex, 1, actionIndex], kind: "action", row, actionIndex }));
@@ -154,6 +160,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
 
   let buffs: TrackedEffect[] = [];
   let debuffs: TrackedEffect[] = [];
+  let distance = 1;
   const cooldowns: Record<string, number> = {};
   const prune = (effects: TrackedEffect[], time: number) => effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time);
   const getModifiedEffectDefinition = (name: string, currentBuffs: TrackedEffect[], currentDebuffs: TrackedEffect[], skillTags: string[]) => {
@@ -190,7 +197,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...causalSortOrder, derivedId];
       const actions = baseActions.map((action) => ({ ...action, time: 0 }));
-      const row: TimelineRow = { id: `dot-${derivedId}`, kind: "dot", sourceRowId: activeDot.sourceRowId, order: sourceOrder + 10 + tickIndex / 1000, step: { type: "skill", skill: name }, startTime: tickTime, effectiveCastTime: 0, skill: activeDot.dot, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
+      const row: TimelineRow = { id: `dot-${derivedId}`, kind: "dot", sourceRowId: activeDot.sourceRowId, order: sourceOrder + 10 + tickIndex / 1000, step: { type: "skill", skill: name }, startTime: tickTime, distance, effectiveCastTime: 0, skill: activeDot.dot, actions, buffs: [], debuffs: [], modifierEffects: [], actionStates: {} };
       activeDot.rows.push(row);
       rows.push(row);
       events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
@@ -248,6 +255,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       if (event.row.kind === "rotation" && event.row.step.type === "skill" && typeof event.row.skill?.cooldown === "number") cooldowns[`skill:${skillId}`] = event.time + event.row.skill.cooldown;
       event.row.buffs = [...buffs];
       event.row.debuffs = [...debuffs];
+      event.row.distance = distance;
       const modifiers = Array.isArray(event.row.skill?.modifier) ? event.row.skill.modifier as EditableObject[] : [];
       event.row.modifierEffects = modifiers.filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons)).map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? item.effect as EditableObject : {});
       const previousCastTime = event.row.effectiveCastTime;
@@ -274,7 +282,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
 
     const action = event.row.actions[event.actionIndex ?? -1];
     if (!action) continue;
-    event.row.actionStates[event.actionIndex ?? -1] = { buffs: [...buffs], debuffs: [...debuffs] };
+    event.row.actionStates[event.actionIndex ?? -1] = { buffs: [...buffs], debuffs: [...debuffs], distance };
     const skillTags = event.row.skill?.tags ?? [];
     if (!requirementsPass(action.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)) continue;
     const skillKey = event.row.step.type === "skill" ? event.row.step.skill ?? "" : event.row.step.event;
@@ -282,6 +290,10 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     if (typeof action.cooldown === "number" && (cooldowns[actionCooldownKey] ?? 0) > event.time) continue;
     if (action.type === "apply" && typeof action.value === "string" && (cooldowns[action.value] ?? 0) > event.time) continue;
     if (action.type === "clearCD" && typeof action.value === "string") { cooldowns[action.value] = event.time; continue; }
+    if (action.type === "move" && typeof action.distance === "number" && Number.isFinite(action.distance)) {
+      distance = Math.max(1, Math.floor(action.distance));
+      continue;
+    }
     if (action.type === "consume") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
       const valueObject = action.value && typeof action.value === "object" && !Array.isArray(action.value) ? action.value as EditableObject : undefined;
@@ -299,7 +311,7 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...event.sortOrder, derivedId];
       const rowOrder = event.row.order + 10 + (event.actionIndex ?? 0) + 0.5;
-      const row: TimelineRow = { id: `trigger-${derivedId}`, kind: "trigger", sourceRowId, order: rowOrder, step: { type: "skill", skill: skillId }, startTime: event.time, effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0, skill: triggeredSkill, actions: actions.map((item) => ({ ...item })), buffs: [...buffs], debuffs: [...debuffs], modifierEffects: [], actionStates: {} };
+      const row: TimelineRow = { id: `trigger-${derivedId}`, kind: "trigger", sourceRowId, order: rowOrder, step: { type: "skill", skill: skillId }, startTime: event.time, distance, effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0, skill: triggeredSkill, actions: actions.map((item) => ({ ...item })), buffs: [...buffs], debuffs: [...debuffs], modifierEffects: [], actionStates: {} };
       rows.push(row);
       events.push({ time: event.time, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
       actions.forEach((item, index) => events.push({ time: event.time + (typeof item.time === "number" ? item.time : 0), sortOrder: [...derivedSortOrder, 1, index], kind: "action", row, actionIndex: index }));

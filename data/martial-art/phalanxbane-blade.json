@@ -1,5 +1,6 @@
 {
   "name": "Phalanxbane Blade",
+  "weapon": "MoBlade",
   "talent": [
     {
       "name": "Critical Rate Up",

@@ -340,11 +340,13 @@ the modification are checked before it is applied.
 
 ## Inner Ways
 
-Inner Way files contain a display `name` and an `effect` map keyed by tier ID:
+Inner Way files contain a display `name`, path eligibility `tags`, and an
+`effect` map keyed by tier ID:
 
 ```json
 {
   "name": "Morale Chant",
+  "tags": ["StonesplitStrength"],
   "effect": {
     "MoraleChantT0": {},
     "MoraleChantT1": {},
@@ -356,6 +358,14 @@ Inner Way files contain a display `name` and an `effect` map keyed by tier ID:
   }
 }
 ```
+
+When a selected path declares `tag`, the Inner Way selector and
+calculation pipeline include only definitions whose `tags` contain that value.
+Mixed has no required tag and therefore exposes every imported Inner Way.
+
+Gear sets use the same path-tag convention in `data/gear-set.json`. Only
+matching definitions are displayed and applied outside Mixed; stored tiers for
+hidden definitions are preserved.
 
 Selecting tier `Tn` activates every tier condition and rule from T0 through Tn.
 Tier entries may contain:
@@ -459,6 +469,7 @@ type RotationRecord = {
   steps: Array<
     | { type: "skill"; skill: string }
     | { type: "event"; event: "Exhausted" | "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+    | { type: "event"; event: "Move"; startTime: number; distance: number }
   >;
   start?: { step: number; action?: number };
 };
@@ -471,6 +482,30 @@ move the events with the anchor. `Exhausted` uses its definition's 10-second
 duration. `Controlled` defaults to three seconds and the rotation event's
 editable `duration` overrides it. `BattleEnd` has no action and excludes damage
 ordered after it; it also fixes the rotation duration at that timestamp.
+The Rotation Editor skill selector offers skills from the currently selected
+weapon categories plus Mystic and General. Triggered skills remain excluded.
+An existing step from another martial art is preserved and marked unavailable
+until the user replaces it or restores a compatible weapon selection.
+Distance starts at 1m. A `Move` event changes it to its integer `distance` from
+that event onward. Timeline rows store cast-start distance, while every action
+stores its own distance snapshot so an event interleaved with a cast affects only
+the later actions.
+
+### Dynamic effect values
+
+An effect value can select from a data array using the current timeline state:
+
+```json
+{
+  "function": "by",
+  "param1": "distance",
+  "param2": [0.02, 0.03, 0.04]
+}
+```
+
+`by` treats distance as a one-based integer index. Values below the first index
+use the first entry, and distances beyond the array use the last entry. Flute
+uses this form for its distance-based `dmgBonus`.
 
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
@@ -539,3 +574,17 @@ future implementation and intentionally ignored by the calculation engine.
 
 Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
 for data completeness; healing is not currently simulated.
+
+## Skill Editor categories
+
+The Skill Editor exposes one martial-art category for each unique currently
+selected weapon, followed by the always-visible Mystic, General, Buff, Debuff,
+and DOT categories. Skill and DOT records use the structured action
+and modifier editors. Buff and debuff records expose their descriptive and
+timing fields plus structured effect-rule editors. Each effect rule supports
+requirements, direct or wrapped effect fields, numeric and boolean values, and
+parameter-based object values such as Flute distance scaling. Cumulative
+`stackEffects` remain grouped by stack tier and each tier contains the same
+structured effect-rule editor. Editor overrides last for the browser session
+and do not currently replace the default combat maps used by rotation
+calculations.

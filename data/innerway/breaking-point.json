@@ -1,5 +1,6 @@
 {
   "name": "Breaking Point",
+  "tags": ["StonesplitStrength"],
   "effect": {
     "BreakingPointT0": {
       "trigger": [

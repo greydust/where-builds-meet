@@ -84,6 +84,11 @@ current rolls. Attunement values remain capped at 100% in either state. Save
 also applies these limits defensively so non-UI imports cannot persist an
 over-cap roll.
 
+Weapon attunement caps use their definition IDs in the `attunement` priority
+map. Every attunement definition tagged `Armor` instead shares the generic
+`attunement.armor` cap, so new path-specific armor attunements do not require a
+new priority key.
+
 ## Image import
 
 The add-gear editor can populate a draft from a selected, dropped, or

@@ -1,5 +1,6 @@
 {
   "name": "Frost-Clad Night",
+  "tags": ["StonesplitStrength"],
   "effect": {
     "FrostCladNightT0": {},
     "FrostCladNightT1": {},

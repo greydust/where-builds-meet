@@ -43,12 +43,14 @@ type GearDraft = {
 
 type BuildTabProps = {
   weapons: [WeaponId, WeaponId];
+  pathTag?: string;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
 };
 
 type BuildManagementProps = {
   weapons: [WeaponId, WeaponId];
+  pathTag?: string;
   inventory: GearInventory;
   setup: BuildSetup;
   locked: boolean;
@@ -179,7 +181,7 @@ function itemToDraft(item: GearItem): GearDraft {
   };
 }
 
-export default function BuildTab({ weapons, buildState, onBuildStateChange }: BuildTabProps) {
+export default function BuildTab({ weapons, pathTag, buildState, onBuildStateChange }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
   const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
@@ -294,15 +296,15 @@ export default function BuildTab({ weapons, buildState, onBuildStateChange }: Bu
       </div>
     </aside>
     <div className="build-editor-content">
-      <div className="build-detail-heading"><div><span className="detail-kicker">Build</span>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
+      <div className="build-detail-heading"><div>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
         <button className="button button-small detail-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}</button>
       </div>
-      <BuildManagement key={editingEntry.id} weapons={weapons} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
+      <BuildManagement key={editingEntry.id} weapons={weapons} pathTag={pathTag} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>
   </div></section>;
 }
 
-function BuildSetupPanel({ setup, locked, onChange }: { setup: BuildSetup; locked: boolean; onChange: (setup: BuildSetup) => void }) {
+function BuildSetupPanel({ setup, pathTag, locked, onChange }: { setup: BuildSetup; pathTag?: string; locked: boolean; onChange: (setup: BuildSetup) => void }) {
   function updateGearSet(setName: keyof BuildSetup["gearSets"], tier: 0 | 2 | 4) {
     const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
     onChange({ ...setup, gearSets: { ...setup.gearSets, [setName]: tier, [otherSet]: Math.min(setup.gearSets[otherSet], 4 - tier) as 0 | 2 | 4 } });
@@ -313,7 +315,7 @@ function BuildSetupPanel({ setup, locked, onChange }: { setup: BuildSetup; locke
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
       <div className="gear-set-list">
-        {Object.entries(gearSetDefinitions).map(([setName, definition]) => {
+        {Object.entries(gearSetDefinitions).filter(([, definition]) => !pathTag || definition.tags.includes(pathTag)).map(([setName, definition]) => {
           const selectedTier = setup.gearSets[setName as keyof BuildSetup["gearSets"]];
           return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">
             {[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} disabled={locked} title={lockedTitle} onClick={() => updateGearSet(setName as keyof BuildSetup["gearSets"], tier as 0 | 2 | 4)}>{tier === 0 ? "0 piece" : `${tier} pieces`}</button>)}
@@ -336,7 +338,7 @@ function BuildSetupPanel({ setup, locked, onChange }: { setup: BuildSetup; locke
   </div>;
 }
 
-function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
+function BuildManagement({ weapons, pathTag, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon");
   const [editing, setEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -467,7 +469,7 @@ function BuildManagement({ weapons, inventory, setup, locked, onInventoryChange,
           </button>;
         })}
       </div>
-    </section><BuildSetupPanel setup={setup} locked={locked} onChange={onSetupChange} /></div>
+    </section><BuildSetupPanel setup={setup} pathTag={pathTag} locked={locked} onChange={onSetupChange} /></div>
 
     {!locked && <section className="panel build-inventory-panel">
       <div className="panel-heading"><div><h2>{gearData.slots[selectedSlot]}</h2><p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p></div></div>

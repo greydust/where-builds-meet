@@ -242,7 +242,7 @@ function timelineDamageEntries(
     const actionOrder = row.order + 10 + actionIndex;
     if (actionTime < anchorTime || (actionTime === anchorTime && actionOrder < anchorOrder)) return [];
     if (battleEnd && (actionTime > battleEnd.time || actionTime === battleEnd.time && actionOrder >= battleEnd.order)) return [];
-    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs };
+    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
     const skillTags = row.skill?.tags ?? [];
@@ -270,6 +270,7 @@ function timelineDamageEntries(
         enemy: state.enemy,
         derivedStats,
         effects: [...setupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
+        distance: actionState.distance,
         isDot: row.kind === "dot",
       },
     }];

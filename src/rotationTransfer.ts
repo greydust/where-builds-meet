@@ -31,6 +31,14 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
       ...(typeof step.duration === "number" && Number.isFinite(step.duration) ? { duration: Math.max(0, step.duration) } : {}),
     };
   }
+  if (step.type === "event" && step.event === "Move" && typeof step.startTime === "number" && Number.isFinite(step.startTime) && typeof step.distance === "number" && Number.isFinite(step.distance)) {
+    return {
+      type: "event",
+      event: "Move",
+      startTime: step.startTime,
+      distance: Math.max(1, Math.floor(step.distance)),
+    };
+  }
   return undefined;
 }
 

@@ -50,6 +50,7 @@ data/
   debuff/         target effect and encounter-state definitions
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
+  path.json       selectable combat paths, icons, shared eligibility tags, and optional weapon locks
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and allowed attunement IDs
@@ -91,6 +92,7 @@ src/
 
 public/
   divinecraft/                   static selector images copied into the build
+  paths/                         static combat-path icons copied into the build
 ```
 
 ## Application and UI state
@@ -100,6 +102,7 @@ public/
 - final-value character stat overrides
 - final-value attunement overrides
 - two equipped weapons
+- selected combat path and its optional weapon lock
 - build list, shared gear inventory, and active build ID
 - selected enemy
 - globally resolved stats and derived stats
@@ -145,6 +148,7 @@ tab session.
 | Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
 | Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
+| Combat path | `sessionStorage`, `wwm-path-session-v1` |
 | Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
 | Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
 | Build setup overrides | `sessionStorage`, `wwm-build-setup-overrides-v1` |
@@ -225,8 +229,19 @@ base. Modified stats therefore remain responsive in delta calculations.
 Gear attunements are the calculated attunement baseline and remain keyed by
 definition ID. Damage resolution maps weapon definitions to penetration and
 maps tag-matching armor definitions to the standalone `attunementDMGBonus`
-multiplier. An attunement override replaces its final displayed baseline value,
-but priority variants still add their tested amount to that value.
+multiplier. Every Armor-tagged definition shares the `attunement.armor` maximum
+roll from `data/stat-priority.json`; weapon attunements retain definition-ID
+priority values. A non-Mixed path displays only attunement fields carrying its
+path tag plus the shared Weapon-tagged penetration fields, while hidden values
+and overrides remain intact in the calculation. Attunement priority variants
+use this same visible-field filter.
+An attunement override replaces its final displayed baseline value, but priority
+variants still add their tested amount to that value.
+
+Gear-set definitions carry path eligibility `tags`. Mixed exposes and applies
+all gear sets. A tagged path shows only matching gear sets in both Main and
+Build, and only matching definitions contribute setup effects. Hidden stored
+tiers are retained so switching back restores the prior selection.
 
 `effectiveStats.ts` owns minimum/maximum normalization, Void/Formless folding,
 Judgement Resistance, effective-rate caps, and final outcome rates. Damage code
@@ -254,11 +269,14 @@ The timeline owns mutable simulation state while it is being built:
 
 - active player buffs
 - active target debuffs
+- current target distance, initially 1m
 - stacks, maximum stacks, and expirations
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
-At cast start, modifiers are selected and cast/action times are adjusted. At
+At cast start, modifiers are selected and cast/action times are adjusted. Casts
+record their start distance, and each action records its own distance snapshot.
+At
 each action, expired effects are pruned, requirements are checked, and the state
 snapshot is recorded before the action mutates state. Damage-triggered setup and
 Inner Way rules then run, followed by the action's trigger, DOT, apply, consume,
@@ -366,6 +384,10 @@ timeline-reusing variants share the baseline duration.
 Each priority row stores absolute DPS difference and percentage change. Character
 and attunement priorities sort by descending DPS gain. Inner Ways are removed,
 so their rows sort by the most negative DPS change first.
+Character and attunement priority variants are generated only for fields visible
+under the current weapon/path selection. In particular, Art of Heng/Mo follows
+the selected weapon families and non-Mixed attunement priority keeps the two
+shared Weapon entries plus matching path-tagged armor entries.
 
 ## Result publication
 
@@ -406,11 +428,11 @@ Rotation and build presets are loaded eagerly from their data directories; the
 remaining JSON is imported explicitly, so Vite includes it all in the generated
 static assets. The application currently recognizes:
 
-- Snowparting, Phalanxbane, Mystic, and General skill editor categories
+- Snowparting, Phalanxbane, Mystic, General, Buff, Debuff, and DOT editor categories
 - Snowparting and Phalanxbane weapon IDs
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
-- Exhausted and Controlled manual events
+- Exhausted, Controlled, Battle End, and Move manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
 - eight gear slots, relayed status, and affix/attunement options
@@ -437,8 +459,9 @@ in `effectDefinitions`. DOTs must also be present in the `dots` map. Follow
 ### Inner Way
 
 Add its JSON file, import it into `innerWayDefinitions`, and provide cumulative
-tier IDs from T0 through T6. Selection automatically activates all tiers through
-the selected tier.
+tier IDs from T0 through T6. Add path eligibility strings to its top-level
+`tags` array. Selection automatically activates all tiers through the selected
+tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
 
 ### Enemy
 
@@ -450,6 +473,12 @@ the imported map.
 Add or update the slot definition, fixed base stats, allowed affixes, and
 attunements in `data/gear.json`. See `gear-data.md` for the persisted item shape,
 percentage conversion, and weapon-slot mapping.
+
+### Gear set
+
+Add the definition to `data/gear-set.json` with a display `name`, path
+eligibility `tags`, and its tier `options`. The Main and Build selectors and the
+setup-effect pipeline all use the selected path's shared tag.
 
 ### Character system stats
 
@@ -463,8 +492,12 @@ under its own ordered collection such as `qingheOddityStats` or
 
 ### Weapon or primary path
 
-This currently requires code changes to `WeaponId`, settings validation, martial
-art imports, attunement matching, and `mainAttribute()` in `damage.ts`.
+Add the path metadata to `data/path.json`. A path can declare a shared `tag`
+and a fixed `[left, right]` `lockedWeapons` pair; paths without a weapon lock
+allow either martial art in either slot. New weapons still require changes to
+`WeaponId`, settings validation, martial-art imports, attunement matching, and
+`mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares the
+weapon-family tag used by its skills and Art-of stat (`HengBlade` or `MoBlade`).
 
 ### Manual event
 
@@ -480,9 +513,11 @@ from data.
 - `App.tsx` is still a large composition and UI module. The calculation engine
   is pure and worker-safe, but bundle construction remains inside
   `RotationEditorTab` rather than a top-level application service.
-- Skill Editor overrides are saved and displayed for the session, but the
-  rotation simulator currently builds its skill map from defaults, so overrides
-  do not affect DPS yet.
+- Skill Editor skill, buff, debuff, and DOT overrides are saved and displayed
+  for the session. Buff/debuff effect arrays and cumulative stack tiers use the
+  same structured rule controls as skill actions and modifiers, including
+  requirements and object-valued effects. The rotation simulator currently
+  builds its combat maps from defaults, so overrides do not affect DPS yet.
 - Manual event definitions and supported weapons are hard-coded.
 - The primary attribute resolver only knows the current Stonesplit weapons.
 - DMG Bonus Category 2 is specified but not implemented.

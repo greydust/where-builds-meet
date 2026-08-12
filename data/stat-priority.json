@@ -26,10 +26,6 @@
   "attunement": {
     "physicalPenetration": 11,
     "formlessPenetration": 13,
-    "phalanxbaneChargedBoost": 0.06,
-    "phalanxbaneMartialBoost": 0.06,
-    "snowpartingChargedBoost": 0.06,
-    "snowpartingVariedComboBoost": 0.06,
-    "snowpartingMartialBoost": 0.06
+    "armor": 0.06
   }
 }
