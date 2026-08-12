@@ -141,6 +141,28 @@ export function calculateRotationMetrics(bundle: RotationCalculationBundle, base
 function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<string, DamageBreakdown>, totalDamage: number): RotationBreakdown {
   const percentage = (damage: number) => totalDamage > 0 ? damage / totalDamage * 100 : 0;
   const skills = new Map<string, { id: string; name: string; casts: number; triggers: number; hits: number; abrasionTotal: number; normalTotal: number; criticalTotal: number; affinityTotal: number; damage: number; tags: string[] }>();
+  const castRows = timeline.filter((row) => !row.skipped && row.step.type === "skill" && row.step.skill && (row.kind === "rotation" || row.kind === "trigger" && row.triggerSource === "innerWay"));
+  const casts = new Map(castRows.map((row) => [row.id, {
+    id: row.id,
+    skillId: row.step.type === "skill" ? row.step.skill ?? "" : "",
+    name: row.skill?.name ?? (row.step.type === "skill" ? row.step.skill ?? "" : ""),
+    castTime: row.effectiveCastTime,
+    damage: 0,
+    time: row.startTime,
+    order: row.order,
+  }]));
+  const rowsById = new Map(timeline.map((row) => [row.id, row]));
+  const owningCastId = (row: TimelineRow) => {
+    if (casts.has(row.id)) return row.id;
+    let sourceId = row.sourceRowId;
+    const visited = new Set<string>();
+    while (sourceId && !visited.has(sourceId)) {
+      if (casts.has(sourceId)) return sourceId;
+      visited.add(sourceId);
+      sourceId = rowsById.get(sourceId)?.sourceRowId;
+    }
+    return undefined;
+  };
 
   timeline.forEach((row) => {
     if (row.skipped || row.step.type !== "skill" || !row.step.skill) return;
@@ -152,6 +174,9 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
       if (action.type === "damage") {
         const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
         if (!breakdown) return;
+        const castId = owningCastId(row);
+        const cast = castId ? casts.get(castId) : undefined;
+        if (cast) cast.damage += breakdown.total;
         current.hits += 1;
         current.damage += breakdown.total;
         current.abrasionTotal += breakdown.outcomeRates?.abrasion ?? 0;
@@ -188,6 +213,28 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
       percentage: percentage(skill.damage),
     }))
       .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
+    casts: [...casts.values()]
+      .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
+      .reduce<Array<{ id: string; skillId: string; name: string; casts: number; totalCastTime: number; dpsTotal: number; dpsSamples: number; damage: number }>>((groups, cast) => {
+        const existing = groups.find((group) => group.skillId === cast.skillId);
+        const group = existing ?? { id: cast.skillId, skillId: cast.skillId, name: cast.name, casts: 0, totalCastTime: 0, dpsTotal: 0, dpsSamples: 0, damage: 0 };
+        if (!existing) groups.push(group);
+        group.casts += 1;
+        group.totalCastTime += cast.castTime;
+        group.damage += cast.damage;
+        if (cast.castTime > 0) {
+          group.dpsTotal += cast.damage / cast.castTime;
+          group.dpsSamples += 1;
+        }
+        return groups;
+      }, [])
+      .map(({ totalCastTime, dpsTotal, dpsSamples, ...group }) => ({
+        ...group,
+        averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+        ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
+        percentage: percentage(group.damage),
+      }))
+      .sort((left, right) => (right.averageDps ?? Number.NEGATIVE_INFINITY) - (left.averageDps ?? Number.NEGATIVE_INFINITY) || right.damage - left.damage || left.name.localeCompare(right.name)),
     categories: [
       { id: "martialArts", name: "Martial Arts", damage: categoryTotals.martialArts, percentage: percentage(categoryTotals.martialArts) },
       { id: "mystic", name: "Mystic", damage: categoryTotals.mystic, percentage: percentage(categoryTotals.mystic) },

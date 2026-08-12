@@ -29,6 +29,7 @@ export type TimelineRow = {
   id: string;
   kind: TimelineRowKind;
   sourceRowId?: string;
+  triggerSource?: "skill" | "setup" | "innerWay";
   rotationIndex?: number;
   order: number;
   step: RotationStep;
@@ -117,13 +118,25 @@ function extendTrackedEffect(effects: TrackedEffect[], name: string, duration: n
   return effects.map((effect) => effect.name !== name || effect.expiresAt === undefined || effect.expiresAt <= time ? effect : { ...effect, expiresAt: effect.expiresAt + duration });
 }
 
-function consumeTrackedEffect(effects: TrackedEffect[], name: string, stack: number | undefined) {
+function consumeTrackedEffect(effects: TrackedEffect[], name: string, stack: number | "all" | undefined) {
+  if (stack === "all") return effects.filter((effect) => effect.name !== name);
   const amount = Math.max(1, stack ?? 1);
   return effects.flatMap((effect) => {
     if (effect.name !== name) return [effect];
     const remaining = (effect.stack ?? 1) - amount;
     return remaining > 0 ? [{ ...effect, stack: remaining }] : [];
   });
+}
+
+function resolveCastModifierEffect(effect: EditableObject, buffs: TrackedEffect[], debuffs: TrackedEffect[]) {
+  return Object.fromEntries(Object.entries(effect).map(([field, value]) => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return [field, value];
+    const dynamicValue = value as EditableObject;
+    if (dynamicValue.function !== "byStack" || typeof dynamicValue.param1 !== "string" || typeof dynamicValue.param2 !== "number") return [field, value];
+    const trackedEffects = dynamicValue.target === "target" ? debuffs : buffs;
+    const stack = trackedEffects.find((trackedEffect) => trackedEffect.name === dynamicValue.param1)?.stack ?? 0;
+    return [field, stack * dynamicValue.param2];
+  }));
 }
 
 function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime?: number): TimelineRow[] {
@@ -316,7 +329,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.debuffs = [...debuffs];
       event.row.distance = distance;
       const modifiers = Array.isArray(event.row.skill?.modifier) ? event.row.skill.modifier as EditableObject[] : [];
-      event.row.modifierEffects = modifiers.filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons)).map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? item.effect as EditableObject : {});
+      event.row.modifierEffects = modifiers
+        .filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons))
+        .map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs) : {});
       const previousCastTime = event.row.effectiveCastTime;
       const adjustedCastTime = applyCastTimingModifiers(event.row, typeof event.row.skill?.castTime === "number" ? event.row.skill.castTime : 0);
       if (event.row.kind === "rotation" && event.row.step.type === "skill") {
@@ -349,11 +364,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const valueObject = action.value && typeof action.value === "object" && !Array.isArray(action.value) ? action.value as EditableObject : undefined;
       const value = valueObject?.operator === "first" && Array.isArray(valueObject.operand) ? valueObject.operand.find((candidate) => typeof candidate === "string" && targetEffects.some((effect) => effect.name === candidate)) : action.value;
       if (typeof value === "string") {
-        const next = consumeTrackedEffect(targetEffects, value, typeof action.stack === "number" ? action.stack : undefined);
+        const next = consumeTrackedEffect(targetEffects, value, action.stack === "all" ? "all" : typeof action.stack === "number" ? action.stack : undefined);
         if (action.target === "target") debuffs = next; else buffs = next;
       }
     }
-    const enqueueTriggeredSkill = (skillId: string, sourceRowId?: string, attachedTriggerOrdinal?: number) => {
+    const enqueueTriggeredSkill = (skillId: string, sourceRowId?: string, attachedTriggerOrdinal?: number, triggerSource: "skill" | "setup" | "innerWay" = "skill") => {
       const triggeredSkill = skills[skillId];
       const key = `skill:${skillId}`;
       if (!triggeredSkill || (cooldowns[key] ?? 0) > event.time) return;
@@ -361,7 +376,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...event.sortOrder, derivedId];
       const rowOrder = event.row.order + 10 + (event.actionIndex ?? 0) + 0.5;
-      const row: TimelineRow = { id: `trigger-${derivedId}`, kind: "trigger", sourceRowId, order: rowOrder, step: { type: "skill", skill: skillId }, startTime: event.time, distance, effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0, skill: triggeredSkill, actions: actions.map((item) => ({ ...item })), buffs: [...buffs], debuffs: [...debuffs], modifierEffects: [], actionStates: {} };
+      const row: TimelineRow = { id: `trigger-${derivedId}`, kind: "trigger", sourceRowId, triggerSource, order: rowOrder, step: { type: "skill", skill: skillId }, startTime: event.time, distance, effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0, skill: triggeredSkill, actions: actions.map((item) => ({ ...item })), buffs: [...buffs], debuffs: [...debuffs], modifierEffects: [], actionStates: {} };
       rows.push(row);
       events.push({ time: event.time, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
       actions.forEach((item, index) => events.push({ time: event.time + (typeof item.time === "number" ? item.time : 0), sortOrder: [...derivedSortOrder, 1, index], kind: "action", row, actionIndex: index }));
@@ -376,9 +391,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       }
       if (typeof triggeredSkill.cooldown === "number") cooldowns[key] = event.time + triggeredSkill.cooldown;
     };
-    const applyTriggerAction = (triggerAction: EditableObject) => {
+    const applyTriggerAction = (triggerAction: EditableObject, triggerSource: "setup" | "innerWay") => {
       if (triggerAction.type === "trigger" && typeof triggerAction.value === "string") {
-        enqueueTriggeredSkill(triggerAction.value, event.row.sourceRowId ?? event.row.id);
+        enqueueTriggeredSkill(triggerAction.value, event.row.sourceRowId ?? event.row.id, undefined, triggerSource);
         return;
       }
       if (triggerAction.type !== "apply" || typeof triggerAction.value !== "string" || (cooldowns[triggerAction.value] ?? 0) > event.time) return;
@@ -396,13 +411,13 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       setupEffects.forEach((setup) => {
         const trigger = setup.trigger && typeof setup.trigger === "object" && !Array.isArray(setup.trigger) ? setup.trigger as EditableObject : undefined;
         if (trigger?.event !== "damage" || !requirementsPass(trigger.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)) return;
-        if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action)) applyTriggerAction(trigger.action as EditableObject);
+        if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action)) applyTriggerAction(trigger.action as EditableObject, "setup");
       });
       innerWayRules.filter((rule) => rule.trigger?.event === "damage" || rule.trigger?.target === "self").forEach((rule) => {
         const requirement = rule.requirement ?? rule.trigger?.requirement;
         if (!requirementsPass(requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)) return;
         const triggerActions = Array.isArray(rule.trigger?.action) ? rule.trigger.action : rule.trigger?.action && typeof rule.trigger.action === "object" ? [rule.trigger.action] : [];
-        triggerActions.filter((triggerAction): triggerAction is EditableObject => Boolean(triggerAction) && typeof triggerAction === "object" && !Array.isArray(triggerAction)).forEach(applyTriggerAction);
+        triggerActions.filter((triggerAction): triggerAction is EditableObject => Boolean(triggerAction) && typeof triggerAction === "object" && !Array.isArray(triggerAction)).forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
       });
     }
     if (action.type === "trigger" && typeof action.value === "string") {

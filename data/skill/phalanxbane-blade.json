@@ -189,7 +189,7 @@
           }
         ],
         "effect": {
-          "castTimeMultiplier": 0.81666667
+          "castTimeMultiplier": 0.83
         }
       }
     ],
@@ -207,7 +207,7 @@
   "PhalanxbaneHeavyCharged3": {
     "name": "Burning Heart 3rd Stage",
     "shortName": "Mo Charged",
-    "castTime": 3,
+    "castTime": 2.95,
     "action": [
       {
         "type": "trigger",
@@ -242,21 +242,21 @@
           }
         ],
         "value": "AnxiSoldierBurningHeart3",
-        "time": 2.3625
+        "time": 2.3125
       },
       {
         "type": "damage",
         "phyCoef": 1.7199,
         "phyBonus": 475,
         "attrBonus": 259,
-        "time": 2.575
+        "time": 2.525
       },
       {
         "type": "damage",
         "phyCoef": 4.0131,
         "phyBonus": 1110,
         "attrBonus": 604,
-        "time": 2.675
+        "time": 2.625
       },
       {
         "type": "apply",
@@ -318,7 +318,7 @@
           }
         ],
         "effect": {
-          "castTimeMultiplier": 0.81666667
+          "castTimeMultiplier": 0.83
         }
       }
     ],

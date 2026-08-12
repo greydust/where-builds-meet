@@ -141,7 +141,8 @@ An Inner Way trigger can grant conditional extra stacks:
 }
 ```
 
-Consumption occurs at the declared action time. The default amount is one. A
+Consumption occurs at the declared action time. The default amount is one;
+`"stack": "all"` removes every current stack. A
 `first` operator consumes the first available name from a left-to-right list:
 
 ```json
@@ -173,6 +174,12 @@ The referenced skill is inserted at the action timestamp. Triggered skills do
 not consume rotation cast time. A skill-level `cooldown` prevents both casts and
 triggers while active; a prevented cast is removed and later ordered casts shift
 earlier by its cast time.
+
+Timeline rows record whether a trigger came from a skill, setup effect, or Inner
+Way. Per-cast breakdowns attribute normal triggered-skill and DOT damage to the
+owning explicit cast. Inner Way-triggered damage, currently Morale Chant, stays
+in its own skill group. Repeated casts group by skill, sum damage, and average
+their individual damage-per-effective-cast-time DPS values.
 
 ### Extend
 
@@ -269,6 +276,23 @@ adjusted time = max(0, original time + sum(castTimeModifier))
 
 A modifier `duration` can override the duration of effects applied by that cast.
 Modifiers do not consume states; use a timed `consume` action for consumption.
+Modifier values may use `byStack` to capture a buff or debuff's stack count at
+cast start:
+
+```json
+"dmgBonus": {
+  "function": "byStack",
+  "param1": "EnhanceDrunkenPoet",
+  "param2": 0.2,
+  "target": "self"
+}
+```
+
+`param1` is the tracked effect ID, `param2` is the value per stack, and `target`
+defaults to `self`. The resolved number is frozen for the cast, so a later
+`consume` action does not remove the cast's bonus. Drunken Poet 5 uses this to
+gain 20% direct damage per Enhanced Drunken Poet stack before consuming all of
+those stacks. Its separately triggered explosions do not inherit the modifier.
 
 ## Buff and debuff definitions
 

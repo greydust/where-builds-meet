@@ -290,10 +290,12 @@ The timeline owns mutable simulation state while it is being built:
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
-At cast start, modifiers are selected and cast/action times are adjusted. Casts
-record their start distance, and each action records its own distance snapshot.
-At
-each action, expired effects are pruned, requirements are checked, and the state
+At cast start, modifiers are selected, stack-scaled modifier values are resolved
+from that pre-action state, and cast/action times are adjusted. Resolved
+cast-wide effects remain fixed even if an action in the cast later consumes the
+source stacks. Casts record their start distance, and each action records its
+own distance snapshot. At each action, expired effects are pruned, requirements
+are checked, and the state
 snapshot is recorded before the action mutates state. Damage-triggered setup and
 Inner Way rules then run, followed by the action's trigger, DOT, apply, consume,
 extend, or cooldown behavior.
@@ -382,7 +384,16 @@ choices persist for the browser session.
    at or after the anchor and no later than Battle End; keep excluded actions in
    the timeline display.
 4. Calculate baseline total damage and DPS once.
-5. Produce skill, skill-category, and physical/attribute breakdowns.
+5. Produce per-skill, per-cast, skill-category, and physical/attribute breakdowns.
+
+Per-cast breakdown rows group repeated casts by skill. Damage from triggered
+skills and owned DOT ticks is attributed to the explicit cast identified by
+`sourceRowId`, then summed into its skill group. Inner Way-triggered skills carry
+`triggerSource: "innerWay"` and receive their own grouped row instead; Morale
+Chant is the current example. Each timed cast contributes damage divided by its
+effective cast time, and the row shows the arithmetic mean of those cast DPS
+values plus average cast time. Zero-time-only groups leave DPS undefined. Rows
+sort by average DPS descending.
 
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and

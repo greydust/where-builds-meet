@@ -437,7 +437,11 @@
           }
         ],
         "effect": {
-          "enhanceDrunkenPoet": true
+          "dmgBonus": {
+            "function": "byStack",
+            "param1": "EnhanceDrunkenPoet",
+            "param2": 0.2
+          }
         }
       },
       {

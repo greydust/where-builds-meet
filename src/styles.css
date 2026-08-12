@@ -255,6 +255,7 @@ h1, h2, p { margin-top: 0; } h1 { margin-bottom: 8px; font-size: clamp(28px, 5vw
 .breakdown-table { overflow: hidden; border: 1px solid var(--border); border-radius: 7px; }
 .breakdown-table-header, .breakdown-table-row { display: grid; align-items: center; gap: 12px; min-width: 0; padding: 9px 12px; }
 .breakdown-skill-table .breakdown-table-header, .breakdown-skill-table .breakdown-table-row { grid-template-columns: minmax(240px, 1fr) 58px 68px 52px repeat(4, 76px) 140px 82px; }
+.breakdown-cast-table .breakdown-table-header, .breakdown-cast-table .breakdown-table-row { grid-template-columns: minmax(260px, 1fr) 64px 120px 130px 150px 90px; }
 .breakdown-group-table .breakdown-table-header, .breakdown-group-table .breakdown-table-row { grid-template-columns: minmax(260px, 1fr) 150px 90px; }
 .breakdown-table-header { background: #202431; color: var(--muted); font-size: var(--font-size-base); font-weight: 750; text-transform: uppercase; }
 .breakdown-table-row { min-height: 42px; border-top: 1px solid rgba(48, 54, 70, .65); color: var(--text); font-size: var(--font-size-base); }

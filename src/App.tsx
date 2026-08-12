@@ -761,6 +761,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   const { breakdown } = metrics;
   return <div className="breakdown-page">
     <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Skill Breakdown</h2></div><div className="breakdown-totals"><span>Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong></span><span>DPS <strong>{formatNumber(metrics.dps)}</strong></span></div></div><div className="breakdown-table breakdown-skill-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Triggers</span><span>Hits</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span><span>Damage</span><span>% Total</span></div>{breakdown.skills.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.id], row.name)}</span><strong>{row.casts || ""}</strong><strong>{row.triggers || ""}</strong><strong>{row.hits || ""}</strong><strong>{formatNumber(row.abrasionRate)}%</strong><strong>{formatNumber(row.normalRate)}%</strong><strong>{formatNumber(row.criticalRate)}%</strong><strong>{formatNumber(row.affinityRate)}%</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
+    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Cast Breakdown</h2></div></div><div className="breakdown-table breakdown-cast-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Avg Cast Time</span><span>Average DPS</span><span>Damage</span><span>% Total</span></div>{breakdown.casts.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span><strong>{row.casts}</strong><strong>{formatNumber(row.averageCastTime)}s</strong><strong>{row.averageDps === undefined ? "—" : formatNumber(row.averageDps)}</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
     <BreakdownGroupTable title="Skill Type Breakdown" rows={breakdown.categories} />
     <BreakdownGroupTable title="Physical and Attribute Breakdown" rows={breakdown.damageTypes} colored />
   </div>;
@@ -956,7 +957,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, build
                 if (!definition) return null;
                 const available = definition.available !== false;
                 return <button className={`divinecraft-option ${divinecraft === value ? "selected" : ""}`} type="button" key={value} disabled={!available} title={`${definition.name}: ${definition.description}${available ? "" : " Not available yet."}`} onClick={() => { setDivinecraft(value); sessionStorage.setItem(divinecraftStorageKey, value); onInnerWayChange(); }}>
-                  <span className="divinecraft-image-frame">{definition.image ? <img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" /> : <span className="divinecraft-none-mark" aria-hidden="true">—</span>}</span>
+                  <span className="divinecraft-image-frame">{definition.image ? <img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" /> : <span className="divinecraft-none-mark" aria-hidden="true" />}</span>
                   <strong>{definition.name}</strong>
                   <span className="divinecraft-option-status">{available ? setupStatus("divinecraft", value, divinecraft === value) : <small>Not available yet</small>}</span>
                 </button>;
@@ -1127,7 +1128,8 @@ function ActionDetails({ item, onChange, skillIds }: { item: EditableObject; onC
       <label className="detail-field consume-value-field"><span>{firstConsume ? "Values (comma separated)" : "Value"}</span><input value={consumeText} onChange={(event) => setConsumeText(event.target.value)} /></label>
     </div>}
     {(type === "apply" || type === "consume") && <div className="detail-fields">
-      <NumberField label="Stack" value={item.stack} onChange={(value) => set("stack", value)} />
+      {type === "consume" && <label className="checkbox-field"><input type="checkbox" checked={item.stack === "all"} onChange={(event) => set("stack", event.target.checked ? "all" : 1)} /><span>All stacks</span></label>}
+      {item.stack !== "all" && <NumberField label="Stack" value={item.stack} onChange={(value) => set("stack", value)} />}
       {type === "apply" && <label className="checkbox-field"><input type="checkbox" checked={item.reapply === true} onChange={(event) => set("reapply", event.target.checked)} /><span>Reapply</span></label>}
     </div>}
     {(type === "apply" || type === "extend") && <NumberField label="Duration" value={item.duration} onChange={(value) => set("duration", value)} />}
@@ -1167,15 +1169,24 @@ function DynamicByValueEditor({ value, onChange }: { value: EditableObject; onCh
   </div>;
 }
 
+function DynamicByStackValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
+  return <div className="dynamic-effect-editor">
+    <label className="detail-field"><span>Effect</span><input value={asString(value.param1)} onChange={(event) => onChange({ ...value, function: "byStack", param1: event.target.value })} /></label>
+    <label className="detail-field"><span>Value per stack</span><input type="number" step="0.0001" value={typeof value.param2 === "number" ? value.param2 : ""} onChange={(event) => onChange({ ...value, function: "byStack", param2: Number(event.target.value) })} /></label>
+    <label className="detail-field"><span>Target</span><select value={value.target === "target" ? "target" : "self"} onChange={(event) => onChange({ ...value, function: "byStack", target: event.target.value })}><option value="self">Self</option><option value="target">Target</option></select></label>
+  </div>;
+}
+
 function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (value: unknown) => void }) {
-  const dynamicValue = value && typeof value === "object" && !Array.isArray(value) && (value as EditableObject).function === "by" ? value as EditableObject : undefined;
-  const kind = dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
+  const objectValue = value && typeof value === "object" && !Array.isArray(value) ? value as EditableObject : undefined;
+  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" ? objectValue : undefined;
+  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
   return <div className="effect-value-editor">
     <select aria-label="Effect value type" value={kind} onChange={(event) => {
       const nextKind = event.target.value;
-      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
-    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="text">Text</option></select>
-    {dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
+      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
+    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="text">Text</option></select>
+    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
   </div>;
 }
 
