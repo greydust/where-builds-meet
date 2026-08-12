@@ -199,6 +199,312 @@
       "type": "event",
       "event": "BattleEnd",
       "startTime": 60
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": -6.05,
+      "distance": 19
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": -1.8431,
+      "distance": 3
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 0.3341,
+      "distance": 1
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 4.9746,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 5.434,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 5.6075,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 7.4246,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 7.884,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 8.0575,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 9.8746,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 10.334,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 10.5075,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 12.3246,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 12.784,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 12.9575,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 13.3048,
+      "distance": 1
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 27.1379,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 27.5973,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 27.7708,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 29.5879,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 30.0473,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 30.2208,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 32.0379,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 32.4973,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 32.6708,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 34.4879,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 34.9473,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 35.1208,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 36.9379,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 37.3973,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 37.5708,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 39.3879,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 39.8473,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 40.0208,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 41.8379,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 42.2973,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 42.4708,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 42.8181,
+      "distance": 1
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 50.2799,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 50.7393,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 50.9128,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 52.7299,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 53.1893,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 53.3628,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 55.1799,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 55.6393,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 55.8128,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 57.6299,
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 58.0893,
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 58.2628,
+      "distance": 2
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "startTime": 58.6101,
+      "distance": 1
     }
   ]
 }

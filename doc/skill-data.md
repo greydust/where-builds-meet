@@ -491,6 +491,12 @@ that event onward. Timeline rows store cast-start distance, while every action
 stores its own distance snapshot so an event interleaved with a cast affects only
 the later actions.
 
+Bundled mixed-dummy rotations include fight-relative movement events for Flute
+distance modeling. They open at 19m, enter the first Fleeting Trace at 3m, then
+return to 1m. Every Burning Heart cast moves to 6m for its first Anxi Soldier,
+4m for its second Anxi Soldier, and 2m for its first damage action; consecutive
+Burning Heart sections reset to 1m after their final cast.
+
 ### Dynamic effect values
 
 An effect value can select from a data array using the current timeline state:
