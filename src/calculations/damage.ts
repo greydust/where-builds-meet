@@ -113,9 +113,19 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
   const baseDmgBonus = effects.reduce((total, effect) => total
     + effectValue(effect.baseDMGBonus), 0);
   const globalDmgBonus = effects.reduce((total, effect) => total
-    + effectValue(effect.globalDmgBonus), 0);
+    + effectValue(effect.globalDmgBonus)
+    + effectValue(effect.globalHPDMGBonus), 0);
+  const globalBellstrikeDmgBonus = effects.reduce((total, effect) => total
+    + effectValue(effect.globalBellstrikeDMGBonus), 0);
+  const dotDamageBonus = context.isDot
+    ? effects.reduce((total, effect) => total + effectValue(effect.dotDamage), 0)
+    : 0;
   const effectPhysicalPenetration = effects.reduce((total, effect) => total
     + effectValue(effect.physicalPenetration), 0);
+  const defenseBonus = effects.reduce((total, effect) => total
+    + effectValue(effect.defenseBonus), 0);
+  const physicalResistanceAdjustment = effects.reduce((total, effect) => total
+    + effectValue(effect.physicalResistance), 0);
   const effectStonesplitPenetration = effects.reduce((total, effect) => total
     + effectValue(effect.stonesplitPenetration), 0);
   const effectCritDmgBonus = effects.reduce((total, effect) => total
@@ -145,7 +155,7 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
     + weaponArtBonus
     + mysticSkillBonus
     + innerWayDmgBonus;
-  const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus) * (1 + globalDmgBonus);
+  const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
   const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
   const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => mode === "min"
     ? minimum
@@ -165,12 +175,14 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
   }, { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 });
   const calculateVariant = (damageType: AttackRollMode, specialBonus: number) => {
     const physicalAttack = damageType === "average" ? averagePhysicalAttack : attackValue(minPhysicalAttack, maxPhysicalAttack, damageType);
-    const physicalDamage = (coefficient * (physicalAttack - enemy.defense) + physicalBonus)
-      * penetrationMultiplier(attunementPhysicalPenetration + effectPhysicalPenetration, enemy.physicalResistance)
+    const adjustedEnemyDefense = enemy.defense * (1 + defenseBonus);
+    const physicalDamage = (coefficient * (physicalAttack - adjustedEnemyDefense) + physicalBonus)
+      * penetrationMultiplier(attunementPhysicalPenetration + effectPhysicalPenetration, enemy.physicalResistance + physicalResistanceAdjustment)
       * (1 + stats.physDmgBonus);
-    const multiplier = sharedBonus * (1 + specialBonus);
+    const multiplier = sharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
+    const globalMultiplier = 1 + globalDmgBonus;
     const attributeDamage = calculateAttributeDamage(damageType);
-    return { physical: Math.max(0, physicalDamage * multiplier), bellstrike: attributeDamage.bellstrike * multiplier, stonesplit: attributeDamage.stonesplit * multiplier, silkbind: attributeDamage.silkbind * multiplier, bamboocut: attributeDamage.bamboocut * multiplier };
+    return { physical: Math.max(0, physicalDamage * multiplier * globalMultiplier), bellstrike: attributeDamage.bellstrike * multiplier * (globalMultiplier + globalBellstrikeDmgBonus), stonesplit: attributeDamage.stonesplit * multiplier * globalMultiplier, silkbind: attributeDamage.silkbind * multiplier * globalMultiplier, bamboocut: attributeDamage.bamboocut * multiplier * globalMultiplier };
   };
   const effectiveCrit = derivedStats.effectiveCrit;
   const SteadfastGuaranteedCrit = effects.some((effect) => effect.SteadfastGuaranteedCrit === true)

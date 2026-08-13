@@ -16,6 +16,10 @@ import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
+import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
+import bellstrikeUmbraDebuffs from "../data/debuff/bellstrike-umbra.json";
+import innerWayDebuffs from "../data/debuff/innerway.json";
+import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
 import mysticDots from "../data/dot/mystic.json";
 import enemyProfiles from "../data/enemy.json";
 import frostCladNight from "../data/innerway/frost-clad-night.json";
@@ -100,7 +104,7 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
 const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   ...defaultSkillMaps,
   Buff: { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as SkillMap,
-  Debuff: { ...stonesplitStrengthDebuffs, ...generalDebuffs } as SkillMap,
+  Debuff: { ...stonesplitStrengthDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as SkillMap,
   DOT: mysticDots as SkillMap,
 };
 const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
@@ -156,7 +160,7 @@ const martialArtBySkillId = new Map<string, WeaponId>([
 ]);
 const rotationEventOptionIds = ["__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move"];
 const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; action?: unknown[] }>;
-const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
+const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
 
 function loadSelectedPath(): PathId {
   const saved = sessionStorage.getItem(pathStorageKey);
@@ -1124,7 +1128,7 @@ function skillToDraft(skill: SkillRecord) {
 
 const actionTypes = ["damage", "consume", "apply", "trigger", "extend", "clearCD"];
 const conditionTargets = ["self", "target", "skillTag", "martialArt"];
-const effectFields = ["castTimeModifier", "castTimeMultiplier", "baseDMGBonus", "hpDMGBonus", "globalDmgBonus", "dmgBonus", "physicalPenetration", "formlessPenetration", "bellstrikeResistance", "stonesplitResistance", "silkbindResistance", "bamboocutResistance", "critDmgBonus", "affinityDmgBonus", "SteadfastGuaranteedCrit", "enhanceDrunkenPoet"];
+const effectFields = ["castTimeModifier", "castTimeMultiplier", "baseDMGBonus", "hpDMGBonus", "globalDmgBonus", "globalHPDMGBonus", "globalBellstrikeDMGBonus", "dotDamage", "dmgBonus", "defenseBonus", "physicalPenetration", "formlessPenetration", "physicalResistance", "bellstrikeResistance", "stonesplitResistance", "silkbindResistance", "bamboocutResistance", "critDmgBonus", "affinityDmgBonus", "SteadfastGuaranteedCrit", "enhanceDrunkenPoet"];
 const booleanEffectFields = new Set(["SteadfastGuaranteedCrit", "enhanceDrunkenPoet"]);
 
 function asNumber(value: unknown, fallback = 0) {

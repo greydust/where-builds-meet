@@ -1,0 +1,36 @@
+{
+  "Vulnerable": {
+    "name": "Vulnerable",
+    "description": "Increases HP and Qi damage taken by 8%, and an additional 8% for Might",
+    "duration": 17,
+    "maxStack": 1,
+    "shared": true,
+    "effect": [
+      {
+        "hpDMGBonus": 0.08,
+        "qiDMGBonus": 0.08
+      },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "martialArt",
+                "value": "StormbreakerSpear"
+              },
+              {
+                "target": "martialArt",
+                "value": "ThundercryBlade"
+              }
+            ]
+          }
+        ],
+        "effect": {
+          "hpDMGBonus": 0.08,
+          "qiDMGBonus": 0.08
+        }
+      }
+    ]
+  }
+}

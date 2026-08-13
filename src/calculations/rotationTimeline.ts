@@ -91,7 +91,7 @@ export function requirementsPass(requirement: unknown, buffs: TrackedEffect[], d
   const hasEffect = (target: unknown, value: unknown, requiredStack?: unknown) => {
     if (typeof value !== "string") return false;
     if (target === "skillTag") return skillTags.includes(value);
-    if (target === "martialArt") return weapons.includes(value as WeaponId);
+    if (target === "martialArt") return skillTags.includes(value);
     const trackedEffect = (target === "target" ? debuffs : buffs).find((effect) => effect.name === value);
     if (requiredStack === "max") return Boolean(trackedEffect?.maxStack !== undefined && (trackedEffect.stack ?? 0) >= trackedEffect.maxStack);
     if (typeof requiredStack === "number") return Boolean(trackedEffect && (trackedEffect.stack ?? 0) >= requiredStack);

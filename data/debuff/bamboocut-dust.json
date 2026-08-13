@@ -1,0 +1,46 @@
+{
+  "PhantomChime": {
+    "name": "Phantom Chime",
+    "description": "Reduces Physical Resistance by 2 per stack.",
+    "duration": 5,
+    "maxStack": 5,
+    "shared": true,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "physicalResistance": -2
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalResistance": -4
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalResistance": -6
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalResistance": -8
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalResistance": -10
+          }
+        }
+      ]
+    ]
+  }
+}

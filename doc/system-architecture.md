@@ -337,7 +337,9 @@ Stonesplit, Silkbind, and Bamboocut damage plus outcome rates.
 
 The function computes abrasion, normal, critical, and affinity variants, then
 rate-weights each component. See `damage-formula.md` for the exact formula and
-bonus categories.
+bonus categories. Common global HP bonuses multiply every damage component,
+while channel-specific global bonuses such as Qi Imbalance's Bellstrike bonus
+are applied only to that returned component.
 
 `calculateSimulatedDamageBreakdown()` uses the same internal formula with its
 attack-roll mode set to `simulate`. It selects one outcome and samples the

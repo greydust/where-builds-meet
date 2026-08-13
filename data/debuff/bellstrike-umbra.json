@@ -1,0 +1,146 @@
+{
+  "SoulShaken": {
+    "name": "Soul-Shaken",
+    "description": "Increases DoT damage taken by 5% per stack, plus an additional 5% per stack if the source is Umbra.",
+    "duration": 18,
+    "maxStack": 5,
+    "shared": true,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "dotDamage": 0.05
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "martialArt",
+                  "value": "HeavenquakerSpear"
+                },
+                {
+                  "target": "martialArt",
+                  "value": "StrategicSword"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dotDamage": 0.05
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dotDamage": 0.1
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "martialArt",
+                  "value": "HeavenquakerSpear"
+                },
+                {
+                  "target": "martialArt",
+                  "value": "StrategicSword"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dotDamage": 0.1
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dotDamage": 0.15
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "martialArt",
+                  "value": "HeavenquakerSpear"
+                },
+                {
+                  "target": "martialArt",
+                  "value": "StrategicSword"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dotDamage": 0.15
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dotDamage": 0.2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "martialArt",
+                  "value": "HeavenquakerSpear"
+                },
+                {
+                  "target": "martialArt",
+                  "value": "StrategicSword"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dotDamage": 0.2
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "dotDamage": 0.25
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "martialArt",
+                  "value": "HeavenquakerSpear"
+                },
+                {
+                  "target": "martialArt",
+                  "value": "StrategicSword"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dotDamage": 0.25
+          }
+        }
+      ]
+    ]
+  }
+}
