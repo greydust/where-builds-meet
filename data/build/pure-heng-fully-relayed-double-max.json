@@ -1,0 +1,605 @@
+{
+  "format": "where-builds-meet-builds",
+  "version": 4,
+  "exportedAt": "2026-08-13T17:14:33.138Z",
+  "gearItems": [
+    {
+      "id": "ced2e104-7cd6-4fea-8503-0393f804bb1a",
+      "slot": "helmet",
+      "definitionId": "helmet",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "agility",
+          "value": 46.43599999999999
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "5891fb83-5bb4-4e67-99ca-63e3fe037ba1",
+      "slot": "chestpiece",
+      "definitionId": "chestpiece",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "agility",
+          "value": 46.43599999999999
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "66df508b-6b2d-41f3-a3e7-5f1aa3071722",
+      "definitionId": "moBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        },
+        {
+          "key": "moBladeDmgBoost",
+          "value": 0.05828
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "f5824628-798f-4c9e-b725-b7648e089665",
+      "definitionId": "hengBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "agility",
+        "value": 46.43599999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "precision",
+          "value": 0.07519999999999999
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "9bb56ee1-3995-4c0f-a502-39e1ccbee8d0",
+      "slot": "disc",
+      "definitionId": "disc",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "374a53b4-c791-4c76-be43-3bd68d315f60",
+      "slot": "pendant",
+      "definitionId": "pendant",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "8dd0bf3c-20b0-428c-9894-5fe9b13b2ced",
+      "slot": "greaves",
+      "definitionId": "greaves",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "precision",
+        "value": 0.07519999999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "ab6ec4f8-e278-4af8-bcad-15ea5b5e8eeb",
+      "slot": "bracer",
+      "definitionId": "bracer",
+      "level": 96,
+      "rarity": "Purple",
+      "relayed": true,
+      "baseAffix": {
+        "key": "precision",
+        "value": 0.07519999999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "minPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "phalanxbaneChargedBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "30189d01-be1e-4b53-885a-4b3651a86f43",
+      "definitionId": "hengBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "hengBladeDmgBoost",
+          "value": 0.05828
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "474c15d6-cf0b-4adf-a2f0-2d7e81898b4f",
+      "definitionId": "moBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "precision",
+          "value": 0.07519999999999999
+        },
+        {
+          "key": "agility",
+          "value": 46.43599999999999
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "0bed8829-ae78-400a-a9f8-006caee7afcb",
+      "slot": "helmet",
+      "definitionId": "helmet",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "agility",
+          "value": 46.43599999999999
+        }
+      ],
+      "attunement": {
+        "key": "snowpartingVariedComboBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "4eae8927-ed1a-4dbb-813c-55ada7ba5d0d",
+      "slot": "chestpiece",
+      "definitionId": "chestpiece",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "agility",
+          "value": 46.43599999999999
+        }
+      ],
+      "attunement": {
+        "key": "snowpartingVariedComboBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "778c0a0c-042a-4c58-b166-35b07348547e",
+      "slot": "disc",
+      "definitionId": "disc",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "2252ae4a-0611-406d-bcdb-5fa124964c35",
+      "slot": "pendant",
+      "definitionId": "pendant",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 73.13199999999999
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    {
+      "id": "9ba276db-f5a8-4180-88b9-b3e59fa2258b",
+      "slot": "greaves",
+      "definitionId": "greaves",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "precision",
+          "value": 0.07519999999999999
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "snowpartingVariedComboBoost",
+        "value": 0.06
+      }
+    },
+    {
+      "id": "db0ac8c9-2e4e-4caa-8860-6a950169f2cd",
+      "slot": "bracer",
+      "definitionId": "bracer",
+      "level": 96,
+      "rarity": "Gold",
+      "relayed": true,
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.0846
+      },
+      "additionalAffixes": [
+        {
+          "key": "precision",
+          "value": 0.07519999999999999
+        },
+        {
+          "key": "maxPhys",
+          "value": 73.13199999999999
+        },
+        {
+          "key": "power",
+          "value": 46.43599999999999
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
+        }
+      ],
+      "attunement": {
+        "key": "snowpartingVariedComboBoost",
+        "value": 0.06
+      }
+    }
+  ],
+  "builds": [
+    {
+      "id": "full-relayed-min",
+      "name": "Full Relayed Min Build",
+      "weapons": [
+        "snowparting",
+        "phalanxbane"
+      ],
+      "equipped": {
+        "leftWeapon": "f5824628-798f-4c9e-b725-b7648e089665",
+        "rightWeapon": "66df508b-6b2d-41f3-a3e7-5f1aa3071722",
+        "helmet": "ced2e104-7cd6-4fea-8503-0393f804bb1a",
+        "chestpiece": "5891fb83-5bb4-4e67-99ca-63e3fe037ba1",
+        "disc": "9bb56ee1-3995-4c0f-a502-39e1ccbee8d0",
+        "pendant": "374a53b4-c791-4c76-be43-3bd68d315f60",
+        "greaves": "8dd0bf3c-20b0-428c-9894-5fe9b13b2ced",
+        "bracer": "ab6ec4f8-e278-4af8-bcad-15ea5b5e8eeb"
+      },
+      "setup": {
+        "gearSets": {
+          "Cleftpeak": 4,
+          "RainWhisper": 0
+        },
+        "bowRingSet": "Precision",
+        "arsenal": "Stonesplit"
+      }
+    },
+    {
+      "id": "empty",
+      "name": "Pure Heng Fully Relayed Double Max",
+      "weapons": [
+        "snowparting",
+        "phalanxbane",
+        "everspring",
+        "unfettered",
+        "heavenwill",
+        "skygrasp"
+      ],
+      "equipped": {
+        "leftWeapon": "30189d01-be1e-4b53-885a-4b3651a86f43",
+        "rightWeapon": "474c15d6-cf0b-4adf-a2f0-2d7e81898b4f",
+        "helmet": "0bed8829-ae78-400a-a9f8-006caee7afcb",
+        "chestpiece": "4eae8927-ed1a-4dbb-813c-55ada7ba5d0d",
+        "disc": "778c0a0c-042a-4c58-b166-35b07348547e",
+        "pendant": "2252ae4a-0611-406d-bcdb-5fa124964c35",
+        "greaves": "9ba276db-f5a8-4180-88b9-b3e59fa2258b",
+        "bracer": "db0ac8c9-2e4e-4caa-8860-6a950169f2cd"
+      },
+      "setup": {
+        "gearSets": {
+          "Cleftpeak": 4,
+          "RainWhisper": 0
+        },
+        "bowRingSet": "Precision",
+        "arsenal": "Stonesplit"
+      }
+    }
+  ]
+}
