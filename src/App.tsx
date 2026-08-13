@@ -20,6 +20,7 @@ import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
 import bellstrikeUmbraDebuffs from "../data/debuff/bellstrike-umbra.json";
 import innerWayDebuffs from "../data/debuff/innerway.json";
 import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
+import stonesplitMightDebuffs from "../data/debuff/stonesplit-might.json";
 import mysticDots from "../data/dot/mystic.json";
 import enemyProfiles from "../data/enemy.json";
 import frostCladNight from "../data/innerway/frost-clad-night.json";
@@ -51,6 +52,7 @@ import { calculateStatsWithOverrides, type CharacterStatOverrides, type Effectiv
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
 import { characterProfileMatches, characterProfileStorageKey, exportCharacterProfiles, loadCharacterProfiles, mergeImportedCharacterProfiles, serializeCharacterProfiles, type CharacterProfile } from "./characterProfiles";
+import { defaultGlobalDebuffs, globalDebuffRows, globalDebuffStorageKey, globalDebuffTimelineEffects, loadGlobalDebuffs, type GlobalDebuffState } from "./globalDebuffs";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
@@ -104,7 +106,7 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
 const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   ...defaultSkillMaps,
   Buff: { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as SkillMap,
-  Debuff: { ...stonesplitStrengthDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as SkillMap,
+  Debuff: { ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as SkillMap,
   DOT: mysticDots as SkillMap,
 };
 const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
@@ -160,7 +162,7 @@ const martialArtBySkillId = new Map<string, WeaponId>([
 ]);
 const rotationEventOptionIds = ["__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move"];
 const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; action?: unknown[] }>;
-const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
+const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
 
 function loadSelectedPath(): PathId {
   const saved = sessionStorage.getItem(pathStorageKey);
@@ -802,6 +804,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   const [innerWays, setInnerWays] = useState(loadInnerWays);
   const [food, setFood] = useState(loadFood);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
+  const [globalDebuffs, setGlobalDebuffs] = useState(loadGlobalDebuffs);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
   const [newProfileName, setNewProfileName] = useState("");
   const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
@@ -810,16 +813,18 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   useEffect(() => sessionStorage.setItem(innerWayStorageKey, JSON.stringify(innerWays)), [innerWays]);
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
+  useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
   const { arsenal, bowRingSet, gearSets } = buildSetup;
-  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup, food, divinecraft };
+  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup, food, divinecraft, globalDebuffs };
   const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
   const isCalculated = Object.keys(statOverrides).length === 0
     && Object.keys(attunementOverrides).length === 0
     && Object.keys(buildSetupOverrides).length === 0
     && JSON.stringify(innerWays) === JSON.stringify(typedDefaultSetup.innerWays)
     && food === typedDefaultSetup.food
-    && divinecraft === typedDefaultSetup.divinecraft;
+    && divinecraft === typedDefaultSetup.divinecraft
+    && JSON.stringify(globalDebuffs) === JSON.stringify(defaultGlobalDebuffs);
   const [selectedProfileId, setSelectedProfileId] = useState(() => isCalculated ? "__calculated" : matchingProfile?.id ?? "__modified");
 
   useEffect(() => {
@@ -842,20 +847,24 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
       buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } },
       food,
       divinecraft,
+      globalDebuffs: { ...globalDebuffs },
     } : profile));
-  }, [attunementOverrides, buildSetup, characterProfiles, divinecraft, food, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
+  }, [attunementOverrides, buildSetup, characterProfiles, divinecraft, food, globalDebuffs, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
 
   function applyProfile(profile?: CharacterProfile) {
     const nextInnerWays = profile ? profile.innerWays.map((row) => ({ ...row })) : typedDefaultSetup.innerWays.map((row) => ({ ...row }));
     const nextFood = profile?.food ?? typedDefaultSetup.food;
     const nextDivinecraft = profile?.divinecraft ?? typedDefaultSetup.divinecraft;
+    const nextGlobalDebuffs = profile ? { ...profile.globalDebuffs } : { ...defaultGlobalDebuffs };
     setAttunementDrafts({});
     sessionStorage.setItem(innerWayStorageKey, JSON.stringify(nextInnerWays));
     sessionStorage.setItem(foodStorageKey, nextFood);
     sessionStorage.setItem(divinecraftStorageKey, nextDivinecraft);
+    sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(nextGlobalDebuffs));
     setInnerWays(nextInnerWays);
     setFood(nextFood);
     setDivinecraft(nextDivinecraft);
+    setGlobalDebuffs(nextGlobalDebuffs);
     onApplyCharacterProfile(profile);
     onInnerWayChange();
   }
@@ -873,7 +882,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     let id = baseId;
     let suffix = 2;
     while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
-    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } }, food, divinecraft }]);
+    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } }, food, divinecraft, globalDebuffs: { ...globalDebuffs } }]);
     setSelectedProfileId(id);
     setNewProfileName("");
     setProfileTransferStatus({ message: `Saved ${name}.` });
@@ -928,6 +937,13 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     onAttunementReset(key);
   }
 
+  function updateGlobalDebuff<K extends keyof GlobalDebuffState>(key: K, value: GlobalDebuffState[K]) {
+    const next = { ...globalDebuffs, [key]: value };
+    sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(next));
+    setGlobalDebuffs(next);
+    onInnerWayChange();
+  }
+
   function CalculatedStatField({ definition, derivedLabel, derivedValue, derivedUnit, compact }: {
     definition: StatDefinition;
     derivedLabel?: string;
@@ -961,6 +977,11 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     if (active) return <small className="setup-active-label">Active</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
     return comparison ? <small className={`setup-delta-label ${comparison.dpsDifference >= 0 ? "setup-positive-label" : "setup-negative-label"}`}><span>{comparison.dpsDifference >= 0 ? "+" : ""}{formatNumber(comparison.dpsDifference)} DPS</span><span>({comparison.increase >= 0 ? "+" : ""}{formatNumber(comparison.increase)}%)</span></small> : <small className="setup-inactive-label">—</small>;
+  };
+  const globalDebuffOption = (key: typeof globalDebuffRows[number]["key"], value: boolean, label: string) => {
+    const active = globalDebuffs[key] === value;
+    const optionValue = value ? "on" : "off";
+    return <button className={active ? "selected" : ""} type="button" key={optionValue} onClick={() => updateGlobalDebuff(key, value)}>{label}<span>{setupStatus(`debuff:${key}`, optionValue, active)}</span></button>;
   };
 
   return (
@@ -1007,6 +1028,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
             <div className="stat-row"><CalculatedStatField definition={defenseStats[15]} compact /><CalculatedStatField definition={defenseStats[16]} compact /></div>
           </div>
         </section>
+        <div className="character-secondary-stats">
         <section className="panel attunement-panel">
           <div className="panel-heading"><div><h2>Attunement Stats</h2></div></div>
           <div className="attunement-list">
@@ -1018,6 +1040,25 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
             ))}
           </div>
         </section>
+        <section className="panel global-debuff-panel">
+          <div className="panel-heading"><div><h2>Global Buffs/Debuffs</h2></div></div>
+          <div className="global-debuff-list">
+            {globalDebuffRows.map(({ key, name }) => <div className="global-debuff-row" key={key}>
+              <span>{name}</span>
+              <div className="setup-option-list global-debuff-options">{globalDebuffOption(key, false, "Off")}{globalDebuffOption(key, true, "On")}</div>
+            </div>)}
+            <div className="global-debuff-row">
+              <span>Bitter Seasons</span>
+              <div className="setup-option-list global-debuff-options qingyi-options">
+                {(["none", "T1", "T6"] as const).map((value) => {
+                  const active = globalDebuffs.qingyisCharm === value;
+                  return <button className={active ? "selected" : ""} type="button" key={value} onClick={() => updateGlobalDebuff("qingyisCharm", value)}>{value === "none" ? "None" : value}<span>{setupStatus("debuff:qingyisCharm", value, active)}</span></button>;
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+        </div>
         </div>
         <section className="middle-stats-column">
           <section className="panel inner-way-panel">
@@ -1095,7 +1136,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
               let id = baseId;
               let suffix = 2;
               while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
-              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, gearSets: { ...profile.buildSetup.gearSets } } }]);
+              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, gearSets: { ...profile.buildSetup.gearSets } }, globalDebuffs: { ...profile.globalDebuffs } }]);
             }}>Duplicate</button><button className="button button-danger button-small" type="button" onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}>Delete</button></div>
           </div>)}
         </div>
@@ -1701,7 +1742,8 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const visibleRotationEntries = useMemo(() => rotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons)), [rotationEntries, settings.weapons]);
   const editingEntry = visibleRotationEntries.find((entry) => entry.id === editingRotationId) ?? visibleRotationEntries[0];
   const rotationLocked = editingEntry?.isDefault === true;
-  const calculationContextKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup });
+  const currentGlobalDebuffs = loadGlobalDebuffs();
+  const calculationContextKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup, globalDebuffs: currentGlobalDebuffs });
   const rotationStateKey = `${editingRotationId}:${calculationContextKey}:${JSON.stringify(rotation)}`;
   const calculationContextKeyRef = useRef(calculationContextKey);
   calculationContextKeyRef.current = calculationContextKey;
@@ -2181,7 +2223,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       setReadableCopyStatus("Select the text and copy it manually.");
     }
   }
-  const makeTimelineInput = (rotationRecord: RotationRecord, conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup)): TimelineBuildInput => ({
+  const makeTimelineInput = (rotationRecord: RotationRecord, conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs = currentGlobalDebuffs): TimelineBuildInput => ({
     rotation: rotationRecord,
     skills: Object.assign({}, ...Object.values(defaultSkillMaps)),
     eventDefinitions: rotationEventDefinitions,
@@ -2191,6 +2233,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     innerWayRules: rules,
     setupEffects,
     weapons: settings.weapons,
+    initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
   });
   function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
     const rotationAnchor = rotationRecord.start ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action } : { rowId: "rotation-0" };
@@ -2221,6 +2264,14 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }) })),
       food: Object.keys(typedFoodDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }) })),
       divinecraft: Object.entries(typedDivinecraftDefinitions).filter(([, definition]) => definition.available !== false).map(([value]) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }) })),
+      ...Object.fromEntries(globalDebuffRows.map(({ key }) => [`debuff:${key}`, [false, true].map((enabled) => {
+        const globalDebuffs = { ...currentGlobalDebuffs, [key]: enabled };
+        return { label: enabled ? "on" : "off", timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs) };
+      })])),
+      "debuff:qingyisCharm": (["none", "T1", "T6"] as const).map((value) => {
+        const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
+        return { label: value, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs) };
+      }),
       "gear:Cleftpeak": [0, 2, 4].filter((tier) => tier > currentGearSets.Cleftpeak).map((tier) => {
         const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: tier as 0 | 2 | 4, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) as 0 | 2 | 4 } });
         return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };

@@ -156,6 +156,7 @@ tab session.
 | Build setup overrides | `sessionStorage`, `wwm-build-setup-overrides-v1` |
 | Food | `sessionStorage`, `wwm-food-session-v1` |
 | Divinecraft | `sessionStorage`, `wwm-divinecraft-session-v1` |
+| Target debuff controls | `sessionStorage`, `wwm-global-debuffs-session-v1` |
 | Rotation list | `sessionStorage`, `wwm-rotation-list-session-v1` |
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
 | Custom simulation percentiles | `sessionStorage`, `wwm-simulation-percentiles-v1` |
@@ -185,7 +186,8 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-Inner Ways, final gear-set/bow-ring/arsenal selections, food, and Divinecraft.
+Inner Ways, final gear-set/bow-ring/arsenal selections, food, Divinecraft, and
+target debuff controls.
 The implicit `Calculated` profile is reconstructed in the UI and is never
 persisted or exported. Import validates stat keys and setup shapes, discards
 unknown or non-finite override values, appends valid profiles, and remaps
@@ -245,7 +247,7 @@ reset profile. Loading it clears character, attunement, and build-setup
 overrides, thereby restoring the active build's setup, and restores the
 configured default Inner Ways, food, and Divinecraft. A custom profile stores
 the user's current final-value character and attunement overrides plus the final
-gear-set, bow/ring, arsenal, Inner Way, food, and Divinecraft selections. Loading
+gear-set, bow/ring, arsenal, Inner Way, food, Divinecraft, and target-debuff selections. Loading
 one replaces that complete state. Profiles can be created, renamed, duplicated,
 deleted, exported, and imported through the management dialog. While a custom
 profile is selected, every subsequent Main-tab change is written directly back
@@ -313,6 +315,12 @@ The timeline owns mutable simulation state while it is being built:
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
+Main-tab global-effect controls seed permanent tracked target debuffs into this
+initial state at their configured stack count. They therefore use ordinary
+effect-definition and requirement resolution, appear in timeline state, and
+share the same unique tracked entry with any matching application from the
+rotation. Reapplication cannot expire or duplicate a permanent seeded effect.
+
 At cast start, modifiers are selected, stack-scaled modifier values are resolved
 from that pre-action state, and cast/action times are adjusted. Resolved
 cast-wide effects remain fixed even if an action in the cast later consumes the
@@ -356,6 +364,7 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - attunement variants
 - Inner Way removal variants
 - arsenal, bow/ring, food, Divinecraft, and gear-set comparisons
+- target-debuff comparisons
 - equipped gear stats and attunements
 
 Baseline bundles omit every comparison variant. Comparison bundles contain the

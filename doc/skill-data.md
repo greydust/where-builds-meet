@@ -344,6 +344,11 @@ Definition fields:
 - `shared`: descriptive game metadata; it does not currently change simulation
   behavior
 
+`TimelineBuildInput.initialBuffs` and `initialDebuffs` may seed permanent
+tracked effects. Seeded effects have no expiration, are not consumed, and merge
+by definition ID with later applications. This is used by the Main-tab global
+effect controls rather than copying their damage fields into every action.
+
 When `stackEffects` exists, index `stack - 1` is selected instead of `effect`.
 Each index must contain the complete cumulative value for that stack; entries are
 not added together. If another feature raises `maxStack`, enough `stackEffects`

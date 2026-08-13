@@ -225,6 +225,16 @@ Each attribute starts with its corresponding character penetration stat. Stonesp
 
 Effects may adjust resistance directly with `bellstrikeResistance`, `stonesplitResistance`, `silkbindResistance`, or `bamboocutResistance`. These values are added to enemy resistance. For example, Fearful Blade contributes `-16` to each attribute resistance.
 
+The Main tab can treat Phantom Chime, Qi Imbalance, Soul-Shaken, Vulnerable,
+Fearful Blade, and Bitter Seasons as externally maintained global effects. An
+enabled choice initializes one permanent tracked debuff on the timeline;
+stacking debuffs start at maximum stacks. If the rotation applies the same
+effect, it updates that tracked entry rather than adding a second copy, and the
+global entry remains permanent. Requirements still resolve per damage action:
+Qi Imbalance requires Exhausted, and path-specific additions require the
+matching martial-art tag. These controls and their DPS comparisons use the same
+worker calculation as the baseline.
+
 ## Rate calculation
 
 For Judgement Resistance `J`:

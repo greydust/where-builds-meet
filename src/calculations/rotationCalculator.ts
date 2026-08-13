@@ -305,6 +305,9 @@ function timelineDamageEntries(
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
     const skillTags = row.skill?.tags ?? [];
+    const activeSetupEffects = setupEffects
+      .filter((effect) => requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
+      .map((effect) => effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect) ? effect.effect as EditableObject : effect);
     const activeInnerWayEffects = rules.filter((rule) => requirementsPass(rule.requirement, buffs, debuffs, skillTags, conditions, state.weapons)).map((rule) => rule.effect);
     const activeTrackedEffects = [...buffs, ...debuffs].flatMap((tracked) => {
       const setupModifiers = setupEffects.filter((effect) => effect.target === tracked.name && effect.modify && typeof effect.modify === "object" && !Array.isArray(effect.modify) && requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
@@ -328,7 +331,7 @@ function timelineDamageEntries(
         buffs: buffs.map((effect) => effect.name),
         enemy: state.enemy,
         derivedStats,
-        effects: [...setupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
+        effects: [...activeSetupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
         distance: actionState.distance,
         isDot: row.kind === "dot",
       },

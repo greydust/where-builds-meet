@@ -23,7 +23,7 @@ export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolea
   | { type: "event"; event: "Exhausted"; startTime: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
 export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };
-export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number };
+export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number; persistent?: boolean };
 export type InnerWayEffectRule = { requirement?: unknown; effect: EditableObject; trigger?: EditableObject; target?: string; modify?: EditableObject; source: string; tier: number };
 export type TimelineRowKind = "rotation" | "trigger" | "dot";
 export type TimelineRow = {
@@ -66,6 +66,8 @@ export type TimelineBuildInput = {
   innerWayRules: InnerWayEffectRule[];
   setupEffects: EditableObject[];
   weapons: WeaponId[];
+  initialBuffs?: TrackedEffect[];
+  initialDebuffs?: TrackedEffect[];
 };
 
 export const TIMELINE_TIME_EPSILON = 1e-4;
@@ -111,7 +113,8 @@ export function requirementsPass(requirement: unknown, buffs: TrackedEffect[], d
 function applyTrackedEffect(effects: TrackedEffect[], name: string, stack: number | undefined, duration: number | undefined, time: number, maxStackOverride?: number) {
   const existing = effects.find((effect) => effect.name === name);
   const nextStack = Math.min(maxStackOverride ?? Number.POSITIVE_INFINITY, (existing?.stack ?? 0) + (stack ?? 1));
-  const nextEffect: TrackedEffect = { name, stack: nextStack, maxStack: maxStackOverride, expiresAt: duration === undefined ? undefined : time + duration };
+  const persistent = existing?.persistent === true;
+  const nextEffect: TrackedEffect = { name, stack: nextStack, maxStack: maxStackOverride, expiresAt: persistent || duration === undefined ? undefined : time + duration, ...(persistent ? { persistent: true } : {}) };
   return [...effects.filter((effect) => effect.name !== name), nextEffect];
 }
 
@@ -123,7 +126,7 @@ function consumeTrackedEffect(effects: TrackedEffect[], name: string, stack: num
   if (stack === "all") return effects.filter((effect) => effect.name !== name);
   const amount = Math.max(1, stack ?? 1);
   return effects.flatMap((effect) => {
-    if (effect.name !== name) return [effect];
+    if (effect.name !== name || effect.persistent) return [effect];
     const remaining = (effect.stack ?? 1) - amount;
     return remaining > 0 ? [{ ...effect, stack: remaining }] : [];
   });
@@ -228,8 +231,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     queueAttachedEvent(attachment, targetTime, targetSortOrder, targetDisplayOrder);
   });
 
-  let buffs: TrackedEffect[] = [];
-  let debuffs: TrackedEffect[] = [];
+  let buffs: TrackedEffect[] = (input.initialBuffs ?? []).map((effect) => ({ ...effect, persistent: true, expiresAt: undefined }));
+  let debuffs: TrackedEffect[] = (input.initialDebuffs ?? []).map((effect) => ({ ...effect, persistent: true, expiresAt: undefined }));
   let distance = 1;
   const cooldowns: Record<string, number> = {};
   const prune = (effects: TrackedEffect[], time: number) => effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time);
