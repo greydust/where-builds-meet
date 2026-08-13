@@ -11,9 +11,11 @@ try {
   const enemy = { name: "Probe", level: 96, defense: 0, physicalResistance: 0, bellstrikeResistance: 0, stonesplitResistance: 0, silkbindResistance: 0, bamboocutResistance: 0, judgementResistance: 0 };
   const result = calculateRotationBaseline({
     timeline: {
-      rotation: { name: "Cast breakdown probe", steps: [{ type: "skill", skill: "Base" }, { type: "skill", skill: "Base" }] },
+      rotation: { name: "Cast breakdown probe", steps: [{ type: "skill", skill: "Base" }, { type: "skill", skill: "Deflect" }, { type: "skill", skill: "Utility" }, { type: "skill", skill: "Base" }] },
       skills: {
         Base: { name: "Base", castTime: 2, action: [{ type: "damage", phyCoef: 1, time: 0 }, { type: "trigger", value: "Child", time: 0.5 }], modifier: [], tags: ["BaseOnly"] },
+        Deflect: { name: "Deflect", castTime: 0.5, action: [], modifier: [], tags: ["Deflect"] },
+        Utility: { name: "Utility", castTime: 1, action: [{ type: "apply", target: "self", value: "Utility", time: 0 }], modifier: [], tags: [] },
         Child: { name: "Child", castTime: 0, action: [{ type: "damage", phyCoef: 1, time: 0 }], modifier: [], tags: ["Triggered"] },
         MoraleChant: { name: "Morale Chant", castTime: 0, action: [{ type: "damage", phyCoef: 1, time: 0 }], modifier: [], tags: ["Triggered"] },
       },
@@ -33,9 +35,12 @@ try {
   assert(result.metrics.breakdown.casts.length === 2, "Repeated casts must group into one skill row, with Inner Way triggers in their own group.");
   assert(baseCast?.casts === 2 && Math.abs(baseCast.damage - damageSum(baseRows) - damageSum(childRows)) < 1e-9, "Directly triggered skill damage must sum into its grouped base casts.");
   assert(moraleCast?.casts === 2 && Math.abs(moraleCast.damage - damageSum(moraleRows)) < 1e-9, "Inner Way-triggered Morale Chant damage must remain a separate grouped row.");
-  assert(baseCast.averageCastTime === 2 && Math.abs((baseCast.averageDps ?? 0) - baseCast.damage / baseCast.casts / 2) < 1e-9, "Average DPS must average the DPS of each effective cast.");
+  const damagePerBaseCast = baseCast.damage / baseCast.casts;
+  const expectedAverageDps = (damagePerBaseCast / 2.5 + damagePerBaseCast / 2) / 2;
+  assert(baseCast.averageCastTime === 2.25 && Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9, "A following Deflect must be included in the preceding damaging skill's cast-time sample.");
+  assert(!result.metrics.breakdown.casts.some((row) => row.skillId === "Deflect" || row.skillId === "Utility"), "Skills with no attributed damage must be omitted from per-cast breakdown.");
   assert(result.metrics.breakdown.casts[0].skillId === "Base", "Grouped cast rows must be sorted by average DPS descending.");
-  console.log("Per-cast damage attribution checks passed.");
+  console.log("Per-cast damage attribution, Deflect timing, and zero-damage filtering checks passed.");
 } finally {
   await viteServer.close();
 }

@@ -179,7 +179,9 @@ Timeline rows record whether a trigger came from a skill, setup effect, or Inner
 Way. Per-cast breakdowns attribute normal triggered-skill and DOT damage to the
 owning explicit cast. Inner Way-triggered damage, currently Morale Chant, stays
 in its own skill group. Repeated casts group by skill, sum damage, and average
-their individual damage-per-effective-cast-time DPS values.
+their individual damage-per-effective-cast-time DPS values. A Deflect immediately
+following an explicit skill contributes its effective cast time to that skill's
+sample. Skills with no attributed damage, including Deflect itself, are omitted.
 
 ### Extend
 

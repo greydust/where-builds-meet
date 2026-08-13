@@ -391,9 +391,12 @@ skills and owned DOT ticks is attributed to the explicit cast identified by
 `sourceRowId`, then summed into its skill group. Inner Way-triggered skills carry
 `triggerSource: "innerWay"` and receive their own grouped row instead; Morale
 Chant is the current example. Each timed cast contributes damage divided by its
-effective cast time, and the row shows the arithmetic mean of those cast DPS
-values plus average cast time. Zero-time-only groups leave DPS undefined. Rows
-sort by average DPS descending.
+effective cast time. When the next explicit skill is Deflect, its effective cast
+time is added to the preceding cast's time sample. Deflect and every other skill
+with no attributed damage are omitted from this breakdown. The row shows the
+arithmetic mean of the remaining cast DPS values plus average cast time.
+Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
+descending.
 
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and

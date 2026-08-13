@@ -152,6 +152,15 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
     order: row.order,
   }]));
   const rowsById = new Map(timeline.map((row) => [row.id, row]));
+  const orderedRotationCasts = castRows
+    .filter((row) => row.kind === "rotation")
+    .sort((left, right) => (left.rotationIndex ?? Number.MAX_SAFE_INTEGER) - (right.rotationIndex ?? Number.MAX_SAFE_INTEGER));
+  orderedRotationCasts.forEach((row, index) => {
+    const followingRow = orderedRotationCasts[index + 1];
+    if (followingRow?.step.type !== "skill" || followingRow.step.skill !== "Deflect") return;
+    const cast = casts.get(row.id);
+    if (cast) cast.castTime += followingRow.effectiveCastTime;
+  });
   const owningCastId = (row: TimelineRow) => {
     if (casts.has(row.id)) return row.id;
     let sourceId = row.sourceRowId;
@@ -214,6 +223,7 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
     }))
       .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
     casts: [...casts.values()]
+      .filter((cast) => cast.damage > 0)
       .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
       .reduce<Array<{ id: string; skillId: string; name: string; casts: number; totalCastTime: number; dpsTotal: number; dpsSamples: number; damage: number }>>((groups, cast) => {
         const existing = groups.find((group) => group.skillId === cast.skillId);
