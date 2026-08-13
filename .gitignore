@@ -1,8 +1,7 @@
-node_modules/
 dist/
 dist-preview/
-vite-*.log
-vite-dev-error.log
-*.local
-
 local/
+node_modules/
+
+.vite-*.log
+vite-*.log
