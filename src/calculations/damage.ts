@@ -3,6 +3,7 @@ import attunementJson from "../../data/attunement.json";
 import { calculateRates } from "./effectiveStats";
 import type { DerivedStats } from "./effectiveStats";
 import { calculateStatsWithEffects, resolveFormulaValue, type EffectiveStatEffectContainer, type StatEffectContainer, type StatFormula } from "./statEffects";
+import { resolveSegmentValue } from "./dynamicValues";
 
 type AttunementDefinition = { effect?: { stat?: Record<string, number>; tags?: string[] } };
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
@@ -86,6 +87,8 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
       const index = Math.min(values.length - 1, Math.max(0, Math.floor(parameter) - 1));
       return values[index];
     }
+    const segmented = resolveSegmentValue(value, { distance: context.distance ?? 1 });
+    if (segmented !== undefined) return segmented;
     const formula = objectValue.formula;
     return formula && typeof formula === "object" && !Array.isArray(formula)
       ? resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0

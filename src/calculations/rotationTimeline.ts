@@ -1,4 +1,5 @@
 import type { WeaponId } from "../types";
+import { resolveSegmentValue } from "./dynamicValues";
 
 export type EditableObject = Record<string, unknown>;
 export type SkillRecord = {
@@ -283,9 +284,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   let processedEvents = 0;
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
-    const modifier = row.modifierEffects.reduce((total, effect) => total + (typeof effect.castTimeModifier === "number" ? effect.castTimeModifier : 0), 0);
-    const multiplier = row.modifierEffects.reduce((total, effect) => total * (typeof effect.castTimeMultiplier === "number" ? effect.castTimeMultiplier : 1), 1);
-    const adjust = (time: number) => Math.max(0, time + modifier) * multiplier;
+    const timingValue = (value: unknown, actionTime: number, fallback: number) => typeof value === "number" && Number.isFinite(value) ? value : resolveSegmentValue(value, { actionTime }) ?? fallback;
+    const adjust = (time: number) => {
+      const modifier = row.modifierEffects.reduce((total, effect) => total + timingValue(effect.castTimeModifier, time, 0), 0);
+      const multiplier = row.modifierEffects.reduce((total, effect) => total * timingValue(effect.castTimeMultiplier, time, 1), 1);
+      return Math.max(0, time + modifier) * multiplier;
+    };
     row.effectiveCastTime = adjust(baseCastTime);
     row.actions = row.actions.map((action) => ({ ...action, ...(typeof action.time === "number" ? { time: adjust(action.time) } : {}) }));
     events.forEach((queued) => { if (queued.row === row && queued.kind === "action") queued.time = row.startTime + (typeof row.actions[queued.actionIndex ?? -1]?.time === "number" ? row.actions[queued.actionIndex ?? -1].time as number : 0); });

@@ -130,6 +130,11 @@ Flute supplies `dmgBonus` from the damage action's distance snapshot: 2%, 3%,
 beyond 9m retain the 20% value. A Move event changes distance for subsequent
 timeline actions; the initial distance is 1m.
 
+Numeric damage-effect values may also use the data-defined `segment` function.
+When `param1` is `distance`, the action's distance snapshot is compared against
+the inclusive upper bounds in `param2`; the matching value comes from the same
+index in `param3`, and values above every bound use its extra final entry.
+
 The selected Divinecraft contributes its `hpDMGBonus` through this category.
 Divinecraft `qiDMGBonus` and healing-triggered Vitality gain are retained in
 `data/divinecraft.json` as future-facing data, but neither mechanic is currently

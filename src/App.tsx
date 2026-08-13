@@ -1278,7 +1278,7 @@ function ModifierDetails({ item, onChange }: { item: EditableObject; onChange: (
     <div className="sub-editor-heading"><span>Effects</span><button className="button button-small" type="button" onClick={addEffect}>Add effect</button></div>
       {effectEntries.map(([field, value]) => <div className="effect-row" key={field}>
       <select value={field} onChange={(event) => { const next = { ...effect }; const nextField = event.target.value; if (nextField !== field) { next[nextField] = next[field]; delete next[field]; set("effect", next); } }}>{!effectFields.includes(field) && <option value={field}>{field}</option>}{effectFields.map((effectField) => <option key={effectField}>{effectField}</option>)}</select>
-      {booleanEffectFields.has(field) ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => updateEffect(field, event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type="number" value={typeof value === "number" ? value : ""} onChange={(event) => updateEffect(field, Number(event.target.value))} />}
+      <EffectValueEditor value={value} onChange={(nextValue) => updateEffect(field, nextValue)} />
       <button type="button" aria-label="Remove effect" onClick={() => removeEffect(field)}>×</button>
     </div>)}
   </div>;
@@ -1302,16 +1302,29 @@ function DynamicByStackValueEditor({ value, onChange }: { value: EditableObject;
   </div>;
 }
 
+function DynamicSegmentValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
+  const thresholds = Array.isArray(value.param2) ? value.param2.map((item) => asNumber(item)) : [];
+  const results = Array.isArray(value.param3) ? value.param3.map((item) => asNumber(item)) : [];
+  const resizeResults = (nextThresholds: number[]) => Array.from({ length: nextThresholds.length + 1 }, (_, index) => results[index] ?? 0);
+  return <div className="dynamic-effect-editor">
+    <label className="detail-field"><span>Parameter</span><input value={typeof value.param1 === "number" ? value.param1 : asString(value.param1)} onChange={(event) => onChange({ ...value, function: "segment", param1: event.target.value })} /></label>
+    <div className="sub-editor-heading"><span>Thresholds</span><button className="button button-small" type="button" onClick={() => { const nextThresholds = [...thresholds, 0]; onChange({ ...value, function: "segment", param2: nextThresholds, param3: resizeResults(nextThresholds) }); }}>Add</button></div>
+    <div className="dynamic-effect-values">{thresholds.map((item, index) => <div key={index}><input aria-label={`Threshold ${index + 1}`} type="number" step="0.0001" value={item} onChange={(event) => onChange({ ...value, function: "segment", param2: thresholds.map((threshold, thresholdIndex) => thresholdIndex === index ? Number(event.target.value) : threshold) })} /><button type="button" aria-label={`Remove threshold ${index + 1}`} onClick={() => { const nextThresholds = thresholds.filter((_, thresholdIndex) => thresholdIndex !== index); const nextResults = results.filter((_, resultIndex) => resultIndex !== index); onChange({ ...value, function: "segment", param2: nextThresholds, param3: Array.from({ length: nextThresholds.length + 1 }, (_, resultIndex) => nextResults[resultIndex] ?? 0) }); }}>×</button></div>)}</div>
+    <div className="sub-editor-heading"><span>Segment values</span></div>
+    <div className="dynamic-effect-values">{Array.from({ length: thresholds.length + 1 }, (_, index) => results[index] ?? 0).map((item, index) => <div key={index}><input aria-label={`Segment value ${index + 1}`} type="number" step="0.0001" value={item} onChange={(event) => onChange({ ...value, function: "segment", param3: Array.from({ length: thresholds.length + 1 }, (_, resultIndex) => resultIndex === index ? Number(event.target.value) : results[resultIndex] ?? 0) })} /></div>)}</div>
+  </div>;
+}
+
 function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (value: unknown) => void }) {
   const objectValue = value && typeof value === "object" && !Array.isArray(value) ? value as EditableObject : undefined;
-  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" ? objectValue : undefined;
-  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
+  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" || objectValue?.function === "segment" ? objectValue : undefined;
+  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue?.function === "segment" ? "segment" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
   return <div className="effect-value-editor">
     <select aria-label="Effect value type" value={kind} onChange={(event) => {
       const nextKind = event.target.value;
-      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
-    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="text">Text</option></select>
-    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
+      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "segment" ? { function: "segment", param1: "actionTime", param2: [], param3: [0] } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
+    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="segment">Segment</option><option value="text">Text</option></select>
+    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "segment" && dynamicValue ? <DynamicSegmentValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
   </div>;
 }
 

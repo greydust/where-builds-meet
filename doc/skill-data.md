@@ -572,6 +572,25 @@ An effect value can select from a data array using the current timeline state:
 use the first entry, and distances beyond the array use the last entry. Flute
 uses this form for its distance-based `dmgBonus`.
 
+`segment` maps a numeric parameter through ordered inclusive upper bounds:
+
+```json
+{
+  "function": "segment",
+  "param1": "actionTime",
+  "param2": [1.5, 2.5],
+  "param3": [-0.7, -1, -1.2]
+}
+```
+
+For each threshold `param2[n]`, a parameter less than or equal to that threshold
+uses `param3[n]`. A parameter greater than the last threshold uses the final
+`param3` entry, so `param3` must contain one more value than `param2`.
+`actionTime` resolves independently for the skill's original cast time and each
+original action time before timing modifiers are applied. Thus a segmented
+`castTimeModifier` may adjust early and late actions by different amounts.
+Damage effects may similarly segment the current `distance` parameter.
+
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
 action index. Omitting `action` means the skill's cast start; providing it means

@@ -316,7 +316,9 @@ The timeline owns mutable simulation state while it is being built:
 At cast start, modifiers are selected, stack-scaled modifier values are resolved
 from that pre-action state, and cast/action times are adjusted. Resolved
 cast-wide effects remain fixed even if an action in the cast later consumes the
-source stacks. Casts record their start distance, and each action records its
+source stacks. A segmented timing modifier resolves `actionTime` separately for
+the original cast time and each original action time, allowing data-defined
+timing bands without skill-specific code. Casts record their start distance, and each action records its
 own distance snapshot. At each action, expired effects are pruned, requirements
 are checked, and the state
 snapshot is recorded before the action mutates state. Damage-triggered setup and

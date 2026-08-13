@@ -106,7 +106,7 @@
   "DrunkenPoet1": {
     "name": "Drunken Poet 1st Hit",
     "shortName": "Poet",
-    "castTime": 1.3833,
+    "castTime": 1.325,
     "action": [
       {
         "type": "apply",
@@ -120,14 +120,14 @@
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.3833
+        "time": 1.1125
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.3833
+        "time": 1.1125
       },
       {
         "type": "trigger",
@@ -138,7 +138,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.3833
+        "time": 1.1125
       },
       {
         "type": "trigger",
@@ -149,7 +149,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.3833
+        "time": 1.1125
       }
     ],
     "modifier": [
@@ -161,7 +161,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.6875
         }
       }
     ],
@@ -175,7 +175,7 @@
   "DrunkenPoet2": {
     "name": "Drunken Poet 2nd Hit",
     "shortName": "Poet",
-    "castTime": 1.45,
+    "castTime": 1.1875,
     "action": [
       {
         "type": "apply",
@@ -189,14 +189,14 @@
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.45
+        "time": 1
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.45
+        "time": 1
       },
       {
         "type": "trigger",
@@ -207,7 +207,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.45
+        "time": 1
       },
       {
         "type": "trigger",
@@ -218,7 +218,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.45
+        "time": 1
       }
     ],
     "modifier": [
@@ -230,7 +230,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.6875
         }
       }
     ],
@@ -244,7 +244,7 @@
   "DrunkenPoet3": {
     "name": "Drunken Poet 3rd Hit",
     "shortName": "Poet",
-    "castTime": 1.5,
+    "castTime": 1.3125,
     "action": [
       {
         "type": "apply",
@@ -258,14 +258,14 @@
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.5
+        "time": 1.1125
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.5
+        "time": 1.1125
       },
       {
         "type": "trigger",
@@ -276,7 +276,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.5
+        "time": 1.1125
       },
       {
         "type": "trigger",
@@ -287,7 +287,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.5
+        "time": 1.1125
       }
     ],
     "modifier": [
@@ -299,7 +299,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.6875
         }
       }
     ],
@@ -313,7 +313,7 @@
   "DrunkenPoet4": {
     "name": "Drunken Poet 4th Hit",
     "shortName": "Poet",
-    "castTime": 1.55,
+    "castTime": 1.3375,
     "action": [
       {
         "type": "apply",
@@ -327,14 +327,14 @@
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.55
+        "time": 1.1625
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.55
+        "time": 1.1625
       },
       {
         "type": "trigger",
@@ -345,7 +345,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.55
+        "time": 1.1625
       },
       {
         "type": "trigger",
@@ -356,7 +356,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.55
+        "time": 1.1625
       }
     ],
     "modifier": [
@@ -368,7 +368,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.6875
         }
       }
     ],
@@ -382,7 +382,7 @@
   "DrunkenPoet5": {
     "name": "Drunken Poet 5th Hit [Cancel]",
     "shortName": "Poet",
-    "castTime": 1.6833,
+    "castTime": 1.275,
     "action": [
       {
         "type": "consume",
@@ -403,7 +403,7 @@
         "phyCoef": 1.7052,
         "phyBonus": 244,
         "attrBonus": 0,
-        "time": 1.6833
+        "time": 1.275
       },
       {
         "type": "trigger",
@@ -414,7 +414,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.6833
+        "time": 1.275
       },
       {
         "type": "trigger",
@@ -425,7 +425,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.6833
+        "time": 1.275
       }
     ],
     "modifier": [
@@ -452,7 +452,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.6875
         }
       }
     ],
@@ -529,7 +529,7 @@
   "DragonsBreath1": {
     "name": "Dragon's Breath 1-Hit [Cancel]",
     "shortName": "Breath 1 Hit",
-    "castTime": 1.5667,
+    "castTime": 1.3375,
     "action": [
       {
         "type": "apply",
@@ -543,14 +543,14 @@
         "phyCoef": 1.3604,
         "phyBonus": 195.5,
         "attrBonus": 0,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Combustion",
         "duration": 1.5,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "apply",
@@ -558,7 +558,7 @@
         "value": "Combustion",
         "duration": 8,
         "reapply": false,
-        "time": 1.5667
+        "time": 1.3375
       }
     ],
     "modifier": [
@@ -570,7 +570,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.7
         }
       }
     ],
@@ -584,7 +584,7 @@
   "DragonsBreathSmolder1": {
     "name": "Dragon's Breath - Smolder 1-Hit [Cancel]",
     "shortName": "Smolder 1 Hit",
-    "castTime": 1.5667,
+    "castTime": 1.3375,
     "action": [
       {
         "type": "apply",
@@ -598,14 +598,14 @@
         "phyCoef": 1.28345,
         "phyBonus": 186,
         "attrBonus": 0,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Smolder",
         "duration": 4,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "apply",
@@ -613,7 +613,7 @@
         "value": "Smolder",
         "reapply": false,
         "duration": 4,
-        "time": 1.5667
+        "time": 1.3375
       }
     ],
     "modifier": [
@@ -625,7 +625,7 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": -0.7
         }
       }
     ],
@@ -639,7 +639,7 @@
   "DragonsBreath2": {
     "name": "Dragon's Breath 2-Hit [Cancel]",
     "shortName": "Breath Full",
-    "castTime": 2.5667,
+    "castTime": 2.7375,
     "action": [
       {
         "type": "apply",
@@ -653,14 +653,14 @@
         "phyCoef": 1.3604,
         "phyBonus": 195.5,
         "attrBonus": 0,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Combustion",
         "duration": 1.5,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "apply",
@@ -668,28 +668,28 @@
         "value": "Combustion",
         "duration": 8,
         "reapply": false,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "damage",
         "phyCoef": 1.3604,
         "phyBonus": 195.5,
         "attrBonus": 0,
-        "time": 2.5667
+        "time": 2.7375
       },
       {
         "type": "damage",
         "phyCoef": 1.4992,
         "phyBonus": 215,
         "attrBonus": 0,
-        "time": 2.5667
+        "time": 2.7375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Combustion",
         "duration": 3,
-        "time": 2.5667
+        "time": 2.7375
       }
     ],
     "modifier": [
@@ -701,7 +701,17 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": {
+            "function": "segment",
+            "param1": "actionTime",
+            "param2": [
+              1.3375
+            ],
+            "param3": [
+              -0.7,
+              -1
+            ]
+          }
         }
       }
     ],
@@ -715,7 +725,7 @@
   "DragonsBreathSmolder2": {
     "name": "Dragon's Breath - Smolder 2-Hit [Cancel]",
     "shortName": "Smolder Full",
-    "castTime": 2.5667,
+    "castTime": 2.7375,
     "action": [
       {
         "type": "apply",
@@ -729,14 +739,14 @@
         "phyCoef": 1.28345,
         "phyBonus": 186,
         "attrBonus": 0,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Smolder",
         "duration": 4,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "apply",
@@ -744,28 +754,28 @@
         "value": "Smolder",
         "duration": 4,
         "reapply": false,
-        "time": 1.5667
+        "time": 1.3375
       },
       {
         "type": "damage",
         "phyCoef": 1.28345,
         "phyBonus": 186,
         "attrBonus": 0,
-        "time": 2.5667
+        "time": 2.7375
       },
       {
         "type": "damage",
         "phyCoef": 1.4144,
         "phyBonus": 205,
         "attrBonus": 0,
-        "time": 2.5667
+        "time": 2.7375
       },
       {
         "type": "extend",
         "target": "target",
         "value": "Smolder",
         "duration": 7.5,
-        "time": 2.5667
+        "time": 2.7375
       }
     ],
     "modifier": [
@@ -777,7 +787,17 @@
           }
         ],
         "effect": {
-          "castTimeModifier": -0.9
+          "castTimeModifier": {
+            "function": "segment",
+            "param1": "actionTime",
+            "param2": [
+              1.3375
+            ],
+            "param3": [
+              -0.7,
+              -1
+            ]
+          }
         }
       }
     ],
