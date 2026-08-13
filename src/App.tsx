@@ -46,6 +46,7 @@ import { compareTimelineTime, type AttachedEventTarget, type EditableObject, typ
 import { calculateStatsWithOverrides, type CharacterStatOverrides, type EffectiveStatEffectContainer, type StatEffectContainer } from "./calculations/statEffects";
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
+import { characterProfileMatches, characterProfileStorageKey, exportCharacterProfiles, loadCharacterProfiles, mergeImportedCharacterProfiles, serializeCharacterProfiles, type CharacterProfile } from "./characterProfiles";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
@@ -772,19 +773,21 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
   return <span className={`damage-breakdown-wrap ${className}`}><span>{formatNumber(breakdown.total)}</span><span className="damage-breakdown-tooltip">{parts.map(([key, label]) => <span className={`damage-breakdown-part damage-${key}`} key={key}><i>{label}</i>{formatNumber(breakdown[key] as number)}</span>)}</span></span>;
 }
 
-function StatsTab({ character, pathId, statOverrides, attunementOverrides, buildSetupOverrides, onStatChange, onStatReset, onAttunementChange, onAttunementReset, onBuildSetupChange, onBuildSetupReset, onResetAll, rotationMetrics, rotationRecalculating, activeBuildName, activeRotationName, onInnerWayChange }: {
+function StatsTab({ character, pathId, statOverrides, attunementOverrides, characterProfiles, buildSetupOverrides, onStatChange, onStatReset, onAttunementChange, onAttunementReset, onApplyCharacterProfile, onCharacterProfilesChange, onBuildSetupChange, onBuildSetupReset, rotationMetrics, rotationRecalculating, activeBuildName, activeRotationName, onInnerWayChange }: {
   character: CharacterState;
   pathId: PathId;
   statOverrides: CharacterStatOverrides;
   attunementOverrides: AttunementOverrides;
+  characterProfiles: CharacterProfile[];
   buildSetupOverrides: BuildSetupOverrides;
   onStatChange: (key: keyof CharacterStats, value: number) => void;
   onStatReset: (key: keyof CharacterStats) => void;
   onAttunementChange: (key: keyof AttunementStats, value: number) => void;
   onAttunementReset: (key: keyof AttunementStats) => void;
+  onApplyCharacterProfile: (profile?: CharacterProfile) => void;
+  onCharacterProfilesChange: (profiles: CharacterProfile[]) => void;
   onBuildSetupChange: <K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) => void;
   onBuildSetupReset: (key: keyof BuildSetup) => void;
-  onResetAll: () => void;
   rotationMetrics?: RotationMetrics;
   rotationRecalculating: boolean;
   activeBuildName: string;
@@ -796,20 +799,108 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, build
   const [food, setFood] = useState(loadFood);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
+  const [newProfileName, setNewProfileName] = useState("");
+  const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
+  const profileDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => sessionStorage.setItem(innerWayStorageKey, JSON.stringify(innerWays)), [innerWays]);
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
 
   const { arsenal, bowRingSet, gearSets } = buildSetup;
+  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup, food, divinecraft };
+  const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
+  const isCalculated = Object.keys(statOverrides).length === 0
+    && Object.keys(attunementOverrides).length === 0
+    && Object.keys(buildSetupOverrides).length === 0
+    && JSON.stringify(innerWays) === JSON.stringify(typedDefaultSetup.innerWays)
+    && food === typedDefaultSetup.food
+    && divinecraft === typedDefaultSetup.divinecraft;
+  const [selectedProfileId, setSelectedProfileId] = useState(() => isCalculated ? "__calculated" : matchingProfile?.id ?? "__modified");
+
+  useEffect(() => {
+    if (selectedProfileId === "__calculated") {
+      if (!isCalculated) setSelectedProfileId("__modified");
+      return;
+    }
+    if (selectedProfileId === "__modified") return;
+    const selectedProfile = characterProfiles.find(({ id }) => id === selectedProfileId);
+    if (!selectedProfile) {
+      setSelectedProfileId(isCalculated ? "__calculated" : "__modified");
+      return;
+    }
+    if (characterProfileMatches(selectedProfile, currentProfileData)) return;
+    onCharacterProfilesChange(characterProfiles.map((profile) => profile.id === selectedProfileId ? {
+      ...profile,
+      statOverrides: { ...statOverrides },
+      attunementOverrides: { ...attunementOverrides },
+      innerWays: innerWays.map((row) => ({ ...row })),
+      buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } },
+      food,
+      divinecraft,
+    } : profile));
+  }, [attunementOverrides, buildSetup, characterProfiles, divinecraft, food, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
+
+  function applyProfile(profile?: CharacterProfile) {
+    const nextInnerWays = profile ? profile.innerWays.map((row) => ({ ...row })) : typedDefaultSetup.innerWays.map((row) => ({ ...row }));
+    const nextFood = profile?.food ?? typedDefaultSetup.food;
+    const nextDivinecraft = profile?.divinecraft ?? typedDefaultSetup.divinecraft;
+    setAttunementDrafts({});
+    sessionStorage.setItem(innerWayStorageKey, JSON.stringify(nextInnerWays));
+    sessionStorage.setItem(foodStorageKey, nextFood);
+    sessionStorage.setItem(divinecraftStorageKey, nextDivinecraft);
+    setInnerWays(nextInnerWays);
+    setFood(nextFood);
+    setDivinecraft(nextDivinecraft);
+    onApplyCharacterProfile(profile);
+    onInnerWayChange();
+  }
+
+  function selectProfile(profile?: CharacterProfile) {
+    setSelectedProfileId(profile?.id ?? "__calculated");
+    applyProfile(profile);
+  }
+
+  function createProfile() {
+    const name = newProfileName.trim();
+    if (!name) return;
+    const usedIds = new Set(characterProfiles.map(({ id }) => id));
+    const baseId = `character-profile-${Date.now()}`;
+    let id = baseId;
+    let suffix = 2;
+    while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
+    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } }, food, divinecraft }]);
+    setSelectedProfileId(id);
+    setNewProfileName("");
+    setProfileTransferStatus({ message: `Saved ${name}.` });
+  }
+
+  function exportProfiles() {
+    const blob = new Blob([exportCharacterProfiles(characterProfiles)], { type: "application/json" });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = `where-builds-meet-character-profiles-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(href);
+    setProfileTransferStatus({ message: `Exported ${characterProfiles.length} profiles.` });
+  }
+
+  async function importProfiles(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const result = mergeImportedCharacterProfiles(characterProfiles, JSON.parse(await file.text()));
+      onCharacterProfilesChange(result.profiles);
+      setProfileTransferStatus({ message: `Imported ${result.importedCount} profiles.` });
+    } catch (error) {
+      setProfileTransferStatus({ message: error instanceof Error ? error.message : "The character profile file could not be imported.", error: true });
+    }
+  }
 
   function updateStat(key: keyof CharacterStats, value: number) {
     onStatChange(key, Number.isFinite(value) ? value : 0);
-  }
-
-  function reset() {
-    setAttunementDrafts({});
-    onResetAll();
   }
 
   function commitAttunement(key: keyof AttunementStats, rawValue: string) {
@@ -873,7 +964,18 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, build
       <div className="app-layout">
         <div className="character-stats-column">
         <section className="panel stats-panel">
-          <div className="panel-heading"><div><h2>Character Stats</h2></div><button className="button button-secondary" type="button" onClick={reset}>Reset</button></div>
+          <div className="panel-heading character-stats-heading"><div><h2>Character Stats</h2></div><div className="character-profile-controls">
+            <select aria-label="Character profile" value={selectedProfileId} onChange={(event) => {
+              if (event.target.value === "__calculated") selectProfile();
+              else selectProfile(characterProfiles.find(({ id }) => id === event.target.value));
+            }}>
+              <option value="__calculated">Calculated</option>
+              {selectedProfileId === "__modified" && <option value="__modified" disabled>Unsaved changes</option>}
+              {characterProfiles.map((profile) => <option value={profile.id} key={profile.id}>{profile.name}</option>)}
+            </select>
+            <button className="button button-secondary" type="button" onClick={() => { setProfileTransferStatus(undefined); profileDialogRef.current?.showModal(); }}>Profiles</button>
+            <button className="button button-secondary" type="button" onClick={() => selectProfile()}>Reset</button>
+          </div></div>
           <div className="stats-grid">
             {physicalRows.map(([left, right], index) => (
               <div className="stat-row" key={left.key}>
@@ -972,6 +1074,29 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, build
           <PriorityPanel title="Inner Ways Priority" rows={rotationMetrics?.innerWayPriority ?? []} />
         </aside>
       </div>
+      <dialog className="character-profile-dialog" ref={profileDialogRef} onCancel={() => setProfileTransferStatus(undefined)}>
+        <div className="character-profile-dialog-heading"><div><h2>Character Profiles</h2><p>Profiles save modified stats and the complete Main-tab setup.</p></div><button className="icon-button" type="button" aria-label="Close character profiles" onClick={() => profileDialogRef.current?.close()}>×</button></div>
+        <div className="character-profile-create"><input value={newProfileName} placeholder="Profile name" aria-label="New character profile name" onChange={(event) => setNewProfileName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") createProfile(); }} /><button className="button button-primary" type="button" disabled={!newProfileName.trim()} onClick={createProfile}>Save current</button></div>
+        <div className="character-profile-list">
+          <div className="character-profile-row calculated-profile-row"><strong>Calculated</strong><button className="button button-secondary button-small" type="button" onClick={() => { selectProfile(); profileDialogRef.current?.close(); }}>Load</button></div>
+          {characterProfiles.map((profile) => <div className="character-profile-row" key={profile.id}>
+            <input defaultValue={profile.name} aria-label={`Rename ${profile.name}`} onBlur={(event) => {
+              const name = event.currentTarget.value.trim();
+              if (!name) { event.currentTarget.value = profile.name; return; }
+              if (name !== profile.name) onCharacterProfilesChange(characterProfiles.map((candidate) => candidate.id === profile.id ? { ...candidate, name } : candidate));
+            }} />
+            <div><button className="button button-secondary button-small" type="button" onClick={() => { selectProfile(profile); profileDialogRef.current?.close(); }}>Load</button><button className="button button-secondary button-small" type="button" onClick={() => {
+              const usedIds = new Set(characterProfiles.map(({ id }) => id));
+              const baseId = `${profile.id}:copy`;
+              let id = baseId;
+              let suffix = 2;
+              while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
+              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, gearSets: { ...profile.buildSetup.gearSets } } }]);
+            }}>Duplicate</button><button className="button button-danger button-small" type="button" onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}>Delete</button></div>
+          </div>)}
+        </div>
+        <div className="character-profile-transfer"><div><button className="button button-secondary button-small" type="button" disabled={characterProfiles.length === 0} onClick={exportProfiles}>Export</button><label className="button button-secondary button-small character-profile-import">Import<input type="file" accept="application/json,.json" aria-label="Import character profiles" onChange={importProfiles} /></label></div>{profileTransferStatus && <p className={profileTransferStatus.error ? "error" : ""} role={profileTransferStatus.error ? "alert" : "status"}>{profileTransferStatus.message}</p>}<button className="button button-primary" type="button" onClick={() => profileDialogRef.current?.close()}>Done</button></div>
+      </dialog>
     </>
   );
 }
@@ -2257,6 +2382,7 @@ export default function App() {
   const [innerWayRevision, setInnerWayRevision] = useState(0);
   const [statOverrides, setStatOverrides] = useState<CharacterStatOverrides>(loadStatOverrides);
   const [attunementOverrides, setAttunementOverrides] = useState<AttunementOverrides>(loadAttunementOverrides);
+  const [characterProfiles, setCharacterProfiles] = useState<CharacterProfile[]>(loadCharacterProfiles);
   const [pathId, setPathId] = useState<PathId>(loadSelectedPath);
   const [settings, setSettings] = useState<CalculatorSettings>(() => settingsForPath(loadSettings(), pathId));
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
@@ -2312,10 +2438,18 @@ export default function App() {
     delete next[key];
     return next;
   });
-  const resetAllStatOverrides = () => {
-    setStatOverrides({});
-    setAttunementOverrides({});
-    setBuildSetupOverrides({});
+  const applyCharacterProfile = (profile?: CharacterProfile) => {
+    setStatOverrides(profile ? { ...profile.statOverrides } : {});
+    setAttunementOverrides(profile ? { ...profile.attunementOverrides } : {});
+    if (!profile) {
+      setBuildSetupOverrides({});
+      return;
+    }
+    setBuildSetupOverrides({
+      gearSets: { ...profile.buildSetup.gearSets },
+      bowRingSet: profile.buildSetup.bowRingSet,
+      arsenal: profile.buildSetup.arsenal,
+    });
   };
   const handleRotationMetrics = (metrics: RotationMetrics, isActive: boolean) => {
     if (isActive) publishRotationMetrics(metrics);
@@ -2330,6 +2464,7 @@ export default function App() {
   };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
+  useEffect(() => localStorage.setItem(characterProfileStorageKey, serializeCharacterProfiles(characterProfiles)), [characterProfiles]);
   useEffect(() => {
     if (activeBuild && activeBuild.id !== buildState.activeBuildId) setBuildState((current) => ({ ...current, activeBuildId: activeBuild.id }));
   }, [activeBuild, buildState.activeBuildId]);
@@ -2366,7 +2501,7 @@ export default function App() {
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
-      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} onResetAll={resetAllStatOverrides} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
+      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} onActiveSimulationBundleChange={handleActiveSimulationBundle} /></div>
       <div className={activeTab === "simulation" ? "" : "tab-hidden"}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} buildName={activeBuild?.name} /></div>
       <footer className="page-footer">

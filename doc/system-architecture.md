@@ -101,6 +101,7 @@ public/
 
 - final-value character stat overrides
 - final-value attunement overrides
+- reusable character profiles containing those override maps and Main-tab setup
 - two equipped weapons
 - selected combat path and its optional weapon lock
 - build list, shared gear inventory, and active build ID
@@ -144,6 +145,7 @@ tab session.
 | State | Storage |
 | --- | --- |
 | Character stat overrides | `localStorage`, `wwm-stat-overrides-v1` |
+| Custom character profiles | `localStorage`, `wwm-character-profiles-v1` |
 | Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1` |
 | Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
@@ -180,6 +182,14 @@ Legacy fixed-time Move and Exhausted events are then attached to the nearest
 skill start, direct action, or directly declared triggered-skill action and moved
 immediately before that target skill. Legacy Exhausted `before` attachments are
 migrated to post-action `after` attachments.
+
+Character Profile export produces a versioned JSON snapshot containing only
+custom profiles. Each profile contains character and attunement override maps,
+Inner Ways, final gear-set/bow-ring/arsenal selections, food, and Divinecraft.
+The implicit `Calculated` profile is reconstructed in the UI and is never
+persisted or exported. Import validates stat keys and setup shapes, discards
+unknown or non-finite override values, appends valid profiles, and remaps
+colliding IDs without changing the currently applied profile.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define setup choices
@@ -229,6 +239,19 @@ The solved simulation base—not an overlaid display object—is sent to the wor
 The active baseline effects reconstruct the overridden value there, while setup,
 priority, and other comparison variants apply their changed effects to the same
 base. Modified stats therefore remain responsive in delta calculations.
+
+The compact Character Profile selector treats `Calculated` as an immutable
+reset profile. Loading it clears character, attunement, and build-setup
+overrides, thereby restoring the active build's setup, and restores the
+configured default Inner Ways, food, and Divinecraft. A custom profile stores
+the user's current final-value character and attunement overrides plus the final
+gear-set, bow/ring, arsenal, Inner Way, food, and Divinecraft selections. Loading
+one replaces that complete state. Profiles can be created, renamed, duplicated,
+deleted, exported, and imported through the management dialog. While a custom
+profile is selected, every subsequent Main-tab change is written directly back
+to that profile. Changes made while `Calculated` is selected instead move the
+selector to `Unsaved changes`; the restored Reset button loads `Calculated`
+again without opening the selector.
 
 Gear attunements are the calculated attunement baseline and remain keyed by
 definition ID. Damage resolution maps weapon definitions to penetration and

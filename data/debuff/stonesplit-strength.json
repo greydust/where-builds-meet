@@ -2,7 +2,7 @@
   "Dread": {
     "name": "Dread",
     "description": "Increases HP damage taken by 12%.",
-    "duration": 12,
+    "duration": 8,
     "maxStack": 1,
     "shared": false,
     "effect": [
@@ -29,8 +29,14 @@
           {
             "operator": "or",
             "operand": [
-              { "target": "martialArt", "value": "snowparting" },
-              { "target": "martialArt", "value": "phalanxbane" }
+              {
+                "target": "martialArt",
+                "value": "snowparting"
+              },
+              {
+                "target": "martialArt",
+                "value": "phalanxbane"
+              }
             ]
           }
         ],
