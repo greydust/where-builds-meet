@@ -3,5 +3,4 @@ dist-preview/
 local/
 node_modules/
 
-.vite-*.log
-vite-*.log
+*.log

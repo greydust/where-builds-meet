@@ -24,7 +24,11 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQSlash"
+      "skill": "SnowpartingQSlide"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQSlide"
     },
     {
       "type": "skill",
@@ -56,7 +60,7 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQ"
+      "skill": "SnowpartingQStab"
     },
     {
       "type": "event",
@@ -351,7 +355,7 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQ"
+      "skill": "SnowpartingQStab"
     },
     {
       "type": "event",
