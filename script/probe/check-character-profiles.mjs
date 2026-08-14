@@ -14,19 +14,21 @@ try {
     buildSetup: { gearSets: { Cleftpeak: 2, RainWhisper: 2 }, bowRingSet: "Precision", arsenal: "Stonesplit" },
     food: "SimmeringFishSlices",
     divinecraft: "FireWater",
+    globalDebuffs: { phantomChime: true },
   }]);
   assert(parsed.length === 1 && parsed[0].name === "Test Profile", "Profiles must load with a trimmed name.");
   assert(parsed[0].statOverrides.minPhys === 123 && !("unknownStat" in parsed[0].statOverrides) && !("maxPhys" in parsed[0].statOverrides), "Only finite known character overrides may load.");
   assert(parsed[0].attunementOverrides.physicalPenetration === 0.051 && !("unknownAttunement" in parsed[0].attunementOverrides), "Only finite known attunement overrides may load.");
-  assert(characterProfileMatches(parsed[0], { statOverrides: { minPhys: 123 }, attunementOverrides: { physicalPenetration: 0.051 }, innerWays: parsed[0].innerWays.map((row) => ({ ...row })), buildSetup: { ...parsed[0].buildSetup, gearSets: { ...parsed[0].buildSetup.gearSets } }, food: parsed[0].food, divinecraft: parsed[0].divinecraft }), "Profile matching must include overrides and every saved Main-tab selection.");
+  assert(!("food" in parsed[0]) && !("divinecraft" in parsed[0]) && !("globalDebuffs" in parsed[0]), "Legacy independent setup selections must be discarded from character profiles.");
+  assert(characterProfileMatches(parsed[0], { statOverrides: { minPhys: 123 }, attunementOverrides: { physicalPenetration: 0.051 }, innerWays: parsed[0].innerWays.map((row) => ({ ...row })), buildSetup: { ...parsed[0].buildSetup, innerWays: parsed[0].innerWays.map((row) => ({ ...row })), gearSets: { ...parsed[0].buildSetup.gearSets } } }), "Profile matching must include every profile-owned Main-tab selection.");
 
   const exported = JSON.parse(exportCharacterProfiles(parsed));
-  assert(exported.version === 2 && exported.profiles[0].buildSetup.gearSets.Cleftpeak === 2, "Profile export v2 must include Main-tab setup selections.");
+  assert(exported.version === 3 && exported.profiles[0].buildSetup.innerWays.length === 4 && exported.profiles[0].buildSetup.gearSets.Cleftpeak === 2 && !("food" in exported.profiles[0]) && !("divinecraft" in exported.profiles[0]) && !("globalDebuffs" in exported.profiles[0]), "Profile export v3 must include build-backed setup selections but omit independent session controls.");
   const merged = mergeImportedCharacterProfiles(parsed, exported);
   assert(merged.importedCount === 1 && merged.profiles.length === 2, "Import must append valid profiles.");
   assert(merged.profiles[1].id !== parsed[0].id, "Import must remap a colliding profile ID.");
   const migrated = mergeImportedCharacterProfiles([], { format: exported.format, version: 1, profiles: [{ id: "legacy", name: "Legacy", statOverrides: { minPhys: 99 }, attunementOverrides: {} }] });
-  assert(migrated.profiles[0].innerWays.length === 4 && migrated.profiles[0].food === "SimmeringFishSlices" && migrated.profiles[0].divinecraft === "Fire", "Version 1 profiles must migrate with configured default Main-tab setup.");
+  assert(migrated.profiles[0].innerWays.length === 4 && !("food" in migrated.profiles[0]) && !("divinecraft" in migrated.profiles[0]), "Version 1 profiles must migrate while omitting independent session controls.");
   console.log("Character profile validation, matching, export, and collision-safe import checks passed.");
 } finally {
   await viteServer.close();

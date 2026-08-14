@@ -3,9 +3,6 @@ import type { CharacterStatOverrides } from "./calculations/statEffects";
 import { allStatDefinitions } from "./data/statDefinitions";
 import { attunementData, defaultBuildSetup, normalizeBuildSetup, type BuildSetup } from "./gear";
 import defaultSetupJson from "../data/default-setup.json";
-import foodJson from "../data/food.json";
-import divinecraftJson from "../data/divinecraft.json";
-import { defaultGlobalDebuffs, normalizeGlobalDebuffs, type GlobalDebuffState } from "./globalDebuffs";
 
 export const characterProfileStorageKey = "wwm-character-profiles-v1";
 export const characterProfileExportFormat = "where-builds-meet-character-profiles";
@@ -17,16 +14,11 @@ export type CharacterProfile = {
   attunementOverrides: Partial<AttunementStats>;
   innerWays: Array<{ innerWay: string; tier: string }>;
   buildSetup: BuildSetup;
-  food: string;
-  divinecraft: string;
-  globalDebuffs: GlobalDebuffState;
 };
 
 const characterStatKeys = new Set(allStatDefinitions.map(({ key }) => key as string));
 const attunementKeys = new Set(Object.keys(attunementData));
-const defaultSetup = defaultSetupJson as { innerWays: Array<{ innerWay: string; tier: string }>; food: string; divinecraft: string };
-const foodKeys = new Set(Object.keys(foodJson));
-const divinecraftKeys = new Set(Object.keys(divinecraftJson));
+const defaultSetup = defaultSetupJson as { innerWays: Array<{ innerWay: string; tier: string }> };
 
 const cloneDefaultInnerWays = () => defaultSetup.innerWays.map((row) => ({ ...row }));
 
@@ -49,16 +41,15 @@ function parseProfile(value: unknown): CharacterProfile | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const source = value as Record<string, unknown>;
   if (typeof source.id !== "string" || !source.id.trim() || typeof source.name !== "string" || !source.name.trim()) return undefined;
+  const innerWays = parseInnerWays(source.innerWays);
+  const buildSetup = normalizeBuildSetup(source.buildSetup, defaultBuildSetup);
   return {
     id: source.id,
     name: source.name.trim(),
     statOverrides: finiteValues(source.statOverrides, characterStatKeys) as CharacterStatOverrides,
     attunementOverrides: finiteValues(source.attunementOverrides, attunementKeys) as Partial<AttunementStats>,
-    innerWays: parseInnerWays(source.innerWays),
-    buildSetup: normalizeBuildSetup(source.buildSetup, defaultBuildSetup),
-    food: typeof source.food === "string" && foodKeys.has(source.food) ? source.food : defaultSetup.food,
-    divinecraft: typeof source.divinecraft === "string" && divinecraftKeys.has(source.divinecraft) ? source.divinecraft : defaultSetup.divinecraft,
-    globalDebuffs: source.globalDebuffs === undefined ? { ...defaultGlobalDebuffs } : normalizeGlobalDebuffs(source.globalDebuffs),
+    innerWays,
+    buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })) },
   };
 }
 
@@ -128,8 +119,5 @@ export function characterProfileMatches(profile: CharacterProfile, current: Omit
   return sameValues(profile.statOverrides, current.statOverrides)
     && sameValues(profile.attunementOverrides, current.attunementOverrides)
     && JSON.stringify(profile.innerWays) === JSON.stringify(current.innerWays)
-    && JSON.stringify(profile.buildSetup) === JSON.stringify(current.buildSetup)
-    && profile.food === current.food
-    && profile.divinecraft === current.divinecraft
-    && JSON.stringify(profile.globalDebuffs) === JSON.stringify(current.globalDebuffs);
+    && JSON.stringify(profile.buildSetup) === JSON.stringify(current.buildSetup);
 }

@@ -31,6 +31,7 @@ import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
 import systemStats from "../data/system.json";
+import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import defaultSetup from "../data/default-setup.json";
 import { emptyRotationBreakdown, getRotationMetrics, getRotationRecalculating, publishRotationMetrics, publishRotationRecalculating, subscribeToRotationMetrics, subscribeToRotationRecalculating, type RotationGroupBreakdown, type RotationMetrics, type RotationPriority } from "./calculations/rotationMetrics";
 import arsenalDefinitions from "../data/arsenal.json";
@@ -52,13 +53,13 @@ import { calculateStatsWithOverrides, type CharacterStatOverrides, type Effectiv
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
 import { characterProfileMatches, characterProfileStorageKey, exportCharacterProfiles, loadCharacterProfiles, mergeImportedCharacterProfiles, serializeCharacterProfiles, type CharacterProfile } from "./characterProfiles";
-import { defaultGlobalDebuffs, globalDebuffRows, globalDebuffStorageKey, globalDebuffTimelineEffects, loadGlobalDebuffs, type GlobalDebuffState } from "./globalDebuffs";
+import { globalDebuffRows, globalDebuffStorageKey, globalDebuffTimelineEffects, loadGlobalDebuffs, type GlobalDebuffState } from "./globalDebuffs";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
 const statOverrideStorageKey = "wwm-stat-overrides-v1";
 const skillStorageKey = "wwm-skill-editor-session-v1";
-const innerWayStorageKey = "wwm-inner-way-session-v1";
+const legacyInnerWayStorageKey = "wwm-inner-way-session-v1";
 const attunementStorageKey = "wwm-attunement-session-v2";
 const legacyAttunementStorageKey = "wwm-attunement-session-v1";
 const attunementOverrideStorageKey = "wwm-attunement-overrides-v1";
@@ -224,27 +225,20 @@ function selectableRotationSkillIds(weapons: [WeaponId, WeaponId]) {
   return categories.flatMap((category) => Object.keys(defaultSkillMaps[category])).filter((skillId) => !allSkillDefinitions[skillId]?.tags?.includes("Triggered"));
 }
 
-function loadInnerWayConditions(excludedInnerWay?: string) {
+function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], excludedInnerWay?: string) {
   const conditions = new Set<string>();
   const pathId = loadSelectedPath();
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(innerWayStorageKey) ?? "[]") as Array<{ innerWay?: unknown; tier?: unknown }>;
-    for (const row of saved) {
-      if (typeof row?.innerWay !== "string" || !row.innerWay || typeof row.tier !== "string") continue;
-      if (row.innerWay === excludedInnerWay) continue;
-      if (!innerWayAvailableForPath(row.innerWay, pathId)) continue;
-      const tierNumber = Number(row.tier.slice(1));
-      for (let tier = 0; tier <= tierNumber; tier += 1) conditions.add(`${row.innerWay}T${tier}`);
-    }
-  } catch {
-    // A missing or malformed session selection simply provides no Inner Way conditions.
+  for (const row of selectedInnerWays) {
+    if (!row.innerWay || row.innerWay === excludedInnerWay || !innerWayAvailableForPath(row.innerWay, pathId)) continue;
+    const tierNumber = Number(row.tier.slice(1));
+    for (let tier = 0; tier <= tierNumber; tier += 1) conditions.add(`${row.innerWay}T${tier}`);
   }
   return conditions;
 }
 
-function loadInnerWayEffectRules(): InnerWayEffectRule[] {
+function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): InnerWayEffectRule[] {
   const pathId = loadSelectedPath();
-  const selected = loadInnerWays().filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId));
+  const selected = selectedInnerWays.filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId));
   return selected.flatMap(({ innerWay, tier }) => {
     if (!innerWay || !innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions]) return [];
     const definition = innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions] as { effect?: Record<string, { effect?: unknown[]; trigger?: unknown[] }> };
@@ -406,10 +400,11 @@ type SystemStatsDefinition = {
   imperialPalaceOddityStats: Array<SetupEffect & { id: string }>;
   hexiOddityStats: Array<SetupEffect & { id: string }>;
   hiddenMountainOddityStats: Array<SetupEffect & { id: string }>;
-  attributeConversions: Array<SetupEffect & { id: string }>;
+  baseAttributes: BaseAttributeData;
 };
 const typedSystemStats = systemStats as SystemStatsDefinition;
-const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.enhancementStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...typedSystemStats.attributeConversions];
+const baseAttributeEffects = createBaseAttributeEffects(typedSystemStats.baseAttributes);
+const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.enhancementStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...baseAttributeEffects];
 type ArsenalDefinition = { name: string; effect?: SetupEffect };
 const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>;
 const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>;
@@ -503,17 +498,19 @@ function gearSetEffectsFor(selected: { Cleftpeak: number; RainWhisper: number },
 }
 
 function sameBuildSetupValue(key: keyof BuildSetup, left: BuildSetup[keyof BuildSetup], right: BuildSetup[keyof BuildSetup]) {
-  return key === "gearSets" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
+  return key === "gearSets" || key === "innerWays" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
 }
 
-function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
+export function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
   try {
     const saved = sessionStorage.getItem(buildSetupOverrideStorageKey);
     if (saved !== null) return normalizeBuildSetupOverrides(JSON.parse(saved));
     const legacy: Record<string, unknown> = {};
+    const legacyInnerWays = sessionStorage.getItem(legacyInnerWayStorageKey);
     const legacyGearSets = sessionStorage.getItem(gearSetStorageKey);
     const legacyBowRingSet = sessionStorage.getItem(bowRingSetStorageKey);
     const legacyArsenal = sessionStorage.getItem(arsenalStorageKey);
+    if (legacyInnerWays !== null) legacy.innerWays = JSON.parse(legacyInnerWays);
     if (legacyGearSets !== null) legacy.gearSets = JSON.parse(legacyGearSets);
     if (legacyBowRingSet !== null) legacy.bowRingSet = legacyBowRingSet;
     if (legacyArsenal !== null) legacy.arsenal = legacyArsenal;
@@ -610,25 +607,6 @@ function loadSkillOverrides(): SkillOverrides {
   }
 }
 
-function loadInnerWays() {
-  const defaults = typedDefaultSetup.innerWays.map((row) => ({ ...row }));
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(innerWayStorageKey) ?? "null") as unknown;
-    if (!Array.isArray(saved)) return defaults;
-    return defaults.map((defaultRow, index) => {
-      const savedRow = saved[index];
-      if (!savedRow || typeof savedRow !== "object") return defaultRow;
-      const row = savedRow as Record<string, unknown>;
-      return {
-        innerWay: typeof row.innerWay === "string" ? row.innerWay : defaultRow.innerWay,
-        tier: typeof row.tier === "string" && /^T[0-6]$/.test(row.tier) ? row.tier : defaultRow.tier,
-      };
-    });
-  } catch {
-    return defaults;
-  }
-}
-
 const defaultAttunementStats = Object.fromEntries(Object.keys(attunementData).map((key) => [key, 0])) as AttunementStats;
 const percentageAttunementKeys = new Set<keyof AttunementStats>(Object.entries(attunementData)
   .filter(([, definition]) => definition.percentage)
@@ -721,7 +699,7 @@ function initialRotationId(entries: RotationEntry[]) {
 }
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
-  const innerWayStatEffects = loadInnerWayEffectRules().filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
+  const innerWayStatEffects = innerWayEffectRulesFor(buildSetup.innerWays).filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
   return [...selectedSetupEffects(settings, gearStatEffect, buildSetup), ...innerWayStatEffects];
 }
 
@@ -829,7 +807,6 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   onInnerWayChange: () => void;
 }) {
   const { stats, derivedStats, attunementStats, buildSetup, settings } = character;
-  const [innerWays, setInnerWays] = useState(loadInnerWays);
   const [food, setFood] = useState(loadFood);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
   const [globalDebuffs, setGlobalDebuffs] = useState(loadGlobalDebuffs);
@@ -838,21 +815,16 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => sessionStorage.setItem(innerWayStorageKey, JSON.stringify(innerWays)), [innerWays]);
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
   useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
-  const { arsenal, bowRingSet, gearSets } = buildSetup;
-  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup, food, divinecraft, globalDebuffs };
+  const { arsenal, bowRingSet, gearSets, innerWays } = buildSetup;
+  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup };
   const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
   const isCalculated = Object.keys(statOverrides).length === 0
     && Object.keys(attunementOverrides).length === 0
-    && Object.keys(buildSetupOverrides).length === 0
-    && JSON.stringify(innerWays) === JSON.stringify(typedDefaultSetup.innerWays)
-    && food === typedDefaultSetup.food
-    && divinecraft === typedDefaultSetup.divinecraft
-    && JSON.stringify(globalDebuffs) === JSON.stringify(defaultGlobalDebuffs);
+    && Object.keys(buildSetupOverrides).length === 0;
   const [selectedProfileId, setSelectedProfileId] = useState(() => isCalculated ? "__calculated" : matchingProfile?.id ?? "__modified");
 
   useEffect(() => {
@@ -872,27 +844,12 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
       statOverrides: { ...statOverrides },
       attunementOverrides: { ...attunementOverrides },
       innerWays: innerWays.map((row) => ({ ...row })),
-      buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } },
-      food,
-      divinecraft,
-      globalDebuffs: { ...globalDebuffs },
+      buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } },
     } : profile));
-  }, [attunementOverrides, buildSetup, characterProfiles, divinecraft, food, globalDebuffs, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
+  }, [attunementOverrides, buildSetup, characterProfiles, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
 
   function applyProfile(profile?: CharacterProfile) {
-    const nextInnerWays = profile ? profile.innerWays.map((row) => ({ ...row })) : typedDefaultSetup.innerWays.map((row) => ({ ...row }));
-    const nextFood = profile?.food ?? typedDefaultSetup.food;
-    const nextDivinecraft = profile?.divinecraft ?? typedDefaultSetup.divinecraft;
-    const nextGlobalDebuffs = profile ? { ...profile.globalDebuffs } : { ...defaultGlobalDebuffs };
     setAttunementDrafts({});
-    sessionStorage.setItem(innerWayStorageKey, JSON.stringify(nextInnerWays));
-    sessionStorage.setItem(foodStorageKey, nextFood);
-    sessionStorage.setItem(divinecraftStorageKey, nextDivinecraft);
-    sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(nextGlobalDebuffs));
-    setInnerWays(nextInnerWays);
-    setFood(nextFood);
-    setDivinecraft(nextDivinecraft);
-    setGlobalDebuffs(nextGlobalDebuffs);
     onApplyCharacterProfile(profile);
     onInnerWayChange();
   }
@@ -910,7 +867,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     let id = baseId;
     let suffix = 2;
     while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
-    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } }, food, divinecraft, globalDebuffs: { ...globalDebuffs } }]);
+    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } } }]);
     setSelectedProfileId(id);
     setNewProfileName("");
     setProfileTransferStatus({ message: `Saved ${name}.` });
@@ -1090,14 +1047,14 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
         </div>
         <section className="middle-stats-column">
           <section className="panel inner-way-panel">
-            <div className="panel-heading"><div><h2>Inner Ways</h2></div></div>
+            <div className="panel-heading"><div><h2>Inner Ways</h2></div>{buildSetupOverrides.innerWays && <button className="stat-reset-button" type="button" aria-label="Reset Inner Ways" title="Reset to build value" onClick={() => onBuildSetupReset("innerWays")}>↺</button>}</div>
             <div className="inner-way-list">
               {innerWays.map((row, index) => (
                 <div className="inner-way-row" key={index}>
-                  <select aria-label={`Inner way ${index + 1}`} value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item); sessionStorage.setItem(innerWayStorageKey, JSON.stringify(next)); setInnerWays(next); onInnerWayChange(); }}>
+                  <select aria-label={`Inner way ${index + 1}`} value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item); onBuildSetupChange("innerWays", next); onInnerWayChange(); }}>
                     {innerWayOptions.map(([value, label]) => <option key={value} value={value} disabled={Boolean(value) && innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}>{label}</option>)}
                   </select>
-                  <select aria-label={`Inner way ${index + 1} tier`} value={row.tier} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item); sessionStorage.setItem(innerWayStorageKey, JSON.stringify(next)); setInnerWays(next); onInnerWayChange(); }}>
+                  <select aria-label={`Inner way ${index + 1} tier`} value={row.tier} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item); onBuildSetupChange("innerWays", next); onInnerWayChange(); }}>
                     {Array.from({ length: 7 }, (_, tier) => <option key={tier}>T{tier}</option>)}
                   </select>
                 </div>
@@ -1164,7 +1121,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
               let id = baseId;
               let suffix = 2;
               while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
-              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, gearSets: { ...profile.buildSetup.gearSets } }, globalDebuffs: { ...profile.globalDebuffs } }]);
+              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, innerWays: profile.innerWays.map((row) => ({ ...row })), gearSets: { ...profile.buildSetup.gearSets } } }]);
             }}>Duplicate</button><button className="button button-danger button-small" type="button" onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}>Delete</button></div>
           </div>)}
         </div>
@@ -1744,8 +1701,8 @@ function SettingsTab({ settings, enemy, pathId, onSettingsChange }: {
 function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundleChange }: { character: CharacterState; onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void; onActiveSimulationBundleChange: (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => void }) {
   const { rawStats: characterStats, attunementStats, settings, enemy, derivedStats, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup } = character;
   const rotationSkillIds = useMemo(() => selectableRotationSkillIds(settings.weapons), [settings.weapons]);
-  const innerWayConditions = loadInnerWayConditions();
-  const innerWayEffectRules = loadInnerWayEffectRules();
+  const innerWayConditions = innerWayConditionsFor(buildSetup.innerWays);
+  const innerWayEffectRules = innerWayEffectRulesFor(buildSetup.innerWays);
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(loadRotationEntries);
   const [activeRotationId, setActiveRotationId] = useState(() => initialRotationId(loadRotationEntries()));
   const [editingRotationId, setEditingRotationId] = useState(() => initialRotationId(loadRotationEntries()));
@@ -2258,7 +2215,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     const amount = maxGearRoll(key, "attunement", false, enemy.level);
     return typeof amount === "number" ? [[key, amount] as const] : [];
   });
-  const selectedInnerWays = loadInnerWays().filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));
+  const selectedInnerWays = buildSetup.innerWays.filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));
   const currentGearSets = buildSetup.gearSets;
   const priorityStats: RotationPriority[] = [];
   const priorityAttunementRows: RotationPriority[] = [];
@@ -2316,7 +2273,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     }) : [],
     innerWayPriority: includeDiffs ? selectedInnerWays.map((selected) => {
       const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
-      const variantConditions = loadInnerWayConditions(selected.innerWay);
+      const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay);
       return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
     }) : [],
     setupComparisons: includeDiffs ? {
@@ -2531,6 +2488,7 @@ export default function App() {
   const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild]);
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() => loadBuildSetupOverrides(activeBuildSetup));
   const buildSetup = useMemo<BuildSetup>(() => ({
+    innerWays: (buildSetupOverrides.innerWays ?? activeBuildSetup.innerWays).map((row) => ({ ...row })),
     gearSets: { ...(buildSetupOverrides.gearSets ?? activeBuildSetup.gearSets) },
     bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,
     arsenal: buildSetupOverrides.arsenal ?? activeBuildSetup.arsenal,
@@ -2585,6 +2543,7 @@ export default function App() {
       return;
     }
     setBuildSetupOverrides({
+      innerWays: profile.innerWays.map((row) => ({ ...row })),
       gearSets: { ...profile.buildSetup.gearSets },
       bowRingSet: profile.buildSetup.bowRingSet,
       arsenal: profile.buildSetup.arsenal,

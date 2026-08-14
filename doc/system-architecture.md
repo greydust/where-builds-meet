@@ -54,7 +54,7 @@ data/
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and allowed attunement IDs
-  system.json     innate character stats, enhancement bonuses, talent nodes, and attribute conversions
+  system.json     innate stats, progression rewards, and base-attribute conversions
   attunement.json attunement names, source tags, stat targets, and skill-match tags
   default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
   enemy.json      enemy profiles
@@ -149,7 +149,6 @@ tab session.
 | Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1` |
 | Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
-| Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
 | Combat path | `sessionStorage`, `wwm-path-session-v1` |
 | Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
 | Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
@@ -168,9 +167,14 @@ storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted. Bundled default builds and rotations
 are reconstructed from repository data and omitted from browser persistence;
 formerly edited default rotations migrate to custom copies.
+Standalone Inner Way, gear-set, bow/ring, and arsenal session selections migrate
+only when the unified build-setup override has never been saved. Once that
+override exists—even as an empty object—the active build supplies every
+non-overridden setup default and legacy session keys are ignored.
 
 Build export produces a versioned JSON snapshot of shared gear and custom build
-loadouts. Import validates that snapshot and appends it to the current state,
+loadouts, including each build's Inner Ways, gear sets, bow/ring set, and arsenal.
+Import validates that snapshot and appends it to the current state,
 remapping colliding gear and build IDs without replacing existing data or
 duplicating bundled default presets.
 
@@ -186,15 +190,16 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-Inner Ways, final gear-set/bow-ring/arsenal selections, food, Divinecraft, and
-target debuff controls.
+Inner Ways, and final gear-set/bow-ring/arsenal selections. Food, Divinecraft,
+global buff/debuff controls, and future Script controls remain independent
+session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
 persisted or exported. Import validates stat keys and setup shapes, discards
 unknown or non-finite override values, appends valid profiles, and remaps
 colliding IDs without changing the currently applied profile.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
-plus fallback build setup values for older build records. Bundled builds define setup choices
+plus fallback build setup values for older build records. Bundled builds define Inner Ways and setup choices
 in their own `data/build/*.json` records.
 
 ## Character stat pipeline
@@ -222,7 +227,9 @@ Divinecraft.
 ordered `enhancementStats`, ordered `talentStats`, regional
 Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
 `imperialPalaceOddityStats`, `hexiOddityStats`,
-`hiddenMountainOddityStats`, and `attributeConversions` separate. Talent and
+and `hiddenMountainOddityStats` separate. Its `baseAttributes` field stores a
+nested source-attribute to target-stat multiplier map. The shared
+`baseAttributeEffects.ts` adapter converts that map to ordinary formula effects. Talent and
 Oddity rewards remain individual
 effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
@@ -231,7 +238,8 @@ source use the same conversion rules.
 
 Editing a Main-tab field creates a final-value override. The field is marked as
 modified and gains an individual reset control. Gear-set, bow/ring, and arsenal
-changes similarly override the active build's selections. Reset clears all
+changes similarly override the active build's selections. Inner Way selections
+use the same build baseline and resettable override behavior. Reset clears all
 character, attunement, and build-setup overrides. `calculateStatsWithOverrides()` repeatedly runs the
 shared pipeline and solves the simulation base offset required to produce every
 overridden final value. This means later baseline input changes cannot move an
@@ -244,14 +252,15 @@ base. Modified stats therefore remain responsive in delta calculations.
 
 The compact Character Profile selector treats `Calculated` as an immutable
 reset profile. Loading it clears character, attunement, and build-setup
-overrides, thereby restoring the active build's setup, and restores the
-configured default Inner Ways, food, and Divinecraft. A custom profile stores
+overrides, thereby restoring the active build's setup. It does not change Food,
+Divinecraft, global buff/debuff controls, or future Script controls. A custom profile stores
 the user's current final-value character and attunement overrides plus the final
-gear-set, bow/ring, arsenal, Inner Way, food, Divinecraft, and target-debuff selections. Loading
+gear-set, bow/ring, arsenal, and Inner Way selections. Loading
 one replaces that complete state. Profiles can be created, renamed, duplicated,
 deleted, exported, and imported through the management dialog. While a custom
-profile is selected, every subsequent Main-tab change is written directly back
-to that profile. Changes made while `Calculated` is selected instead move the
+profile is selected, every subsequent profile-owned Main-tab change is written directly back
+to that profile. Changes to independent session controls do not affect profile
+matching. Changes made while `Calculated` is selected instead move the
 selector to `Unsaved changes`; the restored Reset button loads `Calculated`
 again without opening the selector.
 
@@ -570,7 +579,8 @@ values under `levelBonusStats`, every Enhancement bonus under its own ordered
 `talentStats` entry, and every regional Oddity reward
 under its own ordered collection such as `qingheOddityStats` or
 `kaifengOddityStats`. Express base-attribute relationships under
-`attributeConversions` using standard stat formulas.
+`baseAttributes` by nesting each target stat and its multiplier under the
+source base attribute, for example `"power": { "minPhys": 0.22 }`.
 
 ### Weapon or primary path
 

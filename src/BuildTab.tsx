@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardE
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
+import frostCladNight from "../data/innerway/frost-clad-night.json";
+import moraleChant from "../data/innerway/morale-chant.json";
+import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
+import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
+import breakingPoint from "../data/innerway/breaking-point.json";
+import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
 import {
   defaultBuildSetup,
   attunementData,
@@ -31,6 +37,15 @@ import {
 } from "./gear";
 import type { WeaponId } from "./types";
 import { recognizeGearImage } from "./gearOcr";
+
+const innerWayDefinitions = {
+  FrostCladNight: frostCladNight,
+  MoraleChant: moraleChant,
+  SteadfastDevotion: steadfastDevotion,
+  ThroatPiercingArt: throatPiercingArt,
+  BreakingPoint: breakingPoint,
+  EnvigoratedWarrior: envigoratedWarrior,
+} as Record<string, { name: string; tags?: string[] }>;
 
 type GearValueDraft = { key: string; value: string };
 type GearDraft = {
@@ -318,7 +333,22 @@ function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: {
   }
 
   const lockedTitle = locked ? "Fixed by this default preset" : undefined;
+  const innerWayOptions = Object.entries(innerWayDefinitions).filter(([, definition]) => !pathTag || definition.tags?.includes(pathTag));
   return <div className="build-setup-column" aria-label="Build setup">
+    <section className="panel setup-placeholder-panel build-setup-panel">
+      <div className="panel-heading"><div><h2>Inner Ways</h2></div></div>
+      <div className="inner-way-list">
+        {setup.innerWays.map((row, index) => <div className="inner-way-row" key={index}>
+          <select aria-label={`Build inner way ${index + 1}`} value={innerWayOptions.some(([value]) => value === row.innerWay) ? row.innerWay : ""} disabled={locked} title={lockedTitle} onChange={(event) => onChange({ ...setup, innerWays: setup.innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item) })}>
+            <option value="">None</option>
+            {innerWayOptions.map(([value, definition]) => <option key={value} value={value} disabled={setup.innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}>{definition.name}</option>)}
+          </select>
+          <select aria-label={`Build inner way ${index + 1} tier`} value={row.tier} disabled={locked} title={lockedTitle} onChange={(event) => onChange({ ...setup, innerWays: setup.innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item) })}>
+            {Array.from({ length: 7 }, (_, tier) => <option key={tier}>T{tier}</option>)}
+          </select>
+        </div>)}
+      </div>
+    </section>
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
       <div className="gear-set-list">

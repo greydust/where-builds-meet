@@ -305,10 +305,10 @@ DOT damage ignores the action's flat Physical Bonus and Attribute Bonus. Its coe
 
 ## Stat-priority conversion
 
-Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the active enemy profile's numeric level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
+Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the active enemy profile's numeric level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
 
 ```text
-1 Power    = 0.225 Min Physical Attack + 1.36 Max Physical Attack
+1 Power    = 0.22 Min Physical Attack + 1.36 Max Physical Attack
 1 Agility  = 0.9 Min Physical Attack + 0.00076 Critical Rate
 1 Momentum = 0.9 Max Physical Attack + 0.00038 Affinity Rate
 ```
@@ -317,7 +317,7 @@ The defensive base-attribute relationships are:
 
 ```text
 1 Body    = 60 HP
-1 Defense = 17 HP + 0.5 defense
+1 Defense = 17 HP + 0.57 Physical Defense
 ```
 
 Inner Way priority is calculated by removing each selected Inner Way, rebuilding the timeline, and measuring the resulting DPS loss. Setup comparisons replace the selected setup option with the candidate; variants that introduce timeline behavior, such as Cleftpeak 4-piece, rebuild the timeline.

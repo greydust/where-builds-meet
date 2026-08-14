@@ -220,15 +220,25 @@
     { "id": "hidden-mountain-oddity-22", "stat": { "maxHp": 150 } },
     { "id": "hidden-mountain-oddity-23", "stat": { "maxHp": 150 } }
   ],
-  "attributeConversions": [
-    { "id": "power-min-physical", "stat": { "minPhys": { "formula": { "source": "power", "multiplier": 0.225 } } } },
-    { "id": "power-max-physical", "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 1.36 } } } },
-    { "id": "agility-min-physical", "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.9 } } } },
-    { "id": "agility-critical", "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.00076 } } } },
-    { "id": "momentum-max-physical", "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.9 } } } },
-    { "id": "momentum-affinity", "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.00038 } } } },
-    { "id": "body-max-hp", "stat": { "maxHp": { "formula": { "source": "body", "multiplier": 60 } } } },
-    { "id": "defense-max-hp", "stat": { "maxHp": { "formula": { "source": "defense", "multiplier": 17 } } } },
-    { "id": "defense-physical-defense", "stat": { "physicalDefense": { "formula": { "source": "defense", "multiplier": 0.5 } } } }
-  ]
+  "baseAttributes": {
+    "body": {
+      "maxHp": 60
+    },
+    "power": {
+      "minPhys": 0.22,
+      "maxPhys": 1.36
+    },
+    "defense": {
+      "maxHp": 17,
+      "physicalDefense": 0.57
+    },
+    "agility": {
+      "minPhys": 0.9,
+      "crit": 0.00076
+    },
+    "momentum": {
+      "maxPhys": 0.9,
+      "affinity": 0.00038
+    }
+  }
 }

@@ -70,19 +70,6 @@
     "castTime": 0.85,
     "action": [
       {
-        "type": "apply",
-        "requirement": [
-          {
-            "target": "self",
-            "value": "FrostCladNightT4"
-          }
-        ],
-        "target": "self",
-        "value": "InnerPassion",
-        "stack": 1,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 2.8245,
         "phyBonus": 782,
@@ -129,19 +116,6 @@
         "time": 0.588
       },
       {
-        "type": "apply",
-        "requirement": [
-          {
-            "target": "self",
-            "value": "FrostCladNightT6"
-          }
-        ],
-        "target": "self",
-        "value": "Forgetfulness",
-        "stack": 1,
-        "time": 0.588
-      },
-      {
         "type": "clearCD",
         "requirement": [
           {
@@ -155,6 +129,19 @@
         ],
         "target": "self",
         "value": "Forgetfulness",
+        "time": 0.588
+      },
+      {
+        "type": "apply",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FrostCladNightT6"
+          }
+        ],
+        "target": "self",
+        "value": "Forgetfulness",
+        "stack": 1,
         "time": 0.588
       }
     ],

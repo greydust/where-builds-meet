@@ -3,9 +3,37 @@
   "name": "Empty Build",
   "order": 2,
   "test": true,
-  "weapons": ["snowparting", "phalanxbane", "everspring", "unfettered", "heavenwill", "skygrasp"],
+  "weapons": [
+    "snowparting",
+    "phalanxbane",
+    "everspring",
+    "unfettered",
+    "heavenwill",
+    "skygrasp"
+  ],
   "setup": {
-    "gearSets": { "Cleftpeak": 0, "RainWhisper": 0 },
+    "innerWays": [
+      {
+        "innerWay": "",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "",
+        "tier": "T6"
+      }
+    ],
+    "gearSets": {
+      "Cleftpeak": 0,
+      "RainWhisper": 0
+    },
     "bowRingSet": "None",
     "arsenal": "Stonesplit"
   },

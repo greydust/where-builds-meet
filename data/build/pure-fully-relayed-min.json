@@ -1,21 +1,36 @@
 {
-  "id": "mixed-fully-relayed-max",
-  "name": "Mixed Fully Relayed Max Build",
+  "id": "pure-fully-relayed-min",
+  "name": "Pure Fully Relayed Min Build",
   "order": 1,
-  "weapons": ["snowparting", "phalanxbane"],
+  "weapons": [
+    "snowparting",
+    "phalanxbane"
+  ],
   "relayed": true,
   "setup": {
     "innerWays": [
-      { "innerWay": "FrostCladNight", "tier": "T6" },
-      { "innerWay": "MoraleChant", "tier": "T6" },
-      { "innerWay": "SteadfastDevotion", "tier": "T6" },
-      { "innerWay": "ThroatPiercingArt", "tier": "T6" }
+      {
+        "innerWay": "FrostCladNight",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "MoraleChant",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "EnvigoratedWarrior",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ThroatPiercingArt",
+        "tier": "T6"
+      }
     ],
     "gearSets": {
       "Cleftpeak": 4,
       "RainWhisper": 0
     },
-    "bowRingSet": "Critical",
+    "bowRingSet": "Precision",
     "arsenal": "Stonesplit"
   },
   "gear": {
@@ -24,25 +39,25 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "maxPhys",
+        "key": "minPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
-        },
-        {
-          "key": "power",
-          "value": 46.436
         },
         {
           "key": "agility",
           "value": 46.436
         },
         {
-          "key": "minPhys",
-          "value": 73.132
+          "key": "hengBladeDmgBoost",
+          "value": 0.05825
+        },
+        {
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -55,25 +70,25 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "maxPhys",
+        "key": "minPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "agility",
           "value": 46.436
         },
         {
-          "key": "moBladeDmgBoost",
-          "value": 0.05828
+          "key": "precision",
+          "value": 0.0752
         },
         {
-          "key": "minPhys",
-          "value": 73.132
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -86,16 +101,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "maxPhys",
+        "key": "minPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "agility",
           "value": 46.436
         },
         {
@@ -117,16 +132,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "maxPhys",
+        "key": "minPhys",
         "value": 73.132
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "agility",
           "value": 46.436
         },
         {
@@ -134,8 +149,8 @@
           "value": 0.03008
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "maxStonesplit",
+          "value": 41.548
         }
       ],
       "attunement": {
@@ -153,12 +168,8 @@
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
-        },
-        {
-          "key": "power",
-          "value": 46.436
         },
         {
           "key": "agility",
@@ -167,10 +178,14 @@
         {
           "key": "precision",
           "value": 0.0752
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -184,12 +199,8 @@
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
-        },
-        {
-          "key": "power",
-          "value": 46.436
         },
         {
           "key": "agility",
@@ -198,10 +209,14 @@
         {
           "key": "precision",
           "value": 0.0752
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -210,16 +225,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "power",
-        "value": 46.436
+        "key": "crit",
+        "value": 0.0846
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "agility",
           "value": 46.436
         },
         {
@@ -227,12 +242,12 @@
           "value": 0.03008
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "maxStonesplit",
+          "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -241,16 +256,16 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "power",
-        "value": 46.436
+        "key": "crit",
+        "value": 0.0846
       },
       "additionalAffixes": [
         {
-          "key": "maxPhys",
+          "key": "minPhys",
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "agility",
           "value": 46.436
         },
         {
@@ -258,12 +273,12 @@
           "value": 0.03008
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "maxStonesplit",
+          "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     }

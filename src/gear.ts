@@ -18,7 +18,9 @@ export type GearSlot = typeof gearSlots[number];
 export type GearLevel = 91 | 96;
 export type GearRarity = "Purple" | "Gold";
 export type GearSetTier = 0 | 2 | 4;
+export type InnerWaySelection = { innerWay: string; tier: string };
 export type BuildSetup = {
+  innerWays: InnerWaySelection[];
   gearSets: { Cleftpeak: GearSetTier; RainWhisper: GearSetTier };
   bowRingSet: string;
   arsenal: string;
@@ -136,9 +138,29 @@ const configuredDefaultSetup = defaultSetupJson as BuildSetup;
 const legacyArsenalStorageKey = "wwm-arsenal-session-v1";
 const legacyBowRingSetStorageKey = "wwm-bow-ring-set-session-v1";
 const legacyGearSetStorageKey = "wwm-gear-set-session-v1";
+const legacyInnerWayStorageKey = "wwm-inner-way-session-v1";
 
-const cloneBuildSetup = (setup: BuildSetup): BuildSetup => ({ gearSets: { ...setup.gearSets }, bowRingSet: setup.bowRingSet, arsenal: setup.arsenal });
+const cloneBuildSetup = (setup: BuildSetup): BuildSetup => ({ innerWays: setup.innerWays.map((row) => ({ ...row })), gearSets: { ...setup.gearSets }, bowRingSet: setup.bowRingSet, arsenal: setup.arsenal });
 const validTier = (value: unknown): value is GearSetTier => value === 0 || value === 2 || value === 4;
+
+function parseInnerWays(value: unknown, expectedLength: number) {
+  if (!Array.isArray(value) || value.length !== expectedLength) return undefined;
+  const parsed = value.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return undefined;
+    const row = item as Record<string, unknown>;
+    return typeof row.innerWay === "string" && typeof row.tier === "string" && /^T[0-6]$/.test(row.tier)
+      ? { innerWay: row.innerWay === "None" ? "" : row.innerWay, tier: row.tier }
+      : undefined;
+  });
+  if (!parsed.every(Boolean)) return undefined;
+  const rows = parsed as InnerWaySelection[];
+  const selected = rows.map((row) => row.innerWay).filter(Boolean);
+  return new Set(selected).size === selected.length ? rows : undefined;
+}
+
+function normalizeInnerWays(value: unknown, fallback: InnerWaySelection[]) {
+  return parseInnerWays(value, fallback.length) ?? fallback.map((row) => ({ ...row }));
+}
 
 export const defaultBuildSetup = cloneBuildSetup(configuredDefaultSetup);
 
@@ -152,6 +174,7 @@ export function normalizeBuildSetup(value: unknown, fallback: BuildSetup = defau
     && String(cleftpeak) in gearSetDefinitions.Cleftpeak.options
     && String(rainWhisper) in gearSetDefinitions.RainWhisper.options;
   return {
+    innerWays: normalizeInnerWays(candidate.innerWays, fallback.innerWays),
     gearSets: validGearSets ? { Cleftpeak: cleftpeak, RainWhisper: rainWhisper } : { ...fallback.gearSets },
     bowRingSet: typeof candidate.bowRingSet === "string" && candidate.bowRingSet in bowRingSetDefinitions ? candidate.bowRingSet : fallback.bowRingSet,
     arsenal: typeof candidate.arsenal === "string" && candidate.arsenal in arsenalDefinitions ? candidate.arsenal : fallback.arsenal,
@@ -162,6 +185,8 @@ export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverride
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const candidate = value as Partial<BuildSetup>;
   const result: BuildSetupOverrides = {};
+  const innerWays = parseInnerWays(candidate.innerWays, defaultBuildSetup.innerWays.length);
+  if (innerWays) result.innerWays = innerWays;
   if (candidate.gearSets) {
     const normalized = normalizeBuildSetup({ gearSets: candidate.gearSets }, defaultBuildSetup);
     const raw = candidate.gearSets;
@@ -175,8 +200,11 @@ export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverride
 function loadLegacyBuildSetup() {
   if (typeof sessionStorage === "undefined") return cloneBuildSetup(defaultBuildSetup);
   let gearSets: unknown;
+  let innerWays: unknown;
   try { gearSets = JSON.parse(sessionStorage.getItem(legacyGearSetStorageKey) ?? "null"); } catch { gearSets = undefined; }
+  try { innerWays = JSON.parse(sessionStorage.getItem(legacyInnerWayStorageKey) ?? "null"); } catch { innerWays = undefined; }
   return normalizeBuildSetup({
+    innerWays,
     gearSets,
     bowRingSet: sessionStorage.getItem(legacyBowRingSetStorageKey),
     arsenal: sessionStorage.getItem(legacyArsenalStorageKey),
@@ -386,7 +414,7 @@ function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sha
 
 export function serializeBuildState(state: BuildState) {
   return JSON.stringify({
-    version: 5,
+    version: 6,
     entries: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
     gearItems: state.gearItems.map(withoutWeaponSlot),
   });
@@ -395,7 +423,7 @@ export function serializeBuildState(state: BuildState) {
 export function exportBuildState(state: BuildState) {
   return JSON.stringify({
     format: buildExportFormat,
-    version: 4,
+    version: 5,
     exportedAt: new Date().toISOString(),
     gearItems: state.gearItems.map(withoutWeaponSlot),
     builds: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
@@ -424,7 +452,7 @@ function withoutWeaponSlot(item: GearItem): GearItem {
 export function mergeImportedBuildState(current: BuildState, value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet export file.");
   const source = value as { format?: unknown; version?: unknown; gearItems?: unknown; builds?: unknown };
-  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
+  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4 && source.version !== 5) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
     throw new Error("This file uses an unsupported build export format.");
   }
 
