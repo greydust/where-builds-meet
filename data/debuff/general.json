@@ -11,12 +11,15 @@
           "globalDmgBonus": 0.1
         }
       }
-    ]
+    ],
+    "refresh": true
   },
   "Controlled": {
     "name": "Controlled",
     "description": "Marks a target as controlled for conditional effects.",
+    "duration": 3,
     "maxStack": 1,
-    "shared": true
+    "shared": true,
+    "refresh": true
   }
 }

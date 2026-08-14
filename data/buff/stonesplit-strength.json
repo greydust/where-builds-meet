@@ -4,20 +4,23 @@
     "description": "Burning Heart gains Inner Passion.",
     "duration": 18,
     "cooldown": 30,
-    "maxStack": 3
+    "maxStack": 3,
+    "refresh": true
   },
   "Forgetfulness": {
     "name": "Forgetfulness",
     "description": "Skip Snowparting LC charge time.",
     "duration": 4,
     "cooldown": 6,
-    "maxStack": 1
+    "maxStack": 1,
+    "refresh": true
   },
   "InnerPassion": {
     "name": "Inner Passion",
     "description": "Hasten and increase damage to Burning Heart.",
     "duration": 12,
-    "maxStack": 4
+    "maxStack": 4,
+    "refresh": true
   },
   "ThroatPierced": {
     "name": "Throat-Pierced",
@@ -394,7 +397,8 @@
           }
         }
       ]
-    ]
+    ],
+    "refresh": true
   },
   "Cleftpeak": {
     "name": "Cleftpeak",
@@ -448,7 +452,7 @@
                   },
                   {
                     "target": "skillTag",
-                    "value": "VC"
+                    "value": "VariedCombo"
                   }
                 ],
                 [
@@ -458,7 +462,7 @@
                   },
                   {
                     "target": "skillTag",
-                    "value": "VC"
+                    "value": "VariedCombo"
                   }
                 ],
                 {
@@ -482,7 +486,8 @@
           }
         }
       ]
-    ]
+    ],
+    "refresh": true
   },
   "IronGuard": {
     "name": "Iron Guard",
@@ -495,7 +500,8 @@
           "hpDMGBonus": 0.08
         }
       }
-    ]
+    ],
+    "refresh": true
   },
   "MountainSplitter": {
     "name": "Mountain Splitter",
@@ -525,6 +531,7 @@
           "critDmgBonus": 0.1
         }
       }
-    ]
+    ],
+    "refresh": true
   }
 }

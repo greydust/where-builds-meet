@@ -46,7 +46,7 @@ bundles containing every value required for their calculation.
 data/
   skill/          castable and triggered skill maps
   dot/            damage-over-time definitions
-  buff/           player effect definitions
+  buff/           player effect definitions, including global always-on rules
   debuff/         target effect and encounter-state definitions
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
@@ -311,7 +311,9 @@ The timeline owns mutable simulation state while it is being built:
 - active player buffs
 - active target debuffs
 - current target distance, initially 1m
+- current HP ratio, initially 1 (100%)
 - stacks, maximum stacks, and expirations
+- per-definition duration refresh behavior for stacked effects
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
@@ -320,6 +322,9 @@ initial state at their configured stack count. They therefore use ordinary
 effect-definition and requirement resolution, appear in timeline state, and
 share the same unique tracked entry with any matching application from the
 rotation. Reapplication cannot expire or duplicate a permanent seeded effect.
+Always-active rules from `data/buff/global.json` instead enter through setup
+effects. They are evaluated at each damage action without creating a visible or
+expiring tracked buff.
 
 At cast start, modifiers are selected, stack-scaled modifier values are resolved
 from that pre-action state, and cast/action times are adjusted. Resolved
@@ -501,7 +506,7 @@ environment. The application currently recognizes:
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
-- Exhausted, Controlled, Battle End, and Move manual events
+- Exhausted, Controlled, Battle End, Move, HP, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
 - eight gear slots, relayed status, and affix/attunement options

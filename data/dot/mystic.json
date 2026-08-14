@@ -26,7 +26,8 @@
       "Mystic",
       "AreaMystic",
       "LeapingToad"
-    ]
+    ],
+    "refresh": false
   },
   "LesserToadVenom": {
     "name": "Lesser Toad Venom",
@@ -48,7 +49,8 @@
       "Mystic",
       "AreaMystic",
       "LeapingToad"
-    ]
+    ],
+    "refresh": false
   },
   "Combustion": {
     "name": "Combustion",
@@ -69,7 +71,8 @@
       "Mystic",
       "SingleTargetMystic",
       "DrunkenPoet"
-    ]
+    ],
+    "refresh": false
   },
   "Smolder": {
     "name": "Smolder",
@@ -90,6 +93,7 @@
       "Mystic",
       "SingleTargetMystic",
       "DrunkenPoet"
-    ]
+    ],
+    "refresh": false
   }
 }

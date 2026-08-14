@@ -1,0 +1,473 @@
+{
+  "name": "Mixed Horse Tamer Standard",
+  "martialArts": [
+    "snowparting",
+    "phalanxbane"
+  ],
+  "eventTimeReference": "battleStart",
+  "start": {
+    "step": 5,
+    "action": 1
+  },
+  "steps": [
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 19
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQSlash"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 3
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": 8
+      },
+      "buff": "SurgingWaves",
+      "stack": 32
+    },
+    {
+      "type": "event",
+      "event": "HP",
+      "before": {
+        "action": 8
+      },
+      "currentHPRatio": 0.2
+    },
+    {
+      "type": "event",
+      "event": "Debuff",
+      "before": {
+        "action": 8
+      },
+      "debuff": "Exhausted"
+    },
+    {
+      "type": "skill",
+      "skill": "DragonHeadTide"
+    },
+    {
+      "type": "event",
+      "event": "HP",
+      "before": {
+        "action": "start"
+      },
+      "currentHPRatio": 1
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 3
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": "start"
+      },
+      "distance": 1
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    }
+  ]
+}

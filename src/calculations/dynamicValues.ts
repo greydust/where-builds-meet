@@ -1,5 +1,19 @@
 export type DynamicParameters = Record<string, number | undefined>;
 
+const finiteNumber = (value: unknown): number | undefined => {
+  const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : Number.NaN;
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+export function resolveMultiplyValue(value: unknown, parameters: DynamicParameters): number | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const definition = value as Record<string, unknown>;
+  if (definition.function !== "multiply") return undefined;
+  const left = typeof definition.param1 === "string" ? parameters[definition.param1] : finiteNumber(definition.param1);
+  const right = typeof definition.param2 === "string" && definition.param2 in parameters ? parameters[definition.param2] : finiteNumber(definition.param2);
+  return typeof left === "number" && Number.isFinite(left) && typeof right === "number" && Number.isFinite(right) ? left * right : undefined;
+}
+
 export function resolveSegmentValue(value: unknown, parameters: DynamicParameters): number | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const definition = value as Record<string, unknown>;

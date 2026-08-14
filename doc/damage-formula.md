@@ -134,6 +134,17 @@ Flute supplies `dmgBonus` from the damage action's distance snapshot: 2%, 3%,
 beyond 9m retain the 20% value. A Move event changes distance for subsequent
 timeline actions; the initial distance is 1m.
 
+Dragon Head - Tide receives an always-active conditional `dmgBonus` rule from
+`data/buff/global.json`. At each hit it resolves:
+
+```text
+Missing HP percentage points = (1 - current HP ratio) × 100
+Dragon Head DMG Bonus = Missing HP percentage points × 0.0045
+```
+
+An HP event changes the timeline's current HP ratio for its target action and
+all subsequent actions. The initial ratio is `1` (100%).
+
 Numeric damage-effect values may also use the data-defined `segment` function.
 When `param1` is `distance`, the action's distance snapshot is compared against
 the inclusive upper bounds in `param2`; the matching value comes from the same

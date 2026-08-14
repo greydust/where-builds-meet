@@ -301,7 +301,7 @@ function timelineDamageEntries(
     if (anchorTimeOrder < 0 || (anchorTimeOrder === 0 && actionOrder < anchorOrder)) return [];
     const battleEndTimeOrder = battleEnd ? compareTimelineTime(actionTime, battleEnd.time) : -1;
     if (battleEnd && (battleEndTimeOrder > 0 || battleEndTimeOrder === 0 && actionOrder >= battleEnd.order)) return [];
-    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance };
+    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance, currentHPRatio: row.currentHPRatio };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
     const skillTags = row.skill?.tags ?? [];
@@ -333,6 +333,7 @@ function timelineDamageEntries(
         derivedStats,
         effects: [...activeSetupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
         distance: actionState.distance,
+        currentHPRatio: actionState.currentHPRatio,
         isDot: row.kind === "dot",
       },
     }];

@@ -21,6 +21,7 @@
           "globalBellstrikeDMGBonus": 0.08
         }
       }
-    ]
+    ],
+    "refresh": true
   }
 }

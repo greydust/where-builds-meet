@@ -3,7 +3,7 @@ import attunementJson from "../../data/attunement.json";
 import { calculateRates } from "./effectiveStats";
 import type { DerivedStats } from "./effectiveStats";
 import { calculateStatsWithEffects, resolveFormulaValue, type EffectiveStatEffectContainer, type StatEffectContainer, type StatFormula } from "./statEffects";
-import { resolveSegmentValue } from "./dynamicValues";
+import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 
 type AttunementDefinition = { effect?: { stat?: Record<string, number>; tags?: string[] } };
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
@@ -51,6 +51,7 @@ export type DamageContext = {
   derivedStats: DerivedStats;
   effects: Record<string, unknown>[];
   distance?: number;
+  currentHPRatio?: number;
   isDot?: boolean;
 };
 
@@ -87,7 +88,14 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
       const index = Math.min(values.length - 1, Math.max(0, Math.floor(parameter) - 1));
       return values[index];
     }
-    const segmented = resolveSegmentValue(value, { distance: context.distance ?? 1 });
+    const dynamicParameters = {
+      distance: context.distance ?? 1,
+      currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
+      missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
+    };
+    const multiplied = resolveMultiplyValue(value, dynamicParameters);
+    if (multiplied !== undefined) return multiplied;
+    const segmented = resolveSegmentValue(value, dynamicParameters);
     if (segmented !== undefined) return segmented;
     const formula = objectValue.formula;
     return formula && typeof formula === "object" && !Array.isArray(formula)

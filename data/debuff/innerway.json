@@ -41,7 +41,8 @@
           }
         }
       ]
-    ]
+    ],
+    "refresh": true
   },
   "QingyisCharmT1": {
     "name": "Bitter Seasons",
@@ -85,7 +86,8 @@
           }
         }
       ]
-    ]
+    ],
+    "refresh": true
   },
   "QingyisCharmT6": {
     "name": "Bitter Seasons",
@@ -130,6 +132,7 @@
           }
         }
       ]
-    ]
+    ],
+    "refresh": true
   }
 }

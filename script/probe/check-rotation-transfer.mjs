@@ -20,26 +20,32 @@ const customEntry = {
     name: "Custom",
     steps: [
       { type: "event", event: "Move", before: { trigger: 0, action: 1 }, distance: 6 },
+      { type: "event", event: "HP", before: { action: 0 }, currentHPRatio: 0.555 },
+      { type: "event", event: "Buff", before: { action: "start" }, buff: "Flute", stack: 3 },
+      { type: "event", event: "Debuff", before: { action: 0 }, debuff: "Controlled", stack: 2 },
       { type: "skill", skill: "SnowpartingQStab", causesBreak: true },
       { type: "event", event: "Controlled", startTime: 1.5, duration: 3 },
     ],
-    start: { step: 1, action: 1 },
+    start: { step: 4, action: 1 },
   },
 };
 const current = [defaultEntry, customEntry];
 const serialized = JSON.parse(transfer.serializeRotationEntries(current));
 assert(serialized.length === 1 && serialized[0].id === customEntry.id && !("isDefault" in serialized[0]), "Bundled default rotations must not be persisted.");
 const exported = JSON.parse(transfer.exportRotationEntries(current));
-assert(exported.format === transfer.rotationExportFormat && exported.version === 3 && exported.rotations.length === 1 && exported.rotations[0].id === customEntry.id, "Rotation export must omit the bundled default.");
+assert(exported.format === transfer.rotationExportFormat && exported.version === 4 && exported.rotations.length === 1 && exported.rotations[0].id === customEntry.id, "Rotation export must omit the bundled default.");
 assert(exported.rotations[0].martialArts.join(",") === "snowparting,phalanxbane", "Rotation export must retain martial-art eligibility tags.");
 
 const merged = transfer.mergeImportedRotationEntries(current, exported);
 assert(merged.importedCount === 1 && merged.entries.length === 3, "Rotation import must append custom rotations and skip the default.");
 assert(merged.importedIds[0] !== customEntry.id, "A colliding imported rotation ID must be remapped.");
 const imported = merged.entries.find((entry) => entry.id === merged.importedIds[0]);
-assert(imported?.rotation.steps.length === 3 && imported.rotation.start.step === 1 && imported.rotation.start.action === 1, "Rotation steps and start anchor must survive export and import.");
+assert(imported?.rotation.steps.length === 6 && imported.rotation.start.step === 4 && imported.rotation.start.action === 1, "Rotation steps and start anchor must survive export and import.");
 assert(imported?.martialArts.join(",") === "snowparting,phalanxbane", "Rotation martial-art eligibility tags must survive export and import.");
 assert(imported?.rotation.steps[0].event === "Move" && imported.rotation.steps[0].before.trigger === 0 && imported.rotation.steps[0].before.action === 1 && imported.rotation.steps[0].distance === 6, "Attached event targets must survive export and import.");
+assert(imported?.rotation.steps[1].event === "HP" && imported.rotation.steps[1].currentHPRatio === 0.555, "HP events must survive export and import.");
+assert(imported?.rotation.steps[2].event === "Buff" && imported.rotation.steps[2].buff === "Flute" && imported.rotation.steps[2].stack === 3, "Buff events and their stack counts must survive export and import.");
+assert(imported?.rotation.steps[3].event === "Debuff" && imported.rotation.steps[3].debuff === "Controlled" && imported.rotation.steps[3].stack === 2, "Debuff events and their stack counts must survive export and import.");
 
 const skillStartImport = transfer.mergeImportedRotationEntries(current, {
   ...exported,

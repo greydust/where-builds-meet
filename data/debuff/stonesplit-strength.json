@@ -9,7 +9,8 @@
       {
         "hpDMGBonus": 0.12
       }
-    ]
+    ],
+    "refresh": true
   },
   "FearfulBlade": {
     "name": "Fearful Blade",
@@ -44,6 +45,7 @@
           "hpDMGBonus": 0.08
         }
       }
-    ]
+    ],
+    "refresh": true
   }
 }

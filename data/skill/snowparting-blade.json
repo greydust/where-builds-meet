@@ -57,7 +57,7 @@
       "DirectDamage",
       "MartialArts",
       "Light",
-      "VC",
+      "VariedCombo",
       "Charged",
       "HengBlade",
       "SnowpartingBlade",
@@ -158,45 +158,11 @@
         "time": 0.588
       }
     ],
-    "modifier": [
-      {
-        "requirement": [
-          {
-            "operator": "or",
-            "operand": [
-              [
-                {
-                  "target": "self",
-                  "value": "FrostCladNightT4"
-                },
-                {
-                  "target": "self",
-                  "value": "InnerPassion"
-                }
-              ],
-              [
-                {
-                  "target": "self",
-                  "value": "FrostCladNightT6"
-                },
-                {
-                  "target": "target",
-                  "value": "Exhausted"
-                }
-              ]
-            ]
-          }
-        ],
-        "effect": {
-          "hpDMGBonus": 0.4
-        }
-      }
-    ],
+    "modifier": [],
     "tags": [
       "DirectDamage",
       "MartialArts",
       "Heavy",
-      "VC",
       "VariedCombo",
       "HengBlade",
       "SnowpartingBlade",
