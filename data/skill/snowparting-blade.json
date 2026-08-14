@@ -336,7 +336,7 @@
   },
   "SnowpartingQStab": {
     "name": "General's Bane: Stab",
-    "shortName": "Heng Q",
+    "shortName": "Heng Q Stab",
     "castTime": 1.166,
     "action": [
       {

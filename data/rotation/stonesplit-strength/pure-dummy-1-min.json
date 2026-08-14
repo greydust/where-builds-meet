@@ -12,15 +12,15 @@
   "steps": [
     {
       "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
       "skill": "FluteOfTheTidesCancel"
     },
     {
       "type": "skill",
       "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneSpecial"
     },
     {
       "type": "skill",
@@ -227,6 +227,14 @@
     },
     {
       "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
       "skill": "SnowpartingSpecial"
     },
     {
@@ -236,14 +244,6 @@
     {
       "type": "skill",
       "skill": "SnowpartingQStab"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingLightCharged"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "skill",
