@@ -297,7 +297,10 @@ It produces three row kinds:
 - `trigger`: a skill inserted by a trigger action
 - `dot`: generated DOT actions
 
-Base skill casts are initially placed sequentially. Move rows run before a
+Base skill casts and Delay events are initially placed sequentially. A Delay
+consumes its configured duration without producing actions or effects, shifts
+all later sequential rows, and counts toward rotation duration when it is the
+last step. Move rows run before a
 following skill's cast start, direct action, or triggered-skill action. Exhausted
 rows run after their attached direct or triggered action. Both are rescheduled
 with that target. Timed manual-event `startTime`
@@ -603,7 +606,8 @@ Add the event to the `RotationStep` union, `rotationEventDefinitions`, editor
 options, transfer validation, and any special duration UI. `Exhausted`,
 `Controlled`, and `BattleEnd` use fight-relative timestamps. Battle End has no
 actions; the calculator treats its ordered timestamp as the damage and duration
-cutoff. General event definitions are currently hard-coded rather than loaded
+cutoff. Delay instead participates in sequential cast timing and has an editable
+duration but no action. General event definitions are currently hard-coded rather than loaded
 from data.
 
 ## Known architectural limitations

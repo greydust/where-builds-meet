@@ -58,6 +58,9 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
     const stack = typeof step.stack === "number" && Number.isFinite(step.stack) ? Math.max(1, Math.floor(step.stack)) : undefined;
     return { type: "event", event: "Debuff", before, debuff: step.debuff, ...(stack === undefined ? {} : { stack }) };
   }
+  if (step.type === "event" && step.event === "Delay" && typeof step.duration === "number" && Number.isFinite(step.duration)) {
+    return { type: "event", event: "Delay", duration: Math.max(0, step.duration) };
+  }
   if (step.type === "event" && step.event === "Exhausted" && typeof step.startTime === "number" && Number.isFinite(step.startTime)) {
     return { type: "event", event: "Exhausted", startTime: step.startTime, ...(typeof step.duration === "number" && Number.isFinite(step.duration) ? { duration: Math.max(0, step.duration) } : {}) };
   }
@@ -116,7 +119,7 @@ function importedId(originalId: string, usedIds: Set<string>) {
 export function exportRotationEntries(entries: RotationEntry[]) {
   return JSON.stringify({
     format: rotationExportFormat,
-    version: 4,
+    version: 5,
     exportedAt: new Date().toISOString(),
     rotations: entries.filter((entry) => !entry.isDefault).map(({ id, rotation, martialArts }) => ({ id, rotation, martialArts: parseMartialArts(martialArts) })),
   }, null, 2);
@@ -125,7 +128,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
 export function mergeImportedRotationEntries(current: RotationEntry[], value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet rotation export file.");
   const source = value as { format?: unknown; version?: unknown; rotations?: unknown };
-  if (source.format !== rotationExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) || !Array.isArray(source.rotations)) {
+  if (source.format !== rotationExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4 && source.version !== 5) || !Array.isArray(source.rotations)) {
     throw new Error("This file uses an unsupported rotation export format.");
   }
 

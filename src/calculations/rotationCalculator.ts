@@ -372,7 +372,11 @@ function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulation
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorTime = anchorRow ? anchorRow.startTime + (startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[startAnchor.actionIndex]?.time ?? 0)) : 0;
   const battleEnd = battleEndCutoff(timeline);
-  const lastActionTime = battleEnd?.time ?? timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
+  const lastActionTime = battleEnd?.time ?? timeline.reduce((latest, row) => row.skipped ? latest : Math.max(
+    latest,
+    row.step.type === "event" && row.step.event === "Delay" ? row.startTime + row.effectiveCastTime : row.startTime,
+    ...row.actions.map((action) => row.startTime + Number(action.time ?? 0)),
+  ), 0);
   return { anchorTime, duration: Math.max(0, lastActionTime - anchorTime) };
 }
 

@@ -136,6 +136,13 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
     modifier: [],
     tags: ["Event"],
   },
+  Delay: {
+    name: "Event: Delay",
+    castTime: 0,
+    action: [],
+    modifier: [],
+    tags: ["Event"],
+  },
   Move: {
     name: "Event: Move",
     castTime: 0,
@@ -182,7 +189,7 @@ const martialArtBySkillId = new Map<string, WeaponId>([
   ...Object.keys(snowpartingSkills).map((id) => [id, "snowparting"] as const),
   ...Object.keys(phalanxbaneSkills).map((id) => [id, "phalanxbane"] as const),
 ]);
-const rotationEventOptionIds = ["__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move", "__event:HP", "__event:Buff", "__event:Debuff"];
+const rotationEventOptionIds = ["__event:Delay", "__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move", "__event:HP", "__event:Buff", "__event:Debuff"];
 const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; refresh?: boolean; action?: unknown[] }>;
 const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; refresh?: boolean; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
 const globalEffectRules = Object.values(globalBuffs).flatMap((definition) => definition.effect ?? []) as EditableObject[];
@@ -304,6 +311,7 @@ function baseRotationAnchorTime(rotation: RotationRecord) {
       return time + (rotation.start.action === undefined || !Array.isArray(skill?.action) ? 0 : Number((skill.action[rotation.start.action] as EditableObject | undefined)?.time ?? 0));
     }
     if (step.type === "skill") time += typeof allSkillDefinitions[step.skill ?? ""]?.castTime === "number" ? allSkillDefinitions[step.skill ?? ""].castTime! : 0;
+    else if (step.event === "Delay") time += Math.max(0, step.duration);
   }
   return 0;
 }
@@ -1821,6 +1829,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       let steps = current.steps.map((step, stepIndex) => {
         if (stepIndex !== index) return step;
         if (value === "__event:Exhausted") return { type: "event", event: "Exhausted", after: { action: 0 }, duration: eventDefaultDuration("Exhausted") };
+        if (value === "__event:Delay") return { type: "event", event: "Delay", duration: 1 };
         if (value === "__event:Controlled") return { type: "event", event: "Controlled", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0, duration: eventDefaultDuration("Controlled") };
         if (value === "__event:BattleEnd") return { type: "event", event: "BattleEnd", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0 };
         if (value === "__event:Move") return { type: "event", event: "Move", before: { action: "start" }, distance: 1 };
@@ -1944,21 +1953,22 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   function moveStep(index: number, direction: number) {
     if (rotationLocked) return;
     setRotation((current) => {
-      if (current.steps[index]?.type !== "skill") return current;
+      const movable = (step: RotationStep | undefined) => step?.type === "skill" || (step?.type === "event" && step.event === "Delay");
+      if (!movable(current.steps[index])) return current;
       const attached = (step: RotationStep | undefined) => Boolean(attachedTargetForStep(step));
       let blockStart = index;
-      while (blockStart > 0 && attached(current.steps[blockStart - 1])) blockStart -= 1;
+      if (current.steps[index]?.type === "skill") while (blockStart > 0 && attached(current.steps[blockStart - 1])) blockStart -= 1;
       const currentBlock = current.steps.slice(blockStart, index + 1);
       if (direction < 0) {
         let previousSkill = blockStart - 1;
-        while (previousSkill >= 0 && current.steps[previousSkill].type !== "skill") previousSkill -= 1;
+        while (previousSkill >= 0 && !movable(current.steps[previousSkill])) previousSkill -= 1;
         if (previousSkill < 0) return current;
         let previousStart = previousSkill;
-        while (previousStart > 0 && attached(current.steps[previousStart - 1])) previousStart -= 1;
+        if (current.steps[previousSkill]?.type === "skill") while (previousStart > 0 && attached(current.steps[previousStart - 1])) previousStart -= 1;
         return { ...current, steps: [...current.steps.slice(0, previousStart), ...currentBlock, ...current.steps.slice(previousStart, blockStart), ...current.steps.slice(index + 1)] };
       }
       let nextSkill = index + 1;
-      while (nextSkill < current.steps.length && current.steps[nextSkill].type !== "skill") nextSkill += 1;
+      while (nextSkill < current.steps.length && !movable(current.steps[nextSkill])) nextSkill += 1;
       if (nextSkill >= current.steps.length) return current;
       return { ...current, steps: [...current.steps.slice(0, blockStart), ...current.steps.slice(index + 1, nextSkill + 1), ...currentBlock, ...current.steps.slice(nextSkill + 1)] };
     });
@@ -2412,6 +2422,10 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
           const actionIndex = entry.actionIndex;
           const actionTime = entry.time;
           const isManualEvent = step.type === "event";
+          const isDelayEvent = isManualEvent && step.event === "Delay";
+          const skillNumber = step.type === "skill" && row.rotationIndex !== undefined
+            ? rotation.steps.slice(0, row.rotationIndex).filter((candidate) => candidate.type === "skill").length
+            : "";
           const attachedTarget = attachedTargetForStep(step);
           const isAttachedEvent = Boolean(attachedTarget);
           const availableAttachmentTargets = step.type === "event" && step.event === "Exhausted" ? attachmentTargets.filter((target) => target.target.action !== "start") : attachmentTargets;
@@ -2419,8 +2433,8 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
           const stepSkill = step.type === "skill" ? step.skill : undefined;
           const actionsExpanded = skillActionsExpanded(row.id);
           const actionState = actionIndex === undefined ? undefined : row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance, currentHPRatio: row.currentHPRatio };
-          const durationEvent = isManualEvent && (step.event === "Controlled" || step.event === "Exhausted") ? step.event : undefined;
-          const durationValue = durationEvent ? ("duration" in step ? step.duration : undefined) ?? eventDefaultDuration(durationEvent) : 0;
+          const durationEvent = isManualEvent && (step.event === "Controlled" || step.event === "Exhausted" || step.event === "Delay") ? step.event : undefined;
+          const durationValue = durationEvent ? ("duration" in step ? step.duration : undefined) ?? (durationEvent === "Delay" ? 1 : eventDefaultDuration(durationEvent)) : 0;
           const actionBuffs = actionState?.buffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
           const actionDebuffs = actionState?.debuffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
           const skillDamageRows = row.kind === "rotation" ? [row, ...timeline.filter((candidate) => candidate.kind !== "rotation" && candidate.sourceRowId === row.id)] : [row];
@@ -2432,8 +2446,8 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
           return <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
             {!isAction && <div className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""} ${isManualEvent && step.event === "Move" ? "rotation-move-event-row" : ""}`} data-rotation-step-index={row.rotationIndex}>
               {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}</button> : <span aria-hidden="true" />}
-              <span className="rotation-index">{isManualEvent ? "" : row.rotationIndex}</span>
-              {isManualEvent ? isAttachedEvent || rotationLocked ? <span>{formatNumber(displayTime(startTime))}s</span> : <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
+              <span className="rotation-index">{skillNumber}</span>
+              {isManualEvent ? isAttachedEvent || isDelayEvent || rotationLocked ? <span>{formatNumber(displayTime(startTime))}s</span> : <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
               {durationEvent ? rotationLocked ? <span>{formatNumber(durationValue)}s</span> : <input className="rotation-event-time" type="number" min="0" step="0.01" value={eventDurationDrafts[row.id] ?? String(durationValue)} onChange={(event) => setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : isAttachedEvent ? <span /> : <span>{isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}</span>}
               {row.kind === "rotation" ? rotationLocked ? <span className="rotation-skill-name">{isManualEvent ? <span>{rotationEventDefinitions[step.event]?.name ?? step.event}</span> : <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />}</span> : <span className="rotation-skill-select-wrap"><RotationSkillName skill={isManualEvent ? rotationEventDefinitions[step.event] : skill} fallback={stepSkill ?? ""} /><select className="rotation-skill-select" data-rotation-step-index={row.rotationIndex} aria-label="Skill or event" value={isManualEvent ? `__event:${step.event}` : stepSkill ?? ""} onChange={(event) => selectRotationItem(row.rotationIndex ?? 0, event.target.value, event.currentTarget)}>{stepSkill && !rotationSkillIds.includes(stepSkill) && <option value={stepSkill} disabled>{skillDisplayName(findSkill(stepSkill), stepSkill)} (unavailable)</option>}{rotationSkillIds.map((id) => <option key={id} value={id}>{skillDisplayName(findSkill(id), id)}</option>)}{rotationEventOptionIds.map((id) => <option key={id} value={id}>{rotationEventDefinitions[id.slice(8)]?.name ?? id}</option>)}</select></span> : <span className="rotation-skill-name"><RotationSkillName skill={skill} fallback={stepSkill ?? ""} /></span>}
               {showDistanceColumn && (isManualEvent && step.event === "Move" ? rotationLocked ? <span>{step.distance}m</span> : <span className="rotation-distance-input-wrap"><input className="rotation-event-time" aria-label="Distance after move" type="number" min="1" step="1" value={eventDistanceDrafts[row.id] ?? String(step.distance)} onChange={(event) => setEventDistanceDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDistance(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span>m</span></span> : <span>{formatNumber(row.distance)}m</span>)}
@@ -2441,7 +2455,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
               <span className="rotation-damage-value">{isManualEvent ? "" : step.type === "skill" && skillBreakdown.total > 0 ? <DamageBreakdownValue breakdown={skillBreakdown} /> : ""}</span>
               <span>{isManualEvent && step.event === "Buff" ? rotationLocked ? <span>{manualBuffDefinitions[step.buff]?.name ?? step.buff}{(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}</span> : <span className={`rotation-effect-event-control ${(effectDefinitions[step.buff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}><select className="rotation-effect-select" aria-label="Buff to apply" value={step.buff} onChange={(event) => { const buff = event.target.value; updateStep(row.rotationIndex ?? 0, { buff, stack: Math.min(step.stack ?? 1, effectDefinitions[buff]?.maxStack ?? 1) }); }}>{Object.entries(manualBuffDefinitions).map(([id, definition]) => <option value={id} key={id}>{definition.name ?? id}</option>)}</select>{(effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && <input className="rotation-effect-stack" aria-label="Buff stacks" type="number" min="1" max={effectDefinitions[step.buff]?.maxStack} step="1" value={step.stack ?? 1} onChange={(event) => { const stack = Number(event.target.value); if (Number.isFinite(stack)) updateStep(row.rotationIndex ?? 0, { stack: Math.max(1, Math.min(effectDefinitions[step.buff]?.maxStack ?? 1, Math.floor(stack))) }); }} />}</span> : isManualEvent ? "" : effectNames(row.buffs)}</span>
               <span>{isManualEvent && step.event === "Debuff" ? rotationLocked ? <span>{manualDebuffDefinitions[step.debuff]?.name ?? step.debuff}{(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}</span> : <span className={`rotation-effect-event-control ${(effectDefinitions[step.debuff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}><select className="rotation-effect-select" aria-label="Debuff to apply" value={step.debuff} onChange={(event) => { const debuff = event.target.value; updateStep(row.rotationIndex ?? 0, { debuff, stack: Math.min(step.stack ?? 1, effectDefinitions[debuff]?.maxStack ?? 1) }); }}>{Object.entries(manualDebuffDefinitions).map(([id, definition]) => <option value={id} key={id}>{definition.name ?? id}</option>)}</select>{(effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && <input className="rotation-effect-stack" aria-label="Debuff stacks" type="number" min="1" max={effectDefinitions[step.debuff]?.maxStack} step="1" value={step.stack ?? 1} onChange={(event) => { const stack = Number(event.target.value); if (Number.isFinite(stack)) updateStep(row.rotationIndex ?? 0, { stack: Math.max(1, Math.min(effectDefinitions[step.debuff]?.maxStack ?? 1, Math.floor(stack))) }); }} />}</span> : isManualEvent ? "" : effectNames(row.debuffs)}</span>
-              <span className="rotation-controls">{isAttachedEvent && <><span className="rotation-control-placeholder" aria-hidden="true" /><button type="button" aria-label="Move event to previous action" disabled={rotationLocked || attachedTargetIndex <= 0} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)}>↑</button><button type="button" aria-label="Move event to next action" disabled={rotationLocked || attachedTargetIndex < 0 || attachedTargetIndex >= availableAttachmentTargets.length - 1} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)}>↓</button></>}{row.kind === "rotation" && !isManualEvent && <button className="rotation-expand-button" type="button" aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`} aria-expanded={actionsExpanded} onClick={() => toggleSkillActions(row.id)}>{actionsExpanded ? "▾" : "▸"}</button>}{row.kind === "rotation" && !isManualEvent && <><button type="button" aria-label="Move up" disabled={rotationLocked || (row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>} {row.kind === "rotation" && <><button type="button" aria-label="Delete step" disabled={rotationLocked} onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{!isManualEvent && <button type="button" aria-label="Add step below" disabled={rotationLocked} onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</>}{isAttachedEvent && <span className="rotation-control-placeholder" aria-hidden="true" />}</span>
+              <span className="rotation-controls">{isAttachedEvent && <><span className="rotation-control-placeholder" aria-hidden="true" /><button type="button" aria-label="Move event to previous action" disabled={rotationLocked || attachedTargetIndex <= 0} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)}>↑</button><button type="button" aria-label="Move event to next action" disabled={rotationLocked || attachedTargetIndex < 0 || attachedTargetIndex >= availableAttachmentTargets.length - 1} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)}>↓</button></>}{row.kind === "rotation" && !isManualEvent && <button className="rotation-expand-button" type="button" aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`} aria-expanded={actionsExpanded} onClick={() => toggleSkillActions(row.id)}>{actionsExpanded ? "▾" : "▸"}</button>}{row.kind === "rotation" && (!isManualEvent || isDelayEvent) && <><button type="button" aria-label="Move up" disabled={rotationLocked || (row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>} {row.kind === "rotation" && <><button type="button" aria-label="Delete step" disabled={rotationLocked} onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{(!isManualEvent || isDelayEvent) && <button type="button" aria-label="Add step below" disabled={rotationLocked} onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</>}{isAttachedEvent && <span className="rotation-control-placeholder" aria-hidden="true" />}</span>
             </div>
             }
             {isAction && (() => {

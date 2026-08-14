@@ -224,6 +224,10 @@
     },
     {
       "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
       "skill": "SnowpartingSpecial"
     },
     {
@@ -231,10 +235,6 @@
       "skill": "SnowpartingQStab"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneSpecial"
-    },
-    {
       "type": "event",
       "event": "Move",
       "before": {
@@ -323,6 +323,14 @@
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "event",
@@ -469,11 +477,11 @@
     },
     {
       "type": "skill",
-      "skill": "FluteOfTheTidesCancel"
+      "skill": "SnowpartingLightCharged"
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "skill",
@@ -630,10 +638,6 @@
     {
       "type": "skill",
       "skill": "SnowpartingLightCharged"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "event",

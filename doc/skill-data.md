@@ -553,6 +553,7 @@ type RotationRecord = {
   eventTimeReference?: "battleStart";
   steps: Array<
     | { type: "skill"; skill: string }
+    | { type: "event"; event: "Delay"; duration: number }
     | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number }
     | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
     | { type: "event"; event: "HP"; before: AttachedEventTarget; currentHPRatio: number }
@@ -574,7 +575,10 @@ type AttachedEventTarget = {
 };
 ```
 
-Skill steps are placed sequentially by effective cast time. `Move`, `HP`,
+Skill steps and `Delay` events are placed sequentially. A Delay starts when the
+preceding cast ends, advances every later sequential step by its nonnegative
+`duration`, and applies no action or effect. A trailing Delay still extends the
+rotation duration. `Move`, `HP`,
 `Buff`, `Debuff`, and `Exhausted` are action-attached events and must be stored
 immediately before their target skill. The first four use `before`; Exhausted
 uses `after`. The attachment's
@@ -713,7 +717,7 @@ dialog is closed and provides both selectable text and a Copy button.
 
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
-version 4. Versions 1 through 3 remain importable, and legacy Exhausted `before`
+version 5. Versions 1 through 4 remain importable, and legacy Exhausted `before`
 attachments migrate to `after`. The snapshot includes each custom rotation's `martialArts`
 eligibility and the current in-memory editor value, even before the Save button
 is pressed. Bundled default rotations are discovered from

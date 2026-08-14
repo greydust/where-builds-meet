@@ -22,6 +22,7 @@ export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolea
   | { type: "event"; event: "HP"; before: AttachedEventTarget; currentHPRatio: number }
   | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
   | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
+  | { type: "event"; event: "Delay"; duration: number }
   | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
@@ -160,6 +161,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     return left.length - right.length;
   };
   const { rotation, skills, eventDefinitions, dots, effectDefinitions, innerWayRules, setupEffects, weapons } = input;
+  const isSequentialStep = (step: RotationStep) => step.type === "skill" || step.event === "Delay";
+  const sequentialCastTime = (step: RotationStep) => step.type === "skill"
+    ? Number(skills[step.skill ?? ""]?.castTime ?? 0)
+    : step.event === "Delay" ? Math.max(0, step.duration) : 0;
   const innerWayConditions = new Set(input.innerWayConditions);
   const rows: TimelineRow[] = [];
   const events: TimelineEvent[] = [];
@@ -182,16 +187,16 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         const actionIndex = rotation.start?.action;
         return time + (actionIndex === undefined || !Array.isArray(skill?.action) ? 0 : Number((skill.action[actionIndex] as EditableObject | undefined)?.time ?? 0));
       }
-      if (step.type === "skill") time += typeof skills[step.skill ?? ""]?.castTime === "number" ? skills[step.skill ?? ""].castTime! : 0;
+      if (isSequentialStep(step)) time += sequentialCastTime(step);
     }
     return 0;
   })();
   let elapsed = 0;
   for (const [rowIndex, step] of rotation.steps.entries()) {
     const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
-    const castTime = step.type === "skill" && typeof skill?.castTime === "number" ? skill.castTime : 0;
+    const castTime = sequentialCastTime(step);
     const startTime = step.type === "event"
-      ? "startTime" in step ? step.startTime + (rotation.eventTimeReference === "battleStart" ? resolvedAnchorTime ?? initialAnchorTime : 0) : 0
+      ? step.event === "Delay" ? elapsed : "startTime" in step ? step.startTime + (rotation.eventTimeReference === "battleStart" ? resolvedAnchorTime ?? initialAnchorTime : 0) : 0
       : elapsed;
     const actions: EditableObject[] = Array.isArray(skill?.action) ? (skill.action as EditableObject[]).map((action) => ({
       ...action,
@@ -211,7 +216,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       events.push({ time: startTime, sortOrder: [...sortPrefix, 0], kind: "start", row });
       actions.forEach((action, actionIndex) => events.push({ time: startTime + (typeof action.time === "number" ? action.time : 0), sortOrder: [...sortPrefix, 1, actionIndex], kind: "action", row, actionIndex }));
     }
-    if (step.type === "skill") elapsed += castTime;
+    if (isSequentialStep(step)) elapsed += castTime;
   }
 
   type ResolvedAttachment = { eventRow: TimelineRow; target: AttachedEventTarget; placement: "before" | "after" };
@@ -345,7 +350,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           for (let index = events.length - 1; index >= 0; index -= 1) if (events[index].row === eventRow) events.splice(index, 1);
         });
         rows.forEach((row) => {
-          if (row.kind !== "rotation" || (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) || row.step.type !== "skill") return;
+          if (row.kind !== "rotation" || (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) || !isSequentialStep(row.step)) return;
           shiftRotationRowAndAttachments(row, -skippedCastTime);
         });
         continue;
@@ -360,11 +365,14 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         .filter((item) => requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons))
         .map((item) => item.effect && typeof item.effect === "object" && !Array.isArray(item.effect) ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs) : {});
       const previousCastTime = event.row.effectiveCastTime;
-      const adjustedCastTime = applyCastTimingModifiers(event.row, typeof event.row.skill?.castTime === "number" ? event.row.skill.castTime : 0);
+      const baseCastTime = event.row.step.type === "event" && event.row.step.event === "Delay"
+        ? Math.max(0, event.row.step.duration)
+        : typeof event.row.skill?.castTime === "number" ? event.row.skill.castTime : 0;
+      const adjustedCastTime = applyCastTimingModifiers(event.row, baseCastTime);
       if (event.row.kind === "rotation" && event.row.step.type === "skill") {
         const shift = adjustedCastTime - previousCastTime;
         if (shift) rows.forEach((row) => {
-          if (row.kind !== "rotation" || (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) || row.step.type !== "skill") return;
+          if (row.kind !== "rotation" || (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) || !isSequentialStep(row.step)) return;
           shiftRotationRowAndAttachments(row, shift);
         });
       }
