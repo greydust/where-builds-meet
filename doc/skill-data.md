@@ -364,6 +364,8 @@ Definition fields:
 - `cooldown`: minimum time between accepted applications
 - `maxStack`: stack cap
 - `refresh`: whether a successful reapplication resets the duration
+- `damageAttribution: "sourceCast"`: measure each affected hit with and without
+  this buff and attribute only the difference to the cast that applied it
 - `effect`: action-time effect rules
 - `stackEffects`: cumulative effect rules indexed by current stack count
 - `shared`: descriptive game metadata; it does not currently change simulation

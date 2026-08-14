@@ -74,7 +74,7 @@ Delete` button and the second click removes the item globally.
 
 Relayed items display an upward arrow on equipped and inventory cards. The gear
 editor's Max action fills every currently selected affix and attunement from
-`data/stat-priority.json` without changing attribute selections. Normal affixes
+the gear level in `data/stat.json` without changing attribute selections. Normal affixes
 use 100% of the saved max roll; relayed base and additional affixes use 94%.
 Attunements always use 100%. Max writes those concrete values into the item, so
 calculation never depends on an implicit multiplier. Manual value entry uses
@@ -145,7 +145,7 @@ still be changed locally.
 Preset gear records use the same value shape as editor-created gear: every base
 affix, additional affix, and attunement stores an explicit `{ "key", "value" }`
 object. A preset therefore records the exact build values and does not depend on
-`data/stat-priority.json` or a roll multiplier. A preset-level `relayed: true`
+the matching level in `data/stat.json` or a roll multiplier. A preset-level `relayed: true`
 marks all of its synthetic gear as relayed for display without altering those
 explicit values. Preset weapon definitions are
 fixed and are applied as authored rather than being replaced when the Settings

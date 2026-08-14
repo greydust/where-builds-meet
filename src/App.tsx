@@ -3,7 +3,7 @@ import { type AttunementStats, type DamageBreakdown } from "./calculations/damag
 import BuildTab from "./BuildTab";
 import SimulationTab from "./SimulationTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
+import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import { weaponIds as allWeaponIds, type CharacterStats, type EnemyProfile, type StatDefinition, type WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
@@ -30,7 +30,6 @@ import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
-import statPriorityLines from "../data/stat-priority.json";
 import systemStats from "../data/system.json";
 import defaultSetup from "../data/default-setup.json";
 import { emptyRotationBreakdown, getRotationMetrics, getRotationRecalculating, publishRotationMetrics, publishRotationRecalculating, subscribeToRotationMetrics, subscribeToRotationRecalculating, type RotationGroupBreakdown, type RotationMetrics, type RotationPriority } from "./calculations/rotationMetrics";
@@ -394,7 +393,7 @@ const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
 const formerDefaultRotationIds = new Set(["dummy-1-min"]);
 
 const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
-const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "level96" };
+const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "96" };
 
 type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { requirement?: unknown; trigger?: EditableObject; target?: string; modify?: EditableObject };
 type SystemStatsDefinition = {
@@ -593,7 +592,7 @@ function loadSettings(): CalculatorSettings {
     const weapons: [WeaponId, WeaponId] = savedWeapons.length === 2
       ? [savedWeapons[0], savedWeapons[1]]
       : [legacyWeapon, legacyWeapon === "snowparting" ? "phalanxbane" : "snowparting"];
-    const savedEnemy = saved?.enemy === "level100" ? "level96" : saved?.enemy;
+    const savedEnemy = saved?.enemy === "level100" || saved?.enemy === "level96" ? "96" : saved?.enemy;
     return {
       weapons,
       enemy: typeof savedEnemy === "string" && typedEnemyProfiles[savedEnemy] ? savedEnemy : defaultSettings.enemy,
@@ -797,7 +796,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   const { breakdown } = metrics;
   return <div className="breakdown-page">
     <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Skill Breakdown</h2></div><div className="breakdown-totals"><span>Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong></span><span>DPS <strong>{formatNumber(metrics.dps)}</strong></span></div></div><div className="breakdown-table breakdown-skill-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Triggers</span><span>Hits</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span><span>Damage</span><span>% Total</span></div>{breakdown.skills.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.id], row.name)}</span><strong>{row.casts || ""}</strong><strong>{row.triggers || ""}</strong><strong>{row.hits || ""}</strong><strong>{formatNumber(row.abrasionRate)}%</strong><strong>{formatNumber(row.normalRate)}%</strong><strong>{formatNumber(row.criticalRate)}%</strong><strong>{formatNumber(row.affinityRate)}%</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
-    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Cast Breakdown</h2></div></div><div className="breakdown-table breakdown-cast-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Avg Cast Time</span><span>Average DPS</span><span>Damage</span><span>% Total</span></div>{breakdown.casts.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span><strong>{row.casts}</strong><strong>{formatNumber(row.averageCastTime)}s</strong><strong>{row.averageDps === undefined ? "—" : formatNumber(row.averageDps)}</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
+    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Cast Breakdown</h2></div></div><div className="breakdown-table breakdown-cast-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Avg Cast Time</span><span>Average DPS</span><span>Damage</span><span>% Total</span></div>{breakdown.casts.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span><strong>{row.casts}</strong><strong>{formatNumber(row.averageCastTime)}s</strong><strong>{row.averageDpsWithBuff === undefined ? row.averageDps === undefined ? "—" : formatNumber(row.averageDps) : `${formatNumber(row.averageDps ?? 0)} (${formatNumber(row.averageDpsWithBuff)})`}</strong><strong>{row.damageWithBuff === undefined ? formatNumber(row.damage) : `${formatNumber(row.damage)} (${formatNumber(row.damageWithBuff)})`}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
     <BreakdownGroupTable title="Skill Type Breakdown" rows={breakdown.categories} />
     <BreakdownGroupTable title="Physical and Attribute Breakdown" rows={breakdown.damageTypes} colored />
   </div>;
@@ -2253,9 +2252,10 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
     return { ...characterStats, [key]: characterStats[key] + amount };
   };
-  const priorityCharacter = Object.fromEntries(Object.entries(statPriorityLines.character).filter(([key]) => characterStatAvailableForSettings(key as keyof CharacterStats, settings))) as Partial<Record<keyof CharacterStats, number>>;
+  const priorityLevelData = statRollsForLevel(enemy.level);
+  const priorityCharacter = Object.fromEntries(Object.entries(priorityLevelData?.affix ?? {}).filter(([key]) => characterStatAvailableForSettings(key as keyof CharacterStats, settings))) as Partial<Record<keyof CharacterStats, number>>;
   const priorityAttunement = Object.keys(attunementData).filter((key) => attunementAvailableForSettings(key, loadSelectedPath(), settings)).flatMap((key) => {
-    const amount = maxGearRoll(key, "attunement");
+    const amount = maxGearRoll(key, "attunement", false, enemy.level);
     return typeof amount === "number" ? [[key, amount] as const] : [];
   });
   const selectedInnerWays = loadInnerWays().filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));

@@ -26,7 +26,7 @@ export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolea
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
 export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };
-export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number; persistent?: boolean };
+export type TrackedEffect = { name: string; expiresAt?: number; stack?: number; maxStack?: number; persistent?: boolean; sourceRowId?: string };
 export type InnerWayEffectRule = { requirement?: unknown; effect: EditableObject; trigger?: EditableObject; target?: string; modify?: EditableObject; source: string; tier: number };
 export type TimelineRowKind = "rotation" | "trigger" | "dot";
 export type TimelineRow = {
@@ -57,6 +57,7 @@ export type EffectDefinition = {
   duration?: number;
   cooldown?: number;
   maxStack?: number;
+  damageAttribution?: "sourceCast";
   effect?: unknown[];
   stackEffects?: unknown[][];
 };
@@ -115,12 +116,12 @@ export function requirementsPass(requirement: unknown, buffs: TrackedEffect[], d
   return requirement.every(evaluate);
 }
 
-function applyTrackedEffect(effects: TrackedEffect[], name: string, stack: number | undefined, duration: number | undefined, time: number, maxStackOverride?: number, refresh = true) {
+function applyTrackedEffect(effects: TrackedEffect[], name: string, stack: number | undefined, duration: number | undefined, time: number, maxStackOverride?: number, refresh = true, sourceRowId?: string) {
   const existing = effects.find((effect) => effect.name === name);
   const nextStack = Math.min(maxStackOverride ?? Number.POSITIVE_INFINITY, (existing?.stack ?? 0) + (stack ?? 1));
   const persistent = existing?.persistent === true;
   const expiresAt = persistent || duration === undefined ? undefined : existing && !refresh ? existing.expiresAt : time + duration;
-  const nextEffect: TrackedEffect = { name, stack: nextStack, maxStack: maxStackOverride, expiresAt, ...(persistent ? { persistent: true } : {}) };
+  const nextEffect: TrackedEffect = { name, stack: nextStack, maxStack: maxStackOverride, expiresAt, ...(persistent ? { persistent: true } : {}), ...(sourceRowId ? { sourceRowId } : existing?.sourceRowId ? { sourceRowId: existing.sourceRowId } : {}) };
   return [...effects.filter((effect) => effect.name !== name), nextEffect];
 }
 
@@ -432,7 +433,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const baseStack = typeof triggerAction.stack === "number" ? triggerAction.stack : 1;
       const additional = triggerAction.additionalStack && typeof triggerAction.additionalStack === "object" && !Array.isArray(triggerAction.additionalStack) ? triggerAction.additionalStack as EditableObject : undefined;
       const additionalStack = additional && requirementsPass(additional.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons) ? (typeof additional.stack === "number" ? additional.stack : 1) : 0;
-      const next = applyTrackedEffect(targetEffects, triggerAction.value, baseStack + additionalStack, duration, event.time, definition.maxStack, definition.refresh !== false);
+      const sourceRowId = event.row.step.type === "event" ? event.row.id : event.row.sourceRowId ?? event.row.id;
+      const next = applyTrackedEffect(targetEffects, triggerAction.value, baseStack + additionalStack, duration, event.time, definition.maxStack, definition.refresh !== false, sourceRowId);
       if (triggerAction.target === "target") debuffs = next; else buffs = next;
       if (definition.cooldown !== undefined) cooldowns[triggerAction.value] = event.time + definition.cooldown;
     };
@@ -462,7 +464,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
         const duration = typeof action.duration === "number" ? action.duration : typeof dot.duration === "number" ? dot.duration : definition.duration;
         if (typeof duration === "number") {
-          debuffs = applyTrackedEffect(debuffs, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack, definition.refresh !== false);
+          const effectSourceRowId = event.row.step.type === "event" ? event.row.id : event.row.sourceRowId ?? event.row.id;
+          debuffs = applyTrackedEffect(debuffs, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack, definition.refresh !== false, effectSourceRowId);
           const sourceRowId = event.row.sourceRowId ?? event.row.id;
           const expiresAt = event.time + duration;
           if (existing && activeDots[action.value] && definition.refresh !== false) {
@@ -481,7 +484,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
       const duration = typeof action.duration === "number" ? action.duration : typeof modifierDuration?.duration === "number" ? modifierDuration.duration : definition.duration;
       const existing = targetEffects.find((effect) => effect.name === action.value);
-      const next = action.type === "extend" && typeof duration === "number" ? extendTrackedEffect(targetEffects, action.value, duration, event.time) : action.type === "apply" && !dots[action.value] ? applyTrackedEffect(targetEffects, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack, definition.refresh !== false) : targetEffects;
+      const sourceRowId = event.row.step.type === "event" ? event.row.id : event.row.sourceRowId ?? event.row.id;
+      const next = action.type === "extend" && typeof duration === "number" ? extendTrackedEffect(targetEffects, action.value, duration, event.time) : action.type === "apply" && !dots[action.value] ? applyTrackedEffect(targetEffects, action.value, typeof action.stack === "number" ? action.stack : undefined, duration, event.time, definition.maxStack, definition.refresh !== false, sourceRowId) : targetEffects;
       if (action.target === "target") debuffs = next; else buffs = next;
       if (action.type === "extend" && action.target === "target" && typeof duration === "number" && existing?.expiresAt !== undefined && existing.expiresAt > event.time && dots[action.value]) {
         transferAndRescheduleDot(action.value, existing.expiresAt + duration, event.time, event.row.sourceRowId ?? event.row.id, event.sortOrder, event.row.order + (event.actionIndex ?? 0));

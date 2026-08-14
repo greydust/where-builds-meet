@@ -6,7 +6,7 @@
   ],
   "eventTimeReference": "battleStart",
   "start": {
-    "step": 5,
+    "step": 6,
     "action": 1
   },
   "steps": [
@@ -29,6 +29,10 @@
     {
       "type": "skill",
       "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "event",

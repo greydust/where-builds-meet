@@ -9,6 +9,7 @@
   "Flute": {
     "name": "Flute",
     "description": "Buff damage by the distance to the target.",
+    "damageAttribution": "sourceCast",
     "duration": 12.5,
     "maxStack": 1,
     "effect": [

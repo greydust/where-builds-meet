@@ -40,6 +40,28 @@ try {
   assert(baseCast.averageCastTime === 2.25 && Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9, "A following Deflect must be included in the preceding damaging skill's cast-time sample.");
   assert(!result.metrics.breakdown.casts.some((row) => row.skillId === "Deflect" || row.skillId === "Utility"), "Skills with no attributed damage must be omitted from per-cast breakdown.");
   assert(result.metrics.breakdown.casts[0].skillId === "Base", "Grouped cast rows must be sorted by average DPS descending.");
+
+  const attributionBundle = (withFluteEffect) => ({
+    timeline: {
+      rotation: { name: "Flute attribution probe", steps: [{ type: "skill", skill: "FluteCast" }, { type: "skill", skill: "Hit" }] },
+      skills: {
+        FluteCast: { name: "Flute", castTime: 1, action: [{ type: "apply", target: "self", value: "Flute", time: 0 }], modifier: [], tags: ["FluteOfTheTides"] },
+        Hit: { name: "Hit", castTime: 1, action: [{ type: "damage", phyCoef: 1, time: 0.5 }], modifier: [], tags: ["DirectDamage"] },
+      },
+      eventDefinitions: {}, dots: {},
+      effectDefinitions: { Flute: { name: "Flute", duration: 10, maxStack: 1, ...(withFluteEffect ? { damageAttribution: "sourceCast", effect: [{ effect: { dmgBonus: 0.2 } }] } : { effect: [] }) } },
+      innerWayConditions: [], innerWayRules: [], setupEffects: [], weapons: [],
+    },
+    startAnchor: { rowId: "rotation-0" }, stats, attunement: {}, enemy, derivedStats: calculateDerivedStats(stats, 0), weapons: [],
+    statPriority: [], attunementPriority: [], innerWayPriority: [], setupComparisons: {},
+  });
+  const attributed = calculateRotationBaseline(attributionBundle(true));
+  const unbuffed = calculateRotationBaseline(attributionBundle(false));
+  const fluteCast = attributed.metrics.breakdown.casts.find((row) => row.skillId === "FluteCast");
+  const fluteDifference = attributed.metrics.totalDamage - unbuffed.metrics.totalDamage;
+  assert(fluteDifference > 0, "The Flute buff must increase the following hit.");
+  assert(fluteCast?.damage === 0 && Math.abs((fluteCast.damageWithBuff ?? 0) - fluteDifference) < 1e-9, "Flute's inclusive cast damage must add exactly the damage caused by its buff.");
+  assert(fluteCast?.averageDps === 0 && Math.abs((fluteCast.averageDpsWithBuff ?? 0) - fluteDifference) < 1e-9, "Flute's inclusive average DPS must include its attributed buff damage.");
   console.log("Per-cast damage attribution, Deflect timing, and zero-damage filtering checks passed.");
 } finally {
   await viteServer.close();

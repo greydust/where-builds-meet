@@ -305,7 +305,7 @@ DOT damage ignores the action's flat Physical Bonus and Attribute Bonus. Its coe
 
 ## Stat-priority conversion
 
-Max-roll values are stored in `data/stat-priority.json`. A priority variant adds one max roll and recalculates DPS. The base-attribute conversion rules are stored in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
+Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the active enemy profile's numeric level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
 
 ```text
 1 Power    = 0.225 Min Physical Attack + 1.36 Max Physical Attack

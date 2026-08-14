@@ -4,7 +4,7 @@ import arsenalJson from "../data/arsenal.json";
 import bowRingSetJson from "../data/bow-ring-set.json";
 import defaultSetupJson from "../data/default-setup.json";
 import gearSetJson from "../data/gear-set.json";
-import statPriorityJson from "../data/stat-priority.json";
+import statJson from "../data/stat.json";
 import type { AttunementStats } from "./calculations/damage";
 import { weaponIds, type CharacterStats, type WeaponId } from "./types";
 
@@ -111,16 +111,22 @@ type GearData = {
 
 export const gearData = gearJson as unknown as GearData;
 export const attunementData = attunementJson as unknown as Record<string, AttunementDefinition>;
-const statPriorityData = statPriorityJson as { character: Record<string, number>; attunement: Record<string, number> };
+export type StatRollData = { affix: Record<string, number>; attunement: Record<string, number> };
+const statData = statJson as Record<string, StatRollData>;
+export function statRollsForLevel(level: number) {
+  return statData[String(level)];
+}
 export const relayedAffixMultiplier = 0.94;
-export function maxGearRoll(key: string, category: "affix" | "attunement", relayed = false) {
+export function maxGearRoll(key: string, category: "affix" | "attunement", relayed = false, level: number = 96) {
+  const levelData = statRollsForLevel(level);
+  if (!levelData) return undefined;
   const priorityKey = category === "attunement" && attunementData[key]?.tags.includes("Armor") ? "armor" : key;
-  const value = (category === "affix" ? statPriorityData.character : statPriorityData.attunement)[priorityKey];
+  const value = levelData[category][priorityKey];
   if (typeof value !== "number") return undefined;
   return value * (category === "affix" && relayed ? relayedAffixMultiplier : 1);
 }
-export function clampGearRoll(key: string, value: number, category: "affix" | "attunement", relayed = false) {
-  const maximum = maxGearRoll(key, category, relayed);
+export function clampGearRoll(key: string, value: number, category: "affix" | "attunement", relayed = false, level: number = 96) {
+  const maximum = maxGearRoll(key, category, relayed, level);
   return typeof maximum === "number" ? Math.min(value, maximum) : value;
 }
 const gearSetDefinitions = gearSetJson as Record<string, { options: Record<string, unknown> }>;

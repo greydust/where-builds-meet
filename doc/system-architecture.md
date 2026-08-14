@@ -63,7 +63,7 @@ data/
   gear-set.json
   food.json       setup choices and their effects
   divinecraft.json  Divinecraft choices, availability, images, and effects
-  stat-priority.json
+  stat.json
 
 doc/
   damage-formula.md
@@ -259,7 +259,7 @@ Gear attunements are the calculated attunement baseline and remain keyed by
 definition ID. Damage resolution maps weapon definitions to penetration and
 maps tag-matching armor definitions to the standalone `attunementDMGBonus`
 multiplier. Every Armor-tagged definition shares the `attunement.armor` maximum
-roll from `data/stat-priority.json`; weapon attunements retain definition-ID
+roll from the active level in `data/stat.json`; weapon attunements retain definition-ID
 priority values. Armor definitions also carry the owning martial-art tag from
 `data/martial-art/*.json`. The UI requires both the current path tag (when one
 exists) and at least one selected martial-art tag; Mixed skips only the path
@@ -438,6 +438,14 @@ with no attributed damage are omitted from this breakdown. The row shows the
 arithmetic mean of the remaining cast DPS values plus average cast time.
 Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
 descending.
+
+Tracked effects retain the cast row that applied them. A buff definition with
+`damageAttribution: "sourceCast"` requests a counterfactual calculation for
+every affected hit with that buff removed. The difference is attributed to the
+source cast without changing rotation total damage or the damaged skill's own
+breakdown. Flute uses this metadata. Its per-cast Damage and Average DPS cells
+show direct values followed by parenthesized values that include this attributed
+buff damage; sorting uses the inclusive DPS.
 
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and

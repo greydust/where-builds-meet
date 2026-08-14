@@ -55,20 +55,24 @@ try {
   });
 
   const dragonIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "DragonHeadTide");
+  const fluteIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "FluteOfTheTidesCancel");
   const exhausted = rotation.steps[dragonIndex - 1];
   const hpEvent = rotation.steps[dragonIndex - 2];
   const surgingWaves = rotation.steps[dragonIndex - 3];
   const postDragonCharged = result.timeline.filter((row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "PhalanxbaneHeavyCharged3" && row.rotationIndex > dragonIndex);
   assert(rotation.name === "Mixed Horse Tamer Standard", "Rotation name must match the requested preset name.");
+  assert(rotation.steps[fluteIndex + 1]?.type === "skill" && rotation.steps[fluteIndex + 1].skill === "Deflect", "Flute Cancel must be followed immediately by Deflect.");
   assert(surgingWaves?.type === "event" && surgingWaves.event === "Buff" && surgingWaves.buff === "SurgingWaves" && surgingWaves.stack === 32 && surgingWaves.before?.action === 8, "Dragon Head must receive 32 external Surging Waves stacks immediately before its damage hit.");
   assert(hpEvent?.type === "event" && hpEvent.event === "HP" && hpEvent.currentHPRatio === 0.2 && hpEvent.before?.action === 8, "Dragon Head must be at 20% HP immediately before its damage hit.");
   assert(exhausted?.type === "event" && exhausted.event === "Debuff" && exhausted.debuff === "Exhausted" && exhausted.before?.action === 8, "External Exhausted must apply immediately before Dragon Head's damage hit.");
   const dragonRow = result.timeline.find((row) => row.kind === "rotation" && row.rotationIndex === dragonIndex);
+  const fluteCast = result.metrics.breakdown.casts.find((row) => row.skillId === "FluteOfTheTidesCancel");
   assert(!dragonRow?.actionStates[0].buffs.some((effect) => effect.name === "SurgingWaves"), "External Surging Waves must not be present at Dragon Head's cast start.");
   assert(dragonRow?.actionStates[8].buffs.find((effect) => effect.name === "SurgingWaves")?.stack === 40, "Dragon Head's eight applications must raise Surging Waves to 40 stacks before its hit.");
   assert(dragonRow?.actionStates[8].debuffs.some((effect) => effect.name === "Exhausted"), "Dragon Head's damage must see externally applied Exhausted.");
   assert(dragonRow?.actionStates[8].currentHPRatio === 0.2, "Dragon Head's damage must use 20% current HP.");
   assert(readableRotationText(result.timeline, { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action }, 0).includes("Dragon Head - Tide (break)"), "Readable format must mark externally exhausted Dragon Head as the break skill.");
+  assert((fluteCast?.damageWithBuff ?? 0) > (fluteCast?.damage ?? 0) && (fluteCast?.averageDpsWithBuff ?? 0) > (fluteCast?.averageDps ?? 0), "Horse Tamer's Flute cast must report inclusive buffed damage and DPS.");
   assert(postDragonCharged.length >= 3, "The post-break slow charged and charged x2 sequence is missing.");
   assert(postDragonCharged[0].currentHPRatio === 1 && postDragonCharged[0].actionStates[0].currentHPRatio === 1, `HP must return to 100% at the first skill after Dragon Head (row=${postDragonCharged[0].currentHPRatio}, action=${postDragonCharged[0].actionStates[0].currentHPRatio}).`);
   assert(postDragonCharged[0].effectiveCastTime > postDragonCharged[1].effectiveCastTime, "The first post-break charged cast must be slow and grant enhancement to the next cast.");

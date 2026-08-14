@@ -20,6 +20,8 @@ const damage = await loadBundledModule("./src/calculations/damage.ts");
 const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts");
 const statEffects = await loadBundledModule("./src/calculations/statEffects.ts");
 const systemStats = (await import("../../data/system.json", { with: { type: "json" } })).default;
+const enemies = (await import("../../data/enemy.json", { with: { type: "json" } })).default;
+const statRolls = (await import("../../data/stat.json", { with: { type: "json" } })).default;
 const defaultSetup = (await import("../../data/default-setup.json", { with: { type: "json" } })).default;
 const gearSetDefinitions = (await import("../../data/gear-set.json", { with: { type: "json" } })).default;
 const phalanxbaneMartialArt = (await import("../../data/martial-art/phalanxbane-blade.json", { with: { type: "json" } })).default;
@@ -32,6 +34,39 @@ const assert = (condition, message) => {
 assert(gear.gearSlots.length === 8, "Expected eight gear slots.");
 assert(gear.defaultBuildPresets.length >= 2, "Expected populated and empty default builds.");
 assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpected Heng Blade base stat.");
+assert(enemies["96"].level === 96, "The level 96 enemy must use the numeric level key consumed by stat priorities.");
+assert(gear.statRollsForLevel(enemies["96"].level) === gear.statRollsForLevel(96), "Enemy levels must select the matching stat roll table.");
+const expectedLevel91Affixes = {
+  power: 40.4,
+  agility: 40.4,
+  momentum: 40.4,
+  minPhys: 63.8,
+  maxPhys: 63.8,
+  precision: 0.066,
+  crit: 0.074,
+  affinity: 0.044,
+  minBellstrike: 36.2,
+  maxBellstrike: 36.2,
+  minStonesplit: 36.2,
+  maxStonesplit: 36.2,
+  minSilkbind: 36.2,
+  maxSilkbind: 36.2,
+  minBamboocut: 36.2,
+  maxBamboocut: 36.2,
+  minVoidAttack: 36.2,
+  maxVoidAttack: 36.2,
+  allMartialArts: 0.026,
+  moBladeDmgBoost: 0.052,
+  hengBladeDmgBoost: 0.052,
+  umbrellaDmgBoost: 0.052,
+  ropeDartDmgBoost: 0.052,
+  gauntletDmgBoost: 0.052,
+  vsBossDmg: 0.026,
+  singleTargetMysticDmgBoost: 0.08,
+  areaMysticDmgBoost: 0.08,
+};
+assert(Object.entries(expectedLevel91Affixes).every(([key, value]) => statRolls["91"].affix[key] === value), "Level 91 affix rolls must match the complete requested roll table.");
+assert(statRolls["91"].attunement.physicalPenetration === 9 && statRolls["91"].attunement.formlessPenetration === 10.8 && statRolls["91"].attunement.armor === 0.05, "Level 91 attunement rolls must match the requested roll table.");
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(Object.keys(gear.gearData.affixes).every((key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key])), "Every gear affix key must directly match CharacterStats.");
 const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]);
@@ -51,13 +86,20 @@ const presetLeftWeapon = presetInventory.items.find((item) => item.id === preset
 assert(presetLeftWeapon && !("slot" in presetLeftWeapon), "Preset weapon gear must use its definition ID instead of a stored slot.");
 assert(presetLeftWeapon.baseAffix.value === 73.132, "Preset affixes must preserve their explicit saved values.");
 assert(presetLeftWeapon.attunement.value === 11, "Preset attunements must preserve their explicit saved values.");
-assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Normal Max must use the full stat-priority affix roll.");
-assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9, "Relayed Max must use 94% of the stat-priority affix roll.");
+assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Level 96 Normal Max must use the full affix roll.");
+assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9, "Level 96 Relayed Max must use 94% of the affix roll.");
 assert(gear.maxGearRoll("physicalPenetration", "attunement", true) === 11, "Relayed Max must keep the full attunement roll.");
-assert(gear.clampGearRoll("minPhys", 100, "affix", false) === 77.8, "Normal affix input must clamp to its stat-priority roll.");
+assert(gear.clampGearRoll("minPhys", 100, "affix", false) === 77.8, "Normal affix input must clamp to its level roll.");
 assert(Math.abs(gear.clampGearRoll("minPhys", 77.8, "affix", true) - 73.132) < 1e-9, "Enabling Relayed must clamp an existing affix to 94%.");
 assert(gear.clampGearRoll("physicalPenetration", 20, "attunement", true) === 11, "Relayed attunement input must retain its full cap.");
 assert(gear.clampGearRoll("minPhys", 60, "affix", true) === 60, "Values below the cap must remain unchanged.");
+assert(gear.maxGearRoll("minPhys", "affix", false, 91) === 63.8, "Level 91 affixes must use the level 91 roll table.");
+assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true, 91) - 59.972) < 1e-9, "Level 91 relayed affixes must use 94% of the level 91 roll.");
+assert(gear.maxGearRoll("formlessPenetration", "attunement", false, 91) === 10.8, "Level 91 weapon attunements must use the level 91 roll table.");
+assert(gear.maxGearRoll("phalanxbaneChargedBoost", "attunement", false, 91) === 0.05, "Level 91 armor attunements must use the shared armor roll.");
+assert(gear.maxGearRoll("singleTargetMysticDmgBoost", "affix", false, 96) === 0.098, "Level 96 Single-Target Mystic affixes must have a 9.8% cap.");
+assert(gear.maxGearRoll("areaMysticDmgBoost", "affix", false, 91) === 0.08, "Level 91 Area Mystic affixes must have an 8% cap.");
+assert(gear.maxGearRoll("umbrellaDmgBoost", "affix", false, 96) === 0.062 && gear.maxGearRoll("ropeDartDmgBoost", "affix", false, 91) === 0.052 && gear.maxGearRoll("gauntletDmgBoost", "affix", false, 91) === 0.052, "All weapon-specific damage affixes must share their level's weapon roll.");
 const presetEffects = gear.calculateEquippedGearEffects(presetInventory, ["snowparting", "phalanxbane"], false);
 assert(Math.abs(presetEffects.stats.minPhys - 1093.584) < 1e-9, "Unexpected preset minimum Physical Attack total.");
 assert(Math.abs(presetEffects.stats.maxPhys - 431) < 1e-9, "Unexpected preset maximum Physical Attack total.");

@@ -1,0 +1,74 @@
+{
+  "96": {
+    "affix": {
+      "power": 49.4,
+      "agility": 49.4,
+      "momentum": 49.4,
+      "minPhys": 77.8,
+      "maxPhys": 77.8,
+      "precision": 0.08,
+      "crit": 0.09,
+      "affinity": 0.044,
+      "minBellstrike": 44.2,
+      "maxBellstrike": 44.2,
+      "minStonesplit": 44.2,
+      "maxStonesplit": 44.2,
+      "minSilkbind": 44.2,
+      "maxSilkbind": 44.2,
+      "minBamboocut": 44.2,
+      "maxBamboocut": 44.2,
+      "minVoidAttack": 44.2,
+      "maxVoidAttack": 44.2,
+      "allMartialArts": 0.032,
+      "moBladeDmgBoost": 0.062,
+      "hengBladeDmgBoost": 0.062,
+      "umbrellaDmgBoost": 0.062,
+      "ropeDartDmgBoost": 0.062,
+      "gauntletDmgBoost": 0.062,
+      "vsBossDmg": 0.032,
+      "singleTargetMysticDmgBoost": 0.098,
+      "areaMysticDmgBoost": 0.098
+    },
+    "attunement": {
+      "physicalPenetration": 11,
+      "formlessPenetration": 13,
+      "armor": 0.06
+    }
+  },
+  "91": {
+    "affix": {
+      "power": 40.4,
+      "agility": 40.4,
+      "momentum": 40.4,
+      "minPhys": 63.8,
+      "maxPhys": 63.8,
+      "precision": 0.066,
+      "crit": 0.074,
+      "affinity": 0.044,
+      "minBellstrike": 36.2,
+      "maxBellstrike": 36.2,
+      "minStonesplit": 36.2,
+      "maxStonesplit": 36.2,
+      "minSilkbind": 36.2,
+      "maxSilkbind": 36.2,
+      "minBamboocut": 36.2,
+      "maxBamboocut": 36.2,
+      "minVoidAttack": 36.2,
+      "maxVoidAttack": 36.2,
+      "allMartialArts": 0.026,
+      "moBladeDmgBoost": 0.052,
+      "hengBladeDmgBoost": 0.052,
+      "umbrellaDmgBoost": 0.052,
+      "ropeDartDmgBoost": 0.052,
+      "gauntletDmgBoost": 0.052,
+      "vsBossDmg": 0.026,
+      "singleTargetMysticDmgBoost": 0.08,
+      "areaMysticDmgBoost": 0.08
+    },
+    "attunement": {
+      "physicalPenetration": 9,
+      "formlessPenetration": 10.8,
+      "armor": 0.05
+    }
+  }
+}

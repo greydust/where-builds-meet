@@ -110,14 +110,14 @@ function RelayedIndicator({ item }: { item?: GearItem }) {
   return item?.relayed ? <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear">↑</span> : null;
 }
 
-function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
-  const maximum = maxGearRoll(key, category, relayed);
+function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
+  const maximum = maxGearRoll(key, category, relayed, level);
   if (typeof maximum !== "number") return undefined;
   return definitions[key]?.percentage ? maximum * 100 : maximum;
 }
 
-function capDraftValue(value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
-  const maximum = draftRollCap(value.key, definitions, category, relayed);
+function capDraftValue(value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
+  const maximum = draftRollCap(value.key, definitions, category, relayed, level);
   const numericValue = Number(value.value);
   if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue) || numericValue <= maximum) return value;
   return { ...value, value: formatNumber(maximum) };
@@ -127,30 +127,31 @@ function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
   return {
     ...draft,
     relayed,
-    baseAffix: capDraftValue(draft.baseAffix, gearData.affixes, "affix", relayed),
-    additionalAffixes: draft.additionalAffixes.map((affix) => capDraftValue(affix, gearData.affixes, "affix", relayed)),
-    attunement: capDraftValue(draft.attunement, attunementData, "attunement", relayed),
+    baseAffix: capDraftValue(draft.baseAffix, gearData.affixes, "affix", relayed, draft.level),
+    additionalAffixes: draft.additionalAffixes.map((affix) => capDraftValue(affix, gearData.affixes, "affix", relayed, draft.level)),
+    attunement: capDraftValue(draft.attunement, attunementData, "attunement", relayed, draft.level),
   };
 }
 
-function GearValueEditor({ label, value, options, definitions, category, relayed, disabledKeys = new Set(), onChange }: {
+function GearValueEditor({ label, value, options, definitions, category, relayed, level, disabledKeys = new Set(), onChange }: {
   label: string;
   value: GearValueDraft;
   options: string[];
   definitions: Record<string, GearValueDefinition>;
   category: "affix" | "attunement";
   relayed: boolean;
+  level: GearLevel;
   disabledKeys?: Set<string>;
   onChange: (next: GearValueDraft) => void;
 }) {
   const selectedDefinition = definitions[value.key];
-  const maximum = draftRollCap(value.key, definitions, category, relayed);
+  const maximum = draftRollCap(value.key, definitions, category, relayed, level);
   return <div className="gear-value-editor">
-    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed))}>
+    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed, level))}>
       <option value="">Select an attribute</option>
       {options.map((key) => <option key={key} value={key} disabled={key !== value.key && disabledKeys.has(key)}>{definitions[key]?.name ?? key}</option>)}
     </select></label>
-    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" max={maximum} step="0.01" value={value.value} onChange={(event) => onChange(capDraftValue({ ...value, value: event.target.value }, definitions, category, relayed))} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
+    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" max={maximum} step="0.01" value={value.value} onChange={(event) => onChange(capDraftValue({ ...value, value: event.target.value }, definitions, category, relayed, level))} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
   </div>;
 }
 
@@ -158,12 +159,12 @@ function createGearId() {
   return globalThis.crypto?.randomUUID?.() ?? `gear-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
+function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
   const definition = definitions[draft.key];
   const value = Number(draft.value);
   if (!definition || !draft.value.trim() || !Number.isFinite(value) || value < 0) return undefined;
   const storedValue = definition.percentage ? value / 100 : value;
-  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed) };
+  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed, level) };
 }
 
 function savedValueToDraft(value: { key: string; value: number }, definitions: Record<string, GearValueDefinition>): GearValueDraft {
@@ -386,15 +387,15 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
   }
 
   function updateLevel(level: GearLevel) {
-    setDraft((current) => ({ ...current, level, baseAffix: blankValue(), additionalAffixes: Array.from({ length: 4 }, blankValue) }));
+    setDraft((current) => capGearDraft({ ...current, level, baseAffix: blankValue(), additionalAffixes: Array.from({ length: 4 }, blankValue) }));
   }
 
   function save() {
     const definition = selected.definition;
     if (!definition) return;
-    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed);
-    const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed));
-    const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed);
+    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed, draft.level);
+    const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed, draft.level));
+    const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed, draft.level);
     if (!baseAffix || additionalAffixes.some((affix) => !affix) || !attunement) {
       setError("Choose every attribute and enter a non-negative value.");
       return;
@@ -620,16 +621,16 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
     event.preventDefault();
     void importImage(clipboardFile);
   };
-  const maxValue = (value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) => {
-    const roll = maxGearRoll(value.key, category, relayed);
+  const maxValue = (value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) => {
+    const roll = maxGearRoll(value.key, category, relayed, level);
     return typeof roll === "number" ? savedValueToDraft({ key: value.key, value: roll }, definitions) : value;
   };
   const applyMax = () => onDraftChange((current) => {
     return {
       ...current,
-      baseAffix: maxValue(current.baseAffix, gearData.affixes, "affix", current.relayed),
-      additionalAffixes: current.additionalAffixes.map((affix) => maxValue(affix, gearData.affixes, "affix", current.relayed)),
-      attunement: maxValue(current.attunement, attunementData, "attunement", current.relayed),
+      baseAffix: maxValue(current.baseAffix, gearData.affixes, "affix", current.relayed, current.level),
+      additionalAffixes: current.additionalAffixes.map((affix) => maxValue(affix, gearData.affixes, "affix", current.relayed, current.level)),
+      attunement: maxValue(current.attunement, attunementData, "attunement", current.relayed, current.level),
     };
   });
   return <section className="panel gear-editor-panel" data-testid="gear-editor">
@@ -640,9 +641,9 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
       <div className="gear-editor-roll-controls"><label className="gear-relayed-toggle"><input type="checkbox" checked={draft.relayed} onChange={(event) => { const relayed = event.target.checked; onDraftChange((current) => capGearDraft(current, relayed)); }} /><span>Relayed</span></label><button className="button button-secondary button-small" type="button" onClick={applyMax}>Max</button></div>
     </div>
     <div className="gear-editor-sections">
-      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
-      <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
-      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={attunementOptions} definitions={attunementData} category="attunement" relayed={draft.relayed} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
+      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} level={draft.level} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
+      <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} level={draft.level} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
+      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={attunementOptions} definitions={attunementData} category="attunement" relayed={draft.relayed} level={draft.level} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
     </div>
     {error && <p className="editor-error" role="alert">{error}</p>}
     <div className="editor-actions"><button className="button button-secondary" type="button" onClick={onCancel}>Cancel</button><button className="button button-primary" type="button" onClick={onSave}>{editingExisting ? "Save Changes" : "Save"}</button></div>
