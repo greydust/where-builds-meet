@@ -649,6 +649,18 @@
   cursor: help;
 }
 
+.effect-plate-general-debuff {
+  border-color: var(--error-border);
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.effect-plate-dot {
+  border-color: oklch(from var(--damage-bamboocut) l c h / 0.5);
+  background: oklch(from var(--damage-bamboocut) l c h / 0.16);
+  color: var(--damage-bamboocut);
+}
+
 .effect-plate-tooltip {
   position: absolute;
   right: 0;
@@ -668,6 +680,16 @@
   pointer-events: none;
   transform: translateY(3px);
   transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.effect-plate-tooltip strong,
+.effect-plate-tooltip span {
+  display: block;
+}
+
+.effect-plate-tooltip strong {
+  margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .effect-plate:hover .effect-plate-tooltip {

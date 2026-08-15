@@ -1,6 +1,7 @@
 {
   "ToadVenom": {
     "name": "Toad Venom",
+    "shortName": "TV",
     "tick": 5,
     "duration": 5,
     "maxStack": 1,
@@ -31,6 +32,7 @@
   },
   "LesserToadVenom": {
     "name": "Lesser Toad Venom",
+    "shortName": "LTV",
     "tick": 5,
     "duration": 5,
     "maxStack": 1,
@@ -54,6 +56,7 @@
   },
   "Combustion": {
     "name": "Combustion",
+    "shortName": "Com",
     "tick": 0.5,
     "maxStack": 1,
     "action": [
@@ -76,6 +79,7 @@
   },
   "Smolder": {
     "name": "Smolder",
+    "shortName": "Smo",
     "tick": 0.5,
     "maxStack": 1,
     "action": [

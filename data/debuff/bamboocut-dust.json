@@ -1,6 +1,7 @@
 {
   "PhantomChime": {
     "name": "Phantom Chime",
+    "shortName": "PC",
     "description": "Reduces Physical Resistance by 2 per stack.",
     "duration": 5,
     "maxStack": 5,

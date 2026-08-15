@@ -1,6 +1,7 @@
 {
   "SoulShaken": {
     "name": "Soul-Shaken",
+    "shortName": "SS",
     "description": "Increases DoT damage taken by 5% per stack, plus an additional 5% per stack if the source is Umbra.",
     "duration": 18,
     "maxStack": 5,

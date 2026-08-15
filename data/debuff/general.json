@@ -1,6 +1,7 @@
 {
   "Exhausted": {
     "name": "Exhausted",
+    "shortName": "Exh",
     "description": "Increases global damage taken by 10%.",
     "duration": 10,
     "maxStack": 1,
@@ -16,6 +17,7 @@
   },
   "Controlled": {
     "name": "Controlled",
+    "shortName": "Ctl",
     "description": "Marks a target as controlled for conditional effects.",
     "duration": 3,
     "maxStack": 1,

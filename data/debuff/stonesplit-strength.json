@@ -1,6 +1,7 @@
 {
   "Dread": {
     "name": "Dread",
+    "shortName": "Dre",
     "description": "Increases HP damage taken by 12%.",
     "duration": 8,
     "maxStack": 1,
@@ -14,6 +15,7 @@
   },
   "FearfulBlade": {
     "name": "Fearful Blade",
+    "shortName": "FB",
     "description": "Reduces attribute resistances by 16 and increases 8% HP damage for Strength",
     "duration": 15,
     "maxStack": 1,

@@ -1,6 +1,7 @@
 {
   "QiImbalance": {
     "name": "Qi Imbalance",
+    "shortName": "QI",
     "description": "Increases Qi damage taken by 10%. Increases global HP damage taken by 8% during exhausted, and an additional 8% for Bellstrike damage.",
     "duration": 15,
     "maxStack": 1,
