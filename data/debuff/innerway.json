@@ -1,0 +1,138 @@
+{
+  "QingyisCharmT0": {
+    "name": "Bitter Seasons",
+    "description": "Reduces Physical Defense by 0.6% per stack.",
+    "duration": 10,
+    "maxStack": 5,
+    "shared": true,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.006
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.012
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.018
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.024
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.03
+          }
+        }
+      ]
+    ],
+    "refresh": true
+  },
+  "QingyisCharmT1": {
+    "name": "Bitter Seasons",
+    "description": "Reduces Physical Defense by 1.2% per stack.",
+    "duration": 10,
+    "maxStack": 5,
+    "shared": true,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.012
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.024
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.036
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.048
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.06
+          }
+        }
+      ]
+    ],
+    "refresh": true
+  },
+  "QingyisCharmT6": {
+    "name": "Bitter Seasons",
+    "description": "Reduces Physical Defense by 1.2% per stack. At 5 stacks, additionally reduces Physical Resistance by 10.",
+    "duration": 10,
+    "maxStack": 5,
+    "shared": true,
+    "stackEffects": [
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.012
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.024
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.036
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.048
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "defenseBonus": -0.06,
+            "physicalResistance": -10
+          }
+        }
+      ]
+    ],
+    "refresh": true
+  }
+}

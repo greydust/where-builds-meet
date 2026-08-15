@@ -1,4 +1,4 @@
-import { attunementData, gearData, type GearLevel, type GearRarity, type GearValue } from "./gear";
+import { attunementData, attunementsForGearDefinition, gearData, type GearLevel, type GearRarity, type GearValue } from "./gear";
 
 export type GearOcrResult = {
   definitionId: string;
@@ -123,7 +123,7 @@ export function parseGearOcrTsv(tsv: string, rawText: string, imageWidth: number
   const baseKey = valueForLabel(rows[0].label, definition.baseAffixes[levelKey] ?? [], gearData.affixes);
   const additionalAffixes = rows.slice(1, 5).map((row) => storedValue(valueForLabel(row.label, definition.additionalAffixes[levelKey] ?? [], gearData.affixes), row.value, gearData.affixes));
   if (new Set(additionalAffixes.map((affix) => affix.key)).size !== 4) throw new Error("The image contains duplicate or unclear additional affixes.");
-  const attunementKey = valueForLabel(rows[5].label, definition.attunements, attunementData);
+  const attunementKey = valueForLabel(rows[5].label, attunementsForGearDefinition(definition), attunementData);
   return {
     definitionId,
     level,

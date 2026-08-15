@@ -2,10 +2,18 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardE
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
+import frostCladNight from "../data/innerway/frost-clad-night.json";
+import moraleChant from "../data/innerway/morale-chant.json";
+import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
+import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
+import breakingPoint from "../data/innerway/breaking-point.json";
+import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
 import {
   defaultBuildSetup,
   attunementData,
+  attunementsForGearDefinition,
   buildEntryAvailableForWeapons,
+  buildEntryWeapons,
   clampGearRoll,
   exportBuildState,
   gearBaseStats,
@@ -31,6 +39,16 @@ import {
 } from "./gear";
 import type { WeaponId } from "./types";
 import { recognizeGearImage } from "./gearOcr";
+import { officialGearBookmarklet } from "./officialGearBookmarklet";
+
+const innerWayDefinitions = {
+  FrostCladNight: frostCladNight,
+  MoraleChant: moraleChant,
+  SteadfastDevotion: steadfastDevotion,
+  ThroatPiercingArt: throatPiercingArt,
+  BreakingPoint: breakingPoint,
+  EnvigoratedWarrior: envigoratedWarrior,
+} as Record<string, { name: string; tags?: string[] }>;
 
 type GearValueDraft = { key: string; value: string };
 type GearDraft = {
@@ -48,6 +66,7 @@ type BuildTabProps = {
   pathTag?: string;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
+  onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => void;
 };
 
 type BuildManagementProps = {
@@ -56,6 +75,7 @@ type BuildManagementProps = {
   pathTag?: string;
   inventory: GearInventory;
   setup: BuildSetup;
+  usageCounts: ReadonlyMap<string, number>;
   locked: boolean;
   onInventoryChange: Dispatch<SetStateAction<GearInventory>>;
   onSetupChange: (setup: BuildSetup) => void;
@@ -87,8 +107,10 @@ function itemAttributes(item: GearItem) {
     const definition = gearData.affixes[affix.key];
     rows.push({ label: definition?.name ?? affix.key, value: displayValue(affix.value, definition), kind: "Affix" });
   }
-  const attunementDefinition = attunementData[item.attunement.key];
-  rows.push({ label: attunementDefinition?.name ?? item.attunement.key, value: displayValue(item.attunement.value, attunementDefinition), kind: "Attunement" });
+  if (item.attunement) {
+    const attunementDefinition = attunementData[item.attunement.key];
+    rows.push({ label: attunementDefinition?.name ?? item.attunement.key, value: displayValue(item.attunement.value, attunementDefinition), kind: "Attunement" });
+  }
   return rows;
 }
 
@@ -110,14 +132,14 @@ function RelayedIndicator({ item }: { item?: GearItem }) {
   return item?.relayed ? <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear">↑</span> : null;
 }
 
-function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
-  const maximum = maxGearRoll(key, category, relayed);
+function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
+  const maximum = maxGearRoll(key, category, relayed, level);
   if (typeof maximum !== "number") return undefined;
   return definitions[key]?.percentage ? maximum * 100 : maximum;
 }
 
-function capDraftValue(value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
-  const maximum = draftRollCap(value.key, definitions, category, relayed);
+function capDraftValue(value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
+  const maximum = draftRollCap(value.key, definitions, category, relayed, level);
   const numericValue = Number(value.value);
   if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue) || numericValue <= maximum) return value;
   return { ...value, value: formatNumber(maximum) };
@@ -127,30 +149,31 @@ function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
   return {
     ...draft,
     relayed,
-    baseAffix: capDraftValue(draft.baseAffix, gearData.affixes, "affix", relayed),
-    additionalAffixes: draft.additionalAffixes.map((affix) => capDraftValue(affix, gearData.affixes, "affix", relayed)),
-    attunement: capDraftValue(draft.attunement, attunementData, "attunement", relayed),
+    baseAffix: capDraftValue(draft.baseAffix, gearData.affixes, "affix", relayed, draft.level),
+    additionalAffixes: draft.additionalAffixes.map((affix) => capDraftValue(affix, gearData.affixes, "affix", relayed, draft.level)),
+    attunement: capDraftValue(draft.attunement, attunementData, "attunement", relayed, draft.level),
   };
 }
 
-function GearValueEditor({ label, value, options, definitions, category, relayed, disabledKeys = new Set(), onChange }: {
+function GearValueEditor({ label, value, options, definitions, category, relayed, level, disabledKeys = new Set(), onChange }: {
   label: string;
   value: GearValueDraft;
   options: string[];
   definitions: Record<string, GearValueDefinition>;
   category: "affix" | "attunement";
   relayed: boolean;
+  level: GearLevel;
   disabledKeys?: Set<string>;
   onChange: (next: GearValueDraft) => void;
 }) {
   const selectedDefinition = definitions[value.key];
-  const maximum = draftRollCap(value.key, definitions, category, relayed);
+  const maximum = draftRollCap(value.key, definitions, category, relayed, level);
   return <div className="gear-value-editor">
-    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed))}>
+    <label><span>{label}</span><select aria-label={`${label} type`} value={value.key} onChange={(event) => onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed, level))}>
       <option value="">Select an attribute</option>
       {options.map((key) => <option key={key} value={key} disabled={key !== value.key && disabledKeys.has(key)}>{definitions[key]?.name ?? key}</option>)}
     </select></label>
-    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" max={maximum} step="0.01" value={value.value} onChange={(event) => onChange(capDraftValue({ ...value, value: event.target.value }, definitions, category, relayed))} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
+    <label className="gear-value-input"><span>Value</span><span><input aria-label={`${label} value`} type="number" min="0" max={maximum} step="0.01" value={value.value} onChange={(event) => onChange(capDraftValue({ ...value, value: event.target.value }, definitions, category, relayed, level))} />{selectedDefinition?.percentage && <i>%</i>}</span></label>
   </div>;
 }
 
@@ -158,12 +181,12 @@ function createGearId() {
   return globalThis.crypto?.randomUUID?.() ?? `gear-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
-function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) {
+function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
   const definition = definitions[draft.key];
   const value = Number(draft.value);
   if (!definition || !draft.value.trim() || !Number.isFinite(value) || value < 0) return undefined;
   const storedValue = definition.percentage ? value / 100 : value;
-  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed) };
+  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed, level) };
 }
 
 function savedValueToDraft(value: { key: string; value: number }, definitions: Record<string, GearValueDefinition>): GearValueDraft {
@@ -174,22 +197,30 @@ function savedValueToDraft(value: { key: string; value: number }, definitions: R
 }
 
 function itemToDraft(item: GearItem): GearDraft {
+  const additionalAffixes = item.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes));
   return {
     level: item.level,
     rarity: item.rarity,
     relayed: item.relayed === true,
     baseAffix: savedValueToDraft(item.baseAffix, gearData.affixes),
-    additionalAffixes: item.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes)),
-    attunement: savedValueToDraft(item.attunement, attunementData),
+    additionalAffixes: [...additionalAffixes, ...Array.from({ length: 4 - additionalAffixes.length }, blankValue)],
+    attunement: item.attunement ? savedValueToDraft(item.attunement, attunementData) : blankValue(),
   };
 }
 
-export default function BuildTab({ weapons, martialArtTags, pathTag, buildState, onBuildStateChange }: BuildTabProps) {
+export default function BuildTab({ weapons, martialArtTags, pathTag, buildState, onBuildStateChange, onSelectBuildWeapons }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
   const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
-  const visibleEntries = buildState.entries.filter((entry) => buildEntryAvailableForWeapons(entry, weapons));
-  const editingEntry = visibleEntries.find((entry) => entry.id === editingBuildId) ?? visibleEntries[0];
+  const [officialImportText, setOfficialImportText] = useState("");
+  const [officialImportError, setOfficialImportError] = useState("");
+  const officialImportDialogRef = useRef<HTMLDialogElement>(null);
+  const officialBookmarkletRef = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    officialBookmarkletRef.current?.setAttribute("href", officialGearBookmarklet);
+  }, []);
+  const listedEntries = buildState.entries.filter((entry) => !entry.isDefault || buildEntryAvailableForWeapons(entry, weapons));
+  const editingEntry = listedEntries.find((entry) => entry.id === editingBuildId) ?? listedEntries[0];
   useEffect(() => {
     if (editingEntry && editingEntry.id !== editingBuildId) setEditingBuildId(editingEntry.id);
   }, [editingBuildId, editingEntry]);
@@ -199,9 +230,16 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
     setEditingBuildId(id);
     setEditingName(true);
   }
-  if (!editingEntry) return <section className="panel build-manager-panel"><div className="build-manager-layout"><aside className="build-list"><div className="build-list-heading"><span>Builds</span><button className="icon-button" type="button" aria-label="Add build" onClick={addBuild}>＋</button></div><p className="array-editor-empty">No builds match the selected weapons.</p></aside></div></section>;
-  const inventory = resolveBuildInventory(editingEntry, buildState.gearItems);
+  if (!editingEntry) return <section className="panel build-manager-panel"><div className="build-manager-layout"><aside className="build-list"><div className="build-list-heading"><span>Builds</span><button className="button button-secondary button-small" type="button" onClick={addBuild}>New Build</button></div><p className="array-editor-empty">No builds match the selected weapons.</p></aside></div></section>;
+  const inventory = resolveBuildInventory(editingEntry, buildState.gearItems, weapons);
   const setup = resolveBuildSetup(editingEntry);
+  const usageCounts = new Map<string, number>();
+  for (const entry of buildState.entries) {
+    if (entry.isDefault) continue;
+    for (const itemId of new Set(Object.values(entry.equipped ?? {}))) {
+      if (itemId) usageCounts.set(itemId, (usageCounts.get(itemId) ?? 0) + 1);
+    }
+  }
 
   function updateInventory(update: SetStateAction<GearInventory>) {
     if (editingEntry.isDefault) return;
@@ -247,7 +285,7 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
   function removeBuild(id: string) {
     const entry = buildState.entries.find((candidate) => candidate.id === id);
     if (!entry || entry.isDefault || !window.confirm(`Delete build "${entry.name}"?`)) return;
-    const remaining = visibleEntries.filter((candidate) => candidate.id !== id);
+    const remaining = listedEntries.filter((candidate) => candidate.id !== id);
     const fallback = remaining.find((candidate) => candidate.isDefault) ?? remaining[0];
     onBuildStateChange((current) => ({
       ...current,
@@ -289,15 +327,48 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
     }
   }
 
+  function openOfficialImport() {
+    setOfficialImportText("");
+    setOfficialImportError("");
+    officialImportDialogRef.current?.showModal();
+  }
+
+  async function importFromOfficial() {
+    try {
+      const { parseOfficialGearExport } = await import("./officialGearImport");
+      const official = parseOfficialGearExport(JSON.parse(officialImportText), weapons);
+      const result = mergeImportedBuildState(buildState, official.exportValue, { reuseIdenticalGear: true });
+      if (result.importedGearCount + result.reusedGearCount !== official.gearCount || result.importedBuildCount !== 1) throw new Error("Some dashboard gear did not pass build validation and was not imported.");
+      official.warnings.forEach((warning) => console.warn(`[Official gear import] ${warning}`));
+      onBuildStateChange(result.state);
+      setEditingBuildId(result.importedBuildIds[0]);
+      setEditingName(false);
+      setTransferStatus({ message: `Imported a build from ${official.roleName} with ${result.importedGearCount} new gear${result.reusedGearCount ? ` and ${result.reusedGearCount} reused gear` : ""}.` });
+      officialImportDialogRef.current?.close();
+    } catch (error) {
+      setOfficialImportError(error instanceof Error ? error.message : "The pasted dashboard data could not be imported.");
+    }
+  }
+
+  function selectBuild(entry: typeof editingEntry) {
+    if (!buildEntryAvailableForWeapons(entry, weapons)) {
+      const entryWeapons = buildEntryWeapons(entry);
+      if (entryWeapons.length === 2) onSelectBuildWeapons([entryWeapons[0], entryWeapons[1]]);
+    }
+    setEditingBuildId(entry.id);
+    setEditingName(false);
+  }
+
   return <section className="panel build-manager-panel"><div className="build-manager-layout">
     <aside className="build-list">
-      <div className="build-list-heading"><span>Builds</span><button className="icon-button" type="button" aria-label="Add build" onClick={addBuild}>＋</button></div>
-      <div className="build-list-entries">{visibleEntries.map((entry) => <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => { setEditingBuildId(entry.id); setEditingName(false); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { setEditingBuildId(entry.id); setEditingName(false); } }}>
+      <div className="build-list-heading"><span>Builds</span><button className="button button-secondary button-small" type="button" onClick={addBuild}>New Build</button></div>
+      <div className="build-list-entries">{listedEntries.map((entry) => { const incompatible = !buildEntryAvailableForWeapons(entry, weapons); return <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""} ${incompatible ? "incompatible" : ""}`} key={entry.id} role="button" tabIndex={0} title={incompatible ? "Select this build and switch to its weapons" : undefined} onClick={() => selectBuild(entry)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") selectBuild(entry); }}>
           <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build">●</i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
           {!entry.isDefault && <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}>×</button>}
-        </div>)}</div>
+        </div>; })}</div>
       <div className="build-transfer-actions">
         <div><button className="button button-secondary button-small" type="button" onClick={exportBuilds}>Export</button><label className="button button-secondary button-small build-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import builds and gear" onChange={importBuilds} /></label></div>
+        <button className="button button-secondary button-small build-official-import-button" type="button" onClick={openOfficialImport}>Import from Official</button>
         {transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}
       </div>
     </aside>
@@ -305,9 +376,23 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
       <div className="build-detail-heading"><div>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
         <button className="button button-small detail-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}</button>
       </div>
-      <BuildManagement key={editingEntry.id} weapons={weapons} martialArtTags={martialArtTags} pathTag={pathTag} inventory={inventory} setup={setup} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
+      <BuildManagement key={editingEntry.id} weapons={weapons} martialArtTags={martialArtTags} pathTag={pathTag} inventory={inventory} setup={setup} usageCounts={usageCounts} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>
-  </div></section>;
+  </div>
+  <dialog className="official-import-dialog" ref={officialImportDialogRef} onClose={() => setOfficialImportError("")}>
+    <div className="official-import-heading"><div><span className="detail-kicker">Official Dashboard</span><h2>Import equipped gear</h2></div><button className="icon-button" type="button" aria-label="Close official import" onClick={() => officialImportDialogRef.current?.close()}>×</button></div>
+    <ol className="official-import-steps">
+      <li>Drag <a className="button button-primary official-bookmarklet" ref={officialBookmarkletRef}>Export WWM Gear</a> to your browser bookmarks bar.</li>
+      <li>Open the <a href="https://www.wherewindsmeetgame.com/m/2025h5sjgj/en/" target="_blank" rel="noreferrer">official Where Winds Meet dashboard</a> and log in.</li>
+      <li>Click the saved bookmark. It copies your equipped gear data without copying your login token.</li>
+      <li>Return here and paste the copied JSON below.</li>
+    </ol>
+    <textarea aria-label="Official dashboard gear JSON" placeholder="Paste the copied dashboard JSON here" value={officialImportText} onChange={(event) => { setOfficialImportText(event.target.value); setOfficialImportError(""); }} />
+    {officialImportError && <p className="editor-error" role="alert">{officialImportError}</p>}
+    <div className="official-import-actions"><button className="button button-secondary" type="button" onClick={() => officialImportDialogRef.current?.close()}>Cancel</button><button className="button button-primary" type="button" disabled={!officialImportText.trim()} onClick={importFromOfficial}>Import Gear</button></div>
+    <p className="official-import-privacy">The bookmark runs only on the official dashboard. Where Builds Meet receives only the JSON you paste here.</p>
+  </dialog>
+  </section>;
 }
 
 function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: { setup: BuildSetup; martialArtTags: string[]; pathTag?: string; locked: boolean; onChange: (setup: BuildSetup) => void }) {
@@ -317,7 +402,22 @@ function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: {
   }
 
   const lockedTitle = locked ? "Fixed by this default preset" : undefined;
+  const innerWayOptions = Object.entries(innerWayDefinitions).filter(([, definition]) => !pathTag || definition.tags?.includes(pathTag));
   return <div className="build-setup-column" aria-label="Build setup">
+    <section className="panel setup-placeholder-panel build-setup-panel">
+      <div className="panel-heading"><div><h2>Inner Ways</h2></div></div>
+      <div className="inner-way-list">
+        {setup.innerWays.map((row, index) => <div className="inner-way-row" key={index}>
+          <select aria-label={`Build inner way ${index + 1}`} value={innerWayOptions.some(([value]) => value === row.innerWay) ? row.innerWay : ""} disabled={locked} title={lockedTitle} onChange={(event) => onChange({ ...setup, innerWays: setup.innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item) })}>
+            <option value="">None</option>
+            {innerWayOptions.map(([value, definition]) => <option key={value} value={value} disabled={setup.innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}>{definition.name}</option>)}
+          </select>
+          <select aria-label={`Build inner way ${index + 1} tier`} value={row.tier} disabled={locked} title={lockedTitle} onChange={(event) => onChange({ ...setup, innerWays: setup.innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item) })}>
+            {Array.from({ length: 7 }, (_, tier) => <option key={tier}>T{tier}</option>)}
+          </select>
+        </div>)}
+      </div>
+    </section>
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
       <div className="gear-set-list">
@@ -344,7 +444,7 @@ function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: {
   </div>;
 }
 
-function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
+function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, usageCounts, locked, onInventoryChange, onSetupChange }: BuildManagementProps) {
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon");
   const [editing, setEditing] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -386,20 +486,26 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
   }
 
   function updateLevel(level: GearLevel) {
-    setDraft((current) => ({ ...current, level, baseAffix: blankValue(), additionalAffixes: Array.from({ length: 4 }, blankValue) }));
+    setDraft((current) => capGearDraft({ ...current, level, baseAffix: blankValue(), additionalAffixes: Array.from({ length: 4 }, blankValue) }));
   }
 
   function save() {
     const definition = selected.definition;
     if (!definition) return;
-    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed);
-    const additionalAffixes = draft.additionalAffixes.map((affix) => normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed));
-    const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed);
-    if (!baseAffix || additionalAffixes.some((affix) => !affix) || !attunement) {
-      setError("Choose every attribute and enter a non-negative value.");
+    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed, draft.level);
+    const additionalAffixDrafts = draft.additionalAffixes.filter((affix) => affix.key || affix.value.trim());
+    const additionalAffixes = additionalAffixDrafts.map((affix) => normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed, draft.level));
+    const hasAttunementDraft = Boolean(draft.attunement.key || draft.attunement.value.trim());
+    const attunement = hasAttunementDraft ? normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed, draft.level) : undefined;
+    if (!baseAffix) {
+      setError("Choose a base affix and enter a non-negative value.");
       return;
     }
-    if (!attunementOptions.includes(attunement.key)) {
+    if (additionalAffixes.some((affix) => !affix) || (hasAttunementDraft && !attunement)) {
+      setError("Complete or clear each optional attribute.");
+      return;
+    }
+    if (attunement && !attunementOptions.includes(attunement.key)) {
       setError("Choose an attunement available for the current path.");
       return;
     }
@@ -417,7 +523,7 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
       ...(draft.relayed ? { relayed: true } : {}),
       baseAffix,
       additionalAffixes: normalizedAdditional,
-      attunement,
+      ...(attunement ? { attunement } : {}),
     };
     onInventoryChange((current) => ({
       ...current,
@@ -463,7 +569,7 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
   const levelKey = String(draft.level);
   const baseAffixOptions = selected.definition?.baseAffixes[levelKey] ?? [];
   const additionalAffixOptions = selected.definition?.additionalAffixes[levelKey] ?? [];
-  const attunementOptions = (selected.definition?.attunements ?? []).filter((key) => {
+  const attunementOptions = (selected.definition ? attunementsForGearDefinition(selected.definition) : []).filter((key) => {
     const tags = attunementData[key]?.tags ?? [];
     if (tags.includes("Weapon")) return true;
     return (!pathTag || tags.includes(pathTag)) && martialArtTags.some((tag) => tags.includes(tag));
@@ -472,7 +578,7 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
 
   return <div className="build-page">
     <div className="build-overview-grid"><section className="panel build-equipped-panel">
-      <div className="panel-heading"><div><h2>Equipped Gear</h2><p>{locked ? "This default build uses fixed preset gear." : "Select a slot to equip gear from the shared inventory."}</p></div></div>
+      <div className="panel-heading"><div><h2>Equipped Gear</h2><p>{locked ? "This default build uses fixed preset gear. Use New Build to create your own build." : "Select a slot to equip gear from the shared inventory."}</p></div></div>
       <div className="equipped-gear-grid">
         {gearSlots.map((slot) => {
           const item = equippedItems[slot];
@@ -491,7 +597,7 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, l
       <div className="available-gear-grid">
         {availableItems.map((item) => <article className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""} ${item.relayed ? "relayed" : ""}`} key={item.id}>
           <RelayedIndicator item={item} />
-          <div className="available-gear-heading"><div><strong>{selected.definition?.name}</strong><small>{item.level} {item.rarity}</small><GearBaseStatSummary item={item} /></div>{inventory.equipped[selectedSlot] === item.id && <span>Equipped</span>}</div>
+          <div className="available-gear-heading"><div><strong>{selected.definition?.name}</strong><small>{item.level} {item.rarity}</small><GearBaseStatSummary item={item} /></div><div className="available-gear-status">{inventory.equipped[selectedSlot] === item.id && <span>Equipped</span>}<small>Used in {usageCounts.get(item.id) ?? 0} {(usageCounts.get(item.id) ?? 0) === 1 ? "build" : "builds"}</small></div></div>
           <GearAttributes item={item} />
           <div className="gear-card-actions">
             <button className="button button-primary button-small" type="button" disabled={inventory.equipped[selectedSlot] === item.id} onClick={() => equip(item)}>{inventory.equipped[selectedSlot] === item.id ? "Equipped" : "Equip"}</button>
@@ -620,16 +726,16 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
     event.preventDefault();
     void importImage(clipboardFile);
   };
-  const maxValue = (value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean) => {
-    const roll = maxGearRoll(value.key, category, relayed);
+  const maxValue = (value: GearValueDraft, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) => {
+    const roll = maxGearRoll(value.key, category, relayed, level);
     return typeof roll === "number" ? savedValueToDraft({ key: value.key, value: roll }, definitions) : value;
   };
   const applyMax = () => onDraftChange((current) => {
     return {
       ...current,
-      baseAffix: maxValue(current.baseAffix, gearData.affixes, "affix", current.relayed),
-      additionalAffixes: current.additionalAffixes.map((affix) => maxValue(affix, gearData.affixes, "affix", current.relayed)),
-      attunement: maxValue(current.attunement, attunementData, "attunement", current.relayed),
+      baseAffix: maxValue(current.baseAffix, gearData.affixes, "affix", current.relayed, current.level),
+      additionalAffixes: current.additionalAffixes.map((affix) => maxValue(affix, gearData.affixes, "affix", current.relayed, current.level)),
+      attunement: maxValue(current.attunement, attunementData, "attunement", current.relayed, current.level),
     };
   });
   return <section className="panel gear-editor-panel" data-testid="gear-editor">
@@ -640,9 +746,9 @@ function GearEditor({ definition, definitionId, definitionName, editingExisting,
       <div className="gear-editor-roll-controls"><label className="gear-relayed-toggle"><input type="checkbox" checked={draft.relayed} onChange={(event) => { const relayed = event.target.checked; onDraftChange((current) => capGearDraft(current, relayed)); }} /><span>Relayed</span></label><button className="button button-secondary button-small" type="button" onClick={applyMax}>Max</button></div>
     </div>
     <div className="gear-editor-sections">
-      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
-      <div><h3>Additional affixes</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
-      <div><h3>Attunement</h3><GearValueEditor label="Attunement" value={draft.attunement} options={attunementOptions} definitions={attunementData} category="attunement" relayed={draft.relayed} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
+      <div><h3>Base affix</h3><GearValueEditor label="Base affix" value={draft.baseAffix} options={baseAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} level={draft.level} onChange={(baseAffix) => onDraftChange((current) => ({ ...current, baseAffix }))} /></div>
+      <div><h3>Additional affixes (optional)</h3><div className="gear-additional-affixes">{draft.additionalAffixes.map((affix, index) => <GearValueEditor key={index} label={`Additional affix ${index + 1}`} value={affix} options={additionalAffixOptions} definitions={gearData.affixes} category="affix" relayed={draft.relayed} level={draft.level} disabledKeys={selectedAdditionalKeys} onChange={(nextAffix) => onDraftChange((current) => ({ ...current, additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) => currentIndex === index ? nextAffix : currentAffix) }))} />)}</div></div>
+      <div><h3>Attunement (optional)</h3><GearValueEditor label="Attunement" value={draft.attunement} options={attunementOptions} definitions={attunementData} category="attunement" relayed={draft.relayed} level={draft.level} onChange={(attunement) => onDraftChange((current) => ({ ...current, attunement }))} /></div>
     </div>
     {error && <p className="editor-error" role="alert">{error}</p>}
     <div className="editor-actions"><button className="button button-secondary" type="button" onClick={onCancel}>Cancel</button><button className="button button-primary" type="button" onClick={onSave}>{editingExisting ? "Save Changes" : "Save"}</button></div>

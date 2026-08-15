@@ -28,7 +28,9 @@ try {
   const secondSmolder = smolderTimeline.find((row) => row.id === "rotation-1");
   const extensionTime = secondSmolder.startTime + Number(secondSmolder.actions[2]?.time ?? 0);
   assert(smolderTicks.length === 16, `Expected 16 Smolder ticks after one four-second extension, received ${smolderTicks.length}.`);
-  assert(Math.abs(smolderTicks.at(-1).startTime - 9.5667) < 0.0001, `Smolder ended at ${smolderTicks.at(-1).startTime}s instead of 9.5667s.`);
+  const firstApplicationTime = smolderTimeline[0].startTime + Number(smolderTimeline[0].actions[3]?.time ?? 0);
+  const expectedSmolderEnd = firstApplicationTime + 4 + 4;
+  assert(Math.abs(smolderTicks.at(-1).startTime - expectedSmolderEnd) < 0.0001, `Smolder ended at ${smolderTicks.at(-1).startTime}s instead of ${expectedSmolderEnd}s.`);
   assert(smolderTicks.filter((row) => row.startTime < extensionTime).every((row) => row.sourceRowId === "rotation-0"), `Ticks before the extension must belong to the first Smolder cast: ${smolderTicks.slice(0, 5).map((row) => `${row.startTime}:${row.sourceRowId}`).join(", ")}`);
   assert(smolderTicks.filter((row) => row.startTime > extensionTime).every((row) => row.sourceRowId === "rotation-1"), "Ticks after the extension must belong to the extending Smolder cast.");
 

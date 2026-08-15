@@ -2,7 +2,7 @@
 
 The Build tab is driven by `data/gear.json` and `data/attunement.json`. Gear
 defines the eight gear slots, fixed base stats by level and rarity, selectable
-affixes, and allowed attunement IDs. Attunement definitions contain their
+affixes, and attunement source tags. Attunement definitions contain their
 display names, percentage units, source tags, stat targets, and skill-match
 tags. UI code should not hard-code slot-specific option lists.
 
@@ -23,9 +23,19 @@ Each record in `gear` contains:
 - `baseStats` keyed by level and rarity
 - `baseAffixes` keyed by level
 - `additionalAffixes` keyed by level
-- allowed `attunements`
+- `attunements` selectors, currently `Weapon` or `Armor`
+
+An attunement selector is matched against each definition's `tags` in
+`data/attunement.json`. Weapons, Disc, and Pendant select `Weapon`; Helmet,
+Chestpiece, Greaves, and Bracer select `Armor`. Path and martial-art filtering
+is applied afterward by the UI, so adding a tagged attunement does not require
+copying its ID into every compatible gear record.
 
 The current level keys are `91` and `96`; rarities are `Purple` and `Gold`.
+All weapon definitions share the same fixed base-stat and base-affix tables.
+Their additional-affix pools also share the ordinary weapon affixes, with each
+definition including only its own weapon-family damage boost. Both Rope Dart
+definitions use `ropeDartDmgBoost`.
 Snowparting Blade settings select Heng Blade gear, while Phalanxbane Blade
 settings select Mo Blade gear. The first configured weapon maps to Left Weapon
 and the second maps to Right Weapon. Weapon items are identified by this
@@ -44,7 +54,8 @@ build's loadout does not change another build's equipped choices. Only the
 active build contributes to character and rotation calculations.
 
 Each shared item stores its definition ID, level, rarity, optional `relayed`
-status, one base affix, four additional affixes, and one attunement. Non-weapon items also store their armor
+status, one required base affix, zero to four additional affixes, and an optional
+attunement. Non-weapon items also store their armor
 slot; weapon items leave positioning to the build's `equipped.leftWeapon` and
 `equipped.rightWeapon` references. Editing an item updates it for every build
 that equips it. Deleting an item removes it from the shared inventory and
@@ -63,7 +74,9 @@ session-wide setup selections when available, then persist those choices with
 the build.
 
 Load validation rejects malformed items, options that are not allowed by the
-current definition, and duplicate additional affixes. Changing weapon settings
+current definition, more than four additional affixes, and duplicate additional
+affixes. Missing additional affixes and attunement are preserved as empty rather
+than filled with invented values. Changing weapon settings
 does not delete incompatible saved items; they become available again if the
 matching martial art is selected later.
 
@@ -74,7 +87,7 @@ Delete` button and the second click removes the item globally.
 
 Relayed items display an upward arrow on equipped and inventory cards. The gear
 editor's Max action fills every currently selected affix and attunement from
-`data/stat-priority.json` without changing attribute selections. Normal affixes
+the gear level in `data/stat.json` without changing attribute selections. Normal affixes
 use 100% of the saved max roll; relayed base and additional affixes use 94%.
 Attunements always use 100%. Max writes those concrete values into the item, so
 calculation never depends on an implicit multiplier. Manual value entry uses
@@ -129,6 +142,61 @@ in the export remains shared after import. Bundled default builds are skipped to
 avoid duplicating them. Importing the same file again therefore creates another
 independent copy of its custom builds and gear.
 
+### Official dashboard import
+
+`Import from Official` opens a modal containing a draggable bookmarklet and a
+link to the official Where Winds Meet dashboard. The bookmarklet runs in the
+dashboard origin, reads its cached `getAreaServer` role data or requests
+`/role/roleInfo` with the dashboard's existing login token, and copies a small
+`wwm-dashboard` JSON envelope. The login token is never included. The user
+returns to Where Builds Meet and explicitly pastes that envelope for import.
+
+`officialGearImport.ts` translates dashboard slot IDs and affix IDs before
+passing the result through the ordinary versioned build-import validator. Slot
+IDs 1, 2, 3, 4, 5, 8, 10, and 11 map to the site's eight gear slots; dashboard
+bow and ring records are ignored. `exVo.baseAffixes` contains the base affix,
+up to four additional affixes, and an optional final attunement. The final row
+is treated as an attunement only when its mapped ID is allowed by that gear
+definition. Percent values are converted to decimal ratios at this
+boundary. `local/official-wwm-affix-map.json` preserves the reference site's
+names, while generated `data/official/affix-map.json` maps each supported ID
+directly to this project's canonical stat or attunement key. Base signatures
+remain in `data/official/import-map.json`. Both data files are generated by
+`script/extract-wwm-affix-map.mjs`.
+
+The import creates a new `{character name} Import` build, adds its gear
+to the shared inventory, and equips it without replacing existing data. Before
+adding a piece, the importer compares its definition, level, rarity, relayed
+state, base affix, available additional affixes, and optional attunement with shared gear.
+Additional-affix order is ignored. An exact match is reused by the new build;
+only unmatched gear creates a new inventory item. Weapon-specific affixes such
+as Art of Mo or Art of Heng identify the imported weapon. When the imported and
+current weapon pairs match, weapon gear is placed into the corresponding
+current slot instead of changing the global left/right order. This keeps the
+new build visible without hiding the user's other weapon-filtered builds. Gear
+level and rarity are inferred from official base-attribute signatures when
+possible. If the payload does not expose or identify rarity, the item defaults
+to Gold and a non-blocking warning is written to the browser console. These
+fallback details do not clutter the successful import message. Unmapped or
+slot-invalid affixes are rejected rather than silently assigned to a different
+stat.
+
+Version 2 of the bookmarklet envelope carries the complete dashboard `roleInfo`
+object for inspecting additional profile fields. Known official martial-art and
+Inner Way IDs are recorded in `data/official/profile-map.json`. `kongfuMain`
+and `kongfuSub` provide ordered martial-art IDs and are preferred over affix
+inference when both are supported. `passiveSlots` contains the four ordered
+Inner Way IDs, but the payload does not expose their tiers, so they are not yet
+applied to the imported build. The role object also includes equipped bow/ring records, but the importer
+does not yet translate those set selections. Gear-set, arsenal, and Inner Way
+tiers are not carried explicitly, so the imported build uses the application's
+default setup values for those fields.
+
+The dashboard can report Physical Resistance as an accessory attunement. It is
+preserved on imported gear and shown in the gear editor, but is marked
+defensive and excluded from offensive character/priority controls because it
+does not affect outgoing damage.
+
 ## Default build presets
 
 Default builds live in `data/build/*.json`. Vite eagerly discovers every JSON
@@ -145,11 +213,18 @@ still be changed locally.
 Preset gear records use the same value shape as editor-created gear: every base
 affix, additional affix, and attunement stores an explicit `{ "key", "value" }`
 object. A preset therefore records the exact build values and does not depend on
-`data/stat-priority.json` or a roll multiplier. A preset-level `relayed: true`
+the matching level in `data/stat.json` or a roll multiplier. A preset-level `relayed: true`
 marks all of its synthetic gear as relayed for display without altering those
 explicit values. Preset weapon definitions are
-fixed and are applied as authored rather than being replaced when the Settings
-weapon order changes.
+fixed, but build filtering treats the two-weapon combination as an unordered
+pair. When the selected martial arts use the same pair in the opposite order,
+the equipped weapon records are aligned to the matching left and right weapon
+definitions before calculation.
+
+Default presets for other weapon pairs remain hidden in the Build tab. Custom
+builds remain listed in a dimmed state when they do not match the current pair.
+Selecting one changes to the enabled locked path for that pair, or to Mixed with
+the build's saved weapon pair when no enabled locked path is available.
 
 ## Calculation behavior
 

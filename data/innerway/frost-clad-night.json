@@ -15,7 +15,38 @@
     },
     "FrostCladNightT3": {},
     "FrostCladNightT4": {
-      "effect": []
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "SnowbreakSpring"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "self",
+                  "value": "InnerPassion"
+                },
+                [
+                  {
+                    "target": "self",
+                    "value": "FrostCladNightT6"
+                  },
+                  {
+                    "target": "target",
+                    "value": "Exhausted"
+                  }
+                ]
+              ]
+            }
+          ],
+          "effect": {
+            "hpDMGBonus": 0.4
+          }
+        }
+      ]
     },
     "FrostCladNightT5": {
       "effect": [

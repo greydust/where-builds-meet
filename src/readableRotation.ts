@@ -7,7 +7,7 @@ export function readableRotationText(timeline: TimelineRow[], startAnchor: { row
     .filter((row) => row.kind === "rotation" && row.step.type === "skill" && !row.skipped)
     .sort((left, right) => (left.rotationIndex ?? 0) - (right.rotationIndex ?? 0));
   const breakRows = new Set<string>(skillRows.filter((row) => row.step.type === "skill" && row.step.causesBreak).map((row) => row.id));
-  const breakEvents = timeline.filter((row) => row.kind === "rotation" && row.step.type === "event" && row.step.event === "Exhausted" && !row.skipped);
+  const breakEvents = timeline.filter((row) => row.kind === "rotation" && row.step.type === "event" && (row.step.event === "Exhausted" || row.step.event === "Debuff" && row.step.debuff === "Exhausted") && !row.skipped);
   breakEvents.forEach((breakEvent) => {
     const containingRow = skillRows.find((row) => row.id === breakEvent.sourceRowId)
       ?? skillRows.find((row) => breakEvent.startTime >= row.startTime - 1e-6 && breakEvent.startTime <= row.startTime + row.effectiveCastTime + 1e-6);

@@ -1,0 +1,286 @@
+{
+  "name": "Pure Dummy 1 min",
+  "martialArts": [
+    "snowparting",
+    "phalanxbane"
+  ],
+  "eventTimeReference": "battleStart",
+  "start": {
+    "step": 5,
+    "action": 0
+  },
+  "steps": [
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "LeapingToad"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "event",
+      "event": "Exhausted",
+      "after": {
+        "action": 0
+      }
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
+    }
+  ]
+}

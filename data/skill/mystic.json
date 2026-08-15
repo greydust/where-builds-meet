@@ -831,6 +831,7 @@
       "DirectDamage",
       "Mystic",
       "AreaMystic",
+      "Distance",
       "FluteOfTheTides"
     ]
   },
@@ -871,6 +872,7 @@
       "DirectDamage",
       "Mystic",
       "AreaMystic",
+      "Distance",
       "FluteOfTheTides"
     ]
   },
@@ -977,6 +979,92 @@
       "Mystic",
       "GhostlySteps",
       "Triggered"
+    ]
+  },
+  "DragonHeadTide": {
+    "name": "Dragon Head - Tide",
+    "castTime": 5.85,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.05
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.6
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.9
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.2
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.5
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.8
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SurgingWaves",
+        "stack": 1,
+        "reapply": true,
+        "time": 2.1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 12.595814,
+        "phyBonus": 1259.5814,
+        "attrBonus": 0,
+        "time": 4.7375
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "Mystic",
+      "SingleTargetMystic",
+      "HP",
+      "DragonHead",
+      "DragonHeadTide"
     ]
   }
 }

@@ -192,10 +192,6 @@
     },
     {
       "type": "skill",
-      "skill": "PhalanxbaneQ"
-    },
-    {
-      "type": "skill",
       "skill": "SnowpartingConversion"
     },
     {
@@ -212,15 +208,23 @@
     },
     {
       "type": "skill",
-      "skill": "LeapingToad"
+      "skill": "PhalanxbaneQ"
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "skill",
       "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
     },
     {
       "type": "skill",
@@ -231,8 +235,102 @@
       "skill": "SnowpartingQStab"
     },
     {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
       "type": "skill",
-      "skill": "PhalanxbaneSpecial"
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "event",
@@ -365,96 +463,6 @@
       "type": "event",
       "event": "Move",
       "before": {
-        "trigger": 0,
-        "action": 0
-      },
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 1,
-        "action": 0
-      },
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": 3
-      },
-      "distance": 2
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 0,
-        "action": 0
-      },
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 1,
-        "action": 0
-      },
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": 3
-      },
-      "distance": 2
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 0,
-        "action": 0
-      },
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 1,
-        "action": 0
-      },
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": 3
-      },
-      "distance": 2
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
         "action": "start"
       },
       "distance": 1
@@ -469,11 +477,11 @@
     },
     {
       "type": "skill",
-      "skill": "FluteOfTheTidesCancel"
+      "skill": "SnowpartingLightCharged"
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "skill",
@@ -630,10 +638,6 @@
     {
       "type": "skill",
       "skill": "SnowpartingLightCharged"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingHeavyVC"
     },
     {
       "type": "event",

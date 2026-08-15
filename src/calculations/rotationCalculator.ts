@@ -10,7 +10,10 @@ export type RotationDamageEntry = {
   id?: string;
   action: DamageAction;
   context: DamageContext;
+  attributionContexts?: Array<{ sourceRowId: string; context: DamageContext }>;
 };
+
+export type RotationActionBreakdown = DamageBreakdown & { buffedDamageBySource?: Record<string, number> };
 
 export type RotationCalculationVariant = {
   key: string;
@@ -57,7 +60,7 @@ export type RotationSimulationResult = {
   timeline: TimelineRow[];
   anchorTime: number;
   duration: number;
-  actionBreakdowns: Record<string, DamageBreakdown>;
+  actionBreakdowns: Record<string, RotationActionBreakdown>;
 };
 
 export type RotationSimulationBaseline = RotationSimulationResult & {
@@ -138,7 +141,7 @@ export function calculateRotationMetrics(bundle: RotationCalculationBundle, base
   };
 }
 
-function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<string, DamageBreakdown>, totalDamage: number): RotationBreakdown {
+function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<string, RotationActionBreakdown>, totalDamage: number): RotationBreakdown {
   const percentage = (damage: number) => totalDamage > 0 ? damage / totalDamage * 100 : 0;
   const skills = new Map<string, { id: string; name: string; casts: number; triggers: number; hits: number; abrasionTotal: number; normalTotal: number; criticalTotal: number; affinityTotal: number; damage: number; tags: string[] }>();
   const castRows = timeline.filter((row) => !row.skipped && row.step.type === "skill" && row.step.skill && (row.kind === "rotation" || row.kind === "trigger" && row.triggerSource === "innerWay"));
@@ -148,6 +151,7 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
     name: row.skill?.name ?? (row.step.type === "skill" ? row.step.skill ?? "" : ""),
     castTime: row.effectiveCastTime,
     damage: 0,
+    buffedDamage: 0,
     time: row.startTime,
     order: row.order,
   }]));
@@ -186,6 +190,10 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
         const castId = owningCastId(row);
         const cast = castId ? casts.get(castId) : undefined;
         if (cast) cast.damage += breakdown.total;
+        Object.entries(breakdown.buffedDamageBySource ?? {}).forEach(([sourceRowId, damage]) => {
+          const sourceCast = casts.get(sourceRowId);
+          if (sourceCast) sourceCast.buffedDamage += damage;
+        });
         current.hits += 1;
         current.damage += breakdown.total;
         current.abrasionTotal += breakdown.outcomeRates?.abrasion ?? 0;
@@ -223,28 +231,31 @@ function calculateBreakdown(timeline: TimelineRow[], actionBreakdowns: Record<st
     }))
       .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
     casts: [...casts.values()]
-      .filter((cast) => cast.damage > 0)
+      .filter((cast) => cast.damage > 0 || cast.buffedDamage > 0)
       .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
-      .reduce<Array<{ id: string; skillId: string; name: string; casts: number; totalCastTime: number; dpsTotal: number; dpsSamples: number; damage: number }>>((groups, cast) => {
+      .reduce<Array<{ id: string; skillId: string; name: string; casts: number; totalCastTime: number; dpsTotal: number; dpsWithBuffTotal: number; dpsSamples: number; damage: number; buffedDamage: number }>>((groups, cast) => {
         const existing = groups.find((group) => group.skillId === cast.skillId);
-        const group = existing ?? { id: cast.skillId, skillId: cast.skillId, name: cast.name, casts: 0, totalCastTime: 0, dpsTotal: 0, dpsSamples: 0, damage: 0 };
+        const group = existing ?? { id: cast.skillId, skillId: cast.skillId, name: cast.name, casts: 0, totalCastTime: 0, dpsTotal: 0, dpsWithBuffTotal: 0, dpsSamples: 0, damage: 0, buffedDamage: 0 };
         if (!existing) groups.push(group);
         group.casts += 1;
         group.totalCastTime += cast.castTime;
         group.damage += cast.damage;
+        group.buffedDamage += cast.buffedDamage;
         if (cast.castTime > 0) {
           group.dpsTotal += cast.damage / cast.castTime;
+          group.dpsWithBuffTotal += (cast.damage + cast.buffedDamage) / cast.castTime;
           group.dpsSamples += 1;
         }
         return groups;
       }, [])
-      .map(({ totalCastTime, dpsTotal, dpsSamples, ...group }) => ({
+      .map(({ totalCastTime, dpsTotal, dpsWithBuffTotal, dpsSamples, buffedDamage, ...group }) => ({
         ...group,
         averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
         ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
+        ...(buffedDamage > 0 ? { damageWithBuff: group.damage + buffedDamage, ...(dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {}) } : {}),
         percentage: percentage(group.damage),
       }))
-      .sort((left, right) => (right.averageDps ?? Number.NEGATIVE_INFINITY) - (left.averageDps ?? Number.NEGATIVE_INFINITY) || right.damage - left.damage || left.name.localeCompare(right.name)),
+      .sort((left, right) => (right.averageDpsWithBuff ?? right.averageDps ?? Number.NEGATIVE_INFINITY) - (left.averageDpsWithBuff ?? left.averageDps ?? Number.NEGATIVE_INFINITY) || (right.damageWithBuff ?? right.damage) - (left.damageWithBuff ?? left.damage) || left.name.localeCompare(right.name)),
     categories: [
       { id: "martialArts", name: "Martial Arts", damage: categoryTotals.martialArts, percentage: percentage(categoryTotals.martialArts) },
       { id: "mystic", name: "Mystic", damage: categoryTotals.mystic, percentage: percentage(categoryTotals.mystic) },
@@ -301,37 +312,58 @@ function timelineDamageEntries(
     if (anchorTimeOrder < 0 || (anchorTimeOrder === 0 && actionOrder < anchorOrder)) return [];
     const battleEndTimeOrder = battleEnd ? compareTimelineTime(actionTime, battleEnd.time) : -1;
     if (battleEnd && (battleEndTimeOrder > 0 || battleEndTimeOrder === 0 && actionOrder >= battleEnd.order)) return [];
-    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance };
+    const actionState = row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance, currentHPRatio: row.currentHPRatio };
     const buffs = actionState.buffs;
     const debuffs = actionState.debuffs;
     const skillTags = row.skill?.tags ?? [];
-    const activeInnerWayEffects = rules.filter((rule) => requirementsPass(rule.requirement, buffs, debuffs, skillTags, conditions, state.weapons)).map((rule) => rule.effect);
-    const activeTrackedEffects = [...buffs, ...debuffs].flatMap((tracked) => {
-      const setupModifiers = setupEffects.filter((effect) => effect.target === tracked.name && effect.modify && typeof effect.modify === "object" && !Array.isArray(effect.modify) && requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
-        .map((effect) => effect.modify as EditableObject);
-      const innerWayModifiers = rules.filter((rule) => rule.target === tracked.name && rule.modify && requirementsPass(rule.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
-        .map((rule) => rule.modify!);
-      const definition = [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, { ...(input.effectDefinitions[tracked.name] ?? {}) });
-      return effectsForTrackedEffect(tracked.stack, definition);
-    })
-      .filter((effect): effect is EditableObject => Boolean(effect) && typeof effect === "object" && !Array.isArray(effect))
-      .filter((effect) => requirementsPass(effect.requirement, buffs, debuffs, skillTags, conditions, state.weapons))
-      .map((effect) => effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect) ? effect.effect as EditableObject : effect);
+    const effectsForState = (currentBuffs: typeof buffs, currentDebuffs: typeof debuffs) => {
+      const activeSetupEffects = setupEffects
+        .filter((effect) => requirementsPass(effect.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons))
+        .map((effect) => effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect) ? effect.effect as EditableObject : effect);
+      const activeInnerWayEffects = rules.filter((rule) => requirementsPass(rule.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons)).map((rule) => rule.effect);
+      const activeTrackedEffects = [...currentBuffs, ...currentDebuffs].flatMap((tracked) => {
+        const setupModifiers = setupEffects.filter((effect) => effect.target === tracked.name && effect.modify && typeof effect.modify === "object" && !Array.isArray(effect.modify) && requirementsPass(effect.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons))
+          .map((effect) => effect.modify as EditableObject);
+        const innerWayModifiers = rules.filter((rule) => rule.target === tracked.name && rule.modify && requirementsPass(rule.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons))
+          .map((rule) => rule.modify!);
+        const definition = [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, { ...(input.effectDefinitions[tracked.name] ?? {}) });
+        return effectsForTrackedEffect(tracked.stack, definition);
+      })
+        .filter((effect): effect is EditableObject => Boolean(effect) && typeof effect === "object" && !Array.isArray(effect))
+        .filter((effect) => requirementsPass(effect.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons))
+        .map((effect) => effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect) ? effect.effect as EditableObject : effect);
+      return [...activeSetupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects];
+    };
+    const context: DamageContext = {
+      stats,
+      attunement,
+      skillTags,
+      weapons: state.weapons,
+      buffs: buffs.map((effect) => effect.name),
+      enemy: state.enemy,
+      derivedStats,
+      effects: effectsForState(buffs, debuffs),
+      distance: actionState.distance,
+      currentHPRatio: actionState.currentHPRatio,
+      isDot: row.kind === "dot",
+    };
+    const attributionContexts = buffs.flatMap((tracked) => {
+      if (input.effectDefinitions[tracked.name]?.damageAttribution !== "sourceCast" || !tracked.sourceRowId) return [];
+      const counterfactualBuffs = buffs.filter((candidate) => candidate !== tracked);
+      return [{
+        sourceRowId: tracked.sourceRowId,
+        context: {
+          ...context,
+          buffs: counterfactualBuffs.map((effect) => effect.name),
+          effects: effectsForState(counterfactualBuffs, debuffs),
+        },
+      }];
+    });
     return [{
       id: `${row.id}:${actionIndex}`,
       action,
-      context: {
-        stats,
-        attunement,
-        skillTags,
-        weapons: state.weapons,
-        buffs: buffs.map((effect) => effect.name),
-        enemy: state.enemy,
-        derivedStats,
-        effects: [...setupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects],
-        distance: actionState.distance,
-        isDot: row.kind === "dot",
-      },
+      context,
+      ...(attributionContexts.length ? { attributionContexts } : {}),
     }];
   }));
 }
@@ -340,7 +372,11 @@ function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulation
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorTime = anchorRow ? anchorRow.startTime + (startAnchor.actionIndex === undefined ? 0 : Number(anchorRow.actions[startAnchor.actionIndex]?.time ?? 0)) : 0;
   const battleEnd = battleEndCutoff(timeline);
-  const lastActionTime = battleEnd?.time ?? timeline.reduce((latest, row) => row.skipped ? latest : Math.max(latest, row.startTime, ...row.actions.map((action) => row.startTime + Number(action.time ?? 0))), 0);
+  const lastActionTime = battleEnd?.time ?? timeline.reduce((latest, row) => row.skipped ? latest : Math.max(
+    latest,
+    row.step.type === "event" && row.step.event === "Delay" ? row.startTime + row.effectiveCastTime : row.startTime,
+    ...row.actions.map((action) => row.startTime + Number(action.time ?? 0)),
+  ), 0);
   return { anchorTime, duration: Math.max(0, lastActionTime - anchorTime) };
 }
 
@@ -353,7 +389,11 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   const actionBreakdowns = Object.fromEntries(baseline.filter((entry) => entry.id).map((entry) => {
     const breakdown = calculateDamageBreakdown(entry.action, entry.context);
     baselineDamage += breakdown.total;
-    return [entry.id!, breakdown];
+    const buffedDamageBySource = Object.fromEntries((entry.attributionContexts ?? []).map(({ sourceRowId, context }) => [
+      sourceRowId,
+      breakdown.total - calculateDamageBreakdown(entry.action, context).total,
+    ]).filter(([, damage]) => Math.abs(damage as number) > 1e-9));
+    return [entry.id!, { ...breakdown, ...(Object.keys(buffedDamageBySource).length ? { buffedDamageBySource } : {}) }];
   }));
   const metrics = calculateRotationMetrics({
     duration,

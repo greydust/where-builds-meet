@@ -19,7 +19,10 @@ const gear = await viteServer.ssrLoadModule("/src/gear.ts");
 const damage = await loadBundledModule("./src/calculations/damage.ts");
 const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts");
 const statEffects = await loadBundledModule("./src/calculations/statEffects.ts");
+const { createBaseAttributeEffects } = await loadBundledModule("./src/data/baseAttributeEffects.ts");
 const systemStats = (await import("../../data/system.json", { with: { type: "json" } })).default;
+const enemies = (await import("../../data/enemy.json", { with: { type: "json" } })).default;
+const statRolls = (await import("../../data/stat.json", { with: { type: "json" } })).default;
 const defaultSetup = (await import("../../data/default-setup.json", { with: { type: "json" } })).default;
 const gearSetDefinitions = (await import("../../data/gear-set.json", { with: { type: "json" } })).default;
 const phalanxbaneMartialArt = (await import("../../data/martial-art/phalanxbane-blade.json", { with: { type: "json" } })).default;
@@ -32,32 +35,86 @@ const assert = (condition, message) => {
 assert(gear.gearSlots.length === 8, "Expected eight gear slots.");
 assert(gear.defaultBuildPresets.length >= 2, "Expected populated and empty default builds.");
 assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpected Heng Blade base stat.");
+assert(enemies["96"].level === 96, "The level 96 enemy must use the numeric level key consumed by stat priorities.");
+assert(gear.statRollsForLevel(enemies["96"].level) === gear.statRollsForLevel(96), "Enemy levels must select the matching stat roll table.");
+const expectedLevel91Affixes = {
+  power: 40.4,
+  agility: 40.4,
+  momentum: 40.4,
+  minPhys: 63.8,
+  maxPhys: 63.8,
+  precision: 0.066,
+  crit: 0.074,
+  affinity: 0.044,
+  minBellstrike: 36.2,
+  maxBellstrike: 36.2,
+  minStonesplit: 36.2,
+  maxStonesplit: 36.2,
+  minSilkbind: 36.2,
+  maxSilkbind: 36.2,
+  minBamboocut: 36.2,
+  maxBamboocut: 36.2,
+  minVoidAttack: 36.2,
+  maxVoidAttack: 36.2,
+  allMartialArts: 0.026,
+  moBladeDmgBoost: 0.052,
+  hengBladeDmgBoost: 0.052,
+  umbrellaDmgBoost: 0.052,
+  ropeDartDmgBoost: 0.052,
+  gauntletDmgBoost: 0.052,
+  vsBossDmg: 0.026,
+  singleTargetMysticDmgBoost: 0.08,
+  areaMysticDmgBoost: 0.08,
+};
+assert(Object.entries(expectedLevel91Affixes).every(([key, value]) => statRolls["91"].affix[key] === value), "Level 91 affix rolls must match the complete requested roll table.");
+assert(statRolls["91"].attunement.physicalPenetration === 9 && statRolls["91"].attunement.formlessPenetration === 10.8 && statRolls["91"].attunement.armor === 0.05, "Level 91 attunement rolls must match the requested roll table.");
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(Object.keys(gear.gearData.affixes).every((key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key])), "Every gear affix key must directly match CharacterStats.");
-const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]);
+const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "physicalResistance", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]);
 assert(Object.keys(gear.attunementData).every((key) => attunementStatKeys.has(key)), "Every attunement definition ID must have a centralized AttunementStats input.");
 assert(gear.attunementData.physicalPenetration.effect.stat.physicalPenetration === 1 && gear.attunementData.formlessPenetration.effect.stat.formlessPenetration === 1, "Weapon attunements must target their penetration channels.");
 assert(Object.entries(gear.attunementData).filter(([, definition]) => definition.tags.includes("Armor")).every(([, definition]) => definition.effect.stat.attunementDMGBonus === 1 && definition.effect.tags.length > 0), "Armor attunements must target the tagged standalone attunement DMG Bonus.");
+const weaponDefinitions = ["hengBlade", "moBlade", "umbrella", "unfetteredRopeDart", "gauntlet", "skygraspRopeDart"].map((id) => gear.gearData.gear[id]);
+assert(weaponDefinitions.every((definition) => JSON.stringify(definition.baseStats) === JSON.stringify(weaponDefinitions[0].baseStats) && JSON.stringify(definition.baseAffixes) === JSON.stringify(weaponDefinitions[0].baseAffixes)), "Every weapon must share the same base stats and base-affix pools.");
+const expectedWeaponBoosts = ["hengBladeDmgBoost", "moBladeDmgBoost", "umbrellaDmgBoost", "ropeDartDmgBoost", "gauntletDmgBoost", "ropeDartDmgBoost"];
+assert(weaponDefinitions.every((definition, index) => ["96", "91"].every((level) => {
+  const boosts = definition.additionalAffixes[level].filter((key) => key.endsWith("DmgBoost"));
+  return boosts.length === 1 && boosts[0] === expectedWeaponBoosts[index];
+})), "Each weapon additional-affix pool must contain only its own weapon damage boost.");
+assert(weaponDefinitions.every((definition) => JSON.stringify(definition.attunements) === JSON.stringify(["Weapon"])) && ["disc", "pendant"].every((id) => JSON.stringify(gear.gearData.gear[id].attunements) === JSON.stringify(["Weapon"])), "Weapons, Disc, and Pendant must select Weapon-tagged attunements.");
+assert(["helmet", "chestpiece", "greaves", "bracer"].every((id) => JSON.stringify(gear.gearData.gear[id].attunements) === JSON.stringify(["Armor"])), "Armor gear must select Armor-tagged attunements.");
+assert(gear.attunementsForGearDefinition(gear.gearData.gear.hengBlade).includes("physicalPenetration") && !gear.attunementsForGearDefinition(gear.gearData.gear.hengBlade).includes("phalanxbaneChargedBoost") && gear.attunementsForGearDefinition(gear.gearData.gear.helmet).includes("phalanxbaneChargedBoost"), "Gear attunement selectors must resolve through attunement definition tags.");
 
 const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "mixed-fully-relayed-min" || candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
 assert(preset, "Expected the fully relayed min default build.");
 const presetInventory = gear.buildPresetInventory(preset);
 assert(preset.name === "Mixed Fully Relayed Min Build" || preset.name === "Fully Relayed Min Build" || preset.name === "Full Relayed Min Build", "Unexpected default build name.");
 assert(gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["snowparting", "phalanxbane"]), "The Mixed fully-relayed preset must match its weapon pair.");
+assert(gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["phalanxbane", "snowparting"]), "Build weapon-pair matching must not depend on left/right order.");
 assert(!gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["everspring", "unfettered"]), "A build preset must be hidden for a different weapon pair.");
+const reversedPresetInventory = gear.resolveBuildInventory({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [], ["phalanxbane", "snowparting"]);
+assert(reversedPresetInventory.items.find((item) => item.id === reversedPresetInventory.equipped.leftWeapon)?.definitionId === "moBlade", "A reversed build pair must align the matching gear to the selected left weapon.");
+assert(reversedPresetInventory.items.find((item) => item.id === reversedPresetInventory.equipped.rightWeapon)?.definitionId === "hengBlade", "A reversed build pair must align the matching gear to the selected right weapon.");
 assert(presetInventory.items.length === 8 && Object.keys(presetInventory.equipped).length === 8, "The default build must resolve all eight synthetic gear slots.");
 assert(presetInventory.items.every((item) => item.relayed === true), "Fully relayed presets must mark every synthetic gear item as relayed.");
 const presetLeftWeapon = presetInventory.items.find((item) => item.id === presetInventory.equipped.leftWeapon);
 assert(presetLeftWeapon && !("slot" in presetLeftWeapon), "Preset weapon gear must use its definition ID instead of a stored slot.");
 assert(presetLeftWeapon.baseAffix.value === 73.132, "Preset affixes must preserve their explicit saved values.");
 assert(presetLeftWeapon.attunement.value === 11, "Preset attunements must preserve their explicit saved values.");
-assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Normal Max must use the full stat-priority affix roll.");
-assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9, "Relayed Max must use 94% of the stat-priority affix roll.");
+assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Level 96 Normal Max must use the full affix roll.");
+assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9, "Level 96 Relayed Max must use 94% of the affix roll.");
 assert(gear.maxGearRoll("physicalPenetration", "attunement", true) === 11, "Relayed Max must keep the full attunement roll.");
-assert(gear.clampGearRoll("minPhys", 100, "affix", false) === 77.8, "Normal affix input must clamp to its stat-priority roll.");
+assert(gear.clampGearRoll("minPhys", 100, "affix", false) === 77.8, "Normal affix input must clamp to its level roll.");
 assert(Math.abs(gear.clampGearRoll("minPhys", 77.8, "affix", true) - 73.132) < 1e-9, "Enabling Relayed must clamp an existing affix to 94%.");
 assert(gear.clampGearRoll("physicalPenetration", 20, "attunement", true) === 11, "Relayed attunement input must retain its full cap.");
 assert(gear.clampGearRoll("minPhys", 60, "affix", true) === 60, "Values below the cap must remain unchanged.");
+assert(gear.maxGearRoll("minPhys", "affix", false, 91) === 63.8, "Level 91 affixes must use the level 91 roll table.");
+assert(Math.abs(gear.maxGearRoll("minPhys", "affix", true, 91) - 59.972) < 1e-9, "Level 91 relayed affixes must use 94% of the level 91 roll.");
+assert(gear.maxGearRoll("formlessPenetration", "attunement", false, 91) === 10.8, "Level 91 weapon attunements must use the level 91 roll table.");
+assert(gear.maxGearRoll("phalanxbaneChargedBoost", "attunement", false, 91) === 0.05, "Level 91 armor attunements must use the shared armor roll.");
+assert(gear.maxGearRoll("singleTargetMysticDmgBoost", "affix", false, 96) === 0.098, "Level 96 Single-Target Mystic affixes must have a 9.8% cap.");
+assert(gear.maxGearRoll("areaMysticDmgBoost", "affix", false, 91) === 0.08, "Level 91 Area Mystic affixes must have an 8% cap.");
+assert(gear.maxGearRoll("umbrellaDmgBoost", "affix", false, 96) === 0.062 && gear.maxGearRoll("ropeDartDmgBoost", "affix", false, 91) === 0.052 && gear.maxGearRoll("gauntletDmgBoost", "affix", false, 91) === 0.052, "All weapon-specific damage affixes must share their level's weapon roll.");
 const presetEffects = gear.calculateEquippedGearEffects(presetInventory, ["snowparting", "phalanxbane"], false);
 assert(Math.abs(presetEffects.stats.minPhys - 1093.584) < 1e-9, "Unexpected preset minimum Physical Attack total.");
 assert(Math.abs(presetEffects.stats.maxPhys - 431) < 1e-9, "Unexpected preset maximum Physical Attack total.");
@@ -68,6 +125,7 @@ assert(Math.abs(presetEffects.attunement.physicalPenetration - 44) < 1e-9, "Unex
 assert(Math.abs(presetEffects.attunement.phalanxbaneChargedBoost - 0.24) < 1e-9, "Unexpected preset Phalanxbane Charged total.");
 const presetSetup = gear.resolveBuildSetup({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id });
 assert(presetSetup.gearSets.Cleftpeak === 4 && presetSetup.gearSets.RainWhisper === 0 && presetSetup.bowRingSet === "Critical" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
+assert(presetSetup.innerWays.length === 4 && presetSetup.innerWays.every((row) => row.innerWay !== "BreakingPoint" && row.tier === "T6"), "Default builds must include their Inner Way setup.");
 const emptyPreset = gear.defaultBuildPresets.find((candidate) => candidate.id === "empty");
 assert(emptyPreset, "Expected the empty default build.");
 const emptyPresetInventory = gear.buildPresetInventory(emptyPreset);
@@ -75,6 +133,7 @@ assert(emptyPreset.name === "Empty Build" && emptyPresetInventory.items.length =
 assert(gear.buildEntryAvailableForWeapons({ id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id }, ["heavenwill", "skygrasp"]), "The dev empty build must match every weapon pair.");
 const emptySetup = gear.resolveBuildSetup({ id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id });
 assert(emptySetup.gearSets.Cleftpeak === 0 && emptySetup.gearSets.RainWhisper === 0 && emptySetup.bowRingSet === "None", "The empty default build must use its empty setup preset.");
+assert(emptySetup.innerWays.length === 4 && emptySetup.innerWays.every((row) => row.innerWay === ""), "The empty default build must not equip any Inner Ways.");
 
 const hengBlade = {
   id: "test-heng",
@@ -92,6 +151,8 @@ const hengBlade = {
 };
 const inventory = { items: [hengBlade], equipped: { leftWeapon: hengBlade.id } };
 const effects = gear.calculateEquippedGearEffects(inventory, ["snowparting", "phalanxbane"]);
+const baseOnlyInventory = gear.parseGearInventory({ items: [{ ...hengBlade, id: "base-only", additionalAffixes: [], attunement: undefined }], equipped: { leftWeapon: "base-only" } });
+assert(baseOnlyInventory.items.length === 1 && baseOnlyInventory.items[0].additionalAffixes.length === 0 && baseOnlyInventory.items[0].attunement === undefined, "A gear item must remain valid with only its required base affix.");
 
 assert(effects.stats.minPhys === 65, "Fixed minimum Physical Attack was not applied.");
 assert(effects.stats.maxPhys === 151, "Fixed maximum Physical Attack was not applied.");
@@ -128,7 +189,8 @@ assert(loadedRelayed.items[0]?.relayed === true, "Relayed metadata must survive 
 
 const legacyHengBlade = { ...hengBlade, slot: "leftWeapon" };
 const legacyInventoryJson = JSON.stringify({ items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } });
-globalThis.sessionStorage = { getItem: (key) => key === "wwm-gear-set-session-v1" ? JSON.stringify({ Cleftpeak: 2, RainWhisper: 2 }) : key === "wwm-bow-ring-set-session-v1" ? "Critical" : key === "wwm-arsenal-session-v1" ? "General" : null };
+const legacyInnerWays = [{ innerWay: "BreakingPoint", tier: "T3" }, { innerWay: "MoraleChant", tier: "T6" }, { innerWay: "SteadfastDevotion", tier: "T6" }, { innerWay: "ThroatPiercingArt", tier: "T6" }];
+globalThis.sessionStorage = { getItem: (key) => key === "wwm-inner-way-session-v1" ? JSON.stringify(legacyInnerWays) : key === "wwm-gear-set-session-v1" ? JSON.stringify({ Cleftpeak: 2, RainWhisper: 2 }) : key === "wwm-bow-ring-set-session-v1" ? "Critical" : key === "wwm-arsenal-session-v1" ? "General" : null };
 globalThis.localStorage = { getItem: (key) => key === gear.legacyGearStorageKey ? legacyInventoryJson : null };
 const migratedBuildState = gear.loadBuildState();
 assert(migratedBuildState.entries[0].isDefault === true && migratedBuildState.entries[0].inventory === undefined, "Default builds must not persist real gear.");
@@ -137,6 +199,7 @@ assert(migratedBuildState.activeBuildId === "migrated-build", "Legacy gear migra
 assert(migratedBuildState.gearItems.length === 1 && migratedBuildState.entries.find((entry) => entry.id === "migrated-build")?.equipped.leftWeapon === hengBlade.id, "Legacy single-inventory gear must migrate into shared storage.");
 assert(!("slot" in migratedBuildState.gearItems[0]), "Legacy weapon slots must be removed during migration.");
 assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).gearSets.RainWhisper === 2 && gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).bowRingSet === "Critical", "Legacy global setup selections must migrate into custom builds.");
+assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).innerWays[0].innerWay === "BreakingPoint", "Legacy Inner Way selections must migrate into custom builds.");
 const migratedSerialized = JSON.parse(gear.serializeBuildState(migratedBuildState));
 assert(migratedSerialized.entries.length === 1 && migratedSerialized.entries.every((entry) => !("isDefault" in entry)), "Bundled default builds must not be persisted.");
 
@@ -165,9 +228,9 @@ const sharedA = sharedBuildState.entries.find((entry) => entry.id === "shared-a"
 const sharedB = sharedBuildState.entries.find((entry) => entry.id === "shared-b");
 assert(sharedBuildState.gearItems.length === 1 && sharedA?.equipped.leftWeapon === hengBlade.id && sharedB?.equipped.leftWeapon === hengBlade.id, "One shared gear item must be reusable in multiple build loadouts.");
 const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState));
-assert(serializedBuildState.version === 5 && serializedBuildState.gearItems.length === 1 && !("slot" in serializedBuildState.gearItems[0]) && serializedBuildState.entries.every((entry) => !("inventory" in entry) && entry.setup?.gearSets && entry.weapons?.length >= 2), "Build persistence must include setup and weapon eligibility in the shared-inventory schema.");
+assert(serializedBuildState.version === 6 && serializedBuildState.gearItems.length === 1 && !("slot" in serializedBuildState.gearItems[0]) && serializedBuildState.entries.every((entry) => !("inventory" in entry) && entry.setup?.innerWays?.length === 4 && entry.setup?.gearSets && entry.weapons?.length >= 2), "Build persistence must include Inner Ways, setup, and weapon eligibility in the shared-inventory schema.");
 const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState));
-assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 4 && exportedBuildState.gearItems.length === 1 && !("slot" in exportedBuildState.gearItems[0]) && exportedBuildState.builds.every((entry) => entry.setup && entry.weapons?.length >= 2), "Build export must include setup and weapon eligibility with slotless weapons.");
+assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 5 && exportedBuildState.gearItems.length === 1 && !("slot" in exportedBuildState.gearItems[0]) && exportedBuildState.builds.every((entry) => entry.setup?.innerWays?.length === 4 && entry.weapons?.length >= 2), "Build export must include Inner Ways, setup, and weapon eligibility with slotless weapons.");
 const mergedImport = gear.mergeImportedBuildState(sharedBuildState, exportedBuildState);
 assert(mergedImport.importedGearCount === 1 && mergedImport.importedBuildCount === 2, "Import must append shared gear and custom builds while skipping default presets.");
 assert(mergedImport.state.activeBuildId === sharedBuildState.activeBuildId && mergedImport.state.gearItems.length === 2, "Import must preserve the active build and existing gear.");
@@ -247,8 +310,14 @@ const comparison = statEffects.calculateStatsWithEffects(locked.baseStats, [{ st
 assert(Math.abs(comparison.stats.agility - 110) < 1e-9, "Comparison variants must still apply their stat delta to a modified stat.");
 assert(Math.abs(comparison.stats.minPhys - 159) < 1e-9, "Comparison variants must preserve dependent formula deltas.");
 
-const systemEffects = [systemStats.baseStats, systemStats.levelBonusStats, ...systemStats.enhancementStats, ...systemStats.talentStats, ...systemStats.qingheOddityStats, ...systemStats.kaifengOddityStats, ...systemStats.imperialPalaceOddityStats, ...systemStats.hexiOddityStats, ...systemStats.hiddenMountainOddityStats, ...systemStats.attributeConversions];
+const baseAttributeEffects = createBaseAttributeEffects(systemStats.baseAttributes);
+const systemEffects = [systemStats.baseStats, systemStats.levelBonusStats, ...systemStats.enhancementStats, ...systemStats.talentStats, ...systemStats.qingheOddityStats, ...systemStats.kaifengOddityStats, ...systemStats.imperialPalaceOddityStats, ...systemStats.hexiOddityStats, ...systemStats.hiddenMountainOddityStats, ...baseAttributeEffects];
 const systemCharacter = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, systemEffects, 0).stats;
+assert(systemStats.baseAttributes.body.maxHp === 60, "Body must grant 60 Max HP per point.");
+assert(systemStats.baseAttributes.power.minPhys === 0.22 && systemStats.baseAttributes.power.maxPhys === 1.36, "Power conversion rates are incorrect.");
+assert(systemStats.baseAttributes.defense.maxHp === 17 && systemStats.baseAttributes.defense.physicalDefense === 0.57, "Defense conversion rates are incorrect.");
+assert(systemStats.baseAttributes.agility.minPhys === 0.9 && systemStats.baseAttributes.agility.crit === 0.00076, "Agility conversion rates are incorrect.");
+assert(systemStats.baseAttributes.momentum.maxPhys === 0.9 && systemStats.baseAttributes.momentum.affinity === 0.00038, "Momentum conversion rates are incorrect.");
 assert(systemStats.enhancementStats.length === 4, "Enhancement stat entries must remain individually represented.");
 assert(systemStats.baseStats.stat.minPhys === 263 && systemStats.baseStats.stat.maxPhys === 505, "Enhancement Physical Attack must be separated from innate Physical Attack.");
 assert(systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.minPhys ?? 0), 0) === 216 && systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.maxPhys ?? 0), 0) === 432, "Unexpected Enhancement Physical Attack totals.");
@@ -265,8 +334,8 @@ assert(Math.abs(systemCharacter.precision - 0.968) < 1e-9, "Unexpected system Pr
 assert(Math.abs(systemCharacter.crit - 0.35628) < 1e-9, "Unexpected system Critical total.");
 assert(Math.abs(systemCharacter.affinity - 0.17814) < 1e-9, "Unexpected system Affinity total.");
 assert(Math.abs(systemCharacter.critDmgBonus - 0.5) < 1e-9 && Math.abs(systemCharacter.affinityDmgBonus - 0.35) < 1e-9, "Unexpected innate and talent outcome damage totals.");
-assert(Math.abs(systemCharacter.minPhys - 800.725) < 1e-9 && Math.abs(systemCharacter.maxPhys - 1468.38) < 1e-9, "Unexpected innate and system Physical Attack totals.");
-assert(Math.abs(systemCharacter.physicalDefense - 203.7) < 1e-9 && systemCharacter.maxHp === 25931, "Unexpected system defensive totals.");
+assert(Math.abs(systemCharacter.minPhys - 799.96) < 1e-9 && Math.abs(systemCharacter.maxPhys - 1468.38) < 1e-9, "Unexpected innate and system Physical Attack totals.");
+assert(Math.abs(systemCharacter.physicalDefense - 214.41) < 1e-9 && systemCharacter.maxHp === 25931, "Unexpected system defensive totals.");
 assert(systemCharacter.maxEndurance === 120 && systemCharacter.maxVitality === 100, "Unexpected innate and Oddity resource totals.");
 const defaultCriticalEffects = [
   ...systemEffects,

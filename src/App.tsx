@@ -3,7 +3,7 @@ import { type AttunementStats, type DamageBreakdown } from "./calculations/damag
 import BuildTab from "./BuildTab";
 import SimulationTab from "./SimulationTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
+import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, sameWeaponPair, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import { weaponIds as allWeaponIds, type CharacterStats, type EnemyProfile, type StatDefinition, type WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
@@ -14,8 +14,14 @@ import mysticBuffs from "../data/buff/mystic.json";
 import generalBuffs from "../data/buff/general.json";
 import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
+import globalBuffs from "../data/buff/global.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
+import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
+import bellstrikeUmbraDebuffs from "../data/debuff/bellstrike-umbra.json";
+import innerWayDebuffs from "../data/debuff/innerway.json";
+import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
+import stonesplitMightDebuffs from "../data/debuff/stonesplit-might.json";
 import mysticDots from "../data/dot/mystic.json";
 import enemyProfiles from "../data/enemy.json";
 import frostCladNight from "../data/innerway/frost-clad-night.json";
@@ -24,8 +30,8 @@ import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
-import statPriorityLines from "../data/stat-priority.json";
 import systemStats from "../data/system.json";
+import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import defaultSetup from "../data/default-setup.json";
 import { emptyRotationBreakdown, getRotationMetrics, getRotationRecalculating, publishRotationMetrics, publishRotationRecalculating, subscribeToRotationMetrics, subscribeToRotationRecalculating, type RotationGroupBreakdown, type RotationMetrics, type RotationPriority } from "./calculations/rotationMetrics";
 import arsenalDefinitions from "../data/arsenal.json";
@@ -47,12 +53,13 @@ import { calculateStatsWithOverrides, type CharacterStatOverrides, type Effectiv
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries, type RotationEntry } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
 import { characterProfileMatches, characterProfileStorageKey, exportCharacterProfiles, loadCharacterProfiles, mergeImportedCharacterProfiles, serializeCharacterProfiles, type CharacterProfile } from "./characterProfiles";
+import { globalDebuffRows, globalDebuffStorageKey, globalDebuffTimelineEffects, loadGlobalDebuffs, type GlobalDebuffState } from "./globalDebuffs";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
 const statOverrideStorageKey = "wwm-stat-overrides-v1";
 const skillStorageKey = "wwm-skill-editor-session-v1";
-const innerWayStorageKey = "wwm-inner-way-session-v1";
+const legacyInnerWayStorageKey = "wwm-inner-way-session-v1";
 const attunementStorageKey = "wwm-attunement-session-v2";
 const legacyAttunementStorageKey = "wwm-attunement-session-v1";
 const attunementOverrideStorageKey = "wwm-attunement-overrides-v1";
@@ -100,7 +107,7 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
 const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   ...defaultSkillMaps,
   Buff: { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as SkillMap,
-  Debuff: { ...stonesplitStrengthDebuffs, ...generalDebuffs } as SkillMap,
+  Debuff: { ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as SkillMap,
   DOT: mysticDots as SkillMap,
 };
 const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
@@ -117,7 +124,7 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
   },
   Controlled: {
     name: "Event: Controlled",
-    castTime: 3,
+    castTime: 0,
     action: [{ type: "apply", target: "target", value: "Controlled", stack: 1, time: 0 }],
     modifier: [],
     tags: ["Event"],
@@ -129,10 +136,38 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
     modifier: [],
     tags: ["Event"],
   },
+  Delay: {
+    name: "Event: Delay",
+    castTime: 0,
+    action: [],
+    modifier: [],
+    tags: ["Event"],
+  },
   Move: {
     name: "Event: Move",
     castTime: 0,
     action: [{ type: "move", time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  HP: {
+    name: "Event: HP",
+    castTime: 0,
+    action: [{ type: "setHP", time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  Buff: {
+    name: "Event: Buff",
+    castTime: 0,
+    action: [{ type: "apply", target: "self", time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  Debuff: {
+    name: "Event: Debuff",
+    castTime: 0,
+    action: [{ type: "apply", target: "target", time: 0 }],
     modifier: [],
     tags: ["Event"],
   },
@@ -154,9 +189,12 @@ const martialArtBySkillId = new Map<string, WeaponId>([
   ...Object.keys(snowpartingSkills).map((id) => [id, "snowparting"] as const),
   ...Object.keys(phalanxbaneSkills).map((id) => [id, "phalanxbane"] as const),
 ]);
-const rotationEventOptionIds = ["__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move"];
-const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; action?: unknown[] }>;
-const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
+const rotationEventOptionIds = ["__event:Delay", "__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move", "__event:HP", "__event:Buff", "__event:Debuff"];
+const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; refresh?: boolean; action?: unknown[] }>;
+const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; description?: string; refresh?: boolean; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
+const globalEffectRules = Object.values(globalBuffs).flatMap((definition) => definition.effect ?? []) as EditableObject[];
+const manualBuffDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as Record<string, { name?: string }>;
+const manualDebuffDefinitions = { ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as Record<string, { name?: string }>;
 
 function loadSelectedPath(): PathId {
   const saved = sessionStorage.getItem(pathStorageKey);
@@ -174,6 +212,7 @@ function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath())
 
 function attunementAvailableForSettings(attunement: string, pathId: PathId, settings: CalculatorSettings) {
   const definition = attunementData[attunement];
+  if (definition?.tags.includes("Defensive")) return false;
   if (definition?.tags.includes("Weapon")) return true;
   const requiredTag = typedPathDefinitions[pathId].tag;
   if (requiredTag && !definition?.tags.includes(requiredTag)) return false;
@@ -194,27 +233,20 @@ function selectableRotationSkillIds(weapons: [WeaponId, WeaponId]) {
   return categories.flatMap((category) => Object.keys(defaultSkillMaps[category])).filter((skillId) => !allSkillDefinitions[skillId]?.tags?.includes("Triggered"));
 }
 
-function loadInnerWayConditions(excludedInnerWay?: string) {
+function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], excludedInnerWay?: string) {
   const conditions = new Set<string>();
   const pathId = loadSelectedPath();
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(innerWayStorageKey) ?? "[]") as Array<{ innerWay?: unknown; tier?: unknown }>;
-    for (const row of saved) {
-      if (typeof row?.innerWay !== "string" || !row.innerWay || typeof row.tier !== "string") continue;
-      if (row.innerWay === excludedInnerWay) continue;
-      if (!innerWayAvailableForPath(row.innerWay, pathId)) continue;
-      const tierNumber = Number(row.tier.slice(1));
-      for (let tier = 0; tier <= tierNumber; tier += 1) conditions.add(`${row.innerWay}T${tier}`);
-    }
-  } catch {
-    // A missing or malformed session selection simply provides no Inner Way conditions.
+  for (const row of selectedInnerWays) {
+    if (!row.innerWay || row.innerWay === excludedInnerWay || !innerWayAvailableForPath(row.innerWay, pathId)) continue;
+    const tierNumber = Number(row.tier.slice(1));
+    for (let tier = 0; tier <= tierNumber; tier += 1) conditions.add(`${row.innerWay}T${tier}`);
   }
   return conditions;
 }
 
-function loadInnerWayEffectRules(): InnerWayEffectRule[] {
+function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): InnerWayEffectRule[] {
   const pathId = loadSelectedPath();
-  const selected = loadInnerWays().filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId));
+  const selected = selectedInnerWays.filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId));
   return selected.flatMap(({ innerWay, tier }) => {
     if (!innerWay || !innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions]) return [];
     const definition = innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions] as { effect?: Record<string, { effect?: unknown[]; trigger?: unknown[] }> };
@@ -261,9 +293,13 @@ function normalizeRotation(rotation: RotationRecord): RotationRecord {
 
 function attachedTargetForStep(step: RotationStep | undefined) {
   if (step?.type !== "event") return undefined;
-  if (step.event === "Move" && "before" in step) return step.before;
+  if ((step.event === "Move" || step.event === "HP" || step.event === "Buff" || step.event === "Debuff") && "before" in step) return step.before;
   if (step.event === "Exhausted") return "after" in step ? step.after : "before" in step ? step.before : undefined;
   return undefined;
+}
+
+function eventDefaultDuration(event: "Exhausted" | "Controlled") {
+  return effectDefinitions[event]?.duration ?? 0;
 }
 
 function baseRotationAnchorTime(rotation: RotationRecord) {
@@ -276,6 +312,7 @@ function baseRotationAnchorTime(rotation: RotationRecord) {
       return time + (rotation.start.action === undefined || !Array.isArray(skill?.action) ? 0 : Number((skill.action[rotation.start.action] as EditableObject | undefined)?.time ?? 0));
     }
     if (step.type === "skill") time += typeof allSkillDefinitions[step.skill ?? ""]?.castTime === "number" ? allSkillDefinitions[step.skill ?? ""].castTime! : 0;
+    else if (step.event === "Delay") time += Math.max(0, step.duration);
   }
   return 0;
 }
@@ -284,7 +321,7 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
   const migrated = normalizeRotation(rotation);
   migrated.steps = migrated.steps.map((step) => {
     if (step.type !== "event" || step.event !== "Exhausted" || !("before" in step)) return step;
-    return { type: "event", event: "Exhausted", after: step.before };
+    return { type: "event", event: "Exhausted", after: step.before, ...(step.duration === undefined ? {} : { duration: step.duration }) };
   });
   if (migrated.steps[6]?.type === "skill" && migrated.steps[6].skill === "SnowpartingQ") migrated.steps[6] = { ...migrated.steps[6], skill: "SnowpartingQStab" };
   if (migrated.eventTimeReference !== "battleStart") {
@@ -320,7 +357,7 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
       if (!candidates.length) return;
       const target = candidates.reduce((best, candidate) => Math.abs(candidate.time - step.startTime) < Math.abs(best.time - step.startTime) ? candidate : best, candidates[0]);
       if (!target) return;
-      const attached = step.event === "Move" ? { type: "event", event: "Move", before: target.before, distance: step.distance } as RotationStep : { type: "event", event: "Exhausted", after: target.before } as RotationStep;
+      const attached = step.event === "Move" ? { type: "event", event: "Move", before: target.before, distance: step.distance } as RotationStep : { type: "event", event: "Exhausted", after: target.before, ...(step.duration === undefined ? {} : { duration: step.duration }) } as RotationStep;
       attachments.set(target.index, [...(attachments.get(target.index) ?? []), attached]);
     });
     const startSkill = migrated.steps[migrated.start?.step ?? -1];
@@ -359,7 +396,7 @@ const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
 const formerDefaultRotationIds = new Set(["dummy-1-min"]);
 
 const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
-const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "level96" };
+const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "96" };
 
 type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { requirement?: unknown; trigger?: EditableObject; target?: string; modify?: EditableObject };
 type SystemStatsDefinition = {
@@ -372,10 +409,11 @@ type SystemStatsDefinition = {
   imperialPalaceOddityStats: Array<SetupEffect & { id: string }>;
   hexiOddityStats: Array<SetupEffect & { id: string }>;
   hiddenMountainOddityStats: Array<SetupEffect & { id: string }>;
-  attributeConversions: Array<SetupEffect & { id: string }>;
+  baseAttributes: BaseAttributeData;
 };
 const typedSystemStats = systemStats as SystemStatsDefinition;
-const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.enhancementStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...typedSystemStats.attributeConversions];
+const baseAttributeEffects = createBaseAttributeEffects(typedSystemStats.baseAttributes);
+const systemStatEffects: SetupEffect[] = [typedSystemStats.baseStats, typedSystemStats.levelBonusStats, ...typedSystemStats.enhancementStats, ...typedSystemStats.talentStats, ...typedSystemStats.qingheOddityStats, ...typedSystemStats.kaifengOddityStats, ...typedSystemStats.imperialPalaceOddityStats, ...typedSystemStats.hexiOddityStats, ...typedSystemStats.hiddenMountainOddityStats, ...baseAttributeEffects];
 type ArsenalDefinition = { name: string; effect?: SetupEffect };
 const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>;
 const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>;
@@ -454,7 +492,7 @@ function selectedSetupEffects(settings: CalculatorSettings, gearStatEffect: Stat
   const selectedBuildSetup = { ...buildSetup, ...overrides, gearSets: overrides.gearSets ?? buildSetup.gearSets };
   const foodEffect = overrides.food ? typedFoodDefinitions[overrides.food]?.effect ?? {} : selectedFoodEffect();
   const divinecraftEffect = divinecraftEffectFor(overrides.divinecraft ?? loadDivinecraft());
-  return [...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(selectedBuildSetup.arsenal), bowRingSetEffectFor(selectedBuildSetup.bowRingSet), ...gearSetEffectsFor(selectedBuildSetup.gearSets, settings), foodEffect, divinecraftEffect, gearStatEffect];
+  return [...globalEffectRules, ...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(selectedBuildSetup.arsenal), bowRingSetEffectFor(selectedBuildSetup.bowRingSet), ...gearSetEffectsFor(selectedBuildSetup.gearSets, settings), foodEffect, divinecraftEffect, gearStatEffect];
 }
 
 function gearSetAvailableForSettings(setName: string, settings: CalculatorSettings, pathId = loadSelectedPath()) {
@@ -469,17 +507,19 @@ function gearSetEffectsFor(selected: { Cleftpeak: number; RainWhisper: number },
 }
 
 function sameBuildSetupValue(key: keyof BuildSetup, left: BuildSetup[keyof BuildSetup], right: BuildSetup[keyof BuildSetup]) {
-  return key === "gearSets" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
+  return key === "gearSets" || key === "innerWays" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
 }
 
-function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
+export function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
   try {
     const saved = sessionStorage.getItem(buildSetupOverrideStorageKey);
     if (saved !== null) return normalizeBuildSetupOverrides(JSON.parse(saved));
     const legacy: Record<string, unknown> = {};
+    const legacyInnerWays = sessionStorage.getItem(legacyInnerWayStorageKey);
     const legacyGearSets = sessionStorage.getItem(gearSetStorageKey);
     const legacyBowRingSet = sessionStorage.getItem(bowRingSetStorageKey);
     const legacyArsenal = sessionStorage.getItem(arsenalStorageKey);
+    if (legacyInnerWays !== null) legacy.innerWays = JSON.parse(legacyInnerWays);
     if (legacyGearSets !== null) legacy.gearSets = JSON.parse(legacyGearSets);
     if (legacyBowRingSet !== null) legacy.bowRingSet = legacyBowRingSet;
     if (legacyArsenal !== null) legacy.arsenal = legacyArsenal;
@@ -558,7 +598,7 @@ function loadSettings(): CalculatorSettings {
     const weapons: [WeaponId, WeaponId] = savedWeapons.length === 2
       ? [savedWeapons[0], savedWeapons[1]]
       : [legacyWeapon, legacyWeapon === "snowparting" ? "phalanxbane" : "snowparting"];
-    const savedEnemy = saved?.enemy === "level100" ? "level96" : saved?.enemy;
+    const savedEnemy = saved?.enemy === "level100" || saved?.enemy === "level96" ? "96" : saved?.enemy;
     return {
       weapons,
       enemy: typeof savedEnemy === "string" && typedEnemyProfiles[savedEnemy] ? savedEnemy : defaultSettings.enemy,
@@ -573,25 +613,6 @@ function loadSkillOverrides(): SkillOverrides {
     return JSON.parse(sessionStorage.getItem(skillStorageKey) ?? "{}") as SkillOverrides;
   } catch {
     return {};
-  }
-}
-
-function loadInnerWays() {
-  const defaults = typedDefaultSetup.innerWays.map((row) => ({ ...row }));
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(innerWayStorageKey) ?? "null") as unknown;
-    if (!Array.isArray(saved)) return defaults;
-    return defaults.map((defaultRow, index) => {
-      const savedRow = saved[index];
-      if (!savedRow || typeof savedRow !== "object") return defaultRow;
-      const row = savedRow as Record<string, unknown>;
-      return {
-        innerWay: typeof row.innerWay === "string" ? row.innerWay : defaultRow.innerWay,
-        tier: typeof row.tier === "string" && /^T[0-6]$/.test(row.tier) ? row.tier : defaultRow.tier,
-      };
-    });
-  } catch {
-    return defaults;
   }
 }
 
@@ -687,7 +708,7 @@ function initialRotationId(entries: RotationEntry[]) {
 }
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
-  const innerWayStatEffects = loadInnerWayEffectRules().filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
+  const innerWayStatEffects = innerWayEffectRulesFor(buildSetup.innerWays).filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
   return [...selectedSetupEffects(settings, gearStatEffect, buildSetup), ...innerWayStatEffects];
 }
 
@@ -762,7 +783,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   const { breakdown } = metrics;
   return <div className="breakdown-page">
     <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Skill Breakdown</h2></div><div className="breakdown-totals"><span>Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong></span><span>DPS <strong>{formatNumber(metrics.dps)}</strong></span></div></div><div className="breakdown-table breakdown-skill-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Triggers</span><span>Hits</span><span>Abrasion</span><span>Normal</span><span>Critical</span><span>Affinity</span><span>Damage</span><span>% Total</span></div>{breakdown.skills.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.id], row.name)}</span><strong>{row.casts || ""}</strong><strong>{row.triggers || ""}</strong><strong>{row.hits || ""}</strong><strong>{formatNumber(row.abrasionRate)}%</strong><strong>{formatNumber(row.normalRate)}%</strong><strong>{formatNumber(row.criticalRate)}%</strong><strong>{formatNumber(row.affinityRate)}%</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
-    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Cast Breakdown</h2></div></div><div className="breakdown-table breakdown-cast-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Avg Cast Time</span><span>Average DPS</span><span>Damage</span><span>% Total</span></div>{breakdown.casts.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span><strong>{row.casts}</strong><strong>{formatNumber(row.averageCastTime)}s</strong><strong>{row.averageDps === undefined ? "—" : formatNumber(row.averageDps)}</strong><strong>{formatNumber(row.damage)}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
+    <section className="panel breakdown-panel"><div className="panel-heading"><div><h2>Per Cast Breakdown</h2></div></div><div className="breakdown-table breakdown-cast-table"><div className="breakdown-table-header"><span>Skill</span><span>Casts</span><span>Avg Cast Time</span><span>Average DPS</span><span>Damage</span><span>% Total</span></div>{breakdown.casts.map((row) => <div className="breakdown-table-row" key={row.id}><span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span><strong>{row.casts}</strong><strong>{formatNumber(row.averageCastTime)}s</strong><strong>{row.averageDpsWithBuff === undefined ? row.averageDps === undefined ? "—" : formatNumber(row.averageDps) : `${formatNumber(row.averageDps ?? 0)} (${formatNumber(row.averageDpsWithBuff)})`}</strong><strong>{row.damageWithBuff === undefined ? formatNumber(row.damage) : `${formatNumber(row.damage)} (${formatNumber(row.damageWithBuff)})`}</strong><strong>{formatNumber(row.percentage)}%</strong></div>)}</div></section>
     <BreakdownGroupTable title="Skill Type Breakdown" rows={breakdown.categories} />
     <BreakdownGroupTable title="Physical and Attribute Breakdown" rows={breakdown.damageTypes} colored />
   </div>;
@@ -795,27 +816,24 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   onInnerWayChange: () => void;
 }) {
   const { stats, derivedStats, attunementStats, buildSetup, settings } = character;
-  const [innerWays, setInnerWays] = useState(loadInnerWays);
   const [food, setFood] = useState(loadFood);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
+  const [globalDebuffs, setGlobalDebuffs] = useState(loadGlobalDebuffs);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
   const [newProfileName, setNewProfileName] = useState("");
   const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => sessionStorage.setItem(innerWayStorageKey, JSON.stringify(innerWays)), [innerWays]);
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
+  useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
-  const { arsenal, bowRingSet, gearSets } = buildSetup;
-  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup, food, divinecraft };
+  const { arsenal, bowRingSet, gearSets, innerWays } = buildSetup;
+  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup };
   const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
   const isCalculated = Object.keys(statOverrides).length === 0
     && Object.keys(attunementOverrides).length === 0
-    && Object.keys(buildSetupOverrides).length === 0
-    && JSON.stringify(innerWays) === JSON.stringify(typedDefaultSetup.innerWays)
-    && food === typedDefaultSetup.food
-    && divinecraft === typedDefaultSetup.divinecraft;
+    && Object.keys(buildSetupOverrides).length === 0;
   const [selectedProfileId, setSelectedProfileId] = useState(() => isCalculated ? "__calculated" : matchingProfile?.id ?? "__modified");
 
   useEffect(() => {
@@ -835,23 +853,12 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
       statOverrides: { ...statOverrides },
       attunementOverrides: { ...attunementOverrides },
       innerWays: innerWays.map((row) => ({ ...row })),
-      buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } },
-      food,
-      divinecraft,
+      buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } },
     } : profile));
-  }, [attunementOverrides, buildSetup, characterProfiles, divinecraft, food, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
+  }, [attunementOverrides, buildSetup, characterProfiles, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
 
   function applyProfile(profile?: CharacterProfile) {
-    const nextInnerWays = profile ? profile.innerWays.map((row) => ({ ...row })) : typedDefaultSetup.innerWays.map((row) => ({ ...row }));
-    const nextFood = profile?.food ?? typedDefaultSetup.food;
-    const nextDivinecraft = profile?.divinecraft ?? typedDefaultSetup.divinecraft;
     setAttunementDrafts({});
-    sessionStorage.setItem(innerWayStorageKey, JSON.stringify(nextInnerWays));
-    sessionStorage.setItem(foodStorageKey, nextFood);
-    sessionStorage.setItem(divinecraftStorageKey, nextDivinecraft);
-    setInnerWays(nextInnerWays);
-    setFood(nextFood);
-    setDivinecraft(nextDivinecraft);
     onApplyCharacterProfile(profile);
     onInnerWayChange();
   }
@@ -869,7 +876,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     let id = baseId;
     let suffix = 2;
     while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
-    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, gearSets: { ...buildSetup.gearSets } }, food, divinecraft }]);
+    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } } }]);
     setSelectedProfileId(id);
     setNewProfileName("");
     setProfileTransferStatus({ message: `Saved ${name}.` });
@@ -924,6 +931,13 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     onAttunementReset(key);
   }
 
+  function updateGlobalDebuff<K extends keyof GlobalDebuffState>(key: K, value: GlobalDebuffState[K]) {
+    const next = { ...globalDebuffs, [key]: value };
+    sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(next));
+    setGlobalDebuffs(next);
+    onInnerWayChange();
+  }
+
   function CalculatedStatField({ definition, derivedLabel, derivedValue, derivedUnit, compact }: {
     definition: StatDefinition;
     derivedLabel?: string;
@@ -957,6 +971,11 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     if (active) return <small className="setup-active-label">Active</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
     return comparison ? <small className={`setup-delta-label ${comparison.dpsDifference >= 0 ? "setup-positive-label" : "setup-negative-label"}`}><span>{comparison.dpsDifference >= 0 ? "+" : ""}{formatNumber(comparison.dpsDifference)} DPS</span><span>({comparison.increase >= 0 ? "+" : ""}{formatNumber(comparison.increase)}%)</span></small> : <small className="setup-inactive-label">—</small>;
+  };
+  const globalDebuffOption = (key: typeof globalDebuffRows[number]["key"], value: boolean, label: string) => {
+    const active = globalDebuffs[key] === value;
+    const optionValue = value ? "on" : "off";
+    return <button className={active ? "selected" : ""} type="button" key={optionValue} onClick={() => updateGlobalDebuff(key, value)}>{label}<span>{setupStatus(`debuff:${key}`, optionValue, active)}</span></button>;
   };
 
   return (
@@ -1003,6 +1022,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
             <div className="stat-row"><CalculatedStatField definition={defenseStats[15]} compact /><CalculatedStatField definition={defenseStats[16]} compact /></div>
           </div>
         </section>
+        <div className="character-secondary-stats">
         <section className="panel attunement-panel">
           <div className="panel-heading"><div><h2>Attunement Stats</h2></div></div>
           <div className="attunement-list">
@@ -1014,17 +1034,36 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
             ))}
           </div>
         </section>
+        <section className="panel global-debuff-panel">
+          <div className="panel-heading"><div><h2>Global Buffs/Debuffs</h2></div></div>
+          <div className="global-debuff-list">
+            {globalDebuffRows.map(({ key, name }) => <div className="global-debuff-row" key={key}>
+              <span>{name}</span>
+              <div className="setup-option-list global-debuff-options">{globalDebuffOption(key, false, "Off")}{globalDebuffOption(key, true, "On")}</div>
+            </div>)}
+            <div className="global-debuff-row">
+              <span>Bitter Seasons</span>
+              <div className="setup-option-list global-debuff-options qingyi-options">
+                {(["none", "T1", "T6"] as const).map((value) => {
+                  const active = globalDebuffs.qingyisCharm === value;
+                  return <button className={active ? "selected" : ""} type="button" key={value} onClick={() => updateGlobalDebuff("qingyisCharm", value)}>{value === "none" ? "None" : value}<span>{setupStatus("debuff:qingyisCharm", value, active)}</span></button>;
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+        </div>
         </div>
         <section className="middle-stats-column">
           <section className="panel inner-way-panel">
-            <div className="panel-heading"><div><h2>Inner Ways</h2></div></div>
+            <div className="panel-heading"><div><h2>Inner Ways</h2></div>{buildSetupOverrides.innerWays && <button className="stat-reset-button" type="button" aria-label="Reset Inner Ways" title="Reset to build value" onClick={() => onBuildSetupReset("innerWays")}>↺</button>}</div>
             <div className="inner-way-list">
               {innerWays.map((row, index) => (
                 <div className="inner-way-row" key={index}>
-                  <select aria-label={`Inner way ${index + 1}`} value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item); sessionStorage.setItem(innerWayStorageKey, JSON.stringify(next)); setInnerWays(next); onInnerWayChange(); }}>
+                  <select aria-label={`Inner way ${index + 1}`} value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, innerWay: event.target.value } : item); onBuildSetupChange("innerWays", next); onInnerWayChange(); }}>
                     {innerWayOptions.map(([value, label]) => <option key={value} value={value} disabled={Boolean(value) && innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}>{label}</option>)}
                   </select>
-                  <select aria-label={`Inner way ${index + 1} tier`} value={row.tier} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item); sessionStorage.setItem(innerWayStorageKey, JSON.stringify(next)); setInnerWays(next); onInnerWayChange(); }}>
+                  <select aria-label={`Inner way ${index + 1} tier`} value={row.tier} onChange={(event) => { const next = innerWays.map((item, itemIndex) => itemIndex === index ? { ...item, tier: event.target.value } : item); onBuildSetupChange("innerWays", next); onInnerWayChange(); }}>
                     {Array.from({ length: 7 }, (_, tier) => <option key={tier}>T{tier}</option>)}
                   </select>
                 </div>
@@ -1091,7 +1130,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
               let id = baseId;
               let suffix = 2;
               while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
-              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, gearSets: { ...profile.buildSetup.gearSets } } }]);
+              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, innerWays: profile.innerWays.map((row) => ({ ...row })), gearSets: { ...profile.buildSetup.gearSets } } }]);
             }}>Duplicate</button><button className="button button-danger button-small" type="button" onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}>Delete</button></div>
           </div>)}
         </div>
@@ -1109,6 +1148,7 @@ function skillToDraft(skill: SkillRecord) {
     name,
     shortName,
     description: asString(skill.description),
+    refresh: skill.refresh !== false,
     castTime: String(castTime),
     cooldown: typeof skill.cooldown === "number" ? String(skill.cooldown) : "",
     duration: typeof skill.duration === "number" ? String(skill.duration) : "",
@@ -1124,7 +1164,7 @@ function skillToDraft(skill: SkillRecord) {
 
 const actionTypes = ["damage", "consume", "apply", "trigger", "extend", "clearCD"];
 const conditionTargets = ["self", "target", "skillTag", "martialArt"];
-const effectFields = ["castTimeModifier", "castTimeMultiplier", "baseDMGBonus", "hpDMGBonus", "globalDmgBonus", "dmgBonus", "physicalPenetration", "formlessPenetration", "bellstrikeResistance", "stonesplitResistance", "silkbindResistance", "bamboocutResistance", "critDmgBonus", "affinityDmgBonus", "SteadfastGuaranteedCrit", "enhanceDrunkenPoet"];
+const effectFields = ["castTimeModifier", "castTimeMultiplier", "baseDMGBonus", "hpDMGBonus", "globalDmgBonus", "globalHPDMGBonus", "globalBellstrikeDMGBonus", "dotDamage", "dmgBonus", "defenseBonus", "physicalPenetration", "formlessPenetration", "physicalResistance", "bellstrikeResistance", "stonesplitResistance", "silkbindResistance", "bamboocutResistance", "critDmgBonus", "affinityDmgBonus", "SteadfastGuaranteedCrit", "enhanceDrunkenPoet"];
 const booleanEffectFields = new Set(["SteadfastGuaranteedCrit", "enhanceDrunkenPoet"]);
 
 function asNumber(value: unknown, fallback = 0) {
@@ -1302,6 +1342,13 @@ function DynamicByStackValueEditor({ value, onChange }: { value: EditableObject;
   </div>;
 }
 
+function DynamicMultiplyValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
+  return <div className="dynamic-effect-editor">
+    <label className="detail-field"><span>Parameter</span><input value={asString(value.param1)} onChange={(event) => onChange({ ...value, function: "multiply", param1: event.target.value })} /></label>
+    <label className="detail-field"><span>Multiplier</span><input type="number" step="0.0001" value={typeof value.param2 === "number" || typeof value.param2 === "string" ? value.param2 : ""} onChange={(event) => onChange({ ...value, function: "multiply", param2: Number(event.target.value) })} /></label>
+  </div>;
+}
+
 function DynamicSegmentValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
   const thresholds = Array.isArray(value.param2) ? value.param2.map((item) => asNumber(item)) : [];
   const results = Array.isArray(value.param3) ? value.param3.map((item) => asNumber(item)) : [];
@@ -1317,14 +1364,14 @@ function DynamicSegmentValueEditor({ value, onChange }: { value: EditableObject;
 
 function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (value: unknown) => void }) {
   const objectValue = value && typeof value === "object" && !Array.isArray(value) ? value as EditableObject : undefined;
-  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" || objectValue?.function === "segment" ? objectValue : undefined;
-  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue?.function === "segment" ? "segment" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
+  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" || objectValue?.function === "segment" || objectValue?.function === "multiply" ? objectValue : undefined;
+  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue?.function === "segment" ? "segment" : dynamicValue?.function === "multiply" ? "multiply" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
   return <div className="effect-value-editor">
     <select aria-label="Effect value type" value={kind} onChange={(event) => {
       const nextKind = event.target.value;
-      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "segment" ? { function: "segment", param1: "actionTime", param2: [], param3: [0] } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
-    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="segment">Segment</option><option value="text">Text</option></select>
-    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "segment" && dynamicValue ? <DynamicSegmentValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
+      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "segment" ? { function: "segment", param1: "actionTime", param2: [], param3: [0] } : nextKind === "multiply" ? { function: "multiply", param1: "missingHPPercentage", param2: 0.0045 } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
+    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="segment">Segment</option><option value="multiply">Multiply</option><option value="text">Text</option></select>
+    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "segment" && dynamicValue ? <DynamicSegmentValueEditor value={dynamicValue} onChange={onChange} /> : kind === "multiply" && dynamicValue ? <DynamicMultiplyValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
   </div>;
 }
 
@@ -1492,6 +1539,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
           ...skills[selectedSkill],
           name: draft.name,
           description: draft.description,
+          refresh: draft.refresh,
           duration: optionalNumber(draft.duration, "Duration"),
           cooldown: optionalNumber(draft.cooldown, "Cooldown"),
           maxStack: optionalNumber(draft.maxStack, "Max stack"),
@@ -1525,6 +1573,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
           tick: optionalNumber(draft.tick, "Tick"),
           duration: optionalNumber(draft.duration, "Duration"),
           maxStack: optionalNumber(draft.maxStack, "Max stack"),
+          refresh: draft.refresh,
         } : {}),
       };
       }
@@ -1585,6 +1634,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                 <label className="editor-field editor-field-wide"><span>Description</span><input value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} /></label>
                 <label className="editor-field"><span>Duration</span><input type="number" min="0" step="0.0001" value={draft.duration} onChange={(event) => setDraft({ ...draft, duration: event.target.value })} /></label>
                 <label className="editor-field"><span>Cooldown</span><input type="number" min="0" step="0.0001" value={draft.cooldown} onChange={(event) => setDraft({ ...draft, cooldown: event.target.value })} /></label>
+                <label className="editor-field"><span>Refresh Duration</span><input type="checkbox" checked={draft.refresh} onChange={(event) => setDraft({ ...draft, refresh: event.target.checked })} /></label>
               </div>
               <div className="structured-editor-grid">
                 <ArrayItemEditor label="Effects" kind="effect" items={draft.effectItems} onChange={(effectItems) => setDraft({ ...draft, effectItems })} skillIds={editorSkillIds} />
@@ -1598,6 +1648,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                   <label className="editor-field"><span>Tick</span><input type="number" min="0" step="0.0001" value={draft.tick} onChange={(event) => setDraft({ ...draft, tick: event.target.value })} /></label>
                   <label className="editor-field"><span>Duration</span><input type="number" min="0" step="0.0001" value={draft.duration} onChange={(event) => setDraft({ ...draft, duration: event.target.value })} /></label>
                   <label className="editor-field"><span>Max Stack</span><input type="number" min="1" step="1" value={draft.maxStack} onChange={(event) => setDraft({ ...draft, maxStack: event.target.value })} /></label>
+                  <label className="editor-field"><span>Refresh Duration</span><input type="checkbox" checked={draft.refresh} onChange={(event) => setDraft({ ...draft, refresh: event.target.checked })} /></label>
                 </> : <>
                   <label className="editor-field"><span>Cast Time</span><input type="number" min="0" step="0.0001" value={draft.castTime} onChange={(event) => setDraft({ ...draft, castTime: event.target.value })} /></label>
                   <label className="editor-field"><span>Cooldown</span><input type="number" min="0" step="0.0001" value={draft.cooldown} onChange={(event) => setDraft({ ...draft, cooldown: event.target.value })} /></label>
@@ -1659,8 +1710,8 @@ function SettingsTab({ settings, enemy, pathId, onSettingsChange }: {
 function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundleChange }: { character: CharacterState; onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void; onActiveSimulationBundleChange: (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => void }) {
   const { rawStats: characterStats, attunementStats, settings, enemy, derivedStats, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup } = character;
   const rotationSkillIds = useMemo(() => selectableRotationSkillIds(settings.weapons), [settings.weapons]);
-  const innerWayConditions = loadInnerWayConditions();
-  const innerWayEffectRules = loadInnerWayEffectRules();
+  const innerWayConditions = innerWayConditionsFor(buildSetup.innerWays);
+  const innerWayEffectRules = innerWayEffectRulesFor(buildSetup.innerWays);
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(loadRotationEntries);
   const [activeRotationId, setActiveRotationId] = useState(() => initialRotationId(loadRotationEntries()));
   const [editingRotationId, setEditingRotationId] = useState(() => initialRotationId(loadRotationEntries()));
@@ -1683,6 +1734,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const [eventTimeDrafts, setEventTimeDrafts] = useState<Record<string, string>>({});
   const [eventDurationDrafts, setEventDurationDrafts] = useState<Record<string, string>>({});
   const [eventDistanceDrafts, setEventDistanceDrafts] = useState<Record<string, string>>({});
+  const [eventHPDrafts, setEventHPDrafts] = useState<Record<string, string>>({});
   const [rotationResults, setRotationResults] = useState<Record<string, { key: string; result: RotationSimulationResult }>>({});
   const rotationResultsRef = useRef(rotationResults);
   const [diffResult, setDiffResult] = useState<{ key: string; rotationId: string; requestSequence: number; metrics: RotationMetrics } | null>(null);
@@ -1697,7 +1749,8 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const visibleRotationEntries = useMemo(() => rotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons)), [rotationEntries, settings.weapons]);
   const editingEntry = visibleRotationEntries.find((entry) => entry.id === editingRotationId) ?? visibleRotationEntries[0];
   const rotationLocked = editingEntry?.isDefault === true;
-  const calculationContextKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup });
+  const currentGlobalDebuffs = loadGlobalDebuffs();
+  const calculationContextKey = JSON.stringify({ characterStats, attunementStats, settings, enemy, innerWayConditions: [...innerWayConditions], innerWayEffectRules, innerWayRevision: _innerWayRevision, gearStatEffect, buildSetup, globalDebuffs: currentGlobalDebuffs });
   const rotationStateKey = `${editingRotationId}:${calculationContextKey}:${JSON.stringify(rotation)}`;
   const calculationContextKeyRef = useRef(calculationContextKey);
   calculationContextKeyRef.current = calculationContextKey;
@@ -1759,7 +1812,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   }
   function selectRotationItem(index: number, value: string, control: HTMLSelectElement) {
     if (rotationLocked) return;
-    if (value === "__event:Move" || value === "__event:Exhausted") {
+    if (["__event:Move", "__event:Exhausted", "__event:HP", "__event:Buff", "__event:Debuff"].includes(value)) {
       const scrollContainer = rotationScrollRef.current;
       const row = control.closest<HTMLElement>("[data-rotation-step-index]");
       if (scrollContainer && row) pendingEventScrollRef.current = { stepIndex: index, top: row.getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top };
@@ -1776,19 +1829,23 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     setRotation((current) => {
       let steps = current.steps.map((step, stepIndex) => {
         if (stepIndex !== index) return step;
-        if (value === "__event:Exhausted") return { type: "event", event: "Exhausted", after: { action: 0 } };
-        if (value === "__event:Controlled") return { type: "event", event: "Controlled", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0, duration: 3 };
+        if (value === "__event:Exhausted") return { type: "event", event: "Exhausted", after: { action: 0 }, duration: eventDefaultDuration("Exhausted") };
+        if (value === "__event:Delay") return { type: "event", event: "Delay", duration: 1 };
+        if (value === "__event:Controlled") return { type: "event", event: "Controlled", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0, duration: eventDefaultDuration("Controlled") };
         if (value === "__event:BattleEnd") return { type: "event", event: "BattleEnd", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0 };
         if (value === "__event:Move") return { type: "event", event: "Move", before: { action: "start" }, distance: 1 };
+        if (value === "__event:HP") return { type: "event", event: "HP", before: { action: "start" }, currentHPRatio: 1 };
+        if (value === "__event:Buff") return { type: "event", event: "Buff", before: { action: "start" }, buff: Object.keys(manualBuffDefinitions)[0], stack: 1 };
+        if (value === "__event:Debuff") return { type: "event", event: "Debuff", before: { action: "start" }, debuff: Object.keys(manualDebuffDefinitions)[0], stack: 1 };
         return { type: "skill", skill: value };
       }) as RotationStep[];
-      const attached = value === "__event:Move" || value === "__event:Exhausted";
+      const attached = ["__event:Move", "__event:Exhausted", "__event:HP", "__event:Buff", "__event:Debuff"].includes(value);
       if (attached && !steps.slice(index + 1).some((step) => step.type === "skill")) steps.push({ type: "skill", skill: rotationSkillIds[0] });
       if (value === "__event:Exhausted") {
         const targetSkill = steps.slice(index + 1).find((step): step is Extract<RotationStep, { type: "skill" }> => step.type === "skill");
         const actions = targetSkill ? findSkill(targetSkill.skill ?? "")?.action : undefined;
         const firstDamage = Array.isArray(actions) ? actions.findIndex((action) => (action as EditableObject).type === "damage") : -1;
-        steps = steps.map((step, stepIndex) => stepIndex === index ? { type: "event", event: "Exhausted", after: { action: Math.max(0, firstDamage) } } : step);
+        steps = steps.map((step, stepIndex) => stepIndex === index ? { type: "event", event: "Exhausted", after: { action: Math.max(0, firstDamage) }, duration: eventDefaultDuration("Exhausted") } : step);
       }
       return { ...current, steps };
     });
@@ -1826,6 +1883,17 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       return next;
     });
   }
+  function commitEventHP(rowId: string, stepIndex: number) {
+    const draft = eventHPDrafts[rowId];
+    if (draft === undefined) return;
+    const currentHPPercentage = Number(draft);
+    if (Number.isFinite(currentHPPercentage)) updateStep(stepIndex, { currentHPRatio: Math.min(1, Math.max(0, currentHPPercentage / 100)) });
+    setEventHPDrafts((current) => {
+      const next = { ...current };
+      delete next[rowId];
+      return next;
+    });
+  }
   function moveAttachedEvent(stepIndex: number, direction: -1 | 1, control: HTMLButtonElement) {
     if (rotationLocked) return;
     const eventStep = rotation.steps[stepIndex];
@@ -1846,7 +1914,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     const targetIndex = withoutEvent.indexOf(targetSkill);
     if (targetIndex < 0) return;
     const movedEvent = eventStep.event === "Exhausted"
-      ? { type: "event", event: "Exhausted", after: nextTarget.target } as RotationStep
+      ? { ...eventStep, after: nextTarget.target } as RotationStep
       : { ...eventStep, before: nextTarget.target } as RotationStep;
     const steps = [...withoutEvent.slice(0, targetIndex), movedEvent, ...withoutEvent.slice(targetIndex)];
     const movedEventIndex = steps.indexOf(movedEvent);
@@ -1880,27 +1948,28 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       const targetSkill = current.steps[current.steps.length - 1];
       const actions = targetSkill?.type === "skill" ? findSkill(targetSkill.skill ?? "")?.action : undefined;
       const firstDamage = Array.isArray(actions) ? actions.findIndex((action) => (action as EditableObject).type === "damage") : -1;
-      return { ...current, steps: [...current.steps.slice(0, -1), { type: "event", event: "Exhausted", after: { action: Math.max(0, firstDamage) } }, ...current.steps.slice(-1)] };
+      return { ...current, steps: [...current.steps.slice(0, -1), { type: "event", event: "Exhausted", after: { action: Math.max(0, firstDamage) }, duration: eventDefaultDuration("Exhausted") }, ...current.steps.slice(-1)] };
     });
   }
   function moveStep(index: number, direction: number) {
     if (rotationLocked) return;
     setRotation((current) => {
-      if (current.steps[index]?.type !== "skill") return current;
+      const movable = (step: RotationStep | undefined) => step?.type === "skill" || (step?.type === "event" && step.event === "Delay");
+      if (!movable(current.steps[index])) return current;
       const attached = (step: RotationStep | undefined) => Boolean(attachedTargetForStep(step));
       let blockStart = index;
-      while (blockStart > 0 && attached(current.steps[blockStart - 1])) blockStart -= 1;
+      if (current.steps[index]?.type === "skill") while (blockStart > 0 && attached(current.steps[blockStart - 1])) blockStart -= 1;
       const currentBlock = current.steps.slice(blockStart, index + 1);
       if (direction < 0) {
         let previousSkill = blockStart - 1;
-        while (previousSkill >= 0 && current.steps[previousSkill].type !== "skill") previousSkill -= 1;
+        while (previousSkill >= 0 && !movable(current.steps[previousSkill])) previousSkill -= 1;
         if (previousSkill < 0) return current;
         let previousStart = previousSkill;
-        while (previousStart > 0 && attached(current.steps[previousStart - 1])) previousStart -= 1;
+        if (current.steps[previousSkill]?.type === "skill") while (previousStart > 0 && attached(current.steps[previousStart - 1])) previousStart -= 1;
         return { ...current, steps: [...current.steps.slice(0, previousStart), ...currentBlock, ...current.steps.slice(previousStart, blockStart), ...current.steps.slice(index + 1)] };
       }
       let nextSkill = index + 1;
-      while (nextSkill < current.steps.length && current.steps[nextSkill].type !== "skill") nextSkill += 1;
+      while (nextSkill < current.steps.length && !movable(current.steps[nextSkill])) nextSkill += 1;
       if (nextSkill >= current.steps.length) return current;
       return { ...current, steps: [...current.steps.slice(0, blockStart), ...current.steps.slice(index + 1, nextSkill + 1), ...currentBlock, ...current.steps.slice(nextSkill + 1)] };
     });
@@ -2140,6 +2209,10 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     });
     return entries;
   }).sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
+  const showDistanceColumn = rotation.steps.some((step) => step.type === "event" && step.event === "Move"
+    || step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("Distance"));
+  const showHPColumn = rotation.steps.some((step) => step.type === "event" && step.event === "HP"
+    || step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("HP"));
   const totalRotationTime = currentCachedResult?.duration ?? 0;
   const readableRotation = readableRotationText(timeline, startAnchor, anchorTime);
   const totalRotationDamage = currentCachedResult?.metrics.totalDamage ?? 0;
@@ -2147,12 +2220,13 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
     return { ...characterStats, [key]: characterStats[key] + amount };
   };
-  const priorityCharacter = Object.fromEntries(Object.entries(statPriorityLines.character).filter(([key]) => characterStatAvailableForSettings(key as keyof CharacterStats, settings))) as Partial<Record<keyof CharacterStats, number>>;
+  const priorityLevelData = statRollsForLevel(enemy.level);
+  const priorityCharacter = Object.fromEntries(Object.entries(priorityLevelData?.affix ?? {}).filter(([key]) => characterStatAvailableForSettings(key as keyof CharacterStats, settings))) as Partial<Record<keyof CharacterStats, number>>;
   const priorityAttunement = Object.keys(attunementData).filter((key) => attunementAvailableForSettings(key, loadSelectedPath(), settings)).flatMap((key) => {
-    const amount = maxGearRoll(key, "attunement");
+    const amount = maxGearRoll(key, "attunement", false, enemy.level);
     return typeof amount === "number" ? [[key, amount] as const] : [];
   });
-  const selectedInnerWays = loadInnerWays().filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));
+  const selectedInnerWays = buildSetup.innerWays.filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));
   const currentGearSets = buildSetup.gearSets;
   const priorityStats: RotationPriority[] = [];
   const priorityAttunementRows: RotationPriority[] = [];
@@ -2177,7 +2251,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       setReadableCopyStatus("Select the text and copy it manually.");
     }
   }
-  const makeTimelineInput = (rotationRecord: RotationRecord, conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup)): TimelineBuildInput => ({
+  const makeTimelineInput = (rotationRecord: RotationRecord, conditions = innerWayConditions, rules = innerWayEffectRules, setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs = currentGlobalDebuffs): TimelineBuildInput => ({
     rotation: rotationRecord,
     skills: Object.assign({}, ...Object.values(defaultSkillMaps)),
     eventDefinitions: rotationEventDefinitions,
@@ -2187,6 +2261,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     innerWayRules: rules,
     setupEffects,
     weapons: settings.weapons,
+    initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
   });
   function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
     const rotationAnchor = rotationRecord.start ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action } : { rowId: "rotation-0" };
@@ -2209,7 +2284,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     }) : [],
     innerWayPriority: includeDiffs ? selectedInnerWays.map((selected) => {
       const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
-      const variantConditions = loadInnerWayConditions(selected.innerWay);
+      const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay);
       return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
     }) : [],
     setupComparisons: includeDiffs ? {
@@ -2217,6 +2292,14 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
       bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }) })),
       food: Object.keys(typedFoodDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }) })),
       divinecraft: Object.entries(typedDivinecraftDefinitions).filter(([, definition]) => definition.available !== false).map(([value]) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }) })),
+      ...Object.fromEntries(globalDebuffRows.map(({ key }) => [`debuff:${key}`, [false, true].map((enabled) => {
+        const globalDebuffs = { ...currentGlobalDebuffs, [key]: enabled };
+        return { label: enabled ? "on" : "off", timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs) };
+      })])),
+      "debuff:qingyisCharm": (["none", "T1", "T6"] as const).map((value) => {
+        const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
+        return { label: value, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs) };
+      }),
       "gear:Cleftpeak": [0, 2, 4].filter((tier) => tier > currentGearSets.Cleftpeak).map((tier) => {
         const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: tier as 0 | 2 | 4, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) as 0 | 2 | 4 } });
         return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
@@ -2313,32 +2396,46 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   }, [diffResult, activeRotationId, editingRotationId, rotation, rotationEntries]);
   return <section className="panel rotation-editor-panel"><div className="rotation-editor-layout">
     <aside className="rotation-list">
-      <div className="rotation-list-heading"><span>Rotations</span><button className="icon-button" type="button" aria-label="Add rotation" onClick={addRotation}>＋</button></div>
+      <div className="rotation-list-heading"><span>Rotations</span><button className="button button-secondary button-small" type="button" onClick={addRotation}>New Rotation</button></div>
       <div className="rotation-list-entries">{visibleRotationEntries.map((entry) => <div className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => editRotation(entry.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") editRotation(entry.id); }}><strong>{entry.id === activeRotationId && <span className="active-rotation-icon" title="Active rotation">●</span>}{entry.rotation.name || "Unnamed Rotation"}</strong>{!entry.isDefault && <span className="rotation-list-actions"><button className="rotation-remove-button" type="button" aria-label={`Remove ${entry.rotation.name || "rotation"}`} title="Remove rotation" disabled={visibleRotationEntries.length <= 1} onClick={(event) => { event.stopPropagation(); removeRotation(entry.id); }}>×</button></span>}</div>)}</div>
       <div className="rotation-transfer-actions"><div><button className="button button-secondary button-small" type="button" onClick={exportRotations}>Export</button><label className="button button-secondary button-small rotation-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import rotations" onChange={importRotations} /></label></div>{transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}</div>
     </aside>
     {editingEntry ? <div className="rotation-editor-content">
     <div className="skill-detail-heading"><div>{editingName && !rotationLocked ? <input className="rotation-name-input" autoFocus value={rotation.name} onChange={(event) => setRotation({ ...rotation, name: event.target.value })} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{rotation.name || "Unnamed Rotation"}{!rotationLocked && <button className="icon-button" type="button" aria-label="Edit rotation name" onClick={() => setEditingName(true)}>✎</button>}</h3>}{rotationLocked && <p className="rotation-default-note">This is a prebuilt default rotation and cannot be changed. Duplicate it to edit.</p>}</div><div className="detail-active-actions">{status && <span className="editor-status">{status}</span>}<button className="button button-small detail-active-button" type="button" disabled={editingRotationId === activeRotationId} onClick={() => activateRotation(editingRotationId)}>{editingRotationId === activeRotationId ? "Active" : "Make Active"}</button></div></div>
     <div className="rotation-toolbar"><span className="rotation-toolbar-actions"><button className="button button-secondary button-small" type="button" disabled={!readableRotation} onClick={openReadableRotation}>Readable Format</button></span><span>{rotation.steps.filter((step) => step.type === "skill").length} steps · {formatNumber(totalRotationTime)}s total time</span><span className="rotation-results"><span>Total Damage: {formatNumber(rotationCalculation.totalDamage)}</span><span>DPS: {formatNumber(rotationCalculation.dps)}</span></span></div>
-    <div className="rotation-scroll-content" ref={rotationScrollRef}><div className="rotation-table">
-      <div className="rotation-table-header"><span></span><span>#</span><span>Start Time</span><span>Cast Time</span><span>Skill</span><span>Distance</span><span className="rotation-damage-heading">Damage</span><span>Buff</span><span>Debuff</span><span>Actions</span></div>
+    <div className="rotation-scroll-content" ref={rotationScrollRef}><div className={`rotation-table ${showDistanceColumn ? "show-distance" : ""} ${showHPColumn ? "show-hp" : ""}`}>
+      <div className="rotation-table-header"><span></span><span>#</span><span>Start Time</span><span>Cast Time</span><span>Skill</span>{showDistanceColumn && <span>Distance</span>}{showHPColumn && <span>HP</span>}<span className="rotation-damage-heading">Damage</span><span>Buff</span><span>Debuff</span><span>Actions</span></div>
       <div className="rotation-step-list">
         {displayEntries.map((entry, index) => {
           const row = entry.row;
           const isAction = entry.kind === "action";
           const { step, startTime, skill, actions } = row;
           const castTime = row.effectiveCastTime;
-          const effectNames = (effects: Array<{ name: string; stack?: number; maxStack?: number }>) => effects.length === 0 ? "" : <span className="effect-plates">{effects.map((effect) => { const definition = effectDefinitions[effect.name]; const label = `${definition?.name ?? effect.name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`; return <span className="effect-plate" title={definition?.description ?? ""} key={`${effect.name}-${effect.stack ?? 1}`}>{label}</span>; })}</span>;
+          const effectNames = (effects: Array<{ name: string; stack?: number; maxStack?: number }>) => effects.length === 0 ? "" : <span className="effect-plates">{effects.map((effect) => {
+            const definition = effectDefinitions[effect.name];
+            const description = definition?.description?.trim();
+            const label = `${definition?.name ?? effect.name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`;
+            return <span className="effect-plate" key={`${effect.name}-${effect.stack ?? 1}`}>
+              {label}
+              {description ? <span className="effect-plate-tooltip" role="tooltip">{description}</span> : null}
+            </span>;
+          })}</span>;
           const actionIndex = entry.actionIndex;
           const actionTime = entry.time;
           const isManualEvent = step.type === "event";
+          const isDelayEvent = isManualEvent && step.event === "Delay";
+          const skillNumber = step.type === "skill" && row.rotationIndex !== undefined
+            ? rotation.steps.slice(0, row.rotationIndex).filter((candidate) => candidate.type === "skill").length
+            : "";
           const attachedTarget = attachedTargetForStep(step);
           const isAttachedEvent = Boolean(attachedTarget);
           const availableAttachmentTargets = step.type === "event" && step.event === "Exhausted" ? attachmentTargets.filter((target) => target.target.action !== "start") : attachmentTargets;
           const attachedTargetIndex = attachedTarget ? availableAttachmentTargets.findIndex((target) => target.skillRowId === row.sourceRowId && target.target.action === attachedTarget.action && target.target.trigger === attachedTarget.trigger) : -1;
           const stepSkill = step.type === "skill" ? step.skill : undefined;
           const actionsExpanded = skillActionsExpanded(row.id);
-          const actionState = actionIndex === undefined ? undefined : row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance };
+          const actionState = actionIndex === undefined ? undefined : row.actionStates[actionIndex] ?? { buffs: row.buffs, debuffs: row.debuffs, distance: row.distance, currentHPRatio: row.currentHPRatio };
+          const durationEvent = isManualEvent && (step.event === "Controlled" || step.event === "Exhausted" || step.event === "Delay") ? step.event : undefined;
+          const durationValue = durationEvent ? ("duration" in step ? step.duration : undefined) ?? (durationEvent === "Delay" ? 1 : eventDefaultDuration(durationEvent)) : 0;
           const actionBuffs = actionState?.buffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
           const actionDebuffs = actionState?.debuffs.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > actionTime) ?? [];
           const skillDamageRows = row.kind === "rotation" ? [row, ...timeline.filter((candidate) => candidate.kind !== "rotation" && candidate.sourceRowId === row.id)] : [row];
@@ -2350,15 +2447,16 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
           return <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
             {!isAction && <div className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""} ${isManualEvent && step.event === "Move" ? "rotation-move-event-row" : ""}`} data-rotation-step-index={row.rotationIndex}>
               {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}</button> : <span aria-hidden="true" />}
-              <span className="rotation-index">{isManualEvent ? "" : row.rotationIndex}</span>
-              {isManualEvent ? isAttachedEvent || rotationLocked ? <span>{formatNumber(displayTime(startTime))}s</span> : <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
-              {isAttachedEvent ? <span /> : isManualEvent && step.event === "Controlled" ? rotationLocked ? <span>{formatNumber(step.duration ?? 3)}s</span> : <input className="rotation-event-time" type="number" min="0" step="0.01" value={eventDurationDrafts[row.id] ?? String(step.duration ?? 3)} onChange={(event) => setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}</span>}
+              <span className="rotation-index">{skillNumber}</span>
+              {isManualEvent ? isAttachedEvent || isDelayEvent || rotationLocked ? <span>{formatNumber(displayTime(startTime))}s</span> : <input className="rotation-event-time" type="number" step="0.01" value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))} onChange={(event) => setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : <span>{formatNumber(displayTime(startTime))}s</span>}
+              {durationEvent ? rotationLocked ? <span>{formatNumber(durationValue)}s</span> : <input className="rotation-event-time" type="number" min="0" step="0.01" value={eventDurationDrafts[row.id] ?? String(durationValue)} onChange={(event) => setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /> : isAttachedEvent ? <span /> : <span>{isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}</span>}
               {row.kind === "rotation" ? rotationLocked ? <span className="rotation-skill-name">{isManualEvent ? <span>{rotationEventDefinitions[step.event]?.name ?? step.event}</span> : <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />}</span> : <span className="rotation-skill-select-wrap"><RotationSkillName skill={isManualEvent ? rotationEventDefinitions[step.event] : skill} fallback={stepSkill ?? ""} /><select className="rotation-skill-select" data-rotation-step-index={row.rotationIndex} aria-label="Skill or event" value={isManualEvent ? `__event:${step.event}` : stepSkill ?? ""} onChange={(event) => selectRotationItem(row.rotationIndex ?? 0, event.target.value, event.currentTarget)}>{stepSkill && !rotationSkillIds.includes(stepSkill) && <option value={stepSkill} disabled>{skillDisplayName(findSkill(stepSkill), stepSkill)} (unavailable)</option>}{rotationSkillIds.map((id) => <option key={id} value={id}>{skillDisplayName(findSkill(id), id)}</option>)}{rotationEventOptionIds.map((id) => <option key={id} value={id}>{rotationEventDefinitions[id.slice(8)]?.name ?? id}</option>)}</select></span> : <span className="rotation-skill-name"><RotationSkillName skill={skill} fallback={stepSkill ?? ""} /></span>}
-              {isManualEvent && step.event === "Move" ? rotationLocked ? <span>{step.distance}m</span> : <span className="rotation-distance-input-wrap"><input className="rotation-event-time" aria-label="Distance after move" type="number" min="1" step="1" value={eventDistanceDrafts[row.id] ?? String(step.distance)} onChange={(event) => setEventDistanceDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDistance(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span>m</span></span> : <span>{formatNumber(row.distance)}m</span>}
+              {showDistanceColumn && (isManualEvent && step.event === "Move" ? rotationLocked ? <span>{step.distance}m</span> : <span className="rotation-distance-input-wrap"><input className="rotation-event-time" aria-label="Distance after move" type="number" min="1" step="1" value={eventDistanceDrafts[row.id] ?? String(step.distance)} onChange={(event) => setEventDistanceDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventDistance(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span>m</span></span> : <span>{formatNumber(row.distance)}m</span>)}
+              {showHPColumn && (isManualEvent && step.event === "HP" ? rotationLocked ? <span>{formatNumber(step.currentHPRatio * 100)}%</span> : <span className="rotation-distance-input-wrap"><input className="rotation-event-time" aria-label="Current HP percentage" type="number" min="0" max="100" step="0.01" value={eventHPDrafts[row.id] ?? String(step.currentHPRatio * 100)} onChange={(event) => setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))} onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)} onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }} /><span>%</span></span> : <span>{formatNumber(row.currentHPRatio * 100)}%</span>)}
               <span className="rotation-damage-value">{isManualEvent ? "" : step.type === "skill" && skillBreakdown.total > 0 ? <DamageBreakdownValue breakdown={skillBreakdown} /> : ""}</span>
-              <span>{isManualEvent ? "" : effectNames(row.buffs)}</span>
-              <span>{isManualEvent ? "" : effectNames(row.debuffs)}</span>
-              <span className="rotation-controls">{isAttachedEvent && <><span className="rotation-control-placeholder" aria-hidden="true" /><button type="button" aria-label="Move event to previous action" disabled={rotationLocked || attachedTargetIndex <= 0} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)}>↑</button><button type="button" aria-label="Move event to next action" disabled={rotationLocked || attachedTargetIndex < 0 || attachedTargetIndex >= availableAttachmentTargets.length - 1} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)}>↓</button></>}{row.kind === "rotation" && !isManualEvent && <button className="rotation-expand-button" type="button" aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`} aria-expanded={actionsExpanded} onClick={() => toggleSkillActions(row.id)}>{actionsExpanded ? "▾" : "▸"}</button>}{row.kind === "rotation" && !isManualEvent && <><button type="button" aria-label="Move up" disabled={rotationLocked || (row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>} {row.kind === "rotation" && <><button type="button" aria-label="Delete step" disabled={rotationLocked} onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{!isManualEvent && <button type="button" aria-label="Add step below" disabled={rotationLocked} onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</>}{isAttachedEvent && <span className="rotation-control-placeholder" aria-hidden="true" />}</span>
+              <span>{isManualEvent && step.event === "Buff" ? rotationLocked ? <span>{manualBuffDefinitions[step.buff]?.name ?? step.buff}{(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}</span> : <span className={`rotation-effect-event-control ${(effectDefinitions[step.buff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}><select className="rotation-effect-select" aria-label="Buff to apply" value={step.buff} onChange={(event) => { const buff = event.target.value; updateStep(row.rotationIndex ?? 0, { buff, stack: Math.min(step.stack ?? 1, effectDefinitions[buff]?.maxStack ?? 1) }); }}>{Object.entries(manualBuffDefinitions).map(([id, definition]) => <option value={id} key={id}>{definition.name ?? id}</option>)}</select>{(effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && <input className="rotation-effect-stack" aria-label="Buff stacks" type="number" min="1" max={effectDefinitions[step.buff]?.maxStack} step="1" value={step.stack ?? 1} onChange={(event) => { const stack = Number(event.target.value); if (Number.isFinite(stack)) updateStep(row.rotationIndex ?? 0, { stack: Math.max(1, Math.min(effectDefinitions[step.buff]?.maxStack ?? 1, Math.floor(stack))) }); }} />}</span> : isManualEvent ? "" : effectNames(row.buffs)}</span>
+              <span>{isManualEvent && step.event === "Debuff" ? rotationLocked ? <span>{manualDebuffDefinitions[step.debuff]?.name ?? step.debuff}{(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}</span> : <span className={`rotation-effect-event-control ${(effectDefinitions[step.debuff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}><select className="rotation-effect-select" aria-label="Debuff to apply" value={step.debuff} onChange={(event) => { const debuff = event.target.value; updateStep(row.rotationIndex ?? 0, { debuff, stack: Math.min(step.stack ?? 1, effectDefinitions[debuff]?.maxStack ?? 1) }); }}>{Object.entries(manualDebuffDefinitions).map(([id, definition]) => <option value={id} key={id}>{definition.name ?? id}</option>)}</select>{(effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && <input className="rotation-effect-stack" aria-label="Debuff stacks" type="number" min="1" max={effectDefinitions[step.debuff]?.maxStack} step="1" value={step.stack ?? 1} onChange={(event) => { const stack = Number(event.target.value); if (Number.isFinite(stack)) updateStep(row.rotationIndex ?? 0, { stack: Math.max(1, Math.min(effectDefinitions[step.debuff]?.maxStack ?? 1, Math.floor(stack))) }); }} />}</span> : isManualEvent ? "" : effectNames(row.debuffs)}</span>
+              <span className="rotation-controls">{isAttachedEvent && <><span className="rotation-control-placeholder" aria-hidden="true" /><button type="button" aria-label="Move event to previous action" disabled={rotationLocked || attachedTargetIndex <= 0} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)}>↑</button><button type="button" aria-label="Move event to next action" disabled={rotationLocked || attachedTargetIndex < 0 || attachedTargetIndex >= availableAttachmentTargets.length - 1} onClick={(event) => moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)}>↓</button></>}{row.kind === "rotation" && !isManualEvent && <button className="rotation-expand-button" type="button" aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`} aria-expanded={actionsExpanded} onClick={() => toggleSkillActions(row.id)}>{actionsExpanded ? "▾" : "▸"}</button>}{row.kind === "rotation" && (!isManualEvent || isDelayEvent) && <><button type="button" aria-label="Move up" disabled={rotationLocked || (row.rotationIndex ?? 0) === 0} onClick={() => moveStep(row.rotationIndex ?? 0, -1)}>↑</button><button type="button" aria-label="Move down" disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1} onClick={() => moveStep(row.rotationIndex ?? 0, 1)}>↓</button></>} {row.kind === "rotation" && <><button type="button" aria-label="Delete step" disabled={rotationLocked} onClick={() => removeStep(row.rotationIndex ?? 0)}>×</button>{(!isManualEvent || isDelayEvent) && <button type="button" aria-label="Add step below" disabled={rotationLocked} onClick={() => addStepBelow(row.rotationIndex ?? 0)}>＋</button>}</>}{isAttachedEvent && <span className="rotation-control-placeholder" aria-hidden="true" />}</span>
             </div>
             }
             {isAction && (() => {
@@ -2366,7 +2464,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
               const actionCalculated = Object.prototype.hasOwnProperty.call(workerActionBreakdowns, actionKey);
               return <div className={`rotation-action-row ${row.kind === "trigger" ? "rotation-action-trigger" : row.kind === "dot" ? "rotation-action-dot" : ""}`}>
                 {row.kind === "rotation" ? <button className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "active" : ""}`} type="button" aria-label="Set fight start here" disabled={rotationLocked} onClick={() => selectStart(row.rotationIndex ?? 0, actionIndex)}>{startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "→" : "•"}</button> : <span aria-hidden="true" />}
-                <span className="rotation-action-time">{formatNumber(displayTime(actionTime))}s</span><span className="rotation-action-skill"><RotationSkillName skill={skill} fallback={stepSkill ?? ""} /></span><span className="rotation-action-distance">{formatNumber(actionState?.distance ?? row.distance)}m</span><span className="rotation-action-damage">{actionCalculated ? <DamageBreakdownValue breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)} /> : null}</span><span className="rotation-action-buff">{effectNames(actionBuffs)}</span><span className="rotation-action-debuff">{effectNames(actionDebuffs)}</span>
+                <span aria-hidden="true" /><span>{formatNumber(displayTime(actionTime))}s</span><span aria-hidden="true" /><span><RotationSkillName skill={skill} fallback={stepSkill ?? ""} /></span>{showDistanceColumn && <span>{formatNumber(actionState?.distance ?? row.distance)}m</span>}{showHPColumn && <span>{formatNumber((actionState?.currentHPRatio ?? row.currentHPRatio) * 100)}%</span>}<span className="rotation-action-damage">{actionCalculated ? <DamageBreakdownValue breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)} /> : null}</span><span>{effectNames(actionBuffs)}</span><span>{effectNames(actionDebuffs)}</span><span aria-hidden="true" />
               </div>;
             })()}
           </div>;
@@ -2405,11 +2503,12 @@ export default function App() {
   const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild]);
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() => loadBuildSetupOverrides(activeBuildSetup));
   const buildSetup = useMemo<BuildSetup>(() => ({
+    innerWays: (buildSetupOverrides.innerWays ?? activeBuildSetup.innerWays).map((row) => ({ ...row })),
     gearSets: { ...(buildSetupOverrides.gearSets ?? activeBuildSetup.gearSets) },
     bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,
     arsenal: buildSetupOverrides.arsenal ?? activeBuildSetup.arsenal,
   }), [activeBuildSetup, buildSetupOverrides]);
-  const activeGearInventory = useMemo(() => activeBuild ? resolveBuildInventory(activeBuild, buildState.gearItems) : { items: [], equipped: {} }, [activeBuild, buildState.gearItems]);
+  const activeGearInventory = useMemo(() => activeBuild ? resolveBuildInventory(activeBuild, buildState.gearItems, settings.weapons) : { items: [], equipped: {} }, [activeBuild, buildState.gearItems, settings.weapons]);
   const equippedGearEffects = useMemo(() => calculateEquippedGearEffects(activeGearInventory, settings.weapons, activeBuild?.isDefault !== true), [activeGearInventory, settings.weapons, activeBuild?.isDefault]);
   const gearStatEffect = useMemo<StatEffectContainer>(() => ({ stat: equippedGearEffects.stats }), [equippedGearEffects]);
   const globalStatState = useMemo(() => calculateGlobalStatState(statOverrides, settings, gearStatEffect, buildSetup), [statOverrides, settings, gearStatEffect, buildSetup, innerWayRevision]);
@@ -2459,6 +2558,7 @@ export default function App() {
       return;
     }
     setBuildSetupOverrides({
+      innerWays: profile.innerWays.map((row) => ({ ...row })),
       gearSets: { ...profile.buildSetup.gearSets },
       bowRingSet: profile.buildSetup.bowRingSet,
       arsenal: profile.buildSetup.arsenal,
@@ -2473,6 +2573,19 @@ export default function App() {
     sessionStorage.setItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) => settingsForPath(current, nextPathId));
+    setInnerWayRevision((current) => current + 1);
+  };
+  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId]) => {
+    const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(([candidateId, definition]) => candidateId !== "mixed"
+      && (!definition.wip || import.meta.env.DEV)
+      && definition.lockedWeapons
+      && sameWeaponPair(definition.lockedWeapons, nextWeapons));
+    const nextPathId = matchingPath?.[0] ?? "mixed";
+    sessionStorage.setItem(pathStorageKey, nextPathId);
+    setPathId(nextPathId);
+    setSettings((current) => nextPathId === "mixed"
+      ? { ...settingsForPath(current, nextPathId), weapons: [...nextWeapons] }
+      : settingsForPath(current, nextPathId));
     setInnerWayRevision((current) => current + 1);
   };
 
@@ -2514,7 +2627,7 @@ export default function App() {
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
-      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
+      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} onSelectBuildWeapons={selectBuildWeapons} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} onActiveSimulationBundleChange={handleActiveSimulationBundle} /></div>
       <div className={activeTab === "simulation" ? "" : "tab-hidden"}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} buildName={activeBuild?.name} /></div>
       <footer className="page-footer">

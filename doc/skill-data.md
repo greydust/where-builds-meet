@@ -5,6 +5,7 @@ Combat data is split by responsibility:
 - `data/skill/`: castable and triggered skills
 - `data/dot/`: damage-over-time definitions
 - `data/buff/`: player effects
+- `data/buff/global.json`: always-active conditional effect rules
 - `data/debuff/`: target effects and manual encounter states
 - `data/innerway/`: cumulative tier effects, triggers, and modifications
 - `data/martial-art/`: weapon talent arrays
@@ -24,6 +25,10 @@ The model separates three moments:
 2. A skill's ordered `action` list creates events on the global timeline.
 3. Buff, debuff, setup, and Inner Way effects are resolved from the state that
    exists when each action occurs.
+
+On-hit bonuses belong in effect rules rather than skill modifiers. For example,
+Frost-Clad Night T4 checks Inner Passion or the T6 Exhausted condition against
+Snowbreak Spring's state at each damage action, not at cast start.
 
 An action that applies or consumes an effect changes later timeline state. The
 state snapshot used by that action is captured before the action is executed, so
@@ -66,6 +71,13 @@ Current tag conventions include:
 
 Tags are exact, case-sensitive strings. `MartialArts` is intentionally distinct
 from the older `MartialArt` tag used by some attunement matching.
+Use `VariedCombo` for every varied-combo skill tag and requirement.
+
+Requirement conditions with `"target": "martialArt"` use the same canonical
+martial-art tag stored in `data/martial-art/*.json` and on that art's skills—for
+example, `SnowpartingBlade` or `PhalanxbaneBlade`. They match the action's skill
+tags, not the IDs of the currently equipped weapons. This prevents a
+martial-art-specific effect from applying to Mystic or another equipped art.
 
 ## Actions
 
@@ -107,7 +119,8 @@ by the equipped weapons' primary attribute. See `damage-formula.md`.
 - `stack` defaults to one and is capped by the resolved definition's `maxStack`.
 - `duration` overrides the definition duration. No duration means the state does
   not expire.
-- Reapplying a normal tracked effect adds stacks and refreshes its expiration.
+- Reapplying a tracked effect adds stacks up to its maximum. Its definition's
+  `refresh` field decides whether that application also resets the expiration.
 - Effect-definition cooldowns can reject an application until the cooldown ends.
 
 An Inner Way trigger can grant conditional extra stacks:
@@ -211,6 +224,22 @@ permanent, or already-expired states are not extended.
 
 This clears the named effect/application cooldown at that timestamp.
 
+### Set HP
+
+The attached HP event emits a `setHP` action. Rotation data stores HP as a
+decimal ratio even though the editor displays percentage points:
+
+```json
+{
+  "type": "setHP",
+  "currentHPRatio": 0.8,
+  "time": 0
+}
+```
+
+The timeline starts at full HP (`1`) and snapshots the current ratio on every
+action. HP-dependent damage therefore reads the value at hit time.
+
 ## Requirements
 
 A requirement array is an implicit AND group:
@@ -227,8 +256,8 @@ Supported targets are:
 - `self`: an active player buff or selected Inner Way tier condition
 - `target`: an active target debuff
 - `skillTag`: a tag on the skill being evaluated
-- `martialArt`: one of the equipped weapon IDs, currently `snowparting` or
-  `phalanxbane`
+- `martialArt`: the canonical martial-art tag on the skill being evaluated,
+  such as `SnowpartingBlade` or `PhalanxbaneBlade`
 
 For tracked effects, optional `stack` means at least that many stacks. The value
 `"max"` means the tracked stack count must have reached its resolved maximum.
@@ -303,9 +332,10 @@ those stacks. Its separately triggered explosions do not inherit the modifier.
   "MountainSplitter": {
     "name": "Mountain Splitter",
     "description": "Increases Critical DMG for matching skills and applies the guaranteed-critical rule.",
-    "duration": 10,
-    "cooldown": 15,
-    "maxStack": 1,
+  "duration": 10,
+  "cooldown": 15,
+  "maxStack": 1,
+  "refresh": true,
     "effect": [
       {
         "requirement": [
@@ -333,10 +363,22 @@ Definition fields:
 - `duration`: default lifetime; omission means permanent
 - `cooldown`: minimum time between accepted applications
 - `maxStack`: stack cap
+- `refresh`: whether a successful reapplication resets the duration
+- `damageAttribution: "sourceCast"`: measure each affected hit with and without
+  this buff and attribute only the difference to the cast that applied it
 - `effect`: action-time effect rules
 - `stackEffects`: cumulative effect rules indexed by current stack count
 - `shared`: descriptive game metadata; it does not currently change simulation
   behavior
+
+Rules in `data/buff/global.json` are flattened into the always-active setup
+effects. They are checked for every damage action like Inner Way rules, but are
+not tracked buffs and do not appear in buff plates or the manual Buff selector.
+
+`TimelineBuildInput.initialBuffs` and `initialDebuffs` may seed permanent
+tracked effects. Seeded effects have no expiration, are not consumed, and merge
+by definition ID with later applications. This is used by the Main-tab global
+effect controls rather than copying their damage fields into every action.
 
 When `stackEffects` exists, index `stack - 1` is selected instead of `effect`.
 Each index must contain the complete cumulative value for that stack; entries are
@@ -345,6 +387,23 @@ entries must already exist for the larger cap.
 
 An effect entry should canonically use `{ "requirement": [...], "effect": {...} }`.
 Unwrapped effect objects are also accepted by the current evaluator.
+
+Damage effect fields `globalDmgBonus` and `globalHPDMGBonus` contribute to the
+same additive global multiplier for every HP-damage component.
+`globalBellstrikeDMGBonus` contributes to that global category only for the
+Bellstrike component. These remain distinct from character attribute damage
+bonuses such as `bellstrikeDmgBonus`; see `damage-formula.md` for the multiplier
+order.
+
+`dotDamage` is an additive DOT-only category. Active values are summed and
+applied as a standalone multiplier to rows generated by a DOT definition; the
+casting skill's direct damage is unaffected. Requirements on each effect entry
+can further restrict the source by its martial-art or skill tags.
+
+`defenseBonus` is a signed percentage adjustment to enemy defense, while
+`physicalResistance` is a signed flat adjustment to enemy Physical Resistance.
+Negative values reduce the corresponding enemy property. Cumulative
+`stackEffects` must store the full adjustment at each stack index.
 
 ## Modifying an effect definition
 
@@ -479,12 +538,12 @@ DOT definition and effect definition. A DOT without a resolved duration does not
 schedule ticks. DOT rows are interleaved globally with casts and triggered
 skills. DOT damage ignores flat physical and attribute bonuses.
 
-For DOT applications, `reapply: false` leaves an active instance unchanged. A
-successful reapplication refreshes its expiration while preserving the original
-tick cadence. `extend` adds to the current expiration instead. In both cases,
-future ticks are associated with the cast that refreshed or extended the DOT.
-Regular buffs and debuffs always refresh their duration when successfully
-reapplied.
+For DOT applications, `reapply: false` leaves an active instance unchanged.
+DOT definitions currently use `refresh: false`, so a successful reapplication
+does not reset their expiration or tick cadence. `extend` explicitly adds to the
+current expiration and transfers future ticks to the extending cast. Ordinary
+buff and debuff definitions use `refresh: true`. Surging Waves is the exception:
+later stacks increase its stack count but all expire on the first stack's timer.
 
 ## Rotation records and events
 
@@ -494,8 +553,12 @@ type RotationRecord = {
   eventTimeReference?: "battleStart";
   steps: Array<
     | { type: "skill"; skill: string }
-    | { type: "event"; event: "Exhausted"; after: AttachedEventTarget }
+    | { type: "event"; event: "Delay"; duration: number }
+    | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number }
     | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
+    | { type: "event"; event: "HP"; before: AttachedEventTarget; currentHPRatio: number }
+    | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
+    | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
     | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
   >;
   start?: { step: number; action?: number };
@@ -512,23 +575,27 @@ type AttachedEventTarget = {
 };
 ```
 
-Skill steps are placed sequentially by effective cast time. `Move` and
-`Exhausted` are action-attached events and must be stored immediately before
-their target skill. Move uses `before`; Exhausted uses `after`. The attachment's
-`action` is a zero-based action index in that skill; `"start"` is valid for Move
-and targets cast start. When `trigger` is present, it is the
+Skill steps and `Delay` events are placed sequentially. A Delay starts when the
+preceding cast ends, advances every later sequential step by its nonnegative
+`duration`, and applies no action or effect. A trailing Delay still extends the
+rotation duration. `Move`, `HP`,
+`Buff`, `Debuff`, and `Exhausted` are action-attached events and must be stored
+immediately before their target skill. The first four use `before`; Exhausted
+uses `after`. The attachment's
+`action` is a zero-based action index in that skill; `"start"` is valid for
+before-attached events and targets cast start. When `trigger` is present, it is the
 zero-based ordinal of a `trigger` action declared by the target skill, and
 `action` selects an action inside that triggered skill. Move resolves before its
 target; Exhausted resolves after its target, so the breaking hit does not receive
 Exhausted bonuses while subsequent hits do. The editor displays these zero-based values as one-based action and
 trigger numbers internally, but attached-event rows do not expose those indices
 as editable text. Their up/down controls move the attachment through skill
-starts (for Move), direct damage actions, and declared triggered-skill damage
+starts (for before-attached events), direct damage actions, and declared triggered-skill damage
 actions in effective timeline order. Exhausted skips skill-start targets. Moving to an action expands its owning skill so the
 attachment and target remain visible together; leaving that skill collapses the
 auto-expanded action list. The editor preserves the attached-event row's visual
 scroll position while moving it. A newly inserted skill receives focus, and
-converting it to Move or Exhausted attaches the event to the following skill.
+converting it to an attached event targets the following skill.
 
 Bundled rotation JSON records declare the martial-art IDs they use in
 `martialArts`. The Rotation Editor shows a preset only when those tags match the
@@ -537,8 +604,8 @@ fixture and uses `test: true`, so it is omitted from production builds.
 
 With `eventTimeReference: "battleStart"`, timed encounter events use a
 `startTime` relative to the selected fight start and consume no cast time.
-`Exhausted` uses its definition's 10-second duration. `Controlled` defaults to
-three seconds and the rotation event's editable `duration` overrides it.
+`Exhausted` and `Controlled` take their default durations from their debuff
+definitions. Each event's editable `duration` overrides that default.
 `BattleEnd` has no action and excludes damage ordered after it; it also fixes
 the rotation duration at that timestamp.
 The Rotation Editor skill selector offers skills from the currently selected
@@ -549,6 +616,14 @@ Distance starts at 1m. An attached `Move` event changes it to its integer
 `distance` immediately before the selected action. An attached Exhausted event
 applies at the same timestamp immediately after the selected action. Timeline rows store
 cast-start distance, while every action stores its own distance snapshot.
+An attached HP event similarly sets `currentHPRatio` immediately before its
+target. Buff and Debuff events select a definition from their respective data
+directories and apply it before the target using that definition's duration.
+Buff and Debuff events may specify a positive integer `stack`; omitted values
+apply one stack, and tracked-effect resolution caps the result at the selected
+effect's `maxStack`.
+Distance and HP columns are hidden unless the rotation contains their event or
+a skill tagged `Distance`/`HP` respectively.
 
 Bundled mixed-dummy rotations include fight-relative movement events for Flute
 distance modeling. They open at 19m, enter the first Fleeting Trace at 3m, then
@@ -591,6 +666,21 @@ original action time before timing modifiers are applied. Thus a segmented
 `castTimeModifier` may adjust early and late actions by different amounts.
 Damage effects may similarly segment the current `distance` parameter.
 
+`multiply` multiplies a dynamic parameter by a scalar:
+
+```json
+{
+  "function": "multiply",
+  "param1": "missingHPPercentage",
+  "param2": "0.0045"
+}
+```
+
+Numeric strings are accepted for the scalar. `missingHPPercentage` converts the
+hit-time HP ratio to percentage points, so 20% missing HP resolves this example
+to `20 × 0.0045 = 0.09`. Dragon Head - Tide receives this always-active rule
+from `data/buff/global.json`.
+
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional
 action index. Omitting `action` means the skill's cast start; providing it means
@@ -627,7 +717,7 @@ dialog is closed and provides both selectable text and a Copy button.
 
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
-version 3. Versions 1 and 2 remain importable, and legacy Exhausted `before`
+version 5. Versions 1 through 4 remain importable, and legacy Exhausted `before`
 attachments migrate to `after`. The snapshot includes each custom rotation's `martialArts`
 eligibility and the current in-memory editor value, even before the Save button
 is pressed. Bundled default rotations are discovered from

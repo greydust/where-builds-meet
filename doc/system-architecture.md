@@ -46,15 +46,15 @@ bundles containing every value required for their calculation.
 data/
   skill/          castable and triggered skill maps
   dot/            damage-over-time definitions
-  buff/           player effect definitions
+  buff/           player effect definitions, including global always-on rules
   debuff/         target effect and encounter-state definitions
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
   path.json       selectable combat paths, icons, shared eligibility tags, and optional weapon locks
   rotation/       bundled default rotations
   build/          bundled default build presets
-  gear.json       gear slots, item bases, affix choices, and allowed attunement IDs
-  system.json     innate character stats, enhancement bonuses, talent nodes, and attribute conversions
+  gear.json       gear slots, item bases, affix choices, and attunement source tags
+  system.json     innate stats, progression rewards, and base-attribute conversions
   attunement.json attunement names, source tags, stat targets, and skill-match tags
   default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
   enemy.json      enemy profiles
@@ -63,7 +63,7 @@ data/
   gear-set.json
   food.json       setup choices and their effects
   divinecraft.json  Divinecraft choices, availability, images, and effects
-  stat-priority.json
+  stat.json
 
 doc/
   damage-formula.md
@@ -149,13 +149,13 @@ tab session.
 | Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1` |
 | Active build ID | `localStorage`, `wwm-active-build-v1` |
 | Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
-| Inner Ways | `sessionStorage`, `wwm-inner-way-session-v1` |
 | Combat path | `sessionStorage`, `wwm-path-session-v1` |
 | Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
 | Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
 | Build setup overrides | `sessionStorage`, `wwm-build-setup-overrides-v1` |
 | Food | `sessionStorage`, `wwm-food-session-v1` |
 | Divinecraft | `sessionStorage`, `wwm-divinecraft-session-v1` |
+| Target debuff controls | `sessionStorage`, `wwm-global-debuffs-session-v1` |
 | Rotation list | `sessionStorage`, `wwm-rotation-list-session-v1` |
 | Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
 | Custom simulation percentiles | `sessionStorage`, `wwm-simulation-percentiles-v1` |
@@ -167,11 +167,22 @@ storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted. Bundled default builds and rotations
 are reconstructed from repository data and omitted from browser persistence;
 formerly edited default rotations migrate to custom copies.
+Standalone Inner Way, gear-set, bow/ring, and arsenal session selections migrate
+only when the unified build-setup override has never been saved. Once that
+override exists—even as an empty object—the active build supplies every
+non-overridden setup default and legacy session keys are ignored.
 
 Build export produces a versioned JSON snapshot of shared gear and custom build
-loadouts. Import validates that snapshot and appends it to the current state,
+loadouts, including each build's Inner Ways, gear sets, bow/ring set, and arsenal.
+Import validates that snapshot and appends it to the current state,
 remapping colliding gear and build IDs without replacing existing data or
 duplicating bundled default presets.
+The official-dashboard import is a separate boundary adapter: a user-installed
+bookmarklet copies role gear JSON from the authenticated official origin, then
+`officialGearImport.ts` maps official slots and stat IDs into a normal build
+snapshot. That snapshot enters the same validator and collision-safe merge path
+as a file import. The large official ID table is loaded only when the user
+submits the modal, keeping it out of the initial application chunk.
 
 Rotation export similarly produces a versioned JSON snapshot of custom rotation
 records. Rotation import validates skill and event step shapes, appends custom
@@ -185,14 +196,16 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-Inner Ways, final gear-set/bow-ring/arsenal selections, food, and Divinecraft.
+Inner Ways, and final gear-set/bow-ring/arsenal selections. Food, Divinecraft,
+global buff/debuff controls, and future Script controls remain independent
+session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
 persisted or exported. Import validates stat keys and setup shapes, discards
 unknown or non-finite override values, appends valid profiles, and remaps
 colliding IDs without changing the currently applied profile.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
-plus fallback build setup values for older build records. Bundled builds define setup choices
+plus fallback build setup values for older build records. Bundled builds define Inner Ways and setup choices
 in their own `data/build/*.json` records.
 
 ## Character stat pipeline
@@ -220,7 +233,9 @@ Divinecraft.
 ordered `enhancementStats`, ordered `talentStats`, regional
 Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
 `imperialPalaceOddityStats`, `hexiOddityStats`,
-`hiddenMountainOddityStats`, and `attributeConversions` separate. Talent and
+and `hiddenMountainOddityStats` separate. Its `baseAttributes` field stores a
+nested source-attribute to target-stat multiplier map. The shared
+`baseAttributeEffects.ts` adapter converts that map to ordinary formula effects. Talent and
 Oddity rewards remain individual
 effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
@@ -229,7 +244,8 @@ source use the same conversion rules.
 
 Editing a Main-tab field creates a final-value override. The field is marked as
 modified and gains an individual reset control. Gear-set, bow/ring, and arsenal
-changes similarly override the active build's selections. Reset clears all
+changes similarly override the active build's selections. Inner Way selections
+use the same build baseline and resettable override behavior. Reset clears all
 character, attunement, and build-setup overrides. `calculateStatsWithOverrides()` repeatedly runs the
 shared pipeline and solves the simulation base offset required to produce every
 overridden final value. This means later baseline input changes cannot move an
@@ -242,14 +258,15 @@ base. Modified stats therefore remain responsive in delta calculations.
 
 The compact Character Profile selector treats `Calculated` as an immutable
 reset profile. Loading it clears character, attunement, and build-setup
-overrides, thereby restoring the active build's setup, and restores the
-configured default Inner Ways, food, and Divinecraft. A custom profile stores
+overrides, thereby restoring the active build's setup. It does not change Food,
+Divinecraft, global buff/debuff controls, or future Script controls. A custom profile stores
 the user's current final-value character and attunement overrides plus the final
-gear-set, bow/ring, arsenal, Inner Way, food, and Divinecraft selections. Loading
+gear-set, bow/ring, arsenal, and Inner Way selections. Loading
 one replaces that complete state. Profiles can be created, renamed, duplicated,
 deleted, exported, and imported through the management dialog. While a custom
-profile is selected, every subsequent Main-tab change is written directly back
-to that profile. Changes made while `Calculated` is selected instead move the
+profile is selected, every subsequent profile-owned Main-tab change is written directly back
+to that profile. Changes to independent session controls do not affect profile
+matching. Changes made while `Calculated` is selected instead move the
 selector to `Unsaved changes`; the restored Reset button loads `Calculated`
 again without opening the selector.
 
@@ -257,7 +274,7 @@ Gear attunements are the calculated attunement baseline and remain keyed by
 definition ID. Damage resolution maps weapon definitions to penetration and
 maps tag-matching armor definitions to the standalone `attunementDMGBonus`
 multiplier. Every Armor-tagged definition shares the `attunement.armor` maximum
-roll from `data/stat-priority.json`; weapon attunements retain definition-ID
+roll from the active level in `data/stat.json`; weapon attunements retain definition-ID
 priority values. Armor definitions also carry the owning martial-art tag from
 `data/martial-art/*.json`. The UI requires both the current path tag (when one
 exists) and at least one selected martial-art tag; Mixed skips only the path
@@ -286,7 +303,10 @@ It produces three row kinds:
 - `trigger`: a skill inserted by a trigger action
 - `dot`: generated DOT actions
 
-Base skill casts are initially placed sequentially. Move rows run before a
+Base skill casts and Delay events are initially placed sequentially. A Delay
+consumes its configured duration without producing actions or effects, shifts
+all later sequential rows, and counts toward rotation duration when it is the
+last step. Move rows run before a
 following skill's cast start, direct action, or triggered-skill action. Exhausted
 rows run after their attached direct or triggered action. Both are rescheduled
 with that target. Timed manual-event `startTime`
@@ -309,9 +329,20 @@ The timeline owns mutable simulation state while it is being built:
 - active player buffs
 - active target debuffs
 - current target distance, initially 1m
+- current HP ratio, initially 1 (100%)
 - stacks, maximum stacks, and expirations
+- per-definition duration refresh behavior for stacked effects
 - skill, action, and effect cooldowns
 - action-time state snapshots
+
+Main-tab global-effect controls seed permanent tracked target debuffs into this
+initial state at their configured stack count. They therefore use ordinary
+effect-definition and requirement resolution, appear in timeline state, and
+share the same unique tracked entry with any matching application from the
+rotation. Reapplication cannot expire or duplicate a permanent seeded effect.
+Always-active rules from `data/buff/global.json` instead enter through setup
+effects. They are evaluated at each damage action without creating a visible or
+expiring tracked buff.
 
 At cast start, modifiers are selected, stack-scaled modifier values are resolved
 from that pre-action state, and cast/action times are adjusted. Resolved
@@ -337,7 +368,9 @@ Stonesplit, Silkbind, and Bamboocut damage plus outcome rates.
 
 The function computes abrasion, normal, critical, and affinity variants, then
 rate-weights each component. See `damage-formula.md` for the exact formula and
-bonus categories.
+bonus categories. Common global HP bonuses multiply every damage component,
+while channel-specific global bonuses such as Qi Imbalance's Bellstrike bonus
+are applied only to that returned component.
 
 `calculateSimulatedDamageBreakdown()` uses the same internal formula with its
 attack-roll mode set to `simulate`. It selects one outcome and samples the
@@ -354,6 +387,7 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - attunement variants
 - Inner Way removal variants
 - arsenal, bow/ring, food, Divinecraft, and gear-set comparisons
+- target-debuff comparisons
 - equipped gear stats and attunements
 
 Baseline bundles omit every comparison variant. Comparison bundles contain the
@@ -423,6 +457,14 @@ arithmetic mean of the remaining cast DPS values plus average cast time.
 Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
 descending.
 
+Tracked effects retain the cast row that applied them. A buff definition with
+`damageAttribution: "sourceCast"` requests a counterfactual calculation for
+every affected hit with that buff removed. The difference is attributed to the
+source cast without changing rotation total damage or the damaged skill's own
+breakdown. Flute uses this metadata. Its per-cast Damage and Average DPS cells
+show direct values followed by parenthesized values that include this attributed
+buff damage; sorting uses the inclusive DPS.
+
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and
 breakdown. `calculateRotationSimulation()` remains as a combined entry point for
@@ -490,10 +532,11 @@ environment. The application currently recognizes:
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
-- Exhausted, Controlled, Battle End, and Move manual events
+- Exhausted, Controlled, Battle End, Move, HP, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
-- eight gear slots, relayed status, and affix/attunement options
+- eight gear slots, relayed status, one required base affix, up to four optional
+  additional affixes, and an optional attunement
 - innate character, talent, and base-attribute conversion stats
 
 Effect definitions are merged into one ID map from buff, debuff, and DOT files.
@@ -546,7 +589,8 @@ values under `levelBonusStats`, every Enhancement bonus under its own ordered
 `talentStats` entry, and every regional Oddity reward
 under its own ordered collection such as `qingheOddityStats` or
 `kaifengOddityStats`. Express base-attribute relationships under
-`attributeConversions` using standard stat formulas.
+`baseAttributes` by nesting each target stat and its multiplier under the
+source base attribute, for example `"power": { "minPhys": 0.22 }`.
 
 ### Weapon or primary path
 
@@ -559,9 +603,9 @@ physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and gear-set eligibility use the tag.
 Paths may also declare `wip: true`; they are selectable with a WIP badge only in
 the local Vite dev environment and are omitted from production selectors.
-The Bamboocut - Dust and Bamboocut - Kite entries are currently filter-only WIP
-shells: their weapons and armor attunements are registered, but their skills,
-talents, gear values, and Bamboocut damage calculation are not implemented.
+The Bamboocut - Dust and Bamboocut - Kite entries are currently WIP shells:
+their weapons, shared gear tables, and armor attunements are registered, but
+their skills, talents, and Bamboocut damage calculation are not implemented.
 
 ### Manual event
 
@@ -569,7 +613,8 @@ Add the event to the `RotationStep` union, `rotationEventDefinitions`, editor
 options, transfer validation, and any special duration UI. `Exhausted`,
 `Controlled`, and `BattleEnd` use fight-relative timestamps. Battle End has no
 actions; the calculator treats its ordered timestamp as the damage and duration
-cutoff. General event definitions are currently hard-coded rather than loaded
+cutoff. Delay instead participates in sequential cast timing and has an editable
+duration but no action. General event definitions are currently hard-coded rather than loaded
 from data.
 
 ## Known architectural limitations

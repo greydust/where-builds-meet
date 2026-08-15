@@ -57,7 +57,7 @@
       "DirectDamage",
       "MartialArts",
       "Light",
-      "VC",
+      "VariedCombo",
       "Charged",
       "HengBlade",
       "SnowpartingBlade",
@@ -69,19 +69,6 @@
     "shortName": "Heng VC",
     "castTime": 0.85,
     "action": [
-      {
-        "type": "apply",
-        "requirement": [
-          {
-            "target": "self",
-            "value": "FrostCladNightT4"
-          }
-        ],
-        "target": "self",
-        "value": "InnerPassion",
-        "stack": 1,
-        "time": 0
-      },
       {
         "type": "damage",
         "phyCoef": 2.8245,
@@ -129,19 +116,6 @@
         "time": 0.588
       },
       {
-        "type": "apply",
-        "requirement": [
-          {
-            "target": "self",
-            "value": "FrostCladNightT6"
-          }
-        ],
-        "target": "self",
-        "value": "Forgetfulness",
-        "stack": 1,
-        "time": 0.588
-      },
-      {
         "type": "clearCD",
         "requirement": [
           {
@@ -156,47 +130,26 @@
         "target": "self",
         "value": "Forgetfulness",
         "time": 0.588
-      }
-    ],
-    "modifier": [
+      },
       {
+        "type": "apply",
         "requirement": [
           {
-            "operator": "or",
-            "operand": [
-              [
-                {
-                  "target": "self",
-                  "value": "FrostCladNightT4"
-                },
-                {
-                  "target": "self",
-                  "value": "InnerPassion"
-                }
-              ],
-              [
-                {
-                  "target": "self",
-                  "value": "FrostCladNightT6"
-                },
-                {
-                  "target": "target",
-                  "value": "Exhausted"
-                }
-              ]
-            ]
+            "target": "self",
+            "value": "FrostCladNightT6"
           }
         ],
-        "effect": {
-          "hpDMGBonus": 0.4
-        }
+        "target": "self",
+        "value": "Forgetfulness",
+        "stack": 1,
+        "time": 0.588
       }
     ],
+    "modifier": [],
     "tags": [
       "DirectDamage",
       "MartialArts",
       "Heavy",
-      "VC",
       "VariedCombo",
       "HengBlade",
       "SnowpartingBlade",
@@ -383,7 +336,7 @@
   },
   "SnowpartingQStab": {
     "name": "General's Bane: Stab",
-    "shortName": "Heng Q",
+    "shortName": "Heng Q Stab",
     "castTime": 1.166,
     "action": [
       {

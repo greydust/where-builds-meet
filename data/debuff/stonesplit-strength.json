@@ -9,11 +9,12 @@
       {
         "hpDMGBonus": 0.12
       }
-    ]
+    ],
+    "refresh": true
   },
   "FearfulBlade": {
     "name": "Fearful Blade",
-    "description": "Reduces attribute resistances by 16 and increases HP damage for Snowparting and Phalanxbane weapons.",
+    "description": "Reduces attribute resistances by 16 and increases 8% HP damage for Strength",
     "duration": 15,
     "maxStack": 1,
     "shared": true,
@@ -31,11 +32,11 @@
             "operand": [
               {
                 "target": "martialArt",
-                "value": "snowparting"
+                "value": "SnowpartingBlade"
               },
               {
                 "target": "martialArt",
-                "value": "phalanxbane"
+                "value": "PhalanxbaneBlade"
               }
             ]
           }
@@ -44,6 +45,7 @@
           "hpDMGBonus": 0.08
         }
       }
-    ]
+    ],
+    "refresh": true
   }
 }

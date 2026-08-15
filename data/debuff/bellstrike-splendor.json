@@ -1,0 +1,27 @@
+{
+  "QiImbalance": {
+    "name": "Qi Imbalance",
+    "description": "Increases Qi damage taken by 10%. Increases global HP damage taken by 8% during exhausted, and an additional 8% for Bellstrike damage.",
+    "duration": 15,
+    "maxStack": 1,
+    "shared": true,
+    "effect": [
+      {
+        "qiDMGBonus": 0.1
+      },
+      {
+        "requirement": [
+          {
+            "target": "target",
+            "value": "Exhausted"
+          }
+        ],
+        "effect": {
+          "globalHPDMGBonus": 0.08,
+          "globalBellstrikeDMGBonus": 0.08
+        }
+      }
+    ],
+    "refresh": true
+  }
+}
