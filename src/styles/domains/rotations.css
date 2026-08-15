@@ -23,8 +23,11 @@
 
 .rotation-list-heading {
   display: flex;
+  min-height: 44px;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 8px 9px 8px 13px;
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
@@ -32,7 +35,22 @@
   text-transform: uppercase;
 }
 
+.rotation-list-heading > span {
+  min-width: 0;
+}
+
+.rotation-list-heading .button {
+  width: 72px;
+  flex: 0 0 72px;
+  padding-right: 6px;
+  padding-left: 6px;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+
 .rotation-list-entries {
+  flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
 }
