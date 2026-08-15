@@ -1,6 +1,7 @@
 {
   "Intoxicated": {
     "name": "Intoxicated",
+    "shortName": "Int",
     "description": "Allow using Drunken Poet or Dragon's Breath.",
     "maxStack": 1,
     "effect": [],
@@ -8,6 +9,7 @@
   },
   "Flute": {
     "name": "Flute",
+    "shortName": "Flu",
     "description": "Buff damage by the distance to the target.",
     "damageAttribution": "sourceCast",
     "duration": 12.5,
@@ -37,6 +39,7 @@
   },
   "Mystery": {
     "name": "Mystery",
+    "shortName": "Mys",
     "description": "From Ghostly Steps",
     "duration": 20,
     "maxStack": 1,
@@ -45,6 +48,7 @@
   },
   "MysteryUmbra": {
     "name": "Mystery - Umbra",
+    "shortName": "MyM",
     "description": "From Ghostly Steps - Umbra",
     "duration": 20,
     "maxStack": 1,
@@ -53,6 +57,7 @@
   },
   "MysteryDMGBoost": {
     "name": "Mystery DMG Boost",
+    "shortName": "MDMG",
     "description": "From Ghostly Steps",
     "duration": 20,
     "maxStack": 1,
@@ -67,6 +72,7 @@
   },
   "SurgingWaves": {
     "name": "Surging Waves",
+    "shortName": "SW",
     "duration": 7,
     "maxStack": 40,
     "stackEffects": [

@@ -1,6 +1,7 @@
 {
   "YiRiver": {
     "name": "Yi River",
+    "shortName": "Yi",
     "description": "Increase damage by 1% and physical penetration by 2 per stack.",
     "duration": 8,
     "cooldown": 2,

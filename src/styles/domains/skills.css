@@ -102,10 +102,11 @@
 }
 
 .rotation-default-note {
-  max-width: 560px;
+  max-width: none;
   margin: 4px 0 0;
   color: var(--text-muted);
   line-height: 1.4;
+  white-space: nowrap;
 }
 
 .editor-status {

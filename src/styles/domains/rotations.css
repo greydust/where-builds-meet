@@ -223,6 +223,19 @@
   gap: 7px;
 }
 
+.rotation-heading-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rotation-heading-actions .button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 .rotation-results {
   display: flex;
   flex-wrap: wrap;
@@ -233,45 +246,51 @@
 
 /* Rotation Timeline Table */
 .rotation-table {
-  min-width: 1080px;
+  min-width: 67.5rem;
   border: 1px solid var(--border);
   border-top: 0;
   border-radius: 7px;
 }
 
-.rotation-table.show-distance,
 .rotation-table.show-hp {
-  min-width: 1165px;
+  min-width: 72.8125rem;
+}
+
+.rotation-table.show-distance {
+  min-width: 73.6875rem;
 }
 
 .rotation-table.show-distance.show-hp {
-  min-width: 1245px;
+  min-width: 78.6875rem;
 }
 
 .rotation-table-header,
 .rotation-table-row,
 .rotation-action-row {
   display: grid;
-  grid-template-columns: 26px 40px 105px 95px minmax(150px, 1.6fr) minmax(165px, 0.9fr) minmax(110px, 1fr) minmax(110px, 1fr) 176px;
-  gap: 10px;
+  grid-template-columns: 26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr) minmax(6.875rem, 1fr) 11rem;
+  gap: 0.625rem;
   align-items: center;
   width: 100%;
-  padding: 8px 12px;
+  padding: 0.5rem 0.75rem;
 }
 
-.rotation-table.show-distance .rotation-table-header,
-.rotation-table.show-distance .rotation-table-row,
-.rotation-table.show-distance .rotation-action-row,
-.rotation-table.show-hp .rotation-table-header,
-.rotation-table.show-hp .rotation-table-row,
-.rotation-table.show-hp .rotation-action-row {
-  grid-template-columns: 26px 40px 105px 95px minmax(150px, 1.6fr) 74px minmax(165px, 0.9fr) minmax(110px, 1fr) minmax(110px, 1fr) 176px;
+.rotation-table.show-distance:not(.show-hp) .rotation-table-header,
+.rotation-table.show-distance:not(.show-hp) .rotation-table-row,
+.rotation-table.show-distance:not(.show-hp) .rotation-action-row {
+  grid-template-columns: 26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 10ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr) minmax(6.875rem, 1fr) 11rem;
+}
+
+.rotation-table.show-hp:not(.show-distance) .rotation-table-header,
+.rotation-table.show-hp:not(.show-distance) .rotation-table-row,
+.rotation-table.show-hp:not(.show-distance) .rotation-action-row {
+  grid-template-columns: 26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 8ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr) minmax(6.875rem, 1fr) 11rem;
 }
 
 .rotation-table.show-distance.show-hp .rotation-table-header,
 .rotation-table.show-distance.show-hp .rotation-table-row,
 .rotation-table.show-distance.show-hp .rotation-action-row {
-  grid-template-columns: 26px 40px 105px 95px minmax(150px, 1.6fr) 74px 74px minmax(165px, 0.9fr) minmax(110px, 1fr) minmax(110px, 1fr) 176px;
+  grid-template-columns: 26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 10ch 8ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr) minmax(6.875rem, 1fr) 11rem;
 }
 
 .rotation-table-header {
@@ -286,6 +305,7 @@
   color: var(--text-muted);
   font-weight: 750;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .rotation-table-row {

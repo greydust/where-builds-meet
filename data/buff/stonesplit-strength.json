@@ -1,6 +1,7 @@
 {
   "ChargeEnhancement": {
     "name": "Charge Enhancement",
+    "shortName": "CE",
     "description": "Burning Heart gains Inner Passion.",
     "duration": 18,
     "cooldown": 30,
@@ -9,6 +10,7 @@
   },
   "Forgetfulness": {
     "name": "Forgetfulness",
+    "shortName": "For",
     "description": "Skip Snowparting LC charge time.",
     "duration": 4,
     "cooldown": 6,
@@ -17,6 +19,7 @@
   },
   "InnerPassion": {
     "name": "Inner Passion",
+    "shortName": "IP",
     "description": "Hasten and increase damage to Burning Heart.",
     "duration": 12,
     "maxStack": 4,
@@ -24,6 +27,7 @@
   },
   "ThroatPierced": {
     "name": "Throat-Pierced",
+    "shortName": "TP",
     "description": "Gain 2 Physical Penetration and 2% Critical Damage per stack. From T3, Light/Heavy Varied Combos gain an additional 1 Penetration and 1% Critical Damage per stack. From T6, Anxi Soldier and its triggering skill gain the same additional bonus.",
     "duration": 8,
     "maxStack": 3,
@@ -402,6 +406,7 @@
   },
   "Cleftpeak": {
     "name": "Cleftpeak",
+    "shortName": "Cp",
     "description": "Increase HP damage by 1% per stack. Additional 8% to Light VC, Heavy VC, Anxi Soldier, and its triggering skill at max stack.",
     "duration": 5,
     "maxStack": 5,
@@ -491,6 +496,7 @@
   },
   "IronGuard": {
     "name": "Iron Guard",
+    "shortName": "IG",
     "description": "Increases HP damage by 8%.",
     "duration": 30,
     "maxStack": 1,
@@ -505,6 +511,7 @@
   },
   "MountainSplitter": {
     "name": "Mountain Splitter",
+    "shortName": "MS",
     "description": "Increase the critical damage of Burning Heart and Anxi Soldier by 10% and gain guaranteed crit.",
     "duration": 10,
     "cooldown": 15,

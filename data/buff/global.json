@@ -1,6 +1,7 @@
 {
   "DragonHeadTide": {
     "name": "Dragon Head - Tide",
+    "shortName": "DHT",
     "description": "Increases damage by 0.45% per percentage point of HP missing at hit time.",
     "refresh": true,
     "effect": [
