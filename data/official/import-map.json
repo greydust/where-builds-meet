@@ -127,6 +127,16 @@
       }
     },
     "armorSmall": {
+      "96": {
+        "legendary": {
+          "maxHp": 5774,
+          "physDef": 22
+        },
+        "epic": {
+          "maxHp": 5196,
+          "physDef": 20
+        }
+      },
       "81": {
         "legendary": {
           "maxHp": 3295,
@@ -159,6 +169,16 @@
       }
     },
     "armorGreaves": {
+      "96": {
+        "legendary": {
+          "maxHp": 5774,
+          "physDef": 44
+        },
+        "epic": {
+          "maxHp": 5196,
+          "physDef": 39
+        }
+      },
       "81": {
         "legendary": {
           "maxHp": 3295,
@@ -191,6 +211,16 @@
       }
     },
     "armorHeavy": {
+      "96": {
+        "legendary": {
+          "maxHp": 11547,
+          "physDef": 22
+        },
+        "epic": {
+          "maxHp": 10392,
+          "physDef": 20
+        }
+      },
       "81": {
         "legendary": {
           "maxHp": 6589,

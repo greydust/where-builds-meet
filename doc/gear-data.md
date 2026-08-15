@@ -179,7 +179,10 @@ possible. If the payload does not expose or identify rarity, the item defaults
 to Gold and a non-blocking warning is written to the browser console. These
 fallback details do not clutter the successful import message. Unmapped or
 slot-invalid affixes are rejected rather than silently assigned to a different
-stat.
+stat. Level 96 armor signatures distinguish Gold and Purple using the
+dashboard's fixed HP and Physical Defense values. Helmet and Bracer share one
+signature, Chestpiece uses doubled HP, and Greaves uses the Helmet/Bracer HP
+with its own higher Physical Defense value.
 
 Version 2 of the bookmarklet envelope carries the complete dashboard `roleInfo`
 object for inspecting additional profile fields. Known official martial-art and
