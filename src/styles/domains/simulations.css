@@ -1,0 +1,200 @@
+.simulation-panel {
+  max-width: 1100px;
+}
+
+.simulation-controls {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  max-width: 420px;
+}
+
+.simulation-controls .editor-field {
+  flex: 1;
+}
+
+.simulation-controls input[type="number"] {
+  appearance: textfield;
+}
+
+.simulation-controls input[type="number"]::-webkit-outer-spin-button,
+.simulation-controls input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.simulation-controls .button {
+  min-width: 100px;
+  min-height: 37px;
+}
+
+.simulation-percentile-settings {
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.simulation-percentile-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-muted);
+}
+
+.simulation-percentile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.simulation-percentile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 5px 3px 9px;
+  border: 1px solid oklch(from var(--primary) l c h / 0.42);
+  border-radius: 999px;
+  background: oklch(from var(--primary) l c h / 0.1);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.simulation-percentile-chip button {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.simulation-percentile-chip button:hover:not(:disabled) {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.simulation-percentile-chip button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.simulation-percentile-add {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.simulation-percentile-add label {
+  display: flex;
+  align-items: center;
+  width: 110px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.simulation-percentile-add label span {
+  padding-left: 9px;
+}
+
+.simulation-percentile-add input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  padding: 7px 8px 7px 3px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+  appearance: textfield;
+}
+
+.simulation-percentile-add input::-webkit-outer-spin-button,
+.simulation-percentile-add input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.simulation-percentile-error {
+  margin: 0;
+  color: var(--error);
+}
+
+.simulation-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  color: var(--text-muted);
+}
+
+.simulation-progress progress {
+  width: 100%;
+  height: 12px;
+  accent-color: var(--primary);
+}
+
+.simulation-results {
+  margin-top: 22px;
+  overflow-x: auto;
+}
+
+.simulation-table {
+  min-width: 800px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.simulation-table-row {
+  display: grid;
+  grid-template-columns: 80px repeat(2, minmax(120px, 1.2fr)) repeat(4, minmax(90px, 1fr));
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.simulation-table-row:nth-child(odd) {
+  background: oklch(from var(--surface-alt) l c h / 0.3);
+}
+
+.simulation-table-row span:not(:first-child) {
+  text-align: right;
+}
+
+.simulation-table-header {
+  min-height: auto;
+  border-top: 0;
+  background: var(--surface-header);
+  color: var(--text-muted);
+  font-weight: 750;
+  text-transform: uppercase;
+}
+
+.simulation-table-row strong {
+  color: var(--primary);
+}
+
+.simulation-outdated {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 2px 6px;
+  border: 1px solid oklch(from var(--error) l c h / 0.5);
+  border-radius: 999px;
+  color: var(--error);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}

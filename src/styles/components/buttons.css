@@ -1,0 +1,114 @@
+.button {
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 10px 15px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 650;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.button-primary {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.button-secondary {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.button-secondary:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.button-danger {
+  border-color: var(--error-border);
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.button-danger:hover:not(:disabled) {
+  border-color: var(--error);
+  background: oklch(from var(--error) l c h / 0.22);
+}
+
+.button-small {
+  padding: 5px 9px;
+  border-color: var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: inherit;
+}
+
+.button-small:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.icon-button {
+  margin-left: 8px;
+  border: 0;
+  border-radius: 4px;
+  padding: 2px 5px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  vertical-align: middle;
+}
+
+.icon-button:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.stat-reset-button {
+  display: inline-grid;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  padding: 0;
+  background: var(--primary-soft);
+  color: var(--primary);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+}
+
+.stat-reset-button:hover {
+  background: oklch(from var(--primary) l c h / 0.28);
+  color: var(--text);
+}
+
+.start-marker {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: oklch(from var(--text-muted) l c h / 0.32);
+  cursor: pointer;
+  line-height: 26px;
+}
+
+.start-marker:hover,
+.start-marker.active {
+  color: var(--primary);
+}
+
+.start-marker:disabled:hover {
+  color: oklch(from var(--text-muted) l c h / 0.32);
+}

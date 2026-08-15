@@ -1,0 +1,288 @@
+.panel {
+  margin-bottom: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: oklch(from var(--surface) l c h / 0.92);
+  box-shadow: 0 12px 30px var(--shadow-color);
+}
+
+.panel-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.panel-heading h2 {
+  margin-bottom: 0;
+  font-size: 1.125rem;
+}
+
+.panel-heading p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+}
+
+.setup-placeholder-panel {
+  min-height: 92px;
+}
+
+.setup-placeholder-panel p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.setup-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px;
+  background: var(--surface-alt);
+  color: var(--text);
+  font: inherit;
+}
+
+.gear-set-list {
+  display: grid;
+  gap: 12px;
+}
+
+.setup-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.gear-set-list .setup-field {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.gear-set-list .setup-option-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.setup-option-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.setup-option-list-wide {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.setup-option-list-food,
+.setup-option-list-arsenal {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.setup-option-list button {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 7px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+}
+
+.setup-option-list button:hover:not(:disabled),
+.setup-option-list button.selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.setup-option-list button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.setup-option-control {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.setup-status-list {
+  display: grid;
+  gap: 2px;
+  color: var(--text-muted);
+}
+
+.setup-option-list button > span {
+  display: block;
+}
+
+.setup-option-list button small {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.15;
+}
+
+.setup-delta-label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.setup-delta-label > span {
+  display: block;
+}
+
+.setup-active-label {
+  color: var(--primary);
+}
+
+.setup-positive-label {
+  color: var(--success);
+}
+
+.setup-negative-label {
+  color: var(--error);
+}
+
+.setup-inactive-label {
+  color: var(--text-muted);
+}
+
+/* Divinecraft Panel */
+.divinecraft-panel .panel-heading {
+  align-items: flex-start;
+}
+
+.divinecraft-option-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.divinecraft-option-spacer {
+  display: block;
+}
+
+.divinecraft-option {
+  display: grid;
+  min-width: 0;
+  grid-template-rows: auto minmax(24px, auto) minmax(22px, auto);
+  align-content: start;
+  gap: 5px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+}
+
+.divinecraft-option:hover:not(:disabled),
+.divinecraft-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+.divinecraft-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.divinecraft-image-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 4px;
+  background: oklch(from var(--border) calc(l + 0.1) c h / 0.35);
+}
+
+.divinecraft-image-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.divinecraft-none-mark {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: var(--text-dim);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.divinecraft-option strong {
+  align-self: center;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
+}
+
+.divinecraft-option-status {
+  align-self: center;
+  min-width: 0;
+}
+
+.divinecraft-option-status small {
+  display: block;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+.divinecraft-option-status .setup-delta-label {
+  display: grid;
+  white-space: nowrap;
+}
+
+/* Global Debuff Panel */
+.global-debuff-panel {
+  padding: 12px;
+}
+
+.global-debuff-panel .panel-heading {
+  margin-bottom: 12px;
+}
+
+.global-debuff-list {
+  display: grid;
+  gap: 8px;
+}
+
+.global-debuff-row {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  color: var(--text-muted);
+}
+
+.global-debuff-options {
+  width: 100%;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.global-debuff-options > button {
+  grid-column: span 3;
+}
+
+.global-debuff-options.qingyi-options > button {
+  grid-column: span 2;
+}
+
+.global-debuff-options button {
+  min-height: 58px;
+  padding: 4px 6px;
+}
+
+.global-debuff-options button small {
+  margin-top: 2px;
+}

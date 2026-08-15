@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
-import BuildTab from "./BuildTab";
-import SimulationTab from "./SimulationTab";
+const BuildTab = lazy(() => import("./BuildTab"));
+const SimulationTab = lazy(() => import("./SimulationTab"));
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
 import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, sameWeaponPair, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import { weaponIds as allWeaponIds, type CharacterStats, type EnemyProfile, type StatDefinition, type WeaponId } from "./types";
@@ -2487,6 +2487,9 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<"main" | "build" | "breakdown" | "rotations" | "simulation" | "skills" | "settings">("main");
+  // Load the large simulator only on first use, then keep it mounted while hidden.
+  // Remounting would cancel its worker and discard progress/results on every tab switch.
+  const [simulationMounted, setSimulationMounted] = useState(false);
   const [activeSimulation, setActiveSimulation] = useState<{ bundle: RotationSimulationBundle; rotationName: string; bundleKey: string }>();
   const rotationMetrics = useSyncExternalStore(subscribeToRotationMetrics, getRotationMetrics, getRotationMetrics);
   const rotationRecalculating = useSyncExternalStore(subscribeToRotationRecalculating, getRotationRecalculating, getRotationRecalculating);
@@ -2623,13 +2626,13 @@ export default function App() {
         <button className={activeTab === "build" ? "active" : ""} type="button" onClick={() => setActiveTab("build")}>Build</button>
         <button className={activeTab === "breakdown" ? "active" : ""} type="button" onClick={() => setActiveTab("breakdown")}>DPS Breakdown</button>
         <button className={activeTab === "rotations" ? "active" : ""} type="button" onClick={() => setActiveTab("rotations")}>Rotation Editor</button>
-        <button className={activeTab === "simulation" ? "active" : ""} type="button" onClick={() => setActiveTab("simulation")}>Simulation</button>
+        <button className={activeTab === "simulation" ? "active" : ""} type="button" onClick={() => { setSimulationMounted(true); setActiveTab("simulation"); }}>Simulation</button>
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
-      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} onSelectBuildWeapons={selectBuildWeapons} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
+      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <Suspense fallback={<div className="viewport-tab-content" />}><div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} onSelectBuildWeapons={selectBuildWeapons} /></div></Suspense> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} onActiveSimulationBundleChange={handleActiveSimulationBundle} /></div>
-      <div className={activeTab === "simulation" ? "" : "tab-hidden"}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} buildName={activeBuild?.name} /></div>
+      {simulationMounted && <div className={activeTab === "simulation" ? "" : "tab-hidden"}><Suspense fallback={null}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} buildName={activeBuild?.name} /></Suspense></div>}
       <footer className="page-footer">
         <span>Author: greydust (WWM IGN) / greydust (Discord)</span>
         <a href="https://github.com/greydust/where-builds-meet" target="_blank" rel="noreferrer">GitHub</a>
