@@ -1,12 +1,14 @@
 .character-stats-column {
   display: grid;
+  width: 100%;
+  max-width: 48rem;
   gap: 12px;
   min-width: 0;
 }
 
 .character-secondary-stats {
   display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
+  grid-template-columns: 24.125rem minmax(0, 1fr);
   align-items: start;
   gap: 12px;
   min-width: 0;
@@ -24,13 +26,14 @@
 .character-profile-controls {
   display: flex;
   min-width: 0;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
 }
 
 .character-profile-controls select {
-  width: 150px;
+  width: min(100%, 12rem);
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 7px;
@@ -41,6 +44,7 @@
 }
 
 .character-profile-controls .button {
+  flex: 0 0 auto;
   padding: 8px 10px;
   white-space: nowrap;
 }
@@ -68,7 +72,7 @@
 }
 
 .stats-panel .stats-grid {
-  grid-template-columns: max-content 96px 32px max-content 96px;
+  grid-template-columns: 16rem 6rem 1rem 16rem 6rem;
   gap: 3px 6px;
   justify-content: start;
 }
@@ -83,7 +87,7 @@
 .stats-panel .field {
   grid-column: span 2;
   grid-template-columns: subgrid;
-  grid-template-rows: 24px auto;
+  grid-template-rows: minmax(24px, auto) auto;
 }
 
 .stats-panel .stat-row > .field:nth-child(2) {
@@ -168,11 +172,11 @@
 }
 
 .dps-recalculating {
-  height: 23px;
+  min-height: 23px;
   margin-top: 4px;
   color: var(--text-muted);
   font-weight: 700;
-  line-height: 23px;
+  line-height: 1.4;
   letter-spacing: 0.02em;
 }
 
@@ -226,7 +230,7 @@
 .priority-header,
 .priority-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 110px 90px;
+  grid-template-columns: minmax(0, 1fr) minmax(6.5rem, auto) minmax(5.5rem, auto);
   gap: 10px;
   align-items: center;
   color: var(--text-muted);
@@ -234,7 +238,7 @@
 
 .priority-list-with-roll .priority-header,
 .priority-list-with-roll .priority-row {
-  grid-template-columns: minmax(0, 1fr) 82px 110px 90px;
+  grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) minmax(6.5rem, auto) minmax(5.5rem, auto);
   gap: 10px;
 }
 
@@ -246,7 +250,12 @@
 }
 
 .priority-header span {
+  line-height: 1.2;
   white-space: nowrap;
+}
+
+.attunement-panel {
+  padding: 12px;
 }
 
 .priority-header span:nth-child(n+2),
@@ -324,5 +333,8 @@
 @media (max-width: 420px) {
   .stat-row {
     grid-template-columns: 1fr;
+  }
+  .inline-derived {
+    white-space: normal;
   }
 }

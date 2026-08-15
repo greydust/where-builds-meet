@@ -7,6 +7,19 @@ html {
   box-sizing: border-box;
 }
 
+.ui-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.125em;
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -14,15 +27,24 @@ body {
   color: var(--text);
   font-family: var(--font-sans);
   line-height: 1.45;
+  overflow-wrap: break-word;
 }
 
 button,
 input,
 select,
 textarea {
+  max-width: 100%;
+  min-width: 0;
   font-family: inherit;
   font-size: inherit;
   color: inherit;
+}
+
+button,
+label,
+p {
+  hyphens: auto;
 }
 
 small {

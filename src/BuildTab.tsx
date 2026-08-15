@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardEvent as ReactClipboardEvent, type Dispatch, type DragEvent, type SetStateAction } from "react";
+import { UiIcon } from "./UiIcon";
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import gearSetDefinitions from "../data/gear-set.json";
@@ -129,7 +130,7 @@ function GearAttributes({ item, compact = false }: { item: GearItem; compact?: b
 }
 
 function RelayedIndicator({ item }: { item?: GearItem }) {
-  return item?.relayed ? <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear">↑</span> : null;
+  return item?.relayed ? <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear"><UiIcon name="up" /></span> : null;
 }
 
 function draftRollCap(key: string, definitions: Record<string, GearValueDefinition>, category: "affix" | "attunement", relayed: boolean, level: GearLevel) {
@@ -363,8 +364,8 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
     <aside className="build-list">
       <div className="build-list-heading"><span>Builds</span><button className="button button-secondary button-small" type="button" onClick={addBuild}>New Build</button></div>
       <div className="build-list-entries">{listedEntries.map((entry) => { const incompatible = !buildEntryAvailableForWeapons(entry, weapons); return <div className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""} ${incompatible ? "incompatible" : ""}`} key={entry.id} role="button" tabIndex={0} title={incompatible ? "Select this build and switch to its weapons" : undefined} onClick={() => selectBuild(entry)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") selectBuild(entry); }}>
-          <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build">●</i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
-          {!entry.isDefault && <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}>×</button>}
+          <span><strong>{entry.id === buildState.activeBuildId && <i className="active-build-icon" title="Active build"><UiIcon name="active" /></i>}{entry.name || "Unnamed Build"}</strong>{entry.isDefault && <small>Default preset</small>}</span>
+          {!entry.isDefault && <button className="build-remove-button" type="button" aria-label={`Remove ${entry.name || "build"}`} onClick={(event) => { event.stopPropagation(); removeBuild(entry.id); }}><UiIcon name="close" /></button>}
         </div>; })}</div>
       <div className="build-transfer-actions">
         <div><button className="button button-secondary button-small" type="button" onClick={exportBuilds}>Export</button><label className="button button-secondary button-small build-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import builds and gear" onChange={importBuilds} /></label></div>
@@ -373,14 +374,14 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
       </div>
     </aside>
     <div className="build-editor-content">
-      <div className="build-detail-heading"><div>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}>✎</button></h3>}</div>
+      <div className="build-detail-heading"><div>{editingName ? <input className="build-name-input" autoFocus value={editingEntry.name} onChange={(event) => renameBuild(event.target.value)} onBlur={() => setEditingName(false)} onKeyDown={(event) => { if (event.key === "Enter") setEditingName(false); }} /> : <h3>{editingEntry.name || "Unnamed Build"}<button className="icon-button" type="button" aria-label="Edit build name" onClick={() => setEditingName(true)}><UiIcon name="edit" /></button></h3>}</div>
         <button className="button button-small detail-active-button" type="button" disabled={editingEntry.id === buildState.activeBuildId} onClick={activateBuild}>{editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}</button>
       </div>
       <BuildManagement key={editingEntry.id} weapons={weapons} martialArtTags={martialArtTags} pathTag={pathTag} inventory={inventory} setup={setup} usageCounts={usageCounts} locked={editingEntry.isDefault === true} onInventoryChange={updateInventory} onSetupChange={updateSetup} />
     </div>
   </div>
   <dialog className="official-import-dialog" ref={officialImportDialogRef} onClose={() => setOfficialImportError("")}>
-    <div className="official-import-heading"><div><span className="detail-kicker">Official Dashboard</span><h2>Import equipped gear</h2></div><button className="icon-button" type="button" aria-label="Close official import" onClick={() => officialImportDialogRef.current?.close()}>×</button></div>
+    <div className="official-import-heading"><div><span className="detail-kicker">Official Dashboard</span><h2>Import equipped gear</h2></div><button className="icon-button" type="button" aria-label="Close official import" onClick={() => officialImportDialogRef.current?.close()}><UiIcon name="close" /></button></div>
     <ol className="official-import-steps">
       <li>Drag <a className="button button-primary official-bookmarklet" ref={officialBookmarkletRef}>Export WWM Gear</a> to your browser bookmarks bar.</li>
       <li>Open the <a href="https://www.wherewindsmeetgame.com/m/2025h5sjgj/en/" target="_blank" rel="noreferrer">official Where Winds Meet dashboard</a> and log in.</li>
@@ -605,7 +606,7 @@ function BuildManagement({ weapons, martialArtTags, pathTag, inventory, setup, u
             <button className={`button button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`} type="button" aria-label={pendingDeleteId === item.id ? "Confirm delete gear" : "Delete gear"} onClick={() => remove(item)}>{pendingDeleteId === item.id ? "Confirm Delete" : "Delete"}</button>
           </div>
         </article>)}
-        <button className="add-gear-card" type="button" onClick={beginAdd} aria-label={`Add ${gearData.slots[selectedSlot]} gear`} data-testid="add-gear"><span>+</span><strong>Add gear</strong></button>
+        <button className="add-gear-card" type="button" onClick={beginAdd} aria-label={`Add ${gearData.slots[selectedSlot]} gear`} data-testid="add-gear"><span><UiIcon name="plus" /></span><strong>Add gear</strong></button>
       </div>
     </section>}
 

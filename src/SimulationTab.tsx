@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { UiIcon } from "./UiIcon";
 import type { RotationSimulationBundle } from "./calculations/rotationCalculator";
 import { selectSimulationPercentile, type SimulationRunResult, type SimulationSummary } from "./calculations/simulationCalculator";
 import { startSimulation, type SimulationTask } from "./calculations/simulationWorkerClient";
@@ -112,7 +113,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
     </div>
     <div className="simulation-percentile-settings">
       <div className="simulation-percentile-heading"><strong>Custom percentiles</strong><button className="button button-secondary button-small" type="button" disabled={running || addingPercentile} onClick={() => { setAddingPercentile(true); setPercentileError(""); }}>Add Percentile</button></div>
-      {customPercentiles.length > 0 && <div className="simulation-percentile-chips">{customPercentiles.map((percentile) => <span className="simulation-percentile-chip" key={percentile}>P{percentile}<button type="button" aria-label={`Remove P${percentile}`} disabled={running} onClick={() => setCustomPercentiles((current) => current.filter((value) => value !== percentile))}>×</button></span>)}</div>}
+      {customPercentiles.length > 0 && <div className="simulation-percentile-chips">{customPercentiles.map((percentile) => <span className="simulation-percentile-chip" key={percentile}>P{percentile}<button type="button" aria-label={`Remove P${percentile}`} disabled={running} onClick={() => setCustomPercentiles((current) => current.filter((value) => value !== percentile))}><UiIcon name="close" /></button></span>)}</div>}
       {addingPercentile && <div className="simulation-percentile-add"><label><span>P</span><input type="number" min="0" max="99.999999" step="any" autoFocus value={percentileDraft} onChange={(event) => setPercentileDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addPercentile(); if (event.key === "Escape") setAddingPercentile(false); }} /></label><button className="button button-primary button-small" type="button" onClick={addPercentile}>Add</button><button className="button button-secondary button-small" type="button" onClick={() => { setAddingPercentile(false); setPercentileError(""); }}>Cancel</button></div>}
       {percentileError && <p className="simulation-percentile-error" role="alert">{percentileError}</p>}
     </div>

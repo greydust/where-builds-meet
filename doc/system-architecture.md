@@ -9,6 +9,24 @@ build time. User changes remain in browser storage. Deterministic calculation
 work runs in a persistent Web Worker, while requested Monte Carlo simulations
 run in their own disposable worker.
 
+## Typography and resilient layout
+
+The UI self-hosts the variable Noto Sans family through Fontsource as its
+cross-platform Latin, Greek, Cyrillic, and Devanagari baseline. System sans
+fonts remain the loading, accessibility-override, and unsupported-script
+fallback. Script-specific Noto families should be added alongside a locale
+when translations for that script are introduced; the base Noto Sans package
+does not contain CJK glyphs.
+
+Layouts must remain usable when the web font is unavailable or overridden.
+Text-bearing controls wrap instead of relying on English-label pixel widths,
+flex and grid children use zero minimum sizes, longer content may grow row
+height, and dense data tables scroll horizontally rather than compressing or
+clipping their columns. Fixed square dimensions are reserved for icons and
+other non-text controls. UI icons are SVG components so their geometry does
+not depend on the active font. Noto Sans is therefore a repeatable visual
+baseline, not a layout requirement.
+
 The long-term product direction is to accept complete character and gear data,
 simulate rotations, compare alternatives, and recommend builds or rotations.
 

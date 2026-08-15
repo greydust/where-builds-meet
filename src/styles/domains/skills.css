@@ -18,6 +18,9 @@
   cursor: pointer;
   font: inherit;
   font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .category-tab:hover,
@@ -29,7 +32,7 @@
 
 .skill-editor-layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   min-height: 570px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -62,9 +65,8 @@
 .skill-list-item strong,
 .skill-list-item small {
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .skill-list-item small {
@@ -79,6 +81,8 @@
 
 .skill-detail-heading {
   display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
@@ -223,9 +227,9 @@
   cursor: pointer;
   font: inherit;
   text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .array-item-toggle:hover {
@@ -282,7 +286,7 @@
 }
 
 .consume-fields {
-  grid-template-columns: 110px 150px minmax(0, 1fr);
+  grid-template-columns: minmax(6.875rem, auto) minmax(9.375rem, auto) minmax(0, 1fr);
 }
 
 .detail-field {
@@ -311,6 +315,8 @@
 
 .sub-editor-heading {
   display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -324,6 +330,7 @@
 
 .sub-editor-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 5px;
 }
 

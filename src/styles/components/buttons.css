@@ -1,10 +1,16 @@
 .button {
+  max-width: 100%;
+  min-width: 0;
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 10px 15px;
   cursor: pointer;
   font: inherit;
   font-weight: 650;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -56,6 +62,8 @@
 }
 
 .icon-button {
+  display: inline-grid;
+  place-items: center;
   margin-left: 8px;
   border: 0;
   border-radius: 4px;
@@ -86,6 +94,12 @@
   cursor: pointer;
   font: inherit;
   line-height: 1;
+}
+
+.icon-button .ui-icon,
+.stat-reset-button .ui-icon,
+.start-marker .ui-icon {
+  display: block;
 }
 
 .stat-reset-button:hover {

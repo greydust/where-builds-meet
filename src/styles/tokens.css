@@ -8,7 +8,7 @@
   /* Typography
      Keep the UI on system fonts: they provide native international-script coverage
      without mixed-font fallbacks, font downloads, layout shifts, or extra licenses. */
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
   --font-display: var(--font-sans);
 

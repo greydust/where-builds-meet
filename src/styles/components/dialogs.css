@@ -27,6 +27,8 @@
 .gear-ocr-heading,
 .rotation-readable-heading {
   display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
@@ -55,7 +57,7 @@
 
 .character-profile-create {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(min-content, auto);
   gap: 8px;
   margin-top: 18px;
 }
@@ -90,7 +92,7 @@
 
 .character-profile-row {
   display: grid;
-  grid-template-columns: minmax(150px, 1fr) auto;
+  grid-template-columns: minmax(9.375rem, 1fr) minmax(min-content, auto);
   align-items: center;
   gap: 8px;
   border: 1px solid var(--border);
@@ -105,6 +107,7 @@
 
 .character-profile-row > div {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 5px;
 }
@@ -115,7 +118,7 @@
 
 .character-profile-transfer {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(min-content, auto);
   align-items: center;
   gap: 10px;
   margin-top: 16px;
@@ -125,6 +128,7 @@
 
 .character-profile-transfer > div {
   display: flex;
+  flex-wrap: wrap;
   gap: 7px;
 }
 
@@ -167,6 +171,7 @@
 
 .rotation-readable-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
@@ -196,6 +201,8 @@
 
 .official-import-heading {
   display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
@@ -249,6 +256,7 @@
 
 .official-import-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;

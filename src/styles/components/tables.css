@@ -5,7 +5,7 @@
 }
 
 .breakdown-panel {
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .breakdown-panel .panel-heading {
@@ -27,9 +27,23 @@
 }
 
 .breakdown-table {
+  width: max-content;
+  min-width: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 7px;
+}
+
+.breakdown-skill-table {
+  min-width: 67.25rem;
+}
+
+.breakdown-cast-table {
+  min-width: 56.125rem;
+}
+
+.breakdown-group-table {
+  min-width: 34.25rem;
 }
 
 .breakdown-table-header,
@@ -89,12 +103,6 @@
 }
 
 @media (max-width: 700px) {
-  .breakdown-panel {
-    overflow-x: auto;
-  }
-  .breakdown-table {
-    min-width: 660px;
-  }
   .breakdown-totals {
     justify-content: flex-start;
   }

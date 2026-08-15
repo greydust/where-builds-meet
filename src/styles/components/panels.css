@@ -9,6 +9,8 @@
 
 .panel-heading {
   display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
@@ -51,7 +53,7 @@
 
 .setup-field {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 72px;
+  grid-template-columns: minmax(0, 1fr) minmax(4.5rem, auto);
   align-items: center;
   gap: 8px;
   color: var(--text-muted);
@@ -90,6 +92,8 @@
   color: var(--text-muted);
   cursor: pointer;
   font: inherit;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .setup-option-list button:hover:not(:disabled),
@@ -130,7 +134,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 2px;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .setup-delta-label > span {
@@ -241,7 +246,7 @@
 
 .divinecraft-option-status .setup-delta-label {
   display: grid;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 /* Global Debuff Panel */

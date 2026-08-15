@@ -75,6 +75,8 @@ Copyright © 2026 greydust.
 
 Except where otherwise noted, Where Builds Meet is free software licensed under the [GNU General Public License, version 3 or later](LICENSE). You may use, modify, and redistribute it under the terms of that license. Third-party material retains its respective rights and license terms.
 
+The bundled Noto Sans font is licensed under the [SIL Open Font License 1.1](public/licenses/Noto-Sans-OFL.txt).
+
 ## Acknowledgements
 
 Special thanks to **yoka**, creator of the original spreadsheet that inspired this work, and to the **Where Winds Math** site for its work and contributions to the community.

@@ -4,7 +4,7 @@
 
 .rotation-editor-layout {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr);
   height: calc(100vh - 210px);
   min-height: 500px;
   max-height: calc(100vh - 210px);
@@ -22,7 +22,8 @@
 }
 
 .rotation-list-heading {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min-content;
   min-height: 44px;
   flex: 0 0 auto;
   align-items: center;
@@ -40,13 +41,14 @@
 }
 
 .rotation-list-heading .button {
-  width: 72px;
-  flex: 0 0 72px;
+  width: min-content;
+  min-width: 0;
   padding-right: 6px;
   padding-left: 6px;
   line-height: 1.15;
   text-align: center;
   white-space: normal;
+  overflow-wrap: normal;
 }
 
 .rotation-list-entries {
@@ -98,8 +100,10 @@
 }
 
 .rotation-remove-button {
+  display: inline-grid;
   width: 23px;
   height: 23px;
+  place-items: center;
   border: 0;
   border-radius: 4px;
   background: transparent;
@@ -138,9 +142,8 @@
 .rotation-list-item strong,
 .rotation-list-item small {
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .rotation-list-item small {
@@ -205,6 +208,7 @@
 
 .rotation-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -214,12 +218,14 @@
 
 .rotation-toolbar-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 7px;
 }
 
 .rotation-results {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   color: var(--primary);
   font-weight: 700;
@@ -326,9 +332,8 @@
 
 .rotation-skill-label > span {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .rotation-skill-label > span + span {
@@ -354,7 +359,8 @@
   z-index: 5;
   display: flex;
   gap: 12px;
-  min-width: max-content;
+  width: max-content;
+  max-width: min(28rem, 80vw);
   padding: 9px 11px;
   border: 1px solid var(--border);
   border-radius: 7px;
