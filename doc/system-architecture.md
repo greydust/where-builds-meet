@@ -53,7 +53,7 @@ data/
   path.json       selectable combat paths, icons, shared eligibility tags, and optional weapon locks
   rotation/       bundled default rotations
   build/          bundled default build presets
-  gear.json       gear slots, item bases, affix choices, and allowed attunement IDs
+  gear.json       gear slots, item bases, affix choices, and attunement source tags
   system.json     innate stats, progression rewards, and base-attribute conversions
   attunement.json attunement names, source tags, stat targets, and skill-match tags
   default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
@@ -177,6 +177,12 @@ loadouts, including each build's Inner Ways, gear sets, bow/ring set, and arsena
 Import validates that snapshot and appends it to the current state,
 remapping colliding gear and build IDs without replacing existing data or
 duplicating bundled default presets.
+The official-dashboard import is a separate boundary adapter: a user-installed
+bookmarklet copies role gear JSON from the authenticated official origin, then
+`officialGearImport.ts` maps official slots and stat IDs into a normal build
+snapshot. That snapshot enters the same validator and collision-safe merge path
+as a file import. The large official ID table is loaded only when the user
+submits the modal, keeping it out of the initial application chunk.
 
 Rotation export similarly produces a versioned JSON snapshot of custom rotation
 records. Rotation import validates skill and event step shapes, appends custom
@@ -529,7 +535,8 @@ environment. The application currently recognizes:
 - Exhausted, Controlled, Battle End, Move, HP, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
-- eight gear slots, relayed status, and affix/attunement options
+- eight gear slots, relayed status, one required base affix, up to four optional
+  additional affixes, and an optional attunement
 - innate character, talent, and base-attribute conversion stats
 
 Effect definitions are merged into one ID map from buff, debuff, and DOT files.
@@ -596,9 +603,9 @@ physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and gear-set eligibility use the tag.
 Paths may also declare `wip: true`; they are selectable with a WIP badge only in
 the local Vite dev environment and are omitted from production selectors.
-The Bamboocut - Dust and Bamboocut - Kite entries are currently filter-only WIP
-shells: their weapons and armor attunements are registered, but their skills,
-talents, gear values, and Bamboocut damage calculation are not implemented.
+The Bamboocut - Dust and Bamboocut - Kite entries are currently WIP shells:
+their weapons, shared gear tables, and armor attunements are registered, but
+their skills, talents, and Bamboocut damage calculation are not implemented.
 
 ### Manual event
 

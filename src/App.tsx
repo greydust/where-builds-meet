@@ -3,7 +3,7 @@ import { type AttunementStats, type DamageBreakdown } from "./calculations/damag
 import BuildTab from "./BuildTab";
 import SimulationTab from "./SimulationTab";
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
+import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, sameWeaponPair, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
 import { weaponIds as allWeaponIds, type CharacterStats, type EnemyProfile, type StatDefinition, type WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
@@ -212,6 +212,7 @@ function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath())
 
 function attunementAvailableForSettings(attunement: string, pathId: PathId, settings: CalculatorSettings) {
   const definition = attunementData[attunement];
+  if (definition?.tags.includes("Defensive")) return false;
   if (definition?.tags.includes("Weapon")) return true;
   const requiredTag = typedPathDefinitions[pathId].tag;
   if (requiredTag && !definition?.tags.includes(requiredTag)) return false;
@@ -2395,7 +2396,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   }, [diffResult, activeRotationId, editingRotationId, rotation, rotationEntries]);
   return <section className="panel rotation-editor-panel"><div className="rotation-editor-layout">
     <aside className="rotation-list">
-      <div className="rotation-list-heading"><span>Rotations</span><button className="icon-button" type="button" aria-label="Add rotation" onClick={addRotation}>＋</button></div>
+      <div className="rotation-list-heading"><span>Rotations</span><button className="button button-secondary button-small" type="button" onClick={addRotation}>New Rotation</button></div>
       <div className="rotation-list-entries">{visibleRotationEntries.map((entry) => <div className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""}`} key={entry.id} role="button" tabIndex={0} onClick={() => editRotation(entry.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") editRotation(entry.id); }}><strong>{entry.id === activeRotationId && <span className="active-rotation-icon" title="Active rotation">●</span>}{entry.rotation.name || "Unnamed Rotation"}</strong>{!entry.isDefault && <span className="rotation-list-actions"><button className="rotation-remove-button" type="button" aria-label={`Remove ${entry.rotation.name || "rotation"}`} title="Remove rotation" disabled={visibleRotationEntries.length <= 1} onClick={(event) => { event.stopPropagation(); removeRotation(entry.id); }}>×</button></span>}</div>)}</div>
       <div className="rotation-transfer-actions"><div><button className="button button-secondary button-small" type="button" onClick={exportRotations}>Export</button><label className="button button-secondary button-small rotation-import-button">Import<input type="file" accept="application/json,.json" aria-label="Import rotations" onChange={importRotations} /></label></div>{transferStatus && <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>{transferStatus.message}</p>}</div>
     </aside>
@@ -2507,7 +2508,7 @@ export default function App() {
     bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,
     arsenal: buildSetupOverrides.arsenal ?? activeBuildSetup.arsenal,
   }), [activeBuildSetup, buildSetupOverrides]);
-  const activeGearInventory = useMemo(() => activeBuild ? resolveBuildInventory(activeBuild, buildState.gearItems) : { items: [], equipped: {} }, [activeBuild, buildState.gearItems]);
+  const activeGearInventory = useMemo(() => activeBuild ? resolveBuildInventory(activeBuild, buildState.gearItems, settings.weapons) : { items: [], equipped: {} }, [activeBuild, buildState.gearItems, settings.weapons]);
   const equippedGearEffects = useMemo(() => calculateEquippedGearEffects(activeGearInventory, settings.weapons, activeBuild?.isDefault !== true), [activeGearInventory, settings.weapons, activeBuild?.isDefault]);
   const gearStatEffect = useMemo<StatEffectContainer>(() => ({ stat: equippedGearEffects.stats }), [equippedGearEffects]);
   const globalStatState = useMemo(() => calculateGlobalStatState(statOverrides, settings, gearStatEffect, buildSetup), [statOverrides, settings, gearStatEffect, buildSetup, innerWayRevision]);
@@ -2574,6 +2575,19 @@ export default function App() {
     setSettings((current) => settingsForPath(current, nextPathId));
     setInnerWayRevision((current) => current + 1);
   };
+  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId]) => {
+    const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(([candidateId, definition]) => candidateId !== "mixed"
+      && (!definition.wip || import.meta.env.DEV)
+      && definition.lockedWeapons
+      && sameWeaponPair(definition.lockedWeapons, nextWeapons));
+    const nextPathId = matchingPath?.[0] ?? "mixed";
+    sessionStorage.setItem(pathStorageKey, nextPathId);
+    setPathId(nextPathId);
+    setSettings((current) => nextPathId === "mixed"
+      ? { ...settingsForPath(current, nextPathId), weapons: [...nextWeapons] }
+      : settingsForPath(current, nextPathId));
+    setInnerWayRevision((current) => current + 1);
+  };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
   useEffect(() => localStorage.setItem(characterProfileStorageKey, serializeCharacterProfiles(characterProfiles)), [characterProfiles]);
@@ -2613,7 +2627,7 @@ export default function App() {
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>Skill Editor</button>
         <button className={activeTab === "settings" ? "active" : ""} type="button" onClick={() => setActiveTab("settings")}>Settings</button>
       </nav>
-      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
+      {activeTab === "main" ? <StatsTab character={character} pathId={pathId} statOverrides={statOverrides} attunementOverrides={attunementOverrides} characterProfiles={characterProfiles} buildSetupOverrides={buildSetupOverrides} onStatChange={updateStatOverride} onStatReset={resetStatOverride} onAttunementChange={updateAttunementOverride} onAttunementReset={resetAttunementOverride} onApplyCharacterProfile={applyCharacterProfile} onCharacterProfilesChange={setCharacterProfiles} onBuildSetupChange={updateBuildSetupOverride} onBuildSetupReset={resetBuildSetupOverride} rotationMetrics={rotationMetrics} rotationRecalculating={rotationRecalculating} activeBuildName={activeBuild?.name || "Unnamed Build"} activeRotationName={activeSimulation?.rotationName || "—"} onInnerWayChange={() => setInnerWayRevision((current) => current + 1)} /> : activeTab === "build" ? <div className="viewport-tab-content"><BuildTab weapons={settings.weapons} martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)} pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag} buildState={buildState} onBuildStateChange={setBuildState} onSelectBuildWeapons={selectBuildWeapons} /></div> : activeTab === "breakdown" ? <BreakdownTab metrics={rotationMetrics} /> : activeTab === "skills" ? <SkillEditorTab weapons={settings.weapons} /> : activeTab === "settings" ? <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} /> : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}><RotationEditorTab character={character} onMetricsChange={handleRotationMetrics} onActiveSimulationBundleChange={handleActiveSimulationBundle} /></div>
       <div className={activeTab === "simulation" ? "" : "tab-hidden"}><SimulationTab bundle={activeSimulation?.bundle} bundleKey={activeSimulation?.bundleKey} rotationName={activeSimulation?.rotationName} buildName={activeBuild?.name} /></div>
       <footer className="page-footer">

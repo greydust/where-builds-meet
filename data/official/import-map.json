@@ -1,0 +1,226 @@
+{
+  "slots": {
+    "1": "leftWeapon",
+    "2": "rightWeapon",
+    "3": "helm",
+    "4": "armor",
+    "5": "greaves",
+    "8": "bracer",
+    "10": "disc",
+    "11": "pendant"
+  },
+  "baseAttributeKeys": {
+    "MIN_W_ATK": "minPhys",
+    "MAX_W_ATK": "maxPhys",
+    "W_DEF": "physDef",
+    "HP_MAX": "maxHp"
+  },
+  "baseStats": {
+    "weapon": {
+      "71": {
+        "legendary": {
+          "minPhys": 33,
+          "maxPhys": 76
+        },
+        "epic": {
+          "minPhys": 30,
+          "maxPhys": 69
+        }
+      },
+      "81": {
+        "legendary": {
+          "minPhys": 39,
+          "maxPhys": 91
+        },
+        "epic": {
+          "minPhys": 35,
+          "maxPhys": 82
+        }
+      },
+      "86": {
+        "legendary": {
+          "minPhys": 46,
+          "maxPhys": 106
+        },
+        "epic": {
+          "minPhys": 41,
+          "maxPhys": 96
+        }
+      },
+      "91": {
+        "legendary": {
+          "minPhys": 53,
+          "maxPhys": 124
+        },
+        "epic": {
+          "minPhys": 48,
+          "maxPhys": 112
+        }
+      }
+    },
+    "pendant": {
+      "71": {
+        "legendary": {
+          "maxPhys": 65
+        },
+        "epic": {
+          "maxPhys": 59
+        }
+      },
+      "81": {
+        "legendary": {
+          "maxPhys": 78
+        },
+        "epic": {
+          "maxPhys": 70
+        }
+      },
+      "86": {
+        "legendary": {
+          "maxPhys": 91
+        },
+        "epic": {
+          "maxPhys": 82
+        }
+      },
+      "91": {
+        "legendary": {
+          "maxPhys": 106
+        },
+        "epic": {
+          "maxPhys": 96
+        }
+      }
+    },
+    "disc": {
+      "71": {
+        "legendary": {
+          "minPhys": 44
+        },
+        "epic": {
+          "minPhys": 39
+        }
+      },
+      "81": {
+        "legendary": {
+          "minPhys": 52
+        },
+        "epic": {
+          "minPhys": 47
+        }
+      },
+      "86": {
+        "legendary": {
+          "minPhys": 61
+        },
+        "epic": {
+          "minPhys": 55
+        }
+      },
+      "91": {
+        "legendary": {
+          "minPhys": 71
+        },
+        "epic": {
+          "minPhys": 64
+        }
+      }
+    },
+    "armorSmall": {
+      "81": {
+        "legendary": {
+          "maxHp": 3295,
+          "physDef": 13
+        },
+        "epic": {
+          "maxHp": 2965,
+          "physDef": 12
+        }
+      },
+      "86": {
+        "legendary": {
+          "maxHp": 3896,
+          "physDef": 16
+        },
+        "epic": {
+          "maxHp": 3506,
+          "physDef": 14
+        }
+      },
+      "91": {
+        "legendary": {
+          "maxHp": 4614,
+          "physDef": 18
+        },
+        "epic": {
+          "maxHp": 4153,
+          "physDef": 16
+        }
+      }
+    },
+    "armorGreaves": {
+      "81": {
+        "legendary": {
+          "maxHp": 3295,
+          "physDef": 26
+        },
+        "epic": {
+          "maxHp": 2965,
+          "physDef": 24
+        }
+      },
+      "86": {
+        "legendary": {
+          "maxHp": 3896,
+          "physDef": 31
+        },
+        "epic": {
+          "maxHp": 3295,
+          "physDef": 26
+        }
+      },
+      "91": {
+        "legendary": {
+          "maxHp": 4614,
+          "physDef": 36
+        },
+        "epic": {
+          "maxHp": 4153,
+          "physDef": 32
+        }
+      }
+    },
+    "armorHeavy": {
+      "81": {
+        "legendary": {
+          "maxHp": 6589,
+          "physDef": 13
+        },
+        "epic": {
+          "maxHp": 5930,
+          "physDef": 12
+        }
+      },
+      "86": {
+        "legendary": {
+          "maxHp": 7791,
+          "physDef": 16
+        },
+        "epic": {
+          "maxHp": 7012,
+          "physDef": 14
+        }
+      },
+      "91": {
+        "legendary": {
+          "maxHp": 9227,
+          "physDef": 18
+        },
+        "epic": {
+          "maxHp": 8305,
+          "physDef": 16
+        }
+      }
+    }
+  }
+}

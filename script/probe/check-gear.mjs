@@ -70,17 +70,31 @@ assert(Object.entries(expectedLevel91Affixes).every(([key, value]) => statRolls[
 assert(statRolls["91"].attunement.physicalPenetration === 9 && statRolls["91"].attunement.formlessPenetration === 10.8 && statRolls["91"].attunement.armor === 0.05, "Level 91 attunement rolls must match the requested roll table.");
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(Object.keys(gear.gearData.affixes).every((key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key])), "Every gear affix key must directly match CharacterStats.");
-const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]);
+const attunementStatKeys = new Set(["physicalPenetration", "formlessPenetration", "physicalResistance", "phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]);
 assert(Object.keys(gear.attunementData).every((key) => attunementStatKeys.has(key)), "Every attunement definition ID must have a centralized AttunementStats input.");
 assert(gear.attunementData.physicalPenetration.effect.stat.physicalPenetration === 1 && gear.attunementData.formlessPenetration.effect.stat.formlessPenetration === 1, "Weapon attunements must target their penetration channels.");
 assert(Object.entries(gear.attunementData).filter(([, definition]) => definition.tags.includes("Armor")).every(([, definition]) => definition.effect.stat.attunementDMGBonus === 1 && definition.effect.tags.length > 0), "Armor attunements must target the tagged standalone attunement DMG Bonus.");
+const weaponDefinitions = ["hengBlade", "moBlade", "umbrella", "unfetteredRopeDart", "gauntlet", "skygraspRopeDart"].map((id) => gear.gearData.gear[id]);
+assert(weaponDefinitions.every((definition) => JSON.stringify(definition.baseStats) === JSON.stringify(weaponDefinitions[0].baseStats) && JSON.stringify(definition.baseAffixes) === JSON.stringify(weaponDefinitions[0].baseAffixes)), "Every weapon must share the same base stats and base-affix pools.");
+const expectedWeaponBoosts = ["hengBladeDmgBoost", "moBladeDmgBoost", "umbrellaDmgBoost", "ropeDartDmgBoost", "gauntletDmgBoost", "ropeDartDmgBoost"];
+assert(weaponDefinitions.every((definition, index) => ["96", "91"].every((level) => {
+  const boosts = definition.additionalAffixes[level].filter((key) => key.endsWith("DmgBoost"));
+  return boosts.length === 1 && boosts[0] === expectedWeaponBoosts[index];
+})), "Each weapon additional-affix pool must contain only its own weapon damage boost.");
+assert(weaponDefinitions.every((definition) => JSON.stringify(definition.attunements) === JSON.stringify(["Weapon"])) && ["disc", "pendant"].every((id) => JSON.stringify(gear.gearData.gear[id].attunements) === JSON.stringify(["Weapon"])), "Weapons, Disc, and Pendant must select Weapon-tagged attunements.");
+assert(["helmet", "chestpiece", "greaves", "bracer"].every((id) => JSON.stringify(gear.gearData.gear[id].attunements) === JSON.stringify(["Armor"])), "Armor gear must select Armor-tagged attunements.");
+assert(gear.attunementsForGearDefinition(gear.gearData.gear.hengBlade).includes("physicalPenetration") && !gear.attunementsForGearDefinition(gear.gearData.gear.hengBlade).includes("phalanxbaneChargedBoost") && gear.attunementsForGearDefinition(gear.gearData.gear.helmet).includes("phalanxbaneChargedBoost"), "Gear attunement selectors must resolve through attunement definition tags.");
 
 const preset = gear.defaultBuildPresets.find((candidate) => candidate.id === "mixed-fully-relayed-min" || candidate.id === "fully-relayed-min" || candidate.id === "full-relayed-min");
 assert(preset, "Expected the fully relayed min default build.");
 const presetInventory = gear.buildPresetInventory(preset);
 assert(preset.name === "Mixed Fully Relayed Min Build" || preset.name === "Fully Relayed Min Build" || preset.name === "Full Relayed Min Build", "Unexpected default build name.");
 assert(gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["snowparting", "phalanxbane"]), "The Mixed fully-relayed preset must match its weapon pair.");
+assert(gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["phalanxbane", "snowparting"]), "Build weapon-pair matching must not depend on left/right order.");
 assert(!gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, ["everspring", "unfettered"]), "A build preset must be hidden for a different weapon pair.");
+const reversedPresetInventory = gear.resolveBuildInventory({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [], ["phalanxbane", "snowparting"]);
+assert(reversedPresetInventory.items.find((item) => item.id === reversedPresetInventory.equipped.leftWeapon)?.definitionId === "moBlade", "A reversed build pair must align the matching gear to the selected left weapon.");
+assert(reversedPresetInventory.items.find((item) => item.id === reversedPresetInventory.equipped.rightWeapon)?.definitionId === "hengBlade", "A reversed build pair must align the matching gear to the selected right weapon.");
 assert(presetInventory.items.length === 8 && Object.keys(presetInventory.equipped).length === 8, "The default build must resolve all eight synthetic gear slots.");
 assert(presetInventory.items.every((item) => item.relayed === true), "Fully relayed presets must mark every synthetic gear item as relayed.");
 const presetLeftWeapon = presetInventory.items.find((item) => item.id === presetInventory.equipped.leftWeapon);
@@ -137,6 +151,8 @@ const hengBlade = {
 };
 const inventory = { items: [hengBlade], equipped: { leftWeapon: hengBlade.id } };
 const effects = gear.calculateEquippedGearEffects(inventory, ["snowparting", "phalanxbane"]);
+const baseOnlyInventory = gear.parseGearInventory({ items: [{ ...hengBlade, id: "base-only", additionalAffixes: [], attunement: undefined }], equipped: { leftWeapon: "base-only" } });
+assert(baseOnlyInventory.items.length === 1 && baseOnlyInventory.items[0].additionalAffixes.length === 0 && baseOnlyInventory.items[0].attunement === undefined, "A gear item must remain valid with only its required base affix.");
 
 assert(effects.stats.minPhys === 65, "Fixed minimum Physical Attack was not applied.");
 assert(effects.stats.maxPhys === 151, "Fixed maximum Physical Attack was not applied.");

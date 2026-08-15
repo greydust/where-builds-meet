@@ -11,6 +11,7 @@ const attunementDefinitions = attunementJson as Record<string, AttunementDefinit
 export type AttunementStats = {
   physicalPenetration: number;
   formlessPenetration: number;
+  physicalResistance: number;
   phalanxbaneChargedBoost: number;
   phalanxbaneMartialBoost: number;
   snowpartingChargedBoost: number;

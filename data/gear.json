@@ -55,7 +55,7 @@
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"],
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"]
       },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "attunements": ["Weapon"]
     },
     "moBlade": {
       "name": "Mo Blade",
@@ -73,43 +73,79 @@
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "moBladeDmgBoost"],
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "moBladeDmgBoost"]
       },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "attunements": ["Weapon"]
     },
     "umbrella": {
       "name": "Umbrella",
       "slots": ["leftWeapon", "rightWeapon"],
       "weapon": "everspring",
-      "baseStats": {},
-      "baseAffixes": { "96": [], "91": [] },
-      "additionalAffixes": { "96": [], "91": [] },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "umbrellaDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "umbrellaDmgBoost"]
+      },
+      "attunements": ["Weapon"]
     },
     "unfetteredRopeDart": {
       "name": "Rope Dart",
       "slots": ["leftWeapon", "rightWeapon"],
       "weapon": "unfettered",
-      "baseStats": {},
-      "baseAffixes": { "96": [], "91": [] },
-      "additionalAffixes": { "96": [], "91": [] },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"]
+      },
+      "attunements": ["Weapon"]
     },
     "gauntlet": {
       "name": "Gauntlet",
       "slots": ["leftWeapon", "rightWeapon"],
       "weapon": "heavenwill",
-      "baseStats": {},
-      "baseAffixes": { "96": [], "91": [] },
-      "additionalAffixes": { "96": [], "91": [] },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "gauntletDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "gauntletDmgBoost"]
+      },
+      "attunements": ["Weapon"]
     },
     "skygraspRopeDart": {
       "name": "Rope Dart",
       "slots": ["leftWeapon", "rightWeapon"],
       "weapon": "skygrasp",
-      "baseStats": {},
-      "baseAffixes": { "96": [], "91": [] },
-      "additionalAffixes": { "96": [], "91": [] },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"]
+      },
+      "attunements": ["Weapon"]
     },
     "disc": {
       "name": "Disc",
@@ -123,7 +159,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
       },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "attunements": ["Weapon"]
     },
     "pendant": {
       "name": "Pendant",
@@ -137,7 +173,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
       },
-      "attunements": ["physicalPenetration", "formlessPenetration"]
+      "attunements": ["Weapon"]
     },
     "helmet": {
       "name": "Helmet",
@@ -148,7 +184,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
       },
-      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]
+      "attunements": ["Armor"]
     },
     "chestpiece": {
       "name": "Chestpiece",
@@ -159,7 +195,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
       },
-      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]
+      "attunements": ["Armor"]
     },
     "greaves": {
       "name": "Greaves",
@@ -170,7 +206,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
       },
-      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]
+      "attunements": ["Armor"]
     },
     "bracer": {
       "name": "Bracer",
@@ -181,7 +217,7 @@
         "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
         "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
       },
-      "attunements": ["phalanxbaneChargedBoost", "phalanxbaneMartialBoost", "snowpartingChargedBoost", "snowpartingVariedComboBoost", "snowpartingMartialBoost", "everspringMartialBoost", "everspringSpecialBoost", "unfetteredChargedBoost", "unfetteredSpecialBoost", "unfetteredMartialBoost", "heavenwillChargedBoost", "heavenwillMartialBoost", "heavenwillLightVariedComboBoost", "skygraspHeavyBoost", "skygraspSpecialBoost"]
+      "attunements": ["Armor"]
     }
   }
 }

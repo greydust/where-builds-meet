@@ -1,0 +1,25 @@
+{
+  "martialArts": {
+    "20402": { "name": "Phalanxbane Blade", "weapon": "phalanxbane" },
+    "20801": { "name": "Snowparting Blade", "weapon": "snowparting" },
+    "20901": { "name": "Heavenwill Gauntlets", "weapon": "heavenwill" },
+    "20703": { "name": "Skygrasp Rope Dart", "weapon": "skygrasp" },
+    "10301": { "name": "Panacea Fan" }
+  },
+  "innerWays": {
+    "551": { "name": "Frost-Clad Night", "innerWay": "FrostCladNight" },
+    "81": { "name": "Morale Chant", "innerWay": "MoraleChant" },
+    "553": { "name": "Steadfast Devotion", "innerWay": "SteadfastDevotion" },
+    "552": { "name": "Throat-Piercing Art", "innerWay": "ThroatPiercingArt" },
+    "4": { "name": "Shadow Assault" },
+    "6": { "name": "Sandswirl Tail" },
+    "42": { "name": "Bitter Seasons" },
+    "47": { "name": "Light and Shadow Alike" },
+    "5": { "name": "Fivefold Bleed" },
+    "41": { "name": "Envigorated Warrior", "innerWay": "EnvigoratedWarrior" },
+    "601": { "name": "Soaring High" },
+    "82": { "name": "Seasonal Edge" },
+    "603": { "name": "Empirical Edge" },
+    "602": { "name": "Sky Gripped" }
+  }
+}
