@@ -44,6 +44,28 @@
   font: inherit;
 }
 
+.gear-set-list {
+  display: grid;
+  gap: 12px;
+}
+
+.setup-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.gear-set-list .setup-field {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.gear-set-list .setup-option-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .setup-option-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

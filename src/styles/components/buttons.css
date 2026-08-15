@@ -48,7 +48,7 @@
   border-color: var(--border);
   background: var(--surface-alt);
   color: var(--text);
-  font-size: 0.9em;
+  font-size: inherit;
 }
 
 .button-small:hover:not(:disabled) {

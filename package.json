@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "modern-normalize": "^3.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "tesseract.js": "^7.0.0"

@@ -5,10 +5,12 @@
      Base Theme Tokens (OKLCH)
      ========================================================================== */
 
-  /* Typography */
-  --font-sans: "Lato", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "Geist Mono", "SFMono-Regular", Consolas, ui-monospace, Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
-  --font-display: "Cinzel", var(--font-sans);
+  /* Typography
+     Keep the UI on system fonts: they provide native international-script coverage
+     without mixed-font fallbacks, font downloads, layout shifts, or extra licenses. */
+  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-display: var(--font-sans);
 
   /* Background & Surfaces */
   --bg: oklch(0.18 0.015 275);
