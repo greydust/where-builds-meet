@@ -32,6 +32,13 @@ is applied afterward by the UI, so adding a tagged attunement does not require
 copying its ID into every compatible gear record.
 
 The current level keys are `91` and `96`; rarities are `Purple` and `Gold`.
+An optional `${level}Relayed` entry adds relay-only choices to the matching
+level. A key listed there is excluded from non-relayed gear even if an older
+level list also contains it, which keeps existing preset data compatible while
+making the relay list authoritative for selection and validation. Tier 96
+weapons use `96Relayed` for min/max Bellstrike, Stonesplit, Silkbind, and
+Bamboocut Attack. These stats share the Tier 96 min/max Void Attack roll in
+`data/stat.json`.
 All weapon definitions share the same fixed base-stat and base-affix tables.
 Their additional-affix pools also share the ordinary weapon affixes, with each
 definition including only its own weapon-family damage boost. Both Rope Dart

@@ -1,4 +1,5 @@
 import {
+  affixOptionsForGearDefinition,
   attunementData,
   attunementsForGearDefinition,
   gearData,
@@ -161,13 +162,20 @@ export function parseGearOcrTsv(
     return { label, value };
   });
 
-  const levelKey = String(level);
-  const baseKey = valueForLabel(rows[0].label, definition.baseAffixes[levelKey] ?? [], gearData.affixes);
+  const baseKey = valueForLabel(
+    rows[0].label,
+    affixOptionsForGearDefinition(definition, "baseAffixes", level, relayed),
+    gearData.affixes,
+  );
   const additionalAffixes = rows
     .slice(1, 5)
     .map((row) =>
       storedValue(
-        valueForLabel(row.label, definition.additionalAffixes[levelKey] ?? [], gearData.affixes),
+        valueForLabel(
+          row.label,
+          affixOptionsForGearDefinition(definition, "additionalAffixes", level, relayed),
+          gearData.affixes,
+        ),
         row.value,
         gearData.affixes,
       ),

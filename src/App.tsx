@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
   type ChangeEvent,
+  type CSSProperties,
   type Dispatch,
   type SetStateAction,
 } from "react";
@@ -84,11 +85,14 @@ import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseA
 import defaultSetup from "../data/default-setup.json";
 import {
   emptyRotationBreakdown,
+  getRotationCalculationProgress,
   getRotationMetrics,
   getRotationRecalculating,
   publishRotationMetrics,
+  publishRotationCalculationProgress,
   publishRotationRecalculating,
   subscribeToRotationMetrics,
+  subscribeToRotationCalculationProgress,
   subscribeToRotationRecalculating,
   type RotationGroupBreakdown,
   type RotationMetrics,
@@ -1516,6 +1520,34 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
   );
 }
 
+function DpsCalculationStatus() {
+  const recalculating = useSyncExternalStore(
+    subscribeToRotationRecalculating,
+    getRotationRecalculating,
+    getRotationRecalculating,
+  );
+  const progress = useSyncExternalStore(
+    subscribeToRotationCalculationProgress,
+    getRotationCalculationProgress,
+    getRotationCalculationProgress,
+  );
+  const percentage = Math.round(progress * 100);
+  return (
+    <div
+      className={`dps-recalculating ${recalculating ? "" : "idle"}`}
+      style={{ "--calculation-progress": `${percentage}%` } as CSSProperties}
+      role="progressbar"
+      aria-label="DPS recalculation progress"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={recalculating ? percentage : 100}
+      aria-live="polite"
+    >
+      {recalculating ? `Recalculating… ${percentage}%` : "Up to date"}
+    </div>
+  );
+}
+
 function StatsTab({
   character,
   pathId,
@@ -1532,7 +1564,6 @@ function StatsTab({
   onBuildSetupChange,
   onBuildSetupReset,
   rotationMetrics,
-  rotationRecalculating,
   activeBuildName,
   activeRotationName,
   onInnerWayChange,
@@ -1552,7 +1583,6 @@ function StatsTab({
   onBuildSetupChange: <K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) => void;
   onBuildSetupReset: (key: keyof BuildSetup) => void;
   rotationMetrics?: RotationMetrics;
-  rotationRecalculating: boolean;
   activeBuildName: string;
   activeRotationName: string;
   onInnerWayChange: () => void;
@@ -2360,13 +2390,7 @@ function StatsTab({
               </div>
             </div>
             <div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div>
-            <div
-              className={`dps-recalculating ${rotationRecalculating ? "" : "idle"}`}
-              role="status"
-              aria-live="polite"
-            >
-              {rotationRecalculating ? "Recalculating…" : "Up to date"}
-            </div>
+            <DpsCalculationStatus />
             <div className="dps-context">
               <div>
                 <span>Build</span>
@@ -4005,13 +4029,8 @@ function RotationEditorTab({
     Record<string, { key: string; result: RotationSimulationResult }>
   >({});
   const rotationResultsRef = useRef(rotationResults);
-  const [diffResult, setDiffResult] = useState<{
-    key: string;
-    rotationId: string;
-    requestSequence: number;
-    metrics: RotationMetrics;
-  } | null>(null);
   const diffRequestSequenceRef = useRef(0);
+  const [refreshRetryRevision, setRefreshRetryRevision] = useState(0);
   const [readableDialogOpen, setReadableDialogOpen] = useState(false);
   const [readableCopyStatus, setReadableCopyStatus] = useState("");
   const readableDialogRef = useRef<HTMLDialogElement>(null);
@@ -4028,6 +4047,10 @@ function RotationEditorTab({
   );
   const editingEntry =
     visibleRotationEntries.find((entry) => entry.id === editingRotationId) ?? visibleRotationEntries[0];
+  const resolvedActiveRotationId =
+    visibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ?? visibleRotationEntries[0]?.id;
+  const resolvedActiveRotationIdRef = useRef(resolvedActiveRotationId);
+  resolvedActiveRotationIdRef.current = resolvedActiveRotationId;
   const rotationLocked = editingEntry?.isDefault === true;
   const currentGlobalDebuffs = loadGlobalDebuffs();
   const calculationContextKey = JSON.stringify({
@@ -5031,26 +5054,41 @@ function RotationEditorTab({
   async function calculateDiffsForRotation(id: string, rotationRecord: RotationRecord, forceBaseline = false) {
     const requestSequence = ++diffRequestSequenceRef.current;
     publishRotationRecalculating(true);
+    publishRotationCalculationProgress(0);
     const contextKey = calculationContextKey;
     const resultKey = resultKeyFor(id, rotationRecord, contextKey);
     const baselinePromise = calculateBaselineForRotation(id, rotationRecord, 400, forceBaseline);
     const comparisonsPromise = requestRotationComparisons(
       calculationBundleFor(rotationRecord, true),
       workerCacheKeyFor(resultKey),
-      { key: `diff:${id}`, priority: 350 },
+      {
+        key: `diff:${id}`,
+        priority: 350,
+        onProgress: (progress) => {
+          if (diffRequestSequenceRef.current === requestSequence) publishRotationCalculationProgress(progress);
+        },
+      },
     );
     try {
       await baselinePromise;
       const metrics = await comparisonsPromise;
       if (calculationContextKeyRef.current !== contextKey) {
+        if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
         if (diffRequestSequenceRef.current === requestSequence) publishRotationRecalculating(false);
-        return;
+        return "discarded" as const;
       }
-      setDiffResult({ key: resultKey, rotationId: id, requestSequence, metrics });
-    } catch {
+      if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
+      if (resolvedActiveRotationIdRef.current !== id) return "discarded" as const;
+      onMetricsChange(metrics, true);
+      publishRotationCalculationProgress(1);
+      publishRotationRecalculating(false);
+      return "published" as const;
+    } catch (calculationError) {
       void comparisonsPromise.catch(() => {});
       if (diffRequestSequenceRef.current === requestSequence) publishRotationRecalculating(false);
-      // A newer keyed request superseded this calculation.
+      if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
+      console.error("Rotation calculation failed", calculationError);
+      return "failed" as const;
     }
   }
 
@@ -5068,15 +5106,8 @@ function RotationEditorTab({
     setupComparisons,
   };
   const rotationCalculation = currentCachedResult?.metrics ?? localRotationCalculation;
-  const refreshContextRef = useRef<string | null>(null);
+  const completedRefreshTargetRef = useRef<string | null>(null);
   useEffect(() => {
-    const contextChanged = refreshContextRef.current !== calculationContextKey;
-    refreshContextRef.current = calculationContextKey;
-    if (!contextChanged) {
-      const editPriority = editingRotationId === activeRotationId ? 400 : 200;
-      void calculateBaselineForRotation(editingRotationId, rotation, editPriority).catch(() => {});
-      return;
-    }
     const entries = rotationEntries
       .map((entry) =>
         entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: migrateRotation(rotation) } : entry,
@@ -5084,8 +5115,20 @@ function RotationEditorTab({
       .filter((entry) => rotationAvailableForWeapons(entry, settings.weapons));
     const activeEntry = entries.find((entry) => entry.id === activeRotationId) ?? entries[0];
     if (!activeEntry) return;
+    const refreshTarget = `${calculationContextKey}:${activeEntry.id}`;
+    if (completedRefreshTargetRef.current === refreshTarget) {
+      const editPriority = editingRotationId === activeRotationId ? 400 : 200;
+      void calculateBaselineForRotation(editingRotationId, rotation, editPriority).catch(() => {});
+      return;
+    }
     void (async () => {
-      await calculateDiffsForRotation(activeEntry.id, activeEntry.rotation, true);
+      const outcome = await calculateDiffsForRotation(activeEntry.id, activeEntry.rotation, true);
+      if (outcome === "discarded") {
+        setRefreshRetryRevision((current) => current + 1);
+        return;
+      }
+      if (outcome !== "published") return;
+      completedRefreshTargetRef.current = refreshTarget;
       if (calculationContextKeyRef.current !== calculationContextKey) return;
       for (const entry of entries) {
         if (entry.id === activeEntry.id) continue;
@@ -5096,17 +5139,7 @@ function RotationEditorTab({
         }
       }
     })();
-  }, [calculationContextKey, rotationStateKey]);
-  useEffect(() => {
-    if (!diffResult || diffResult.rotationId !== activeRotationId) return;
-    const activeRecord =
-      activeRotationId === editingRotationId
-        ? rotation
-        : rotationEntries.find((entry) => entry.id === activeRotationId)?.rotation;
-    if (!activeRecord || diffResult.key !== resultKeyFor(activeRotationId, activeRecord)) return;
-    onMetricsChange(diffResult.metrics, true);
-    if (diffRequestSequenceRef.current === diffResult.requestSequence) publishRotationRecalculating(false);
-  }, [diffResult, activeRotationId, editingRotationId, rotation, rotationEntries]);
+  }, [activeRotationId, calculationContextKey, refreshRetryRevision, rotationStateKey]);
   return (
     <section className="panel rotation-editor-panel">
       <div className="rotation-editor-layout">
@@ -5909,11 +5942,6 @@ export default function App() {
     bundleKey: string;
   }>();
   const rotationMetrics = useSyncExternalStore(subscribeToRotationMetrics, getRotationMetrics, getRotationMetrics);
-  const rotationRecalculating = useSyncExternalStore(
-    subscribeToRotationRecalculating,
-    getRotationRecalculating,
-    getRotationRecalculating,
-  );
   const [innerWayRevision, setInnerWayRevision] = useState(0);
   const [statOverrides, setStatOverrides] = useState<CharacterStatOverrides>(loadStatOverrides);
   const [attunementOverrides, setAttunementOverrides] = useState<AttunementOverrides>(loadAttunementOverrides);
@@ -6205,7 +6233,6 @@ export default function App() {
           onBuildSetupChange={updateBuildSetupOverride}
           onBuildSetupReset={resetBuildSetupOverride}
           rotationMetrics={rotationMetrics}
-          rotationRecalculating={rotationRecalculating}
           activeBuildName={activeBuild?.name || "Unnamed Build"}
           activeRotationName={activeSimulation?.rotationName || "—"}
           onInnerWayChange={() => setInnerWayRevision((current) => current + 1)}

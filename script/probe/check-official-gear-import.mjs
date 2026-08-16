@@ -95,15 +95,24 @@ try {
   const tier96Purple = importer.parseOfficialGearExport(
     {
       roleName: "Purple Probe",
-      wearEquipsDetailed: { 1: detail({ MIN_W_ATK: 59, MAX_W_ATK: 136 }, weaponRows("hengBladeDmgBoost")) },
+      wearEquipsDetailed: {
+        1: {
+          exVo: {
+            baseAttrs: { MIN_W_ATK: 59, MAX_W_ATK: 136 },
+            baseAffixes: weaponRows("hengBladeDmgBoost"),
+            relaying: true,
+          },
+        },
+      },
     },
     ["snowparting", "phalanxbane"],
   );
   assert(
     tier96Purple.exportValue.gearItems[0].level === 96 &&
       tier96Purple.exportValue.gearItems[0].rarity === "Purple" &&
+      tier96Purple.exportValue.gearItems[0].relayed === true &&
       tier96Purple.warnings.length === 0,
-    "Current Tier 96 base stats must infer Purple rarity without a fallback.",
+    "Current Tier 96 base stats and relaying marker must import without a fallback.",
   );
   assert(
     affixMap["9713001"] === "minPhys" &&

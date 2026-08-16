@@ -676,6 +676,31 @@ the replacement comparison result is ready, then swaps the complete result at
 once. Its recalculation status changes independently of the retained metrics so
 the UI can identify that displayed DPS as temporarily stale.
 
+The refresh identity combines the calculation context with the resolved active
+rotation. The editor records that identity only after its full result has been
+published. Path filtering can replace an incompatible active rotation while a
+request is running; a discarded transitional request therefore cannot mark the
+settled path as refreshed or suppress its replacement calculation.
+Requests superseded by a newer full calculation do not schedule another retry;
+the newer request is already their replacement. This distinction prevents
+development effect replays and rapid context changes from forming a retry loop.
+
+Completed full calculations publish directly when their request is still the
+latest request for the resolved active rotation. Publication does not wait for a
+second effect to reconcile the stored active and editing IDs during a path
+transition. If the persistent worker fails while loading or processing a
+request, the client discards it and retries the interrupted request once on a
+fresh worker instead of leaving later work attached to a dead worker.
+
+Full recalculations report deterministic variant progress. Before comparison
+work begins, the worker counts every stat, attunement, Inner Way, setup, and
+global-debuff variant. A variant is complete only after its timeline entries and
+final damage total have both been calculated. The displayed percentage is
+exactly `completed variants / total variants`; baseline preparation therefore
+remains at 0%. Progress is stored separately from the completed metrics and is
+subscribed to only by the DPS status component, avoiding whole-page renders for
+each worker update.
+
 ## Development and deployment
 
 ```text

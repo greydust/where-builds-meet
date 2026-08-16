@@ -68,6 +68,16 @@
           "affinity",
           "hengBladeDmgBoost"
         ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
         "91": [
           "minPhys",
           "maxPhys",
@@ -111,6 +121,16 @@
           "crit",
           "affinity",
           "moBladeDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ],
         "91": [
           "minPhys",
@@ -156,6 +176,16 @@
           "affinity",
           "umbrellaDmgBoost"
         ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
         "91": [
           "minPhys",
           "maxPhys",
@@ -199,6 +229,16 @@
           "crit",
           "affinity",
           "ropeDartDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ],
         "91": [
           "minPhys",
@@ -244,6 +284,16 @@
           "affinity",
           "gauntletDmgBoost"
         ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
         "91": [
           "minPhys",
           "maxPhys",
@@ -288,6 +338,16 @@
           "affinity",
           "ropeDartDmgBoost"
         ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
         "91": [
           "minPhys",
           "maxPhys",
@@ -331,6 +391,16 @@
           "crit",
           "affinity",
           "spearDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ],
         "91": [
           "minPhys",

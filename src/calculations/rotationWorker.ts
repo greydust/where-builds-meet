@@ -33,7 +33,11 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       if (!cacheKey) throw new Error("A comparison cache key is required");
       const baseline = baselineCache.get(cacheKey);
       if (!baseline) throw new Error(`No cached baseline exists for ${cacheKey}`);
-      result = { metrics: calculateRotationComparisons(bundle as RotationSimulationBundle, baseline) };
+      result = {
+        metrics: calculateRotationComparisons(bundle as RotationSimulationBundle, baseline, (completed, total) => {
+          self.postMessage({ id, progress: total > 0 ? completed / total : 1 });
+        }),
+      };
     } else if (mode === "simulation") {
       result = calculateRotationSimulation(bundle as RotationSimulationBundle);
     } else {

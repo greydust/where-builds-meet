@@ -76,7 +76,10 @@ try {
   };
   const result = calculateRotationSimulation(bundle);
   const cachedBaseline = calculateRotationBaseline(bundle);
-  const cachedComparisons = calculateRotationComparisons(bundle, cachedBaseline);
+  const comparisonProgress = [];
+  const cachedComparisons = calculateRotationComparisons(bundle, cachedBaseline, (completed, total) =>
+    comparisonProgress.push([completed, total]),
+  );
 
   assert(!result.actionBreakdowns["rotation-0:0"], "An action before the anchor time must be ignored.");
   assert(!result.actionBreakdowns["rotation-0:1"], "An earlier action at the anchor timestamp must be ignored.");
@@ -95,6 +98,14 @@ try {
   assert(
     cachedComparisons.statPriority[0]?.dpsDifference === result.metrics.statPriority[0]?.dpsDifference,
     "Cached comparison results must match a full simulation.",
+  );
+  assert(
+    JSON.stringify(comparisonProgress) ===
+      JSON.stringify([
+        [0, 1],
+        [1, 1],
+      ]),
+    "Comparison progress must equal completed variants divided by the total variant count.",
   );
   const triggerTimeline = buildRotationTimeline({
     rotation: { name: "Trigger source probe", steps: [{ type: "skill", skill: "SourceSkill" }] },

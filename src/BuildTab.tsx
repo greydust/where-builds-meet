@@ -25,6 +25,7 @@ import {
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
+  affixOptionsForGearDefinition,
   buildEntryAvailableForMartialArts,
   buildEntryIsTestPreset,
   buildEntryMartialArts,
@@ -1012,6 +1013,27 @@ function BuildManagement({
     );
   }
 
+  function updateRelayed(relayed: boolean) {
+    setDraft((current) => {
+      const capped = capGearDraft(current, relayed);
+      if (relayed || !selected.definition) return capped;
+      const allowedBase = affixOptionsForGearDefinition(selected.definition, "baseAffixes", current.level, false);
+      const allowedAdditional = affixOptionsForGearDefinition(
+        selected.definition,
+        "additionalAffixes",
+        current.level,
+        false,
+      );
+      return {
+        ...capped,
+        baseAffix: allowedBase.includes(capped.baseAffix.key) ? capped.baseAffix : blankValue(),
+        additionalAffixes: capped.additionalAffixes.map((affix) =>
+          allowedAdditional.includes(affix.key) ? affix : blankValue(),
+        ),
+      };
+    });
+  }
+
   function save() {
     const definition = selected.definition;
     if (!definition) return;
@@ -1028,6 +1050,10 @@ function BuildManagement({
       setError("Choose a base affix and enter a non-negative value.");
       return;
     }
+    if (!baseAffixOptions.includes(baseAffix.key)) {
+      setError("Choose a base affix available for this gear.");
+      return;
+    }
     if (additionalAffixes.some((affix) => !affix) || (hasAttunementDraft && !attunement)) {
       setError("Complete or clear each optional attribute.");
       return;
@@ -1039,6 +1065,10 @@ function BuildManagement({
     const normalizedAdditional = additionalAffixes.filter((affix): affix is { key: string; value: number } =>
       Boolean(affix),
     );
+    if (normalizedAdditional.some((affix) => !additionalAffixOptions.includes(affix.key))) {
+      setError("Choose additional affixes available for this gear.");
+      return;
+    }
     if (new Set(normalizedAdditional.map((affix) => affix.key)).size !== normalizedAdditional.length) {
       setError("Additional affixes cannot be duplicated.");
       return;
@@ -1095,9 +1125,12 @@ function BuildManagement({
     }
   }
 
-  const levelKey = String(draft.level);
-  const baseAffixOptions = selected.definition?.baseAffixes[levelKey] ?? [];
-  const additionalAffixOptions = selected.definition?.additionalAffixes[levelKey] ?? [];
+  const baseAffixOptions = selected.definition
+    ? affixOptionsForGearDefinition(selected.definition, "baseAffixes", draft.level, draft.relayed)
+    : [];
+  const additionalAffixOptions = selected.definition
+    ? affixOptionsForGearDefinition(selected.definition, "additionalAffixes", draft.level, draft.relayed)
+    : [];
   const attunementOptions = (selected.definition ? attunementsForGearDefinition(selected.definition) : []).filter(
     (key) => {
       const tags = attunementData[key]?.tags ?? [];
@@ -1253,6 +1286,7 @@ function BuildManagement({
           selectedAdditionalKeys={selectedAdditionalKeys}
           onDraftChange={setDraft}
           onLevelChange={updateLevel}
+          onRelayedChange={updateRelayed}
           onCancel={() => {
             setEditing(false);
             setEditingItemId(null);
@@ -1278,6 +1312,7 @@ function GearEditor({
   selectedAdditionalKeys,
   onDraftChange,
   onLevelChange,
+  onRelayedChange,
   onCancel,
   onSave,
 }: {
@@ -1293,6 +1328,7 @@ function GearEditor({
   selectedAdditionalKeys: Set<string>;
   onDraftChange: Dispatch<SetStateAction<GearDraft>>;
   onLevelChange: (level: GearLevel) => void;
+  onRelayedChange: (relayed: boolean) => void;
   onCancel: () => void;
   onSave: () => void;
 }) {
@@ -1461,10 +1497,7 @@ function GearEditor({
             <input
               type="checkbox"
               checked={draft.relayed}
-              onChange={(event) => {
-                const relayed = event.target.checked;
-                onDraftChange((current) => capGearDraft(current, relayed));
-              }}
+              onChange={(event) => onRelayedChange(event.target.checked)}
             />
             <span>Relayed</span>
           </label>

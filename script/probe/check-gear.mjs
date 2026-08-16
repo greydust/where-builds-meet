@@ -252,6 +252,30 @@ assert(
   Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9,
   "Level 96 Relayed Max must use 94% of the affix roll.",
 );
+const normalWeaponAffixes = gear.affixOptionsForGearDefinition(
+  gear.gearData.gear.hengBlade,
+  "additionalAffixes",
+  96,
+  false,
+);
+const relayedWeaponAffixes = gear.affixOptionsForGearDefinition(
+  gear.gearData.gear.hengBlade,
+  "additionalAffixes",
+  96,
+  true,
+);
+assert(
+  !normalWeaponAffixes.includes("minStonesplit") && !normalWeaponAffixes.includes("maxBamboocut"),
+  "Tier 96 attribute attack must not be available on a normal weapon.",
+);
+assert(
+  ["minBellstrike", "maxStonesplit", "minSilkbind", "maxBamboocut"].every((key) => relayedWeaponAffixes.includes(key)),
+  "Tier 96 relayed weapons must expose every min/max attribute attack.",
+);
+assert(
+  gear.maxGearRoll("maxBellstrike", "affix", true, 96) === gear.maxGearRoll("maxVoidAttack", "affix", true, 96),
+  "Relayed attribute attack must share the Tier 96 Void Attack roll.",
+);
 assert(
   gear.maxGearRoll("physicalPenetration", "attunement", true) === 11,
   "Relayed Max must keep the full attunement roll.",

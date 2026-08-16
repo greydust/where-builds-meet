@@ -55,6 +55,8 @@ let currentMetrics: RotationMetrics | undefined;
 const listeners = new Set<Listener>();
 let recalculating = false;
 const recalculatingListeners = new Set<Listener>();
+let calculationProgress = 0;
+const calculationProgressListeners = new Set<Listener>();
 
 export function getRotationMetrics() {
   return currentMetrics;
@@ -83,4 +85,20 @@ export function publishRotationRecalculating(next: boolean) {
 export function subscribeToRotationRecalculating(listener: Listener) {
   recalculatingListeners.add(listener);
   return () => recalculatingListeners.delete(listener);
+}
+
+export function getRotationCalculationProgress() {
+  return calculationProgress;
+}
+
+export function publishRotationCalculationProgress(next: number) {
+  const normalized = Math.min(1, Math.max(0, next));
+  if (calculationProgress === normalized) return;
+  calculationProgress = normalized;
+  calculationProgressListeners.forEach((listener) => listener());
+}
+
+export function subscribeToRotationCalculationProgress(listener: Listener) {
+  calculationProgressListeners.add(listener);
+  return () => calculationProgressListeners.delete(listener);
 }

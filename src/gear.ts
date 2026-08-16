@@ -130,6 +130,17 @@ export function attunementsForGearDefinition(definition: GearDefinition) {
     definition.attunements.some((selector) => selector === id || attunement.tags.includes(selector)) ? [id] : [],
   );
 }
+export function affixOptionsForGearDefinition(
+  definition: GearDefinition,
+  category: "baseAffixes" | "additionalAffixes",
+  level: GearLevel,
+  relayed = false,
+) {
+  const options = definition[category];
+  const relayOnly = options[`${level}Relayed`] ?? [];
+  const standard = (options[String(level)] ?? []).filter((key) => relayed || !relayOnly.includes(key));
+  return Array.from(new Set([...standard, ...(relayed ? relayOnly : [])]));
+}
 export type StatRollData = { affix: Record<string, number>; attunement: Record<string, number> };
 const statData = statJson as Record<string, StatRollData>;
 export function statRollsForLevel(level: number) {
@@ -423,13 +434,24 @@ function parseGearItem(value: unknown): GearItem | undefined {
   const slot = gearSlots.includes(candidate.slot as GearSlot) ? (candidate.slot as GearSlot) : undefined;
   if (!definition || !level || !rarity || (!definition.weapon && (!slot || !definition.slots.includes(slot))))
     return undefined;
-  const levelKey = String(level);
-  if (!validGearValue(candidate.baseAffix, definition.baseAffixes[levelKey] ?? [], gearData.affixes)) return undefined;
+  const relayed = candidate.relayed === true;
+  if (
+    !validGearValue(
+      candidate.baseAffix,
+      affixOptionsForGearDefinition(definition, "baseAffixes", level, relayed),
+      gearData.affixes,
+    )
+  )
+    return undefined;
   const additionalAffixes = candidate.additionalAffixes === undefined ? [] : candidate.additionalAffixes;
   if (!Array.isArray(additionalAffixes) || additionalAffixes.length > 4) return undefined;
   if (
     !additionalAffixes.every((affix) =>
-      validGearValue(affix, definition.additionalAffixes[levelKey] ?? [], gearData.affixes),
+      validGearValue(
+        affix,
+        affixOptionsForGearDefinition(definition, "additionalAffixes", level, relayed),
+        gearData.affixes,
+      ),
     )
   )
     return undefined;
@@ -447,7 +469,7 @@ function parseGearItem(value: unknown): GearItem | undefined {
     definitionId: candidate.definitionId,
     level,
     rarity,
-    ...(candidate.relayed === true ? { relayed: true } : {}),
+    ...(relayed ? { relayed: true } : {}),
     baseAffix: candidate.baseAffix,
     additionalAffixes,
     ...(attunement ? { attunement } : {}),
@@ -502,13 +524,23 @@ export function buildPresetInventory(preset: BuildPreset): GearInventory {
     if (!presetGear) return [];
     const definition = gearData.gear[presetGear.definitionId];
     if (!definition?.slots.includes(slot)) throw new Error(`Invalid ${slot} definition in build preset ${preset.id}.`);
-    const levelKey = String(presetGear.level);
-    if (!validGearValue(presetGear.baseAffix, definition.baseAffixes[levelKey] ?? [], gearData.affixes))
+    const relayed = presetGear.relayed === true || preset.relayed === true;
+    if (
+      !validGearValue(
+        presetGear.baseAffix,
+        affixOptionsForGearDefinition(definition, "baseAffixes", presetGear.level, relayed),
+        gearData.affixes,
+      )
+    )
       throw new Error(`Invalid base affix in build preset ${preset.id}.`);
     if (
       presetGear.additionalAffixes.length !== 4 ||
       !presetGear.additionalAffixes.every((affix) =>
-        validGearValue(affix, definition.additionalAffixes[levelKey] ?? [], gearData.affixes),
+        validGearValue(
+          affix,
+          affixOptionsForGearDefinition(definition, "additionalAffixes", presetGear.level, relayed),
+          gearData.affixes,
+        ),
       ) ||
       new Set(presetGear.additionalAffixes.map((affix) => affix.key)).size !== 4
     )
@@ -524,7 +556,7 @@ export function buildPresetInventory(preset: BuildPreset): GearInventory {
           definitionId: presetGear.definitionId,
           level: presetGear.level,
           rarity: presetGear.rarity,
-          ...(presetGear.relayed === true || preset.relayed === true ? { relayed: true } : {}),
+          ...(relayed ? { relayed: true } : {}),
           baseAffix: { ...presetGear.baseAffix },
           additionalAffixes: presetGear.additionalAffixes.map((affix) => ({ ...affix })),
           attunement: { ...presetGear.attunement },

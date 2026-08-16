@@ -39,12 +39,30 @@ export type RotationCalculationVariant = {
 export type RotationCalculationBundle = {
   duration: number;
   baseline: RotationDamageEntry[];
-  statPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
-  attunementPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
-  innerWayPriority: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>;
+  statPriority: Array<{
+    label: string;
+    maxRoll?: number;
+    entries: RotationDamageEntry[];
+    duration?: number;
+    damage?: number;
+  }>;
+  attunementPriority: Array<{
+    label: string;
+    maxRoll?: number;
+    entries: RotationDamageEntry[];
+    duration?: number;
+    damage?: number;
+  }>;
+  innerWayPriority: Array<{
+    label: string;
+    maxRoll?: number;
+    entries: RotationDamageEntry[];
+    duration?: number;
+    damage?: number;
+  }>;
   setupComparisons: Record<
     string,
-    Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>
+    Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number; damage?: number }>
   >;
 };
 
@@ -120,12 +138,23 @@ function priorityRow(label: string, baselineDps: number, variantDps: number, max
 function calculatePriorityRows(
   baselineDps: number,
   duration: number,
-  variants: Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number }>,
+  variants: Array<{
+    label: string;
+    maxRoll?: number;
+    entries: RotationDamageEntry[];
+    duration?: number;
+    damage?: number;
+  }>,
   order: "ascending" | "descending" = "descending",
 ) {
   return variants
-    .map(({ label, maxRoll, entries, duration: variantDuration = duration }) =>
-      priorityRow(label, baselineDps, variantDuration > 0 ? sumEntries(entries).total / variantDuration : 0, maxRoll),
+    .map(({ label, maxRoll, entries, duration: variantDuration = duration, damage }) =>
+      priorityRow(
+        label,
+        baselineDps,
+        variantDuration > 0 ? (damage ?? sumEntries(entries).total) / variantDuration : 0,
+        maxRoll,
+      ),
     )
     .sort((left, right) =>
       order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference,
@@ -684,6 +713,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
 export function calculateRotationComparisons(
   bundle: RotationSimulationBundle,
   baselineResult: RotationSimulationBaseline,
+  onProgress?: (completed: number, total: number) => void,
 ): RotationMetrics {
   const state = {
     stats: bundle.stats,
@@ -692,15 +722,27 @@ export function calculateRotationComparisons(
     derivedStats: bundle.derivedStats,
     weapons: bundle.weapons,
   };
+  const totalVariants =
+    bundle.statPriority.length +
+    bundle.attunementPriority.length +
+    bundle.innerWayPriority.length +
+    Object.values(bundle.setupComparisons).reduce((total, variants) => total + variants.length, 0);
+  let completedVariants = 0;
+  onProgress?.(0, totalVariants);
   const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
-    return {
-      entries: timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant),
+    const entries = timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+    const calculation = {
+      entries,
+      damage: sumEntries(entries).total,
       duration: variant.timeline
         ? timelineTiming(variantTimeline, bundle.startAnchor).duration
         : baselineResult.duration,
     };
+    completedVariants += 1;
+    onProgress?.(completedVariants, totalVariants);
+    return calculation;
   };
   const entryBundle: RotationCalculationBundle = {
     duration: baselineResult.duration,

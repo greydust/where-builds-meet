@@ -4,6 +4,7 @@ import officialProfileMapJson from "../data/official/profile-map.json";
 import {
   attunementData,
   attunementsForGearDefinition,
+  affixOptionsForGearDefinition,
   buildExportFormat,
   defaultBuildSetup,
   gearData,
@@ -261,6 +262,7 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const resolvedLevel = level === 91 || level === 96 ? level : (piece.signature?.level ?? commonLevel);
     const rarity = explicitRarity(piece.exVo, piece.detail) ?? piece.signature?.rarity;
     const resolvedRarity = rarity ?? "Gold";
+    const relayed = isRelayed(piece.exVo, piece.detail);
     if (!rarity) warnings.push(`${gearData.slots[piece.slot]} rarity was not exposed; Gold was used.`);
 
     const mappedRows = piece.rows.map((row) => ({ row, key: officialAffixMap[row.statId] }));
@@ -274,8 +276,8 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const mappedAffixes = affixRows.map(({ row, key }, index) => {
       const allowed =
         index === 0
-          ? (definition.baseAffixes[String(resolvedLevel)] ?? [])
-          : (definition.additionalAffixes[String(resolvedLevel)] ?? []);
+          ? affixOptionsForGearDefinition(definition, "baseAffixes", resolvedLevel, relayed)
+          : affixOptionsForGearDefinition(definition, "additionalAffixes", resolvedLevel, relayed);
       if (!key || !allowed.includes(key))
         throw new Error(
           `${gearData.slots[piece.slot]} has an unsupported affix ID ${row.statId}${key ? ` (${key})` : ""}.`,
@@ -295,7 +297,7 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
       definitionId: piece.definitionId,
       level: resolvedLevel,
       rarity: resolvedRarity,
-      ...(isRelayed(piece.exVo, piece.detail) ? { relayed: true } : {}),
+      ...(relayed ? { relayed: true } : {}),
       baseAffix: mappedAffixes[0],
       additionalAffixes: mappedAffixes.slice(1),
       ...(attunement ? { attunement } : {}),

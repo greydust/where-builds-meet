@@ -173,8 +173,19 @@
   }
 
   .dps-recalculating {
+    --calculation-progress: 0%;
+
+    inline-size: fit-content;
     min-block-size: 23px;
     margin-block-start: 4px;
+    margin-inline: auto;
+    border-radius: 0.35rem;
+    padding-inline: 0.45rem;
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--primary) 24%, transparent) 0 var(--calculation-progress),
+      transparent var(--calculation-progress) 100%
+    );
     color: var(--text-muted);
     font-weight: 700;
     line-height: 1.4;

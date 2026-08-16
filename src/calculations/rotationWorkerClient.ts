@@ -9,7 +9,7 @@ import type { DamageBreakdown } from "./damage";
 
 type WorkerResult = RotationSimulationResult | { metrics: RotationMetrics };
 type RequestMode = "calculation" | "simulation" | "baseline" | "comparisons";
-type RequestOptions = { key?: string; priority?: number };
+type RequestOptions = { key?: string; priority?: number; onProgress?: (progress: number) => void };
 
 type CalculationRequest = {
   bundle: RotationCalculationBundle | RotationSimulationBundle;
@@ -18,6 +18,8 @@ type CalculationRequest = {
   key: string;
   priority: number;
   sequence: number;
+  retryCount: number;
+  onProgress?: (progress: number) => void;
   resolve: (result: WorkerResult) => void;
   reject: (error: Error) => void;
 };
@@ -36,8 +38,9 @@ function dispatchNext() {
 
 function getWorker() {
   if (worker) return worker;
-  worker = new Worker(new URL("./rotationWorker.ts", import.meta.url), { type: "module" });
-  worker.addEventListener(
+  const createdWorker = new Worker(new URL("./rotationWorker.ts", import.meta.url), { type: "module" });
+  worker = createdWorker;
+  createdWorker.addEventListener(
     "message",
     (
       event: MessageEvent<{
@@ -47,10 +50,15 @@ function getWorker() {
         anchorTime?: number;
         duration?: number;
         actionBreakdowns?: Record<string, DamageBreakdown>;
+        progress?: number;
         error?: string;
       }>,
     ) => {
       if (!running || event.data.id !== running.id) return;
+      if (typeof event.data.progress === "number") {
+        running.request.onProgress?.(event.data.progress);
+        return;
+      }
       const completed = running.request;
       running = undefined;
       if (event.data.error) completed.reject(new Error(event.data.error));
@@ -69,29 +77,54 @@ function getWorker() {
       dispatchNext();
     },
   );
-  worker.addEventListener("error", (event) => {
-    if (!running) return;
-    const completed = running.request;
+  const recoverFromWorkerFailure = (message: string) => {
+    if (worker !== createdWorker) return;
+    createdWorker.terminate();
+    worker = undefined;
+    const interrupted = running?.request;
     running = undefined;
-    completed.reject(new Error(event.message || "Rotation calculation worker failed"));
-    pending.forEach((request) => request.reject(new Error("Rotation calculation worker failed")));
-    pending = [];
+    if (interrupted) {
+      if (interrupted.retryCount < 1) pending.push({ ...interrupted, retryCount: interrupted.retryCount + 1 });
+      else interrupted.reject(new Error(message));
+    }
+    dispatchNext();
+  };
+  createdWorker.addEventListener("error", (event) => {
+    recoverFromWorkerFailure(event.message || "Rotation calculation worker failed");
   });
-  return worker;
+  createdWorker.addEventListener("messageerror", () => {
+    recoverFromWorkerFailure("Rotation calculation worker returned an unreadable result");
+  });
+  return createdWorker;
 }
 
 function dispatch(request: CalculationRequest) {
   const id = ++requestId;
   running = { id, request };
-  getWorker().postMessage({ id, bundle: request.bundle, mode: request.mode, cacheKey: request.cacheKey });
+  try {
+    getWorker().postMessage({ id, bundle: request.bundle, mode: request.mode, cacheKey: request.cacheKey });
+  } catch (error) {
+    const failed = running?.request;
+    running = undefined;
+    worker?.terminate();
+    worker = undefined;
+    if (failed && failed.retryCount < 1) pending.push({ ...failed, retryCount: failed.retryCount + 1 });
+    else failed?.reject(error instanceof Error ? error : new Error("Rotation calculation worker failed"));
+    dispatchNext();
+  }
 }
 
-function enqueue(request: Omit<CalculationRequest, "key" | "priority" | "sequence">, options: RequestOptions = {}) {
+function enqueue(
+  request: Omit<CalculationRequest, "key" | "priority" | "sequence" | "retryCount">,
+  options: RequestOptions = {},
+) {
   const queued: CalculationRequest = {
     ...request,
     key: options.key ?? `${request.mode}:${++requestSequence}`,
     priority: options.priority ?? 0,
     sequence: ++requestSequence,
+    retryCount: 0,
+    onProgress: options.onProgress,
   };
   const replacedIndex = pending.findIndex((candidate) => candidate.key === queued.key);
   if (replacedIndex >= 0) {
