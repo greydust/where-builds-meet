@@ -137,6 +137,14 @@
     gap: 14px;
   }
 
+  .settings-weapon-row .editor-field:has(select:disabled) {
+    opacity: 0.5;
+  }
+
+  .settings-weapon-row select:disabled {
+    cursor: not-allowed;
+  }
+
   .settings-enemy-row {
     max-inline-size: calc(50% - 7px);
   }

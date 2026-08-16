@@ -8,6 +8,7 @@ export type RotationEntry = {
   rotation: RotationRecord;
   martialArts: WeaponId[];
   isDefault?: boolean;
+  test?: boolean;
 };
 
 const weaponIdSet = new Set<WeaponId>(weaponIds);

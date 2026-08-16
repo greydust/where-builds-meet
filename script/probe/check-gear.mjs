@@ -197,21 +197,21 @@ assert(
   "Unexpected default build name.",
 );
 assert(
-  gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
+  gear.buildEntryAvailableForMartialArts({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
     "snowparting",
     "phalanxbane",
   ]),
   "The Mixed fully-relayed preset must match its weapon pair.",
 );
 assert(
-  gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
+  gear.buildEntryAvailableForMartialArts({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
     "phalanxbane",
     "snowparting",
   ]),
   "Build weapon-pair matching must not depend on left/right order.",
 );
 assert(
-  !gear.buildEntryAvailableForWeapons({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
+  !gear.buildEntryAvailableForMartialArts({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id }, [
     "everspring",
     "unfettered",
   ]),
@@ -323,6 +323,15 @@ assert(
 );
 const emptyPreset = gear.defaultBuildPresets.find((candidate) => candidate.id === "empty");
 assert(emptyPreset, "Expected the empty default build.");
+assert(
+  gear.buildEntryIsTestPreset({
+    id: emptyPreset.id,
+    name: emptyPreset.name,
+    isDefault: true,
+    presetId: emptyPreset.id,
+  }),
+  "The Empty Build must remain bundled and identifiable by the runtime Dev gate.",
+);
 const emptyPresetInventory = gear.buildPresetInventory(emptyPreset);
 assert(
   emptyPreset.name === "Empty Build" &&
@@ -331,7 +340,7 @@ assert(
   "The empty default build must not synthesize gear.",
 );
 assert(
-  gear.buildEntryAvailableForWeapons(
+  gear.buildEntryAvailableForMartialArts(
     { id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id },
     ["heavenwill", "skygrasp"],
   ),
@@ -522,8 +531,18 @@ const sharedBuildPayload = {
   version: 2,
   gearItems: [hengBlade],
   entries: [
-    { id: "shared-a", name: "Shared A", equipped: { leftWeapon: hengBlade.id } },
-    { id: "shared-b", name: "Shared B", equipped: { leftWeapon: hengBlade.id } },
+    {
+      id: "shared-a",
+      name: "Shared A",
+      weapons: ["snowparting", "phalanxbane"],
+      equipped: { leftWeapon: hengBlade.id },
+    },
+    {
+      id: "shared-b",
+      name: "Shared B",
+      weapons: ["snowparting", "phalanxbane"],
+      equipped: { leftWeapon: hengBlade.id },
+    },
   ],
 };
 globalThis.localStorage = {
@@ -540,12 +559,14 @@ const sharedB = sharedBuildState.entries.find((entry) => entry.id === "shared-b"
 assert(
   sharedBuildState.gearItems.length === 1 &&
     sharedA?.equipped.leftWeapon === hengBlade.id &&
-    sharedB?.equipped.leftWeapon === hengBlade.id,
-  "One shared gear item must be reusable in multiple build loadouts.",
+    sharedB?.equipped.leftWeapon === hengBlade.id &&
+    sharedA?.martialArts.join(",") === "snowparting,phalanxbane" &&
+    !("weapons" in sharedA),
+  "Shared gear must remain reusable while legacy build weapon tags migrate to martialArts.",
 );
 const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState));
 assert(
-  serializedBuildState.version === 7 &&
+  serializedBuildState.version === 8 &&
     serializedBuildState.gearItems.length === 1 &&
     !("slot" in serializedBuildState.gearItems[0]) &&
     serializedBuildState.entries.every(
@@ -554,14 +575,15 @@ assert(
         entry.setup?.innerWays?.length === 4 &&
         entry.setup?.weaponSets &&
         entry.setup?.armorSets &&
-        entry.weapons?.length >= 2,
+        entry.martialArts?.length >= 2 &&
+        !("weapons" in entry),
     ),
-  "Build persistence must include Inner Ways, setup, and weapon eligibility in the shared-inventory schema.",
+  "Build persistence must include Inner Ways, setup, and martial-art eligibility in the shared-inventory schema.",
 );
 const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState));
 assert(
   exportedBuildState.format === gear.buildExportFormat &&
-    exportedBuildState.version === 6 &&
+    exportedBuildState.version === 7 &&
     exportedBuildState.gearItems.length === 1 &&
     !("slot" in exportedBuildState.gearItems[0]) &&
     exportedBuildState.builds.every(
@@ -569,9 +591,10 @@ assert(
         entry.setup?.innerWays?.length === 4 &&
         entry.setup?.weaponSets &&
         entry.setup?.armorSets &&
-        entry.weapons?.length >= 2,
+        entry.martialArts?.length >= 2 &&
+        !("weapons" in entry),
     ),
-  "Build export must include Inner Ways, setup, and weapon eligibility with slotless weapons.",
+  "Build export must include Inner Ways, setup, and martial-art eligibility with slotless weapons.",
 );
 const mergedImport = gear.mergeImportedBuildState(sharedBuildState, exportedBuildState);
 assert(
@@ -599,15 +622,20 @@ const legacyTransfer = {
   ...exportedBuildState,
   version: 1,
   gearItems: [legacyHengBlade],
-  builds: exportedBuildState.builds.map(({ setup: _setup, ...entry }) => entry),
+  builds: exportedBuildState.builds.map(({ setup: _setup, martialArts, ...entry }) => ({
+    ...entry,
+    weapons: martialArts,
+  })),
 };
 const migratedTransfer = gear.mergeImportedBuildState(sharedBuildState, legacyTransfer);
 assert(
   migratedTransfer.importedGearCount === 1 &&
     !("slot" in migratedTransfer.state.gearItems.at(-1)) &&
+    migratedTransfer.state.entries.find((entry) => entry.id === migratedTransfer.importedBuildIds[0]).martialArts
+      .length === 2 &&
     migratedTransfer.state.entries.find((entry) => entry.id === migratedTransfer.importedBuildIds[0]).setup.arsenal ===
       gear.defaultBuildSetup.arsenal,
-  "Version 1 exports must migrate weapon gear and missing setup data.",
+  "Version 1 exports must migrate weapon gear, legacy weapons eligibility, and missing setup data.",
 );
 let invalidImportRejected = false;
 try {

@@ -14,6 +14,12 @@
     overflow: hidden;
   }
 
+  .viewport-page-shell .rotation-editor-layout {
+    block-size: 100%;
+    min-block-size: 0;
+    max-block-size: none;
+  }
+
   .rotation-list {
     display: flex;
     min-block-size: 0;

@@ -225,7 +225,7 @@ colliding IDs without changing the currently applied profile.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define Inner Ways and setup choices
-in their own `data/build/*.json` records.
+in their own path-grouped `data/build/**/*.json` records.
 
 ## Character stat pipeline
 
@@ -542,10 +542,11 @@ result is published; superseded requests cannot clear the status of newer work.
 
 Rotation and build presets are loaded eagerly from their data directories; the
 remaining JSON is imported explicitly, so Vite includes it all in the generated
-static assets. Preset rotations declare `martialArts`, while build presets and
-custom builds declare `weapons`; selectors show only records matching the
-current pair. A preset with `test: true` is included only by the local Vite dev
-environment. The application currently recognizes:
+static assets. Rotation presets, build presets, and custom builds declare
+`martialArts`; selectors show only records matching the current pair. Legacy
+custom builds with `weapons` are migrated at the persistence/import boundary.
+Presets with `test: true` remain bundled but are hidden until the persisted
+header-level Dev toggle is enabled. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Mystic, General, Buff, Debuff, and DOT editor categories
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
@@ -623,8 +624,9 @@ allow either martial art in either slot. New weapons still require changes to
 `mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares its
 physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and set eligibility use the tag.
-Paths may also declare `wip: true`; they are selectable with a WIP badge in the
-local Vite dev environment and remain visible but disabled in production.
+Paths may also declare `wip: true`; they remain visible with a WIP badge but are
+disabled until the header-level Dev toggle is enabled. This runtime gate behaves
+the same in local and deployed builds.
 Might, Dust, and Kite are currently WIP shells. Their weapons and shared gear
 tables are registered, but their skills, talents, and complete path-specific
 calculations are not implemented.

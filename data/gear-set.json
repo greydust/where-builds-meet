@@ -64,12 +64,20 @@
       },
       "4": {
         "name": "4",
-        "effect": {
-          "stat": {
-            "precision": 0.08,
-            "critDmgBonus": 0.1
+        "effect": [
+          {
+            "stat": {
+              "precision": 0.08,
+              "critDmgBonus": 0.1
+            }
+          },
+          {
+            "requirement": [{ "target": "self", "value": "Shield" }],
+            "effect": {
+              "critDmgBonus": 0.15
+            }
           }
-        }
+        ]
       }
     }
   }

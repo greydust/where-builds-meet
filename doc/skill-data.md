@@ -448,6 +448,10 @@ Weapon sets in `data/gear-set.json` and armor sets in `data/armor-set.json` use
 the same path-tag convention. Only
 matching definitions are displayed and applied outside Mixed; stored tiers for
 hidden definitions are preserved.
+One set option may provide either one setup-effect object or an array of setup
+effects. Arrays allow unconditional stats and action-time conditional rules to
+coexist in the same tier; Rain Whisper four-piece uses this to require the
+player Shield for its additional Critical DMG bonus.
 
 Selecting tier `Tn` activates every tier condition and rule from T0 through Tn.
 Tier entries may contain:
@@ -592,8 +596,8 @@ converting it to an attached event targets the following skill.
 
 Bundled rotation JSON records declare the martial-art IDs they use in
 `martialArts`. The Rotation Editor shows a preset only when those tags match the
-current weapon selection. The all-tagged empty rotation is a local-development
-fixture and uses `test: true`, so it is omitted from production builds.
+current weapon selection. The all-tagged empty rotation uses `test: true`, so it
+is bundled but hidden until the header-level Dev toggle is enabled.
 
 With `eventTimeReference: "battleStart"`, timed encounter events use a
 `startTime` relative to the selected fight start and consume no cast time.
@@ -773,6 +777,9 @@ Critical after Judgement Resistance and before the 80% Effective Critical cap;
 it does not use the separate Direct Critical channel. Predator's
 Shield uses the shared definition in `data/buff/general.json`; applying it
 refreshes its base lifetime before its tier-based extensions are applied.
+The General skill AoR T4 Shield has a three-second cast, applies that shared
+Shield at cast start with a 14-second duration, and extends it to 16 seconds
+when Formbend four-piece is selected.
 Drumbeat independently grants 15% Charged Skill damage for six seconds and is
 converted into the separate 42% Charged Skill damage buff Breakthrough by
 Predator's Shield. Breakthrough always uses its own 12-second duration and is

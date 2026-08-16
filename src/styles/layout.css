@@ -30,6 +30,7 @@
   .viewport-tab-content {
     min-block-size: 0;
     flex: 1;
+    overflow: hidden;
   }
 
   .viewport-tab-content > .build-manager-panel,
@@ -46,12 +47,6 @@
   .viewport-tab-content .build-editor-content {
     min-block-size: 0;
     overflow-y: auto;
-  }
-
-  .viewport-tab-content .rotation-editor-layout {
-    block-size: 100%;
-    min-block-size: 0;
-    max-block-size: none;
   }
 
   .viewport-page-shell .page-footer {
@@ -157,6 +152,12 @@
     justify-content: space-between;
     gap: 24px;
     margin-block-end: 16px;
+
+    .dev-mode-button {
+      min-block-size: 44px;
+      min-inline-size: 4.5rem;
+      flex: 0 0 auto;
+    }
   }
 
   .page-header > *,

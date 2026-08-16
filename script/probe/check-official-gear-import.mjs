@@ -183,7 +183,7 @@ try {
     "Dashboard equipmentDetails rows, weapon-specific affixes, and defensive accessory attunements must import.",
   );
   assert(
-    JSON.stringify(dashboardShape.exportValue.builds[0].weapons) === JSON.stringify(["snowparting", "phalanxbane"]),
+    JSON.stringify(dashboardShape.exportValue.builds[0].martialArts) === JSON.stringify(["snowparting", "phalanxbane"]),
     "The imported build must preserve the current order when it uses the same weapon pair.",
   );
   assert(

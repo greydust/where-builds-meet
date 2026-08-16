@@ -45,9 +45,10 @@ move between the two positions when the martial-art order changes.
 ## Builds and persisted inventory
 
 Build data is stored in `localStorage` under `wwm-build-list-v1`, with the active
-build ID in `wwm-active-build-v1`. The stored payload uses schema version 4 and
+build ID in `wwm-active-build-v1`. The stored payload uses schema version 8 and
 contains one shared `gearItems` array plus the build entries. Each custom build
-stores an `equipped` map from its eight slots to shared item IDs plus its gear
+stores a `martialArts` eligibility list, an `equipped` map from its eight slots
+to shared item IDs, plus its gear
 sets, bow/ring set, and arsenal selection. The same
 gear item can therefore be equipped by any number of builds, while changing one
 build's loadout does not change another build's equipped choices. Only the
@@ -71,7 +72,8 @@ changing or deleting the old value. Loading older slot-bound Heng Blade and Mo
 Blade records removes their `slot` field while preserving their definition,
 values, IDs, and build references. Builds from older schemas receive the former
 session-wide setup selections when available, then persist those choices with
-the build.
+the build. Records using the former `weapons` eligibility field are normalized
+to `martialArts`; new persistence never writes the legacy field.
 
 Load validation rejects malformed items, options that are not allowed by the
 current definition, more than four additional affixes, and duplicate additional
@@ -128,11 +130,11 @@ still requires the user to press Save.
 
 The Build sidebar can export the complete shared gear inventory and all custom
 build records as a formatted JSON file. Export files use the
-`where-builds-meet-builds` format identifier and schema version 3. Bundled
-default builds are reconstructed from `data/build/*.json`, so they are omitted
-from browser persistence and exports. Versions 1 and 2 remain importable, with
-slot-bound weapons and missing setup
-data migrated.
+`where-builds-meet-builds` format identifier and schema version 7. Bundled
+default builds are reconstructed from `data/build/**/*.json`, so they are omitted
+from browser persistence and exports. Versions 1 through 6 remain importable,
+with legacy `weapons` eligibility renamed to `martialArts`, slot-bound weapon
+gear normalized, and missing setup data migrated.
 
 Import merges into the current browser state rather than replacing it. Valid
 gear items are appended, custom builds are appended, and the current active
@@ -202,16 +204,19 @@ does not affect outgoing damage.
 
 ## Default build presets
 
-Default builds live in `data/build/*.json`. Vite eagerly discovers every JSON
-file in that directory, so adding a preset does not require a TypeScript import.
+Default builds live in path-grouped `data/build/**/*.json` files. Vite eagerly discovers every JSON
+file beneath that root, so adding a preset does not require a TypeScript import. Presets
+are grouped by path (for example, `stonesplit-strength/` and `stonesplit-might/`), while the
+Empty Build remains at the root because it is eligible for every martial-art pair.
 The optional numeric `order` field controls display order. Presets marked with
-`"test": true` are loaded only by the Vite development server and are omitted
-from production builds. A preset contains
+`"test": true` are bundled in every environment and shown only while the persisted
+header-level Dev toggle is enabled. A preset contains
 its `setup` selections and exact gear choices, not persisted `GearItem` records. Missing
 slots are allowed for presets such as `Empty Build`; populated slots resolve to
 synthetic items at runtime. The UI disables gear switching and prevents removal
 of a default build. Its setup is also fixed by the preset. Its display name may
-still be changed locally.
+still be changed locally. Presets declare their eligible martial-art IDs in
+`martialArts`.
 
 Preset gear records use the same value shape as editor-created gear: every base
 affix, additional affix, and attunement stores an explicit `{ "key", "value" }`

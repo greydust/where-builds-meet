@@ -313,13 +313,13 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     warnings,
     exportValue: {
       format: buildExportFormat,
-      version: 5,
+      version: 7,
       gearItems,
       builds: [
         {
           id: buildId,
           name: `${roleName} Import`,
-          weapons: [...buildWeapons],
+          martialArts: [...buildWeapons],
           equipped,
           setup: defaultBuildSetup,
         },

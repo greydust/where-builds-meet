@@ -1,15 +1,27 @@
 {
-  "id": "mixed-fully-relayed-double-min",
-  "name": "Mixed Fully Relayed Double Min Build",
+  "id": "pure-fully-relayed-min",
+  "name": "Pure Fully Relayed Min Build",
   "order": 1,
-  "weapons": ["snowparting", "phalanxbane"],
+  "martialArts": ["snowparting", "phalanxbane"],
   "relayed": true,
   "setup": {
     "innerWays": [
-      { "innerWay": "FrostCladNight", "tier": "T6" },
-      { "innerWay": "MoraleChant", "tier": "T6" },
-      { "innerWay": "SteadfastDevotion", "tier": "T6" },
-      { "innerWay": "ThroatPiercingArt", "tier": "T6" }
+      {
+        "innerWay": "FrostCladNight",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "MoraleChant",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "EnvigoratedWarrior",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ThroatPiercingArt",
+        "tier": "T6"
+      }
     ],
     "weaponSets": {
       "Cleftpeak": 4,
@@ -38,12 +50,12 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "hengBladeDmgBoost",
+          "value": 0.05828
         },
         {
-          "key": "minVoidAttack",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -69,12 +81,12 @@
           "value": 46.436
         },
         {
-          "key": "moBladeDmgBoost",
-          "value": 0.05828
+          "key": "precision",
+          "value": 0.0752
         },
         {
-          "key": "minVoidAttack",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -104,8 +116,8 @@
           "value": 0.03008
         },
         {
-          "key": "minStonesplit",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -135,7 +147,7 @@
           "value": 0.03008
         },
         {
-          "key": "minStonesplit",
+          "key": "maxStonesplit",
           "value": 41.548
         }
       ],
@@ -162,16 +174,16 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "precision",
+          "value": 0.0752
         },
         {
-          "key": "minStonesplit",
+          "key": "maxStonesplit",
           "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -193,16 +205,16 @@
           "value": 46.436
         },
         {
-          "key": "minBellstrike",
-          "value": 41.548
+          "key": "precision",
+          "value": 0.0752
         },
         {
-          "key": "minStonesplit",
+          "key": "maxStonesplit",
           "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -228,12 +240,12 @@
           "value": 0.03008
         },
         {
-          "key": "minStonesplit",
+          "key": "maxStonesplit",
           "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     },
@@ -259,12 +271,12 @@
           "value": 0.03008
         },
         {
-          "key": "minStonesplit",
+          "key": "maxStonesplit",
           "value": 41.548
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "snowpartingVariedComboBoost",
         "value": 0.06
       }
     }

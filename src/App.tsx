@@ -21,7 +21,8 @@ import {
   activeBuildStorageKey,
   armorSetDefinitions,
   attunementData,
-  buildEntryAvailableForWeapons,
+  buildEntryAvailableForMartialArts,
+  buildEntryIsTestPreset,
   buildListStorageKey,
   calculateEquippedGearEffects,
   loadBuildState,
@@ -168,6 +169,7 @@ const gearSetStorageKey = "wwm-gear-set-session-v1";
 const foodStorageKey = "wwm-food-session-v1";
 const divinecraftStorageKey = "wwm-divinecraft-session-v1";
 const pathStorageKey = "wwm-path-session-v1";
+const devModeStorageKey = "wwm-dev-mode-v1";
 const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(
   allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key),
@@ -197,9 +199,9 @@ type DefaultSetup = {
 };
 const typedDefaultSetup = defaultSetup as DefaultSetup;
 const typedPathDefinitions = pathDefinitions as Record<PathId, PathDefinition>;
-const enabledWeaponIds = new Set<WeaponId>(
+const productionWeaponIds = new Set<WeaponId>(
   (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).flatMap(([id, definition]) =>
-    id !== "mixed" && (!definition.wip || import.meta.env.DEV) ? (definition.lockedWeapons ?? []) : [],
+    id !== "mixed" && !definition.wip ? (definition.lockedWeapons ?? []) : [],
   ),
 );
 
@@ -400,10 +402,14 @@ const manualDebuffDefinitions = {
   ...generalDebuffs,
 } as Record<string, { name?: string }>;
 
-function loadSelectedPath(): PathId {
+function loadDevMode() {
+  return localStorage.getItem(devModeStorageKey) === "true";
+}
+
+function loadSelectedPath(devMode = loadDevMode()): PathId {
   const saved = sessionStorage.getItem(pathStorageKey);
   const definition = saved ? typedPathDefinitions[saved as PathId] : undefined;
-  return definition && (!definition.wip || import.meta.env.DEV) ? (saved as PathId) : "stonesplitStrength";
+  return definition && (!definition.wip || devMode) ? (saved as PathId) : "stonesplitStrength";
 }
 
 function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath()) {
@@ -683,7 +689,6 @@ function rotationAvailableForWeapons(entry: RotationEntry, weapons: [WeaponId, W
   return tagged.length === selected.length && selected.every((weapon) => tagged.includes(weapon));
 }
 const defaultRotationEntries = Object.entries(rotationPresetModules)
-  .filter(([, rotation]) => !rotation.test || import.meta.env.DEV)
   .sort(
     ([leftPath, left], [rightPath, right]) =>
       Number(left.test === true) - Number(right.test === true) || leftPath.localeCompare(rightPath),
@@ -697,6 +702,7 @@ const defaultRotationEntries = Object.entries(rotationPresetModules)
     rotation: migrateRotation(rotation),
     martialArts: rotationMartialArts(rotation, rotation.martialArts),
     isDefault: true,
+    test: rotation.test === true,
   }));
 const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "Default Rotation", steps: [] };
 const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
@@ -742,7 +748,7 @@ const systemStatEffects: SetupEffect[] = [
 type ArsenalDefinition = { name: string; effect?: SetupEffect };
 const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>;
 const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>;
-type GearSetOption = { name: string; effect?: SetupEffect };
+type GearSetOption = { name: string; effect?: SetupEffect | SetupEffect[] };
 type GearSetDefinition = Omit<SetDefinition, "options"> & { options: Record<string, GearSetOption> };
 const typedWeaponSetDefinitions = weaponSetDefinitions as Record<string, GearSetDefinition>;
 const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDefinition>;
@@ -787,7 +793,7 @@ const weaponFamilyNames: Record<MartialArtWeapon, string> = {
 };
 const weaponIdSet = new Set<WeaponId>(allWeaponIds);
 const isWeaponId = (value: unknown): value is WeaponId =>
-  typeof value === "string" && weaponIdSet.has(value as WeaponId) && enabledWeaponIds.has(value as WeaponId);
+  typeof value === "string" && weaponIdSet.has(value as WeaponId);
 
 const artStatByWeaponFamily: Record<MartialArtWeapon, keyof CharacterStats> = {
   HengBlade: "hengBladeDmgBoost",
@@ -884,7 +890,10 @@ function setEffectsFor(
 ) {
   return Object.entries(selected)
     .filter(([setName]) => definitions[setName] && setAvailableForSettings(definitions[setName], settings))
-    .map(([setName, tier]) => definitions[setName]?.options[String(tier)]?.effect ?? {});
+    .flatMap(([setName, tier]) => {
+      const effect = definitions[setName]?.options[String(tier)]?.effect;
+      return Array.isArray(effect) ? effect : [effect ?? {}];
+    });
 }
 
 function setupConditionsFor(effects: SetupEffect[]) {
@@ -1149,6 +1158,21 @@ function loadRotationEntries(): RotationEntry[] {
 function initialRotationId(entries: RotationEntry[]) {
   const savedId = sessionStorage.getItem("wwm-active-rotation-session-v1");
   return savedId && entries.some((entry) => entry.id === savedId) ? savedId : (entries[0]?.id ?? defaultRotationId);
+}
+
+function initialRotationEditorState(devMode: boolean) {
+  const entries = loadRotationEntries();
+  const selectableEntries = entries.filter((entry) => devMode || !entry.test);
+  const activeId = initialRotationId(selectableEntries);
+  const activeRotation =
+    selectableEntries.find((entry) => entry.id === activeId)?.rotation ??
+    selectableEntries[0]?.rotation ??
+    defaultRotation;
+  const rotation = JSON.parse(JSON.stringify(activeRotation)) as RotationRecord;
+  const startAnchor = rotation.start
+    ? { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action }
+    : { rowId: "rotation-0" };
+  return { entries, activeId, rotation, startAnchor };
 }
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
@@ -3871,11 +3895,13 @@ function SettingsTab({
   settings,
   enemy,
   pathId,
+  devMode,
   onSettingsChange,
 }: {
   settings: CalculatorSettings;
   enemy: EnemyProfile;
   pathId: PathId;
+  devMode: boolean;
   onSettingsChange: Dispatch<SetStateAction<CalculatorSettings>>;
 }) {
   const weaponsLocked = Boolean(typedPathDefinitions[pathId].lockedWeapons);
@@ -3900,7 +3926,7 @@ function SettingsTab({
                 }
               >
                 {Object.entries(martialArtDefinitions)
-                  .filter(([value]) => enabledWeaponIds.has(value as WeaponId))
+                  .filter(([value]) => devMode || productionWeaponIds.has(value as WeaponId))
                   .map(([value, definition]) => (
                     <option key={value} value={value}>
                       {definition.name} ({weaponFamilyNames[definition.weapon]})
@@ -3938,10 +3964,12 @@ function SettingsTab({
 
 function RotationEditorTab({
   character,
+  devMode,
   onMetricsChange,
   onActiveSimulationBundleChange,
 }: {
   character: CharacterState;
+  devMode: boolean;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
   onActiveSimulationBundleChange: (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => void;
 }) {
@@ -3956,26 +3984,14 @@ function RotationEditorTab({
     buildSetup,
   } = character;
   const rotationSkillIds = useMemo(() => selectableRotationSkillIds(settings.weapons), [settings.weapons]);
-  const innerWayConditions = innerWayConditionsFor(buildSetup.innerWays);
-  const innerWayEffectRules = innerWayEffectRulesFor(buildSetup.innerWays);
-  const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(loadRotationEntries);
-  const [activeRotationId, setActiveRotationId] = useState(() => initialRotationId(loadRotationEntries()));
-  const [editingRotationId, setEditingRotationId] = useState(() => initialRotationId(loadRotationEntries()));
-  const [rotation, setRotation] = useState<RotationRecord>(() => {
-    const entries = loadRotationEntries();
-    const activeId = initialRotationId(entries);
-    return JSON.parse(
-      JSON.stringify(
-        entries.find((entry) => entry.id === activeId)?.rotation ?? entries[0]?.rotation ?? defaultRotation,
-      ),
-    ) as RotationRecord;
-  });
-  const [startAnchor, setStartAnchor] = useState<{ rowId: string; actionIndex?: number }>(() => {
-    const initialEntries = loadRotationEntries();
-    const initialId = initialRotationId(initialEntries);
-    const start = initialEntries.find((entry) => entry.id === initialId)?.rotation.start;
-    return start ? { rowId: `rotation-${start.step}`, actionIndex: start.action } : { rowId: "rotation-0" };
-  });
+  const innerWayConditions = useMemo(() => innerWayConditionsFor(buildSetup.innerWays), [buildSetup.innerWays]);
+  const innerWayEffectRules = useMemo(() => innerWayEffectRulesFor(buildSetup.innerWays), [buildSetup.innerWays]);
+  const [initialState] = useState(() => initialRotationEditorState(devMode));
+  const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(initialState.entries);
+  const [activeRotationId, setActiveRotationId] = useState(initialState.activeId);
+  const [editingRotationId, setEditingRotationId] = useState(initialState.activeId);
+  const [rotation, setRotation] = useState<RotationRecord>(initialState.rotation);
+  const [startAnchor, setStartAnchor] = useState<{ rowId: string; actionIndex?: number }>(initialState.startAnchor);
   const [expandedSkillRows, setExpandedSkillRows] = useState<Set<string>>(() => new Set());
   const [editingName, setEditingName] = useState(false);
   const [status, setStatus] = useState("");
@@ -4004,8 +4020,11 @@ function RotationEditorTab({
   const pendingEventScrollRef = useRef<{ stepIndex: number; top: number } | null>(null);
   const pendingSkillFocusRef = useRef<number | null>(null);
   const visibleRotationEntries = useMemo(
-    () => rotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons)),
-    [rotationEntries, settings.weapons],
+    () =>
+      rotationEntries.filter(
+        (entry) => (devMode || !entry.test) && rotationAvailableForWeapons(entry, settings.weapons),
+      ),
+    [devMode, rotationEntries, settings.weapons],
   );
   const editingEntry =
     visibleRotationEntries.find((entry) => entry.id === editingRotationId) ?? visibleRotationEntries[0];
@@ -4638,114 +4657,135 @@ function RotationEditorTab({
       else next.add(key);
       return next;
     });
-  const timelineRowsById = new Map(timeline.map((row) => [row.id, row]));
-  const attachmentTargets = timeline
-    .filter((row) => row.kind === "rotation" && row.step.type === "skill" && !row.skipped)
-    .flatMap((skillRow) => {
-      const skillStepIndex = skillRow.rotationIndex ?? -1;
-      const targets: Array<{
-        skillRowId: string;
-        skillStepIndex: number;
-        target: AttachedEventTarget;
-        time: number;
-        order: number;
-      }> = [
-        {
-          skillRowId: skillRow.id,
-          skillStepIndex,
-          target: { action: "start" },
-          time: skillRow.startTime,
-          order: skillRow.order,
-        },
-      ];
-      skillRow.actions.forEach((action, actionIndex) => {
-        if (action.type === "damage")
-          targets.push({
+  const timelineRowsById = useMemo(() => new Map(timeline.map((row) => [row.id, row])), [timeline]);
+  const attachmentTargets = useMemo(() => {
+    const triggeredRowsBySourceAndSkill = new Map<string, TimelineRow[]>();
+    timeline.forEach((row) => {
+      if (row.kind !== "trigger" || !row.sourceRowId || row.step.type !== "skill") return;
+      const key = `${row.sourceRowId}:${row.step.skill}`;
+      const matches = triggeredRowsBySourceAndSkill.get(key);
+      if (matches) matches.push(row);
+      else triggeredRowsBySourceAndSkill.set(key, [row]);
+    });
+
+    return timeline
+      .filter((row) => row.kind === "rotation" && row.step.type === "skill" && !row.skipped)
+      .flatMap((skillRow) => {
+        const skillStepIndex = skillRow.rotationIndex ?? -1;
+        const targets: Array<{
+          skillRowId: string;
+          skillStepIndex: number;
+          target: AttachedEventTarget;
+          time: number;
+          order: number;
+        }> = [
+          {
             skillRowId: skillRow.id,
             skillStepIndex,
-            target: { action: actionIndex },
-            time: skillRow.startTime + Number(action.time ?? 0),
-            order: skillRow.order + 10 + actionIndex,
-          });
-      });
-      const usedTriggeredRows = new Set<string>();
-      let triggerOrdinal = 0;
-      skillRow.actions.forEach((action) => {
-        if (action.type !== "trigger" || typeof action.value !== "string") return;
-        const triggeredRow = timeline.find(
-          (candidate) =>
-            candidate.kind === "trigger" &&
-            candidate.sourceRowId === skillRow.id &&
-            candidate.step.type === "skill" &&
-            candidate.step.skill === action.value &&
-            !usedTriggeredRows.has(candidate.id),
-        );
-        if (triggeredRow) {
-          usedTriggeredRows.add(triggeredRow.id);
-          triggeredRow.actions.forEach((triggeredAction, actionIndex) => {
-            if (triggeredAction.type === "damage")
-              targets.push({
-                skillRowId: skillRow.id,
-                skillStepIndex,
-                target: { trigger: triggerOrdinal, action: actionIndex },
-                time: triggeredRow.startTime + Number(triggeredAction.time ?? 0),
-                order: triggeredRow.order + 10 + actionIndex,
-              });
-          });
-        }
-        triggerOrdinal += 1;
-      });
-      return targets;
-    })
-    .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
-  const derivedSourceExpanded = (row: TimelineRow) => {
-    if (row.kind === "rotation") return false;
-    const sourceRow = row.sourceRowId ? timelineRowsById.get(row.sourceRowId) : undefined;
-    return Boolean(sourceRow && (sourceRow.step.type !== "skill" || skillActionsExpanded(sourceRow.id)));
-  };
-  const displayEntries = timeline
-    .flatMap((row) => {
-      if (row.skipped) return [];
-      const entries: Array<{
-        row: TimelineRow;
-        kind: "skill" | "action";
-        time: number;
-        order: number;
-        actionIndex?: number;
-      }> = [];
-      const derivedActionsVisible = derivedSourceExpanded(row);
-      if (row.kind === "rotation") entries.push({ row, kind: "skill", time: row.startTime, order: row.order });
-      row.actions.forEach((action, actionIndex) => {
-        const isStartingAction = startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex;
-        const actionsVisible =
-          (row.kind !== "rotation" && derivedActionsVisible) ||
-          row.step.type !== "skill" ||
-          skillActionsExpanded(row.id) ||
-          isStartingAction;
-        if (action.type === "damage" && actionsVisible)
-          entries.push({
-            row,
-            kind: "action",
-            actionIndex,
-            time: row.startTime + (typeof action.time === "number" ? action.time : 0),
-            order: row.order + 10 + actionIndex,
-          });
-      });
-      return entries;
-    })
-    .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
-  const showDistanceColumn = rotation.steps.some(
-    (step) =>
-      (step.type === "event" && step.event === "Move") ||
-      (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("Distance")),
+            target: { action: "start" },
+            time: skillRow.startTime,
+            order: skillRow.order,
+          },
+        ];
+        skillRow.actions.forEach((action, actionIndex) => {
+          if (action.type === "damage")
+            targets.push({
+              skillRowId: skillRow.id,
+              skillStepIndex,
+              target: { action: actionIndex },
+              time: skillRow.startTime + Number(action.time ?? 0),
+              order: skillRow.order + 10 + actionIndex,
+            });
+        });
+        const nextTriggeredRowBySkill = new Map<string, number>();
+        let triggerOrdinal = 0;
+        skillRow.actions.forEach((action) => {
+          if (action.type !== "trigger" || typeof action.value !== "string") return;
+          const key = `${skillRow.id}:${action.value}`;
+          const matchIndex = nextTriggeredRowBySkill.get(action.value) ?? 0;
+          const triggeredRow = triggeredRowsBySourceAndSkill.get(key)?.[matchIndex];
+          nextTriggeredRowBySkill.set(action.value, matchIndex + 1);
+          if (triggeredRow) {
+            triggeredRow.actions.forEach((triggeredAction, actionIndex) => {
+              if (triggeredAction.type === "damage")
+                targets.push({
+                  skillRowId: skillRow.id,
+                  skillStepIndex,
+                  target: { trigger: triggerOrdinal, action: actionIndex },
+                  time: triggeredRow.startTime + Number(triggeredAction.time ?? 0),
+                  order: triggeredRow.order + 10 + actionIndex,
+                });
+            });
+          }
+          triggerOrdinal += 1;
+        });
+        return targets;
+      })
+      .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
+  }, [timeline]);
+  const displayEntries = useMemo(() => {
+    const actionsExpanded = (rowId: string) => expandedSkillRows.has(`${editingRotationId}:${rowId}`);
+    const derivedSourceExpanded = (row: TimelineRow) => {
+      if (row.kind === "rotation") return false;
+      const sourceRow = row.sourceRowId ? timelineRowsById.get(row.sourceRowId) : undefined;
+      return Boolean(sourceRow && (sourceRow.step.type !== "skill" || actionsExpanded(sourceRow.id)));
+    };
+
+    return timeline
+      .flatMap((row) => {
+        if (row.skipped) return [];
+        const entries: Array<{
+          row: TimelineRow;
+          kind: "skill" | "action";
+          time: number;
+          order: number;
+          actionIndex?: number;
+        }> = [];
+        const derivedActionsVisible = derivedSourceExpanded(row);
+        if (row.kind === "rotation") entries.push({ row, kind: "skill", time: row.startTime, order: row.order });
+        row.actions.forEach((action, actionIndex) => {
+          const isStartingAction = startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex;
+          const actionsVisible =
+            (row.kind !== "rotation" && derivedActionsVisible) ||
+            row.step.type !== "skill" ||
+            actionsExpanded(row.id) ||
+            isStartingAction;
+          if (action.type === "damage" && actionsVisible)
+            entries.push({
+              row,
+              kind: "action",
+              actionIndex,
+              time: row.startTime + (typeof action.time === "number" ? action.time : 0),
+              order: row.order + 10 + actionIndex,
+            });
+        });
+        return entries;
+      })
+      .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
+  }, [editingRotationId, expandedSkillRows, startAnchor, timeline, timelineRowsById]);
+  const showDistanceColumn = useMemo(
+    () =>
+      rotation.steps.some(
+        (step) =>
+          (step.type === "event" && step.event === "Move") ||
+          (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("Distance")),
+      ),
+    [rotation.steps],
   );
-  const showHPColumn = rotation.steps.some(
-    (step) =>
-      (step.type === "event" && step.event === "HP") ||
-      (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("HP")),
+  const showHPColumn = useMemo(
+    () =>
+      rotation.steps.some(
+        (step) =>
+          (step.type === "event" && step.event === "HP") ||
+          (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("HP")),
+      ),
+    [rotation.steps],
   );
   const totalRotationTime = currentCachedResult?.duration ?? 0;
-  const readableRotation = readableRotationText(timeline, startAnchor, anchorTime);
+  const readableRotation = useMemo(
+    () => (readableDialogOpen ? readableRotationText(timeline, startAnchor, anchorTime) : ""),
+    [anchorTime, readableDialogOpen, startAnchor, timeline],
+  );
   const totalRotationDamage = currentCachedResult?.metrics.totalDamage ?? 0;
   const rotationDps = currentCachedResult?.metrics.dps ?? 0;
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
@@ -5878,12 +5918,14 @@ export default function App() {
   const [statOverrides, setStatOverrides] = useState<CharacterStatOverrides>(loadStatOverrides);
   const [attunementOverrides, setAttunementOverrides] = useState<AttunementOverrides>(loadAttunementOverrides);
   const [characterProfiles, setCharacterProfiles] = useState<CharacterProfile[]>(loadCharacterProfiles);
-  const [pathId, setPathId] = useState<PathId>(loadSelectedPath);
+  const [devMode, setDevMode] = useState(loadDevMode);
+  const [pathId, setPathId] = useState<PathId>(() => loadSelectedPath(devMode));
   const [settings, setSettings] = useState<CalculatorSettings>(() => settingsForPath(loadSettings(), pathId));
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
   const enemy = typedEnemyProfiles[settings.enemy] ?? typedEnemyProfiles[defaultSettings.enemy];
-  const availableBuildEntries = buildState.entries.filter((entry) =>
-    buildEntryAvailableForWeapons(entry, settings.weapons),
+  const availableBuildEntries = buildState.entries.filter(
+    (entry) =>
+      (devMode || !buildEntryIsTestPreset(entry)) && buildEntryAvailableForMartialArts(entry, settings.weapons),
   );
   const activeBuild =
     availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ?? availableBuildEntries[0];
@@ -6017,7 +6059,7 @@ export default function App() {
     [],
   );
   const selectPath = (nextPathId: PathId) => {
-    if (typedPathDefinitions[nextPathId].wip && !import.meta.env.DEV) return;
+    if (typedPathDefinitions[nextPathId].wip && !devMode) return;
     sessionStorage.setItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) => settingsForPath(current, nextPathId));
@@ -6027,7 +6069,7 @@ export default function App() {
     const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(
       ([candidateId, definition]) =>
         candidateId !== "mixed" &&
-        (!definition.wip || import.meta.env.DEV) &&
+        (!definition.wip || devMode) &&
         definition.lockedWeapons &&
         sameWeaponPair(definition.lockedWeapons, nextWeapons),
     );
@@ -6040,6 +6082,12 @@ export default function App() {
         : settingsForPath(current, nextPathId),
     );
     setInnerWayRevision((current) => current + 1);
+  };
+  const toggleDevMode = () => {
+    const nextDevMode = !devMode;
+    localStorage.setItem(devModeStorageKey, String(nextDevMode));
+    setDevMode(nextDevMode);
+    if (!nextDevMode && typedPathDefinitions[pathId].wip) selectPath("stonesplitStrength");
   };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
@@ -6071,6 +6119,14 @@ export default function App() {
           <h1>Where Builds Meet</h1>
           <p className="intro">Build, simulate, and optimize for Where Winds Meet.</p>
         </div>
+        <button
+          className="button button-secondary dev-mode-button"
+          type="button"
+          aria-pressed={devMode}
+          onClick={toggleDevMode}
+        >
+          Dev
+        </button>
       </header>
       <section className="path-selector" aria-label="Combat path">
         <div className="path-selector-options">
@@ -6080,7 +6136,7 @@ export default function App() {
               type="button"
               key={value}
               aria-pressed={pathId === value}
-              disabled={definition.wip && !import.meta.env.DEV}
+              disabled={definition.wip && !devMode}
               onClick={() => selectPath(value)}
             >
               {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
@@ -6161,6 +6217,7 @@ export default function App() {
               weapons={settings.weapons}
               martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)}
               pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag}
+              devMode={devMode}
               buildState={buildState}
               onBuildStateChange={setBuildState}
               onSelectBuildWeapons={selectBuildWeapons}
@@ -6172,11 +6229,18 @@ export default function App() {
       ) : activeTab === "skills" ? (
         <SkillEditorTab weapons={settings.weapons} />
       ) : activeTab === "settings" ? (
-        <SettingsTab settings={settings} enemy={enemy} pathId={pathId} onSettingsChange={setSettings} />
+        <SettingsTab
+          settings={settings}
+          enemy={enemy}
+          pathId={pathId}
+          devMode={devMode}
+          onSettingsChange={setSettings}
+        />
       ) : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}>
         <RotationEditorTab
           character={character}
+          devMode={devMode}
           onMetricsChange={handleRotationMetrics}
           onActiveSimulationBundleChange={handleActiveSimulationBundle}
         />

@@ -1,34 +1,22 @@
 {
-  "id": "pure-fully-relayed-max",
-  "name": "Pure Fully Relayed Max Build",
+  "id": "mixed-fully-relayed-max",
+  "name": "Mixed Fully Relayed Max Build",
   "order": 1,
-  "weapons": ["snowparting", "phalanxbane"],
+  "martialArts": ["snowparting", "phalanxbane"],
   "relayed": true,
   "setup": {
     "innerWays": [
-      {
-        "innerWay": "FrostCladNight",
-        "tier": "T6"
-      },
-      {
-        "innerWay": "MoraleChant",
-        "tier": "T6"
-      },
-      {
-        "innerWay": "EnvigoratedWarrior",
-        "tier": "T6"
-      },
-      {
-        "innerWay": "ThroatPiercingArt",
-        "tier": "T6"
-      }
+      { "innerWay": "FrostCladNight", "tier": "T6" },
+      { "innerWay": "MoraleChant", "tier": "T6" },
+      { "innerWay": "SteadfastDevotion", "tier": "T6" },
+      { "innerWay": "ThroatPiercingArt", "tier": "T6" }
     ],
     "weaponSets": {
       "Cleftpeak": 4,
       "RainWhisper": 0
     },
     "armorSets": { "Formbend": 0 },
-    "bowRingSet": "Precision",
+    "bowRingSet": "Critical",
     "arsenal": "Stonesplit"
   },
   "gear": {
@@ -46,16 +34,16 @@
           "value": 73.132
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "power",
+          "value": 46.436
         },
         {
-          "key": "hengBladeDmgBoost",
-          "value": 0.05828
+          "key": "agility",
+          "value": 46.436
         },
         {
-          "key": "precision",
-          "value": 0.0752
+          "key": "minPhys",
+          "value": 73.132
         }
       ],
       "attunement": {
@@ -81,12 +69,12 @@
           "value": 46.436
         },
         {
-          "key": "agility",
-          "value": 46.436
+          "key": "moBladeDmgBoost",
+          "value": 0.05828
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "minPhys",
+          "value": 73.132
         }
       ],
       "attunement": {
@@ -170,8 +158,8 @@
           "value": 73.132
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "agility",
@@ -183,7 +171,7 @@
         }
       ],
       "attunement": {
-        "key": "snowpartingVariedComboBoost",
+        "key": "phalanxbaneChargedBoost",
         "value": 0.06
       }
     },
@@ -214,7 +202,7 @@
         }
       ],
       "attunement": {
-        "key": "snowpartingVariedComboBoost",
+        "key": "phalanxbaneChargedBoost",
         "value": 0.06
       }
     },
@@ -245,7 +233,7 @@
         }
       ],
       "attunement": {
-        "key": "snowpartingVariedComboBoost",
+        "key": "phalanxbaneChargedBoost",
         "value": 0.06
       }
     },
@@ -276,7 +264,7 @@
         }
       ],
       "attunement": {
-        "key": "snowpartingVariedComboBoost",
+        "key": "phalanxbaneChargedBoost",
         "value": 0.06
       }
     }

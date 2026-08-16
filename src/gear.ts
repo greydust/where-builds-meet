@@ -73,7 +73,7 @@ export type BuildPreset = {
   order?: number;
   test?: boolean;
   relayed?: boolean;
-  weapons: WeaponId[];
+  martialArts: WeaponId[];
   setup?: BuildSetup;
   gear: Partial<Record<GearSlot, BuildPresetGear>>;
 };
@@ -83,7 +83,7 @@ export type BuildEntry = {
   name: string;
   isDefault?: boolean;
   presetId?: string;
-  weapons?: WeaponId[];
+  martialArts?: WeaponId[];
   equipped?: Partial<Record<GearSlot, string>>;
   setup?: BuildSetup;
 };
@@ -309,20 +309,22 @@ function loadLegacyBuildSetup() {
     arsenal: sessionStorage.getItem(legacyArsenalStorageKey),
   });
 }
-const buildPresetModules = import.meta.glob("../data/build/*.json", { eager: true, import: "default" }) as Record<
+const buildPresetModules = import.meta.glob("../data/build/**/*.json", { eager: true, import: "default" }) as Record<
   string,
   BuildPreset
 >;
-export const defaultBuildPresets = Object.values(buildPresetModules)
-  .filter((preset) => !preset.test || import.meta.env.DEV)
-  .sort(
-    (left, right) =>
-      (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
-      left.name.localeCompare(right.name),
-  );
+export const defaultBuildPresets = Object.values(buildPresetModules).sort(
+  (left, right) =>
+    (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+    left.name.localeCompare(right.name),
+);
+
+export function buildEntryIsTestPreset(entry: BuildEntry) {
+  return entry.isDefault === true && defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.test === true;
+}
 const weaponIdSet = new Set<WeaponId>(weaponIds);
 
-function normalizedWeaponTags(
+function normalizedMartialArts(
   value: unknown,
   equipped: Partial<Record<GearSlot, string>> = {},
   items: GearItem[] = [],
@@ -340,10 +342,10 @@ function normalizedWeaponTags(
   return inferred.length === 2 ? inferred : [...weaponIds];
 }
 
-export function buildEntryWeapons(entry: BuildEntry) {
+export function buildEntryMartialArts(entry: BuildEntry) {
   return entry.isDefault
-    ? (defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.weapons ?? entry.weapons ?? [])
-    : (entry.weapons ?? []);
+    ? (defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.martialArts ?? entry.martialArts ?? [])
+    : (entry.martialArts ?? []);
 }
 
 export function sameWeaponPair(left: readonly WeaponId[], right: readonly WeaponId[]) {
@@ -351,10 +353,10 @@ export function sameWeaponPair(left: readonly WeaponId[], right: readonly Weapon
   return [...left].sort().every((weapon, index) => weapon === [...right].sort()[index]);
 }
 
-export function buildEntryAvailableForWeapons(entry: BuildEntry, selectedWeapons: [WeaponId, WeaponId]) {
-  const tags = buildEntryWeapons(entry);
+export function buildEntryAvailableForMartialArts(entry: BuildEntry, selectedMartialArts: [WeaponId, WeaponId]) {
+  const tags = buildEntryMartialArts(entry);
   if (weaponIds.every((weapon) => tags.includes(weapon))) return true;
-  return sameWeaponPair(tags, selectedWeapons);
+  return sameWeaponPair(tags, selectedMartialArts);
 }
 
 const weaponDefinitionIds: Record<WeaponId, string> = {
@@ -609,13 +611,13 @@ function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sha
 
 export function serializeBuildState(state: BuildState) {
   return JSON.stringify({
-    version: 7,
+    version: 8,
     entries: state.entries
       .filter((entry) => !entry.isDefault)
       .map((entry) => ({
         id: entry.id,
         name: entry.name,
-        weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems),
+        martialArts: normalizedMartialArts(entry.martialArts, entry.equipped, state.gearItems),
         equipped: entry.equipped ?? {},
         setup: normalizeBuildSetup(entry.setup),
       })),
@@ -627,7 +629,7 @@ export function exportBuildState(state: BuildState) {
   return JSON.stringify(
     {
       format: buildExportFormat,
-      version: 6,
+      version: 7,
       exportedAt: new Date().toISOString(),
       gearItems: state.gearItems.map(withoutWeaponSlot),
       builds: state.entries
@@ -635,7 +637,7 @@ export function exportBuildState(state: BuildState) {
         .map((entry) => ({
           id: entry.id,
           name: entry.name,
-          weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems),
+          martialArts: normalizedMartialArts(entry.martialArts, entry.equipped, state.gearItems),
           equipped: entry.equipped ?? {},
           setup: normalizeBuildSetup(entry.setup),
         })),
@@ -702,7 +704,8 @@ export function mergeImportedBuildState(
       source.version !== 3 &&
       source.version !== 4 &&
       source.version !== 5 &&
-      source.version !== 6) ||
+      source.version !== 6 &&
+      source.version !== 7) ||
     !Array.isArray(source.gearItems) ||
     !Array.isArray(source.builds)
   ) {
@@ -735,6 +738,7 @@ export function mergeImportedBuildState(
       id?: unknown;
       name?: unknown;
       isDefault?: unknown;
+      martialArts?: unknown;
       weapons?: unknown;
       equipped?: unknown;
       setup?: unknown;
@@ -759,7 +763,10 @@ export function mergeImportedBuildState(
       {
         id: importedId(candidate.id, usedBuildIds),
         name: candidate.name,
-        weapons: normalizedWeaponTags(candidate.weapons, equipped, [...current.gearItems, ...addedItems]),
+        martialArts: normalizedMartialArts(candidate.martialArts ?? candidate.weapons, equipped, [
+          ...current.gearItems,
+          ...addedItems,
+        ]),
         equipped,
         setup: normalizeBuildSetup(candidate.setup),
       },
@@ -801,7 +808,7 @@ export function loadBuildState(): BuildState {
         name: typeof savedDefault?.name === "string" && savedDefault.name.trim() ? savedDefault.name : preset.name,
         isDefault: true,
         presetId: preset.id,
-        weapons: [...preset.weapons],
+        martialArts: [...preset.martialArts],
       };
     });
     const customEntries = savedEntries.flatMap((value): BuildEntry[] => {
@@ -809,6 +816,7 @@ export function loadBuildState(): BuildState {
       const candidate = value as {
         id?: unknown;
         name?: unknown;
+        martialArts?: unknown;
         weapons?: unknown;
         inventory?: unknown;
         equipped?: unknown;
@@ -829,7 +837,7 @@ export function loadBuildState(): BuildState {
         {
           id: candidate.id,
           name: candidate.name,
-          weapons: normalizedWeaponTags(candidate.weapons, equipped, sharedItems),
+          martialArts: normalizedMartialArts(candidate.martialArts ?? candidate.weapons, equipped, sharedItems),
           equipped,
           setup: normalizeBuildSetup(candidate.setup, legacySetup),
         },
@@ -843,7 +851,7 @@ export function loadBuildState(): BuildState {
         entries.push({
           id: "migrated-build",
           name: "My Build",
-          weapons: normalizedWeaponTags(undefined, equipped, sharedItems),
+          martialArts: normalizedMartialArts(undefined, equipped, sharedItems),
           equipped,
           setup: legacySetup,
         });
@@ -865,7 +873,7 @@ export function loadBuildState(): BuildState {
       name: preset.name,
       isDefault: true,
       presetId: preset.id,
-      weapons: [...preset.weapons],
+      martialArts: [...preset.martialArts],
     }));
     return { entries, activeBuildId: entries[0]?.id ?? "", gearItems: [] };
   }

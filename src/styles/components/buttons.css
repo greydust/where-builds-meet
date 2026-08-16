@@ -42,6 +42,16 @@
     border-color: var(--primary);
   }
 
+  .dev-mode-button[aria-pressed="true"] {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--primary-contrast);
+  }
+
+  .dev-mode-button[aria-pressed="true"]:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+
   .button-danger {
     border-color: var(--error-border);
     background: var(--error-soft);

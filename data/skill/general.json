@@ -1,4 +1,34 @@
 {
+  "AoRT4Shield": {
+    "name": "AoR T4 Shield",
+    "castTime": 3,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Shield",
+        "stack": 1,
+        "duration": 14,
+        "reapply": true,
+        "time": 0
+      },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Shield",
+        "duration": 2,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FormBend4"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["General", "Shield"]
+  },
   "Deflect": {
     "name": "Deflect",
     "castTime": 0.338,

@@ -14,6 +14,7 @@ try {
     await viteServer.ssrLoadModule("/src/gear.ts");
   const thundercrySkills = (await viteServer.ssrLoadModule("/data/skill/thundercry-blade.json")).default;
   const stormbreakerSkills = (await viteServer.ssrLoadModule("/data/skill/stormbreaker-spear.json")).default;
+  const generalSkills = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
   const generalBuffs = (await viteServer.ssrLoadModule("/data/buff/general.json")).default;
   const mightBuffs = (await viteServer.ssrLoadModule("/data/buff/stonesplit-might.json")).default;
   const assert = (condition, message) => {
@@ -87,6 +88,39 @@ try {
   };
   assert(!shieldAtProbe([]), "The base eight-second Shield must expire before the probe hit.");
   assert(shieldAtProbe(["FormBend4"]), "Formbend four-piece must extend Shield by two seconds.");
+  const aoRShieldAtProbe = (conditions) => {
+    assert(generalSkills.AoRT4Shield.castTime === 3, "AoR T4 Shield must have a three-second cast time.");
+    assert(
+      generalSkills.AoRT4Shield.action[0].type === "apply" &&
+        generalSkills.AoRT4Shield.action[0].time === 0 &&
+        generalSkills.AoRT4Shield.action[0].duration === 14,
+      "AoR T4 Shield must apply a 14-second Shield at cast start.",
+    );
+    const timeline = buildRotationTimeline({
+      rotation: {
+        name: "AoR T4 Shield probe",
+        steps: [
+          { type: "skill", skill: "AoRT4Shield" },
+          { type: "skill", skill: "Probe" },
+        ],
+      },
+      skills: {
+        AoRT4Shield: generalSkills.AoRT4Shield,
+        Probe: { ...probeSkill, castTime: 12, action: [{ ...probeSkill.action[0], time: 12 }] },
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: generalBuffs,
+      innerWayConditions: conditions,
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: ["thundercry", "stormbreaker"],
+    });
+    assert(timeline[0].effectiveCastTime === 3, "AoR T4 Shield must retain its three-second timeline duration.");
+    return timeline[1].actionStates[0].buffs.some((effect) => effect.name === "Shield");
+  };
+  assert(!aoRShieldAtProbe([]), "AoR T4 Shield must expire after its 14-second duration.");
+  assert(aoRShieldAtProbe(["FormBend4"]), "Formbend four-piece must extend AoR T4 Shield by two seconds.");
   const durationTimeline = buildRotationTimeline({
     rotation: {
       name: "Independent duration probe",
@@ -118,7 +152,7 @@ try {
     !lateBuffs.some((effect) => effect.name === "Breakthrough"),
     "Breakthrough must expire after 12 seconds without receiving Shield extensions.",
   );
-  console.log("Formbend four-piece Shield extension check passed.");
+  console.log("Formbend four-piece Shield extension checks passed.");
 } finally {
   await viteServer.close();
 }

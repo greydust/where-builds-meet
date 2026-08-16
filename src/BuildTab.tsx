@@ -25,8 +25,9 @@ import {
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
-  buildEntryAvailableForWeapons,
-  buildEntryWeapons,
+  buildEntryAvailableForMartialArts,
+  buildEntryIsTestPreset,
+  buildEntryMartialArts,
   clampGearRoll,
   exportBuildState,
   gearBaseStats,
@@ -54,8 +55,21 @@ import {
   type GearValueDefinition,
 } from "./gear";
 import type { WeaponId } from "./types";
-import { recognizeGearImage } from "./gearOcr";
 import { officialGearBookmarklet } from "./officialGearBookmarklet";
+
+type GearOcrModule = typeof import("./gearOcr");
+
+let gearOcrModulePromise: Promise<GearOcrModule> | undefined;
+
+function loadGearOcrModule() {
+  if (!gearOcrModulePromise) {
+    gearOcrModulePromise = import("./gearOcr").catch((error) => {
+      gearOcrModulePromise = undefined;
+      throw error;
+    });
+  }
+  return gearOcrModulePromise;
+}
 
 const innerWayDefinitions = {
   FrostCladNight: frostCladNight,
@@ -82,6 +96,7 @@ type BuildTabProps = {
   weapons: [WeaponId, WeaponId];
   martialArtTags: string[];
   pathTag?: string;
+  devMode: boolean;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
   onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => void;
@@ -339,6 +354,7 @@ export default function BuildTab({
   weapons,
   martialArtTags,
   pathTag,
+  devMode,
   buildState,
   onBuildStateChange,
   onSelectBuildWeapons,
@@ -354,7 +370,9 @@ export default function BuildTab({
     officialBookmarkletRef.current?.setAttribute("href", officialGearBookmarklet);
   }, []);
   const listedEntries = buildState.entries.filter(
-    (entry) => !entry.isDefault || buildEntryAvailableForWeapons(entry, weapons),
+    (entry) =>
+      (devMode || !buildEntryIsTestPreset(entry)) &&
+      (!entry.isDefault || buildEntryAvailableForMartialArts(entry, weapons)),
   );
   const editingEntry = listedEntries.find((entry) => entry.id === editingBuildId) ?? listedEntries[0];
   useEffect(() => {
@@ -366,7 +384,13 @@ export default function BuildTab({
       ...current,
       entries: [
         ...current.entries,
-        { id, name: "New Build", weapons: [...weapons], equipped: {}, setup: normalizeBuildSetup(defaultBuildSetup) },
+        {
+          id,
+          name: "New Build",
+          martialArts: [...weapons],
+          equipped: {},
+          setup: normalizeBuildSetup(defaultBuildSetup),
+        },
       ],
     }));
     setEditingBuildId(id);
@@ -383,7 +407,7 @@ export default function BuildTab({
                 New Build
               </button>
             </div>
-            <p className="array-editor-empty">No builds match the selected weapons.</p>
+            <p className="array-editor-empty">No builds match the selected martial arts.</p>
           </aside>
         </div>
       </section>
@@ -525,9 +549,9 @@ export default function BuildTab({
   }
 
   function selectBuild(entry: typeof editingEntry) {
-    if (!buildEntryAvailableForWeapons(entry, weapons)) {
-      const entryWeapons = buildEntryWeapons(entry);
-      if (entryWeapons.length === 2) onSelectBuildWeapons([entryWeapons[0], entryWeapons[1]]);
+    if (!buildEntryAvailableForMartialArts(entry, weapons)) {
+      const entryMartialArts = buildEntryMartialArts(entry);
+      if (entryMartialArts.length === 2) onSelectBuildWeapons([entryMartialArts[0], entryMartialArts[1]]);
     }
     setEditingBuildId(entry.id);
     setEditingName(false);
@@ -545,14 +569,14 @@ export default function BuildTab({
           </div>
           <div className="build-list-entries">
             {listedEntries.map((entry) => {
-              const incompatible = !buildEntryAvailableForWeapons(entry, weapons);
+              const incompatible = !buildEntryAvailableForMartialArts(entry, weapons);
               return (
                 <div
                   className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""} ${incompatible ? "incompatible" : ""}`}
                   key={entry.id}
                   role="button"
                   tabIndex={0}
-                  title={incompatible ? "Select this build and switch to its weapons" : undefined}
+                  title={incompatible ? "Select this build and switch to its martial arts" : undefined}
                   onClick={() => selectBuild(entry)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") selectBuild(entry);
@@ -1297,6 +1321,7 @@ function GearEditor({
   );
 
   const openOcr = () => {
+    void loadGearOcrModule().catch(() => undefined);
     setOcrPreview((current) => {
       if (current) URL.revokeObjectURL(current);
       return "";
@@ -1326,6 +1351,7 @@ function GearEditor({
       return URL.createObjectURL(file);
     });
     try {
+      const { recognizeGearImage } = await loadGearOcrModule();
       const result = await recognizeGearImage(file, (progress, status) => {
         setOcrProgress(Math.max(0, Math.min(1, progress)));
         setOcrStatus(status);

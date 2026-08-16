@@ -3,7 +3,7 @@
   "name": "Empty Build",
   "order": 2,
   "test": true,
-  "weapons": [
+  "martialArts": [
     "snowparting",
     "phalanxbane",
     "thundercry",
