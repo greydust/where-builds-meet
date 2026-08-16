@@ -225,6 +225,25 @@ try {
     unattunedMerge.importedGearCount === 1 && unattunedMerge.state.gearItems[0].attunement === undefined,
     "The normal build validator must preserve imported gear without an attunement.",
   );
+  const unsupportedAdditionalAffix = importer.parseOfficialGearExport(
+    {
+      roleName: "Unsupported Affix Probe",
+      wearEquipsDetailed: {
+        1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [
+          actualRow(9713001, 62),
+          actualRow(9793003, 49.4),
+          actualRow(9793004, 46.436),
+          actualRow(280703, 10.2),
+        ]),
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  assert(
+    unsupportedAdditionalAffix.exportValue.gearItems[0].additionalAffixes.length === 1 &&
+      unsupportedAdditionalAffix.warnings.some((warning) => warning.includes("9793003")),
+    "Unsupported additional affixes must be skipped with a diagnostic warning instead of rejecting the import.",
+  );
   let unsupportedMartialArtError = "";
   try {
     importer.parseOfficialGearExport(

@@ -272,18 +272,33 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
         ? mappedRows.at(-1)
         : undefined;
     const affixRows = attunementEntry ? mappedRows.slice(0, -1) : mappedRows;
-    if (affixRows.length > 5) throw new Error(`${gearData.slots[piece.slot]} has more than four additional affixes.`);
-    const mappedAffixes = affixRows.map(({ row, key }, index) => {
-      const allowed =
-        index === 0
-          ? affixOptionsForGearDefinition(definition, "baseAffixes", resolvedLevel, relayed)
-          : affixOptionsForGearDefinition(definition, "additionalAffixes", resolvedLevel, relayed);
-      if (!key || !allowed.includes(key))
-        throw new Error(
-          `${gearData.slots[piece.slot]} has an unsupported affix ID ${row.statId}${key ? ` (${key})` : ""}.`,
+    const baseEntry = affixRows[0];
+    const allowedBaseAffixes = affixOptionsForGearDefinition(definition, "baseAffixes", resolvedLevel, relayed);
+    if (!baseEntry?.key || !allowedBaseAffixes.includes(baseEntry.key))
+      throw new Error(
+        `${gearData.slots[piece.slot]} has an unsupported base affix ID ${baseEntry?.row.statId ?? "unknown"}${baseEntry?.key ? ` (${baseEntry.key})` : ""}.`,
+      );
+    const baseAffix = {
+      key: baseEntry.key,
+      value: normalizedStoredValue(baseEntry.key, baseEntry.row.value, gearData.affixes),
+    };
+    const allowedAdditionalAffixes = affixOptionsForGearDefinition(
+      definition,
+      "additionalAffixes",
+      resolvedLevel,
+      relayed,
+    );
+    const additionalAffixes = affixRows.slice(1).flatMap(({ row, key }) => {
+      if (!key || !allowedAdditionalAffixes.includes(key)) {
+        warnings.push(
+          `${gearData.slots[piece.slot]} skipped unsupported affix ID ${row.statId}${key ? ` (${key})` : ""}.`,
         );
-      return { key, value: normalizedStoredValue(key, row.value, gearData.affixes) };
+        return [];
+      }
+      return [{ key, value: normalizedStoredValue(key, row.value, gearData.affixes) }];
     });
+    if (additionalAffixes.length > 4)
+      throw new Error(`${gearData.slots[piece.slot]} has more than four supported additional affixes.`);
     const attunement = attunementEntry
       ? {
           key: attunementEntry.key as string,
@@ -298,8 +313,8 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
       level: resolvedLevel,
       rarity: resolvedRarity,
       ...(relayed ? { relayed: true } : {}),
-      baseAffix: mappedAffixes[0],
-      additionalAffixes: mappedAffixes.slice(1),
+      baseAffix,
+      additionalAffixes,
       ...(attunement ? { attunement } : {}),
     };
   });
