@@ -180,6 +180,22 @@ function GearBaseStatSummary({ item }: { item: GearItem }) {
         Max Physical Attack <strong>{formatNumber(stats.maxPhys)}</strong>
       </span>
     );
+  if (typeof stats.maxHp === "number" || typeof stats.physicalDefense === "number")
+    return (
+      <span className="gear-base-stat">
+        {typeof stats.maxHp === "number" && (
+          <>
+            Max HP <strong>{formatNumber(stats.maxHp)}</strong>
+          </>
+        )}
+        {typeof stats.maxHp === "number" && typeof stats.physicalDefense === "number" && " · "}
+        {typeof stats.physicalDefense === "number" && (
+          <>
+            Physical Defense <strong>{formatNumber(stats.physicalDefense)}</strong>
+          </>
+        )}
+      </span>
+    );
   return null;
 }
 

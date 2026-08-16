@@ -2,25 +2,29 @@
   "ToadVenom": {
     "name": "Toad Venom",
     "shortName": "TV",
-    "tick": 5,
     "duration": 5,
     "maxStack": 1,
-    "action": [
-      {
-        "type": "damage",
-        "phyCoef": 1.6218,
-        "phyBonus": 232,
-        "attrBonus": 0,
-        "time": 0
-      },
-      {
-        "type": "apply",
-        "target": "target",
-        "value": "LesserToadVenom",
-        "reapply": true,
-        "time": 0
-      }
-    ],
+    "periodic": {
+      "interval": 5,
+      "firstTick": 5,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "damage",
+          "phyCoef": 1.6218,
+          "phyBonus": 232,
+          "attrBonus": 0,
+          "time": 0
+        },
+        {
+          "type": "apply",
+          "target": "target",
+          "value": "LesserToadVenom",
+          "reapply": true,
+          "time": 0
+        }
+      ]
+    },
     "modifier": [],
     "tags": ["DOT", "Mystic", "AreaMystic", "LeapingToad"],
     "refresh": false
@@ -28,18 +32,22 @@
   "LesserToadVenom": {
     "name": "Lesser Toad Venom",
     "shortName": "LTV",
-    "tick": 5,
     "duration": 5,
     "maxStack": 1,
-    "action": [
-      {
-        "type": "damage",
-        "phyCoef": 1.6218,
-        "phyBonus": 232,
-        "attrBonus": 0,
-        "time": 5
-      }
-    ],
+    "periodic": {
+      "interval": 5,
+      "firstTick": 5,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "damage",
+          "phyCoef": 1.6218,
+          "phyBonus": 232,
+          "attrBonus": 0,
+          "time": 0
+        }
+      ]
+    },
     "modifier": [],
     "tags": ["DOT", "Mystic", "AreaMystic", "LeapingToad"],
     "refresh": false
@@ -47,17 +55,21 @@
   "Combustion": {
     "name": "Combustion",
     "shortName": "Com",
-    "tick": 0.5,
     "maxStack": 1,
-    "action": [
-      {
-        "type": "damage",
-        "phyCoef": 0.2954,
-        "phyBonus": 42,
-        "attrBonus": 0,
-        "time": 0
-      }
-    ],
+    "periodic": {
+      "interval": 0.5,
+      "firstTick": 0.5,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "damage",
+          "phyCoef": 0.2954,
+          "phyBonus": 42,
+          "attrBonus": 0,
+          "time": 0
+        }
+      ]
+    },
     "modifier": [],
     "tags": ["DOT", "Mystic", "SingleTargetMystic", "DrunkenPoet"],
     "refresh": false
@@ -65,17 +77,21 @@
   "Smolder": {
     "name": "Smolder",
     "shortName": "Smo",
-    "tick": 0.5,
     "maxStack": 1,
-    "action": [
-      {
-        "type": "damage",
-        "phyCoef": 0.2787,
-        "phyBonus": 40,
-        "attrBonus": 0,
-        "time": 0
-      }
-    ],
+    "periodic": {
+      "interval": 0.5,
+      "firstTick": 0.5,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "damage",
+          "phyCoef": 0.2787,
+          "phyBonus": 40,
+          "attrBonus": 0,
+          "time": 0
+        }
+      ]
+    },
     "modifier": [],
     "tags": ["DOT", "Mystic", "SingleTargetMystic", "DrunkenPoet"],
     "refresh": false

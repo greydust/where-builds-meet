@@ -225,7 +225,7 @@ try {
     unattunedMerge.importedGearCount === 1 && unattunedMerge.state.gearItems[0].attunement === undefined,
     "The normal build validator must preserve imported gear without an attunement.",
   );
-  const unsupportedAdditionalAffix = importer.parseOfficialGearExport(
+  const defensiveAdditionalAffix = importer.parseOfficialGearExport(
     {
       roleName: "Unsupported Affix Probe",
       wearEquipsDetailed: {
@@ -240,9 +240,47 @@ try {
     ["snowparting", "phalanxbane"],
   );
   assert(
-    unsupportedAdditionalAffix.exportValue.gearItems[0].additionalAffixes.length === 1 &&
-      unsupportedAdditionalAffix.warnings.some((warning) => warning.includes("9793003")),
-    "Unsupported additional affixes must be skipped with a diagnostic warning instead of rejecting the import.",
+    defensiveAdditionalAffix.exportValue.gearItems[0].additionalAffixes.some((affix) => affix.key === "body") &&
+      defensiveAdditionalAffix.warnings.length === 0,
+    "Official Body rolls must import as universal additional affixes.",
+  );
+  const kiteArmor = importer.parseOfficialGearExport(
+    {
+      source: "wwm-dashboard",
+      v: 2,
+      roleInfo: {
+        roleName: "Kite Probe",
+        kongfuMain: 20901,
+        kongfuSub: 20703,
+        wearEquipsDetailed: {
+          3: detail({ W_DEF: 22, HP_MAX: 5774 }, [
+            actualRow(9743004, 0.076),
+            actualRow(9793104, 49.3),
+            actualRow(279755, 0.055),
+          ]),
+          4: detail({ W_DEF: 22, HP_MAX: 11547 }, [
+            actualRow(9743004, 0.082),
+            actualRow(9793107, 74.3),
+            actualRow(279751, 0.054),
+          ]),
+          5: detail({ W_DEF: 44, HP_MAX: 5774 }, [
+            actualRow(9753003, 0.08),
+            actualRow(9793103, 46.2),
+            actualRow(279753, 0.039),
+          ]),
+        },
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  const kiteItems = new Map(kiteArmor.exportValue.gearItems.map((item) => [item.slot, item]));
+  assert(
+    kiteArmor.warnings.length === 0 &&
+      kiteItems.get("helmet")?.attunement?.key === "skygraspSpecialBoost" &&
+      kiteItems.get("chestpiece")?.attunement?.key === "heavenwillMartialBoost" &&
+      kiteItems.get("greaves")?.additionalAffixes.some((affix) => affix.key === "body") &&
+      kiteItems.get("greaves")?.attunement?.key === "heavenwillLightVariedComboBoost",
+    "Observed Kite armor IDs must import as Body and the matching Kite attunements.",
   );
   let unsupportedMartialArtError = "";
   try {

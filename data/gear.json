@@ -23,8 +23,10 @@
     "minBamboocut": { "name": "Min Bamboocut Attack" },
     "maxBamboocut": { "name": "Max Bamboocut Attack" },
     "power": { "name": "Power" },
+    "body": { "name": "Body" },
     "agility": { "name": "Agility" },
     "momentum": { "name": "Momentum" },
+    "defense": { "name": "Defense" },
     "precision": { "name": "Precision", "percentage": true },
     "crit": { "name": "Critical", "percentage": true },
     "affinity": { "name": "Affinity", "percentage": true },
@@ -38,6 +40,10 @@
     "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
+  },
+  "universalAdditionalAffixes": {
+    "96": ["body", "defense"],
+    "91": ["body", "defense"]
   },
   "gear": {
     "hengBlade": {
@@ -521,7 +527,16 @@
     "helmet": {
       "name": "Helmet",
       "slots": ["helmet"],
-      "baseStats": {},
+      "baseStats": {
+        "96": {
+          "Gold": { "maxHp": 5774, "physicalDefense": 22 },
+          "Purple": { "maxHp": 5196, "physicalDefense": 20 }
+        },
+        "91": {
+          "Gold": { "maxHp": 4614, "physicalDefense": 18 },
+          "Purple": { "maxHp": 4153, "physicalDefense": 16 }
+        }
+      },
       "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
       "additionalAffixes": {
         "96": [
@@ -570,7 +585,16 @@
     "chestpiece": {
       "name": "Chestpiece",
       "slots": ["chestpiece"],
-      "baseStats": {},
+      "baseStats": {
+        "96": {
+          "Gold": { "maxHp": 11547, "physicalDefense": 22 },
+          "Purple": { "maxHp": 10392, "physicalDefense": 20 }
+        },
+        "91": {
+          "Gold": { "maxHp": 9227, "physicalDefense": 18 },
+          "Purple": { "maxHp": 8305, "physicalDefense": 16 }
+        }
+      },
       "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
       "additionalAffixes": {
         "96": [
@@ -619,7 +643,16 @@
     "greaves": {
       "name": "Greaves",
       "slots": ["greaves"],
-      "baseStats": {},
+      "baseStats": {
+        "96": {
+          "Gold": { "maxHp": 5774, "physicalDefense": 44 },
+          "Purple": { "maxHp": 5196, "physicalDefense": 39 }
+        },
+        "91": {
+          "Gold": { "maxHp": 4614, "physicalDefense": 36 },
+          "Purple": { "maxHp": 4153, "physicalDefense": 32 }
+        }
+      },
       "baseAffixes": {
         "96": ["crit", "precision", "affinity", "power"],
         "91": ["crit", "precision", "affinity", "power"]
@@ -669,7 +702,16 @@
     "bracer": {
       "name": "Bracer",
       "slots": ["bracer"],
-      "baseStats": {},
+      "baseStats": {
+        "96": {
+          "Gold": { "maxHp": 5774, "physicalDefense": 22 },
+          "Purple": { "maxHp": 5196, "physicalDefense": 20 }
+        },
+        "91": {
+          "Gold": { "maxHp": 4614, "physicalDefense": 18 },
+          "Purple": { "maxHp": 4153, "physicalDefense": 16 }
+        }
+      },
       "baseAffixes": {
         "96": ["crit", "precision", "affinity", "power"],
         "91": ["crit", "precision", "affinity", "power"]

@@ -1,4 +1,26 @@
 {
+  "Defense": {
+    "name": "Defense",
+    "castTime": 0.3,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Cadence",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ExquisiteSceneryT0"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["General"]
+  },
   "AoRT4Shield": {
     "name": "AoR T4 Shield",
     "castTime": 3,

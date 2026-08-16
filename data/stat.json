@@ -2,8 +2,10 @@
   "96": {
     "affix": {
       "power": 49.4,
+      "body": 49.4,
       "agility": 49.4,
       "momentum": 49.4,
+      "defense": 49.4,
       "minPhys": 77.8,
       "maxPhys": 77.8,
       "precision": 0.08,
@@ -40,8 +42,10 @@
   "91": {
     "affix": {
       "power": 40.4,
+      "body": 40.4,
       "agility": 40.4,
       "momentum": 40.4,
+      "defense": 40.4,
       "minPhys": 63.8,
       "maxPhys": 63.8,
       "precision": 0.066,

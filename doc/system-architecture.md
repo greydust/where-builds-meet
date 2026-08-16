@@ -260,6 +260,10 @@ effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
 shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
+Innate Max HP is stored directly in `baseStats`; its `101929` value excludes the
+`25980` HP from four Tier 96 Purple armor pieces that was present in the observed
+`127909` value. Armor base HP remains a separate equipped-gear contribution,
+while talent, Oddity, Body, and Defense HP retain their individual sources.
 
 Editing a Main-tab field creates a final-value override. The field is marked as
 modified and gains an individual reset control. Gear-set, bow/ring, and arsenal
@@ -316,11 +320,12 @@ action has temporary `stat` or `effectiveStat` effects.
 ## Combat timeline
 
 `buildRotationTimeline()` turns an ordered rotation into one global event queue.
-It produces three row kinds:
+It produces four row kinds:
 
 - `rotation`: an explicit skill or manual event
 - `trigger`: a skill inserted by a trigger action
 - `dot`: generated DOT actions
+- `periodic`: generated non-DOT buff or debuff actions
 
 Base skill casts and Delay events are initially placed sequentially. A Delay
 consumes its configured duration without producing actions or effects, shifts
@@ -339,7 +344,8 @@ Fixed-time and Move events have priority over skills, triggers, and DOTs at the
 same timestamp, while Exhausted attachments sort immediately after their target
 action. Within
 each row, cast start still precedes its zero-time actions. This lets casts,
-actions, triggers, and DOTs interleave while preserving causal order.
+actions, triggers, DOTs, and other periodic effects interleave while preserving
+causal order.
 Timestamps within `0.0001s` are treated as equal so rounded rotation data and floating-point arithmetic
 cannot place a displayed equal-time skill ahead of its event.
 
@@ -372,8 +378,13 @@ timing bands without skill-specific code. Casts record their start distance, and
 own distance snapshot. At each action, expired effects are pruned, requirements
 are checked, and the state
 snapshot is recorded before the action mutates state. Damage-triggered setup and
-Inner Way rules then run, followed by the action's trigger, DOT, apply, consume,
-extend, or cooldown behavior.
+Inner Way rules then run, followed by the action's trigger, periodic-effect
+application, consume, extend, or cooldown behavior. Tracked effects with a
+`periodic` definition schedule their nested actions in the same global queue.
+Refreshing can either preserve or restart the cadence according to
+`resetOnRefresh`; consuming the final stack cancels pending periodic rows. DOTs
+use this shared scheduler and differ only in row classification, damage rules,
+and source-cast presentation.
 
 The simulator has a 2,000-event safety limit to prevent accidental infinite
 trigger chains.

@@ -4,6 +4,7 @@
       "precision": 0.65,
       "minPhys": 263,
       "maxPhys": 505,
+      "maxHp": 101929,
       "critDmgBonus": 0.35,
       "affinityDmgBonus": 0.2,
       "maxEndurance": 80,

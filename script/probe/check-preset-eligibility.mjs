@@ -98,10 +98,14 @@ assert(
   "The Might max preset must use Mo Blade and Spear weapon definitions.",
 );
 assert(
-  Object.values(mightBuild.gear).every(
-    (gear) => gear.baseAffix.key !== "agility" && gear.additionalAffixes.every((affix) => affix.key !== "agility"),
+  mightBuild.gear.leftWeapon.additionalAffixes.some((affix) => affix.key === "moBladeDmgBoost"),
+  "The Might max preset's Mo Blade damage roll must use the Mo Blade stat key.",
+);
+assert(
+  ["helmet", "chestpiece", "greaves", "bracer"].every(
+    (slot) => mightBuild.gear[slot].attunement.key === "thundercryChargedBoost",
   ),
-  "The Might max preset must replace every Agility roll with Momentum.",
+  "The Might max preset armor must use the Thundercry Charged attunement.",
 );
 assert(
   mightBuild.setup.weaponSets.RainWhisper === 4 && mightBuild.setup.armorSets.Formbend === 4,
@@ -135,27 +139,41 @@ const mightRotation = await readJson("data/rotation/stonesplit-might/dummy-1-min
 const mightSkillIds = mightRotation.steps.filter((step) => step.type === "skill").map((step) => step.skill);
 assert(mightRotation.name === "Dummy 1 min", "The Teams Dummy rotation must use its requested preset name.");
 assert(
-  mightRotation.start?.step === 2 && mightRotation.start.action === 0,
-  "The Might dummy rotation must start on the first Avalanche hit.",
+  mightRotation.start?.step === 4 && mightRotation.start.action === 0,
+  "The Might dummy rotation must start on the first Thunder Shock hit.",
 );
-assert(mightSkillIds.length === 60, "The Might dummy rotation must preserve all 60 exported sequence entries.");
+assert(mightSkillIds.length === 47, "The Might dummy rotation must preserve its 47 skill entries.");
 assert(
-  mightSkillIds.slice(0, 12).join(",") ===
+  mightSkillIds.slice(0, 8).join(",") ===
     [
       "StormRoar",
+      "FluteOfTheTidesCancel",
+      "Deflect",
       "PredatorsShield",
-      "Avalanche",
-      "Deflect",
-      "ThunderShockCancel",
-      "Deflect",
-      "Avalanche",
-      "Deflect",
+      "ThunderShock",
       "Avalanche",
       "StonebreakerCleave",
-      "Deflect",
-      "Deflect",
+      "Defense",
     ].join(","),
   "The Might dummy rotation opener must match the exported Teams Dummy sequence.",
+);
+const defenseStepIndexes = mightRotation.steps
+  .map((step, index) => ({ step, index }))
+  .filter(({ step }) => step.type === "skill" && step.skill === "Defense")
+  .map(({ index }) => index);
+assert(defenseStepIndexes.length === 4, "The Might dummy rotation must contain four Defense casts.");
+assert(
+  defenseStepIndexes.every((index) => {
+    const event = mightRotation.steps[index - 1];
+    return (
+      event?.type === "event" &&
+      event.event === "Buff" &&
+      event.buff === "Cadence" &&
+      event.stack === 2 &&
+      event.before?.action === "start"
+    );
+  }),
+  "Every Might Defense cast must have a two-stack Cadence event immediately before it.",
 );
 assert(
   mightRotation.steps.at(-1)?.event === "BattleEnd" && mightRotation.steps.at(-1)?.startTime === 60,

@@ -6,17 +6,31 @@
   "relayed": true,
   "setup": {
     "innerWays": [
-      { "innerWay": "ExquisiteScenery", "tier": "T6" },
-      { "innerWay": "MoraleChant", "tier": "T6" },
-      { "innerWay": "ArtOfResistance", "tier": "T6" },
-      { "innerWay": "ThroatPiercingArt", "tier": "T6" }
+      {
+        "innerWay": "ExquisiteScenery",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "MoraleChant",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ArtOfResistance",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ThroatPiercingArt",
+        "tier": "T6"
+      }
     ],
     "weaponSets": {
       "Cleftpeak": 0,
       "RainWhisper": 4
     },
-    "armorSets": { "Formbend": 4 },
-    "bowRingSet": "Critical",
+    "armorSets": {
+      "Formbend": 4
+    },
+    "bowRingSet": "Precision",
     "arsenal": "Stonesplit"
   },
   "gear": {
@@ -42,8 +56,8 @@
           "value": 46.436
         },
         {
-          "key": "minPhys",
-          "value": 73.132
+          "key": "moBladeDmgBoost",
+          "value": 0.05828
         }
       ],
       "attunement": {
@@ -69,12 +83,12 @@
           "value": 46.436
         },
         {
-          "key": "spearDmgBoost",
-          "value": 0.05828
+          "key": "momentum",
+          "value": 46.436
         },
         {
-          "key": "minPhys",
-          "value": 73.132
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -100,12 +114,12 @@
           "value": 46.436
         },
         {
-          "key": "allMartialArts",
-          "value": 0.03008
+          "key": "momentum",
+          "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "allMartialArts",
+          "value": 0.03008
         }
       ],
       "attunement": {
@@ -131,12 +145,12 @@
           "value": 46.436
         },
         {
-          "key": "allMartialArts",
-          "value": 0.03008
+          "key": "momentum",
+          "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "allMartialArts",
+          "value": 0.03008
         }
       ],
       "attunement": {
@@ -171,7 +185,7 @@
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "thundercryChargedBoost",
         "value": 0.06
       }
     },
@@ -193,7 +207,7 @@
           "value": 46.436
         },
         {
-          "key": "momentum",
+          "key": "agility",
           "value": 46.436
         },
         {
@@ -202,7 +216,7 @@
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "thundercryChargedBoost",
         "value": 0.06
       }
     },
@@ -224,16 +238,16 @@
           "value": 46.436
         },
         {
-          "key": "vsBossDmg",
-          "value": 0.03008
-        },
-        {
           "key": "crit",
           "value": 0.0846
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "thundercryChargedBoost",
         "value": 0.06
       }
     },
@@ -255,16 +269,16 @@
           "value": 46.436
         },
         {
-          "key": "vsBossDmg",
-          "value": 0.03008
-        },
-        {
           "key": "crit",
           "value": 0.0846
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.03008
         }
       ],
       "attunement": {
-        "key": "phalanxbaneChargedBoost",
+        "key": "thundercryChargedBoost",
         "value": 0.06
       }
     }

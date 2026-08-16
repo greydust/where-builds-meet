@@ -43,6 +43,14 @@ const assert = (condition, message) => {
 assert(gear.gearSlots.length === 8, "Expected eight gear slots.");
 assert(gear.defaultBuildPresets.length >= 2, "Expected populated and empty default builds.");
 assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpected Heng Blade base stat.");
+assert(
+  gear.gearData.gear.helmet.baseStats["96"].Gold.maxHp === 5774 &&
+    gear.gearData.gear.helmet.baseStats["96"].Gold.physicalDefense === 22 &&
+    gear.gearData.gear.chestpiece.baseStats["96"].Purple.maxHp === 10392 &&
+    gear.gearData.gear.greaves.baseStats["91"].Gold.physicalDefense === 36 &&
+    gear.gearData.gear.bracer.baseStats["91"].Purple.maxHp === 4153,
+  "Armor base HP and Physical Defense must match the official gear signatures.",
+);
 assert(enemies["96"].level === 96, "The level 96 enemy must use the numeric level key consumed by stat priorities.");
 assert(
   gear.statRollsForLevel(enemies["96"].level) === gear.statRollsForLevel(96),
@@ -89,6 +97,13 @@ assert(
 );
 assert(gear.gearData.affixes.precision.percentage === true, "Precision must be stored as a decimal ratio.");
 assert(
+  gear
+    .affixOptionsForGearDefinition(gear.gearData.gear.hengBlade, "additionalAffixes", 96, true)
+    .slice(-2)
+    .join(",") === "body,defense",
+  "Universal defensive affixes must remain at the bottom of Build tab affix dropdowns.",
+);
+assert(
   Object.keys(gear.gearData.affixes).every(
     (key) => key in statDefinitions.emptyStats && !("stat" in gear.gearData.affixes[key]),
   ),
@@ -103,6 +118,11 @@ const attunementStatKeys = new Set([
   "snowpartingChargedBoost",
   "snowpartingVariedComboBoost",
   "snowpartingMartialBoost",
+  "thundercryChargedBoost",
+  "thundercryShieldBoost",
+  "thundercrySpecialBoost",
+  "stormbreakerChargedBoost",
+  "stormbreakerSpecialBoost",
   "everspringMartialBoost",
   "everspringSpecialBoost",
   "unfetteredChargedBoost",
@@ -125,9 +145,14 @@ assert(
 );
 assert(
   Object.entries(gear.attunementData)
-    .filter(([, definition]) => definition.tags.includes("Armor"))
+    .filter(([, definition]) => definition.tags.includes("Armor") && definition.implemented !== false)
     .every(([, definition]) => definition.effect.stat.attunementDMGBonus === 1 && definition.effect.tags.length > 0),
   "Armor attunements must target the tagged standalone attunement DMG Bonus.",
+);
+assert(
+  gear.attunementData.thundercryShieldBoost.implemented === false &&
+    Object.keys(gear.attunementData.thundercryShieldBoost.effect.stat).length === 0,
+  "Thundercry Shield Boost must remain available without applying an unimplemented calculation effect.",
 );
 const weaponDefinitions = [
   "hengBlade",
@@ -323,6 +348,10 @@ assert(Math.abs(presetEffects.stats.maxPhys - 431) < 1e-9, "Unexpected preset ma
 assert(Math.abs(presetEffects.stats.agility - 371.488) < 1e-9, "Unexpected preset Agility total.");
 assert(Math.abs(presetEffects.stats.maxStonesplit - 332.384) < 1e-9, "Unexpected preset Stonesplit total.");
 assert(Math.abs(presetEffects.stats.precision - 0.1504) < 1e-9, "Unexpected preset Precision total.");
+assert(
+  presetEffects.stats.maxHp === 28869 && presetEffects.stats.physicalDefense === 110,
+  "The four equipped Tier 96 Gold armor pieces must contribute their fixed defensive base stats.",
+);
 assert(
   Math.abs(presetEffects.attunement.physicalPenetration - 44) < 1e-9,
   "Unexpected preset Physical Penetration total.",
@@ -811,6 +840,14 @@ assert(
   systemStats.baseStats.stat.minPhys === 263 && systemStats.baseStats.stat.maxPhys === 505,
   "Enhancement Physical Attack must be separated from innate Physical Attack.",
 );
+const tier96PurpleArmorHp = ["helmet", "chestpiece", "greaves", "bracer"].reduce(
+  (total, definitionId) => total + gear.gearData.gear[definitionId].baseStats["96"].Purple.maxHp,
+  0,
+);
+assert(
+  tier96PurpleArmorHp === 25980 && systemStats.baseStats.stat.maxHp + tier96PurpleArmorHp === 127909,
+  "Innate Max HP must exclude the four Tier 96 Purple armor base values used to derive it.",
+);
 assert(
   systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.minPhys ?? 0), 0) === 216 &&
     systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.maxPhys ?? 0), 0) === 432,
@@ -863,7 +900,7 @@ assert(
   "Unexpected innate and system Physical Attack totals.",
 );
 assert(
-  Math.abs(systemCharacter.physicalDefense - 214.41) < 1e-9 && systemCharacter.maxHp === 25931,
+  Math.abs(systemCharacter.physicalDefense - 214.41) < 1e-9 && systemCharacter.maxHp === 127860,
   "Unexpected system defensive totals.",
 );
 assert(

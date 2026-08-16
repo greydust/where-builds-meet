@@ -14,7 +14,18 @@
       ]
     },
     "ExquisiteSceneryT3": {},
-    "ExquisiteSceneryT4": {},
+    "ExquisiteSceneryT4": {
+      "effect": [
+        {
+          "target": "Cadence",
+          "modify": {
+            "periodic": {
+              "interval": 5
+            }
+          }
+        }
+      ]
+    },
     "ExquisiteSceneryT5": {
       "effect": [
         {
@@ -24,6 +35,61 @@
         }
       ]
     },
-    "ExquisiteSceneryT6": {}
+    "ExquisiteSceneryT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Light"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Charged"
+                  }
+                ],
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Heavy"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Charged"
+                  }
+                ],
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Light"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "VariedCombo"
+                  }
+                ],
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "Heavy"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "VariedCombo"
+                  }
+                ]
+              ]
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.5
+          }
+        }
+      ]
+    }
   }
 }

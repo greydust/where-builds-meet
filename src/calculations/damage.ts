@@ -23,6 +23,11 @@ export type AttunementStats = {
   snowpartingChargedBoost: number;
   snowpartingVariedComboBoost: number;
   snowpartingMartialBoost: number;
+  thundercryChargedBoost: number;
+  thundercryShieldBoost: number;
+  thundercrySpecialBoost: number;
+  stormbreakerChargedBoost: number;
+  stormbreakerSpecialBoost: number;
   everspringMartialBoost: number;
   everspringSpecialBoost: number;
   unfetteredChargedBoost: number;

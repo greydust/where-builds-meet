@@ -17,7 +17,14 @@ import { type AttunementStats, type DamageBreakdown } from "./calculations/damag
 import { UiIcon } from "./UiIcon";
 const BuildTab = lazy(() => import("./BuildTab"));
 const SimulationTab = lazy(() => import("./SimulationTab"));
-import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
+import {
+  allStatDefinitions,
+  combatStats,
+  defenseStats,
+  emptyStats,
+  martialArtsStats,
+  survivalStats,
+} from "./data/statDefinitions";
 import {
   activeBuildStorageKey,
   armorSetDefinitions,
@@ -352,10 +359,7 @@ const rotationEventOptionIds = [
   "__event:Buff",
   "__event:Debuff",
 ];
-const dotDefinitions = mysticDots as Record<
-  string,
-  { duration?: number; maxStack?: number; tick?: number; refresh?: boolean; action?: unknown[] }
->;
+const dotDefinitions = mysticDots as Record<string, SkillRecord>;
 const generalDebuffIds = new Set(Object.keys(generalDebuffs));
 const dotEffectIds = new Set(Object.keys(dotDefinitions));
 const effectDefinitions = {
@@ -1786,6 +1790,7 @@ function StatsTab({
     [combatStats[6], combatStats[7]],
     [combatStats[8], combatStats[9]],
   ];
+  const [bodyStat, defenseStat, maxHpStat, physicalDefenseStat] = survivalStats;
   const martialRows = [0, 1, 2, 3].map((index) => [martialArtsStats[index * 2], martialArtsStats[index * 2 + 1]]);
   const selectedArtStats = Array.from(
     new Set(settings.weapons.map((weapon) => artStatByWeaponFamily[martialArtDefinitions[weapon].weapon])),
@@ -2078,6 +2083,14 @@ function StatsTab({
               <div className="stat-row">
                 <CalculatedStatField definition={defenseStats[15]} compact />
                 <CalculatedStatField definition={defenseStats[16]} compact />
+              </div>
+              <div className="stat-row">
+                <CalculatedStatField definition={maxHpStat} compact />
+                <CalculatedStatField definition={bodyStat} compact />
+              </div>
+              <div className="stat-row">
+                <CalculatedStatField definition={physicalDefenseStat} compact />
+                <CalculatedStatField definition={defenseStat} compact />
               </div>
             </div>
           </section>
@@ -2577,6 +2590,8 @@ function skillToDraft(skill: SkillRecord) {
   const toObjects = (items: unknown[]) =>
     items.map((item) => (item && typeof item === "object" && !Array.isArray(item) ? (item as EditableObject) : {}));
   const stackEffects = Array.isArray(skill.stackEffects) ? skill.stackEffects : [];
+  const periodicActions = Array.isArray(skill.periodic?.action) ? skill.periodic.action : [];
+  const isDot = tags.includes("DOT");
   return {
     name,
     shortName,
@@ -2586,9 +2601,11 @@ function skillToDraft(skill: SkillRecord) {
     cooldown: typeof skill.cooldown === "number" ? String(skill.cooldown) : "",
     duration: typeof skill.duration === "number" ? String(skill.duration) : "",
     maxStack: typeof skill.maxStack === "number" ? String(skill.maxStack) : "",
-    tick: typeof skill.tick === "number" ? String(skill.tick) : "",
+    periodicInterval: typeof skill.periodic?.interval === "number" ? String(skill.periodic.interval) : "",
+    firstTick: typeof skill.periodic?.firstTick === "number" ? String(skill.periodic.firstTick) : "",
+    resetOnRefresh: skill.periodic?.resetOnRefresh === true,
     tags: tags.join(", "),
-    actionItems: toObjects(action),
+    actionItems: toObjects(isDot ? periodicActions : action),
     modifierItems: toObjects(modifier),
     effectItems: toObjects(Array.isArray(skill.effect) ? skill.effect : []),
     stackEffectGroups: stackEffects.map((group) => toObjects(Array.isArray(group) ? group : [])),
@@ -3653,7 +3670,13 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
             .filter(Boolean),
           ...(category === "DOT"
             ? {
-                tick: optionalNumber(draft.tick, "Tick"),
+                action: undefined,
+                periodic: {
+                  interval: optionalNumber(draft.periodicInterval, "Periodic interval"),
+                  firstTick: optionalNumber(draft.firstTick, "First tick"),
+                  resetOnRefresh: draft.resetOnRefresh,
+                  action,
+                },
                 duration: optionalNumber(draft.duration, "Duration"),
                 maxStack: optionalNumber(draft.maxStack, "Max stack"),
                 refresh: draft.refresh,
@@ -3812,13 +3835,23 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                   {category === "DOT" ? (
                     <>
                       <label className="editor-field">
-                        <span>Tick</span>
+                        <span>Interval</span>
                         <input
                           type="number"
                           min="0"
                           step="0.0001"
-                          value={draft.tick}
-                          onChange={(event) => setDraft({ ...draft, tick: event.target.value })}
+                          value={draft.periodicInterval}
+                          onChange={(event) => setDraft({ ...draft, periodicInterval: event.target.value })}
+                        />
+                      </label>
+                      <label className="editor-field">
+                        <span>First Tick</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.0001"
+                          value={draft.firstTick}
+                          onChange={(event) => setDraft({ ...draft, firstTick: event.target.value })}
                         />
                       </label>
                       <label className="editor-field">
@@ -3847,6 +3880,14 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                           type="checkbox"
                           checked={draft.refresh}
                           onChange={(event) => setDraft({ ...draft, refresh: event.target.checked })}
+                        />
+                      </label>
+                      <label className="editor-field">
+                        <span>Reset Period on Refresh</span>
+                        <input
+                          type="checkbox"
+                          checked={draft.resetOnRefresh}
+                          onChange={(event) => setDraft({ ...draft, resetOnRefresh: event.target.checked })}
                         />
                       </label>
                     </>

@@ -34,9 +34,9 @@
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"]
   },
-  "ThunderShockCancel": {
-    "name": "Thunder Shock [Cancel]",
-    "shortName": "Spear Special Cancel",
+  "ThunderShock1": {
+    "name": "Thunder Shock 1-Hit [Cancel]",
+    "shortName": "Spear Special 1-Hit",
     "castTime": 0.4,
     "action": [
       {
@@ -58,7 +58,7 @@
   },
   "StormRoar": {
     "name": "Storm Roar",
-    "shortName": "Spear Martial",
+    "shortName": "Spear Q",
     "castTime": 1,
     "action": [
       {

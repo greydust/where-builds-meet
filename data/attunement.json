@@ -79,6 +79,60 @@
       "tags": ["SnowpartingBlade", "MartialArt"]
     }
   },
+  "thundercryChargedBoost": {
+    "name": "Thundercry Blade - Charged Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitMight", "ThundercryBlade"],
+    "effect": {
+      "stat": {
+        "attunementDMGBonus": 1
+      },
+      "tags": ["ThundercryBlade", "Charged"]
+    }
+  },
+  "thundercryShieldBoost": {
+    "name": "Thundercry Blade - Shield Boost",
+    "percentage": true,
+    "implemented": false,
+    "tags": ["Armor", "StonesplitMight", "ThundercryBlade"],
+    "effect": {
+      "stat": {},
+      "tags": ["ThundercryBlade", "Shield"]
+    }
+  },
+  "thundercrySpecialBoost": {
+    "name": "Thundercry Blade - Special Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitMight", "ThundercryBlade"],
+    "effect": {
+      "stat": {
+        "attunementDMGBonus": 1
+      },
+      "tags": ["ThundercryBlade", "Special"]
+    }
+  },
+  "stormbreakerChargedBoost": {
+    "name": "Stormbreaker Spear - Charged Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitMight", "StormbreakerSpear"],
+    "effect": {
+      "stat": {
+        "attunementDMGBonus": 1
+      },
+      "tags": ["StormbreakerSpear", "Charged"]
+    }
+  },
+  "stormbreakerSpecialBoost": {
+    "name": "Stormbreaker Spear - Special Skill DMG Boost",
+    "percentage": true,
+    "tags": ["Armor", "StonesplitMight", "StormbreakerSpear"],
+    "effect": {
+      "stat": {
+        "attunementDMGBonus": 1
+      },
+      "tags": ["StormbreakerSpear", "Special"]
+    }
+  },
   "everspringMartialBoost": {
     "name": "Everspring Umbrella - Martial Art Skill DMG Boost",
     "percentage": true,

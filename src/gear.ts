@@ -100,6 +100,7 @@ export type GearValueDefinition = {
 };
 
 export type AttunementDefinition = GearValueDefinition & {
+  implemented?: boolean;
   tags: string[];
   effect: {
     stat: Record<string, number>;
@@ -120,6 +121,7 @@ export type GearDefinition = {
 type GearData = {
   slots: Record<GearSlot, string>;
   affixes: Record<string, GearValueDefinition>;
+  universalAdditionalAffixes: Record<string, string[]>;
   gear: Record<string, GearDefinition>;
 };
 
@@ -139,7 +141,8 @@ export function affixOptionsForGearDefinition(
   const options = definition[category];
   const relayOnly = options[`${level}Relayed`] ?? [];
   const standard = (options[String(level)] ?? []).filter((key) => relayed || !relayOnly.includes(key));
-  return Array.from(new Set([...standard, ...(relayed ? relayOnly : [])]));
+  const universal = category === "additionalAffixes" ? (gearData.universalAdditionalAffixes[String(level)] ?? []) : [];
+  return Array.from(new Set([...standard, ...(relayed ? relayOnly : []), ...universal]));
 }
 export type StatRollData = { affix: Record<string, number>; attunement: Record<string, number> };
 const statData = statJson as Record<string, StatRollData>;

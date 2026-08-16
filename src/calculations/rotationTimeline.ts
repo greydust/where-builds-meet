@@ -2,15 +2,21 @@ import type { WeaponId } from "../types";
 import { resolveSegmentValue } from "./dynamicValues";
 
 export type EditableObject = Record<string, unknown>;
+export type PeriodicEffect = {
+  interval?: number;
+  firstTick?: number;
+  resetOnRefresh?: boolean;
+  action?: unknown[];
+};
 export type SkillRecord = {
   [key: string]: unknown;
   name?: string;
   shortName?: string;
   castTime?: number;
   cooldown?: number;
-  tick?: number;
   duration?: number;
   action?: unknown[];
+  periodic?: PeriodicEffect;
   modifier?: unknown[];
   tags?: string[];
 };
@@ -50,7 +56,7 @@ export type InnerWayEffectRule = {
   source: string;
   tier: number;
 };
-export type TimelineRowKind = "rotation" | "trigger" | "dot";
+export type TimelineRowKind = "rotation" | "trigger" | "dot" | "periodic";
 export type TimelineRow = {
   id: string;
   kind: TimelineRowKind;
@@ -85,6 +91,7 @@ export type EffectDefinition = {
   damageAttribution?: "sourceCast";
   effect?: unknown[];
   stackEffects?: unknown[][];
+  periodic?: PeriodicEffect;
 };
 
 export type TimelineBuildInput = {
@@ -116,6 +123,16 @@ export function mergeEffectDefinition(definition: EffectDefinition, modify: Edit
     ...definition,
     ...modify,
     ...(appendedEffects === undefined ? {} : { effect: appendedEffects }),
+    ...(definition.periodic || modify.periodic
+      ? {
+          periodic: {
+            ...(definition.periodic ?? {}),
+            ...(modify.periodic && typeof modify.periodic === "object" && !Array.isArray(modify.periodic)
+              ? (modify.periodic as PeriodicEffect)
+              : {}),
+          },
+        }
+      : {}),
   };
 }
 
@@ -452,59 +469,74 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     });
   };
   let nextDerivedOrder = rotation.steps.length * 1000 + 1;
-  type ActiveDot = {
-    dot: SkillRecord;
+  type ActivePeriodicEffect = {
+    definition: EffectDefinition;
     appliedAt: number;
     expiresAt: number;
     sourceRowId: string;
     rows: TimelineRow[];
   };
-  const activeDots: Record<string, ActiveDot> = {};
-  const removePendingDotRows = (activeDot: ActiveDot, afterTime: number) => {
+  const activePeriodicEffects: Record<string, ActivePeriodicEffect> = {};
+  const periodicEffectKey = (target: "self" | "target", name: string) => `${target}:${name}`;
+  const removePendingPeriodicRows = (
+    activeEffect: ActivePeriodicEffect,
+    afterTime: number,
+    includeRowsAtTime = false,
+  ) => {
     const pendingRows = new Set(
-      activeDot.rows.filter((row) => row.startTime > afterTime + 1e-6 && Object.keys(row.actionStates).length === 0),
+      activeEffect.rows.filter(
+        (row) =>
+          (row.startTime > afterTime + 1e-6 || (includeRowsAtTime && Math.abs(row.startTime - afterTime) <= 1e-6)) &&
+          Object.keys(row.actionStates).length === 0,
+      ),
     );
     if (pendingRows.size === 0) return;
-    activeDot.rows = activeDot.rows.filter((row) => !pendingRows.has(row));
+    activeEffect.rows = activeEffect.rows.filter((row) => !pendingRows.has(row));
     for (let index = rows.length - 1; index >= 0; index -= 1) if (pendingRows.has(rows[index])) rows.splice(index, 1);
     for (let index = events.length - 1; index >= 0; index -= 1)
       if (pendingRows.has(events[index].row)) events.splice(index, 1);
   };
-  const scheduleDotTicks = (
+  const schedulePeriodicActions = (
     name: string,
-    activeDot: ActiveDot,
+    activeEffect: ActivePeriodicEffect,
     afterTime: number,
     causalSortOrder: number[],
     sourceOrder: number,
+    includeCurrentTime = false,
   ) => {
-    const tick = typeof activeDot.dot.tick === "number" && activeDot.dot.tick > 0 ? activeDot.dot.tick : undefined;
-    const baseActions = Array.isArray(activeDot.dot.action) ? (activeDot.dot.action as EditableObject[]) : [];
-    if (!tick || baseActions.length === 0) return;
-    const firstTickIndex = Math.max(1, Math.floor((afterTime - activeDot.appliedAt + 1e-6) / tick) + 1);
-    for (let tickIndex = firstTickIndex; ; tickIndex += 1) {
-      const tickTime = activeDot.appliedAt + tickIndex * tick;
-      if (tickTime > activeDot.expiresAt + 1e-6) break;
+    const periodic = activeEffect.definition.periodic;
+    const interval = typeof periodic?.interval === "number" && periodic.interval > 0 ? periodic.interval : undefined;
+    const firstTick =
+      typeof periodic?.firstTick === "number" && periodic.firstTick >= 0 ? periodic.firstTick : interval;
+    const baseActions = Array.isArray(periodic?.action) ? (periodic.action as EditableObject[]) : [];
+    if (!interval || firstTick === undefined || baseActions.length === 0) return;
+    const isDot = Boolean(dots[name]);
+    const rowSkill = (dots[name] ?? effectDefinitions[name]) as SkillRecord | undefined;
+    for (let tickIndex = 0; ; tickIndex += 1) {
+      const tickTime = activeEffect.appliedAt + firstTick + tickIndex * interval;
+      if (tickTime > activeEffect.expiresAt + 1e-6) break;
+      if (tickTime < afterTime - 1e-6 || (!includeCurrentTime && Math.abs(tickTime - afterTime) <= 1e-6)) continue;
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...causalSortOrder, derivedId];
       const actions = baseActions.map((action) => ({ ...action, time: 0 }));
       const row: TimelineRow = {
-        id: `dot-${derivedId}`,
-        kind: "dot",
-        sourceRowId: activeDot.sourceRowId,
+        id: `${isDot ? "dot" : "periodic"}-${derivedId}`,
+        kind: isDot ? "dot" : "periodic",
+        sourceRowId: activeEffect.sourceRowId,
         order: sourceOrder + 10 + tickIndex / 1000,
         step: { type: "skill", skill: name },
         startTime: tickTime,
         distance,
         currentHPRatio,
         effectiveCastTime: 0,
-        skill: activeDot.dot,
+        skill: rowSkill,
         actions,
         buffs: [],
         debuffs: [],
         modifierEffects: [],
         actionStates: {},
       };
-      activeDot.rows.push(row);
+      activeEffect.rows.push(row);
       rows.push(row);
       events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
       actions.forEach((_action, actionIndex) =>
@@ -518,20 +550,25 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       );
     }
   };
-  const transferAndRescheduleDot = (
+  const transferAndReschedulePeriodicEffect = (
     name: string,
+    target: "self" | "target",
+    definition: EffectDefinition,
     expiresAt: number,
     eventTime: number,
     sourceRowId: string,
     causalSortOrder: number[],
     sourceOrder: number,
+    resetCadence = false,
   ) => {
-    const activeDot = activeDots[name];
-    if (!activeDot) return;
-    removePendingDotRows(activeDot, eventTime);
-    activeDot.expiresAt = expiresAt;
-    activeDot.sourceRowId = sourceRowId;
-    scheduleDotTicks(name, activeDot, eventTime, causalSortOrder, sourceOrder);
+    const activeEffect = activePeriodicEffects[periodicEffectKey(target, name)];
+    if (!activeEffect) return;
+    removePendingPeriodicRows(activeEffect, eventTime);
+    activeEffect.definition = definition;
+    activeEffect.expiresAt = expiresAt;
+    activeEffect.sourceRowId = sourceRowId;
+    if (resetCadence) activeEffect.appliedAt = eventTime;
+    schedulePeriodicActions(name, activeEffect, eventTime, causalSortOrder, sourceOrder, resetCadence);
   };
   let processedEvents = 0;
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
@@ -712,6 +749,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         );
         if (action.target === "target") debuffs = next;
         else buffs = next;
+        if (!next.some((effect) => effect.name === value)) {
+          const target = action.target === "target" ? "target" : "self";
+          const key = periodicEffectKey(target, value);
+          const activeEffect = activePeriodicEffects[key];
+          if (activeEffect) {
+            removePendingPeriodicRows(activeEffect, event.time, true);
+            delete activePeriodicEffects[key];
+          }
+        }
       }
     }
     const enqueueTriggeredSkill = (
@@ -788,6 +834,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       )
         return;
       const targetEffects = triggerAction.target === "target" ? debuffs : buffs;
+      const periodicTarget = triggerAction.target === "target" ? "target" : "self";
       const definition = getModifiedEffectDefinition(triggerAction.value, buffs, debuffs, skillTags);
       const duration = typeof triggerAction.duration === "number" ? triggerAction.duration : definition.duration;
       const baseStack = typeof triggerAction.stack === "number" ? triggerAction.stack : 1;
@@ -804,6 +851,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             : 1
           : 0;
       const sourceRowId = event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const existing = targetEffects.find((effect) => effect.name === triggerAction.value);
+      if (existing && triggerAction.reapply === false) return;
       const next = applyTrackedEffect(
         targetEffects,
         triggerAction.value,
@@ -816,6 +865,41 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       );
       if (triggerAction.target === "target") debuffs = next;
       else buffs = next;
+      const appliedEffect = next.find((effect) => effect.name === triggerAction.value);
+      if (definition.periodic && appliedEffect?.expiresAt !== undefined) {
+        const key = periodicEffectKey(periodicTarget, triggerAction.value);
+        const effectSourceRowId = event.row.sourceRowId ?? event.row.id;
+        if (existing && activePeriodicEffects[key] && definition.refresh !== false) {
+          transferAndReschedulePeriodicEffect(
+            triggerAction.value,
+            periodicTarget,
+            definition,
+            appliedEffect.expiresAt,
+            event.time,
+            effectSourceRowId,
+            event.sortOrder,
+            event.row.order + (event.actionIndex ?? 0),
+            definition.periodic?.resetOnRefresh === true,
+          );
+        } else if (!existing || !activePeriodicEffects[key]) {
+          const activeEffect: ActivePeriodicEffect = {
+            definition,
+            appliedAt: event.time,
+            expiresAt: appliedEffect.expiresAt,
+            sourceRowId: effectSourceRowId,
+            rows: [],
+          };
+          activePeriodicEffects[key] = activeEffect;
+          schedulePeriodicActions(
+            triggerAction.value,
+            activeEffect,
+            event.time,
+            event.sortOrder,
+            event.row.order + (event.actionIndex ?? 0),
+            true,
+          );
+        }
+      }
       if (definition.cooldown !== undefined) cooldowns[triggerAction.value] = event.time + definition.cooldown;
     };
     if (action.type === "damage") {
@@ -858,62 +942,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : undefined;
       enqueueTriggeredSkill(action.value, event.row.sourceRowId ?? event.row.id, triggerOrdinal);
     }
-    if (
-      action.type === "apply" &&
-      action.target === "target" &&
-      typeof action.value === "string" &&
-      dots[action.value]
-    ) {
-      const dot = dots[action.value];
-      const existing = debuffs.find((effect) => effect.name === action.value);
-      if (!existing || action.reapply !== false) {
-        const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
-        const duration =
-          typeof action.duration === "number"
-            ? action.duration
-            : typeof dot.duration === "number"
-              ? dot.duration
-              : definition.duration;
-        if (typeof duration === "number") {
-          const effectSourceRowId =
-            event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
-          debuffs = applyTrackedEffect(
-            debuffs,
-            action.value,
-            typeof action.stack === "number" ? action.stack : undefined,
-            duration,
-            event.time,
-            definition.maxStack,
-            definition.refresh !== false,
-            effectSourceRowId,
-          );
-          const sourceRowId = event.row.sourceRowId ?? event.row.id;
-          const expiresAt = event.time + duration;
-          if (existing && activeDots[action.value] && definition.refresh !== false) {
-            transferAndRescheduleDot(
-              action.value,
-              expiresAt,
-              event.time,
-              sourceRowId,
-              event.sortOrder,
-              event.row.order + (event.actionIndex ?? 0),
-            );
-          } else {
-            const activeDot: ActiveDot = { dot, appliedAt: event.time, expiresAt, sourceRowId, rows: [] };
-            activeDots[action.value] = activeDot;
-            scheduleDotTicks(
-              action.value,
-              activeDot,
-              event.time,
-              event.sortOrder,
-              event.row.order + (event.actionIndex ?? 0),
-            );
-          }
-        }
-      }
-    }
     if ((action.type === "apply" || action.type === "extend") && typeof action.value === "string") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
+      const periodicTarget = action.target === "target" ? "target" : "self";
       const modifierDuration = event.row.modifierEffects.find((effect) => typeof effect.duration === "number");
       const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
       const duration =
@@ -924,10 +955,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             : definition.duration;
       const existing = targetEffects.find((effect) => effect.name === action.value);
       const sourceRowId = event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const shouldApply = action.type === "apply" && (!existing || action.reapply !== false);
       const next =
         action.type === "extend" && typeof duration === "number"
           ? extendTrackedEffect(targetEffects, action.value, duration, event.time)
-          : action.type === "apply" && !dots[action.value]
+          : shouldApply
             ? applyTrackedEffect(
                 targetEffects,
                 action.value,
@@ -941,16 +973,52 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             : targetEffects;
       if (action.target === "target") debuffs = next;
       else buffs = next;
+      const appliedEffect = next.find((effect) => effect.name === action.value);
+      if (shouldApply && definition.periodic && appliedEffect?.expiresAt !== undefined) {
+        const key = periodicEffectKey(periodicTarget, action.value);
+        const effectSourceRowId = event.row.sourceRowId ?? event.row.id;
+        if (existing && activePeriodicEffects[key] && definition.refresh !== false) {
+          transferAndReschedulePeriodicEffect(
+            action.value,
+            periodicTarget,
+            definition,
+            appliedEffect.expiresAt,
+            event.time,
+            effectSourceRowId,
+            event.sortOrder,
+            event.row.order + (event.actionIndex ?? 0),
+            definition.periodic?.resetOnRefresh === true,
+          );
+        } else if (!existing || !activePeriodicEffects[key]) {
+          const activeEffect: ActivePeriodicEffect = {
+            definition,
+            appliedAt: event.time,
+            expiresAt: appliedEffect.expiresAt,
+            sourceRowId: effectSourceRowId,
+            rows: [],
+          };
+          activePeriodicEffects[key] = activeEffect;
+          schedulePeriodicActions(
+            action.value,
+            activeEffect,
+            event.time,
+            event.sortOrder,
+            event.row.order + (event.actionIndex ?? 0),
+            true,
+          );
+        }
+      }
       if (
         action.type === "extend" &&
-        action.target === "target" &&
         typeof duration === "number" &&
         existing?.expiresAt !== undefined &&
         existing.expiresAt > event.time &&
-        dots[action.value]
+        activePeriodicEffects[periodicEffectKey(periodicTarget, action.value)]
       ) {
-        transferAndRescheduleDot(
+        transferAndReschedulePeriodicEffect(
           action.value,
+          periodicTarget,
+          definition,
           existing.expiresAt + duration,
           event.time,
           event.row.sourceRowId ?? event.row.id,

@@ -149,10 +149,14 @@ try {
     "AoR and Formbend must extend Shield at the late probe.",
   );
   assert(
-    !lateBuffs.some((effect) => effect.name === "Breakthrough"),
-    "Breakthrough must expire after 12 seconds without receiving Shield extensions.",
+    lateBuffs.some((effect) => effect.name === "Breakthrough" && effect.expiresAt === 20),
+    "Art of Resistance T0 and T4 must extend Breakthrough from 12 to 18 seconds.",
   );
-  console.log("Formbend four-piece Shield extension checks passed.");
+  assert(
+    lateBuffs.some((effect) => effect.name === "Shield" && effect.expiresAt === 18),
+    "Formbend must extend Shield without extending Breakthrough.",
+  );
+  console.log("Art of Resistance and Formbend duration checks passed.");
 } finally {
   await viteServer.close();
 }

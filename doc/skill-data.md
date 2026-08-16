@@ -115,10 +115,11 @@ by the equipped weapons' primary attribute. See `damage-formula.md`.
 ```
 
 - `target: "self"` creates or updates a buff.
-- `target: "target"` creates or updates a debuff or starts a matching DOT.
+- `target: "target"` creates or updates a debuff and starts its periodic actions when defined.
 - `stack` defaults to one and is capped by the resolved definition's `maxStack`.
 - `duration` overrides the definition duration. No duration means the state does
   not expire.
+- `reapply: false` leaves an already-active tracked effect unchanged.
 - Reapplying a tracked effect adds stacks up to its maximum. Its definition's
   `refresh` field decides whether that application also resets the expiration.
 - Effect-definition cooldowns can reject an application until the cooldown ends.
@@ -511,31 +512,43 @@ base stats run after fixed base-stat effects. A source such as
 Formula-valued action effects, such as talent-added penetration on Iron Guard,
 are resolved from the action's current base and derived character state.
 
-## DOT definitions
+## Periodic effects and DOT definitions
 
-DOT definitions use the skill shape plus `tick`, `duration`, and `maxStack`:
+Any tracked buff, debuff, or DOT can declare periodic actions. The `periodic`
+object keeps cadence separate from lifetime and stack behavior:
 
 ```json
 {
   "ToadVenom": {
     "name": "Toad Venom",
-    "tick": 5,
     "duration": 5,
     "maxStack": 1,
-    "action": [{ "type": "damage", "phyCoef": 1.6218, "phyBonus": 232, "attrBonus": 0, "time": 0 }],
+    "periodic": {
+      "interval": 5,
+      "firstTick": 5,
+      "resetOnRefresh": false,
+      "action": [{ "type": "damage", "phyCoef": 1.6218, "phyBonus": 232, "attrBonus": 0, "time": 0 }]
+    },
     "modifier": [],
     "tags": ["DOT", "Mystic"]
   }
 }
 ```
 
-The scheduler creates ticks at `tick`, `2 × tick`, and so on, including a tick
-exactly at the resolved DOT duration. `apply.duration` takes precedence over the
-DOT definition and effect definition. A DOT without a resolved duration does not
-schedule ticks. DOT rows are interleaved globally with casts and triggered
-skills. DOT damage ignores flat physical and attribute bonuses.
+`interval` must be positive. `firstTick` is the offset from initial application;
+it defaults to `interval` and may be zero for an immediate trigger. Periodic
+actions continue at `interval` steps through the resolved effect duration. An
+effect without a resolved duration does not schedule periodic actions.
+`resetOnRefresh: false` preserves the original cadence when a refresh extends
+the effect; `true` starts a new cadence from the refresh timestamp. Consuming
+the final stack or removing the effect cancels its remaining periodic rows.
 
-For DOT applications, `reapply: false` leaves an active instance unchanged.
+DOT definitions are periodic target debuffs tagged `DOT`. Their generated rows
+remain DOT rows for damage rules and source-cast attribution. `apply.duration`
+takes precedence over the DOT definition and effect definition. DOT rows are
+interleaved globally with casts and triggered skills, and DOT damage ignores
+flat physical and attribute bonuses.
+
 DOT definitions currently use `refresh: false`, so a successful reapplication
 does not reset their expiration or tick cadence. `extend` explicitly adds to the
 current expiration and transfers future ticks to the extending cast. Ordinary
@@ -770,6 +783,17 @@ At each Thunder Shock timestamp, damage resolves before its following
 Vulnerable application: hit one cannot benefit from its own application, while
 hit two sees the debuff from hit one and then refreshes it.
 
+The General Defense skill takes 0.3 seconds and applies one Cadence stack at
+cast end when Exquisite Scenery T0 or higher is selected. Cadence lasts 20
+seconds, stacks twice, immediately consumes one stack to grant five-second
+Riposte, and repeats every 10 seconds without resetting its cadence when
+refreshed. Exquisite Scenery T4 changes that interval to five seconds. Riposte
+reduces Avalanche's cast and hit timing by two seconds and is consumed when the
+Avalanche cast starts.
+Exquisite Scenery T6 adds 50% damage to attacks carrying either Light or Heavy
+together with either Charged or Varied Combo. The four explicit tag combinations
+keep the rule from affecting an attack tagged with only one half of a category.
+
 Might actions use the same `phyCoef` for physical and attribute damage.
 Thundercry Blade's Max-HP talents use segmented stat/effective-stat values and
 per-action tag requirements. Its Critical talent contributes to Effective
@@ -782,9 +806,11 @@ Shield at cast start with a 14-second duration, and extends it to 16 seconds
 when Formbend four-piece is selected.
 Drumbeat independently grants 15% Charged Skill damage for six seconds and is
 converted into the separate 42% Charged Skill damage buff Breakthrough by
-Predator's Shield. Breakthrough always uses its own 12-second duration and is
-not a shield, so neither Art of Resistance nor Formbend extends it. Art
-of Resistance is an Inner Way rule requiring that Shield: T3 adds 5% general
+Predator's Shield. Breakthrough uses its own 12-second base duration. Art of
+Resistance T0 extends both Shield and Breakthrough by four seconds, and T4
+extends both by another two seconds. Breakthrough is not a shield, so Formbend
+does not extend it. Art of Resistance is an Inner Way rule requiring that
+Shield: T3 adds 5% general
 damage and cumulative T6 adds another 5%. The Shield Broken event consumes the
 Shield and, at T6, applies the 12-second, 10% Hardened Foe buff. Predator's
 Shield consumes Hardened Foe before applying a fresh Shield. Formbend is an
@@ -804,8 +830,10 @@ for data completeness; healing is not currently simulated.
 
 The Skill Editor exposes one martial-art category for each unique currently
 selected weapon, followed by the always-visible Mystic, General, Buff, Debuff,
-and DOT categories. Skill and DOT records use the structured action
-and modifier editors. Buff and debuff records expose their descriptive and
+and DOT categories. Skill records use the structured action editor. DOT records
+edit the actions nested in `periodic` plus interval, first-tick, cadence-refresh,
+duration, and stack fields. Skill and DOT records use the structured modifier
+editor. Buff and debuff records expose their descriptive and
 timing fields plus structured effect-rule editors. Each effect rule supports
 requirements, direct or wrapped effect fields, numeric and boolean values, and
 parameter-based object values such as Flute distance scaling. Cumulative

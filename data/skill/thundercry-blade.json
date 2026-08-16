@@ -1,15 +1,22 @@
 {
   "Avalanche": {
     "name": "Avalanche",
-    "shortName": "Avalanche",
+    "shortName": "Charged",
     "castTime": 3.766,
     "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "Riposte",
+        "stack": 1,
+        "time": 0
+      },
       {
         "type": "damage",
         "phyCoef": 2.89472,
         "phyBonus": 800.8,
         "attrBonus": 436,
-        "time": 3.766
+        "time": 2.93
       },
       {
         "type": "damage",
@@ -19,12 +26,59 @@
         "time": 3.766
       }
     ],
-    "modifier": [],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Riposte"
+          }
+        ],
+        "effect": {
+          "castTimeModifier": -2
+        }
+      }
+    ],
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
+  },
+  "Avalanche1": {
+    "name": "Avalanche 1-Hit [Cancel]",
+    "shortName": "Charged 1-Hit",
+    "castTime": 2.93,
+    "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "Riposte",
+        "stack": 1,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 2.89472,
+        "phyBonus": 800.8,
+        "attrBonus": 436,
+        "time": 2.93
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Riposte"
+          }
+        ],
+        "effect": {
+          "castTimeModifier": -2
+        }
+      }
+    ],
     "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
   },
   "StonebreakerCleave": {
     "name": "Stonebreaker Cleave",
-    "shortName": "Cleave",
+    "shortName": "VC",
     "castTime": 1,
     "action": [
       {
@@ -118,6 +172,32 @@
                 "value": "Breakthrough"
               }
             ]
+          }
+        ],
+        "time": 1
+      },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Breakthrough",
+        "duration": 4,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ArtOfResistanceT0"
+          }
+        ],
+        "time": 1
+      },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Breakthrough",
+        "duration": 2,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ArtOfResistanceT4"
           }
         ],
         "time": 1

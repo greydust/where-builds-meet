@@ -3,70 +3,238 @@
   "martialArts": ["thundercry", "stormbreaker"],
   "eventTimeReference": "battleStart",
   "start": {
-    "step": 2,
+    "step": 4,
     "action": 0
   },
   "steps": [
-    { "type": "skill", "skill": "StormRoar" },
-    { "type": "skill", "skill": "PredatorsShield" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "ThunderShockCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "PredatorsShield" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "ThunderShockCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "PredatorsShield" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "ThunderShockCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "PredatorsShield" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "ThunderShockCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "PredatorsShield" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "ThunderShockCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Avalanche" },
-    { "type": "skill", "skill": "StonebreakerCleave" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "event", "event": "BattleEnd", "startTime": 60 }
+    {
+      "type": "skill",
+      "skill": "StormRoar"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PredatorsShield"
+    },
+    {
+      "type": "skill",
+      "skill": "ThunderShock"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": "start"
+      },
+      "buff": "Cadence",
+      "stack": 2
+    },
+    {
+      "type": "skill",
+      "skill": "Defense"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "PredatorsShield"
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": "start"
+      },
+      "buff": "Cadence",
+      "stack": 2
+    },
+    {
+      "type": "skill",
+      "skill": "Defense"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "ThunderShock1"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": "start"
+      },
+      "buff": "Cadence",
+      "stack": 2
+    },
+    {
+      "type": "skill",
+      "skill": "Defense"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "PredatorsShield"
+    },
+    {
+      "type": "skill",
+      "skill": "ThunderShock1"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": "start"
+      },
+      "buff": "Cadence",
+      "stack": 2
+    },
+    {
+      "type": "skill",
+      "skill": "Defense"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "ThunderShock1"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PredatorsShield"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
+    }
   ]
 }

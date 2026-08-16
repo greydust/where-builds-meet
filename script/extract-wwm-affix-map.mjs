@@ -24,8 +24,10 @@ const internalAffixKeys = {
   minVoid: "minVoidAttack",
   maxVoid: "maxVoidAttack",
   power: "power",
+  body: "body",
   agility: "agility",
   momentum: "momentum",
+  defense: "defense",
   precision: "precision",
   crit: "crit",
   affinity: "affinity",
@@ -50,6 +52,25 @@ const internalAffixKeys = {
   ropeDartCharged: "unfetteredChargedBoost",
   ropeDartSpecial: "unfetteredSpecialBoost",
   ropeDartQ: "unfetteredMartialBoost",
+};
+
+// Observed directly in official dashboard exports but absent from the older
+// reference site's source map. Keep these at the generation boundary so a
+// regenerated runtime map cannot silently lose supported current-season gear.
+const observedOfficialAffixMap = {
+  279751: "heavenwillMartialBoost",
+  279752: "heavenwillChargedBoost",
+  279753: "heavenwillLightVariedComboBoost",
+  279754: "skygraspHeavyBoost",
+  279755: "skygraspSpecialBoost",
+  9793003: "body",
+  9793006: "defense",
+  9793103: "body",
+  9793106: "defense",
+  9794003: "body",
+  9794006: "defense",
+  9794103: "body",
+  9794106: "defense",
 };
 
 function extractFunction(name) {
@@ -112,10 +133,12 @@ vm.runInContext(
 );
 
 const mapping = Object.fromEntries(
-  Object.entries(sourceAffixMap)
-    .map(([affixId, sourceKey]) => [affixId, internalAffixKeys[sourceKey]])
-    .filter(([, statKey]) => typeof statKey === "string")
-    .sort(([left], [right]) => Number(left) - Number(right)),
+  [
+    ...Object.entries(sourceAffixMap)
+      .map(([affixId, sourceKey]) => [affixId, internalAffixKeys[sourceKey]])
+      .filter(([, statKey]) => typeof statKey === "string"),
+    ...Object.entries(observedOfficialAffixMap),
+  ].sort(([left], [right]) => Number(left) - Number(right)),
 );
 
 fs.writeFileSync(outputPath, `${JSON.stringify(mapping, null, 2)}\n`);

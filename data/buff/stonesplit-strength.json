@@ -1,4 +1,46 @@
 {
+  "Cadence": {
+    "name": "Cadence",
+    "shortName": "Cad",
+    "description": "Periodically consumes a stack to grant Riposte.",
+    "duration": 20,
+    "maxStack": 2,
+    "periodic": {
+      "interval": 10,
+      "firstTick": 0,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "apply",
+          "target": "self",
+          "value": "Riposte",
+          "stack": 1,
+          "reapply": true,
+          "requirement": [
+            {
+              "target": "self",
+              "value": "Cadence"
+            }
+          ]
+        },
+        {
+          "type": "consume",
+          "target": "self",
+          "value": "Cadence",
+          "stack": 1
+        }
+      ]
+    },
+    "refresh": true
+  },
+  "Riposte": {
+    "name": "Riposte",
+    "shortName": "Rip",
+    "description": "Reduces the cast time of the next Avalanche by 2 seconds.",
+    "duration": 5,
+    "maxStack": 1,
+    "refresh": true
+  },
   "ChargeEnhancement": {
     "name": "Charge Enhancement",
     "shortName": "CE",
