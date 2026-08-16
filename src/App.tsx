@@ -87,6 +87,8 @@ import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
 import exquisiteScenery from "../data/innerway/exquisite-scenery.json";
 import artOfResistance from "../data/innerway/art-of-resistance.json";
+import battleAnthem from "../data/innerway/battle-anthem.json";
+import adaptiveSteel from "../data/innerway/adaptive-steel.json";
 import systemStats from "../data/system.json";
 import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import defaultSetup from "../data/default-setup.json";
@@ -334,6 +336,8 @@ const innerWayDefinitions = {
   EnvigoratedWarrior: envigoratedWarrior,
   ExquisiteScenery: exquisiteScenery,
   ArtOfResistance: artOfResistance,
+  BattleAnthem: battleAnthem,
+  AdaptiveSteel: adaptiveSteel,
 };
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";

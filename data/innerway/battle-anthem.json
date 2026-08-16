@@ -1,0 +1,62 @@
+{
+  "name": "Battle Anthem",
+  "tags": ["StonesplitMight"],
+  "effect": {
+    "BattleAnthemT0": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Charged"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.1
+          }
+        }
+      ]
+    },
+    "BattleAnthemT1": {},
+    "BattleAnthemT2": {
+      "effect": [
+        {
+          "stat": {
+            "affinity": 0.039
+          }
+        }
+      ]
+    },
+    "BattleAnthemT3": {},
+    "BattleAnthemT4": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Charged"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.05
+          }
+        }
+      ]
+    },
+    "BattleAnthemT5": {},
+    "BattleAnthemT6": {
+      "effect": [
+        {
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "enduranceLost",
+              "param2": [9, 19, 29, 39, 49],
+              "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
