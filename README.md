@@ -51,25 +51,18 @@ For more detail, start with:
 
 ## Contributing
 
-Before changing calculations or combat data, read the relevant documents above. A few important rules:
-
-- Prefer representing mechanics in `data/*.json` instead of adding skill-specific code.
-- Store percentages as decimal ratios (`0.1` means 10%); convert them only at the UI boundary.
-- Use the shared stat pipeline and centralized worker result. Do not recalculate effective stats, rates, or DPS in UI components.
-- Rebuild timelines for variants that can affect timing, triggers, effects, stacks, cooldowns, or DOTs. Reuse the baseline only for stat-only variants.
-- Preserve browser-stored user data and add a migration when persisted fields change.
-- Update the relevant document when formulas, data semantics, or architecture change.
-
-A typical contribution loop is:
+Read [AGENTS.md](AGENTS.md) and the relevant technical documents before changing calculation or combat-data behavior. Keep game mechanics in JSON when the existing schema supports them, update affected documentation, and verify changes with:
 
 ```bash
-npm ci
-npm run dev
-# make and inspect the change
+npm run format
 npm run build
 ```
 
-When adding skills or effects, keep internal IDs stable, keep action times ordered, use exact case-sensitive tags, and follow the schemas and examples in [Skill and combat-effect data](doc/skill-data.md).
+Simulation changes should also receive a focused calculation check.
+
+## Deployment
+
+GitHub Pages deploys through [the Pages workflow](.github/workflows/deploy.yml) when changes are pushed to the `release` branch. Merge the tested `main` branch into `release` to publish a new version.
 
 ## License
 
@@ -81,4 +74,7 @@ The bundled Noto Sans font is licensed under the [SIL Open Font License 1.1](pub
 
 ## Acknowledgements
 
-Special thanks to **yoka**, creator of the original spreadsheet that inspired this work, and to the **Where Winds Math** site for its work and contributions to the community.
+- **yoka**, creator of the original spreadsheet that inspired this work
+- The **Where Winds Math** site, for its work and contributions to the community
+- **Mhysa**, for detailed Stonesplit Strength timing data and testing
+- **Xia**, for Stonesplit Might skill data and mechanical explanations
