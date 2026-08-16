@@ -3,6 +3,8 @@ export type CharacterStats = {
   maxPhys: number;
   precision: number;
   crit: number;
+  /** Hit-scoped bonus added after Judgement Resistance but before the 80% Effective Critical cap. */
+  effectiveCritBonus: number;
   affinity: number;
   directCrit: number;
   directAffinity: number;
@@ -43,6 +45,7 @@ export type CharacterStats = {
   umbrellaDmgBoost: number;
   ropeDartDmgBoost: number;
   gauntletDmgBoost: number;
+  spearDmgBoost: number;
   singleTargetMysticDmgBoost: number;
   areaMysticDmgBoost: number;
 };
@@ -59,7 +62,7 @@ export type EnemyProfile = {
   judgementResistance: number;
 };
 
-export const weaponIds = ["snowparting", "phalanxbane", "everspring", "unfettered", "heavenwill", "skygrasp"] as const;
+export const weaponIds = ["snowparting", "phalanxbane", "thundercry", "stormbreaker", "everspring", "unfettered", "heavenwill", "skygrasp"] as const;
 export type WeaponId = typeof weaponIds[number];
 
 export type StatKey = keyof CharacterStats;

@@ -2,8 +2,8 @@
   "Vulnerable": {
     "name": "Vulnerable",
     "shortName": "Vul",
-    "description": "Increases HP and Qi damage taken by 8%, and an additional 8% for Might",
-    "duration": 17,
+    "description": "Increases HP and Qi damage taken by 8%, and by an additional 8% for Might.",
+    "duration": 16,
     "maxStack": 1,
     "shared": true,
     "effect": [

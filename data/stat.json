@@ -25,6 +25,7 @@
       "umbrellaDmgBoost": 0.062,
       "ropeDartDmgBoost": 0.062,
       "gauntletDmgBoost": 0.062,
+      "spearDmgBoost": 0.062,
       "vsBossDmg": 0.032,
       "singleTargetMysticDmgBoost": 0.098,
       "areaMysticDmgBoost": 0.098
@@ -62,6 +63,7 @@
       "umbrellaDmgBoost": 0.052,
       "ropeDartDmgBoost": 0.052,
       "gauntletDmgBoost": 0.052,
+      "spearDmgBoost": 0.052,
       "vsBossDmg": 0.026,
       "singleTargetMysticDmgBoost": 0.08,
       "areaMysticDmgBoost": 0.08

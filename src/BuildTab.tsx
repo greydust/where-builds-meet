@@ -2,15 +2,17 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardE
 import { UiIcon } from "./UiIcon";
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
-import gearSetDefinitions from "../data/gear-set.json";
 import frostCladNight from "../data/innerway/frost-clad-night.json";
 import moraleChant from "../data/innerway/morale-chant.json";
 import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
+import exquisiteScenery from "../data/innerway/exquisite-scenery.json";
+import artOfResistance from "../data/innerway/art-of-resistance.json";
 import {
   defaultBuildSetup,
+  armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
   buildEntryAvailableForWeapons,
@@ -28,6 +30,9 @@ import {
   normalizeBuildSetup,
   resolveBuildInventory,
   resolveBuildSetup,
+  selectSetTier,
+  setAvailableForTags,
+  weaponSetDefinitions,
   type BuildSetup,
   type BuildState,
   type GearDefinition,
@@ -49,6 +54,8 @@ const innerWayDefinitions = {
   ThroatPiercingArt: throatPiercingArt,
   BreakingPoint: breakingPoint,
   EnvigoratedWarrior: envigoratedWarrior,
+  ExquisiteScenery: exquisiteScenery,
+  ArtOfResistance: artOfResistance,
 } as Record<string, { name: string; tags?: string[] }>;
 
 type GearValueDraft = { key: string; value: string };
@@ -397,13 +404,21 @@ export default function BuildTab({ weapons, martialArtTags, pathTag, buildState,
 }
 
 function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: { setup: BuildSetup; martialArtTags: string[]; pathTag?: string; locked: boolean; onChange: (setup: BuildSetup) => void }) {
-  function updateGearSet(setName: keyof BuildSetup["gearSets"], tier: 0 | 2 | 4) {
-    const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
-    onChange({ ...setup, gearSets: { ...setup.gearSets, [setName]: tier, [otherSet]: Math.min(setup.gearSets[otherSet], 4 - tier) as 0 | 2 | 4 } });
-  }
-
   const lockedTitle = locked ? "Fixed by this default preset" : undefined;
   const innerWayOptions = Object.entries(innerWayDefinitions).filter(([, definition]) => !pathTag || definition.tags?.includes(pathTag));
+  const availableWeaponSets = Object.entries(weaponSetDefinitions).filter(([, definition]) => setAvailableForTags(definition, martialArtTags, pathTag));
+  const availableArmorSets = Object.entries(armorSetDefinitions).filter(([, definition]) => setAvailableForTags(definition, martialArtTags, pathTag));
+  const setPanel = (title: string, key: "weaponSets" | "armorSets", definitions: typeof weaponSetDefinitions, entries: typeof availableWeaponSets) => <section className="panel setup-placeholder-panel build-setup-panel">
+    <div className="panel-heading"><div><h2>{title}</h2></div></div>
+    <div className="gear-set-list">
+      {entries.map(([setName, definition]) => {
+        const selectedTier = setup[key][setName] ?? 0;
+        return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">
+          {[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} disabled={locked} title={lockedTitle} onClick={() => onChange({ ...setup, [key]: selectSetTier(setup[key], setName, tier as 0 | 2 | 4, definitions) })}>{tier === 0 ? "0 piece" : `${tier} pieces`}</button>)}
+        </div></div></div>;
+      })}
+    </div>
+  </section>;
   return <div className="build-setup-column" aria-label="Build setup">
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Inner Ways</h2></div></div>
@@ -419,17 +434,8 @@ function BuildSetupPanel({ setup, martialArtTags, pathTag, locked, onChange }: {
         </div>)}
       </div>
     </section>
-    <section className="panel setup-placeholder-panel build-setup-panel">
-      <div className="panel-heading"><div><h2>Gear Set</h2></div></div>
-      <div className="gear-set-list">
-        {Object.entries(gearSetDefinitions).filter(([, definition]) => (!pathTag || definition.tags.includes(pathTag)) && [...new Set(martialArtTags)].every((tag) => definition.tags.includes(tag))).map(([setName, definition]) => {
-          const selectedTier = setup.gearSets[setName as keyof BuildSetup["gearSets"]];
-          return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">
-            {[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} disabled={locked} title={lockedTitle} onClick={() => updateGearSet(setName as keyof BuildSetup["gearSets"], tier as 0 | 2 | 4)}>{tier === 0 ? "0 piece" : `${tier} pieces`}</button>)}
-          </div></div></div>;
-        })}
-      </div>
-    </section>
+    {setPanel("Weapon Set", "weaponSets", weaponSetDefinitions, availableWeaponSets)}
+    {availableArmorSets.length > 0 && setPanel("Armor Set", "armorSets", armorSetDefinitions, availableArmorSets)}
     <section className="panel setup-placeholder-panel build-setup-panel">
       <div className="panel-heading"><div><h2>Bow/Ring Set</h2></div></div>
       <div className="setup-option-list setup-option-list-wide">

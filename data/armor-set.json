@@ -1,0 +1,29 @@
+{
+  "Formbend": {
+    "name": "Formbend",
+    "tags": [
+      "StonesplitStrength",
+      "StonesplitMight",
+      "SnowpartingBlade",
+      "PhalanxbaneBlade",
+      "ThundercryBlade",
+      "StormbreakerSpear"
+    ],
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {}
+      },
+      "2": {
+        "name": "2",
+        "effect": {}
+      },
+      "4": {
+        "name": "4",
+        "effect": {
+          "condition": "FormBend4"
+        }
+      }
+    }
+  }
+}

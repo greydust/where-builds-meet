@@ -1,0 +1,25 @@
+{
+  "name": "Stormbreaker Spear",
+  "weapon": "Spear",
+  "tag": "StormbreakerSpear",
+  "talent": [
+    {
+      "name": "Stonesplit Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minStonesplit": 98,
+            "maxStonesplit": 196,
+            "stonesplitDmgBonus": {
+              "formula": {
+                "source": "effectiveMinStonesplit",
+                "multiplier": 0.0003353658536585366,
+                "max": 0.11
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

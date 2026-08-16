@@ -1,0 +1,58 @@
+{
+  "name": "Art of Resistance",
+  "tags": ["StonesplitMight"],
+  "effect": {
+    "ArtOfResistanceT0": {},
+    "ArtOfResistanceT1": {},
+    "ArtOfResistanceT2": {
+      "effect": [
+        {
+          "stat": {
+            "minStonesplit": 12.7,
+            "maxStonesplit": 25.3
+          }
+        }
+      ]
+    },
+    "ArtOfResistanceT3": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "Shield"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.05
+          }
+        }
+      ]
+    },
+    "ArtOfResistanceT4": {},
+    "ArtOfResistanceT5": {
+      "effect": [
+        {
+          "stat": {
+            "stonesplitPenetration": 6
+          }
+        }
+      ]
+    },
+    "ArtOfResistanceT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "Shield"
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.05
+          }
+        }
+      ]
+    }
+  }
+}

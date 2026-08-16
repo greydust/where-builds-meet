@@ -4,6 +4,7 @@ import arsenalJson from "../data/arsenal.json";
 import bowRingSetJson from "../data/bow-ring-set.json";
 import defaultSetupJson from "../data/default-setup.json";
 import gearSetJson from "../data/gear-set.json";
+import armorSetJson from "../data/armor-set.json";
 import statJson from "../data/stat.json";
 import type { AttunementStats } from "./calculations/damage";
 import { weaponIds, type CharacterStats, type WeaponId } from "./types";
@@ -18,10 +19,12 @@ export type GearSlot = typeof gearSlots[number];
 export type GearLevel = 91 | 96;
 export type GearRarity = "Purple" | "Gold";
 export type GearSetTier = 0 | 2 | 4;
+export type SetSelections = Record<string, GearSetTier>;
 export type InnerWaySelection = { innerWay: string; tier: string };
 export type BuildSetup = {
   innerWays: InnerWaySelection[];
-  gearSets: { Cleftpeak: GearSetTier; RainWhisper: GearSetTier };
+  weaponSets: SetSelections;
+  armorSets: SetSelections;
   bowRingSet: string;
   arsenal: string;
 };
@@ -134,7 +137,9 @@ export function clampGearRoll(key: string, value: number, category: "affix" | "a
   const maximum = maxGearRoll(key, category, relayed, level);
   return typeof maximum === "number" ? Math.min(value, maximum) : value;
 }
-const gearSetDefinitions = gearSetJson as Record<string, { options: Record<string, unknown> }>;
+export type SetDefinition = { name: string; tags: string[]; options: Record<string, { name: string; effect?: unknown }> };
+export const weaponSetDefinitions = gearSetJson as Record<string, SetDefinition>;
+export const armorSetDefinitions = armorSetJson as Record<string, SetDefinition>;
 const bowRingSetDefinitions = bowRingSetJson as Record<string, unknown>;
 const arsenalDefinitions = arsenalJson as Record<string, unknown>;
 const configuredDefaultSetup = defaultSetupJson as BuildSetup;
@@ -143,8 +148,42 @@ const legacyBowRingSetStorageKey = "wwm-bow-ring-set-session-v1";
 const legacyGearSetStorageKey = "wwm-gear-set-session-v1";
 const legacyInnerWayStorageKey = "wwm-inner-way-session-v1";
 
-const cloneBuildSetup = (setup: BuildSetup): BuildSetup => ({ innerWays: setup.innerWays.map((row) => ({ ...row })), gearSets: { ...setup.gearSets }, bowRingSet: setup.bowRingSet, arsenal: setup.arsenal });
+const cloneBuildSetup = (setup: BuildSetup): BuildSetup => ({ innerWays: setup.innerWays.map((row) => ({ ...row })), weaponSets: { ...setup.weaponSets }, armorSets: { ...setup.armorSets }, bowRingSet: setup.bowRingSet, arsenal: setup.arsenal });
 const validTier = (value: unknown): value is GearSetTier => value === 0 || value === 2 || value === 4;
+
+function normalizeSetSelections(value: unknown, definitions: Record<string, SetDefinition>, fallback: SetSelections) {
+  const candidate = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  let remaining = 4;
+  return Object.fromEntries(Object.keys(definitions).map((setName) => {
+    const raw = candidate[setName];
+    const fallbackTier = fallback[setName] ?? 0;
+    const requested = validTier(raw) && String(raw) in definitions[setName].options ? raw : fallbackTier;
+    const tier = Math.min(requested, remaining) as GearSetTier;
+    remaining -= tier;
+    return [setName, tier];
+  }));
+}
+
+function validSetSelections(value: unknown, definitions: Record<string, SetDefinition>) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Record<string, unknown>;
+  return Object.keys(definitions).every((setName) => validTier(candidate[setName]) && String(candidate[setName]) in definitions[setName].options)
+    && Object.keys(definitions).reduce((total, setName) => total + Number(candidate[setName]), 0) <= 4;
+}
+
+export function setAvailableForTags(definition: SetDefinition, martialArtTags: string[], pathTag?: string) {
+  return (!pathTag || definition.tags.includes(pathTag)) && [...new Set(martialArtTags)].every((tag) => definition.tags.includes(tag));
+}
+
+export function selectSetTier(current: SetSelections, setName: string, tier: GearSetTier, definitions: Record<string, SetDefinition>) {
+  let remaining = 4 - tier;
+  return Object.fromEntries(Object.keys(definitions).map((name) => {
+    if (name === setName) return [name, tier];
+    const kept = Math.min(current[name] ?? 0, remaining) as GearSetTier;
+    remaining -= kept;
+    return [name, kept];
+  }));
+}
 
 function parseInnerWays(value: unknown, expectedLength: number) {
   if (!Array.isArray(value) || value.length !== expectedLength) return undefined;
@@ -168,17 +207,12 @@ function normalizeInnerWays(value: unknown, fallback: InnerWaySelection[]) {
 export const defaultBuildSetup = cloneBuildSetup(configuredDefaultSetup);
 
 export function normalizeBuildSetup(value: unknown, fallback: BuildSetup = defaultBuildSetup): BuildSetup {
-  const candidate = value && typeof value === "object" && !Array.isArray(value) ? value as Partial<BuildSetup> : {};
-  const gearSets = candidate.gearSets && typeof candidate.gearSets === "object" && !Array.isArray(candidate.gearSets) ? candidate.gearSets : undefined;
-  const cleftpeak = gearSets?.Cleftpeak;
-  const rainWhisper = gearSets?.RainWhisper;
-  const validGearSets = validTier(cleftpeak) && validTier(rainWhisper)
-    && cleftpeak + rainWhisper <= 4
-    && String(cleftpeak) in gearSetDefinitions.Cleftpeak.options
-    && String(rainWhisper) in gearSetDefinitions.RainWhisper.options;
+  const candidate = value && typeof value === "object" && !Array.isArray(value) ? value as Partial<BuildSetup> & { gearSets?: unknown } : {};
+  const weaponSets = candidate.weaponSets ?? candidate.gearSets;
   return {
     innerWays: normalizeInnerWays(candidate.innerWays, fallback.innerWays),
-    gearSets: validGearSets ? { Cleftpeak: cleftpeak, RainWhisper: rainWhisper } : { ...fallback.gearSets },
+    weaponSets: normalizeSetSelections(weaponSets, weaponSetDefinitions, fallback.weaponSets),
+    armorSets: normalizeSetSelections(candidate.armorSets, armorSetDefinitions, fallback.armorSets),
     bowRingSet: typeof candidate.bowRingSet === "string" && candidate.bowRingSet in bowRingSetDefinitions ? candidate.bowRingSet : fallback.bowRingSet,
     arsenal: typeof candidate.arsenal === "string" && candidate.arsenal in arsenalDefinitions ? candidate.arsenal : fallback.arsenal,
   };
@@ -186,15 +220,13 @@ export function normalizeBuildSetup(value: unknown, fallback: BuildSetup = defau
 
 export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverrides {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  const candidate = value as Partial<BuildSetup>;
+  const candidate = value as Partial<BuildSetup> & { gearSets?: unknown };
   const result: BuildSetupOverrides = {};
   const innerWays = parseInnerWays(candidate.innerWays, defaultBuildSetup.innerWays.length);
   if (innerWays) result.innerWays = innerWays;
-  if (candidate.gearSets) {
-    const normalized = normalizeBuildSetup({ gearSets: candidate.gearSets }, defaultBuildSetup);
-    const raw = candidate.gearSets;
-    if (validTier(raw.Cleftpeak) && validTier(raw.RainWhisper) && raw.Cleftpeak + raw.RainWhisper <= 4) result.gearSets = normalized.gearSets;
-  }
+  const weaponSets = candidate.weaponSets ?? candidate.gearSets;
+  if (validSetSelections(weaponSets, weaponSetDefinitions)) result.weaponSets = normalizeSetSelections(weaponSets, weaponSetDefinitions, defaultBuildSetup.weaponSets);
+  if (validSetSelections(candidate.armorSets, armorSetDefinitions)) result.armorSets = normalizeSetSelections(candidate.armorSets, armorSetDefinitions, defaultBuildSetup.armorSets);
   if (typeof candidate.bowRingSet === "string" && candidate.bowRingSet in bowRingSetDefinitions) result.bowRingSet = candidate.bowRingSet;
   if (typeof candidate.arsenal === "string" && candidate.arsenal in arsenalDefinitions) result.arsenal = candidate.arsenal;
   return result;
@@ -208,7 +240,7 @@ function loadLegacyBuildSetup() {
   try { innerWays = JSON.parse(sessionStorage.getItem(legacyInnerWayStorageKey) ?? "null"); } catch { innerWays = undefined; }
   return normalizeBuildSetup({
     innerWays,
-    gearSets,
+    weaponSets: gearSets,
     bowRingSet: sessionStorage.getItem(legacyBowRingSetStorageKey),
     arsenal: sessionStorage.getItem(legacyArsenalStorageKey),
   });
@@ -251,6 +283,8 @@ export function buildEntryAvailableForWeapons(entry: BuildEntry, selectedWeapons
 const weaponDefinitionIds: Record<WeaponId, string> = {
   snowparting: "hengBlade",
   phalanxbane: "moBlade",
+  thundercry: "moBlade",
+  stormbreaker: "spear",
   everspring: "umbrella",
   unfettered: "unfetteredRopeDart",
   heavenwill: "gauntlet",
@@ -455,7 +489,7 @@ function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sha
 
 export function serializeBuildState(state: BuildState) {
   return JSON.stringify({
-    version: 6,
+    version: 7,
     entries: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
     gearItems: state.gearItems.map(withoutWeaponSlot),
   });
@@ -464,7 +498,7 @@ export function serializeBuildState(state: BuildState) {
 export function exportBuildState(state: BuildState) {
   return JSON.stringify({
     format: buildExportFormat,
-    version: 5,
+    version: 6,
     exportedAt: new Date().toISOString(),
     gearItems: state.gearItems.map(withoutWeaponSlot),
     builds: state.entries.filter((entry) => !entry.isDefault).map((entry) => ({ id: entry.id, name: entry.name, weapons: normalizedWeaponTags(entry.weapons, entry.equipped, state.gearItems), equipped: entry.equipped ?? {}, setup: normalizeBuildSetup(entry.setup) })),
@@ -509,7 +543,7 @@ function gearItemsExactlyMatch(left: GearItem, right: GearItem) {
 export function mergeImportedBuildState(current: BuildState, value: unknown, options: { reuseIdenticalGear?: boolean } = {}) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet export file.");
   const source = value as { format?: unknown; version?: unknown; gearItems?: unknown; builds?: unknown };
-  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4 && source.version !== 5) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
+  if (source.format !== buildExportFormat || (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4 && source.version !== 5 && source.version !== 6) || !Array.isArray(source.gearItems) || !Array.isArray(source.builds)) {
     throw new Error("This file uses an unsupported build export format.");
   }
 

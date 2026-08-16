@@ -34,6 +34,7 @@
     "umbrellaDmgBoost": { "name": "Art of Umbrella", "percentage": true },
     "ropeDartDmgBoost": { "name": "Art of Rope Dart", "percentage": true },
     "gauntletDmgBoost": { "name": "Art of Gauntlet", "percentage": true },
+    "spearDmgBoost": { "name": "Art of Spear", "percentage": true },
     "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
@@ -144,6 +145,24 @@
       "additionalAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"],
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"]
+      },
+      "attunements": ["Weapon"]
+    },
+    "spear": {
+      "name": "Spear",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "stormbreaker",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "spearDmgBoost"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "spearDmgBoost"]
       },
       "attunements": ["Weapon"]
     },

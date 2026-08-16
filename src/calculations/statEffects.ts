@@ -1,5 +1,6 @@
 import type { CharacterStats } from "../types";
 import { calculateDerivedStats, type DerivedStats } from "./effectiveStats";
+import { resolveSegmentValue } from "./dynamicValues";
 
 export type StatFormula = {
   source: string;
@@ -11,7 +12,8 @@ export type StatFormula = {
 };
 
 export type FormulaStatValue = { formula: StatFormula };
-export type StatEffectValues = Partial<Record<keyof CharacterStats, number | FormulaStatValue>>;
+export type SegmentStatValue = { function: "segment"; param1: string | number; param2: number[]; param3: number[] };
+export type StatEffectValues = Partial<Record<keyof CharacterStats, number | FormulaStatValue | SegmentStatValue>>;
 export type StatEffectContainer = { stat?: StatEffectValues };
 export type EffectiveStatEffectContainer = { effectiveStat?: StatEffectValues };
 
@@ -43,8 +45,10 @@ export function applyStatEffects(baseStats: CharacterStats, effects: StatEffectC
     }
   }));
   statEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (!(key in adjustedStats) || !value || typeof value !== "object" || !("formula" in value)) return;
-    const resolved = resolveFormulaValue((value as FormulaStatValue).formula, adjustedStats);
+    if (!(key in adjustedStats) || !value || typeof value !== "object") return;
+    const resolved = "formula" in value
+      ? resolveFormulaValue((value as FormulaStatValue).formula, adjustedStats)
+      : resolveSegmentValue(value, adjustedStats);
     if (resolved === undefined) return;
     const statKey = key as keyof CharacterStats;
     adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
@@ -56,11 +60,20 @@ export function applyDerivedStatEffects(baseStats: CharacterStats, effects: Stat
   const adjustedStats = { ...baseStats };
   const statEffects = effects.flatMap((effect) => effect.stat ? [effect.stat] : []);
   statEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (!(key in adjustedStats) || !value || typeof value !== "object" || !("formula" in value)) return;
-    const formula = (value as FormulaStatValue).formula;
-    // Formulas backed by character stats were already handled by applyStatEffects.
-    if (formula.source in baseStats) return;
-    const resolved = resolveFormulaValue(formula, derivedStats as unknown as Record<string, unknown>);
+    if (!(key in adjustedStats) || !value || typeof value !== "object") return;
+    if ("formula" in value) {
+      const formula = (value as FormulaStatValue).formula;
+      // Formulas backed by character stats were already handled by applyStatEffects.
+      if (formula.source in baseStats) return;
+      const resolved = resolveFormulaValue(formula, derivedStats as unknown as Record<string, unknown>);
+      if (resolved === undefined) return;
+      const statKey = key as keyof CharacterStats;
+      adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
+      return;
+    }
+    const source = (value as SegmentStatValue).param1;
+    if (typeof source === "string" && source in baseStats) return;
+    const resolved = resolveSegmentValue(value, derivedStats as unknown as Record<string, number | undefined>);
     if (resolved === undefined) return;
     const statKey = key as keyof CharacterStats;
     adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
@@ -78,7 +91,7 @@ export function collectEffectiveStatEffects(stats: CharacterStats, effects: Effe
       ? value
       : value && typeof value === "object" && "formula" in value
         ? resolveFormulaValue((value as FormulaStatValue).formula, stats) ?? 0
-        : 0;
+        : resolveSegmentValue(value, stats) ?? 0;
     result[statKey] = normalizeInternalValue((result[statKey] ?? 0) + resolved);
   }));
   return result;

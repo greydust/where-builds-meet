@@ -23,7 +23,7 @@ export type RotationStep = { type: "skill"; skill?: string; causesBreak?: boolea
   | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
   | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
   | { type: "event"; event: "Delay"; duration: number }
-  | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+  | { type: "event"; event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
 export type RotationRecord = { name: string; steps: RotationStep[]; start?: { step: number; action?: number }; eventTimeReference?: "battleStart" };

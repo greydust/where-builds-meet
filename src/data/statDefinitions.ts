@@ -51,6 +51,7 @@ export const defenseStats: StatDefinition[] = [
   { key: "umbrellaDmgBoost", label: "Art of Umbrella", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "ropeDartDmgBoost", label: "Art of Rope Dart", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "gauntletDmgBoost", label: "Art of Gauntlet", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "spearDmgBoost", label: "Art of Spear", unit: "%", showUnitInLabel: false, showUnitInInput: true },
 ];
 
 export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialArtsStats, ...defenseStats];
@@ -58,3 +59,4 @@ export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialA
 export const emptyStats = Object.fromEntries(
   allStatDefinitions.map(({ key }) => [key, 0]),
 ) as CharacterStats;
+emptyStats.effectiveCritBonus = 0;

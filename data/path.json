@@ -3,7 +3,7 @@
     "name": "Mixed"
   },
   "stonesplitStrength": {
-    "name": "Stonesplit - Strength",
+    "name": "Strength",
     "icon": "strength.png",
     "tag": "StonesplitStrength",
     "lockedWeapons": [
@@ -11,8 +11,18 @@
       "phalanxbane"
     ]
   },
+  "stonesplitMight": {
+    "name": "Might",
+    "icon": "might.png",
+    "tag": "StonesplitMight",
+    "wip": true,
+    "lockedWeapons": [
+      "thundercry",
+      "stormbreaker"
+    ]
+  },
   "bamboocutDust": {
-    "name": "Bamboocut - Dust",
+    "name": "Dust",
     "icon": "dust.png",
     "tag": "BamboocutDust",
     "wip": true,
@@ -22,7 +32,7 @@
     ]
   },
   "bamboocutKite": {
-    "name": "Bamboocut - Kite",
+    "name": "Kite",
     "icon": "kite.png",
     "tag": "BamboocutKite",
     "wip": true,

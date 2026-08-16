@@ -4,16 +4,19 @@ import { UiIcon } from "./UiIcon";
 const BuildTab = lazy(() => import("./BuildTab"));
 const SimulationTab = lazy(() => import("./SimulationTab"));
 import { allStatDefinitions, combatStats, defenseStats, emptyStats, martialArtsStats } from "./data/statDefinitions";
-import { activeBuildStorageKey, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, sameWeaponPair, serializeBuildState, statRollsForLevel, type BuildSetup, type BuildSetupOverrides, type BuildState } from "./gear";
+import { activeBuildStorageKey, armorSetDefinitions, attunementData, buildEntryAvailableForWeapons, buildListStorageKey, calculateEquippedGearEffects, loadBuildState, maxGearRoll, normalizeBuildSetupOverrides, resolveBuildInventory, resolveBuildSetup, sameWeaponPair, selectSetTier, serializeBuildState, setAvailableForTags, statRollsForLevel, weaponSetDefinitions, type BuildSetup, type BuildSetupOverrides, type BuildState, type SetDefinition, type SetSelections } from "./gear";
 import { weaponIds as allWeaponIds, type CharacterStats, type EnemyProfile, type StatDefinition, type WeaponId } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
 import snowpartingSkills from "../data/skill/snowparting-blade.json";
 import phalanxbaneSkills from "../data/skill/phalanxbane-blade.json";
+import thundercrySkills from "../data/skill/thundercry-blade.json";
+import stormbreakerSkills from "../data/skill/stormbreaker-spear.json";
 import mysticSkills from "../data/skill/mystic.json";
 import generalSkills from "../data/skill/general.json";
 import mysticBuffs from "../data/buff/mystic.json";
 import generalBuffs from "../data/buff/general.json";
 import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
+import stonesplitMightBuffs from "../data/buff/stonesplit-might.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
 import globalBuffs from "../data/buff/global.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
@@ -31,13 +34,14 @@ import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
 import breakingPoint from "../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
+import exquisiteScenery from "../data/innerway/exquisite-scenery.json";
+import artOfResistance from "../data/innerway/art-of-resistance.json";
 import systemStats from "../data/system.json";
 import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import defaultSetup from "../data/default-setup.json";
 import { emptyRotationBreakdown, getRotationMetrics, getRotationRecalculating, publishRotationMetrics, publishRotationRecalculating, subscribeToRotationMetrics, subscribeToRotationRecalculating, type RotationGroupBreakdown, type RotationMetrics, type RotationPriority } from "./calculations/rotationMetrics";
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
-import gearSetDefinitions from "../data/gear-set.json";
 import foodDefinitions from "../data/food.json";
 import divinecraftDefinitions from "../data/divinecraft.json";
 import pathDefinitions from "../data/path.json";
@@ -47,6 +51,8 @@ import everspringMartialArt from "../data/martial-art/everspring-umbrella.json";
 import unfetteredMartialArt from "../data/martial-art/unfettered-rope-dart.json";
 import heavenwillMartialArt from "../data/martial-art/heavenwill-gauntlets.json";
 import skygraspMartialArt from "../data/martial-art/skygrasp-rope-dart.json";
+import thundercryMartialArt from "../data/martial-art/thundercry-blade.json";
+import stormbreakerMartialArt from "../data/martial-art/stormbreaker-spear.json";
 import { type RotationSimulationBundle, type RotationSimulationResult, type RotationSimulationVariant } from "./calculations/rotationCalculator";
 import { requestRotationBaseline, requestRotationComparisons } from "./calculations/rotationWorkerClient";
 import { compareTimelineTime, type AttachedEventTarget, type EditableObject, type InnerWayEffectRule, type RotationRecord, type RotationStep, type SkillRecord, type TimelineBuildInput, type TimelineRow } from "./calculations/rotationTimeline";
@@ -75,11 +81,11 @@ const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key));
 
 type SkillMap = Record<string, SkillRecord>;
-type SkillCategory = "Snowparting" | "Phalanxbane" | "Mystic" | "General";
+type SkillCategory = "Snowparting" | "Phalanxbane" | "Thundercry" | "Stormbreaker" | "Mystic" | "General";
 type EditorCategory = SkillCategory | "Buff" | "Debuff" | "DOT";
 type SkillOverrides = Partial<Record<EditorCategory, SkillMap>>;
 type CalculatorSettings = { weapons: [WeaponId, WeaponId]; enemy: string };
-type PathId = "mixed" | "stonesplitStrength" | "bamboocutDust" | "bamboocutKite";
+type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutDust" | "bamboocutKite";
 type PathDefinition = {
   name: string;
   icon?: string;
@@ -89,7 +95,8 @@ type PathDefinition = {
 };
 type DefaultSetup = {
   innerWays: Array<{ innerWay: string; tier: string }>;
-  gearSets: { Cleftpeak: 0 | 2 | 4; RainWhisper: 0 | 2 | 4 };
+  weaponSets: SetSelections;
+  armorSets: SetSelections;
   bowRingSet: string;
   arsenal: string;
   food: string;
@@ -102,18 +109,22 @@ const enabledWeaponIds = new Set<WeaponId>((Object.entries(typedPathDefinitions)
 const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Snowparting: snowpartingSkills as SkillMap,
   Phalanxbane: phalanxbaneSkills as SkillMap,
+  Thundercry: thundercrySkills as SkillMap,
+  Stormbreaker: stormbreakerSkills as SkillMap,
   Mystic: mysticSkills as SkillMap,
   General: generalSkills as SkillMap,
 };
 const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   ...defaultSkillMaps,
-  Buff: { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as SkillMap,
+  Buff: { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...stonesplitMightBuffs, ...bamboocutWindBuffs } as SkillMap,
   Debuff: { ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as SkillMap,
   DOT: mysticDots as SkillMap,
 };
 const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
   snowparting: "Snowparting",
   phalanxbane: "Phalanxbane",
+  thundercry: "Thundercry",
+  stormbreaker: "Stormbreaker",
 };
 const rotationEventDefinitions: Record<string, SkillRecord> = {
   Exhausted: {
@@ -127,6 +138,16 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
     name: "Event: Controlled",
     castTime: 0,
     action: [{ type: "apply", target: "target", value: "Controlled", stack: 1, time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  ShieldBroken: {
+    name: "Event: Shield Broken",
+    castTime: 0,
+    action: [
+      { type: "consume", target: "self", value: "Shield", stack: "all", time: 0 },
+      { type: "apply", target: "self", value: "HardenedFoe", stack: 1, requirement: [{ target: "self", value: "ArtOfResistanceT6" }], time: 0 },
+    ],
     modifier: [],
     tags: ["Event"],
   },
@@ -180,6 +201,8 @@ const innerWayDefinitions = {
   ThroatPiercingArt: throatPiercingArt,
   BreakingPoint: breakingPoint,
   EnvigoratedWarrior: envigoratedWarrior,
+  ExquisiteScenery: exquisiteScenery,
+  ArtOfResistance: artOfResistance,
 };
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
@@ -189,14 +212,16 @@ const editorSkillIds = Array.from(new Set(allSkillIds));
 const martialArtBySkillId = new Map<string, WeaponId>([
   ...Object.keys(snowpartingSkills).map((id) => [id, "snowparting"] as const),
   ...Object.keys(phalanxbaneSkills).map((id) => [id, "phalanxbane"] as const),
+  ...Object.keys(thundercrySkills).map((id) => [id, "thundercry"] as const),
+  ...Object.keys(stormbreakerSkills).map((id) => [id, "stormbreaker"] as const),
 ]);
-const rotationEventOptionIds = ["__event:Delay", "__event:Exhausted", "__event:Controlled", "__event:BattleEnd", "__event:Move", "__event:HP", "__event:Buff", "__event:Debuff"];
+const rotationEventOptionIds = ["__event:Delay", "__event:Exhausted", "__event:Controlled", "__event:ShieldBroken", "__event:BattleEnd", "__event:Move", "__event:HP", "__event:Buff", "__event:Debuff"];
 const dotDefinitions = mysticDots as Record<string, { duration?: number; maxStack?: number; tick?: number; refresh?: boolean; action?: unknown[] }>;
 const generalDebuffIds = new Set(Object.keys(generalDebuffs));
 const dotEffectIds = new Set(Object.keys(dotDefinitions));
-const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; shortName?: string; description?: string; refresh?: boolean; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
+const effectDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...stonesplitMightBuffs, ...bamboocutWindBuffs, ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs, ...dotDefinitions } as Record<string, { name?: string; shortName?: string; description?: string; refresh?: boolean; duration?: number; cooldown?: number; maxStack?: number; effect?: unknown[]; stackEffects?: unknown[][] }>;
 const globalEffectRules = Object.values(globalBuffs).flatMap((definition) => definition.effect ?? []) as EditableObject[];
-const manualBuffDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...bamboocutWindBuffs } as Record<string, { name?: string }>;
+const manualBuffDefinitions = { ...mysticBuffs, ...generalBuffs, ...stonesplitStrengthBuffs, ...stonesplitMightBuffs, ...bamboocutWindBuffs } as Record<string, { name?: string }>;
 const manualDebuffDefinitions = { ...stonesplitStrengthDebuffs, ...stonesplitMightDebuffs, ...bellstrikeSplendorDebuffs, ...bellstrikeUmbraDebuffs, ...bamboocutDustDebuffs, ...innerWayDebuffs, ...generalDebuffs } as Record<string, { name?: string }>;
 
 function loadSelectedPath(): PathId {
@@ -401,7 +426,7 @@ const formerDefaultRotationIds = new Set(["dummy-1-min"]);
 const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
 const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "96" };
 
-type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { requirement?: unknown; trigger?: EditableObject; target?: string; modify?: EditableObject };
+type SetupEffect = StatEffectContainer & EffectiveStatEffectContainer & { condition?: string; requirement?: unknown; trigger?: EditableObject; target?: string; modify?: EditableObject };
 type SystemStatsDefinition = {
   baseStats: SetupEffect;
   levelBonusStats: SetupEffect;
@@ -421,17 +446,20 @@ type ArsenalDefinition = { name: string; effect?: SetupEffect };
 const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>;
 const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>;
 type GearSetOption = { name: string; effect?: SetupEffect };
-type GearSetDefinition = { name: string; tags: string[]; options: Record<string, GearSetOption> };
-const typedGearSetDefinitions = gearSetDefinitions as Record<string, GearSetDefinition>;
+type GearSetDefinition = Omit<SetDefinition, "options"> & { options: Record<string, GearSetOption> };
+const typedWeaponSetDefinitions = weaponSetDefinitions as Record<string, GearSetDefinition>;
+const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDefinition>;
 const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>;
 type DivinecraftDefinition = ArsenalDefinition & { description: string; image?: string; available?: boolean };
 const typedDivinecraftDefinitions = divinecraftDefinitions as Record<string, DivinecraftDefinition>;
 const divinecraftDisplayOrder = ["Fire", "FireWater", "FirePoison", "None", "WaterFire", "WaterPoison", null, "PoisonFire", "PoisonWater"] as const;
-type MartialArtWeapon = "HengBlade" | "MoBlade" | "Umbrella" | "RopeDart" | "Gauntlet";
+type MartialArtWeapon = "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet";
 type MartialArtDefinition = { name: string; weapon: MartialArtWeapon; tag: string; talent: Array<{ name: string; effect?: SetupEffect[] }> };
 const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
   snowparting: snowpartingMartialArt as MartialArtDefinition,
   phalanxbane: phalanxbaneMartialArt as MartialArtDefinition,
+  thundercry: thundercryMartialArt as MartialArtDefinition,
+  stormbreaker: stormbreakerMartialArt as MartialArtDefinition,
   everspring: everspringMartialArt as MartialArtDefinition,
   unfettered: unfetteredMartialArt as MartialArtDefinition,
   heavenwill: heavenwillMartialArt as MartialArtDefinition,
@@ -440,6 +468,7 @@ const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
 const weaponFamilyNames: Record<MartialArtWeapon, string> = {
   HengBlade: "Heng Blade",
   MoBlade: "Mo Blade",
+  Spear: "Spear",
   Umbrella: "Umbrella",
   RopeDart: "Rope Dart",
   Gauntlet: "Gauntlet",
@@ -450,6 +479,7 @@ const isWeaponId = (value: unknown): value is WeaponId => typeof value === "stri
 const artStatByWeaponFamily: Record<MartialArtWeapon, keyof CharacterStats> = {
   HengBlade: "hengBladeDmgBoost",
   MoBlade: "moBladeDmgBoost",
+  Spear: "spearDmgBoost",
   Umbrella: "umbrellaDmgBoost",
   RopeDart: "ropeDartDmgBoost",
   Gauntlet: "gauntletDmgBoost",
@@ -492,25 +522,26 @@ function selectedMartialArtEffects(settings: CalculatorSettings) {
 }
 
 function selectedSetupEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup, overrides: Partial<BuildSetup> & { food?: string; divinecraft?: string } = {}) {
-  const selectedBuildSetup = { ...buildSetup, ...overrides, gearSets: overrides.gearSets ?? buildSetup.gearSets };
+  const selectedBuildSetup = { ...buildSetup, ...overrides, weaponSets: overrides.weaponSets ?? buildSetup.weaponSets, armorSets: overrides.armorSets ?? buildSetup.armorSets };
   const foodEffect = overrides.food ? typedFoodDefinitions[overrides.food]?.effect ?? {} : selectedFoodEffect();
   const divinecraftEffect = divinecraftEffectFor(overrides.divinecraft ?? loadDivinecraft());
-  return [...globalEffectRules, ...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(selectedBuildSetup.arsenal), bowRingSetEffectFor(selectedBuildSetup.bowRingSet), ...gearSetEffectsFor(selectedBuildSetup.gearSets, settings), foodEffect, divinecraftEffect, gearStatEffect];
+  return [...globalEffectRules, ...systemStatEffects, ...selectedMartialArtEffects(settings), arsenalEffectFor(selectedBuildSetup.arsenal), bowRingSetEffectFor(selectedBuildSetup.bowRingSet), ...setEffectsFor(selectedBuildSetup.weaponSets, typedWeaponSetDefinitions, settings), ...setEffectsFor(selectedBuildSetup.armorSets, typedArmorSetDefinitions, settings), foodEffect, divinecraftEffect, gearStatEffect];
 }
 
-function gearSetAvailableForSettings(setName: string, settings: CalculatorSettings, pathId = loadSelectedPath()) {
-  const definition = typedGearSetDefinitions[setName];
-  const requiredTag = typedPathDefinitions[pathId].tag;
-  if (requiredTag && !definition?.tags.includes(requiredTag)) return false;
-  return [...new Set(settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag))].every((tag) => definition?.tags.includes(tag));
+function setAvailableForSettings(definition: GearSetDefinition, settings: CalculatorSettings, pathId = loadSelectedPath()) {
+  return setAvailableForTags(definition, settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag), typedPathDefinitions[pathId].tag);
 }
 
-function gearSetEffectsFor(selected: { Cleftpeak: number; RainWhisper: number }, settings: CalculatorSettings) {
-  return Object.entries(selected).filter(([setName]) => gearSetAvailableForSettings(setName, settings)).map(([setName, tier]) => typedGearSetDefinitions[setName]?.options[String(tier)]?.effect ?? {});
+function setEffectsFor(selected: SetSelections, definitions: Record<string, GearSetDefinition>, settings: CalculatorSettings) {
+  return Object.entries(selected).filter(([setName]) => definitions[setName] && setAvailableForSettings(definitions[setName], settings)).map(([setName, tier]) => definitions[setName]?.options[String(tier)]?.effect ?? {});
+}
+
+function setupConditionsFor(effects: SetupEffect[]) {
+  return effects.flatMap((effect) => typeof effect.condition === "string" ? [effect.condition] : []);
 }
 
 function sameBuildSetupValue(key: keyof BuildSetup, left: BuildSetup[keyof BuildSetup], right: BuildSetup[keyof BuildSetup]) {
-  return key === "gearSets" || key === "innerWays" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
+  return key === "weaponSets" || key === "armorSets" || key === "innerWays" ? JSON.stringify(left) === JSON.stringify(right) : left === right;
 }
 
 export function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
@@ -523,7 +554,7 @@ export function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrid
     const legacyBowRingSet = sessionStorage.getItem(bowRingSetStorageKey);
     const legacyArsenal = sessionStorage.getItem(arsenalStorageKey);
     if (legacyInnerWays !== null) legacy.innerWays = JSON.parse(legacyInnerWays);
-    if (legacyGearSets !== null) legacy.gearSets = JSON.parse(legacyGearSets);
+    if (legacyGearSets !== null) legacy.weaponSets = JSON.parse(legacyGearSets);
     if (legacyBowRingSet !== null) legacy.bowRingSet = legacyBowRingSet;
     if (legacyArsenal !== null) legacy.arsenal = legacyArsenal;
     const parsed = normalizeBuildSetupOverrides(legacy);
@@ -712,7 +743,11 @@ function initialRotationId(entries: RotationEntry[]) {
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
   const innerWayStatEffects = innerWayEffectRulesFor(buildSetup.innerWays).filter((rule) => !rule.requirement && rule.effect.stat).map((rule) => rule.effect as StatEffectContainer);
-  return [...selectedSetupEffects(settings, gearStatEffect, buildSetup), ...innerWayStatEffects];
+  // A setup effect with requirements is a per-action rule. It is resolved by
+  // the rotation calculator against the current skill and timeline state and
+  // must not leak into the always-visible character-stat baseline.
+  const unconditionalSetupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup).filter((effect) => !("requirement" in effect) || !effect.requirement);
+  return [...unconditionalSetupEffects, ...innerWayStatEffects];
 }
 
 function calculateGlobalStatState(overrides: CharacterStatOverrides, settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
@@ -831,7 +866,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
   useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
-  const { arsenal, bowRingSet, gearSets, innerWays } = buildSetup;
+  const { arsenal, bowRingSet, weaponSets, armorSets, innerWays } = buildSetup;
   const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup };
   const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
   const isCalculated = Object.keys(statOverrides).length === 0
@@ -856,7 +891,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
       statOverrides: { ...statOverrides },
       attunementOverrides: { ...attunementOverrides },
       innerWays: innerWays.map((row) => ({ ...row })),
-      buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } },
+      buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), weaponSets: { ...buildSetup.weaponSets }, armorSets: { ...buildSetup.armorSets } },
     } : profile));
   }, [attunementOverrides, buildSetup, characterProfiles, innerWays, isCalculated, onCharacterProfilesChange, selectedProfileId, statOverrides]);
 
@@ -879,7 +914,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
     let id = baseId;
     let suffix = 2;
     while (usedIds.has(id)) id = `${baseId}-${suffix++}`;
-    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), gearSets: { ...buildSetup.gearSets } } }]);
+    onCharacterProfilesChange([...characterProfiles, { id, name, statOverrides: { ...statOverrides }, attunementOverrides: { ...attunementOverrides }, innerWays: innerWays.map((row) => ({ ...row })), buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })), weaponSets: { ...buildSetup.weaponSets }, armorSets: { ...buildSetup.armorSets } } }]);
     setSelectedProfileId(id);
     setNewProfileName("");
     setProfileTransferStatus({ message: `Saved ${name}.` });
@@ -970,11 +1005,22 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
   ];
   const attunementFields = Object.entries(attunementData).filter(([key]) => attunementAvailableForSettings(key, pathId, settings)).map(([key, definition]) => [key as keyof AttunementStats, definition.name, definition.percentage ? "%" : ""] as const);
   const armorAttunementStart = attunementFields.findIndex(([key]) => attunementData[key]?.tags.includes("Armor"));
+  const availableWeaponSets = Object.entries(typedWeaponSetDefinitions).filter(([, definition]) => setAvailableForSettings(definition, settings, pathId));
+  const availableArmorSets = Object.entries(typedArmorSetDefinitions).filter(([, definition]) => setAvailableForSettings(definition, settings, pathId));
   const setupStatus = (group: string, value: string, active: boolean) => {
     if (active) return <small className="setup-active-label">Active</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
     return comparison ? <small className={`setup-delta-label ${comparison.dpsDifference >= 0 ? "setup-positive-label" : "setup-negative-label"}`}><span>{comparison.dpsDifference >= 0 ? "+" : ""}{formatNumber(comparison.dpsDifference)} DPS</span><span>({comparison.increase >= 0 ? "+" : ""}{formatNumber(comparison.increase)}%)</span></small> : <small className="setup-inactive-label">—</small>;
   };
+  const setPanel = (title: string, key: "weaponSets" | "armorSets", definitions: Record<string, GearSetDefinition>, entries: Array<[string, GearSetDefinition]>) => <section className="panel setup-placeholder-panel">
+    <div className="panel-heading"><div><h2>{title}</h2></div>{buildSetupOverrides[key] && <button className="stat-reset-button" type="button" aria-label={`Reset ${title}`} title="Reset to build value" onClick={() => onBuildSetupReset(key)}><UiIcon name="reset" /></button>}</div>
+    <div className="gear-set-list">
+      {entries.map(([setName, definition]) => {
+        const selectedTier = buildSetup[key][setName] ?? 0;
+        return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">{[0, 2, 4].map((tier) => <button className={selectedTier === tier ? "selected" : ""} type="button" key={tier} onClick={() => onBuildSetupChange(key, selectSetTier(buildSetup[key], setName, tier as 0 | 2 | 4, definitions))}>{tier === 0 ? "0 piece" : `${tier} pieces`}<span>{setupStatus(`${key}:${setName}`, String(tier), selectedTier === tier)}</span></button>)}</div></div></div>;
+      })}
+    </div>
+  </section>;
   const globalDebuffOption = (key: typeof globalDebuffRows[number]["key"], value: boolean, label: string) => {
     const active = globalDebuffs[key] === value;
     const optionValue = value ? "on" : "off";
@@ -1073,15 +1119,8 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
               ))}
             </div>
           </section>
-          <section className="panel setup-placeholder-panel">
-            <div className="panel-heading"><div><h2>Gear Set</h2></div>{buildSetupOverrides.gearSets && <button className="stat-reset-button" type="button" aria-label="Reset Gear Set" title="Reset to build value" onClick={() => onBuildSetupReset("gearSets")}><UiIcon name="reset" /></button>}</div>
-            <div className="gear-set-list">
-              {Object.entries(typedGearSetDefinitions).filter(([setName]) => gearSetAvailableForSettings(setName, settings, pathId)).map(([setName, definition]) => {
-                const otherSet = setName === "Cleftpeak" ? "RainWhisper" : "Cleftpeak";
-                return <div className="setup-field" key={setName}><span>{definition.name}</span><div className="setup-option-control"><div className="setup-option-list">{[0, 2, 4].map((tier) => <button className={gearSets[setName as keyof typeof gearSets] === tier ? "selected" : ""} type="button" key={tier} onClick={() => { const updated = { ...gearSets, [setName]: tier as 0 | 2 | 4, [otherSet]: Math.min(gearSets[otherSet as keyof typeof gearSets], 4 - tier) as 0 | 2 | 4 }; onBuildSetupChange("gearSets", updated); }}>{tier === 0 ? "0 piece" : `${tier} pieces`}<span>{setupStatus(`gear:${setName}`, String(tier), gearSets[setName as keyof typeof gearSets] === tier)}</span></button>)}</div></div></div>;
-              })}
-            </div>
-          </section>
+          {setPanel("Weapon Set", "weaponSets", typedWeaponSetDefinitions, availableWeaponSets)}
+          {availableArmorSets.length > 0 && setPanel("Armor Set", "armorSets", typedArmorSetDefinitions, availableArmorSets)}
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading"><div><h2>Bow/Ring Set</h2></div>{buildSetupOverrides.bowRingSet !== undefined && <button className="stat-reset-button" type="button" aria-label="Reset Bow/Ring Set" title="Reset to build value" onClick={() => onBuildSetupReset("bowRingSet")}><UiIcon name="reset" /></button>}</div>
             <div className="setup-option-list setup-option-list-wide">{Object.entries(typedBowRingSetDefinitions).map(([value, definition]) => <button className={bowRingSet === value ? "selected" : ""} type="button" key={value} onClick={() => onBuildSetupChange("bowRingSet", value)}>{definition.name}<span>{setupStatus("bowRingSet", value, bowRingSet === value)}</span></button>)}</div>
@@ -1133,7 +1172,7 @@ function StatsTab({ character, pathId, statOverrides, attunementOverrides, chara
               let id = baseId;
               let suffix = 2;
               while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
-              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, innerWays: profile.innerWays.map((row) => ({ ...row })), gearSets: { ...profile.buildSetup.gearSets } } }]);
+              onCharacterProfilesChange([...characterProfiles, { ...profile, id, name: `${profile.name} Copy`, statOverrides: { ...profile.statOverrides }, attunementOverrides: { ...profile.attunementOverrides }, innerWays: profile.innerWays.map((row) => ({ ...row })), buildSetup: { ...profile.buildSetup, innerWays: profile.innerWays.map((row) => ({ ...row })), weaponSets: { ...profile.buildSetup.weaponSets }, armorSets: { ...profile.buildSetup.armorSets } } }]);
             }}>Duplicate</button><button className="button button-danger button-small" type="button" onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}>Delete</button></div>
           </div>)}
         </div>
@@ -1327,16 +1366,6 @@ function ModifierDetails({ item, onChange }: { item: EditableObject; onChange: (
   </div>;
 }
 
-function DynamicByValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
-  const values = Array.isArray(value.param2) ? value.param2.map((item) => asNumber(item)) : [];
-  const updateValue = (index: number, nextValue: number) => onChange({ ...value, function: "by", param2: values.map((item, itemIndex) => itemIndex === index ? nextValue : item) });
-  return <div className="dynamic-effect-editor">
-    <label className="detail-field"><span>Parameter</span><input value={asString(value.param1)} onChange={(event) => onChange({ ...value, function: "by", param1: event.target.value })} /></label>
-    <div className="sub-editor-heading"><span>Values</span><button className="button button-small" type="button" onClick={() => onChange({ ...value, function: "by", param2: [...values, 0] })}>Add</button></div>
-    <div className="dynamic-effect-values">{values.map((item, index) => <div key={index}><input aria-label={`Value ${index + 1}`} type="number" step="0.0001" value={item} onChange={(event) => updateValue(index, Number(event.target.value))} /><button type="button" aria-label={`Remove value ${index + 1}`} onClick={() => onChange({ ...value, function: "by", param2: values.filter((_, itemIndex) => itemIndex !== index) })}><UiIcon name="close" /></button></div>)}</div>
-  </div>;
-}
-
 function DynamicByStackValueEditor({ value, onChange }: { value: EditableObject; onChange: (value: EditableObject) => void }) {
   return <div className="dynamic-effect-editor">
     <label className="detail-field"><span>Effect</span><input value={asString(value.param1)} onChange={(event) => onChange({ ...value, function: "byStack", param1: event.target.value })} /></label>
@@ -1367,14 +1396,14 @@ function DynamicSegmentValueEditor({ value, onChange }: { value: EditableObject;
 
 function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (value: unknown) => void }) {
   const objectValue = value && typeof value === "object" && !Array.isArray(value) ? value as EditableObject : undefined;
-  const dynamicValue = objectValue?.function === "by" || objectValue?.function === "byStack" || objectValue?.function === "segment" || objectValue?.function === "multiply" ? objectValue : undefined;
-  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue?.function === "segment" ? "segment" : dynamicValue?.function === "multiply" ? "multiply" : dynamicValue ? "by" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
+  const dynamicValue = objectValue?.function === "byStack" || objectValue?.function === "segment" || objectValue?.function === "multiply" ? objectValue : undefined;
+  const kind = dynamicValue?.function === "byStack" ? "byStack" : dynamicValue?.function === "segment" ? "segment" : dynamicValue?.function === "multiply" ? "multiply" : typeof value === "boolean" ? "boolean" : typeof value === "string" ? "text" : "number";
   return <div className="effect-value-editor">
     <select aria-label="Effect value type" value={kind} onChange={(event) => {
       const nextKind = event.target.value;
-      onChange(nextKind === "by" ? { function: "by", param1: "distance", param2: [] } : nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "segment" ? { function: "segment", param1: "actionTime", param2: [], param3: [0] } : nextKind === "multiply" ? { function: "multiply", param1: "missingHPPercentage", param2: 0.0045 } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
-    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="by">By parameter</option><option value="byStack">By stack</option><option value="segment">Segment</option><option value="multiply">Multiply</option><option value="text">Text</option></select>
-    {kind === "by" && dynamicValue ? <DynamicByValueEditor value={dynamicValue} onChange={onChange} /> : kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "segment" && dynamicValue ? <DynamicSegmentValueEditor value={dynamicValue} onChange={onChange} /> : kind === "multiply" && dynamicValue ? <DynamicMultiplyValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
+      onChange(nextKind === "byStack" ? { function: "byStack", param1: "", param2: 0.2, target: "self" } : nextKind === "segment" ? { function: "segment", param1: "actionTime", param2: [], param3: [0] } : nextKind === "multiply" ? { function: "multiply", param1: "missingHPPercentage", param2: 0.0045 } : nextKind === "boolean" ? false : nextKind === "text" ? "" : 0);
+    }}><option value="number">Number</option><option value="boolean">Boolean</option><option value="byStack">By stack</option><option value="segment">Segment</option><option value="multiply">Multiply</option><option value="text">Text</option></select>
+    {kind === "byStack" && dynamicValue ? <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} /> : kind === "segment" && dynamicValue ? <DynamicSegmentValueEditor value={dynamicValue} onChange={onChange} /> : kind === "multiply" && dynamicValue ? <DynamicMultiplyValueEditor value={dynamicValue} onChange={onChange} /> : kind === "boolean" ? <label className="checkbox-field"><input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} /><span>{value === true ? "True" : "False"}</span></label> : <input type={kind === "number" ? "number" : "text"} step={kind === "number" ? "0.0001" : undefined} value={kind === "number" ? (typeof value === "number" ? value : "") : asString(value)} onChange={(event) => onChange(kind === "number" ? Number(event.target.value) : event.target.value)} />}
   </div>;
 }
 
@@ -1835,6 +1864,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
         if (value === "__event:Exhausted") return { type: "event", event: "Exhausted", after: { action: 0 }, duration: eventDefaultDuration("Exhausted") };
         if (value === "__event:Delay") return { type: "event", event: "Delay", duration: 1 };
         if (value === "__event:Controlled") return { type: "event", event: "Controlled", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0, duration: eventDefaultDuration("Controlled") };
+        if (value === "__event:ShieldBroken") return { type: "event", event: "ShieldBroken", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0 };
         if (value === "__event:BattleEnd") return { type: "event", event: "BattleEnd", startTime: previousSkill ? previousSkill.startTime - anchorTime : 0 };
         if (value === "__event:Move") return { type: "event", event: "Move", before: { action: "start" }, distance: 1 };
         if (value === "__event:HP") return { type: "event", event: "HP", before: { action: "start" }, currentHPRatio: 1 };
@@ -2230,7 +2260,6 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     return typeof amount === "number" ? [[key, amount] as const] : [];
   });
   const selectedInnerWays = buildSetup.innerWays.filter((row) => row.innerWay && innerWayAvailableForPath(row.innerWay));
-  const currentGearSets = buildSetup.gearSets;
   const priorityStats: RotationPriority[] = [];
   const priorityAttunementRows: RotationPriority[] = [];
   const priorityInnerWays: RotationPriority[] = [];
@@ -2260,7 +2289,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     eventDefinitions: rotationEventDefinitions,
     dots: mysticDots as Record<string, SkillRecord>,
     effectDefinitions,
-    innerWayConditions: [...conditions],
+    innerWayConditions: [...conditions, ...setupConditionsFor(setupEffects)],
     innerWayRules: rules,
     setupEffects,
     weapons: settings.weapons,
@@ -2268,6 +2297,16 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
   });
   function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
     const rotationAnchor = rotationRecord.start ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action } : { rowId: "rotation-0" };
+    const setComparisonGroups = Object.fromEntries(([
+      ["weaponSets", typedWeaponSetDefinitions],
+      ["armorSets", typedArmorSetDefinitions],
+    ] as const).flatMap(([key, definitions]) => Object.entries(definitions)
+      .filter(([, definition]) => setAvailableForSettings(definition, settings))
+      .map(([setName]) => [`${key}:${setName}`, [0, 2, 4].filter((tier) => tier !== buildSetup[key][setName]).map((tier) => {
+        const selections = selectSetTier(buildSetup[key], setName, tier as 0 | 2 | 4, definitions);
+        const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { [key]: selections });
+        return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
+      })])));
     return {
     timeline: makeTimelineInput(rotationRecord),
     startAnchor: rotationAnchor,
@@ -2288,7 +2327,8 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
     innerWayPriority: includeDiffs ? selectedInnerWays.map((selected) => {
       const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
       const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay);
-      return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules), innerWayRules: variantRules, innerWayConditions: [...variantConditions] };
+      const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup);
+      return { label: innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay, timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules, setupEffects), innerWayRules: variantRules, innerWayConditions: [...variantConditions, ...setupConditionsFor(setupEffects)] };
     }) : [],
     setupComparisons: includeDiffs ? {
       arsenal: Object.keys(typedArsenalDefinitions).map((value) => ({ label: value, setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { arsenal: value }) })),
@@ -2303,14 +2343,7 @@ function RotationEditorTab({ character, onMetricsChange, onActiveSimulationBundl
         const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
         return { label: value, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, selectedSetupEffects(settings, gearStatEffect, buildSetup), globalDebuffs) };
       }),
-      "gear:Cleftpeak": [0, 2, 4].filter((tier) => tier > currentGearSets.Cleftpeak).map((tier) => {
-        const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: tier as 0 | 2 | 4, RainWhisper: Math.min(currentGearSets.RainWhisper, 4 - tier) as 0 | 2 | 4 } });
-        return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
-      }),
-      "gear:RainWhisper": [0, 2, 4].filter((tier) => tier > currentGearSets.RainWhisper).map((tier) => {
-        const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { gearSets: { Cleftpeak: Math.min(currentGearSets.Cleftpeak, 4 - tier) as 0 | 2 | 4, RainWhisper: tier as 0 | 2 | 4 } });
-        return { label: String(tier), setupEffects, timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects) };
-      }),
+      ...setComparisonGroups,
     } : ({} as Record<string, RotationSimulationVariant[]>),
     };
   }
@@ -2512,7 +2545,8 @@ export default function App() {
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() => loadBuildSetupOverrides(activeBuildSetup));
   const buildSetup = useMemo<BuildSetup>(() => ({
     innerWays: (buildSetupOverrides.innerWays ?? activeBuildSetup.innerWays).map((row) => ({ ...row })),
-    gearSets: { ...(buildSetupOverrides.gearSets ?? activeBuildSetup.gearSets) },
+    weaponSets: { ...(buildSetupOverrides.weaponSets ?? activeBuildSetup.weaponSets) },
+    armorSets: { ...(buildSetupOverrides.armorSets ?? activeBuildSetup.armorSets) },
     bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,
     arsenal: buildSetupOverrides.arsenal ?? activeBuildSetup.arsenal,
   }), [activeBuildSetup, buildSetupOverrides]);
@@ -2567,7 +2601,8 @@ export default function App() {
     }
     setBuildSetupOverrides({
       innerWays: profile.innerWays.map((row) => ({ ...row })),
-      gearSets: { ...profile.buildSetup.gearSets },
+      weaponSets: { ...profile.buildSetup.weaponSets },
+      armorSets: { ...profile.buildSetup.armorSets },
       bowRingSet: profile.buildSetup.bowRingSet,
       arsenal: profile.buildSetup.arsenal,
     });

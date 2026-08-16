@@ -65,7 +65,7 @@ function penetrationMultiplier(penetration: number, resistance = 0) {
 }
 
 function mainAttribute(weapons: WeaponId[]) {
-  if (weapons.includes("snowparting") || weapons.includes("phalanxbane")) return "stonesplit" as const;
+  if (weapons.includes("snowparting") || weapons.includes("phalanxbane") || weapons.includes("thundercry") || weapons.includes("stormbreaker")) return "stonesplit" as const;
   return undefined;
 }
 
@@ -81,16 +81,9 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
     if (typeof value === "number" && Number.isFinite(value)) return value;
     if (!value || typeof value !== "object" || Array.isArray(value)) return 0;
     const objectValue = value as Record<string, unknown>;
-    if (objectValue.function === "by" && typeof objectValue.param1 === "string" && Array.isArray(objectValue.param2)) {
-      const values = objectValue.param2.filter((item): item is number => typeof item === "number" && Number.isFinite(item));
-      if (values.length === 0) return 0;
-      if (objectValue.param1 !== "distance") return 0;
-      const parameter = context.distance ?? 1;
-      const index = Math.min(values.length - 1, Math.max(0, Math.floor(parameter) - 1));
-      return values[index];
-    }
     const dynamicParameters = {
       distance: context.distance ?? 1,
+      maxHp: stats.maxHp,
       currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
       missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
     };
@@ -153,6 +146,8 @@ function calculateDamageBreakdownInternal(action: DamageAction, context: DamageC
     ? stats.moBladeDmgBoost
     : skillTags.includes("HengBlade")
       ? stats.hengBladeDmgBoost
+      : skillTags.includes("Spear")
+        ? stats.spearDmgBoost
       : 0;
   const mysticSkillBonus = skillTags.includes("SingleTargetMystic")
     ? stats.singleTargetMysticDmgBoost

@@ -78,7 +78,8 @@ data/
   enemy.json      enemy profiles
   arsenal.json
   bow-ring-set.json
-  gear-set.json
+  gear-set.json   weapon-set definitions and tier effects
+  armor-set.json  armor-set definitions and tier effects
   food.json       setup choices and their effects
   divinecraft.json  Divinecraft choices, availability, images, and effects
   stat.json
@@ -149,7 +150,7 @@ manager and rotation table use the remaining height and scroll internally.
 Other tabs retain normal document scrolling.
 
 The currently viewed build and active build are separate concepts. Only the
-active build contributes gear stats, attunement, gear sets, bow/ring set, and
+active build contributes gear stats, attunement, weapon and armor sets, bow/ring set, and
 arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
@@ -185,13 +186,13 @@ storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted. Bundled default builds and rotations
 are reconstructed from repository data and omitted from browser persistence;
 formerly edited default rotations migrate to custom copies.
-Standalone Inner Way, gear-set, bow/ring, and arsenal session selections migrate
+Standalone Inner Way, legacy gear-set, bow/ring, and arsenal session selections migrate
 only when the unified build-setup override has never been saved. Once that
 override exists—even as an empty object—the active build supplies every
 non-overridden setup default and legacy session keys are ignored.
 
 Build export produces a versioned JSON snapshot of shared gear and custom build
-loadouts, including each build's Inner Ways, gear sets, bow/ring set, and arsenal.
+loadouts, including each build's Inner Ways, weapon and armor sets, bow/ring set, and arsenal.
 Import validates that snapshot and appends it to the current state,
 remapping colliding gear and build IDs without replacing existing data or
 duplicating bundled default presets.
@@ -214,7 +215,7 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-Inner Ways, and final gear-set/bow-ring/arsenal selections. Food, Divinecraft,
+Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
 global buff/debuff controls, and future Script controls remain independent
 session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
@@ -244,7 +245,7 @@ simulation base stats
 Equipped gear contributes one data-derived `stat` effect to this same pipeline.
 With no overrides, the simulation base is the empty character and all displayed
 stats come from the innate character system, character talents, gear, Inner
-Ways, martial-art talents, arsenal, bow/ring set, gear sets, food, and
+Ways, martial-art talents, arsenal, bow/ring set, weapon and armor sets, food, and
 Divinecraft.
 
 `data/system.json` keeps innate `baseStats`, level-derived `levelBonusStats`,
@@ -279,7 +280,7 @@ reset profile. Loading it clears character, attunement, and build-setup
 overrides, thereby restoring the active build's setup. It does not change Food,
 Divinecraft, global buff/debuff controls, or future Script controls. A custom profile stores
 the user's current final-value character and attunement overrides plus the final
-gear-set, bow/ring, arsenal, and Inner Way selections. Loading
+weapon-set, armor-set, bow/ring, arsenal, and Inner Way selections. Loading
 one replaces that complete state. Profiles can be created, renamed, duplicated,
 deleted, exported, and imported through the management dialog. While a custom
 profile is selected, every subsequent profile-owned Main-tab change is written directly back
@@ -404,7 +405,7 @@ The Rotation Editor currently composes a `RotationSimulationBundle`. It contains
 - one-stat-line variants
 - attunement variants
 - Inner Way removal variants
-- arsenal, bow/ring, food, Divinecraft, and gear-set comparisons
+- arsenal, bow/ring, food, Divinecraft, weapon-set, and armor-set comparisons
 - target-debuff comparisons
 - equipped gear stats and attunements
 
@@ -550,7 +551,7 @@ environment. The application currently recognizes:
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
-- Exhausted, Controlled, Battle End, Move, HP, Buff, and Debuff manual events
+- Exhausted, Controlled, Shield Broken, Battle End, Move, HP, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
 - eight gear slots, relayed status, one required base affix, up to four optional
@@ -593,11 +594,14 @@ Add or update the slot definition, fixed base stats, allowed affixes, and
 attunements in `data/gear.json`. See `gear-data.md` for the persisted item shape,
 percentage conversion, and weapon-slot mapping.
 
-### Gear set
+### Weapon and armor sets
 
-Add the definition to `data/gear-set.json` with a display `name`, path and
-martial-art eligibility `tags`, and its tier `options`. Main, Build, and the
-setup-effect pipeline use the same tags.
+Add weapon-set definitions to `data/gear-set.json` and armor-set definitions to
+`data/armor-set.json`, with a display `name`, path and martial-art eligibility
+`tags`, and tier `options`. Main, Build, and the setup-effect pipeline share the
+same definition-driven filter and four-piece selection limit within each set
+family. An option may expose a string `condition`; the timeline adds selected
+setup conditions to the same requirement context used by Inner Ways.
 
 ### Character system stats
 
@@ -618,20 +622,21 @@ allow either martial art in either slot. New weapons still require changes to
 `WeaponId`, settings validation, martial-art imports, attunement matching, and
 `mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares its
 physical weapon family and a shared `tag`; Art-of field visibility is derived
-from the weapon family, while attunement and gear-set eligibility use the tag.
-Paths may also declare `wip: true`; they are selectable with a WIP badge only in
-the local Vite dev environment and are omitted from production selectors.
-The Bamboocut - Dust and Bamboocut - Kite entries are currently WIP shells:
-their weapons, shared gear tables, and armor attunements are registered, but
-their skills, talents, and Bamboocut damage calculation are not implemented.
+from the weapon family, while attunement and set eligibility use the tag.
+Paths may also declare `wip: true`; they are selectable with a WIP badge in the
+local Vite dev environment and remain visible but disabled in production.
+Might, Dust, and Kite are currently WIP shells. Their weapons and shared gear
+tables are registered, but their skills, talents, and complete path-specific
+calculations are not implemented.
 
 ### Manual event
 
 Add the event to the `RotationStep` union, `rotationEventDefinitions`, editor
 options, transfer validation, and any special duration UI. `Exhausted`,
-`Controlled`, and `BattleEnd` use fight-relative timestamps. Battle End has no
-actions; the calculator treats its ordered timestamp as the damage and duration
-cutoff. Delay instead participates in sequential cast timing and has an editable
+`Controlled`, `ShieldBroken`, and `BattleEnd` use fight-relative timestamps.
+Shield Broken consumes the shared player Shield and can use ordinary action
+requirements for follow-up effects. Battle End has no actions; the calculator
+treats its ordered timestamp as the damage and duration cutoff. Delay instead participates in sequential cast timing and has an editable
 duration but no action. General event definitions are currently hard-coded rather than loaded
 from data.
 

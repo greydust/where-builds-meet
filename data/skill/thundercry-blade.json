@@ -1,0 +1,157 @@
+{
+  "Avalanche": {
+    "name": "Avalanche",
+    "shortName": "Avalanche",
+    "castTime": 3.766,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.89472,
+        "phyBonus": 800.8,
+        "attrBonus": 436,
+        "time": 3.766
+      },
+      {
+        "type": "damage",
+        "phyCoef": 4.34208,
+        "phyBonus": 1201.2,
+        "attrBonus": 654,
+        "time": 3.766
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "MoBlade",
+      "ThundercryBlade",
+      "Avalanche"
+    ]
+  },
+  "StonebreakerCleave": {
+    "name": "Stonebreaker Cleave",
+    "shortName": "Cleave",
+    "castTime": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.6343,
+        "phyBonus": 728,
+        "attrBonus": 397,
+        "time": 1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.6464,
+        "phyBonus": 455,
+        "attrBonus": 248,
+        "time": 1
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "VariedCombo",
+      "MoBlade",
+      "ThundercryBlade",
+      "StonebreakerCleave"
+    ]
+  },
+  "PredatorsShield": {
+    "name": "Predator's Shield",
+    "shortName": "Shield",
+    "castTime": 1,
+    "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "HardenedFoe",
+        "time": 1
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Shield",
+        "time": 1
+      },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Shield",
+        "duration": 4,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ArtOfResistanceT0"
+          }
+        ],
+        "time": 1
+      },
+        {
+          "type": "extend",
+          "target": "self",
+          "value": "Shield",
+          "duration": 2,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ArtOfResistanceT4"
+          }
+          ],
+          "time": 1
+        },
+        {
+          "type": "extend",
+          "target": "self",
+          "value": "Shield",
+          "duration": 2,
+          "requirement": [
+            {
+              "target": "self",
+              "value": "FormBend4"
+            }
+          ],
+          "time": 1
+        },
+        {
+        "type": "apply",
+        "target": "self",
+        "value": "Breakthrough",
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Drumbeat"
+              },
+              {
+                "target": "self",
+                "value": "Breakthrough"
+              }
+            ]
+          }
+        ],
+        "time": 1
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "Drumbeat",
+        "time": 1
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "MartialArts",
+      "MartialArt",
+      "MoBlade",
+      "ThundercryBlade",
+      "Shield"
+    ]
+  }
+}

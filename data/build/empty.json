@@ -6,6 +6,8 @@
   "weapons": [
     "snowparting",
     "phalanxbane",
+    "thundercry",
+    "stormbreaker",
     "everspring",
     "unfettered",
     "heavenwill",
@@ -30,10 +32,11 @@
         "tier": "T6"
       }
     ],
-    "gearSets": {
+    "weaponSets": {
       "Cleftpeak": 0,
       "RainWhisper": 0
     },
+    "armorSets": { "Formbend": 0 },
     "bowRingSet": "None",
     "arsenal": "Stonesplit"
   },

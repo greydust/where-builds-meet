@@ -1,6 +1,6 @@
 {
   "name": "Throat-Piercing Art",
-  "tags": ["StonesplitStrength"],
+  "tags": ["StonesplitStrength", "StonesplitMight"],
   "effect": {
     "ThroatPiercingArtT0": {
       "trigger": [

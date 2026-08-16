@@ -448,7 +448,8 @@ When a selected path declares `tag`, the Inner Way selector and
 calculation pipeline include only definitions whose `tags` contain that value.
 Mixed has no required tag and therefore exposes every imported Inner Way.
 
-Gear sets use the same path-tag convention in `data/gear-set.json`. Only
+Weapon sets in `data/gear-set.json` and armor sets in `data/armor-set.json` use
+the same path-tag convention. Only
 matching definitions are displayed and applied outside Mixed; stored tiers for
 hidden definitions are preserved.
 
@@ -559,7 +560,7 @@ type RotationRecord = {
     | { type: "event"; event: "HP"; before: AttachedEventTarget; currentHPRatio: number }
     | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
     | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
-    | { type: "event"; event: "Controlled" | "BattleEnd"; startTime: number; duration?: number }
+    | { type: "event"; event: "Controlled" | "ShieldBroken" | "BattleEnd"; startTime: number; duration?: number }
   >;
   start?: { step: number; action?: number };
 };
@@ -606,6 +607,8 @@ With `eventTimeReference: "battleStart"`, timed encounter events use a
 `startTime` relative to the selected fight start and consume no cast time.
 `Exhausted` and `Controlled` take their default durations from their debuff
 definitions. Each event's editable `duration` overrides that default.
+`ShieldBroken` consumes the general player `Shield`. When Art of Resistance T6
+is selected, its following action applies the 12-second Hardened Foe buff.
 `BattleEnd` has no action and excludes damage ordered after it; it also fixes
 the rotation duration at that timestamp.
 The Rotation Editor skill selector offers skills from the currently selected
@@ -633,21 +636,39 @@ Burning Heart sections reset to 1m after their final cast.
 
 ### Dynamic effect values
 
-An effect value can select from a data array using the current timeline state:
+`segment` maps a numeric parameter through ordered inclusive upper bounds:
 
 ```json
 {
-  "function": "by",
+  "function": "segment",
   "param1": "distance",
-  "param2": [0.02, 0.03, 0.04]
+  "param2": [1, 2],
+  "param3": [0.02, 0.03, 0.04]
 }
 ```
 
-`by` treats distance as a one-based integer index. Values below the first index
-use the first entry, and distances beyond the array use the last entry. Flute
-uses this form for its distance-based `dmgBonus`.
+For each threshold `param2[n]`, a parameter less than or equal to that threshold
+uses `param3[n]`. A parameter greater than the last threshold uses the final
+`param3` entry, so `param3` must contain one more value than `param2`. Flute
+uses integer distance thresholds for its distance-based `dmgBonus`.
 
-`segment` maps a numeric parameter through ordered inclusive upper bounds:
+Stat and effective-stat effects use the same function with character-stat
+parameters and explicit thresholds:
+
+```json
+{
+  "function": "segment",
+  "param1": "maxHp",
+  "param2": [4999, 9999, 14999],
+  "param3": [0, 4, 8, 12]
+}
+```
+
+This example returns 0 below 5,000 Max HP, 4 from 5,000 through 9,999, 8 from
+10,000 through 14,999, and the final value from 15,000 onward. Setup effects
+with a `requirement` remain per-action rules: the worker resolves them against
+the damage action's tags and state, and they are excluded from the global
+character-stat display. Timing values can likewise use action-time thresholds:
 
 ```json
 {
@@ -658,9 +679,6 @@ uses this form for its distance-based `dmgBonus`.
 }
 ```
 
-For each threshold `param2[n]`, a parameter less than or equal to that threshold
-uses `param3[n]`. A parameter greater than the last threshold uses the final
-`param3` entry, so `param3` must contain one more value than `param2`.
 `actionTime` resolves independently for the skill's original cast time and each
 original action time before timing modifiers are applied. Thus a segmented
 `castTimeModifier` may adjust early and late actions by different amounts.
@@ -742,6 +760,38 @@ copy of its custom rotations.
 - Use `duration` for lifetimes and extension amounts; do not use `extension`.
 - Prefer explicit requirements over hard-coded skill-ID checks.
 - Give every direct skill `DirectDamage` and every DOT definition `DOT`.
+
+### Stonesplit Might definition status
+
+The WIP Stonesplit Might data declares Thundercry Blade and Stormbreaker Spear
+skills, buffs, Vulnerable, weapon talents, Exquisite Scenery, Art of Resistance,
+and Formbend. Cast durations derived from the local WWM reference are 3.766s
+for Avalanche, 1s for Stonebreaker Cleave, 1.6s for Thunder Shock, 1s for Storm
+Roar, and 1s for Predator's Shield. Thunder Shock hits at 0.4s and 1.2s; its
+cancel variant ends after the first hit at 0.4s. Until other per-hit timing is
+available, every remaining multi-hit Might skill places its hits at cast end.
+At each Thunder Shock timestamp, damage resolves before its following
+Vulnerable application: hit one cannot benefit from its own application, while
+hit two sees the debuff from hit one and then refreshes it.
+
+Might actions use the same `phyCoef` for physical and attribute damage.
+Thundercry Blade's Max-HP talents use segmented stat/effective-stat values and
+per-action tag requirements. Its Critical talent contributes to Effective
+Critical after Judgement Resistance and before the 80% Effective Critical cap;
+it does not use the separate Direct Critical channel. Predator's
+Shield uses the shared definition in `data/buff/general.json`; applying it
+refreshes its base lifetime before its tier-based extensions are applied.
+Drumbeat independently grants 15% Charged Skill damage for six seconds and is
+converted into the separate 42% Charged Skill damage buff Breakthrough by
+Predator's Shield. Breakthrough always uses its own 12-second duration and is
+not a shield, so neither Art of Resistance nor Formbend extends it. Art
+of Resistance is an Inner Way rule requiring that Shield: T3 adds 5% general
+damage and cumulative T6 adds another 5%. The Shield Broken event consumes the
+Shield and, at T6, applies the 12-second, 10% Hardened Foe buff. Predator's
+Shield consumes Hardened Foe before applying a fresh Shield. Formbend is an
+armor set available to Stonesplit Strength and Might. Its four-piece option
+adds the `FormBend4` setup condition; Predator's Shield checks that condition
+and extends the refreshed Shield by two seconds.
 
 Divinecraft definitions use the same direct setup-effect shape as food and set
 effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;

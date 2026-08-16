@@ -6,7 +6,7 @@ Enemy defense, path resistances, and Judgement Resistance come from the selected
 
 ## Stat resolution
 
-The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set and gear sets (with any Main-tab overrides), food, and the selected Divinecraft through these stages:
+The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
@@ -129,6 +129,12 @@ Category 1 currently contains:
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
 
+Art of Resistance T3 contributes 5% `dmgBonus` while the shared player Shield
+is active. At T6 its cumulative contribution is 10%. A Shield Broken event
+removes Shield and conditionally applies Hardened Foe at T6; Hardened Foe
+contributes 10% `dmgBonus` for 12 seconds. Casting Predator's Shield consumes
+Hardened Foe before applying and extending a fresh Shield.
+
 Flute supplies `dmgBonus` from the damage action's distance snapshot: 2%, 3%,
 4%, 5%, 8%, 11%, 14%, 17%, and 20% at 1m through 9m respectively. Distances
 beyond 9m retain the 20% value. A Move event changes distance for subsequent
@@ -144,6 +150,14 @@ Dragon Head DMG Bonus = Missing HP percentage points × 0.0045
 
 An HP event changes the timeline's current HP ratio for its target action and
 all subsequent actions. The initial ratio is `1` (100%).
+
+Dynamic stat and effective-stat values may use `function: "segment"` with
+`param1: "maxHp"`. Its explicit inclusive thresholds are stored in `param2`
+and corresponding results in `param3`; values beyond the final threshold use
+the final result. Thundercry Blade uses this for its Charged/Varied Combo Max
+Physical Attack and Effective Critical Rate talents. The
+talents carry skill-tag requirements, so the worker applies them only to their
+matching damage actions rather than adding them to the displayed global stats.
 
 Numeric damage-effect values may also use the data-defined `segment` function.
 When `param1` is `distance`, the action's distance snapshot is compared against
@@ -252,12 +266,15 @@ For Judgement Resistance `J`:
 
 ```text
 Effective Precision = min(1, (Precision − J) / (1 + J) + J)
-Effective Critical  = min(0.8, Critical / (1 + J))
+Effective Critical  = min(0.8, Critical / (1 + J) + Effective Critical Bonus)
 Effective Affinity  = min(0.4, Affinity / (1 + J))
 Final Affinity = Effective Affinity + Direct Affinity
 ```
 
-When `Final Affinity + Direct Critical + Effective Critical <= 1`:
+Effective Critical Bonus is added after Judgement Resistance and shares the
+80% Effective Critical cap. Direct Critical is a separate final-rate channel
+and is not part of Effective Critical or its cap. When
+`Final Affinity + Direct Critical + Effective Critical <= 1`:
 
 ```text
 Final Critical = (Effective Critical + Direct Critical) × Effective Precision

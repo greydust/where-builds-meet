@@ -80,7 +80,7 @@ export function serializeCharacterProfiles(profiles: CharacterProfile[]) {
 export function exportCharacterProfiles(profiles: CharacterProfile[]) {
   return JSON.stringify({
     format: characterProfileExportFormat,
-    version: 3,
+    version: 4,
     exportedAt: new Date().toISOString(),
     profiles: parseCharacterProfiles(profiles),
   }, null, 2);
@@ -98,7 +98,7 @@ function importedId(originalId: string, usedIds: Set<string>) {
 export function mergeImportedCharacterProfiles(current: CharacterProfile[], value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet character profile file.");
   const source = value as Record<string, unknown>;
-  if (source.format !== characterProfileExportFormat || source.version !== 1 && source.version !== 2 && source.version !== 3) throw new Error("This file uses an unsupported character profile format.");
+  if (source.format !== characterProfileExportFormat || source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) throw new Error("This file uses an unsupported character profile format.");
   if (!Array.isArray(source.profiles)) throw new Error("The character profile file does not contain a profile list.");
   const parsed = parseCharacterProfiles(source.profiles);
   if (source.profiles.length > 0 && parsed.length === 0) throw new Error("The character profile file does not contain any valid profiles.");

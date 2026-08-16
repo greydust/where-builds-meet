@@ -106,11 +106,12 @@ export function calculateDerivedStats(stats: CharacterStats, judgementResistance
   const effectiveMaxStonesplit = Math.max(stonesplitWithVoidMin, stonesplitWithVoidMax);
   const precision = effectiveValue("precision");
   const crit = effectiveValue("crit");
+  const effectiveCritBonus = effectiveValue("effectiveCritBonus");
   const affinity = effectiveValue("affinity");
   const directCrit = effectiveValue("directCrit");
   const directAffinity = effectiveValue("directAffinity");
   const effectivePrecision = Math.min(1, (precision - judgementResistance) / (1 + judgementResistance) + judgementResistance);
-  const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance));
+  const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance) + effectiveCritBonus);
   const effectiveAffinity = Math.min(0.4, affinity / (1 + judgementResistance));
   const rates = calculateRates({ effectivePrecision, effectiveCrit, effectiveAffinity, directCrit, directAffinity });
 

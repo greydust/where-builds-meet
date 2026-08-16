@@ -1,0 +1,102 @@
+{
+  "ThunderShock": {
+    "name": "Thunder Shock",
+    "shortName": "Spear Special",
+    "castTime": 1.6,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4843,
+        "phyBonus": 134,
+        "attrBonus": 73,
+        "time": 0.4
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Vulnerable",
+        "time": 0.4
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.13,
+        "phyBonus": 313,
+        "attrBonus": 171,
+        "time": 1.2
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Vulnerable",
+        "time": 1.2
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Special",
+      "Spear",
+      "StormbreakerSpear",
+      "ThunderShock"
+    ]
+  },
+  "ThunderShockCancel": {
+    "name": "Thunder Shock [Cancel]",
+    "shortName": "Spear Special Cancel",
+    "castTime": 0.4,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4843,
+        "phyBonus": 134,
+        "attrBonus": 73,
+        "time": 0.4
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Vulnerable",
+        "time": 0.4
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Special",
+      "Spear",
+      "StormbreakerSpear",
+      "ThunderShock"
+    ]
+  },
+  "StormRoar": {
+    "name": "Storm Roar",
+    "shortName": "Spear Martial",
+    "castTime": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.3151,
+        "phyBonus": 88,
+        "attrBonus": 48,
+        "time": 1
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Drumbeat",
+        "time": 1
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "Spear",
+      "StormbreakerSpear",
+      "StormRoar"
+    ]
+  }
+}

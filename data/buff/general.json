@@ -1,4 +1,12 @@
 {
+  "Shield": {
+    "name": "Shield",
+    "shortName": "Shield",
+    "description": "A general player shield.",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true
+  },
   "YiRiver": {
     "name": "Yi River",
     "shortName": "Yi",

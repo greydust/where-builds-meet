@@ -124,7 +124,7 @@ assert(Math.abs(presetEffects.stats.precision - 0.1504) < 1e-9, "Unexpected pres
 assert(Math.abs(presetEffects.attunement.physicalPenetration - 44) < 1e-9, "Unexpected preset Physical Penetration total.");
 assert(Math.abs(presetEffects.attunement.phalanxbaneChargedBoost - 0.24) < 1e-9, "Unexpected preset Phalanxbane Charged total.");
 const presetSetup = gear.resolveBuildSetup({ id: preset.id, name: preset.name, isDefault: true, presetId: preset.id });
-assert(presetSetup.gearSets.Cleftpeak === 4 && presetSetup.gearSets.RainWhisper === 0 && presetSetup.bowRingSet === "Critical" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
+assert(presetSetup.weaponSets.Cleftpeak === 4 && presetSetup.weaponSets.RainWhisper === 0 && presetSetup.armorSets.Formbend === 0 && presetSetup.bowRingSet === "Critical" && presetSetup.arsenal === "Stonesplit", "Unexpected populated preset setup.");
 assert(presetSetup.innerWays.length === 4 && presetSetup.innerWays.every((row) => row.innerWay !== "BreakingPoint" && row.tier === "T6"), "Default builds must include their Inner Way setup.");
 const emptyPreset = gear.defaultBuildPresets.find((candidate) => candidate.id === "empty");
 assert(emptyPreset, "Expected the empty default build.");
@@ -132,7 +132,7 @@ const emptyPresetInventory = gear.buildPresetInventory(emptyPreset);
 assert(emptyPreset.name === "Empty Build" && emptyPresetInventory.items.length === 0 && Object.keys(emptyPresetInventory.equipped).length === 0, "The empty default build must not synthesize gear.");
 assert(gear.buildEntryAvailableForWeapons({ id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id }, ["heavenwill", "skygrasp"]), "The dev empty build must match every weapon pair.");
 const emptySetup = gear.resolveBuildSetup({ id: emptyPreset.id, name: emptyPreset.name, isDefault: true, presetId: emptyPreset.id });
-assert(emptySetup.gearSets.Cleftpeak === 0 && emptySetup.gearSets.RainWhisper === 0 && emptySetup.bowRingSet === "None", "The empty default build must use its empty setup preset.");
+assert(emptySetup.weaponSets.Cleftpeak === 0 && emptySetup.weaponSets.RainWhisper === 0 && emptySetup.armorSets.Formbend === 0 && emptySetup.bowRingSet === "None", "The empty default build must use its empty setup preset.");
 assert(emptySetup.innerWays.length === 4 && emptySetup.innerWays.every((row) => row.innerWay === ""), "The empty default build must not equip any Inner Ways.");
 
 const hengBlade = {
@@ -198,7 +198,7 @@ assert(migratedBuildState.entries.some((entry) => entry.id === "migrated-build")
 assert(migratedBuildState.activeBuildId === "migrated-build", "Legacy gear migration should preserve the active calculation behavior.");
 assert(migratedBuildState.gearItems.length === 1 && migratedBuildState.entries.find((entry) => entry.id === "migrated-build")?.equipped.leftWeapon === hengBlade.id, "Legacy single-inventory gear must migrate into shared storage.");
 assert(!("slot" in migratedBuildState.gearItems[0]), "Legacy weapon slots must be removed during migration.");
-assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).gearSets.RainWhisper === 2 && gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).bowRingSet === "Critical", "Legacy global setup selections must migrate into custom builds.");
+assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).weaponSets.RainWhisper === 2 && gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).bowRingSet === "Critical", "Legacy global setup selections must migrate into custom builds.");
 assert(gear.resolveBuildSetup(migratedBuildState.entries.find((entry) => entry.id === "migrated-build")).innerWays[0].innerWay === "BreakingPoint", "Legacy Inner Way selections must migrate into custom builds.");
 const migratedSerialized = JSON.parse(gear.serializeBuildState(migratedBuildState));
 assert(migratedSerialized.entries.length === 1 && migratedSerialized.entries.every((entry) => !("isDefault" in entry)), "Bundled default builds must not be persisted.");
@@ -228,9 +228,9 @@ const sharedA = sharedBuildState.entries.find((entry) => entry.id === "shared-a"
 const sharedB = sharedBuildState.entries.find((entry) => entry.id === "shared-b");
 assert(sharedBuildState.gearItems.length === 1 && sharedA?.equipped.leftWeapon === hengBlade.id && sharedB?.equipped.leftWeapon === hengBlade.id, "One shared gear item must be reusable in multiple build loadouts.");
 const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState));
-assert(serializedBuildState.version === 6 && serializedBuildState.gearItems.length === 1 && !("slot" in serializedBuildState.gearItems[0]) && serializedBuildState.entries.every((entry) => !("inventory" in entry) && entry.setup?.innerWays?.length === 4 && entry.setup?.gearSets && entry.weapons?.length >= 2), "Build persistence must include Inner Ways, setup, and weapon eligibility in the shared-inventory schema.");
+assert(serializedBuildState.version === 7 && serializedBuildState.gearItems.length === 1 && !("slot" in serializedBuildState.gearItems[0]) && serializedBuildState.entries.every((entry) => !("inventory" in entry) && entry.setup?.innerWays?.length === 4 && entry.setup?.weaponSets && entry.setup?.armorSets && entry.weapons?.length >= 2), "Build persistence must include Inner Ways, setup, and weapon eligibility in the shared-inventory schema.");
 const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState));
-assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 5 && exportedBuildState.gearItems.length === 1 && !("slot" in exportedBuildState.gearItems[0]) && exportedBuildState.builds.every((entry) => entry.setup?.innerWays?.length === 4 && entry.weapons?.length >= 2), "Build export must include Inner Ways, setup, and weapon eligibility with slotless weapons.");
+assert(exportedBuildState.format === gear.buildExportFormat && exportedBuildState.version === 6 && exportedBuildState.gearItems.length === 1 && !("slot" in exportedBuildState.gearItems[0]) && exportedBuildState.builds.every((entry) => entry.setup?.innerWays?.length === 4 && entry.setup?.weaponSets && entry.setup?.armorSets && entry.weapons?.length >= 2), "Build export must include Inner Ways, setup, and weapon eligibility with slotless weapons.");
 const mergedImport = gear.mergeImportedBuildState(sharedBuildState, exportedBuildState);
 assert(mergedImport.importedGearCount === 1 && mergedImport.importedBuildCount === 2, "Import must append shared gear and custom builds while skipping default presets.");
 assert(mergedImport.state.activeBuildId === sharedBuildState.activeBuildId && mergedImport.state.gearItems.length === 2, "Import must preserve the active build and existing gear.");
@@ -346,7 +346,7 @@ const defaultCriticalEffects = [
 const defaultCritical = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, defaultCriticalEffects, 0).stats.crit;
 assert(Math.abs(defaultCritical - 1.13901088) < 1e-9, "Unexpected Fully Relayed Min Build Critical total.");
 assert(defaultSetup.innerWays.length === 4 && defaultSetup.innerWays.every((row) => row.innerWay !== "BreakingPoint" && row.tier === "T6"), "Unexpected default Inner Way selection.");
-assert(defaultSetup.gearSets.Cleftpeak === 4 && defaultSetup.gearSets.RainWhisper === 0, "Unexpected default gear-set selection.");
+assert(defaultSetup.weaponSets.Cleftpeak === 4 && defaultSetup.weaponSets.RainWhisper === 0 && defaultSetup.armorSets.Formbend === 0, "Unexpected default set selection.");
 assert(defaultSetup.bowRingSet === "Precision" && defaultSetup.arsenal === "Stonesplit" && defaultSetup.food === "SimmeringFishSlices", "Unexpected default setup choices.");
 const cleftpeakZero = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, [gearSetDefinitions.Cleftpeak.options["0"].effect], 0).stats;
 const cleftpeakTwo = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, [gearSetDefinitions.Cleftpeak.options["2"].effect], 0).stats;

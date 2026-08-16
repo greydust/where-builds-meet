@@ -1,0 +1,29 @@
+{
+  "name": "Exquisite Scenery",
+  "tags": ["StonesplitMight"],
+  "effect": {
+    "ExquisiteSceneryT0": {},
+    "ExquisiteSceneryT1": {},
+    "ExquisiteSceneryT2": {
+      "effect": [
+        {
+          "stat": {
+            "crit": 0.086
+          }
+        }
+      ]
+    },
+    "ExquisiteSceneryT3": {},
+    "ExquisiteSceneryT4": {},
+    "ExquisiteSceneryT5": {
+      "effect": [
+        {
+          "stat": {
+            "critDmgBonus": 0.044
+          }
+        }
+      ]
+    },
+    "ExquisiteSceneryT6": {}
+  }
+}

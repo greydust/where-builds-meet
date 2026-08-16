@@ -1,6 +1,6 @@
 {
   "name": "Morale Chant",
-  "tags": ["StonesplitStrength"],
+  "tags": ["StonesplitStrength", "StonesplitMight"],
   "effect": {
     "MoraleChantT0": {
       "trigger": [
