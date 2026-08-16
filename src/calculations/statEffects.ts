@@ -34,70 +34,88 @@ export function resolveFormulaValue(formula: StatFormula, sources: Record<string
 
 export function applyStatEffects(baseStats: CharacterStats, effects: StatEffectContainer[]) {
   const adjustedStats = { ...baseStats };
-  const statEffects = effects.flatMap((effect) => effect.stat ? [effect.stat] : []);
+  const statEffects = effects.flatMap((effect) => (effect.stat ? [effect.stat] : []));
 
   // Apply fixed values first so formulas read the character's fully adjusted
   // source stat regardless of JSON ordering.
-  statEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (key in adjustedStats && typeof value === "number") {
-      const statKey = key as keyof CharacterStats;
-      adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + value);
-    }
-  }));
-  statEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (!(key in adjustedStats) || !value || typeof value !== "object") return;
-    const resolved = "formula" in value
-      ? resolveFormulaValue((value as FormulaStatValue).formula, adjustedStats)
-      : resolveSegmentValue(value, adjustedStats);
-    if (resolved === undefined) return;
-    const statKey = key as keyof CharacterStats;
-    adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
-  }));
-  return adjustedStats;
-}
-
-export function applyDerivedStatEffects(baseStats: CharacterStats, effects: StatEffectContainer[], derivedStats: DerivedStats) {
-  const adjustedStats = { ...baseStats };
-  const statEffects = effects.flatMap((effect) => effect.stat ? [effect.stat] : []);
-  statEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (!(key in adjustedStats) || !value || typeof value !== "object") return;
-    if ("formula" in value) {
-      const formula = (value as FormulaStatValue).formula;
-      // Formulas backed by character stats were already handled by applyStatEffects.
-      if (formula.source in baseStats) return;
-      const resolved = resolveFormulaValue(formula, derivedStats as unknown as Record<string, unknown>);
+  statEffects.forEach((statEffect) =>
+    Object.entries(statEffect).forEach(([key, value]) => {
+      if (key in adjustedStats && typeof value === "number") {
+        const statKey = key as keyof CharacterStats;
+        adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + value);
+      }
+    }),
+  );
+  statEffects.forEach((statEffect) =>
+    Object.entries(statEffect).forEach(([key, value]) => {
+      if (!(key in adjustedStats) || !value || typeof value !== "object") return;
+      const resolved =
+        "formula" in value
+          ? resolveFormulaValue((value as FormulaStatValue).formula, adjustedStats)
+          : resolveSegmentValue(value, adjustedStats);
       if (resolved === undefined) return;
       const statKey = key as keyof CharacterStats;
       adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
-      return;
-    }
-    const source = (value as SegmentStatValue).param1;
-    if (typeof source === "string" && source in baseStats) return;
-    const resolved = resolveSegmentValue(value, derivedStats as unknown as Record<string, number | undefined>);
-    if (resolved === undefined) return;
-    const statKey = key as keyof CharacterStats;
-    adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
-  }));
+    }),
+  );
+  return adjustedStats;
+}
+
+export function applyDerivedStatEffects(
+  baseStats: CharacterStats,
+  effects: StatEffectContainer[],
+  derivedStats: DerivedStats,
+) {
+  const adjustedStats = { ...baseStats };
+  const statEffects = effects.flatMap((effect) => (effect.stat ? [effect.stat] : []));
+  statEffects.forEach((statEffect) =>
+    Object.entries(statEffect).forEach(([key, value]) => {
+      if (!(key in adjustedStats) || !value || typeof value !== "object") return;
+      if ("formula" in value) {
+        const formula = (value as FormulaStatValue).formula;
+        // Formulas backed by character stats were already handled by applyStatEffects.
+        if (formula.source in baseStats) return;
+        const resolved = resolveFormulaValue(formula, derivedStats as unknown as Record<string, unknown>);
+        if (resolved === undefined) return;
+        const statKey = key as keyof CharacterStats;
+        adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
+        return;
+      }
+      const source = (value as SegmentStatValue).param1;
+      if (typeof source === "string" && source in baseStats) return;
+      const resolved = resolveSegmentValue(value, derivedStats as unknown as Record<string, number | undefined>);
+      if (resolved === undefined) return;
+      const statKey = key as keyof CharacterStats;
+      adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
+    }),
+  );
   return adjustedStats;
 }
 
 export function collectEffectiveStatEffects(stats: CharacterStats, effects: EffectiveStatEffectContainer[]) {
   const result: Partial<CharacterStats> = {};
-  const effectiveStatEffects = effects.flatMap((effect) => effect.effectiveStat ? [effect.effectiveStat] : []);
-  effectiveStatEffects.forEach((statEffect) => Object.entries(statEffect).forEach(([key, value]) => {
-    if (!(key in stats)) return;
-    const statKey = key as keyof CharacterStats;
-    const resolved = typeof value === "number"
-      ? value
-      : value && typeof value === "object" && "formula" in value
-        ? resolveFormulaValue((value as FormulaStatValue).formula, stats) ?? 0
-        : resolveSegmentValue(value, stats) ?? 0;
-    result[statKey] = normalizeInternalValue((result[statKey] ?? 0) + resolved);
-  }));
+  const effectiveStatEffects = effects.flatMap((effect) => (effect.effectiveStat ? [effect.effectiveStat] : []));
+  effectiveStatEffects.forEach((statEffect) =>
+    Object.entries(statEffect).forEach(([key, value]) => {
+      if (!(key in stats)) return;
+      const statKey = key as keyof CharacterStats;
+      const resolved =
+        typeof value === "number"
+          ? value
+          : value && typeof value === "object" && "formula" in value
+            ? (resolveFormulaValue((value as FormulaStatValue).formula, stats) ?? 0)
+            : (resolveSegmentValue(value, stats) ?? 0);
+      result[statKey] = normalizeInternalValue((result[statKey] ?? 0) + resolved);
+    }),
+  );
   return result;
 }
 
-export function calculateStatsWithEffects(baseStats: CharacterStats, effects: Array<StatEffectContainer & EffectiveStatEffectContainer>, judgementResistance: number) {
+export function calculateStatsWithEffects(
+  baseStats: CharacterStats,
+  effects: Array<StatEffectContainer & EffectiveStatEffectContainer>,
+  judgementResistance: number,
+) {
   const directlyAdjustedStats = applyStatEffects(baseStats, effects);
   const initialEffectiveStat = collectEffectiveStatEffects(directlyAdjustedStats, effects);
   const initialDerivedStats = calculateDerivedStats(directlyAdjustedStats, judgementResistance, initialEffectiveStat);
@@ -116,9 +134,10 @@ export function calculateStatsWithOverrides(
   overrides: CharacterStatOverrides,
 ) {
   const adjustedBaseStats = { ...baseStats };
-  const overrideEntries = Object.entries(overrides).filter((entry): entry is [keyof CharacterStats, number] => (
-    entry[0] in adjustedBaseStats && typeof entry[1] === "number" && Number.isFinite(entry[1])
-  ));
+  const overrideEntries = Object.entries(overrides).filter(
+    (entry): entry is [keyof CharacterStats, number] =>
+      entry[0] in adjustedBaseStats && typeof entry[1] === "number" && Number.isFinite(entry[1]),
+  );
 
   // Solve the raw input required to produce each requested final value. Re-running
   // the shared pipeline after every correction also lets an overridden source
@@ -134,5 +153,8 @@ export function calculateStatsWithOverrides(
     if (largestCorrection < 1e-9) return { baseStats: adjustedBaseStats, ...result };
   }
 
-  return { baseStats: adjustedBaseStats, ...calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance) };
+  return {
+    baseStats: adjustedBaseStats,
+    ...calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance),
+  };
 }

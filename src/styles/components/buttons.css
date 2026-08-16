@@ -1,128 +1,133 @@
-.button {
-  max-width: 100%;
-  min-width: 0;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  padding: 10px 15px;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 650;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  text-align: center;
-  white-space: normal;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
+@layer components {
+  .button {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    padding: 10px 15px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    text-align: center;
+    white-space: normal;
+    transition:
+      background-color var(--transition-normal),
+      border-color var(--transition-normal),
+      color var(--transition-normal);
+  }
 
-.button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
 
-.button-primary {
-  background: var(--primary);
-  color: var(--primary-contrast);
-}
+  .button-primary {
+    background: var(--primary);
+    color: var(--primary-contrast);
+  }
 
-.button-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-}
+  .button-primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
 
-.button-secondary {
-  border-color: var(--border);
-  background: var(--surface);
-  color: var(--text);
-}
+  .button-secondary {
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
 
-.button-secondary:hover:not(:disabled) {
-  border-color: var(--primary);
-}
+  .button-secondary:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
 
-.button-danger {
-  border-color: var(--error-border);
-  background: var(--error-soft);
-  color: var(--error);
-}
+  .button-danger {
+    border-color: var(--error-border);
+    background: var(--error-soft);
+    color: var(--error);
+  }
 
-.button-danger:hover:not(:disabled) {
-  border-color: var(--error);
-  background: oklch(from var(--error) l c h / 0.22);
-}
+  .button-danger:hover:not(:disabled) {
+    border-color: var(--error);
+    background: oklch(from var(--error) l c h / 0.22);
+  }
 
-.button-small {
-  padding: 5px 9px;
-  border-color: var(--border);
-  background: var(--surface-alt);
-  color: var(--text);
-  font-size: inherit;
-}
+  .button-small {
+    padding: 5px 9px;
+    border-color: var(--border);
+    background: var(--surface-alt);
+    color: var(--text);
+    font-size: inherit;
+  }
 
-.button-small:hover:not(:disabled) {
-  border-color: var(--primary);
-}
+  .button-small:hover:not(:disabled) {
+    border-color: var(--primary);
+  }
 
-.icon-button {
-  display: inline-grid;
-  place-items: center;
-  margin-left: 8px;
-  border: 0;
-  border-radius: 4px;
-  padding: 2px 5px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  font: inherit;
-  vertical-align: middle;
-}
+  .icon-button {
+    display: inline-grid;
+    place-items: center;
+    margin-inline-start: 8px;
+    border: 0;
+    border-radius: var(--radius-2xs);
+    padding: 2px 5px;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    vertical-align: middle;
+  }
 
-.icon-button:hover {
-  background: var(--primary-soft);
-  color: var(--primary);
-}
+  .icon-button:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
 
-.stat-reset-button {
-  display: inline-grid;
-  width: 19px;
-  height: 19px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  padding: 0;
-  background: var(--primary-soft);
-  color: var(--primary);
-  cursor: pointer;
-  font: inherit;
-  line-height: 1;
-}
+  .stat-reset-button {
+    display: inline-grid;
+    inline-size: 19px;
+    block-size: 19px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: var(--primary-soft);
+    color: var(--primary);
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+  }
 
-.icon-button .ui-icon,
-.stat-reset-button .ui-icon,
-.start-marker .ui-icon {
-  display: block;
-}
+  .icon-button .ui-icon,
+  .stat-reset-button .ui-icon,
+  .start-marker .ui-icon {
+    display: block;
+  }
 
-.stat-reset-button:hover {
-  background: oklch(from var(--primary) l c h / 0.28);
-  color: var(--text);
-}
+  .stat-reset-button:hover {
+    background: oklch(from var(--primary) l c h / 0.28);
+    color: var(--text);
+  }
 
-.start-marker {
-  width: 26px;
-  height: 26px;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  color: oklch(from var(--text-muted) l c h / 0.32);
-  cursor: pointer;
-  line-height: 26px;
-}
+  .start-marker {
+    inline-size: 26px;
+    block-size: 26px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: oklch(from var(--text-muted) l c h / 0.32);
+    cursor: pointer;
+    line-height: 26px;
+  }
 
-.start-marker:hover,
-.start-marker.active {
-  color: var(--primary);
-}
+  .start-marker:hover,
+  .start-marker.active {
+    color: var(--primary);
+  }
 
-.start-marker:disabled:hover {
-  color: oklch(from var(--text-muted) l c h / 0.32);
+  .start-marker:disabled:hover {
+    color: oklch(from var(--text-muted) l c h / 0.32);
+  }
 }

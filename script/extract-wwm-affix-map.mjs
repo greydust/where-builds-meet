@@ -101,10 +101,7 @@ const decoderSetup = [
   extractRange("(function (_0x7703ce", "})(_0x2f83, 0xbe68d);"),
 ].join("\n");
 
-const importTables = extractRange(
-  "const _0x5aba14 = {};",
-  "zS = _0x47435b;",
-);
+const importTables = extractRange("const _0x5aba14 = {};", "zS = _0x47435b;");
 
 const context = {};
 vm.createContext(context);
@@ -122,10 +119,17 @@ const mapping = Object.fromEntries(
 );
 
 fs.writeFileSync(outputPath, `${JSON.stringify(mapping, null, 2)}\n`);
-fs.writeFileSync(importOutputPath, `${JSON.stringify({
-  slots: context.extracted.slots,
-  baseAttributeKeys: context.extracted.baseAttributeKeys,
-  baseStats: context.extracted.baseStats,
-}, null, 2)}\n`);
+fs.writeFileSync(
+  importOutputPath,
+  `${JSON.stringify(
+    {
+      slots: context.extracted.slots,
+      baseAttributeKeys: context.extracted.baseAttributeKeys,
+      baseStats: context.extracted.baseStats,
+    },
+    null,
+    2,
+  )}\n`,
+);
 console.log(`Generated ${Object.keys(mapping).length} supported official affix IDs.`);
 console.log(`9233002 -> ${mapping["9233002"]}`);

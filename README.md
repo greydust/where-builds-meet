@@ -21,8 +21,10 @@ Vite will print the local development URL, normally `http://localhost:5173`.
 Other commands:
 
 ```bash
-npm run build    # Type-check and create the production build in dist/
-npm run preview  # Serve the production build locally
+npm run format        # Format source, JSON data, and documentation
+npm run format:check  # Check formatting without changing files
+npm run build         # Type-check and create the production build in dist/
+npm run preview       # Serve the production build locally
 ```
 
 There is currently no automated test suite. `npm run build` is the baseline verification step; simulation changes should also receive a focused calculation check.

@@ -27,20 +27,25 @@ function parseInnerWays(value: unknown) {
   const parsed = value.map((item) => {
     if (!item || typeof item !== "object" || Array.isArray(item)) return undefined;
     const row = item as Record<string, unknown>;
-    return typeof row.innerWay === "string" && typeof row.tier === "string" && /^T[0-6]$/.test(row.tier) ? { innerWay: row.innerWay, tier: row.tier } : undefined;
+    return typeof row.innerWay === "string" && typeof row.tier === "string" && /^T[0-6]$/.test(row.tier)
+      ? { innerWay: row.innerWay, tier: row.tier }
+      : undefined;
   });
-  return parsed.every(Boolean) ? parsed as Array<{ innerWay: string; tier: string }> : cloneDefaultInnerWays();
+  return parsed.every(Boolean) ? (parsed as Array<{ innerWay: string; tier: string }>) : cloneDefaultInnerWays();
 }
 
 function finiteValues(value: unknown, keys: Set<string>) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return Object.fromEntries(Object.entries(value).filter(([key, item]) => keys.has(key) && typeof item === "number" && Number.isFinite(item)));
+  return Object.fromEntries(
+    Object.entries(value).filter(([key, item]) => keys.has(key) && typeof item === "number" && Number.isFinite(item)),
+  );
 }
 
 function parseProfile(value: unknown): CharacterProfile | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const source = value as Record<string, unknown>;
-  if (typeof source.id !== "string" || !source.id.trim() || typeof source.name !== "string" || !source.name.trim()) return undefined;
+  if (typeof source.id !== "string" || !source.id.trim() || typeof source.name !== "string" || !source.name.trim())
+    return undefined;
   const innerWays = parseInnerWays(source.innerWays);
   const buildSetup = normalizeBuildSetup(source.buildSetup, defaultBuildSetup);
   return {
@@ -78,12 +83,16 @@ export function serializeCharacterProfiles(profiles: CharacterProfile[]) {
 }
 
 export function exportCharacterProfiles(profiles: CharacterProfile[]) {
-  return JSON.stringify({
-    format: characterProfileExportFormat,
-    version: 4,
-    exportedAt: new Date().toISOString(),
-    profiles: parseCharacterProfiles(profiles),
-  }, null, 2);
+  return JSON.stringify(
+    {
+      format: characterProfileExportFormat,
+      version: 4,
+      exportedAt: new Date().toISOString(),
+      profiles: parseCharacterProfiles(profiles),
+    },
+    null,
+    2,
+  );
 }
 
 function importedId(originalId: string, usedIds: Set<string>) {
@@ -96,12 +105,18 @@ function importedId(originalId: string, usedIds: Set<string>) {
 }
 
 export function mergeImportedCharacterProfiles(current: CharacterProfile[], value: unknown) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("This is not a Where Builds Meet character profile file.");
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    throw new Error("This is not a Where Builds Meet character profile file.");
   const source = value as Record<string, unknown>;
-  if (source.format !== characterProfileExportFormat || source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4) throw new Error("This file uses an unsupported character profile format.");
+  if (
+    source.format !== characterProfileExportFormat ||
+    (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4)
+  )
+    throw new Error("This file uses an unsupported character profile format.");
   if (!Array.isArray(source.profiles)) throw new Error("The character profile file does not contain a profile list.");
   const parsed = parseCharacterProfiles(source.profiles);
-  if (source.profiles.length > 0 && parsed.length === 0) throw new Error("The character profile file does not contain any valid profiles.");
+  if (source.profiles.length > 0 && parsed.length === 0)
+    throw new Error("The character profile file does not contain any valid profiles.");
   const usedIds = new Set(current.map(({ id }) => id));
   const imported = parsed.map((profile) => {
     const id = importedId(profile.id, usedIds);
@@ -116,8 +131,10 @@ export function characterProfileMatches(profile: CharacterProfile, current: Omit
     const keys = new Set([...Object.keys(left), ...Object.keys(right)]);
     return [...keys].every((key) => left[key] === right[key]);
   };
-  return sameValues(profile.statOverrides, current.statOverrides)
-    && sameValues(profile.attunementOverrides, current.attunementOverrides)
-    && JSON.stringify(profile.innerWays) === JSON.stringify(current.innerWays)
-    && JSON.stringify(profile.buildSetup) === JSON.stringify(current.buildSetup);
+  return (
+    sameValues(profile.statOverrides, current.statOverrides) &&
+    sameValues(profile.attunementOverrides, current.attunementOverrides) &&
+    JSON.stringify(profile.innerWays) === JSON.stringify(current.innerWays) &&
+    JSON.stringify(profile.buildSetup) === JSON.stringify(current.buildSetup)
+  );
 }

@@ -5,11 +5,29 @@ const outputPath = "data/skills.json";
 const source = await readFile(sourcePath, "utf8");
 
 const fields = [
-  "castTime", "duration", "hitCount", "hitMode", "physCoeff", "flatPhys",
-  "attrCoeff", "flatAttr", "critBoost", "weaponType", "attackType",
-  "coeffsAreTotal", "damageCategory", "mysticCategory", "attunementType",
-  "triggeredSkill", "bossOnlyBonus", "hasMinPhysCritBonus",
-  "hasQiBreakPhysPen", "isAreaMystic", "hidden", "delayPerHit", "tickDelay",
+  "castTime",
+  "duration",
+  "hitCount",
+  "hitMode",
+  "physCoeff",
+  "flatPhys",
+  "attrCoeff",
+  "flatAttr",
+  "critBoost",
+  "weaponType",
+  "attackType",
+  "coeffsAreTotal",
+  "damageCategory",
+  "mysticCategory",
+  "attunementType",
+  "triggeredSkill",
+  "bossOnlyBonus",
+  "hasMinPhysCritBonus",
+  "hasQiBreakPhysPen",
+  "isAreaMystic",
+  "hidden",
+  "delayPerHit",
+  "tickDelay",
 ];
 
 function parseValue(value) {
@@ -25,14 +43,13 @@ function parseValue(value) {
 }
 
 function findValue(block, field) {
-  const assignment = new RegExp(
-    `(?:\\[\\s*["']${field}["']\\s*\\]|\\b${field}\\b)\\s*[:=]\\s*([^,\\n)]+)`,
-  ).exec(block);
+  const assignment = new RegExp(`(?:\\[\\s*["']${field}["']\\s*\\]|\\b${field}\\b)\\s*[:=]\\s*([^,\\n)]+)`).exec(block);
   return assignment ? parseValue(assignment[1]) : undefined;
 }
 
 const records = [];
-const blockPattern = /(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*\{\};([\s\S]*?)(?=\n(?:const|let|var)\s+[A-Za-z0-9_$]+\s*=|\nfunction\s|\nvar\s)/g;
+const blockPattern =
+  /(?:const|let|var)\s+([A-Za-z0-9_$]+)\s*=\s*\{\};([\s\S]*?)(?=\n(?:const|let|var)\s+[A-Za-z0-9_$]+\s*=|\nfunction\s|\nvar\s)/g;
 let match;
 while ((match = blockPattern.exec(source))) {
   const [, sourceVariable, block] = match;

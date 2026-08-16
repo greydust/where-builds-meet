@@ -175,9 +175,7 @@ Consumption occurs at the declared action time. The default amount is one;
 ```json
 {
   "type": "trigger",
-  "requirement": [
-    { "target": "self", "value": "IronGuard" }
-  ],
+  "requirement": [{ "target": "self", "value": "IronGuard" }],
   "value": "AnxiSoldierSnowbreakSpring",
   "time": 0.867
 }
@@ -332,10 +330,10 @@ those stacks. Its separately triggered explosions do not inherit the modifier.
   "MountainSplitter": {
     "name": "Mountain Splitter",
     "description": "Increases Critical DMG for matching skills and applies the guaranteed-critical rule.",
-  "duration": 10,
-  "cooldown": 15,
-  "maxStack": 1,
-  "refresh": true,
+    "duration": 10,
+    "cooldown": 15,
+    "maxStack": 1,
+    "refresh": true,
     "effect": [
       {
         "requirement": [
@@ -436,9 +434,7 @@ Inner Way files contain a display `name`, path eligibility `tags`, and an
     "MoraleChantT0": {},
     "MoraleChantT1": {},
     "MoraleChantT2": {
-      "effect": [
-        { "stat": { "minPhys": 24.8, "maxPhys": 49.6 } }
-      ]
+      "effect": [{ "stat": { "minPhys": 24.8, "maxPhys": 49.6 } }]
     }
   }
 }
@@ -468,9 +464,7 @@ Reactive trigger example:
     { "target": "skillTag", "value": "DirectDamage" },
     { "target": "self", "value": "YiRiver", "stack": 5 }
   ],
-  "action": [
-    { "type": "trigger", "value": "MoraleChant" }
-  ]
+  "action": [{ "type": "trigger", "value": "MoraleChant" }]
 }
 ```
 
@@ -524,9 +518,7 @@ DOT definitions use the skill shape plus `tick`, `duration`, and `maxStack`:
     "tick": 5,
     "duration": 5,
     "maxStack": 1,
-    "action": [
-      { "type": "damage", "phyCoef": 1.6218, "phyBonus": 232, "attrBonus": 0, "time": 0 }
-    ],
+    "action": [{ "type": "damage", "phyCoef": 1.6218, "phyBonus": 232, "attrBonus": 0, "time": 0 }],
     "modifier": [],
     "tags": ["DOT", "Mystic"]
   }

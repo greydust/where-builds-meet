@@ -15,9 +15,13 @@ const aliases = {
 
 for (const [id, skill] of Object.entries(skills)) {
   const source = maps.Ab[aliases[id] ?? id];
-  skill.hitCount = source?.hitCount ?? (Array.isArray(skill.action)
-    ? skill.action.filter((entry) => entry.type === "damage").length
-    : Array.isArray(skill.damage) ? skill.damage.length : 0);
+  skill.hitCount =
+    source?.hitCount ??
+    (Array.isArray(skill.action)
+      ? skill.action.filter((entry) => entry.type === "damage").length
+      : Array.isArray(skill.damage)
+        ? skill.damage.length
+        : 0);
 }
 
 await writeFile(path, `${JSON.stringify(skills, null, 2)}\n`);

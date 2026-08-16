@@ -1,9 +1,7 @@
 {
   "physicalPenetration": {
     "name": "Physical Penetration",
-    "tags": [
-      "Weapon"
-    ],
+    "tags": ["Weapon"],
     "effect": {
       "stat": {
         "physicalPenetration": 1
@@ -12,9 +10,7 @@
   },
   "formlessPenetration": {
     "name": "Formless Penetration",
-    "tags": [
-      "Weapon"
-    ],
+    "tags": ["Weapon"],
     "effect": {
       "stat": {
         "formlessPenetration": 1
@@ -23,9 +19,7 @@
   },
   "physicalResistance": {
     "name": "Physical Resistance",
-    "tags": [
-      "Weapon"
-    ],
+    "tags": ["Weapon"],
     "effect": {
       "stat": {}
     }
@@ -33,272 +27,166 @@
   "phalanxbaneChargedBoost": {
     "name": "Phalanxbane Blade - Charged Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "StonesplitStrength",
-      "PhalanxbaneBlade"
-    ],
+    "tags": ["Armor", "StonesplitStrength", "PhalanxbaneBlade"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "PhalanxbaneBlade",
-        "Charged"
-      ]
+      "tags": ["PhalanxbaneBlade", "Charged"]
     }
   },
   "phalanxbaneMartialBoost": {
     "name": "Phalanxbane Blade - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "StonesplitStrength",
-      "PhalanxbaneBlade"
-    ],
+    "tags": ["Armor", "StonesplitStrength", "PhalanxbaneBlade"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "PhalanxbaneBlade",
-        "MartialArt"
-      ]
+      "tags": ["PhalanxbaneBlade", "MartialArt"]
     }
   },
   "snowpartingChargedBoost": {
     "name": "Snowparting Blade - Charged Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "StonesplitStrength",
-      "SnowpartingBlade"
-    ],
+    "tags": ["Armor", "StonesplitStrength", "SnowpartingBlade"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "SnowpartingBlade",
-        "Charged"
-      ]
+      "tags": ["SnowpartingBlade", "Charged"]
     }
   },
   "snowpartingVariedComboBoost": {
     "name": "Snowparting Blade - Light/Heavy Attack Varied Combo DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "StonesplitStrength",
-      "SnowpartingBlade"
-    ],
+    "tags": ["Armor", "StonesplitStrength", "SnowpartingBlade"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "SnowpartingBlade",
-        "VariedCombo"
-      ]
+      "tags": ["SnowpartingBlade", "VariedCombo"]
     }
   },
   "snowpartingMartialBoost": {
     "name": "Snowparting Blade - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "StonesplitStrength",
-      "SnowpartingBlade"
-    ],
+    "tags": ["Armor", "StonesplitStrength", "SnowpartingBlade"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "SnowpartingBlade",
-        "MartialArt"
-      ]
+      "tags": ["SnowpartingBlade", "MartialArt"]
     }
   },
   "everspringMartialBoost": {
     "name": "Everspring Umbrella - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutDust",
-      "EverspringUmbrella"
-    ],
+    "tags": ["Armor", "BamboocutDust", "EverspringUmbrella"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "EverspringUmbrella",
-        "MartialArt"
-      ]
+      "tags": ["EverspringUmbrella", "MartialArt"]
     }
   },
   "everspringSpecialBoost": {
     "name": "Everspring Umbrella - Special Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutDust",
-      "EverspringUmbrella"
-    ],
+    "tags": ["Armor", "BamboocutDust", "EverspringUmbrella"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "EverspringUmbrella",
-        "Special"
-      ]
+      "tags": ["EverspringUmbrella", "Special"]
     }
   },
   "unfetteredChargedBoost": {
     "name": "Unfettered Rope Dart - Charged Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutDust",
-      "UnfetteredRopeDart"
-    ],
+    "tags": ["Armor", "BamboocutDust", "UnfetteredRopeDart"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "UnfetteredRopeDart",
-        "Charged"
-      ]
+      "tags": ["UnfetteredRopeDart", "Charged"]
     }
   },
   "unfetteredSpecialBoost": {
     "name": "Unfettered Rope Dart - Special Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutDust",
-      "UnfetteredRopeDart"
-    ],
+    "tags": ["Armor", "BamboocutDust", "UnfetteredRopeDart"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "UnfetteredRopeDart",
-        "Special"
-      ]
+      "tags": ["UnfetteredRopeDart", "Special"]
     }
   },
   "unfetteredMartialBoost": {
     "name": "Unfettered Rope Dart - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutDust",
-      "UnfetteredRopeDart"
-    ],
+    "tags": ["Armor", "BamboocutDust", "UnfetteredRopeDart"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "UnfetteredRopeDart",
-        "MartialArt"
-      ]
+      "tags": ["UnfetteredRopeDart", "MartialArt"]
     }
   },
   "heavenwillChargedBoost": {
     "name": "Heavenwill Gauntlets - Charged Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutKite",
-      "HeavenwillGauntlets"
-    ],
+    "tags": ["Armor", "BamboocutKite", "HeavenwillGauntlets"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "HeavenwillGauntlets",
-        "Charged"
-      ]
+      "tags": ["HeavenwillGauntlets", "Charged"]
     }
   },
   "heavenwillMartialBoost": {
     "name": "Heavenwill Gauntlets - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutKite",
-      "HeavenwillGauntlets"
-    ],
+    "tags": ["Armor", "BamboocutKite", "HeavenwillGauntlets"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "HeavenwillGauntlets",
-        "MartialArt"
-      ]
+      "tags": ["HeavenwillGauntlets", "MartialArt"]
     }
   },
   "heavenwillLightVariedComboBoost": {
     "name": "Heavenwill Gauntlets - Light Attack and Varied Combo DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutKite",
-      "HeavenwillGauntlets"
-    ],
+    "tags": ["Armor", "BamboocutKite", "HeavenwillGauntlets"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "HeavenwillGauntlets",
-        "Light",
-        "VariedCombo"
-      ]
+      "tags": ["HeavenwillGauntlets", "Light", "VariedCombo"]
     }
   },
   "skygraspHeavyBoost": {
     "name": "Skygrasp Rope Dart - Heavy Attack DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutKite",
-      "SkygraspRopeDart"
-    ],
+    "tags": ["Armor", "BamboocutKite", "SkygraspRopeDart"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "SkygraspRopeDart",
-        "Heavy"
-      ]
+      "tags": ["SkygraspRopeDart", "Heavy"]
     }
   },
   "skygraspSpecialBoost": {
     "name": "Skygrasp Rope Dart - Special Skill DMG Boost",
     "percentage": true,
-    "tags": [
-      "Armor",
-      "BamboocutKite",
-      "SkygraspRopeDart"
-    ],
+    "tags": ["Armor", "BamboocutKite", "SkygraspRopeDart"],
     "effect": {
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": [
-        "SkygraspRopeDart",
-        "Special"
-      ]
+      "tags": ["SkygraspRopeDart", "Special"]
     }
   }
 }

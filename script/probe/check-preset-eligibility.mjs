@@ -16,12 +16,25 @@ const martialArtFiles = {
   heavenwill: "heavenwill-gauntlets.json",
   skygrasp: "skygrasp-rope-dart.json",
 };
-const martialArtTags = Object.fromEntries(await Promise.all(Object.entries(martialArtFiles).map(async ([id, file]) => [id, (await readJson(`data/martial-art/${file}`)).tag])));
+const martialArtTags = Object.fromEntries(
+  await Promise.all(
+    Object.entries(martialArtFiles).map(async ([id, file]) => [id, (await readJson(`data/martial-art/${file}`)).tag]),
+  ),
+);
 
 const paths = await readJson("data/path.json");
-assert(paths.bamboocutDust.wip === true && paths.bamboocutKite.wip === true, "Both unfinished Bamboocut paths must remain explicitly WIP.");
-assert(paths.bamboocutDust.lockedWeapons.join(",") === "everspring,unfettered", "Dust must lock the expected martial arts.");
-assert(paths.bamboocutKite.lockedWeapons.join(",") === "heavenwill,skygrasp", "Kite must lock the expected martial arts.");
+assert(
+  paths.bamboocutDust.wip === true && paths.bamboocutKite.wip === true,
+  "Both unfinished Bamboocut paths must remain explicitly WIP.",
+);
+assert(
+  paths.bamboocutDust.lockedWeapons.join(",") === "everspring,unfettered",
+  "Dust must lock the expected martial arts.",
+);
+assert(
+  paths.bamboocutKite.lockedWeapons.join(",") === "heavenwill,skygrasp",
+  "Kite must lock the expected martial arts.",
+);
 
 const attunements = await readJson("data/attunement.json");
 for (const [id, definition] of Object.entries(attunements)) {
@@ -31,11 +44,21 @@ for (const [id, definition] of Object.entries(attunements)) {
 }
 
 const buildFiles = (await readdir(path.join(root, "data/build"))).filter((file) => file.endsWith(".json"));
-assert(buildFiles.every((file) => file === "empty.json" || file.startsWith("mixed-fully-relayed-")), "The fully-relayed preset filenames must use the mixed- prefix.");
+assert(
+  buildFiles.every((file) => file === "empty.json" || file.startsWith("mixed-fully-relayed-")),
+  "The fully-relayed preset filenames must use the mixed- prefix.",
+);
 for (const file of buildFiles) {
   const preset = await readJson(`data/build/${file}`);
-  assert(Array.isArray(preset.weapons) && preset.weapons.length >= 2, `Build preset ${file} must declare weapon eligibility.`);
-  if (preset.id === "empty") assert(preset.test === true && weaponIds.every((weapon) => preset.weapons.includes(weapon)), "The dev empty build must carry every weapon tag.");
+  assert(
+    Array.isArray(preset.weapons) && preset.weapons.length >= 2,
+    `Build preset ${file} must declare weapon eligibility.`,
+  );
+  if (preset.id === "empty")
+    assert(
+      preset.test === true && weaponIds.every((weapon) => preset.weapons.includes(weapon)),
+      "The dev empty build must carry every weapon tag.",
+    );
 }
 
 const rotationDirectories = [path.join(root, "data/rotation")];
@@ -50,8 +73,15 @@ while (rotationDirectories.length) {
 }
 for (const file of rotationFiles) {
   const rotation = JSON.parse(await readFile(file, "utf8"));
-  assert(Array.isArray(rotation.martialArts) && rotation.martialArts.length >= 2, `Rotation ${path.basename(file)} must declare martial-art eligibility.`);
-  if (path.basename(file) === "empty.json") assert(rotation.test === true && weaponIds.every((weapon) => rotation.martialArts.includes(weapon)), "The dev empty rotation must carry every martial-art tag.");
+  assert(
+    Array.isArray(rotation.martialArts) && rotation.martialArts.length >= 2,
+    `Rotation ${path.basename(file)} must declare martial-art eligibility.`,
+  );
+  if (path.basename(file) === "empty.json")
+    assert(
+      rotation.test === true && weaponIds.every((weapon) => rotation.martialArts.includes(weapon)),
+      "The dev empty rotation must carry every martial-art tag.",
+    );
 }
 
 console.log("Path, attunement, build, and rotation eligibility checks passed.");

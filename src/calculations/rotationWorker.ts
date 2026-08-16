@@ -1,4 +1,12 @@
-import { calculateRotationBaseline, calculateRotationComparisons, calculateRotationMetrics, calculateRotationSimulation, type RotationCalculationBundle, type RotationSimulationBaseline, type RotationSimulationBundle } from "./rotationCalculator";
+import {
+  calculateRotationBaseline,
+  calculateRotationComparisons,
+  calculateRotationMetrics,
+  calculateRotationSimulation,
+  type RotationCalculationBundle,
+  type RotationSimulationBaseline,
+  type RotationSimulationBundle,
+} from "./rotationCalculator";
 
 type WorkerRequest = {
   id: number;

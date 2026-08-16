@@ -39,7 +39,8 @@ const officialSlotMap: Record<string, GearSlot> = {
   "11": "pendant",
 };
 
-const asRecord = (value: unknown): UnknownRecord | undefined => value && typeof value === "object" && !Array.isArray(value) ? value as UnknownRecord : undefined;
+const asRecord = (value: unknown): UnknownRecord | undefined =>
+  value && typeof value === "object" && !Array.isArray(value) ? (value as UnknownRecord) : undefined;
 
 function numericValue(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) return value;
@@ -80,11 +81,13 @@ function namedScalar(record: UnknownRecord | undefined, names: RegExp) {
 function baseAttributes(value: unknown) {
   const record = asRecord(value);
   if (!record) return {} as Record<string, number>;
-  return Object.fromEntries(Object.entries(record).flatMap(([key, amount]) => {
-    const statKey = officialImportMap.baseAttributeKeys[key] ?? officialAffixMap[key];
-    const numeric = numericValue(amount);
-    return statKey && numeric !== undefined ? [[statKey, numeric]] : [];
-  }));
+  return Object.fromEntries(
+    Object.entries(record).flatMap(([key, amount]) => {
+      const statKey = officialImportMap.baseAttributeKeys[key] ?? officialAffixMap[key];
+      const numeric = numericValue(amount);
+      return statKey && numeric !== undefined ? [[statKey, numeric]] : [];
+    }),
+  );
 }
 
 function matchingBaseSignature(attributes: Record<string, number>, definitionId: string) {
@@ -93,21 +96,32 @@ function matchingBaseSignature(attributes: Record<string, number>, definitionId:
   for (const level of [91, 96] as const) {
     for (const rarity of ["Gold", "Purple"] as const) {
       const expected = definition?.baseStats[String(level)]?.[rarity];
-      if (expected && Object.keys(expected).length && Object.entries(expected).every(([key, amount]) => typeof amount === "number" && Math.abs((attributes[key] ?? Number.NaN) - amount) < 0.001)) {
+      if (
+        expected &&
+        Object.keys(expected).length &&
+        Object.entries(expected).every(
+          ([key, amount]) => typeof amount === "number" && Math.abs((attributes[key] ?? Number.NaN) - amount) < 0.001,
+        )
+      ) {
         matches.push({ level, rarity });
       }
     }
   }
   const directCategory = gearData.gear[definitionId]?.weapon ? "weapon" : definitionId;
-  const categories = directCategory in officialImportMap.baseStats
-    ? [directCategory]
-    : Object.keys(officialImportMap.baseStats).filter((key) => key.startsWith("armor"));
+  const categories =
+    directCategory in officialImportMap.baseStats
+      ? [directCategory]
+      : Object.keys(officialImportMap.baseStats).filter((key) => key.startsWith("armor"));
   for (const category of categories) {
     for (const [levelText, rarities] of Object.entries(officialImportMap.baseStats[category] ?? {})) {
       const level = Number(levelText);
       if (level !== 91 && level !== 96) continue;
       for (const [officialRarity, expected] of Object.entries(rarities ?? {})) {
-        if (!expected || !Object.entries(expected).every(([key, amount]) => Math.abs((attributes[key] ?? Number.NaN) - amount) < 0.001)) continue;
+        if (
+          !expected ||
+          !Object.entries(expected).every(([key, amount]) => Math.abs((attributes[key] ?? Number.NaN) - amount) < 0.001)
+        )
+          continue;
         const rarity = officialRarity === "legendary" ? "Gold" : "Purple";
         if (!matches.some((match) => match.level === level && match.rarity === rarity)) matches.push({ level, rarity });
       }
@@ -150,7 +164,8 @@ function weaponFromImportedAffixes(rows: OfficialAffixRow[], selectedWeapons: [W
   if (keys.has("moBladeDmgBoost")) return "phalanxbane" as const;
   if (keys.has("umbrellaDmgBoost")) return "everspring" as const;
   if (keys.has("gauntletDmgBoost")) return "heavenwill" as const;
-  if (keys.has("ropeDartDmgBoost")) return selectedWeapons.find((weapon) => weapon === "unfettered" || weapon === "skygrasp");
+  if (keys.has("ropeDartDmgBoost"))
+    return selectedWeapons.find((weapon) => weapon === "unfettered" || weapon === "skygrasp");
   return undefined;
 }
 
@@ -165,7 +180,8 @@ export type OfficialGearImport = {
 export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, WeaponId]): OfficialGearImport {
   const outer = asRecord(value);
   const role = asRecord(outer?.roleInfo) ?? asRecord(outer?.data) ?? outer;
-  if (!role || (outer?.source !== undefined && outer.source !== "wwm-dashboard")) throw new Error("This is not a recognized official dashboard export.");
+  if (!role || (outer?.source !== undefined && outer.source !== "wwm-dashboard"))
+    throw new Error("This is not a recognized official dashboard export.");
   const detailed = asRecord(role.wearEquipsDetailed);
   if (!detailed) throw new Error("The pasted data does not contain wearEquipsDetailed gear data.");
 
@@ -175,19 +191,26 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     if (!slot) continue;
     const detail = asRecord(rawDetail);
     const exVo = asRecord(detail?.exVo);
-    const rows = Array.isArray(exVo?.baseAffixes) ? exVo.baseAffixes.map(parseAffixRow).filter((row): row is OfficialAffixRow => Boolean(row)) : [];
-    if (!detail || !exVo || rows.length < 1) throw new Error(`${gearData.slots[slot]} is missing its base affix row in the dashboard export.`);
+    const rows = Array.isArray(exVo?.baseAffixes)
+      ? exVo.baseAffixes.map(parseAffixRow).filter((row): row is OfficialAffixRow => Boolean(row))
+      : [];
+    if (!detail || !exVo || rows.length < 1)
+      throw new Error(`${gearData.slots[slot]} is missing its base affix row in the dashboard export.`);
     rawPieces.push({ slot, detail, exVo, rows });
   }
   if (!rawPieces.length) throw new Error("No supported equipped gear was found in the dashboard export.");
 
-  const martialArtIds = [role.kongfuMain, role.kongfuSub].map((value) => typeof value === "number" || typeof value === "string" ? String(value) : "");
+  const martialArtIds = [role.kongfuMain, role.kongfuSub].map((value) =>
+    typeof value === "number" || typeof value === "string" ? String(value) : "",
+  );
   const mappedMartialArts = martialArtIds.map((id) => officialProfileMap.martialArts[id]);
   const unsupportedMartialArt = mappedMartialArts.find((entry) => entry && !entry.weapon);
-  if (unsupportedMartialArt) throw new Error(`${unsupportedMartialArt.name} is not supported by Where Builds Meet yet.`);
-  const mappedWeaponPair = mappedMartialArts.length === 2 && mappedMartialArts.every((entry) => entry?.weapon)
-    ? mappedMartialArts.map((entry) => entry.weapon) as [WeaponId, WeaponId]
-    : undefined;
+  if (unsupportedMartialArt)
+    throw new Error(`${unsupportedMartialArt.name} is not supported by Where Builds Meet yet.`);
+  const mappedWeaponPair =
+    mappedMartialArts.length === 2 && mappedMartialArts.every((entry) => entry?.weapon)
+      ? (mappedMartialArts.map((entry) => entry.weapon) as [WeaponId, WeaponId])
+      : undefined;
   const importedWeaponHints: Array<WeaponId | undefined> = mappedWeaponPair ?? [
     weaponFromImportedAffixes(rawPieces.find((piece) => piece.slot === "leftWeapon")?.rows ?? [], weapons),
     weaponFromImportedAffixes(rawPieces.find((piece) => piece.slot === "rightWeapon")?.rows ?? [], weapons),
@@ -198,7 +221,9 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const selectedIndex = remainingSelectedWeapons.indexOf(hint);
     if (selectedIndex >= 0) remainingSelectedWeapons.splice(selectedIndex, 1);
   }
-  const importedWeapons = importedWeaponHints.map((hint, index) => hint ?? remainingSelectedWeapons.shift() ?? weapons[index]) as [WeaponId, WeaponId];
+  const importedWeapons = importedWeaponHints.map(
+    (hint, index) => hint ?? remainingSelectedWeapons.shift() ?? weapons[index],
+  ) as [WeaponId, WeaponId];
   const sameWeaponPair = [...importedWeapons].sort().every((weapon, index) => weapon === [...weapons].sort()[index]);
   const buildWeapons: [WeaponId, WeaponId] = sameWeaponPair ? [...weapons] : importedWeapons;
   const assignedWeaponSlots = new Set<GearSlot>();
@@ -207,39 +232,61 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const definition = gearData.gear[definitionId];
     let equippedSlot = piece.slot;
     if (definition?.weapon) {
-      const matchingIndex = buildWeapons.findIndex((weapon, index) => weapon === definition.weapon && !assignedWeaponSlots.has(index === 0 ? "leftWeapon" : "rightWeapon"));
+      const matchingIndex = buildWeapons.findIndex(
+        (weapon, index) =>
+          weapon === definition.weapon && !assignedWeaponSlots.has(index === 0 ? "leftWeapon" : "rightWeapon"),
+      );
       if (matchingIndex >= 0) equippedSlot = matchingIndex === 0 ? "leftWeapon" : "rightWeapon";
       assignedWeaponSlots.add(equippedSlot);
     }
-    return { ...piece, equippedSlot, definitionId, signature: matchingBaseSignature(baseAttributes(piece.exVo.baseAttrs), definitionId) };
+    return {
+      ...piece,
+      equippedSlot,
+      definitionId,
+      signature: matchingBaseSignature(baseAttributes(piece.exVo.baseAttrs), definitionId),
+    };
   });
 
-  const commonLevel = parsedPieces.map((piece) => piece.signature?.level).find((level): level is GearLevel => level === 91 || level === 96)
-    ?? ([91, 96].includes(Number(role.level)) ? Number(role.level) as GearLevel : 96);
+  const commonLevel =
+    parsedPieces
+      .map((piece) => piece.signature?.level)
+      .find((level): level is GearLevel => level === 91 || level === 96) ??
+    ([91, 96].includes(Number(role.level)) ? (Number(role.level) as GearLevel) : 96);
   const warnings: string[] = [];
   const gearItems = parsedPieces.map((piece): GearItem => {
     const definition = gearData.gear[piece.definitionId];
     if (!definition) throw new Error(`${gearData.slots[piece.slot]} is not supported by the selected weapons.`);
-    const level = (namedScalar(piece.exVo, /^(?:gear)?(?:tier|level)$/i) ?? namedScalar(piece.detail, /^(?:gear)?(?:tier|level)$/i)) as GearLevel | undefined;
-    const resolvedLevel = level === 91 || level === 96 ? level : piece.signature?.level ?? commonLevel;
+    const level = (namedScalar(piece.exVo, /^(?:gear)?(?:tier|level)$/i) ??
+      namedScalar(piece.detail, /^(?:gear)?(?:tier|level)$/i)) as GearLevel | undefined;
+    const resolvedLevel = level === 91 || level === 96 ? level : (piece.signature?.level ?? commonLevel);
     const rarity = explicitRarity(piece.exVo, piece.detail) ?? piece.signature?.rarity;
     const resolvedRarity = rarity ?? "Gold";
     if (!rarity) warnings.push(`${gearData.slots[piece.slot]} rarity was not exposed; Gold was used.`);
 
     const mappedRows = piece.rows.map((row) => ({ row, key: officialAffixMap[row.statId] }));
     const allowedAttunements = attunementsForGearDefinition(definition);
-    const attunementEntry = mappedRows.length > 1 && allowedAttunements.includes(mappedRows.at(-1)?.key ?? "")
-      ? mappedRows.at(-1)
-      : undefined;
+    const attunementEntry =
+      mappedRows.length > 1 && allowedAttunements.includes(mappedRows.at(-1)?.key ?? "")
+        ? mappedRows.at(-1)
+        : undefined;
     const affixRows = attunementEntry ? mappedRows.slice(0, -1) : mappedRows;
     if (affixRows.length > 5) throw new Error(`${gearData.slots[piece.slot]} has more than four additional affixes.`);
     const mappedAffixes = affixRows.map(({ row, key }, index) => {
-      const allowed = index === 0 ? definition.baseAffixes[String(resolvedLevel)] ?? [] : definition.additionalAffixes[String(resolvedLevel)] ?? [];
-      if (!key || !allowed.includes(key)) throw new Error(`${gearData.slots[piece.slot]} has an unsupported affix ID ${row.statId}${key ? ` (${key})` : ""}.`);
+      const allowed =
+        index === 0
+          ? (definition.baseAffixes[String(resolvedLevel)] ?? [])
+          : (definition.additionalAffixes[String(resolvedLevel)] ?? []);
+      if (!key || !allowed.includes(key))
+        throw new Error(
+          `${gearData.slots[piece.slot]} has an unsupported affix ID ${row.statId}${key ? ` (${key})` : ""}.`,
+        );
       return { key, value: normalizedStoredValue(key, row.value, gearData.affixes) };
     });
     const attunement = attunementEntry
-      ? { key: attunementEntry.key as string, value: normalizedStoredValue(attunementEntry.key as string, attunementEntry.row.value, attunementData) }
+      ? {
+          key: attunementEntry.key as string,
+          value: normalizedStoredValue(attunementEntry.key as string, attunementEntry.row.value, attunementData),
+        }
       : undefined;
 
     return {
@@ -255,7 +302,8 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     };
   });
 
-  const roleName = typeof role.roleName === "string" && role.roleName.trim() ? role.roleName.trim() : "Official Dashboard";
+  const roleName =
+    typeof role.roleName === "string" && role.roleName.trim() ? role.roleName.trim() : "Official Dashboard";
   const buildId = createId("official-build");
   const equipped = Object.fromEntries(parsedPieces.map((piece, index) => [piece.equippedSlot, gearItems[index].id]));
   return {
@@ -267,13 +315,15 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
       format: buildExportFormat,
       version: 5,
       gearItems,
-      builds: [{
-        id: buildId,
-        name: `${roleName} Import`,
-        weapons: [...buildWeapons],
-        equipped,
-        setup: defaultBuildSetup,
-      }],
+      builds: [
+        {
+          id: buildId,
+          name: `${roleName} Import`,
+          weapons: [...buildWeapons],
+          equipped,
+          setup: defaultBuildSetup,
+        },
+      ],
     },
   };
 }

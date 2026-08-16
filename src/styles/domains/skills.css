@@ -1,565 +1,565 @@
-.skill-editor-panel {
-  min-height: 720px;
-}
-
-.skill-category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin: -4px 0 16px;
-}
-
-.category-tab {
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  padding: 8px 13px;
-  background: var(--surface-alt);
-  color: var(--text-muted);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 650;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
-.category-tab:hover,
-.category-tab.active {
-  border-color: var(--primary);
-  background: var(--primary-soft);
-  color: var(--text);
-}
-
-.skill-editor-layout {
-  display: grid;
-  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
-  min-height: 570px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.skill-list {
-  border-right: 1px solid var(--border);
-  background: oklch(from var(--surface-alt) l c h / 0.7);
-  overflow-y: auto;
-}
-
-.skill-list-item {
-  display: block;
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--border-muted);
-  padding: 11px 13px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
-}
-
-.skill-list-item:hover,
-.skill-list-item.active {
-  background: var(--primary-soft);
-}
-
-.skill-list-item strong,
-.skill-list-item small {
-  display: block;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
-.skill-list-item small {
-  margin-top: 2px;
-  color: var(--text-muted);
-}
-
-.skill-detail {
-  min-width: 0;
-  padding: 20px;
-}
-
-.skill-detail-heading {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.skill-detail-heading h3 {
-  margin: 3px 0 0;
-  font-size: 1.3rem;
-}
-
-.detail-kicker {
-  color: var(--primary);
-  font-weight: 750;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.rotation-default-note {
-  max-width: none;
-  margin: 4px 0 0;
-  color: var(--text-muted);
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.editor-status {
-  color: var(--primary);
-}
-
-.skill-basic-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-/* Settings */
-.settings-panel {
-  max-width: 960px;
-}
-
-.settings-fields {
-  display: grid;
-  gap: 14px;
-}
-
-.settings-weapon-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.settings-enemy-row {
-  max-width: calc(50% - 7px);
-}
-
-.settings-summary {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  margin-top: 18px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
-}
-
-/* JSON & Structured Editors */
-.json-editor-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.structured-editor-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: 14px;
-}
-
-.json-editor-field textarea {
-  min-height: 260px;
-  padding: 10px;
-  resize: vertical;
-  color: var(--primary-hover);
-  font-family: var(--font-mono);
-  line-height: 1.5;
-}
-
-.array-editor {
-  min-width: 0;
-}
-
-.array-editor-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 7px;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.array-editor-empty {
-  margin: 0;
-  padding: 16px 10px;
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.array-editor-list {
-  display: grid;
-  gap: 6px;
-}
-
-.array-item {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface-alt);
-  overflow: hidden;
-}
-
-.array-item.expanded {
-  border-color: oklch(from var(--primary) l c h / 0.55);
-}
-
-.array-item-header {
-  display: flex;
-  align-items: center;
-  min-height: 39px;
-}
-
-.array-item-toggle {
-  flex: 1;
-  min-width: 0;
-  border: 0;
-  padding: 9px 10px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
-  font: inherit;
-  text-align: left;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
-.array-item-toggle:hover {
-  color: var(--primary);
-}
-
-.array-item-controls {
-  display: flex;
-  gap: 2px;
-  padding-right: 5px;
-}
-
-.array-item-controls button {
-  width: 25px;
-  height: 25px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  line-height: 1;
-}
-
-.array-item-controls button:hover:not(:disabled) {
-  background: var(--primary-soft);
-  color: var(--text);
-}
-
-.array-item-controls button:disabled {
-  cursor: default;
-  opacity: 0.3;
-}
-
-.array-item-detail {
-  display: grid;
-  gap: 9px;
-  padding: 10px;
-  border-top: 1px solid var(--border);
-}
-
-.structured-detail {
-  display: grid;
-  gap: 12px;
-}
-
-.detail-fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.detail-fields-four {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.consume-fields {
-  grid-template-columns: minmax(6.875rem, auto) minmax(9.375rem, auto) minmax(0, 1fr);
-}
-
-.detail-field {
-  display: grid;
-  gap: 5px;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.detail-field input,
-.detail-field select {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 6px 7px;
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  outline: none;
-}
-
-.detail-field input:focus,
-.detail-field select:focus {
-  border-color: var(--primary);
-}
-
-.sub-editor-heading {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.sub-editor-heading small {
-  font-weight: 400;
-}
-
-.sub-editor-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.sub-editor-empty {
-  padding: 7px 0;
-  color: var(--text-muted);
-}
-
-/* Requirement & Condition Editor */
-.requirement-editor {
-  display: grid;
-  gap: 6px;
-  padding: 9px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: oklch(from var(--surface) l c h / 0.55);
-}
-
-.condition-row {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr) 25px;
-  gap: 5px;
-}
-
-.condition-row select,
-.condition-row input {
-  width: 100%;
-  min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 5px 6px;
-  background: var(--surface-alt);
-  color: var(--text);
-  font: inherit;
-}
-
-.condition-row button,
-.or-condition-heading button,
-.effect-row button {
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.condition-row button:hover,
-.or-condition-heading button:hover,
-.effect-row button:hover {
-  background: var(--primary-soft);
-  color: var(--text);
-}
-
-.or-condition {
-  display: grid;
-  gap: 6px;
-  padding: 8px;
-  border: 1px solid oklch(from var(--primary) l c h / 0.35);
-  border-radius: 5px;
-}
-
-.or-condition-heading {
-  display: flex;
-  justify-content: space-between;
-  color: var(--primary);
-  font-weight: 700;
-}
-
-.and-group {
-  display: grid;
-  gap: 5px;
-  padding: 6px;
-  border-radius: 4px;
-  background: oklch(from var(--primary) l c h / 0.08);
-}
-
-.and-group small {
-  color: var(--text-muted);
-}
-
-.effect-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 25px;
-  align-items: center;
-  gap: 6px;
-}
-
-.effect-row select,
-.effect-row input {
-  width: 100%;
-  min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 6px;
-  background: var(--surface-alt);
-  color: var(--text);
-  font: inherit;
-}
-
-.effect-rule-row {
-  grid-template-columns: minmax(130px, 0.7fr) minmax(0, 1.3fr) 25px;
-  align-items: start;
-}
-
-.effect-value-editor {
-  display: grid;
-  grid-template-columns: 118px minmax(0, 1fr);
-  gap: 6px;
-  min-width: 0;
-}
-
-.effect-value-editor > select {
-  align-self: start;
-}
-
-.dynamic-effect-editor {
-  display: grid;
-  gap: 7px;
-  min-width: 0;
-}
-
-.dynamic-effect-values {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 5px;
-}
-
-.dynamic-effect-values > div {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 24px;
-  gap: 2px;
-}
-
-.dynamic-effect-values button {
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-}
-
-.dynamic-effect-values button:hover {
-  background: var(--primary-soft);
-  color: var(--text);
-}
-
-.action-quick-fields {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 110px;
-  gap: 8px;
-}
-
-.action-quick-fields label,
-.array-json-field {
-  display: grid;
-  gap: 5px;
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.action-quick-fields input,
-.array-json-field textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  outline: none;
-}
-
-.action-quick-fields input {
-  padding: 6px 7px;
-}
-
-.array-json-field textarea {
-  min-height: 170px;
-  padding: 8px;
-  resize: vertical;
-  color: var(--primary-hover);
-  font-family: var(--font-mono);
-  line-height: 1.45;
-}
-
-.action-quick-fields input:focus,
-.array-json-field textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary-soft);
-}
-
-.editor-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border);
-}
-
-/* Skills Responsive Breakpoints */
-@media (max-width: 900px) {
-  .structured-editor-grid {
-    grid-template-columns: 1fr;
+@layer components {
+  .skill-editor-panel {
+    min-block-size: 720px;
   }
-}
 
-@media (max-width: 700px) {
+  .skill-category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: -4px 0 16px;
+  }
+
+  .category-tab {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 8px 13px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 650;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .category-tab:hover,
+  .category-tab.active {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
   .skill-editor-layout {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+    min-block-size: 570px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
   }
-  .skill-list {
-    max-height: 230px;
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .json-editor-grid {
-    grid-template-columns: 1fr;
-  }
-  .effect-value-editor {
-    grid-template-columns: 1fr;
-  }
-}
 
-@media (max-width: 600px) {
-  .skill-basic-fields {
-    grid-template-columns: 1fr;
+  .skill-list {
+    border-inline-end: 1px solid var(--border);
+    background: oklch(from var(--surface-alt) l c h / 0.7);
+    overflow-y: auto;
   }
-  .editor-field-wide {
-    grid-column: auto;
+
+  .skill-list-item {
+    display: block;
+    inline-size: 100%;
+    border: 0;
+    border-block-end: 1px solid var(--border-muted);
+    padding: 11px 13px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    text-align: start;
+  }
+
+  .skill-list-item:hover,
+  .skill-list-item.active {
+    background: var(--primary-soft);
+  }
+
+  .skill-list-item strong,
+  .skill-list-item small {
+    display: block;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .skill-list-item small {
+    margin-block-start: 2px;
+    color: var(--text-muted);
+  }
+
+  .skill-detail {
+    min-inline-size: 0;
+    padding: 20px;
+  }
+
+  .skill-detail-heading {
+    display: flex;
+    min-inline-size: 0;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-block-end: 18px;
+  }
+
+  .skill-detail-heading h3 {
+    margin: 3px 0 0;
+    font-size: 1.3rem;
+  }
+
+  .detail-kicker {
+    color: var(--primary);
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .rotation-default-note {
+    max-inline-size: none;
+    margin: 4px 0 0;
+    color: var(--text-muted);
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .editor-status {
+    color: var(--primary);
+  }
+
+  .skill-basic-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-block-end: 16px;
+  }
+
+  /* Settings */
+  .settings-panel {
+    max-inline-size: 960px;
+  }
+
+  .settings-fields {
+    display: grid;
+    gap: 14px;
+  }
+
+  .settings-weapon-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .settings-enemy-row {
+    max-inline-size: calc(50% - 7px);
+  }
+
+  .settings-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin-block-start: 18px;
+    padding-block-start: 14px;
+    border-block-start: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* JSON & Structured Editors */
+  .json-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .structured-editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 14px;
+  }
+
+  .json-editor-field textarea {
+    min-block-size: 260px;
+    padding: 10px;
+    resize: vertical;
+    color: var(--primary-hover);
+    font-family: var(--font-mono);
+    line-height: 1.5;
+  }
+
+  .array-editor {
+    min-inline-size: 0;
+  }
+
+  .array-editor-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-block-end: 7px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .array-editor-empty {
+    margin: 0;
+    padding: 16px 10px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .array-editor-list {
+    display: grid;
+    gap: 6px;
+  }
+
+  .array-item {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+    overflow: hidden;
+  }
+
+  .array-item.expanded {
+    border-color: oklch(from var(--primary) l c h / 0.55);
+  }
+
+  .array-item-header {
+    display: flex;
+    align-items: center;
+    min-block-size: 39px;
+  }
+
+  .array-item-toggle {
+    flex: 1;
+    min-inline-size: 0;
+    border: 0;
+    padding: 9px 10px;
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    font: inherit;
+    text-align: start;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .array-item-toggle:hover {
+    color: var(--primary);
+  }
+
+  .array-item-controls {
+    display: flex;
+    gap: 2px;
+    padding-inline-end: 5px;
+  }
+
+  .array-item-controls button {
+    inline-size: 25px;
+    block-size: 25px;
+    border: 0;
+    border-radius: var(--radius-2xs);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .array-item-controls button:hover:not(:disabled) {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .array-item-controls button:disabled {
+    cursor: default;
+    opacity: 0.3;
+  }
+
+  .array-item-detail {
+    display: grid;
+    gap: 9px;
+    padding: 10px;
+    border-block-start: 1px solid var(--border);
+  }
+
+  .structured-detail {
+    display: grid;
+    gap: 12px;
+  }
+
+  .detail-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .detail-fields-four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .consume-fields {
+    grid-template-columns: minmax(6.875rem, auto) minmax(9.375rem, auto) minmax(0, 1fr);
+  }
+
+  .detail-field {
+    display: grid;
+    gap: 5px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .detail-field input,
+  .detail-field select {
+    inline-size: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    padding: 6px 7px;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .detail-field input:focus-visible,
+  .detail-field select:focus-visible {
+    border-color: var(--primary);
+  }
+
+  .sub-editor-heading {
+    display: flex;
+    min-inline-size: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .sub-editor-heading small {
+    font-weight: 400;
+  }
+
+  .sub-editor-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .sub-editor-empty {
+    padding: 7px 0;
+    color: var(--text-muted);
+  }
+
+  /* Requirement & Condition Editor */
+  .requirement-editor {
+    display: grid;
+    gap: 6px;
+    padding: 9px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: oklch(from var(--surface) l c h / 0.55);
+  }
+
+  .condition-row {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr) 25px;
+    gap: 5px;
+  }
+
+  .condition-row select,
+  .condition-row input {
+    inline-size: 100%;
+    min-inline-size: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xs);
+    padding: 5px 6px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .condition-row button,
+  .or-condition-heading button,
+  .effect-row button {
+    border: 0;
+    border-radius: var(--radius-2xs);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .condition-row button:hover,
+  .or-condition-heading button:hover,
+  .effect-row button:hover {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .or-condition {
+    display: grid;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid oklch(from var(--primary) l c h / 0.35);
+    border-radius: var(--radius-xs);
+  }
+
+  .or-condition-heading {
+    display: flex;
+    justify-content: space-between;
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .and-group {
+    display: grid;
+    gap: 5px;
+    padding: 6px;
+    border-radius: var(--radius-2xs);
+    background: oklch(from var(--primary) l c h / 0.08);
+  }
+
+  .and-group small {
+    color: var(--text-muted);
+  }
+
+  .effect-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 25px;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .effect-row select,
+  .effect-row input {
+    inline-size: 100%;
+    min-inline-size: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-2xs);
+    padding: 6px;
+    background: var(--surface-alt);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .effect-rule-row {
+    grid-template-columns: minmax(130px, 0.7fr) minmax(0, 1.3fr) 25px;
+    align-items: start;
+  }
+
+  .effect-value-editor {
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 6px;
+    min-inline-size: 0;
+  }
+
+  .effect-value-editor > select {
+    align-self: start;
+  }
+
+  .dynamic-effect-editor {
+    display: grid;
+    gap: 7px;
+    min-inline-size: 0;
+  }
+
+  .dynamic-effect-values {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .dynamic-effect-values > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 24px;
+    gap: 2px;
+  }
+
+  .dynamic-effect-values button {
+    border: 0;
+    border-radius: var(--radius-2xs);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .dynamic-effect-values button:hover {
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .action-quick-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    gap: 8px;
+  }
+
+  .action-quick-fields label,
+  .array-json-field {
+    display: grid;
+    gap: 5px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .action-quick-fields input,
+  .array-json-field textarea {
+    inline-size: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+  }
+
+  .action-quick-fields input {
+    padding: 6px 7px;
+  }
+
+  .array-json-field textarea {
+    min-block-size: 170px;
+    padding: 8px;
+    resize: vertical;
+    color: var(--primary-hover);
+    font-family: var(--font-mono);
+    line-height: 1.45;
+  }
+
+  .action-quick-fields input:focus-visible,
+  .array-json-field textarea:focus-visible {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-soft);
+  }
+
+  .editor-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-block-start: 16px;
+    padding-block-start: 14px;
+    border-block-start: 1px solid var(--border);
+  }
+
+  /* Skills Responsive Breakpoints */
+  @media (max-width: 56.25em) {
+    .structured-editor-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 43.75em) {
+    .skill-editor-layout {
+      grid-template-columns: 1fr;
+    }
+    .skill-list {
+      max-block-size: 230px;
+      border-inline-end: 0;
+      border-block-end: 1px solid var(--border);
+    }
+    .json-editor-grid {
+      grid-template-columns: 1fr;
+    }
+    .effect-value-editor {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 37.5em) {
+    .skill-basic-fields {
+      grid-template-columns: 1fr;
+    }
+    .editor-field-wide {
+      grid-column: auto;
+    }
   }
 }

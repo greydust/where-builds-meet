@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-preview/
+local/
+public/ocr/
+.agents/skills/
+*.log
+*.traineddata

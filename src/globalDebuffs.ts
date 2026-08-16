@@ -69,12 +69,18 @@ const definitions = {
 
 export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEffect[] {
   const selectedDefinitions = [
-    state.phantomChime ? ["PhantomChime", definitions.PhantomChime] as const : undefined,
-    state.qiImbalance ? ["QiImbalance", definitions.QiImbalance] as const : undefined,
-    state.soulShaken ? ["SoulShaken", definitions.SoulShaken] as const : undefined,
-    state.vulnerable ? ["Vulnerable", definitions.Vulnerable] as const : undefined,
-    state.fearfulBlade ? ["FearfulBlade", definitions.FearfulBlade] as const : undefined,
-    state.qingyisCharm === "T1" ? ["QingyisCharmT1", definitions.QingyisCharmT1] as const : state.qingyisCharm === "T6" ? ["QingyisCharmT6", definitions.QingyisCharmT6] as const : undefined,
+    state.phantomChime ? (["PhantomChime", definitions.PhantomChime] as const) : undefined,
+    state.qiImbalance ? (["QiImbalance", definitions.QiImbalance] as const) : undefined,
+    state.soulShaken ? (["SoulShaken", definitions.SoulShaken] as const) : undefined,
+    state.vulnerable ? (["Vulnerable", definitions.Vulnerable] as const) : undefined,
+    state.fearfulBlade ? (["FearfulBlade", definitions.FearfulBlade] as const) : undefined,
+    state.qingyisCharm === "T1"
+      ? (["QingyisCharmT1", definitions.QingyisCharmT1] as const)
+      : state.qingyisCharm === "T6"
+        ? (["QingyisCharmT6", definitions.QingyisCharmT6] as const)
+        : undefined,
   ];
-  return selectedDefinitions.flatMap((entry) => entry ? [{ name: entry[0], stack: entry[1].maxStack ?? 1, maxStack: entry[1].maxStack, persistent: true }] : []);
+  return selectedDefinitions.flatMap((entry) =>
+    entry ? [{ name: entry[0], stack: entry[1].maxStack ?? 1, maxStack: entry[1].maxStack, persistent: true }] : [],
+  );
 }

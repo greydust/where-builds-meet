@@ -1,13 +1,16 @@
 import { readFile } from "node:fs/promises";
 
 const source = await readFile("wwm/js/app.formatted.js", "utf8");
-const arrayFn = source.match(/function _0x2f83\(\) \{[\s\S]*?\n\}\nfunction Td/)?.[0]
+const arrayFn = source
+  .match(/function _0x2f83\(\) \{[\s\S]*?\n\}\nfunction Td/)?.[0]
   .replace(/\nfunction Td[\s\S]*$/, "");
 const values = new Function(`${arrayFn}\nreturn _0x2f83();`)();
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=";
 
 function decode(text) {
-  let bytes = [], buffer = 0, bits = 0;
+  let bytes = [],
+    buffer = 0,
+    bits = 0;
   for (const char of text) {
     const value = alphabet.indexOf(char);
     if (value < 0 || char === "=") break;

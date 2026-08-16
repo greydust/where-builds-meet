@@ -39,17 +39,21 @@ export type RateCalculation = {
   affinityRate: number;
 };
 
-export function calculateRates(input: {
-  effectivePrecision: number;
-  effectiveCrit: number;
-  effectiveAffinity: number;
-  directCrit: number;
-  directAffinity: number;
-}, options: { SteadfastGuaranteedCrit?: boolean } = {}): RateCalculation {
+export function calculateRates(
+  input: {
+    effectivePrecision: number;
+    effectiveCrit: number;
+    effectiveAffinity: number;
+    directCrit: number;
+    directAffinity: number;
+  },
+  options: { SteadfastGuaranteedCrit?: boolean } = {},
+): RateCalculation {
   const finalAffinity = input.effectiveAffinity + input.directAffinity;
-  const baseFinalCrit = finalAffinity + input.directCrit + input.effectiveCrit <= 1
-    ? (input.effectiveCrit + input.directCrit) * input.effectivePrecision
-    : (1 - finalAffinity) * input.effectivePrecision;
+  const baseFinalCrit =
+    finalAffinity + input.directCrit + input.effectiveCrit <= 1
+      ? (input.effectiveCrit + input.directCrit) * input.effectivePrecision
+      : (1 - finalAffinity) * input.effectivePrecision;
   const SteadfastGuaranteedCrit = options.SteadfastGuaranteedCrit === true;
   if (SteadfastGuaranteedCrit && baseFinalCrit >= 0.75) {
     return {
@@ -66,9 +70,9 @@ export function calculateRates(input: {
   }
   const directCrit = input.directCrit + (SteadfastGuaranteedCrit ? 0.15 : 0);
   const finalCrit = SteadfastGuaranteedCrit
-    ? (finalAffinity + directCrit + input.effectiveCrit <= 1
+    ? finalAffinity + directCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + directCrit) * input.effectivePrecision
-      : (1 - finalAffinity) * input.effectivePrecision)
+      : (1 - finalAffinity) * input.effectivePrecision
     : baseFinalCrit;
   const abrasionRate = (1 - input.effectivePrecision) * (1 - finalAffinity);
   const affinityRate = finalAffinity;
@@ -86,9 +90,14 @@ export function calculateRates(input: {
   };
 }
 
-export function calculateDerivedStats(stats: CharacterStats, judgementResistance = JUDGEMENT_RESISTANCE, effectiveStat: Partial<CharacterStats> = {}): DerivedStats {
+export function calculateDerivedStats(
+  stats: CharacterStats,
+  judgementResistance = JUDGEMENT_RESISTANCE,
+  effectiveStat: Partial<CharacterStats> = {},
+): DerivedStats {
   const effectiveMax = (min: number, max: number) => Math.max(min, max);
-  const effectiveValue = (key: keyof CharacterStats) => stats[key] + (typeof effectiveStat[key] === "number" ? effectiveStat[key]! : 0);
+  const effectiveValue = (key: keyof CharacterStats) =>
+    stats[key] + (typeof effectiveStat[key] === "number" ? effectiveStat[key]! : 0);
   const minPhys = effectiveValue("minPhys");
   const maxPhys = effectiveValue("maxPhys");
   const minBellstrike = effectiveValue("minBellstrike");
@@ -110,7 +119,10 @@ export function calculateDerivedStats(stats: CharacterStats, judgementResistance
   const affinity = effectiveValue("affinity");
   const directCrit = effectiveValue("directCrit");
   const directAffinity = effectiveValue("directAffinity");
-  const effectivePrecision = Math.min(1, (precision - judgementResistance) / (1 + judgementResistance) + judgementResistance);
+  const effectivePrecision = Math.min(
+    1,
+    (precision - judgementResistance) / (1 + judgementResistance) + judgementResistance,
+  );
   const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance) + effectiveCritBonus);
   const effectiveAffinity = Math.min(0.4, affinity / (1 + judgementResistance));
   const rates = calculateRates({ effectivePrecision, effectiveCrit, effectiveAffinity, directCrit, directAffinity });

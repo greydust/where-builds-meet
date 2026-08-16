@@ -32,14 +32,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Special",
-      "Spear",
-      "StormbreakerSpear",
-      "ThunderShock"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"]
   },
   "ThunderShockCancel": {
     "name": "Thunder Shock [Cancel]",
@@ -61,14 +54,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Special",
-      "Spear",
-      "StormbreakerSpear",
-      "ThunderShock"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"]
   },
   "StormRoar": {
     "name": "Storm Roar",
@@ -90,13 +76,6 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "MartialArt",
-      "Spear",
-      "StormbreakerSpear",
-      "StormRoar"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "StormbreakerSpear", "StormRoar"]
   }
 }

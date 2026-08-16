@@ -2,10 +2,7 @@
   "id": "pure-fully-relayed-min",
   "name": "Pure Fully Relayed Min Build",
   "order": 1,
-  "weapons": [
-    "snowparting",
-    "phalanxbane"
-  ],
+  "weapons": ["snowparting", "phalanxbane"],
   "relayed": true,
   "setup": {
     "innerWays": [

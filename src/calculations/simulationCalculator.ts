@@ -63,7 +63,7 @@ export function simulateRotation(
       outcomes[breakdown.outcome] += 1;
     });
     const hitCount = baseline.baseline.length;
-    const percentage = (outcome: DamageOutcome) => hitCount > 0 ? outcomes[outcome] / hitCount * 100 : 0;
+    const percentage = (outcome: DamageOutcome) => (hitCount > 0 ? (outcomes[outcome] / hitCount) * 100 : 0);
     runs.push({
       totalDamage,
       dps: baseline.duration > 0 ? totalDamage / baseline.duration : 0,

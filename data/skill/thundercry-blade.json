@@ -20,15 +20,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Heavy",
-      "Charged",
-      "MoBlade",
-      "ThundercryBlade",
-      "Avalanche"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
   },
   "StonebreakerCleave": {
     "name": "Stonebreaker Cleave",
@@ -51,15 +43,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Heavy",
-      "VariedCombo",
-      "MoBlade",
-      "ThundercryBlade",
-      "StonebreakerCleave"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "VariedCombo", "MoBlade", "ThundercryBlade", "StonebreakerCleave"]
   },
   "PredatorsShield": {
     "name": "Predator's Shield",
@@ -91,33 +75,33 @@
         ],
         "time": 1
       },
-        {
-          "type": "extend",
-          "target": "self",
-          "value": "Shield",
-          "duration": 2,
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Shield",
+        "duration": 2,
         "requirement": [
           {
             "target": "self",
             "value": "ArtOfResistanceT4"
           }
-          ],
-          "time": 1
-        },
-        {
-          "type": "extend",
-          "target": "self",
-          "value": "Shield",
-          "duration": 2,
-          "requirement": [
-            {
-              "target": "self",
-              "value": "FormBend4"
-            }
-          ],
-          "time": 1
-        },
-        {
+        ],
+        "time": 1
+      },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Shield",
+        "duration": 2,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FormBend4"
+          }
+        ],
+        "time": 1
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Breakthrough",
@@ -146,12 +130,6 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "MartialArts",
-      "MartialArt",
-      "MoBlade",
-      "ThundercryBlade",
-      "Shield"
-    ]
+    "tags": ["MartialArts", "MartialArt", "MoBlade", "ThundercryBlade", "Shield"]
   }
 }

@@ -1,5 +1,9 @@
 import type { RotationMetrics } from "./rotationMetrics";
-import type { RotationCalculationBundle, RotationSimulationBundle, RotationSimulationResult } from "./rotationCalculator";
+import type {
+  RotationCalculationBundle,
+  RotationSimulationBundle,
+  RotationSimulationResult,
+} from "./rotationCalculator";
 import type { TimelineRow } from "./rotationTimeline";
 import type { DamageBreakdown } from "./damage";
 
@@ -33,20 +37,38 @@ function dispatchNext() {
 function getWorker() {
   if (worker) return worker;
   worker = new Worker(new URL("./rotationWorker.ts", import.meta.url), { type: "module" });
-  worker.addEventListener("message", (event: MessageEvent<{ id: number; metrics?: RotationMetrics; timeline?: TimelineRow[]; anchorTime?: number; duration?: number; actionBreakdowns?: Record<string, DamageBreakdown>; error?: string }>) => {
-    if (!running || event.data.id !== running.id) return;
-    const completed = running.request;
-    running = undefined;
-    if (event.data.error) completed.reject(new Error(event.data.error));
-    else if (event.data.metrics) completed.resolve(completed.mode === "simulation" || completed.mode === "baseline" ? {
-      metrics: event.data.metrics,
-      timeline: event.data.timeline ?? [],
-      anchorTime: event.data.anchorTime ?? 0,
-      duration: event.data.duration ?? 0,
-      actionBreakdowns: event.data.actionBreakdowns ?? {},
-    } : { metrics: event.data.metrics });
-    dispatchNext();
-  });
+  worker.addEventListener(
+    "message",
+    (
+      event: MessageEvent<{
+        id: number;
+        metrics?: RotationMetrics;
+        timeline?: TimelineRow[];
+        anchorTime?: number;
+        duration?: number;
+        actionBreakdowns?: Record<string, DamageBreakdown>;
+        error?: string;
+      }>,
+    ) => {
+      if (!running || event.data.id !== running.id) return;
+      const completed = running.request;
+      running = undefined;
+      if (event.data.error) completed.reject(new Error(event.data.error));
+      else if (event.data.metrics)
+        completed.resolve(
+          completed.mode === "simulation" || completed.mode === "baseline"
+            ? {
+                metrics: event.data.metrics,
+                timeline: event.data.timeline ?? [],
+                anchorTime: event.data.anchorTime ?? 0,
+                duration: event.data.duration ?? 0,
+                actionBreakdowns: event.data.actionBreakdowns ?? {},
+              }
+            : { metrics: event.data.metrics },
+        );
+      dispatchNext();
+    },
+  );
   worker.addEventListener("error", (event) => {
     if (!running) return;
     const completed = running.request;
@@ -89,17 +111,27 @@ export function requestRotationCalculation(bundle: RotationCalculationBundle, op
 
 export function requestRotationSimulation(bundle: RotationSimulationBundle, options?: RequestOptions) {
   return new Promise<RotationSimulationResult>((resolve, reject) => {
-    enqueue({ bundle, mode: "simulation", resolve: (result) => resolve(result as RotationSimulationResult), reject }, options);
+    enqueue(
+      { bundle, mode: "simulation", resolve: (result) => resolve(result as RotationSimulationResult), reject },
+      options,
+    );
   });
 }
 
 export function requestRotationBaseline(bundle: RotationSimulationBundle, cacheKey: string, options?: RequestOptions) {
   return new Promise<RotationSimulationResult>((resolve, reject) => {
-    enqueue({ bundle, mode: "baseline", cacheKey, resolve: (result) => resolve(result as RotationSimulationResult), reject }, options);
+    enqueue(
+      { bundle, mode: "baseline", cacheKey, resolve: (result) => resolve(result as RotationSimulationResult), reject },
+      options,
+    );
   });
 }
 
-export function requestRotationComparisons(bundle: RotationSimulationBundle, cacheKey: string, options?: RequestOptions) {
+export function requestRotationComparisons(
+  bundle: RotationSimulationBundle,
+  cacheKey: string,
+  options?: RequestOptions,
+) {
   return new Promise<RotationMetrics>((resolve, reject) => {
     enqueue({ bundle, mode: "comparisons", cacheKey, resolve: (result) => resolve(result.metrics), reject }, options);
   });

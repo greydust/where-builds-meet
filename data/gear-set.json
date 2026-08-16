@@ -39,7 +39,14 @@
   },
   "RainWhisper": {
     "name": "Rain Whisper",
-    "tags": ["StonesplitStrength", "StonesplitMight", "SnowpartingBlade", "PhalanxbaneBlade", "ThundercryBlade", "StormbreakerSpear"],
+    "tags": [
+      "StonesplitStrength",
+      "StonesplitMight",
+      "SnowpartingBlade",
+      "PhalanxbaneBlade",
+      "ThundercryBlade",
+      "StormbreakerSpear"
+    ],
     "options": {
       "0": {
         "name": "0",

@@ -1,68 +1,101 @@
-:root {
-  color-scheme: dark;
+@layer tokens {
+  :root {
+    color-scheme: dark;
 
-  /* ==========================================================================
+    /* ==========================================================================
      Base Theme Tokens (OKLCH)
      ========================================================================== */
 
-  /* Typography
-     Keep the UI on system fonts: they provide native international-script coverage
-     without mixed-font fallbacks, font downloads, layout shifts, or extra licenses. */
-  --font-sans: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
-  --font-display: var(--font-sans);
+    /* Typography */
+    --font-sans: "Noto Sans Variable", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+    --font-display: var(--font-sans);
 
-  /* Background & Surfaces */
-  --bg: oklch(0.18 0.015 275);
-  --bg-gradient-top: oklch(0.24 0.025 310);
-  --surface: oklch(0.22 0.018 270);
-  --surface-alt: oklch(0.19 0.014 265);
-  --surface-sunken: oklch(0.16 0.012 265);
-  --surface-header: oklch(0.25 0.02 268);
+    /* Spacing */
+    --space-3xs: 0.125rem;
+    --space-2xs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 0.75rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
 
-  /* Borders */
-  --border: oklch(0.32 0.02 265);
-  --border-muted: oklch(from var(--border) l c h / 0.6);
-  --border-strong: oklch(from var(--border) calc(l + 0.1) c h);
+    /* Shape & Interaction */
+    --radius-2xs: 0.25rem;
+    --radius-xs: 0.3125rem;
+    --radius-sm: 0.375rem;
+    --radius-md: 0.4375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.5625rem;
+    --radius-2xl: 0.625rem;
+    --radius-3xl: 0.6875rem;
+    --radius-pill: 999px;
+    --focus-ring: 2px solid var(--primary);
+    --focus-ring-offset: 2px;
+    --transition-fast: 120ms ease;
+    --transition-normal: 180ms ease;
 
-  /* Text Colors */
-  --text: oklch(0.96 0.005 270);
-  --text-muted: oklch(0.72 0.02 265);
-  --text-dim: oklch(from var(--text-muted) calc(l - 0.12) c h);
+    /* Background & Surfaces */
+    --bg: oklch(0.18 0.015 275);
+    --bg-gradient-top: oklch(0.24 0.025 310);
+    --surface: oklch(0.22 0.018 270);
+    --surface-alt: oklch(0.19 0.014 265);
+    --surface-sunken: oklch(0.16 0.012 265);
+    --surface-header: oklch(0.25 0.02 268);
 
-  /* Core Accents */
-  --primary: oklch(0.76 0.11 78);
-  --primary-hover: oklch(from var(--primary) calc(l + 0.06) c h);
-  --primary-soft: oklch(from var(--primary) l c h / 0.13);
-  --primary-active: oklch(from var(--primary) l c h / 0.22);
-  --primary-contrast: oklch(0.18 0.02 60);
+    /* Borders */
+    --border: oklch(0.32 0.02 265);
+    --border-muted: oklch(from var(--border) l c h / 0.6);
+    --border-strong: oklch(from var(--border) calc(l + 0.1) c h);
 
-  --secondary: oklch(0.74 0.09 250);
-  --secondary-soft: oklch(from var(--secondary) l c h / 0.16);
+    /* Text Colors */
+    --text: oklch(0.96 0.005 270);
+    --text-muted: oklch(0.72 0.02 265);
+    --text-dim: oklch(from var(--text-muted) calc(l - 0.12) c h);
 
-  /* Semantic Feedback */
-  --error: oklch(0.72 0.15 25);
-  --error-soft: oklch(from var(--error) l c h / 0.14);
-  --error-border: oklch(from var(--error) l c h / 0.45);
+    /* Core Accents */
+    --primary: oklch(0.76 0.11 78);
+    --primary-hover: oklch(from var(--primary) calc(l + 0.06) c h);
+    --primary-soft: oklch(from var(--primary) l c h / 0.13);
+    --primary-active: oklch(from var(--primary) l c h / 0.22);
+    --primary-contrast: oklch(0.18 0.02 60);
 
-  --success: oklch(0.78 0.13 145);
-  --success-soft: oklch(from var(--success) l c h / 0.14);
+    --secondary: oklch(0.74 0.09 250);
+    --secondary-soft: oklch(from var(--secondary) l c h / 0.16);
 
-  /* Game Elements / Damage Types (Tuned for dark mode contrast) */
-  --damage-physical: var(--text);
-  --damage-bellstrike: oklch(0.74 0.09 250);    /* steel blue */
-  --damage-stonesplit: oklch(0.74 0.075 35);    /* teracotta red */
-  --damage-silkbind: oklch(0.76 0.045 165);     /* sage green */
-  --damage-bamboocut: oklch(0.75 0.065 300);    /* dusty mauve */
+    /* Semantic Feedback */
+    --error: oklch(0.72 0.15 25);
+    --error-soft: oklch(from var(--error) l c h / 0.14);
+    --error-border: oklch(from var(--error) l c h / 0.45);
 
-  /* Timeline & Event Indicators (Relative colors) */
-  --event-trigger: oklch(from var(--damage-bellstrike) l c h / 0.18);
-  --event-dot: oklch(from var(--damage-bamboocut) l c h / 0.16);
-  --event-move: oklch(from var(--damage-silkbind) l c h / 0.14);
-  --event-default: oklch(from var(--text-muted) l c h / 0.12);
+    --success: oklch(0.78 0.13 145);
+    --success-soft: oklch(from var(--success) l c h / 0.14);
 
-  /* Overlays & Backdrops */
-  --backdrop: oklch(0.10 0.015 265 / 0.78);
-  --shadow-color: oklch(0 0 0 / 0.25);
-  --shadow-strong: oklch(0 0 0 / 0.62);
+    /* Game Elements / Damage Types (Tuned for dark mode contrast) */
+    --damage-physical: var(--text);
+    --damage-bellstrike: oklch(0.74 0.09 250); /* steel blue */
+    --damage-stonesplit: oklch(0.74 0.075 35); /* teracotta red */
+    --damage-silkbind: oklch(0.76 0.045 165); /* sage green */
+    --damage-bamboocut: oklch(0.75 0.065 300); /* dusty mauve */
+
+    /* Timeline & Event Indicators (Relative colors) */
+    --event-trigger: oklch(from var(--damage-bellstrike) l c h / 0.18);
+    --event-dot: oklch(from var(--damage-bamboocut) l c h / 0.16);
+    --event-move: oklch(from var(--damage-silkbind) l c h / 0.14);
+    --event-default: oklch(from var(--text-muted) l c h / 0.12);
+
+    /* Overlays & Backdrops */
+    --backdrop: oklch(0.1 0.015 265 / 0.78);
+    --shadow-color: oklch(0 0 0 / 0.25);
+    --shadow-strong: oklch(0 0 0 / 0.62);
+  }
+
+  @media (prefers-contrast: more) {
+    :root {
+      --border: oklch(0.58 0.02 265);
+      --border-muted: var(--border);
+      --text-muted: oklch(0.84 0.015 265);
+      --text-dim: var(--text-muted);
+    }
+  }
 }

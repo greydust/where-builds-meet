@@ -13,12 +13,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "Soaring Spin"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "Soaring Spin"]
   },
   "SoaringSpin2": {
     "name": "Soaring Spin",
@@ -41,12 +36,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "Soaring Spin"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "Soaring Spin"]
   },
   "LeapingToad": {
     "name": "Leaping Toad [Cancel]",
@@ -75,12 +65,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "AreaMystic",
-      "LeapingToad"
-    ]
+    "tags": ["DirectDamage", "Mystic", "AreaMystic", "LeapingToad"]
   },
   "DrunkenPoetDrink": {
     "name": "Drunken Poet Drink [Cancel]",
@@ -96,12 +81,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "DrunkenPoet1": {
     "name": "Drunken Poet 1st Hit",
@@ -165,12 +145,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "DrunkenPoet2": {
     "name": "Drunken Poet 2nd Hit",
@@ -234,12 +209,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "DrunkenPoet3": {
     "name": "Drunken Poet 3rd Hit",
@@ -303,12 +273,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "DrunkenPoet4": {
     "name": "Drunken Poet 4th Hit",
@@ -372,12 +337,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "DrunkenPoet5": {
     "name": "Drunken Poet 5th Hit [Cancel]",
@@ -456,12 +416,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
   "CombustionExplosion": {
     "name": "Combustion Explosion",
@@ -490,13 +445,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet",
-      "Triggered"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "Triggered"]
   },
   "SmolderExplosion": {
     "name": "Smolder Explosion",
@@ -518,13 +467,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet",
-      "Triggered"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "Triggered"]
   },
   "DragonsBreath1": {
     "name": "Dragon's Breath 1-Hit [Cancel]",
@@ -574,12 +517,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DragonsBreath"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DragonsBreath"]
   },
   "DragonsBreathSmolder1": {
     "name": "Dragon's Breath - Smolder 1-Hit [Cancel]",
@@ -629,12 +567,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DragonsBreath"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DragonsBreath"]
   },
   "DragonsBreath2": {
     "name": "Dragon's Breath 2-Hit [Cancel]",
@@ -704,23 +637,13 @@
           "castTimeModifier": {
             "function": "segment",
             "param1": "actionTime",
-            "param2": [
-              1.3375
-            ],
-            "param3": [
-              -0.7,
-              -1
-            ]
+            "param2": [1.3375],
+            "param3": [-0.7, -1]
           }
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DragonsBreath"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DragonsBreath"]
   },
   "DragonsBreathSmolder2": {
     "name": "Dragon's Breath - Smolder 2-Hit [Cancel]",
@@ -790,23 +713,13 @@
           "castTimeModifier": {
             "function": "segment",
             "param1": "actionTime",
-            "param2": [
-              1.3375
-            ],
-            "param3": [
-              -0.7,
-              -1
-            ]
+            "param2": [1.3375],
+            "param3": [-0.7, -1]
           }
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "DragonsBreath"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DragonsBreath"]
   },
   "FluteOfTheTidesCancel": {
     "name": "Flute of the Tides [Cancel]",
@@ -827,13 +740,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "AreaMystic",
-      "Distance",
-      "FluteOfTheTides"
-    ]
+    "tags": ["DirectDamage", "Mystic", "AreaMystic", "Distance", "FluteOfTheTides"]
   },
   "FluteOfTheTides": {
     "name": "Flute of the Tides Full",
@@ -868,13 +775,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "AreaMystic",
-      "Distance",
-      "FluteOfTheTides"
-    ]
+    "tags": ["DirectDamage", "Mystic", "AreaMystic", "Distance", "FluteOfTheTides"]
   },
   "FluteRipple": {
     "name": "Flute Chanting a thousand Waves",
@@ -917,13 +818,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "AreaMystic",
-      "FluteOfTheTides",
-      "Triggered"
-    ]
+    "tags": ["DirectDamage", "Mystic", "AreaMystic", "FluteOfTheTides", "Triggered"]
   },
   "GhostlySteps": {
     "name": "Ghostly Step",
@@ -938,10 +833,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "Mystic",
-      "GhostlySteps"
-    ]
+    "tags": ["Mystic", "GhostlySteps"]
   },
   "GhostlyStepsUmbra": {
     "name": "Ghostly Step - Umbra",
@@ -956,10 +848,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "Mystic",
-      "GhostlySteps"
-    ]
+    "tags": ["Mystic", "GhostlySteps"]
   },
   "GhostlyStepsUmbraDodge": {
     "name": "Ghostly Step - Umbra Dodge",
@@ -974,12 +863,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "GhostlySteps",
-      "Triggered"
-    ]
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered"]
   },
   "DragonHeadTide": {
     "name": "Dragon Head - Tide",
@@ -1058,13 +942,6 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "Mystic",
-      "SingleTargetMystic",
-      "HP",
-      "DragonHead",
-      "DragonHeadTide"
-    ]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "HP", "DragonHead", "DragonHeadTide"]
   }
 }

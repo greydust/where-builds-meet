@@ -1,109 +1,111 @@
-.breakdown-page {
-  display: grid;
-  gap: 4px;
-  max-width: 1500px;
-}
+@layer components {
+  .breakdown-page {
+    display: grid;
+    gap: 4px;
+    max-inline-size: 1500px;
+  }
 
-.breakdown-panel {
-  overflow-x: auto;
-}
+  .breakdown-panel {
+    overflow-x: auto;
+  }
 
-.breakdown-panel .panel-heading {
-  margin-bottom: 12px;
-}
+  .breakdown-panel .panel-heading {
+    margin-block-end: 12px;
+  }
 
-.breakdown-totals {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 18px;
-  color: var(--text-muted);
-}
-
-.breakdown-totals strong {
-  margin-left: 5px;
-  color: var(--primary);
-  font-size: 1rem;
-}
-
-.breakdown-table {
-  width: max-content;
-  min-width: 100%;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-}
-
-.breakdown-skill-table {
-  min-width: 67.25rem;
-}
-
-.breakdown-cast-table {
-  min-width: 56.125rem;
-}
-
-.breakdown-group-table {
-  min-width: 34.25rem;
-}
-
-.breakdown-table-header,
-.breakdown-table-row {
-  display: grid;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  padding: 9px 12px;
-}
-
-.breakdown-skill-table .breakdown-table-header,
-.breakdown-skill-table .breakdown-table-row {
-  grid-template-columns: minmax(240px, 1fr) 58px 68px 52px repeat(4, 76px) 140px 82px;
-}
-
-.breakdown-cast-table .breakdown-table-header,
-.breakdown-cast-table .breakdown-table-row {
-  grid-template-columns: minmax(260px, 1fr) 64px 120px 130px 150px 90px;
-}
-
-.breakdown-group-table .breakdown-table-header,
-.breakdown-group-table .breakdown-table-row {
-  grid-template-columns: minmax(260px, 1fr) 150px 90px;
-}
-
-.breakdown-table-header {
-  background: var(--surface-header);
-  color: var(--text-muted);
-  font-weight: 750;
-  text-transform: uppercase;
-}
-
-.breakdown-table-row {
-  min-height: 42px;
-  border-top: 1px solid var(--border-muted);
-  color: var(--text);
-}
-
-.breakdown-table-row:nth-child(odd) {
-  background: oklch(from var(--surface-alt) l c h / 0.35);
-}
-
-.breakdown-table-header span:not(:first-child),
-.breakdown-table-row strong {
-  text-align: right;
-}
-
-.breakdown-table-row strong {
-  color: var(--text-muted);
-  font-weight: 700;
-}
-
-.breakdown-empty p {
-  margin-bottom: 0;
-  color: var(--text-muted);
-}
-
-@media (max-width: 700px) {
   .breakdown-totals {
-    justify-content: flex-start;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 18px;
+    color: var(--text-muted);
+  }
+
+  .breakdown-totals strong {
+    margin-inline-start: 5px;
+    color: var(--primary);
+    font-size: 1rem;
+  }
+
+  .breakdown-table {
+    inline-size: max-content;
+    min-inline-size: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .breakdown-skill-table {
+    min-inline-size: 67.25rem;
+  }
+
+  .breakdown-cast-table {
+    min-inline-size: 56.125rem;
+  }
+
+  .breakdown-group-table {
+    min-inline-size: 34.25rem;
+  }
+
+  .breakdown-table-header,
+  .breakdown-table-row {
+    display: grid;
+    align-items: center;
+    gap: 12px;
+    min-inline-size: 0;
+    padding: 9px 12px;
+  }
+
+  .breakdown-skill-table .breakdown-table-header,
+  .breakdown-skill-table .breakdown-table-row {
+    grid-template-columns: minmax(240px, 1fr) 58px 68px 52px repeat(4, 76px) 140px 82px;
+  }
+
+  .breakdown-cast-table .breakdown-table-header,
+  .breakdown-cast-table .breakdown-table-row {
+    grid-template-columns: minmax(260px, 1fr) 64px 120px 130px 150px 90px;
+  }
+
+  .breakdown-group-table .breakdown-table-header,
+  .breakdown-group-table .breakdown-table-row {
+    grid-template-columns: minmax(260px, 1fr) 150px 90px;
+  }
+
+  .breakdown-table-header {
+    background: var(--surface-header);
+    color: var(--text-muted);
+    font-weight: 750;
+    text-transform: uppercase;
+  }
+
+  .breakdown-table-row {
+    min-block-size: 42px;
+    border-block-start: 1px solid var(--border-muted);
+    color: var(--text);
+  }
+
+  .breakdown-table-row:nth-child(odd) {
+    background: oklch(from var(--surface-alt) l c h / 0.35);
+  }
+
+  .breakdown-table-header span:not(:first-child),
+  .breakdown-table-row strong {
+    text-align: end;
+  }
+
+  .breakdown-table-row strong {
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .breakdown-empty p {
+    margin-block-end: 0;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 43.75em) {
+    .breakdown-totals {
+      justify-content: flex-start;
+    }
   }
 }

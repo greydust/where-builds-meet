@@ -53,8 +53,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "hengBladeDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "hengBladeDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "hengBladeDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -71,8 +97,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "moBladeDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "moBladeDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "moBladeDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "moBladeDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -89,8 +141,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "umbrellaDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "umbrellaDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "umbrellaDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "umbrellaDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -107,8 +185,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -125,8 +229,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "gauntletDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "gauntletDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "gauntletDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "gauntletDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -143,8 +273,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "ropeDartDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -161,8 +317,34 @@
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
       },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "minStonesplit", "maxStonesplit", "agility", "momentum", "power", "precision", "crit", "affinity", "spearDmgBoost"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit", "power", "precision", "crit", "affinity", "spearDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "spearDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "spearDmgBoost"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -175,8 +357,44 @@
       },
       "baseAffixes": { "96": ["minPhys", "maxPhys"], "91": ["minPhys", "maxPhys"] },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -189,8 +407,44 @@
       },
       "baseAffixes": { "96": ["minPhys", "maxPhys"], "91": ["minPhys", "maxPhys"] },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "allMartialArts"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ]
       },
       "attunements": ["Weapon"]
     },
@@ -200,8 +454,46 @@
       "baseStats": {},
       "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
+          "areaMysticDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
+          "areaMysticDmgBoost"
+        ]
       },
       "attunements": ["Armor"]
     },
@@ -211,8 +503,46 @@
       "baseStats": {},
       "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "singleTargetMysticDmgBoost", "areaMysticDmgBoost"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
+          "areaMysticDmgBoost"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
+          "areaMysticDmgBoost"
+        ]
       },
       "attunements": ["Armor"]
     },
@@ -220,10 +550,49 @@
       "name": "Greaves",
       "slots": ["greaves"],
       "baseStats": {},
-      "baseAffixes": { "96": ["crit", "precision", "affinity", "power"], "91": ["crit", "precision", "affinity", "power"] },
+      "baseAffixes": {
+        "96": ["crit", "precision", "affinity", "power"],
+        "91": ["crit", "precision", "affinity", "power"]
+      },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ]
       },
       "attunements": ["Armor"]
     },
@@ -231,10 +600,49 @@
       "name": "Bracer",
       "slots": ["bracer"],
       "baseStats": {},
-      "baseAffixes": { "96": ["crit", "precision", "affinity", "power"], "91": ["crit", "precision", "affinity", "power"] },
+      "baseAffixes": {
+        "96": ["crit", "precision", "affinity", "power"],
+        "91": ["crit", "precision", "affinity", "power"]
+      },
       "additionalAffixes": {
-        "96": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"],
-        "91": ["minPhys", "maxPhys", "minBellstrike", "maxBellstrike", "minStonesplit", "maxStonesplit", "minSilkbind", "maxSilkbind", "minBamboocut", "maxBamboocut", "agility", "momentum", "power", "precision", "crit", "affinity", "vsBossDmg"]
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ]
       },
       "attunements": ["Armor"]
     }

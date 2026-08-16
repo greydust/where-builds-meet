@@ -34,15 +34,18 @@ function convert(id, skill, martialArt) {
     name: displayName(id),
     castTime: skill.castTime ?? 0,
     hitCount: skill.hitCount ?? 0,
-    damage: skill.physCoeff === undefined && skill.attrCoeff === undefined
-      ? []
-      : [{
-          phyCoef: skill.physCoeff ?? 0,
-          phyBonus: skill.flatPhys ?? 0,
-          attrCoef: skill.attrCoeff ?? 0,
-          attrBonus: skill.flatAttr ?? 0,
-          time: 0,
-        }],
+    damage:
+      skill.physCoeff === undefined && skill.attrCoeff === undefined
+        ? []
+        : [
+            {
+              phyCoef: skill.physCoeff ?? 0,
+              phyBonus: skill.flatPhys ?? 0,
+              attrCoef: skill.attrCoeff ?? 0,
+              attrBonus: skill.flatAttr ?? 0,
+              time: 0,
+            },
+          ],
     weaponType: skill.weaponType ?? null,
     martialArt,
     modifier: [],

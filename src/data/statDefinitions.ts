@@ -1,11 +1,16 @@
 import type { CharacterStats, StatDefinition } from "../types";
 
 export const combatStats: StatDefinition[] = [
-  { key: "minPhys", label: "Min Physical Attack" }, { key: "maxPhys", label: "Max Physical Attack" },
-  { key: "power", label: "Power" }, { key: "agility", label: "Agility" },
-  { key: "momentum", label: "Momentum" }, { key: "precision", label: "Precision Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "crit", label: "Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true }, { key: "directCrit", label: "Direct Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "affinity", label: "Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true }, { key: "directAffinity", label: "Direct Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "minPhys", label: "Min Physical Attack" },
+  { key: "maxPhys", label: "Max Physical Attack" },
+  { key: "power", label: "Power" },
+  { key: "agility", label: "Agility" },
+  { key: "momentum", label: "Momentum" },
+  { key: "precision", label: "Precision Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "crit", label: "Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "directCrit", label: "Direct Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "affinity", label: "Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  { key: "directAffinity", label: "Direct Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
 ];
 
 export const martialArtsStats: StatDefinition[] = [
@@ -36,8 +41,20 @@ export const defenseStats: StatDefinition[] = [
   { key: "stonesplitPenetration", label: "Stonesplit Penetration" },
   { key: "bamboocutPenetration", label: "Bamboocut Penetration" },
   { key: "physDmgBonus", label: "Phys DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "bellstrikeDmgBonus", label: "Bellstrike DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "stonesplitDmgBonus", label: "Stonesplit DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  {
+    key: "bellstrikeDmgBonus",
+    label: "Bellstrike DMG Bonus",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
+  {
+    key: "stonesplitDmgBonus",
+    label: "Stonesplit DMG Bonus",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
   { key: "silkbindDmgBonus", label: "Silkbind DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "bamboocutDmgBonus", label: "Bamboocut DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "allMartialArts", label: "All Martial Arts", unit: "%", showUnitInLabel: false, showUnitInInput: true },
@@ -46,8 +63,20 @@ export const defenseStats: StatDefinition[] = [
   { key: "hengBladeDmgBoost", label: "Art of Heng Blade", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "critDmgBonus", label: "Crit DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "affinityDmgBonus", label: "Affinity DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "singleTargetMysticDmgBoost", label: "Single-Target Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "areaMysticDmgBoost", label: "Area Mystic Skill DMG Boost", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  {
+    key: "singleTargetMysticDmgBoost",
+    label: "Single-Target Mystic Skill DMG Boost",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
+  {
+    key: "areaMysticDmgBoost",
+    label: "Area Mystic Skill DMG Boost",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
   { key: "umbrellaDmgBoost", label: "Art of Umbrella", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "ropeDartDmgBoost", label: "Art of Rope Dart", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "gauntletDmgBoost", label: "Art of Gauntlet", unit: "%", showUnitInLabel: false, showUnitInInput: true },
@@ -56,7 +85,5 @@ export const defenseStats: StatDefinition[] = [
 
 export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialArtsStats, ...defenseStats];
 
-export const emptyStats = Object.fromEntries(
-  allStatDefinitions.map(({ key }) => [key, 0]),
-) as CharacterStats;
+export const emptyStats = Object.fromEntries(allStatDefinitions.map(({ key }) => [key, 0])) as CharacterStats;
 emptyStats.effectiveCritBonus = 0;

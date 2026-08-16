@@ -9,10 +9,7 @@
         "target": "self",
         "value": {
           "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
+          "operand": ["InnerPassion", "ChargeEnhancement"]
         },
         "stack": 1,
         "time": 0.4
@@ -96,10 +93,7 @@
         "target": "self",
         "value": {
           "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
+          "operand": ["InnerPassion", "ChargeEnhancement"]
         },
         "stack": 1,
         "time": 1.6
@@ -225,10 +219,7 @@
         "target": "self",
         "value": {
           "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
+          "operand": ["InnerPassion", "ChargeEnhancement"]
         },
         "stack": 1,
         "time": 2.1
@@ -360,14 +351,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Special",
-      "MoBlade",
-      "PhalanxbaneBlade",
-      "LegionSummon"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Special", "MoBlade", "PhalanxbaneBlade", "LegionSummon"]
   },
   "PhalanxbaneQ": {
     "name": "Total Annihilation",

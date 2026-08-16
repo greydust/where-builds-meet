@@ -161,23 +161,23 @@ Character stat overrides use `localStorage`, so they persist across browser sess
 Most editor and setup state uses `sessionStorage`, so it lasts for the current
 tab session.
 
-| State | Storage |
-| --- | --- |
-| Character stat overrides | `localStorage`, `wwm-stat-overrides-v1` |
-| Custom character profiles | `localStorage`, `wwm-character-profiles-v1` |
-| Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1` |
-| Active build ID | `localStorage`, `wwm-active-build-v1` |
-| Skill editor overrides | `sessionStorage`, `wwm-skill-editor-session-v1` |
-| Combat path | `sessionStorage`, `wwm-path-session-v1` |
-| Attunement overrides | `sessionStorage`, `wwm-attunement-overrides-v1` |
-| Weapons and enemy | `sessionStorage`, `wwm-settings-session-v1` |
-| Build setup overrides | `sessionStorage`, `wwm-build-setup-overrides-v1` |
-| Food | `sessionStorage`, `wwm-food-session-v1` |
-| Divinecraft | `sessionStorage`, `wwm-divinecraft-session-v1` |
-| Target debuff controls | `sessionStorage`, `wwm-global-debuffs-session-v1` |
-| Rotation list | `sessionStorage`, `wwm-rotation-list-session-v1` |
-| Active rotation ID | `sessionStorage`, `wwm-active-rotation-session-v1` |
-| Custom simulation percentiles | `sessionStorage`, `wwm-simulation-percentiles-v1` |
+| State                                           | Storage                                            |
+| ----------------------------------------------- | -------------------------------------------------- |
+| Character stat overrides                        | `localStorage`, `wwm-stat-overrides-v1`            |
+| Custom character profiles                       | `localStorage`, `wwm-character-profiles-v1`        |
+| Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1`                |
+| Active build ID                                 | `localStorage`, `wwm-active-build-v1`              |
+| Skill editor overrides                          | `sessionStorage`, `wwm-skill-editor-session-v1`    |
+| Combat path                                     | `sessionStorage`, `wwm-path-session-v1`            |
+| Attunement overrides                            | `sessionStorage`, `wwm-attunement-overrides-v1`    |
+| Weapons and enemy                               | `sessionStorage`, `wwm-settings-session-v1`        |
+| Build setup overrides                           | `sessionStorage`, `wwm-build-setup-overrides-v1`   |
+| Food                                            | `sessionStorage`, `wwm-food-session-v1`            |
+| Divinecraft                                     | `sessionStorage`, `wwm-divinecraft-session-v1`     |
+| Target debuff controls                          | `sessionStorage`, `wwm-global-debuffs-session-v1`  |
+| Rotation list                                   | `sessionStorage`, `wwm-rotation-list-session-v1`   |
+| Active rotation ID                              | `sessionStorage`, `wwm-active-rotation-session-v1` |
+| Custom simulation percentiles                   | `sessionStorage`, `wwm-simulation-percentiles-v1`  |
 
 Loaders validate enough shape to fall back to defaults and include migrations
 for older percentage, penetration, attunement, rotation, per-build inventory,

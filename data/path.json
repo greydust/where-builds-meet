@@ -6,39 +6,27 @@
     "name": "Strength",
     "icon": "strength.png",
     "tag": "StonesplitStrength",
-    "lockedWeapons": [
-      "snowparting",
-      "phalanxbane"
-    ]
+    "lockedWeapons": ["snowparting", "phalanxbane"]
   },
   "stonesplitMight": {
     "name": "Might",
     "icon": "might.png",
     "tag": "StonesplitMight",
     "wip": true,
-    "lockedWeapons": [
-      "thundercry",
-      "stormbreaker"
-    ]
+    "lockedWeapons": ["thundercry", "stormbreaker"]
   },
   "bamboocutDust": {
     "name": "Dust",
     "icon": "dust.png",
     "tag": "BamboocutDust",
     "wip": true,
-    "lockedWeapons": [
-      "everspring",
-      "unfettered"
-    ]
+    "lockedWeapons": ["everspring", "unfettered"]
   },
   "bamboocutKite": {
     "name": "Kite",
     "icon": "kite.png",
     "tag": "BamboocutKite",
     "wip": true,
-    "lockedWeapons": [
-      "heavenwill",
-      "skygrasp"
-    ]
+    "lockedWeapons": ["heavenwill", "skygrasp"]
   }
 }

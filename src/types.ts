@@ -62,8 +62,17 @@ export type EnemyProfile = {
   judgementResistance: number;
 };
 
-export const weaponIds = ["snowparting", "phalanxbane", "thundercry", "stormbreaker", "everspring", "unfettered", "heavenwill", "skygrasp"] as const;
-export type WeaponId = typeof weaponIds[number];
+export const weaponIds = [
+  "snowparting",
+  "phalanxbane",
+  "thundercry",
+  "stormbreaker",
+  "everspring",
+  "unfettered",
+  "heavenwill",
+  "skygrasp",
+] as const;
+export type WeaponId = (typeof weaponIds)[number];
 
 export type StatKey = keyof CharacterStats;
 

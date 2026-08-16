@@ -90,19 +90,19 @@
         {
           "target": "self",
           "requirement": [
-              {
-                "operator": "or",
-                "operand": [
-                  {
-                    "target": "skillTag",
-                    "value": "AnxiSoldier"
-                  },
-                  {
-                    "target": "skillTag",
-                    "value": "TriggerAnxiSolder"
-                  }
-                ]
-              }
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "AnxiSoldier"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "TriggerAnxiSolder"
+                }
+              ]
+            }
           ],
           "action": [
             {

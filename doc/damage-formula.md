@@ -44,10 +44,10 @@ Snowparting Blade and Phalanxbane Blade currently use Stonesplit as their primar
 
 Every damage action is evaluated as four possible outcomes and then rate weighted:
 
-| Outcome | Physical attack | Attribute attack | Outcome bonus |
-| --- | --- | --- | --- |
-| Abrasion | effective minimum | effective minimum | none |
-| Normal | effective average | effective average | none |
+| Outcome  | Physical attack   | Attribute attack  | Outcome bonus      |
+| -------- | ----------------- | ----------------- | ------------------ |
+| Abrasion | effective minimum | effective minimum | none               |
+| Normal   | effective average | effective average | none               |
 | Critical | effective average | effective average | Critical DMG Bonus |
 | Affinity | effective maximum | effective maximum | Affinity DMG Bonus |
 

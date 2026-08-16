@@ -4,9 +4,7 @@
     "castTime": 0.338,
     "action": [],
     "modifier": [],
-    "tags": [
-      "Deflect"
-    ]
+    "tags": ["Deflect"]
   },
   "MoraleChant": {
     "name": "Morale Chant",
@@ -22,12 +20,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DirectDamage",
-      "General",
-      "MoraleChant",
-      "Triggered"
-    ]
+    "tags": ["DirectDamage", "General", "MoraleChant", "Triggered"]
   },
   "PerfectDodgeCancel": {
     "name": "Perfect Dodge [Cancel]",
@@ -84,10 +77,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "General",
-      "PerfectDodge"
-    ]
+    "tags": ["General", "PerfectDodge"]
   },
   "PerfectDodge": {
     "name": "Perfect Dodge",
@@ -144,9 +134,6 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "General",
-      "PerfectDodge"
-    ]
+    "tags": ["General", "PerfectDodge"]
   }
 }

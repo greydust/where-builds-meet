@@ -22,12 +22,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DOT",
-      "Mystic",
-      "AreaMystic",
-      "LeapingToad"
-    ],
+    "tags": ["DOT", "Mystic", "AreaMystic", "LeapingToad"],
     "refresh": false
   },
   "LesserToadVenom": {
@@ -46,12 +41,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DOT",
-      "Mystic",
-      "AreaMystic",
-      "LeapingToad"
-    ],
+    "tags": ["DOT", "Mystic", "AreaMystic", "LeapingToad"],
     "refresh": false
   },
   "Combustion": {
@@ -69,12 +59,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DOT",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ],
+    "tags": ["DOT", "Mystic", "SingleTargetMystic", "DrunkenPoet"],
     "refresh": false
   },
   "Smolder": {
@@ -92,12 +77,7 @@
       }
     ],
     "modifier": [],
-    "tags": [
-      "DOT",
-      "Mystic",
-      "SingleTargetMystic",
-      "DrunkenPoet"
-    ],
+    "tags": ["DOT", "Mystic", "SingleTargetMystic", "DrunkenPoet"],
     "refresh": false
   }
 }

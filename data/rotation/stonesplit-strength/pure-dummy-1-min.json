@@ -1,9 +1,6 @@
 {
   "name": "Pure Dummy 1 min",
-  "martialArts": [
-    "snowparting",
-    "phalanxbane"
-  ],
+  "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "start": {
     "step": 5,

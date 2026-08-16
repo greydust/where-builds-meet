@@ -1,13 +1,22 @@
 import { createServer } from "vite";
 
-const viteServer = await createServer({ root: process.cwd(), configFile: false, server: { middlewareMode: true }, appType: "custom", logLevel: "silent" });
+const viteServer = await createServer({
+  root: process.cwd(),
+  configFile: false,
+  server: { middlewareMode: true },
+  appType: "custom",
+  logLevel: "silent",
+});
 
 try {
-  const { calculateRotationBaseline, calculateRotationComparisons, calculateRotationSimulation } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { calculateRotationBaseline, calculateRotationComparisons, calculateRotationSimulation } =
+    await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
-  const assert = (condition, message) => { if (!condition) throw new Error(message); };
+  const assert = (condition, message) => {
+    if (!condition) throw new Error(message);
+  };
   const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
   const attunement = {
     physicalPenetration: 0,
@@ -75,32 +84,77 @@ try {
   assert(result.actionBreakdowns["rotation-0:3"], "Actions after the anchor must be calculated.");
   assert(result.metrics.breakdown.skills[0]?.hits === 2, "Ignored actions must not contribute to hit count.");
   assert(result.metrics.totalDamage > 0, "Calculated actions must still contribute damage.");
-  assert(cachedBaseline.metrics.statPriority.length === 0, "A baseline-only calculation must not calculate comparison rows.");
-  assert(cachedComparisons.totalDamage === result.metrics.totalDamage, "Cached comparison metrics must reuse the baseline total damage.");
-  assert(cachedComparisons.statPriority[0]?.dpsDifference === result.metrics.statPriority[0]?.dpsDifference, "Cached comparison results must match a full simulation.");
+  assert(
+    cachedBaseline.metrics.statPriority.length === 0,
+    "A baseline-only calculation must not calculate comparison rows.",
+  );
+  assert(
+    cachedComparisons.totalDamage === result.metrics.totalDamage,
+    "Cached comparison metrics must reuse the baseline total damage.",
+  );
+  assert(
+    cachedComparisons.statPriority[0]?.dpsDifference === result.metrics.statPriority[0]?.dpsDifference,
+    "Cached comparison results must match a full simulation.",
+  );
   const triggerTimeline = buildRotationTimeline({
     rotation: { name: "Trigger source probe", steps: [{ type: "skill", skill: "SourceSkill" }] },
     skills: {
       SourceSkill: { name: "Source Skill", castTime: 1, tags: [], action: [{ type: "damage", time: 1, phyCoef: 1 }] },
-      TriggeredProbe: { name: "Triggered Probe", castTime: 0, cooldown: 10, tags: ["Triggered"], action: [{ type: "damage", time: 0, phyCoef: 1 }] },
+      TriggeredProbe: {
+        name: "Triggered Probe",
+        castTime: 0,
+        cooldown: 10,
+        tags: ["Triggered"],
+        action: [{ type: "damage", time: 0, phyCoef: 1 }],
+      },
     },
     eventDefinitions: {},
     dots: {},
     effectDefinitions: {},
     innerWayConditions: [],
-    innerWayRules: [{ source: "Probe", tier: 0, effect: {}, trigger: { event: "damage", action: { type: "trigger", value: "TriggeredProbe" } } }],
+    innerWayRules: [
+      {
+        source: "Probe",
+        tier: 0,
+        effect: {},
+        trigger: { event: "damage", action: { type: "trigger", value: "TriggeredProbe" } },
+      },
+    ],
     setupEffects: [],
     weapons: [],
   });
-  assert(triggerTimeline.find((row) => row.kind === "trigger")?.sourceRowId === "rotation-0", "Inner Way-triggered actions must retain their originating base skill row.");
+  assert(
+    triggerTimeline.find((row) => row.kind === "trigger")?.sourceRowId === "rotation-0",
+    "Inner Way-triggered actions must retain their originating base skill row.",
+  );
   const durationTimeline = {
     rotation: { name: "Duration probe", steps: [{ type: "skill", skill: "DurationSkill" }] },
-    skills: { DurationSkill: { name: "Duration Skill", castTime: 1, tags: [], action: [{ type: "damage", time: 1, phyCoef: 1 }] } },
-    eventDefinitions: {}, dots: {}, effectDefinitions: {}, innerWayConditions: [], innerWayRules: [], setupEffects: [], weapons: [],
+    skills: {
+      DurationSkill: {
+        name: "Duration Skill",
+        castTime: 1,
+        tags: [],
+        action: [{ type: "damage", time: 1, phyCoef: 1 }],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: [],
   };
   const longerDurationTimeline = {
     ...durationTimeline,
-    skills: { DurationSkill: { name: "Duration Skill", castTime: 2, tags: [], action: [{ type: "damage", time: 2, phyCoef: 1 }] } },
+    skills: {
+      DurationSkill: {
+        name: "Duration Skill",
+        castTime: 2,
+        tags: [],
+        action: [{ type: "damage", time: 2, phyCoef: 1 }],
+      },
+    },
   };
   const durationBundle = {
     ...bundle,
@@ -112,7 +166,10 @@ try {
   const durationBaseline = calculateRotationBaseline(durationBundle);
   const durationComparison = calculateRotationComparisons(durationBundle, durationBaseline);
   assert(durationBaseline.duration === 1, "The duration probe baseline must last one second.");
-  assert(Math.abs(durationComparison.innerWayPriority[0].dpsDifference + durationBaseline.metrics.dps / 2) < 1e-9, "A rebuilt two-second variant must use its own duration instead of the one-second baseline duration.");
+  assert(
+    Math.abs(durationComparison.innerWayPriority[0].dpsDifference + durationBaseline.metrics.dps / 2) < 1e-9,
+    "A rebuilt two-second variant must use its own duration instead of the one-second baseline duration.",
+  );
   console.log("Rotation start-anchor damage and hit-count checks passed.");
 } finally {
   await viteServer.close();
