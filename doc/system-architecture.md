@@ -455,8 +455,14 @@ The main thread does not run the rotation simulation.
    comparisons and then inactive baselines.
 5. Equal-priority work remains first-in, first-out.
 
-The running calculation is not cancelled. Keyed replacement coalesces rapid
-edits without discarding queued calculations for other rotations.
+Every full recalculation starts a new batch. Starting that batch terminates the
+worker executing the previous batch and rejects all of its pending requests,
+then schedules a fresh baseline followed by the new comparison categories.
+This batch boundary takes precedence over keyed pending-request replacement and
+also clears the worker's baseline cache, so comparisons cannot use a baseline
+from a superseded state. The main thread can explicitly reseed a cached baseline
+into the replacement worker before its first missing variant. Keyed replacement
+still coalesces requests scheduled within the same batch.
 
 `rotationWorker.ts` has no React or browser-storage dependency. It owns a
 bounded in-memory baseline cache keyed by rotation ID, calculation context, and
@@ -522,12 +528,22 @@ breakdown. `calculateRotationSimulation()` remains as a combined entry point for
 focused probes and callers that need both phases at once.
 
 Pure stat and attunement variants reuse the baseline timeline and its effect
-snapshots. Inner Way removal variants rebuild the timeline because triggers,
-cooldowns, durations, stacks, and cast times may change. Setup candidates reuse
-the baseline timeline when they only change stats; a behavior-changing candidate
-must provide a replacement timeline. Cleftpeak 4-piece currently does so. Every
+snapshots. Inner Way definitions also declare `altersTimeline`; every current
+Inner Way sets it to true, so removal variants conservatively rebuild the
+timeline because triggers, cooldowns, durations, stacks, and cast times may
+change. Setup candidates reuse
+the baseline timeline when they only change stats. Weapon and armor set
+definitions declare `altersTimeline`; a set comparison provides a replacement
+timeline only when that flag is true. Cleftpeak and Formbend currently opt in,
+while Rain Whisper reuses the baseline timeline. Every
 replacement timeline resolves its own start anchor and duration for DPS; only
 timeline-reusing variants share the baseline duration.
+
+Setup comparison bundles omit the currently selected arsenal, bow/ring set,
+food, Divinecraft, global-effect state, and Bitter Seasons tier. The Main tab
+already renders those choices as active, so calculating an identical baseline
+variant would only produce a redundant zero-difference result. Weapon and armor
+set comparison generation likewise omits the currently selected tier.
 
 Each priority row stores absolute DPS difference and percentage change. Character
 and attunement priorities sort by descending DPS gain. Inner Ways are removed,
@@ -554,21 +570,29 @@ that source cast, and a later refresh or extension transfers all subsequent tick
 to the cast that performed it. Nested DOTs inherit the original base cast.
 A displayed damage action without a breakdown was before the start anchor and
 has an empty damage cell.
-The editor keeps one public baseline result per rotation, keyed by the complete
-character/build calculation context and rotation record. Switching viewed or
-active rotations reuses a valid cached result immediately. These results are
-in-memory calculation caches and are intentionally not written to browser
-storage.
+Every complete baseline input bundle, including stats, all setup selectors, and
+rotation content, receives a deterministic fingerprint. The editor keeps a
+bounded in-memory baseline cache keyed by that fingerprint. Each comparison is
+split into a single variant request and cached under the pair of the baseline
+fingerprint and a fingerprint of that variant's category, group, and input.
+Rotation combat content includes its full ordered steps, events, attachments,
+timings, and start anchor; the display-only rotation name is excluded so a
+rename does not invalidate damage results.
+Baseline and variant results enter these caches immediately when their worker
+request completes, including partial batches that are later superseded.
+Switching viewed or active rotations reuses matching entries immediately. A
+cached baseline can seed a fresh worker when some variants are still missing.
+These caches are intentionally not written to browser storage.
 
-Only the active rotation publishes to the central module store, and baseline
-work never publishes an incomplete metrics object. Main and DPS Breakdown keep
-the previous complete baseline-plus-comparisons result throughout a refresh,
-then atomically swap to the replacement after its comparison pass completes. An
-active-rotation Save and Make Active request comparisons; saving an inactive
-rotation does not. The same central store publishes a recalculation status for
-active comparison requests. The Main DPS block keeps displaying the last
-complete value and shows `Recalculating` beneath it until the matching current
-result is published; superseded requests cannot clear the status of newer work.
+Only the active rotation publishes to the central module store. Its baseline is
+published as soon as it completes, replacing DPS, total damage, and breakdowns
+while retaining the previous comparison rows. Comparison categories then run
+sequentially and replace only their own rows. An active-rotation Save and Make
+Active request comparisons; saving an inactive rotation does not. The central
+store publishes independent progress for baseline, stat priority, attunement
+priority, weapon sets, armor sets, bow/ring, arsenal, global buffs/debuffs,
+Inner Ways, Script, Divinecraft, and food. Superseded requests cannot update or
+clear the status owned by newer work.
 
 ## Static data composition
 
@@ -612,7 +636,9 @@ in `effectDefinitions`. DOTs must also be present in the `dots` map. Follow
 ### Inner Way
 
 Add its JSON file, import it into `innerWayDefinitions`, and provide cumulative
-tier IDs from T0 through T6. Add path eligibility strings to its top-level
+tier IDs from T0 through T6. Add the required top-level `altersTimeline`
+boolean; current definitions conservatively use true, while a future false
+value means its removal can reuse baseline event state. Add path eligibility strings to its top-level
 `tags` array. Selection automatically activates all tiers through the selected
 tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
 
@@ -631,7 +657,10 @@ percentage conversion, and weapon-slot mapping.
 
 Add weapon-set definitions to `data/gear-set.json` and armor-set definitions to
 `data/armor-set.json`, with a display `name`, path and martial-art eligibility
-`tags`, and tier `options`. Main, Build, and the setup-effect pipeline share the
+`tags`, required boolean `altersTimeline`, and tier `options`. Set
+`altersTimeline` to true when changing that set can affect timing, triggers,
+conditions, stacks, cooldowns, DOTs, or any other event-state behavior. Main,
+Build, and the setup-effect pipeline share the
 same definition-driven filter and four-piece selection limit within each set
 family. An option may expose a string `condition`; the timeline adds selected
 setup conditions to the same requirement context used by Inner Ways.
@@ -698,21 +727,24 @@ comparisons only when the edited rotation is active. Making an inactive rotation
 active reuses its valid baseline cache and requests comparisons.
 
 When character stats, attunements, Inner Ways, food, Divinecraft, build, enemy,
-or settings change, the refresh order is: active baseline, active comparisons,
-then every inactive baseline. A context key prevents an older result from being
-treated as current or published after a newer refresh begins. The Rotation
-Editor keeps the last completed timeline for each rotation mounted during its
-replacement calculation so scroll position and focused controls survive the
-refresh. The central DPS result similarly retains its previous diff rows until
-the replacement comparison result is ready, then swaps the complete result at
-once. Its recalculation status changes independently of the retained metrics so
-the UI can identify that displayed DPS as temporarily stale.
+or settings change, the refresh order is: active baseline; stat priority;
+attunement priority; weapon sets; armor sets; bow/ring; arsenal; global
+buffs/debuffs; Inner Ways; Script; Divinecraft; food; then every inactive
+baseline. A context key prevents an older result from being treated as current
+or published after a newer refresh begins. The Rotation Editor keeps the last
+completed timeline for each rotation mounted during its replacement calculation
+so scroll position and focused controls survive the refresh. Main retains each
+category's previous rows until that category completes, then publishes the
+replacement rows immediately. Each panel subscribes to its own category status,
+whose reserved layout space prevents progress text from shifting the panel.
 
-The refresh identity combines the calculation context with the resolved active
-rotation. The editor records that identity only after its full result has been
-published. Path filtering can replace an incompatible active rotation while a
-request is running; a discarded transitional request therefore cannot mark the
-settled path as refreshed or suppress its replacement calculation.
+The refresh identity combines the resolved active rotation ID with the complete
+baseline fingerprint. Scheduling records that identity immediately. A later
+different identity always supersedes the running batch, even if it was
+calculated earlier in the session; cached results are restored through the same
+publication path instead of suppressing the schedule. Path filtering can
+replace an incompatible active rotation while a request is running without
+allowing a discarded transitional request to suppress its replacement.
 Requests superseded by a newer full calculation do not schedule another retry;
 the newer request is already their replacement. This distinction prevents
 development effect replays and rapid context changes from forming a retry loop.
@@ -724,14 +756,18 @@ transition. If the persistent worker fails while loading or processing a
 request, the client discards it and retries the interrupted request once on a
 fresh worker instead of leaving later work attached to a dead worker.
 
-Full recalculations report deterministic variant progress. Before comparison
-work begins, the worker counts every stat, attunement, Inner Way, setup, and
-global-debuff variant. A variant is complete only after its timeline entries and
-final damage total have both been calculated. The displayed percentage is
-exactly `completed variants / total variants`; baseline preparation therefore
-remains at 0%. Progress is stored separately from the completed metrics and is
-subscribed to only by the DPS status component, avoiding whole-page renders for
-each worker update.
+Each comparison category reports deterministic variant progress independently.
+Before a category begins, all category indicators enter a pending zero-percent
+state. Each worker comparison request calculates one variant. A variant is
+complete only after its timeline entries and final damage total have both been
+calculated and cached. Cache hits count as immediately completed work. The
+displayed percentage is exactly `completed category variants / total category
+variants`. The baseline is one
+separate unit that moves from zero to complete when its metrics publish.
+Categories with no variants complete immediately without a worker request.
+Progress is stored separately from metrics; status components subscribe through
+the external calculation-status store rather than causing the application tree
+to rerender on every worker update.
 
 ## Development and deployment
 

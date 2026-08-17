@@ -1,5 +1,6 @@
 {
   "name": "Throat-Piercing Art",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength", "StonesplitMight"],
   "effect": {
     "ThroatPiercingArtT0": {

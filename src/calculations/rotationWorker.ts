@@ -13,6 +13,7 @@ type WorkerRequest = {
   bundle: RotationCalculationBundle | RotationSimulationBundle;
   mode?: "calculation" | "simulation" | "baseline" | "comparisons";
   cacheKey?: string;
+  baseline?: RotationSimulationBaseline;
 };
 
 const baselineCache = new Map<string, RotationSimulationBaseline>();
@@ -27,12 +28,12 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       const calculated = calculateRotationBaseline(bundle as RotationSimulationBundle);
       baselineCache.set(cacheKey, calculated);
       if (baselineCache.size > 64) baselineCache.delete(baselineCache.keys().next().value!);
-      const { baseline: _baseline, ...publicResult } = calculated;
-      result = publicResult;
+      result = calculated;
     } else if (mode === "comparisons") {
       if (!cacheKey) throw new Error("A comparison cache key is required");
-      const baseline = baselineCache.get(cacheKey);
+      const baseline = baselineCache.get(cacheKey) ?? event.data.baseline;
       if (!baseline) throw new Error(`No cached baseline exists for ${cacheKey}`);
+      baselineCache.set(cacheKey, baseline);
       result = {
         metrics: calculateRotationComparisons(bundle as RotationSimulationBundle, baseline, (completed, total) => {
           self.postMessage({ id, progress: total > 0 ? completed / total : 1 });

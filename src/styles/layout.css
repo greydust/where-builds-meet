@@ -205,10 +205,14 @@
 
   .app-layout {
     display: grid;
-    grid-template-columns: minmax(40rem, 48rem) minmax(24rem, 30rem) minmax(22rem, 37.5rem);
+    grid-template-columns: 48rem minmax(24rem, 30rem) minmax(22rem, 37.5rem);
     align-items: start;
     justify-content: start;
     gap: 16px;
+  }
+
+  .app-layout > * {
+    min-inline-size: 0;
   }
 
   .results-column {

@@ -51,12 +51,32 @@ export type RotationMetrics = {
 
 type Listener = () => void;
 
+export const rotationCalculationCategories = [
+  "baseline",
+  "statPriority",
+  "attunementPriority",
+  "weaponSets",
+  "armorSets",
+  "bowRingSet",
+  "arsenal",
+  "globalDebuffs",
+  "innerWays",
+  "script",
+  "divinecraft",
+  "food",
+] as const;
+export type RotationCalculationCategory = (typeof rotationCalculationCategories)[number];
+export type RotationCalculationCategoryStatus = { recalculating: boolean; progress: number };
+export type RotationCalculationStatus = Record<RotationCalculationCategory, RotationCalculationCategoryStatus>;
+
+const idleCategoryStatus = (): RotationCalculationCategoryStatus => ({ recalculating: false, progress: 1 });
+let calculationStatus = Object.fromEntries(
+  rotationCalculationCategories.map((category) => [category, idleCategoryStatus()]),
+) as RotationCalculationStatus;
+const calculationStatusListeners = new Set<Listener>();
+
 let currentMetrics: RotationMetrics | undefined;
 const listeners = new Set<Listener>();
-let recalculating = false;
-const recalculatingListeners = new Set<Listener>();
-let calculationProgress = 0;
-const calculationProgressListeners = new Set<Listener>();
 
 export function getRotationMetrics() {
   return currentMetrics;
@@ -72,33 +92,52 @@ export function subscribeToRotationMetrics(listener: Listener) {
   return () => listeners.delete(listener);
 }
 
-export function getRotationRecalculating() {
-  return recalculating;
+export function getRotationCalculationStatus() {
+  return calculationStatus;
 }
 
-export function publishRotationRecalculating(next: boolean) {
-  if (recalculating === next) return;
-  recalculating = next;
-  recalculatingListeners.forEach((listener) => listener());
+export function subscribeToRotationCalculationStatus(listener: Listener) {
+  calculationStatusListeners.add(listener);
+  return () => calculationStatusListeners.delete(listener);
 }
 
-export function subscribeToRotationRecalculating(listener: Listener) {
-  recalculatingListeners.add(listener);
-  return () => recalculatingListeners.delete(listener);
+export function beginRotationCalculation() {
+  calculationStatus = Object.fromEntries(
+    rotationCalculationCategories.map((category) => [category, { recalculating: true, progress: 0 }]),
+  ) as RotationCalculationStatus;
+  calculationStatusListeners.forEach((listener) => listener());
 }
 
-export function getRotationCalculationProgress() {
-  return calculationProgress;
+export function publishRotationCategoryProgress(category: RotationCalculationCategory, progress: number) {
+  const normalized = Math.min(1, Math.max(0, progress));
+  const current = calculationStatus[category];
+  if (current.recalculating && current.progress === normalized) return;
+  calculationStatus = {
+    ...calculationStatus,
+    [category]: { recalculating: true, progress: normalized },
+  };
+  calculationStatusListeners.forEach((listener) => listener());
 }
 
-export function publishRotationCalculationProgress(next: number) {
-  const normalized = Math.min(1, Math.max(0, next));
-  if (calculationProgress === normalized) return;
-  calculationProgress = normalized;
-  calculationProgressListeners.forEach((listener) => listener());
+export function completeRotationCalculationCategory(category: RotationCalculationCategory) {
+  const current = calculationStatus[category];
+  if (!current.recalculating && current.progress === 1) return;
+  calculationStatus = {
+    ...calculationStatus,
+    [category]: { recalculating: false, progress: 1 },
+  };
+  calculationStatusListeners.forEach((listener) => listener());
 }
 
-export function subscribeToRotationCalculationProgress(listener: Listener) {
-  calculationProgressListeners.add(listener);
-  return () => calculationProgressListeners.delete(listener);
+export function endRotationCalculation() {
+  let changed = false;
+  const next = { ...calculationStatus };
+  for (const category of rotationCalculationCategories) {
+    if (!next[category].recalculating) continue;
+    next[category] = { ...next[category], recalculating: false };
+    changed = true;
+  }
+  if (!changed) return;
+  calculationStatus = next;
+  calculationStatusListeners.forEach((listener) => listener());
 }

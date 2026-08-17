@@ -1,5 +1,6 @@
 {
   "name": "Morale Chant",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength", "StonesplitMight"],
   "effect": {
     "MoraleChantT0": {

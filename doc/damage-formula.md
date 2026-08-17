@@ -340,4 +340,4 @@ The defensive base-attribute relationships are:
 1 Defense = 17 HP + 0.57 Physical Defense
 ```
 
-Inner Way priority is calculated by removing each selected Inner Way, rebuilding the timeline, and measuring the resulting DPS loss. Setup comparisons replace the selected setup option with the candidate; variants that introduce timeline behavior, such as Cleftpeak 4-piece, rebuild the timeline.
+Inner Way priority is calculated by removing each selected Inner Way and measuring the resulting DPS loss. Every current Inner Way declares `altersTimeline: true`, so these removals conservatively rebuild the timeline. Setup comparisons replace the selected setup option with the candidate and omit the already-active choice. Weapon and armor sets whose definitions declare `altersTimeline: true`, such as Cleftpeak and Formbend, rebuild the timeline; stat-only sets such as Rain Whisper reuse the baseline timeline.

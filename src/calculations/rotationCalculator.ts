@@ -147,18 +147,39 @@ function calculatePriorityRows(
   }>,
   order: "ascending" | "descending" = "descending",
 ) {
-  return variants
-    .map(({ label, maxRoll, entries, duration: variantDuration = duration, damage }) =>
+  return sortRotationPriorityRows(
+    variants.map(({ label, maxRoll, entries, duration: variantDuration = duration, damage }) =>
       priorityRow(
         label,
         baselineDps,
         variantDuration > 0 ? (damage ?? sumEntries(entries).total) / variantDuration : 0,
         maxRoll,
       ),
-    )
-    .sort((left, right) =>
-      order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference,
-    );
+    ),
+    order,
+  );
+}
+
+export function sortRotationPriorityRows(rows: RotationPriority[], order: "ascending" | "descending" = "descending") {
+  return [...rows].sort((left, right) =>
+    order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference,
+  );
+}
+
+export function sortAttunementPriorityRows(rows: RotationPriority[]) {
+  const penetrationLabels = new Set(
+    Object.values(attunementJson)
+      .filter((definition) =>
+        Object.keys(definition.effect?.stat ?? {}).some(
+          (key) => key === "physicalPenetration" || key === "formlessPenetration",
+        ),
+      )
+      .map((definition) => definition.name),
+  );
+  return [
+    ...sortRotationPriorityRows(rows.filter((row) => penetrationLabels.has(row.label))),
+    ...sortRotationPriorityRows(rows.filter((row) => !penetrationLabels.has(row.label))),
+  ];
 }
 
 /**
@@ -180,28 +201,12 @@ export function calculateRotationMetrics(
   );
 
   const attunementRows = calculatePriorityRows(baselineDps, duration, bundle.attunementPriority);
-  const penetrationLabels = new Set(
-    Object.values(attunementJson)
-      .filter((definition) =>
-        Object.keys(definition.effect?.stat ?? {}).some(
-          (key) => key === "physicalPenetration" || key === "formlessPenetration",
-        ),
-      )
-      .map((definition) => definition.name),
-  );
   return {
     totalDamage: baselineDamage,
     dps: baselineDps,
     breakdown: emptyRotationBreakdown(),
     statPriority: calculatePriorityRows(baselineDps, duration, bundle.statPriority),
-    attunementPriority: [
-      ...attunementRows
-        .filter((row) => penetrationLabels.has(row.label))
-        .sort((left, right) => right.dpsDifference - left.dpsDifference),
-      ...attunementRows
-        .filter((row) => !penetrationLabels.has(row.label))
-        .sort((left, right) => right.dpsDifference - left.dpsDifference),
-    ],
+    attunementPriority: sortAttunementPriorityRows(attunementRows),
     innerWayPriority: calculatePriorityRows(baselineDps, duration, bundle.innerWayPriority, "ascending"),
     setupComparisons,
   };

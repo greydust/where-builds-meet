@@ -1,13 +1,14 @@
 import type { RotationMetrics } from "./rotationMetrics";
 import type {
   RotationCalculationBundle,
+  RotationSimulationBaseline,
   RotationSimulationBundle,
   RotationSimulationResult,
 } from "./rotationCalculator";
 import type { TimelineRow } from "./rotationTimeline";
 import type { DamageBreakdown } from "./damage";
 
-type WorkerResult = RotationSimulationResult | { metrics: RotationMetrics };
+type WorkerResult = RotationSimulationBaseline | RotationSimulationResult | { metrics: RotationMetrics };
 type RequestMode = "calculation" | "simulation" | "baseline" | "comparisons";
 type RequestOptions = { key?: string; priority?: number; onProgress?: (progress: number) => void };
 
@@ -15,6 +16,7 @@ type CalculationRequest = {
   bundle: RotationCalculationBundle | RotationSimulationBundle;
   mode: RequestMode;
   cacheKey?: string;
+  baseline?: RotationSimulationBaseline;
   key: string;
   priority: number;
   sequence: number;
@@ -29,6 +31,17 @@ let requestId = 0;
 let requestSequence = 0;
 let running: { id: number; request: CalculationRequest } | undefined;
 let pending: CalculationRequest[] = [];
+let workerBaselineKeys = new Set<string>();
+
+function rejectAllRequests(message: string) {
+  const error = new Error(message);
+  const interrupted = running?.request;
+  const queued = pending;
+  running = undefined;
+  pending = [];
+  interrupted?.reject(error);
+  queued.forEach((request) => request.reject(error));
+}
 
 function dispatchNext() {
   if (running || pending.length === 0) return;
@@ -50,6 +63,7 @@ function getWorker() {
         anchorTime?: number;
         duration?: number;
         actionBreakdowns?: Record<string, DamageBreakdown>;
+        baseline?: RotationSimulationBaseline["baseline"];
         progress?: number;
         error?: string;
       }>,
@@ -62,7 +76,9 @@ function getWorker() {
       const completed = running.request;
       running = undefined;
       if (event.data.error) completed.reject(new Error(event.data.error));
-      else if (event.data.metrics)
+      else if (event.data.metrics) {
+        if (completed.cacheKey && (completed.mode === "baseline" || completed.baseline))
+          workerBaselineKeys.add(completed.cacheKey);
         completed.resolve(
           completed.mode === "simulation" || completed.mode === "baseline"
             ? {
@@ -71,9 +87,11 @@ function getWorker() {
                 anchorTime: event.data.anchorTime ?? 0,
                 duration: event.data.duration ?? 0,
                 actionBreakdowns: event.data.actionBreakdowns ?? {},
+                ...(event.data.baseline ? { baseline: event.data.baseline } : {}),
               }
             : { metrics: event.data.metrics },
         );
+      }
       dispatchNext();
     },
   );
@@ -81,6 +99,7 @@ function getWorker() {
     if (worker !== createdWorker) return;
     createdWorker.terminate();
     worker = undefined;
+    workerBaselineKeys = new Set();
     const interrupted = running?.request;
     running = undefined;
     if (interrupted) {
@@ -102,12 +121,19 @@ function dispatch(request: CalculationRequest) {
   const id = ++requestId;
   running = { id, request };
   try {
-    getWorker().postMessage({ id, bundle: request.bundle, mode: request.mode, cacheKey: request.cacheKey });
+    getWorker().postMessage({
+      id,
+      bundle: request.bundle,
+      mode: request.mode,
+      cacheKey: request.cacheKey,
+      ...(!request.cacheKey || workerBaselineKeys.has(request.cacheKey) ? {} : { baseline: request.baseline }),
+    });
   } catch (error) {
     const failed = running?.request;
     running = undefined;
     worker?.terminate();
     worker = undefined;
+    workerBaselineKeys = new Set();
     if (failed && failed.retryCount < 1) pending.push({ ...failed, retryCount: failed.retryCount + 1 });
     else failed?.reject(error instanceof Error ? error : new Error("Rotation calculation worker failed"));
     dispatchNext();
@@ -152,9 +178,15 @@ export function requestRotationSimulation(bundle: RotationSimulationBundle, opti
 }
 
 export function requestRotationBaseline(bundle: RotationSimulationBundle, cacheKey: string, options?: RequestOptions) {
-  return new Promise<RotationSimulationResult>((resolve, reject) => {
+  return new Promise<RotationSimulationBaseline>((resolve, reject) => {
     enqueue(
-      { bundle, mode: "baseline", cacheKey, resolve: (result) => resolve(result as RotationSimulationResult), reject },
+      {
+        bundle,
+        mode: "baseline",
+        cacheKey,
+        resolve: (result) => resolve(result as RotationSimulationBaseline),
+        reject,
+      },
       options,
     );
   });
@@ -163,18 +195,28 @@ export function requestRotationBaseline(bundle: RotationSimulationBundle, cacheK
 export function requestRotationComparisons(
   bundle: RotationSimulationBundle,
   cacheKey: string,
+  baseline: RotationSimulationBaseline,
   options?: RequestOptions,
 ) {
   return new Promise<RotationMetrics>((resolve, reject) => {
-    enqueue({ bundle, mode: "comparisons", cacheKey, resolve: (result) => resolve(result.metrics), reject }, options);
+    enqueue(
+      { bundle, mode: "comparisons", cacheKey, baseline, resolve: (result) => resolve(result.metrics), reject },
+      options,
+    );
   });
+}
+
+/** Stop the active calculation batch so its replacement starts without stale queued work or worker cache. */
+export function supersedeRotationCalculationRequests() {
+  worker?.terminate();
+  worker = undefined;
+  workerBaselineKeys = new Set();
+  rejectAllRequests("Calculation superseded by a newer batch");
 }
 
 export function disposeRotationCalculationWorker() {
   worker?.terminate();
   worker = undefined;
-  pending.forEach((request) => request.reject(new Error("Calculation worker disposed")));
-  if (running) running.request.reject(new Error("Calculation worker disposed"));
-  pending = [];
-  running = undefined;
+  workerBaselineKeys = new Set();
+  rejectAllRequests("Calculation worker disposed");
 }

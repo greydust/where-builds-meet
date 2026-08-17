@@ -1,6 +1,7 @@
 {
   "Cleftpeak": {
     "name": "Cleftpeak",
+    "altersTimeline": true,
     "tags": ["StonesplitStrength", "SnowpartingBlade", "PhalanxbaneBlade"],
     "options": {
       "0": {
@@ -39,6 +40,7 @@
   },
   "RainWhisper": {
     "name": "Rain Whisper",
+    "altersTimeline": false,
     "tags": [
       "StonesplitStrength",
       "StonesplitMight",

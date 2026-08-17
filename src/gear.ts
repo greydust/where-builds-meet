@@ -170,6 +170,7 @@ export function clampGearRoll(
 }
 export type SetDefinition = {
   name: string;
+  altersTimeline: boolean;
   tags: string[];
   options: Record<string, { name: string; effect?: unknown }>;
 };

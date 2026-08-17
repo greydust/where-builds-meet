@@ -1,5 +1,6 @@
 {
   "name": "Art of Resistance",
+  "altersTimeline": true,
   "tags": ["StonesplitMight"],
   "effect": {
     "ArtOfResistanceT0": {},

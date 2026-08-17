@@ -157,6 +157,10 @@
   }
 
   .simulation-table {
+    display: grid;
+    grid-template-columns: minmax(5rem, max-content) repeat(6, max-content);
+    column-gap: 12px;
+    inline-size: max-content;
     min-inline-size: 800px;
     overflow: hidden;
     border: 1px solid var(--border);
@@ -165,9 +169,9 @@
 
   .simulation-table-row {
     display: grid;
-    grid-template-columns: 80px repeat(2, minmax(120px, 1.2fr)) repeat(4, minmax(90px, 1fr));
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: 12px;
     min-block-size: 42px;
     padding: 9px 12px;
     border-block-start: 1px solid var(--border-muted);
@@ -188,6 +192,13 @@
     color: var(--text-muted);
     font-weight: 750;
     text-transform: uppercase;
+  }
+
+  .simulation-table-header > *,
+  .simulation-table-row > * {
+    overflow-wrap: normal;
+    hyphens: none;
+    white-space: nowrap;
   }
 
   .simulation-table-row strong {

@@ -931,8 +931,9 @@ function BuildSetupPanel({
           ))}
         </div>
       </section>
-      {setPanel("Weapon Set", "weaponSets", weaponSetDefinitions, availableWeaponSets)}
-      {availableArmorSets.length > 0 && setPanel("Armor Set", "armorSets", armorSetDefinitions, availableArmorSets)}
+      {setPanel(t("ui.buildTab.weaponSet"), "weaponSets", weaponSetDefinitions, availableWeaponSets)}
+      {availableArmorSets.length > 0 &&
+        setPanel(t("ui.buildTab.armorSet"), "armorSets", armorSetDefinitions, availableArmorSets)}
       <section className="panel setup-placeholder-panel build-setup-panel">
         <div className="panel-heading">
           <div>

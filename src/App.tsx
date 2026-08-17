@@ -93,16 +93,18 @@ import systemStats from "../data/system.json";
 import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import defaultSetup from "../data/default-setup.json";
 import {
+  beginRotationCalculation,
+  completeRotationCalculationCategory,
   emptyRotationBreakdown,
-  getRotationCalculationProgress,
+  endRotationCalculation,
+  getRotationCalculationStatus,
   getRotationMetrics,
-  getRotationRecalculating,
+  publishRotationCategoryProgress,
   publishRotationMetrics,
-  publishRotationCalculationProgress,
-  publishRotationRecalculating,
+  rotationCalculationCategories,
+  subscribeToRotationCalculationStatus,
   subscribeToRotationMetrics,
-  subscribeToRotationCalculationProgress,
-  subscribeToRotationRecalculating,
+  type RotationCalculationCategory,
   type RotationGroupBreakdown,
   type RotationMetrics,
   type RotationPriority,
@@ -121,11 +123,22 @@ import skygraspMartialArt from "../data/martial-art/skygrasp-rope-dart.json";
 import thundercryMartialArt from "../data/martial-art/thundercry-blade.json";
 import stormbreakerMartialArt from "../data/martial-art/stormbreaker-spear.json";
 import {
+  sortAttunementPriorityRows,
+  sortRotationPriorityRows,
   type RotationSimulationBundle,
   type RotationSimulationResult,
   type RotationSimulationVariant,
 } from "./calculations/rotationCalculator";
-import { requestRotationBaseline, requestRotationComparisons } from "./calculations/rotationWorkerClient";
+import {
+  requestRotationBaseline,
+  requestRotationComparisons,
+  supersedeRotationCalculationRequests,
+} from "./calculations/rotationWorkerClient";
+import {
+  RotationCalculationCache,
+  rotationBundleFingerprint,
+  rotationVariantFingerprint,
+} from "./calculations/rotationCalculationCache";
 import {
   compareTimelineTime,
   type AttachedEventTarget,
@@ -343,6 +356,12 @@ function rotationEventDisplayName(eventId: string) {
   return dataText(`game.event.${key}`, rotationEventDefinitions[eventId]?.name ?? eventId);
 }
 
+type InnerWayDefinition = {
+  name: string;
+  tags: string[];
+  altersTimeline: boolean;
+  effect: Record<string, unknown>;
+};
 const innerWayDefinitions = {
   FrostCladNight: frostCladNight,
   MoraleChant: moraleChant,
@@ -354,7 +373,7 @@ const innerWayDefinitions = {
   ArtOfResistance: artOfResistance,
   BattleAnthem: battleAnthem,
   AdaptiveSteel: adaptiveSteel,
-};
+} satisfies Record<string, InnerWayDefinition>;
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
@@ -808,6 +827,114 @@ const divinecraftDisplayOrder = [
   "PoisonFire",
   "PoisonWater",
 ] as const;
+const comparisonCategoryOrder: RotationCalculationCategory[] = rotationCalculationCategories.filter(
+  (category) => category !== "baseline",
+);
+
+function setupGroupMatchesCategory(group: string, category: RotationCalculationCategory) {
+  if (category === "weaponSets") return group.startsWith("weaponSets:");
+  if (category === "armorSets") return group.startsWith("armorSets:");
+  if (category === "globalDebuffs") return group.startsWith("debuff:");
+  return group === category;
+}
+
+type ComparisonVariantRequest = { key: string; bundle: RotationSimulationBundle };
+
+function comparisonVariantRequests(
+  bundle: RotationSimulationBundle,
+  category: RotationCalculationCategory,
+): ComparisonVariantRequest[] {
+  const singleVariantBundle = (
+    variant: RotationSimulationVariant,
+    field: "statPriority" | "attunementPriority" | "innerWayPriority" | "setupComparisons",
+    group?: string,
+  ): RotationSimulationBundle => ({
+    ...bundle,
+    statPriority: field === "statPriority" ? [variant] : [],
+    attunementPriority: field === "attunementPriority" ? [variant] : [],
+    innerWayPriority: field === "innerWayPriority" ? [variant] : [],
+    setupComparisons: field === "setupComparisons" && group ? { [group]: [variant] } : {},
+  });
+  const descriptor = (
+    variant: RotationSimulationVariant,
+    field: "statPriority" | "attunementPriority" | "innerWayPriority" | "setupComparisons",
+    group?: string,
+  ) => {
+    return {
+      key: rotationVariantFingerprint(category, field, group, variant),
+      bundle: singleVariantBundle(variant, field, group),
+    };
+  };
+  if (category === "statPriority") return bundle.statPriority.map((variant) => descriptor(variant, "statPriority"));
+  if (category === "attunementPriority")
+    return bundle.attunementPriority.map((variant) => descriptor(variant, "attunementPriority"));
+  if (category === "innerWays")
+    return bundle.innerWayPriority.map((variant) => descriptor(variant, "innerWayPriority"));
+  return Object.entries(bundle.setupComparisons)
+    .filter(([group]) => setupGroupMatchesCategory(group, category))
+    .flatMap(([group, variants]) => variants.map((variant) => descriptor(variant, "setupComparisons", group)));
+}
+
+function combineComparisonVariantMetrics(
+  current: RotationMetrics,
+  results: RotationMetrics[],
+  category: RotationCalculationCategory,
+) {
+  const combined: RotationMetrics = {
+    ...current,
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  };
+  if (category === "statPriority")
+    combined.statPriority = sortRotationPriorityRows(results.flatMap((result) => result.statPriority));
+  else if (category === "attunementPriority")
+    combined.attunementPriority = sortAttunementPriorityRows(results.flatMap((result) => result.attunementPriority));
+  else if (category === "innerWays")
+    combined.innerWayPriority = sortRotationPriorityRows(
+      results.flatMap((result) => result.innerWayPriority),
+      "ascending",
+    );
+  else {
+    for (const result of results)
+      for (const [group, rows] of Object.entries(result.setupComparisons))
+        combined.setupComparisons[group] = sortRotationPriorityRows([
+          ...(combined.setupComparisons[group] ?? []),
+          ...rows,
+        ]);
+  }
+  return mergeComparisonCategory(current, combined, category);
+}
+
+function baselineMetricsWithPreviousComparisons(
+  baseline: RotationMetrics,
+  previous?: RotationMetrics,
+): RotationMetrics {
+  return {
+    ...baseline,
+    statPriority: previous?.statPriority ?? [],
+    attunementPriority: previous?.attunementPriority ?? [],
+    innerWayPriority: previous?.innerWayPriority ?? [],
+    setupComparisons: previous?.setupComparisons ?? {},
+  };
+}
+
+function mergeComparisonCategory(
+  current: RotationMetrics,
+  calculated: RotationMetrics,
+  category: RotationCalculationCategory,
+) {
+  if (category === "statPriority") return { ...current, statPriority: calculated.statPriority };
+  if (category === "attunementPriority") return { ...current, attunementPriority: calculated.attunementPriority };
+  if (category === "innerWays") return { ...current, innerWayPriority: calculated.innerWayPriority };
+  const setupComparisons = Object.fromEntries(
+    Object.entries(current.setupComparisons).filter(([group]) => !setupGroupMatchesCategory(group, category)),
+  );
+  for (const [group, rows] of Object.entries(calculated.setupComparisons)) setupComparisons[group] = rows;
+  return { ...current, setupComparisons };
+}
+
 type MartialArtWeapon = "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet";
 type MartialArtDefinition = {
   name: string;
@@ -1368,11 +1495,13 @@ function StatField({
 function PriorityPanel({
   title,
   rows,
+  calculationCategory,
   sectionBreakAt,
   showMaxRoll = false,
 }: {
   title: string;
   rows: RotationPriority[];
+  calculationCategory: RotationCalculationCategory;
   sectionBreakAt?: number;
   showMaxRoll?: boolean;
 }) {
@@ -1381,6 +1510,7 @@ function PriorityPanel({
       <div className="panel-heading">
         <div>
           <h2>{title}</h2>
+          <CalculationStatus category={calculationCategory} />
         </div>
       </div>
       {rows.length > 0 ? (
@@ -1574,24 +1704,26 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
   );
 }
 
-function DpsCalculationStatus() {
-  const recalculating = useSyncExternalStore(
-    subscribeToRotationRecalculating,
-    getRotationRecalculating,
-    getRotationRecalculating,
+function CalculationStatus({
+  category,
+  className = "",
+}: {
+  category: RotationCalculationCategory;
+  className?: string;
+}) {
+  const statuses = useSyncExternalStore(
+    subscribeToRotationCalculationStatus,
+    getRotationCalculationStatus,
+    getRotationCalculationStatus,
   );
-  const progress = useSyncExternalStore(
-    subscribeToRotationCalculationProgress,
-    getRotationCalculationProgress,
-    getRotationCalculationProgress,
-  );
+  const { recalculating, progress } = statuses[category];
   const percentage = Math.round(progress * 100);
   return (
     <div
-      className={`dps-recalculating ${recalculating ? "" : "idle"}`}
+      className={`calculation-status ${className} ${recalculating ? "" : "idle"}`}
       style={{ "--calculation-progress": `${percentage}%` } as CSSProperties}
       role="progressbar"
-      aria-label={t("ui.app.dpsRecalculationProgress", { dps: t("system.dps") })}
+      aria-label={t("ui.app.recalculatingProgress", { percentage })}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={recalculating ? percentage : 100}
@@ -1911,6 +2043,7 @@ function StatsTab({
       <div className="panel-heading">
         <div>
           <h2>{title}</h2>
+          <CalculationStatus category={key} />
         </div>
         {buildSetupOverrides[key] && (
           <button
@@ -2160,6 +2293,7 @@ function StatsTab({
               <div className="panel-heading">
                 <div>
                   <h2>{t("ui.app.attunementStats")}</h2>
+                  <CalculationStatus category="attunementPriority" />
                 </div>
               </div>
               <div className="attunement-list">
@@ -2213,6 +2347,7 @@ function StatsTab({
               <div className="panel-heading">
                 <div>
                   <h2>{t("ui.app.globalBuffsDebuffs")}</h2>
+                  <CalculationStatus category="globalDebuffs" />
                 </div>
               </div>
               <div className="global-debuff-list">
@@ -2314,13 +2449,14 @@ function StatsTab({
               ))}
             </div>
           </section>
-          {setPanel("Weapon Set", "weaponSets", typedWeaponSetDefinitions, availableWeaponSets)}
+          {setPanel(t("ui.app.weaponSet"), "weaponSets", typedWeaponSetDefinitions, availableWeaponSets)}
           {availableArmorSets.length > 0 &&
-            setPanel("Armor Set", "armorSets", typedArmorSetDefinitions, availableArmorSets)}
+            setPanel(t("ui.app.armorSet"), "armorSets", typedArmorSetDefinitions, availableArmorSets)}
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.bowRingSet")}</h2>
+                <CalculationStatus category="bowRingSet" />
               </div>
               {buildSetupOverrides.bowRingSet !== undefined && (
                 <button
@@ -2352,6 +2488,7 @@ function StatsTab({
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.arsenal")}</h2>
+                <CalculationStatus category="arsenal" />
               </div>
               {buildSetupOverrides.arsenal !== undefined && (
                 <button
@@ -2383,6 +2520,7 @@ function StatsTab({
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.food")}</h2>
+                <CalculationStatus category="food" />
               </div>
             </div>
             <div className="setup-option-list setup-option-list-food">
@@ -2407,6 +2545,7 @@ function StatsTab({
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.script")}</h2>
+                <CalculationStatus category="script" />
               </div>
             </div>
             <p>{t("ui.app.detailsWillBeAddedLater")}</p>
@@ -2415,6 +2554,7 @@ function StatsTab({
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.divinecraft")}</h2>
+                <CalculationStatus category="divinecraft" />
               </div>
             </div>
             <div className="divinecraft-option-list">
@@ -2466,7 +2606,7 @@ function StatsTab({
               </div>
             </div>
             <div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div>
-            <DpsCalculationStatus />
+            <CalculationStatus category="baseline" className="dps-calculation-status" />
             <div className="dps-context">
               <div>
                 <span>{t("ui.app.build")}</span>
@@ -2478,14 +2618,24 @@ function StatsTab({
               </div>
             </div>
           </section>
-          <PriorityPanel title={t("ui.app.statsPriority")} rows={rotationMetrics?.statPriority ?? []} showMaxRoll />
+          <PriorityPanel
+            title={t("ui.app.statsPriority")}
+            rows={rotationMetrics?.statPriority ?? []}
+            calculationCategory="statPriority"
+            showMaxRoll
+          />
           <PriorityPanel
             title={t("ui.app.attunementStatsPriority")}
             rows={rotationMetrics?.attunementPriority ?? []}
+            calculationCategory="attunementPriority"
             sectionBreakAt={2}
             showMaxRoll
           />
-          <PriorityPanel title={t("ui.app.innerWaysPriority")} rows={rotationMetrics?.innerWayPriority ?? []} />
+          <PriorityPanel
+            title={t("ui.app.innerWaysPriority")}
+            rows={rotationMetrics?.innerWayPriority ?? []}
+            calculationCategory="innerWays"
+          />
         </aside>
       </div>
       <dialog
@@ -4177,7 +4327,10 @@ function RotationEditorTab({
     Record<string, { key: string; result: RotationSimulationResult }>
   >({});
   const rotationResultsRef = useRef(rotationResults);
+  const calculationCacheRef = useRef(new RotationCalculationCache());
   const diffRequestSequenceRef = useRef(0);
+  const scheduledRefreshTargetRef = useRef<string | null>(null);
+  const runningRefreshTargetRef = useRef<string | null>(null);
   const [refreshRetryRevision, setRefreshRetryRevision] = useState(0);
   const [readableDialogOpen, setReadableDialogOpen] = useState(false);
   const [readableCopyStatus, setReadableCopyStatus] = useState("");
@@ -4212,6 +4365,8 @@ function RotationEditorTab({
     innerWayRevision: _innerWayRevision,
     gearStatEffect,
     buildSetup,
+    food: loadFood(),
+    divinecraft: loadDivinecraft(),
     globalDebuffs: currentGlobalDebuffs,
   });
   const rotationStateKey = `${editingRotationId}:${calculationContextKey}:${JSON.stringify(rotation)}`;
@@ -4639,7 +4794,6 @@ function RotationEditorTab({
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", id);
-    void activateCalculatedRotation(id, nextRotation);
   }
   function editRotation(id: string) {
     if (id === editingRotationId) return;
@@ -4725,7 +4879,6 @@ function RotationEditorTab({
     setRotationEntries(nextEntries);
     if (id === activeRotationId) {
       setActiveRotationId(nextActive.id);
-      void activateCalculatedRotation(nextActive.id, nextActive.rotation);
     }
     if (id === editingRotationId) {
       setEditingRotationId(nextActive.id);
@@ -5051,33 +5204,49 @@ function RotationEditorTab({
     const rotationAnchor = rotationRecord.start
       ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action }
       : { rowId: "rotation-0" };
-    const setComparisonGroups = Object.fromEntries(
-      (
-        [
-          ["weaponSets", typedWeaponSetDefinitions],
-          ["armorSets", typedArmorSetDefinitions],
-        ] as const
-      ).flatMap(([key, definitions]) =>
-        Object.entries(definitions)
-          .filter(([, definition]) => setAvailableForSettings(definition, settings))
-          .map(([setName]) => [
-            `${key}:${setName}`,
-            [0, 2, 4]
-              .filter((tier) => tier !== buildSetup[key][setName])
-              .map((tier) => {
-                const selections = selectSetTier(buildSetup[key], setName, tier as 0 | 2 | 4, definitions);
-                const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { [key]: selections });
-                return {
-                  label: String(tier),
-                  setupEffects,
-                  timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, setupEffects),
-                };
-              }),
-          ]),
-      ),
-    );
+    const baselineSetupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup);
+    const setComparisonGroups = includeDiffs
+      ? Object.fromEntries(
+          (
+            [
+              ["weaponSets", typedWeaponSetDefinitions],
+              ["armorSets", typedArmorSetDefinitions],
+            ] as const
+          ).flatMap(([key, definitions]) =>
+            Object.entries(definitions)
+              .filter(([, definition]) => setAvailableForSettings(definition, settings))
+              .map(([setName, definition]) => [
+                `${key}:${setName}`,
+                [0, 2, 4]
+                  .filter((tier) => tier !== buildSetup[key][setName])
+                  .map((tier) => {
+                    const selections = selectSetTier(buildSetup[key], setName, tier as 0 | 2 | 4, definitions);
+                    const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, {
+                      [key]: selections,
+                    });
+                    return {
+                      label: String(tier),
+                      setupEffects,
+                      ...(definition.altersTimeline
+                        ? {
+                            timeline: makeTimelineInput(
+                              rotationRecord,
+                              innerWayConditions,
+                              innerWayEffectRules,
+                              setupEffects,
+                            ),
+                          }
+                        : {}),
+                    };
+                  }),
+              ]),
+          ),
+        )
+      : {};
+    const selectedFood = loadFood();
+    const selectedDivinecraft = loadDivinecraft();
     return {
-      timeline: makeTimelineInput(rotationRecord),
+      timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, baselineSetupEffects),
       startAnchor: rotationAnchor,
       stats: characterStats,
       attunement: attunementStats,
@@ -5110,13 +5279,15 @@ function RotationEditorTab({
         : [],
       innerWayPriority: includeDiffs
         ? selectedInnerWays.map((selected) => {
+            const definition = innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions];
             const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
             const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay);
-            const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup);
+            const setupEffects = baselineSetupEffects;
             return {
-              label:
-                innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]?.name ?? selected.innerWay,
-              timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules, setupEffects),
+              label: definition?.name ?? selected.innerWay,
+              ...(definition?.altersTimeline
+                ? { timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules, setupEffects) }
+                : {}),
               innerWayRules: variantRules,
               innerWayConditions: [...variantConditions, ...setupConditionsFor(setupEffects)],
             };
@@ -5124,20 +5295,26 @@ function RotationEditorTab({
         : [],
       setupComparisons: includeDiffs
         ? {
-            arsenal: Object.keys(typedArsenalDefinitions).map((value) => ({
-              label: value,
-              setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { arsenal: value }),
-            })),
-            bowRingSet: Object.keys(typedBowRingSetDefinitions).map((value) => ({
-              label: value,
-              setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }),
-            })),
-            food: Object.keys(typedFoodDefinitions).map((value) => ({
-              label: value,
-              setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }),
-            })),
+            arsenal: Object.keys(typedArsenalDefinitions)
+              .filter((value) => value !== buildSetup.arsenal)
+              .map((value) => ({
+                label: value,
+                setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { arsenal: value }),
+              })),
+            bowRingSet: Object.keys(typedBowRingSetDefinitions)
+              .filter((value) => value !== buildSetup.bowRingSet)
+              .map((value) => ({
+                label: value,
+                setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { bowRingSet: value }),
+              })),
+            food: Object.keys(typedFoodDefinitions)
+              .filter((value) => value !== selectedFood)
+              .map((value) => ({
+                label: value,
+                setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }),
+              })),
             divinecraft: Object.entries(typedDivinecraftDefinitions)
-              .filter(([, definition]) => definition.available !== false)
+              .filter(([value, definition]) => definition.available !== false && value !== selectedDivinecraft)
               .map(([value]) => ({
                 label: value,
                 setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }),
@@ -5145,34 +5322,38 @@ function RotationEditorTab({
             ...Object.fromEntries(
               globalDebuffRows.map(({ key }) => [
                 `debuff:${key}`,
-                [false, true].map((enabled) => {
-                  const globalDebuffs = { ...currentGlobalDebuffs, [key]: enabled };
-                  return {
-                    label: enabled ? "on" : "off",
-                    timeline: makeTimelineInput(
-                      rotationRecord,
-                      innerWayConditions,
-                      innerWayEffectRules,
-                      selectedSetupEffects(settings, gearStatEffect, buildSetup),
-                      globalDebuffs,
-                    ),
-                  };
-                }),
+                [false, true]
+                  .filter((enabled) => enabled !== currentGlobalDebuffs[key])
+                  .map((enabled) => {
+                    const globalDebuffs = { ...currentGlobalDebuffs, [key]: enabled };
+                    return {
+                      label: enabled ? "on" : "off",
+                      timeline: makeTimelineInput(
+                        rotationRecord,
+                        innerWayConditions,
+                        innerWayEffectRules,
+                        baselineSetupEffects,
+                        globalDebuffs,
+                      ),
+                    };
+                  }),
               ]),
             ),
-            "debuff:qingyisCharm": (["none", "T1", "T6"] as const).map((value) => {
-              const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
-              return {
-                label: value,
-                timeline: makeTimelineInput(
-                  rotationRecord,
-                  innerWayConditions,
-                  innerWayEffectRules,
-                  selectedSetupEffects(settings, gearStatEffect, buildSetup),
-                  globalDebuffs,
-                ),
-              };
-            }),
+            "debuff:qingyisCharm": (["none", "T1", "T6"] as const)
+              .filter((value) => value !== currentGlobalDebuffs.qingyisCharm)
+              .map((value) => {
+                const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
+                return {
+                  label: value,
+                  timeline: makeTimelineInput(
+                    rotationRecord,
+                    innerWayConditions,
+                    innerWayEffectRules,
+                    baselineSetupEffects,
+                    globalDebuffs,
+                  ),
+                };
+              }),
             ...setComparisonGroups,
           }
         : ({} as Record<string, RotationSimulationVariant[]>),
@@ -5201,9 +5382,11 @@ function RotationEditorTab({
     onActiveSimulationBundleChange,
   ]);
 
-  const resultKeyFor = (id: string, rotationRecord: RotationRecord, contextKey = calculationContextKey) =>
-    `${id}:${contextKey}:${JSON.stringify(rotationRecord)}`;
-  const workerCacheKeyFor = (resultKey: string) => `rotation:${resultKey}`;
+  const prepareBaselineCalculation = (rotationRecord: RotationRecord) => {
+    const bundle = calculationBundleFor(rotationRecord, false);
+    return { bundle, fingerprint: rotationBundleFingerprint(bundle) };
+  };
+  const workerCacheKeyFor = (fingerprint: string) => `rotation:${fingerprint}`;
 
   function storeBaselineResult(id: string, key: string, result: RotationSimulationResult) {
     const next = { ...rotationResultsRef.current, [id]: { key, result } };
@@ -5215,64 +5398,109 @@ function RotationEditorTab({
     id: string,
     rotationRecord: RotationRecord,
     priority = 100,
-    force = false,
+    prepared = prepareBaselineCalculation(rotationRecord),
   ) {
-    const contextKey = calculationContextKey;
-    const resultKey = resultKeyFor(id, rotationRecord, contextKey);
-    const cached = rotationResultsRef.current[id];
-    if (!force && cached?.key === resultKey) return cached.result;
-    const result = await requestRotationBaseline(
-      calculationBundleFor(rotationRecord, false),
-      workerCacheKeyFor(resultKey),
-      { key: `baseline:${id}`, priority },
-    );
+    const resultKey = prepared.fingerprint;
+    const displayed = rotationResultsRef.current[id];
+    if (displayed?.key === resultKey) {
+      const cachedBaseline = calculationCacheRef.current.baseline(resultKey);
+      if (cachedBaseline) return cachedBaseline;
+    }
+    const cachedBaseline = calculationCacheRef.current.baseline(resultKey);
+    if (cachedBaseline) {
+      storeBaselineResult(id, resultKey, cachedBaseline);
+      return cachedBaseline;
+    }
+    const result = await requestRotationBaseline(prepared.bundle, workerCacheKeyFor(resultKey), {
+      key: `baseline:${id}`,
+      priority,
+    });
+    calculationCacheRef.current.storeBaseline(resultKey, result);
     storeBaselineResult(id, resultKey, result);
     return result;
   }
 
-  async function calculateDiffsForRotation(id: string, rotationRecord: RotationRecord, forceBaseline = false) {
+  async function calculateDiffsForRotation(
+    id: string,
+    rotationRecord: RotationRecord,
+    prepared = prepareBaselineCalculation(rotationRecord),
+  ) {
     const requestSequence = ++diffRequestSequenceRef.current;
-    publishRotationRecalculating(true);
-    publishRotationCalculationProgress(0);
+    supersedeRotationCalculationRequests();
+    beginRotationCalculation();
     const contextKey = calculationContextKey;
-    const resultKey = resultKeyFor(id, rotationRecord, contextKey);
-    const baselinePromise = calculateBaselineForRotation(id, rotationRecord, 400, forceBaseline);
-    const comparisonsPromise = requestRotationComparisons(
-      calculationBundleFor(rotationRecord, true),
-      workerCacheKeyFor(resultKey),
-      {
-        key: `diff:${id}`,
-        priority: 350,
-        onProgress: (progress) => {
-          if (diffRequestSequenceRef.current === requestSequence) publishRotationCalculationProgress(progress);
-        },
-      },
-    );
+    const resultKey = prepared.fingerprint;
+    const refreshTarget = `${id}:${resultKey}`;
+    scheduledRefreshTargetRef.current = refreshTarget;
+    runningRefreshTargetRef.current = refreshTarget;
     try {
-      await baselinePromise;
-      const metrics = await comparisonsPromise;
+      const baseline = await calculateBaselineForRotation(id, rotationRecord, 400, prepared);
       if (calculationContextKeyRef.current !== contextKey) {
         if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
-        if (diffRequestSequenceRef.current === requestSequence) publishRotationRecalculating(false);
+        endRotationCalculation();
         return "discarded" as const;
       }
       if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
-      if (resolvedActiveRotationIdRef.current !== id) return "discarded" as const;
+      if (resolvedActiveRotationIdRef.current !== id) {
+        endRotationCalculation();
+        return "discarded" as const;
+      }
+
+      let metrics = baselineMetricsWithPreviousComparisons(baseline.metrics, getRotationMetrics());
       onMetricsChange(metrics, true);
-      publishRotationCalculationProgress(1);
-      publishRotationRecalculating(false);
+      completeRotationCalculationCategory("baseline");
+
+      const comparisonBundle = calculationBundleFor(rotationRecord, true);
+      for (const category of comparisonCategoryOrder) {
+        const variants = comparisonVariantRequests(comparisonBundle, category);
+        if (variants.length === 0) {
+          metrics = mergeComparisonCategory(metrics, baseline.metrics, category);
+          onMetricsChange(metrics, true);
+          completeRotationCalculationCategory(category);
+          continue;
+        }
+        const variantMetrics: RotationMetrics[] = [];
+        for (let index = 0; index < variants.length; index += 1) {
+          const variant = variants[index];
+          let calculated = calculationCacheRef.current.variant(resultKey, variant.key);
+          if (!calculated) {
+            calculated = await requestRotationComparisons(variant.bundle, workerCacheKeyFor(resultKey), baseline, {
+              key: `diff:${id}:${category}:${variant.key}`,
+              priority: 350,
+              onProgress: (progress) => {
+                if (diffRequestSequenceRef.current === requestSequence)
+                  publishRotationCategoryProgress(category, (index + progress) / variants.length);
+              },
+            });
+            calculationCacheRef.current.storeVariant(resultKey, variant.key, calculated);
+          }
+          variantMetrics.push(calculated);
+          if (diffRequestSequenceRef.current === requestSequence)
+            publishRotationCategoryProgress(category, (index + 1) / variants.length);
+        }
+        if (calculationContextKeyRef.current !== contextKey) {
+          if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
+          endRotationCalculation();
+          return "discarded" as const;
+        }
+        if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
+        if (resolvedActiveRotationIdRef.current !== id) {
+          endRotationCalculation();
+          return "discarded" as const;
+        }
+        metrics = combineComparisonVariantMetrics(metrics, variantMetrics, category);
+        onMetricsChange(metrics, true);
+        completeRotationCalculationCategory(category);
+      }
       return "published" as const;
     } catch (calculationError) {
-      void comparisonsPromise.catch(() => {});
-      if (diffRequestSequenceRef.current === requestSequence) publishRotationRecalculating(false);
+      if (diffRequestSequenceRef.current === requestSequence) endRotationCalculation();
       if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
       console.error("Rotation calculation failed", calculationError);
       return "failed" as const;
+    } finally {
+      if (diffRequestSequenceRef.current === requestSequence) runningRefreshTargetRef.current = null;
     }
-  }
-
-  async function activateCalculatedRotation(id: string, rotationRecord: RotationRecord) {
-    await calculateDiffsForRotation(id, rotationRecord);
   }
 
   const localRotationCalculation: RotationMetrics = {
@@ -5285,34 +5513,30 @@ function RotationEditorTab({
     setupComparisons,
   };
   const rotationCalculation = currentCachedResult?.metrics ?? localRotationCalculation;
-  const completedRefreshTargetRef = useRef<string | null>(null);
   useEffect(() => {
-    const entries = rotationEntries
-      .map((entry) =>
-        entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: migrateRotation(rotation) } : entry,
-      )
-      .filter((entry) => rotationAvailableForWeapons(entry, settings.weapons));
+    const entries = rotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons));
     const activeEntry = entries.find((entry) => entry.id === activeRotationId) ?? entries[0];
     if (!activeEntry) return;
-    const refreshTarget = `${calculationContextKey}:${activeEntry.id}`;
-    if (completedRefreshTargetRef.current === refreshTarget) {
+    const prepared = prepareBaselineCalculation(activeEntry.rotation);
+    const refreshTarget = `${activeEntry.id}:${prepared.fingerprint}`;
+    if (scheduledRefreshTargetRef.current === refreshTarget) {
+      if (runningRefreshTargetRef.current === refreshTarget) return;
       const editPriority = editingRotationId === activeRotationId ? 400 : 200;
       void calculateBaselineForRotation(editingRotationId, rotation, editPriority).catch(() => {});
       return;
     }
     void (async () => {
-      const outcome = await calculateDiffsForRotation(activeEntry.id, activeEntry.rotation, true);
+      const outcome = await calculateDiffsForRotation(activeEntry.id, activeEntry.rotation, prepared);
       if (outcome === "discarded") {
         setRefreshRetryRevision((current) => current + 1);
         return;
       }
       if (outcome !== "published") return;
-      completedRefreshTargetRef.current = refreshTarget;
       if (calculationContextKeyRef.current !== calculationContextKey) return;
       for (const entry of entries) {
         if (entry.id === activeEntry.id) continue;
         try {
-          await calculateBaselineForRotation(entry.id, entry.rotation, 100, true);
+          await calculateBaselineForRotation(entry.id, entry.rotation, 100);
         } catch {
           /* Superseded by newer work. */
         }

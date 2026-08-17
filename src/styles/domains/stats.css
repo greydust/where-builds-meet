@@ -73,7 +73,7 @@
   }
 
   .stats-panel .stats-grid {
-    grid-template-columns: 16rem 6rem 1rem 16rem 6rem;
+    grid-template-columns: minmax(0, 16rem) 6rem 1rem minmax(0, 16rem) 6rem;
     gap: 3px 6px;
     justify-content: start;
   }
@@ -172,13 +172,12 @@
     letter-spacing: -0.04em;
   }
 
-  .dps-recalculating {
+  .calculation-status {
     --calculation-progress: 0%;
 
     inline-size: fit-content;
-    min-block-size: 23px;
-    margin-block-start: 4px;
-    margin-inline: auto;
+    min-block-size: 1.4em;
+    margin-block-start: 0.2rem;
     border-radius: 0.35rem;
     padding-inline: 0.45rem;
     background: linear-gradient(
@@ -187,12 +186,39 @@
       transparent var(--calculation-progress) 100%
     );
     color: var(--text-muted);
+    font-size: 0.9rem;
     font-weight: 700;
     line-height: 1.4;
     letter-spacing: 0.02em;
   }
 
-  .dps-recalculating.idle {
+  .panel-heading > div:has(> .calculation-status) {
+    display: flex;
+    min-inline-size: 0;
+    align-items: baseline;
+    gap: var(--space-xs);
+  }
+
+  .panel-heading > div > .calculation-status {
+    min-block-size: 0;
+    margin-block-start: 0;
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .calculation-status.idle {
+    display: none;
+  }
+
+  .dps-calculation-status {
+    min-block-size: 23px;
+    margin-block-start: 4px;
+    margin-inline: auto;
+    font-size: inherit;
+  }
+
+  .dps-calculation-status.idle {
+    display: block;
     visibility: hidden;
   }
 

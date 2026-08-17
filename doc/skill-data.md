@@ -427,11 +427,14 @@ the modification are checked before it is applied.
 ## Inner Ways
 
 Inner Way files contain a display `name`, path eligibility `tags`, and an
-`effect` map keyed by tier ID:
+`effect` map keyed by tier ID. They also require `altersTimeline`; all current
+Inner Ways conservatively set it to true, while a future false value allows
+priority removal to reuse baseline event state:
 
 ```json
 {
   "name": "Morale Chant",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength"],
   "effect": {
     "MoraleChantT0": {},
@@ -450,7 +453,10 @@ Mixed has no required tag and therefore exposes every imported Inner Way.
 Weapon sets in `data/gear-set.json` and armor sets in `data/armor-set.json` use
 the same path-tag convention. Only
 matching definitions are displayed and applied outside Mixed; stored tiers for
-hidden definitions are preserved.
+hidden definitions are preserved. Every set declares `altersTimeline`. A true
+value conservatively rebuilds comparison timelines for that set; a false value
+reuses the baseline timeline and is valid only when every option changes
+damage/stat evaluation without changing combat events or tracked state.
 One set option may provide either one setup-effect object or an array of setup
 effects. Arrays allow unconditional stats and action-time conditional rules to
 coexist in the same tier; Rain Whisper four-piece uses this to require the

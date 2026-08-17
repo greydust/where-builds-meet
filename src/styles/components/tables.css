@@ -28,6 +28,8 @@
   }
 
   .breakdown-table {
+    display: grid;
+    column-gap: 12px;
     inline-size: max-content;
     min-inline-size: 100%;
     overflow: hidden;
@@ -36,39 +38,28 @@
   }
 
   .breakdown-skill-table {
+    grid-template-columns: minmax(15rem, 1fr) repeat(9, max-content);
     min-inline-size: 67.25rem;
   }
 
   .breakdown-cast-table {
+    grid-template-columns: minmax(16.25rem, 1fr) repeat(5, max-content);
     min-inline-size: 56.125rem;
   }
 
   .breakdown-group-table {
+    grid-template-columns: minmax(16.25rem, 1fr) repeat(2, max-content);
     min-inline-size: 34.25rem;
   }
 
   .breakdown-table-header,
   .breakdown-table-row {
     display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
     align-items: center;
-    gap: 12px;
     min-inline-size: 0;
     padding: 9px 12px;
-  }
-
-  .breakdown-skill-table .breakdown-table-header,
-  .breakdown-skill-table .breakdown-table-row {
-    grid-template-columns: minmax(240px, 1fr) 58px 68px 52px repeat(4, 76px) 140px 82px;
-  }
-
-  .breakdown-cast-table .breakdown-table-header,
-  .breakdown-cast-table .breakdown-table-row {
-    grid-template-columns: minmax(260px, 1fr) 64px 120px 130px 150px 90px;
-  }
-
-  .breakdown-group-table .breakdown-table-header,
-  .breakdown-group-table .breakdown-table-row {
-    grid-template-columns: minmax(260px, 1fr) 150px 90px;
   }
 
   .breakdown-table-header {
@@ -76,6 +67,13 @@
     color: var(--text-muted);
     font-weight: 750;
     text-transform: uppercase;
+  }
+
+  .breakdown-table-header > *,
+  .breakdown-table-row > :not(:first-child) {
+    overflow-wrap: normal;
+    hyphens: none;
+    white-space: nowrap;
   }
 
   .breakdown-table-row {

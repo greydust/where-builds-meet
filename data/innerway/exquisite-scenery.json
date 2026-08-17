@@ -1,5 +1,6 @@
 {
   "name": "Exquisite Scenery",
+  "altersTimeline": true,
   "tags": ["StonesplitMight"],
   "effect": {
     "ExquisiteSceneryT0": {},

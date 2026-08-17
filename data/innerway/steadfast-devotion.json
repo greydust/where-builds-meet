@@ -1,5 +1,6 @@
 {
   "name": "Steadfast Devotion",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength"],
   "effect": {
     "SteadfastDevotionT0": {},

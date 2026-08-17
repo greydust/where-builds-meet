@@ -1,5 +1,6 @@
 {
   "name": "Frost-Clad Night",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength"],
   "effect": {
     "FrostCladNightT0": {},

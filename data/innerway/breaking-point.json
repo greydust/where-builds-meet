@@ -1,5 +1,6 @@
 {
   "name": "Breaking Point",
+  "altersTimeline": true,
   "tags": ["StonesplitStrength"],
   "effect": {
     "BreakingPointT0": {

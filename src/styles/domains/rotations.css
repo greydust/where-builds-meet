@@ -321,6 +321,11 @@
     white-space: nowrap;
   }
 
+  .rotation-table-header > * {
+    overflow-wrap: normal;
+    hyphens: none;
+  }
+
   .rotation-table-row {
     min-block-size: 62px;
     border-block-end: 1px solid var(--border-muted);
