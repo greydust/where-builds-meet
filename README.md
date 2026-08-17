@@ -60,6 +60,20 @@ npm run build
 
 Simulation changes should also receive a focused calculation check.
 
+### Contributing translations
+
+Translations are maintained in [`locales/translations.csv`](locales/translations.csv). Edit only the column for the locale you are translating; keep the `key` and English source columns unchanged. A translation can be submitted partially—blank cells automatically fall back to English.
+
+Do not edit the generated files under `public/locales/`. After updating the CSV, regenerate and verify them with:
+
+```bash
+npm run i18n:extract
+npm run format
+npm run build
+```
+
+When adding an entirely new locale, also add its locale-code column and display-name entry. See [Localization](doc/localization.md) for key ownership, canonical game terms, WIP locale handling, and runtime fallback details.
+
 ## Deployment
 
 GitHub Pages deploys through [the Pages workflow](.github/workflows/deploy.yml) when changes are pushed to the `release` branch. Merge the tested `main` branch into `release` to publish a new version.

@@ -91,6 +91,7 @@ export type EffectDefinition = {
   damageAttribution?: "sourceCast";
   effect?: unknown[];
   stackEffects?: unknown[][];
+  action?: unknown[];
   periodic?: PeriodicEffect;
 };
 
@@ -570,6 +571,47 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     if (resetCadence) activeEffect.appliedAt = eventTime;
     schedulePeriodicActions(name, activeEffect, eventTime, causalSortOrder, sourceOrder, resetCadence);
   };
+  const enqueueEffectActions = (
+    name: string,
+    definition: EffectDefinition,
+    eventTime: number,
+    sourceRowId: string,
+    causalSortOrder: number[],
+    sourceOrder: number,
+  ) => {
+    const actions = Array.isArray(definition.action) ? (definition.action as EditableObject[]) : [];
+    if (actions.length === 0) return;
+    const derivedId = nextDerivedOrder++;
+    const derivedSortOrder = [...causalSortOrder, derivedId];
+    const row: TimelineRow = {
+      id: `effect-${derivedId}`,
+      kind: "periodic",
+      sourceRowId,
+      order: sourceOrder + 10,
+      step: { type: "skill", skill: name },
+      startTime: eventTime,
+      distance,
+      currentHPRatio,
+      effectiveCastTime: 0,
+      skill: definition,
+      actions: actions.map((action) => ({ ...action })),
+      buffs: [],
+      debuffs: [],
+      modifierEffects: [],
+      actionStates: {},
+    };
+    rows.push(row);
+    events.push({ time: eventTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
+    row.actions.forEach((action, actionIndex) =>
+      events.push({
+        time: eventTime + (typeof action.time === "number" ? action.time : 0),
+        sortOrder: [...derivedSortOrder, 1, actionIndex],
+        kind: "action",
+        row,
+        actionIndex,
+      }),
+    );
+  };
   let processedEvents = 0;
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
     const timingValue = (value: unknown, actionTime: number, fallback: number) =>
@@ -900,7 +942,17 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           );
         }
       }
-      if (definition.cooldown !== undefined) cooldowns[triggerAction.value] = event.time + definition.cooldown;
+      if (appliedEffect) {
+        enqueueEffectActions(
+          triggerAction.value,
+          definition,
+          event.time,
+          sourceRowId,
+          event.sortOrder,
+          event.row.order + (event.actionIndex ?? 0),
+        );
+        if (definition.cooldown !== undefined) cooldowns[triggerAction.value] = event.time + definition.cooldown;
+      }
     };
     if (action.type === "damage") {
       setupEffects.forEach((setup) => {
@@ -1026,8 +1078,17 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           event.row.order + (event.actionIndex ?? 0),
         );
       }
-      if (action.type === "apply" && effectDefinitions[action.value]?.cooldown !== undefined)
-        cooldowns[action.value] = event.time + effectDefinitions[action.value].cooldown!;
+      if (shouldApply && appliedEffect) {
+        enqueueEffectActions(
+          action.value,
+          definition,
+          event.time,
+          sourceRowId,
+          event.sortOrder,
+          event.row.order + (event.actionIndex ?? 0),
+        );
+        if (definition.cooldown !== undefined) cooldowns[action.value] = event.time + definition.cooldown;
+      }
     }
     if (typeof action.cooldown === "number") cooldowns[actionCooldownKey] = event.time + action.cooldown;
   }

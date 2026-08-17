@@ -158,6 +158,29 @@
       min-inline-size: 4.5rem;
       flex: 0 0 auto;
     }
+
+    .page-header-controls {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: end;
+      flex-wrap: wrap;
+      justify-content: end;
+      gap: 12px;
+    }
+
+    .locale-selector {
+      display: grid;
+      gap: 4px;
+
+      span {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+      }
+
+      select {
+        min-block-size: 44px;
+      }
+    }
   }
 
   .page-header > *,
@@ -257,7 +280,8 @@
     .page-header {
       display: block;
     }
-    .page-header .button {
+    .page-header-controls {
+      justify-content: start;
       margin-block-start: 18px;
     }
     .main-tabs {

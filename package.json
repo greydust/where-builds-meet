@@ -6,9 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run i18n:check && tsc -b && vite build",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "i18n:extract": "node script/i18n/extract.mjs",
+    "i18n:check": "node script/i18n/extract.mjs --check",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -17,11 +17,9 @@
     "ExquisiteSceneryT4": {
       "effect": [
         {
-          "target": "Cadence",
+          "target": "Riposte",
           "modify": {
-            "periodic": {
-              "interval": 5
-            }
+            "cooldown": 5
           }
         }
       ]

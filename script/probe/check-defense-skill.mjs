@@ -44,6 +44,7 @@ try {
       rotation: { name: "Periodic effect probe", steps },
       skills: {
         Defense: generalSkills.Defense,
+        RiposteTrigger: generalSkills.RiposteTrigger,
         Avalanche: mightSkills.Avalanche,
         ApplyCadence: {
           name: "Apply Cadence",
@@ -83,17 +84,15 @@ try {
     "An immediate Cadence trigger must consume Cadence and grant Riposte before the next skill.",
   );
 
-  const basePeriodicTimeline = build([
+  const baseCooldownTimeline = build([
     { type: "skill", skill: "ApplyCadence" },
     { type: "event", event: "Delay", duration: 12 },
   ]);
   assert(
     JSON.stringify(
-      basePeriodicTimeline
-        .filter((row) => row.kind === "periodic" && row.step.skill === "Cadence")
-        .map((row) => row.startTime),
+      baseCooldownTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime),
     ) === JSON.stringify([0, 10]),
-    "Cadence must trigger immediately and then every 10 seconds until its stacks are consumed.",
+    "Riposte must start one ten-second follow-up attempt for each successfully converted Cadence stack.",
   );
 
   const refreshedTimeline = build([
@@ -104,11 +103,32 @@ try {
   ]);
   assert(
     JSON.stringify(
-      refreshedTimeline
-        .filter((row) => row.kind === "periodic" && row.step.skill === "Cadence")
-        .map((row) => row.startTime),
+      refreshedTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime),
     ) === JSON.stringify([0, 10, 20]),
-    "Refreshing Cadence must extend its lifetime without restarting its periodic phase.",
+    "Refreshing Cadence during Riposte cooldown must not consume it or restart the existing follow-up wait.",
+  );
+
+  const blockedApplyTimeline = build([
+    { type: "skill", skill: "ApplyCadence" },
+    { type: "event", event: "Delay", duration: 2 },
+    { type: "skill", skill: "ApplyOneCadence" },
+    { type: "skill", skill: "Probe" },
+  ]);
+  const blockedApplyProbe = blockedApplyTimeline.find((row) => row.id === "rotation-3");
+  assert(
+    blockedApplyProbe.actionStates[0].buffs.find((effect) => effect.name === "Cadence")?.stack === 2,
+    "A cooldown-rejected Riposte application must not consume Cadence.",
+  );
+
+  const resumedTimeline = build([
+    { type: "skill", skill: "ApplyOneCadence" },
+    { type: "event", event: "Delay", duration: 12 },
+    { type: "skill", skill: "ApplyOneCadence" },
+  ]);
+  assert(
+    JSON.stringify(resumedTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime)) ===
+      JSON.stringify([0, 12]),
+    "Cadence applied after an idle Riposte cooldown must restart the chain immediately.",
   );
 
   const t4Timeline = build(
@@ -121,16 +141,15 @@ try {
       {
         source: "ExquisiteScenery",
         tier: 4,
-        target: "Cadence",
-        modify: { periodic: { interval: 5 } },
+        target: "Riposte",
+        modify: { cooldown: 5 },
       },
     ],
   );
   assert(
-    JSON.stringify(
-      t4Timeline.filter((row) => row.kind === "periodic" && row.step.skill === "Cadence").map((row) => row.startTime),
-    ) === JSON.stringify([0, 5]),
-    "Exquisite Scenery T4 must reduce the Cadence interval to 5 seconds.",
+    JSON.stringify(t4Timeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime)) ===
+      JSON.stringify([0, 5]),
+    "Exquisite Scenery T4 must reduce both the Riposte cooldown and follow-up wait to five seconds.",
   );
 
   const avalancheTimeline = build([
@@ -154,7 +173,7 @@ try {
     !afterAvalanche.buffs.some((effect) => effect.name === "Riposte"),
     "Avalanche must consume Riposte when its cast starts.",
   );
-  console.log("Defense, Cadence periodic timing, Riposte, and Avalanche timing checks passed.");
+  console.log("Defense, Cadence conversion, Riposte cooldown, and Avalanche timing checks passed.");
 } finally {
   await viteServer.close();
 }

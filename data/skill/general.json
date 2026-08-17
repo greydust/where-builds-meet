@@ -21,6 +21,40 @@
     "modifier": [],
     "tags": ["General"]
   },
+  "RiposteTrigger": {
+    "name": "Riposte Trigger",
+    "castTime": 10,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Riposte",
+        "stack": 1,
+        "reapply": true,
+        "time": 10,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Cadence"
+          }
+        ]
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "ExquisiteSceneryT4"
+          }
+        ],
+        "effect": {
+          "castTimeModifier": -5
+        }
+      }
+    ],
+    "tags": ["General", "Triggered"]
+  },
   "AoRT4Shield": {
     "name": "AoR T4 Shield",
     "castTime": 3,

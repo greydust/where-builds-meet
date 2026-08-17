@@ -207,7 +207,7 @@
 
   .build-overview-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(20rem, 22.5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 24rem);
     align-items: stretch;
     gap: 10px;
   }
@@ -289,12 +289,21 @@
     text-transform: uppercase;
   }
 
+  .gear-base-stats {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(1.25em, auto));
+    gap: 0.125rem;
+    min-block-size: 2.625em;
+  }
+
   .gear-base-stat {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 8px;
     color: var(--text-muted);
+    line-height: 1.25;
+    white-space: nowrap;
   }
 
   .gear-base-stat strong {

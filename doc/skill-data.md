@@ -363,6 +363,8 @@ Definition fields:
 - `cooldown`: minimum time between accepted applications
 - `maxStack`: stack cap
 - `refresh`: whether a successful reapplication resets the duration
+- `action`: actions scheduled relative to each accepted application or
+  reapplication; a rejected application does not schedule them
 - `damageAttribution: "sourceCast"`: measure each affected hit with and without
   this buff and attribute only the difference to the cast that applied it
 - `effect`: action-time effect rules
@@ -785,10 +787,14 @@ hit two sees the debuff from hit one and then refreshes it.
 
 The General Defense skill takes 0.3 seconds and applies one Cadence stack at
 cast end when Exquisite Scenery T0 or higher is selected. Cadence lasts 20
-seconds, stacks twice, immediately consumes one stack to grant five-second
-Riposte, and repeats every 10 seconds without resetting its cadence when
-refreshed. Exquisite Scenery T4 changes that interval to five seconds. Riposte
-reduces Avalanche's cast and hit timing by two seconds and is consumed when the
+seconds and stacks twice. Each accepted Cadence application immediately tries
+to apply Riposte. Riposte lasts five seconds and has a 10-second cooldown. Only
+an accepted Riposte application consumes one Cadence stack and starts the
+hidden Riposte Trigger wait; when that wait ends, it tries Riposte again if
+Cadence remains. A failed attempt ends the chain, while a later Cadence
+application starts a new attempt. Exquisite Scenery T4 changes both the Riposte
+cooldown and the hidden trigger wait to five seconds. Riposte reduces
+Avalanche's cast and hit timing by two seconds and is consumed when the
 Avalanche cast starts.
 
 Battle Anthem and Adaptive Steel are alternative Stonesplit Might Inner Ways.

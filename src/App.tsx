@@ -166,6 +166,17 @@ import {
   loadGlobalDebuffs,
   type GlobalDebuffState,
 } from "./globalDebuffs";
+import {
+  developmentModeStorageKey as devModeStorageKey,
+  dataText,
+  gameText,
+  getLocale,
+  getLocaleDisplayName,
+  getSupportedLocales,
+  isLocaleWip,
+  selectLocale,
+  t,
+} from "./i18n";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
@@ -182,7 +193,6 @@ const gearSetStorageKey = "wwm-gear-set-session-v1";
 const foodStorageKey = "wwm-food-session-v1";
 const divinecraftStorageKey = "wwm-divinecraft-session-v1";
 const pathStorageKey = "wwm-path-session-v1";
-const devModeStorageKey = "wwm-dev-mode-v1";
 const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(
   allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key),
@@ -392,6 +402,7 @@ const effectDefinitions = {
     maxStack?: number;
     effect?: unknown[];
     stackEffects?: unknown[][];
+    action?: unknown[];
   }
 >;
 const globalEffectRules = Object.values(globalBuffs).flatMap(
@@ -956,14 +967,14 @@ function formatNumber(value: number) {
 }
 
 function skillDisplayName(skill: SkillRecord | undefined, fallback = "") {
-  const name = skill?.name?.trim() || fallback;
-  const shortName = skill?.shortName?.trim();
+  const name = gameText(skill?.name?.trim() || fallback);
+  const shortName = gameText(skill?.shortName?.trim());
   return shortName ? `${name} (${shortName})` : name;
 }
 
 function RotationSkillName({ skill, fallback = "" }: { skill: SkillRecord | undefined; fallback?: string }) {
-  const name = skill?.name?.trim() || fallback;
-  const shortName = skill?.shortName?.trim();
+  const name = gameText(skill?.name?.trim() || fallback);
+  const shortName = gameText(skill?.shortName?.trim());
   return (
     <span className="rotation-skill-label">
       <span>{name}</span>
@@ -1267,15 +1278,15 @@ function StatField({
     <label className={`field ${compact ? "compact-field" : ""} ${modified ? "modified-field" : ""}`}>
       <span className="field-label">
         <span>
-          {definition.label}
+          {gameText(definition.label)}
           {definition.unit && definition.showUnitInLabel !== false ? ` ${definition.unit}` : ""}
         </span>
         {modified && (
           <button
             className="stat-reset-button"
             type="button"
-            aria-label={`Reset ${definition.label}`}
-            title="Reset to calculated value"
+            aria-label={t("ui.app.resetNamedValue", { name: gameText(definition.label) })}
+            title={t("ui.app.resetToCalculatedValue")}
             onClick={(event) => {
               event.preventDefault();
               onReset?.();
@@ -1343,14 +1354,14 @@ function PriorityPanel({
       {rows.length > 0 ? (
         <div className={`priority-list ${showMaxRoll ? "priority-list-with-roll" : ""}`}>
           <div className="priority-header">
-            <span>Name</span>
-            {showMaxRoll && <span>Max Roll</span>}
-            <span>DPS Change</span>
-            <span>Percentage</span>
+            <span>{t("ui.app.name")}</span>
+            {showMaxRoll && <span>{t("ui.app.maxRoll")}</span>}
+            <span>{t("ui.app.dpsChange", { dps: t("system.dps") })}</span>
+            <span>{t("ui.app.percentage")}</span>
           </div>
           {rows.map((row, index) => (
             <div className={`priority-row ${sectionBreakAt === index ? "priority-section-start" : ""}`} key={row.label}>
-              <span>{row.label}</span>
+              <span>{gameText(row.label)}</span>
               {showMaxRoll && (
                 <strong className="priority-max-roll">
                   {row.maxRoll === undefined ? "—" : formatNumber(row.maxRoll)}
@@ -1368,7 +1379,7 @@ function PriorityPanel({
           ))}
         </div>
       ) : (
-        <p className="priority-empty">Open the Rotation Editor to calculate priority.</p>
+        <p className="priority-empty">{t("ui.app.openTheRotationEditorToCalculatePriority")}</p>
       )}
     </section>
   );
@@ -1392,13 +1403,13 @@ function BreakdownGroupTable({
       </div>
       <div className="breakdown-table breakdown-group-table">
         <div className="breakdown-table-header">
-          <span>Category</span>
-          <span>Damage</span>
-          <span>% Total</span>
+          <span>{t("ui.app.category")}</span>
+          <span>{t("ui.app.damage")}</span>
+          <span>{t("ui.app.total")}</span>
         </div>
         {rows.map((row) => (
           <div className="breakdown-table-row" key={row.id}>
-            <span className={colored ? `damage-${row.id}` : ""}>{row.name}</span>
+            <span className={colored ? `damage-${row.id}` : ""}>{gameText(row.name)}</span>
             <strong>{formatNumber(row.damage)}</strong>
             <strong>{formatNumber(row.percentage)}%</strong>
           </div>
@@ -1412,8 +1423,8 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   if (!metrics)
     return (
       <section className="panel breakdown-empty">
-        <h2>DPS Breakdown</h2>
-        <p>Open the Rotation Editor to calculate the active rotation.</p>
+        <h2>{t("ui.app.dpsBreakdown", { dps: t("system.dps") })}</h2>
+        <p>{t("ui.app.openTheRotationEditorToCalculateTheActive")}</p>
       </section>
     );
   const { breakdown } = metrics;
@@ -1422,29 +1433,29 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
       <section className="panel breakdown-panel">
         <div className="panel-heading">
           <div>
-            <h2>Per Skill Breakdown</h2>
+            <h2>{t("ui.app.perSkillBreakdown")}</h2>
           </div>
           <div className="breakdown-totals">
             <span>
-              Total Damage <strong>{formatNumber(metrics.totalDamage)}</strong>
+              {t("system.totalDamage")} <strong>{formatNumber(metrics.totalDamage)}</strong>
             </span>
             <span>
-              DPS <strong>{formatNumber(metrics.dps)}</strong>
+              {t("system.dps")} <strong>{formatNumber(metrics.dps)}</strong>
             </span>
           </div>
         </div>
         <div className="breakdown-table breakdown-skill-table">
           <div className="breakdown-table-header">
-            <span>Skill</span>
-            <span>Casts</span>
-            <span>Triggers</span>
-            <span>Hits</span>
-            <span>Abrasion</span>
-            <span>Normal</span>
-            <span>Critical</span>
-            <span>Affinity</span>
-            <span>Damage</span>
-            <span>% Total</span>
+            <span>{t("ui.app.skill")}</span>
+            <span>{t("ui.app.casts")}</span>
+            <span>{t("ui.app.triggers")}</span>
+            <span>{t("ui.app.hits")}</span>
+            <span>{t("system.abrasion")}</span>
+            <span>{t("system.normal")}</span>
+            <span>{t("system.critical")}</span>
+            <span>{t("system.affinity")}</span>
+            <span>{t("ui.app.damage")}</span>
+            <span>{t("ui.app.total")}</span>
           </div>
           {breakdown.skills.map((row) => (
             <div className="breakdown-table-row" key={row.id}>
@@ -1465,23 +1476,26 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
       <section className="panel breakdown-panel">
         <div className="panel-heading">
           <div>
-            <h2>Per Cast Breakdown</h2>
+            <h2>{t("ui.app.perCastBreakdown")}</h2>
           </div>
         </div>
         <div className="breakdown-table breakdown-cast-table">
           <div className="breakdown-table-header">
-            <span>Skill</span>
-            <span>Casts</span>
-            <span>Avg Cast Time</span>
-            <span>Average DPS</span>
-            <span>Damage</span>
-            <span>% Total</span>
+            <span>{t("ui.app.skill")}</span>
+            <span>{t("ui.app.casts")}</span>
+            <span>{t("ui.app.avgCastTime")}</span>
+            <span>{t("ui.app.averageDps")}</span>
+            <span>{t("ui.app.damage")}</span>
+            <span>{t("ui.app.total")}</span>
           </div>
           {breakdown.casts.map((row) => (
             <div className="breakdown-table-row" key={row.id}>
               <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span>
               <strong>{row.casts}</strong>
-              <strong>{formatNumber(row.averageCastTime)}s</strong>
+              <strong>
+                {formatNumber(row.averageCastTime)}
+                {t("ui.app.s")}
+              </strong>
               <strong>
                 {row.averageDpsWithBuff === undefined
                   ? row.averageDps === undefined
@@ -1499,8 +1513,8 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
           ))}
         </div>
       </section>
-      <BreakdownGroupTable title="Skill Type Breakdown" rows={breakdown.categories} />
-      <BreakdownGroupTable title="Physical and Attribute Breakdown" rows={breakdown.damageTypes} colored />
+      <BreakdownGroupTable title={t("ui.app.skillTypeBreakdown")} rows={breakdown.categories} />
+      <BreakdownGroupTable title={t("ui.app.physicalAndAttributeBreakdown")} rows={breakdown.damageTypes} colored />
     </div>
   );
 }
@@ -1545,13 +1559,13 @@ function DpsCalculationStatus() {
       className={`dps-recalculating ${recalculating ? "" : "idle"}`}
       style={{ "--calculation-progress": `${percentage}%` } as CSSProperties}
       role="progressbar"
-      aria-label="DPS recalculation progress"
+      aria-label={t("ui.app.dpsRecalculationProgress", { dps: t("system.dps") })}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={recalculating ? percentage : 100}
       aria-live="polite"
     >
-      {recalculating ? `Recalculating… ${percentage}%` : "Up to date"}
+      {recalculating ? t("ui.app.recalculatingProgress", { percentage }) : t("ui.app.upToDate")}
     </div>
   );
 }
@@ -1697,7 +1711,7 @@ function StatsTab({
     ]);
     setSelectedProfileId(id);
     setNewProfileName("");
-    setProfileTransferStatus({ message: `Saved ${name}.` });
+    setProfileTransferStatus({ message: t("ui.app.profileSaved", { name }) });
   }
 
   function exportProfiles() {
@@ -1708,7 +1722,7 @@ function StatsTab({
     link.download = `where-builds-meet-character-profiles-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(href);
-    setProfileTransferStatus({ message: `Exported ${characterProfiles.length} profiles.` });
+    setProfileTransferStatus({ message: t("ui.app.profilesExported", { count: characterProfiles.length }) });
   }
 
   async function importProfiles(event: ChangeEvent<HTMLInputElement>) {
@@ -1718,10 +1732,10 @@ function StatsTab({
     try {
       const result = mergeImportedCharacterProfiles(characterProfiles, JSON.parse(await file.text()));
       onCharacterProfilesChange(result.profiles);
-      setProfileTransferStatus({ message: `Imported ${result.importedCount} profiles.` });
+      setProfileTransferStatus({ message: t("ui.app.profilesImported", { count: result.importedCount }) });
     } catch (error) {
       setProfileTransferStatus({
-        message: error instanceof Error ? error.message : "The character profile file could not be imported.",
+        message: error instanceof Error ? error.message : t("ui.app.profileImportError"),
         error: true,
       });
     }
@@ -1815,7 +1829,12 @@ function StatsTab({
   const attunementFields = Object.entries(attunementData)
     .filter(([key]) => attunementAvailableForSettings(key, pathId, settings))
     .map(
-      ([key, definition]) => [key as keyof AttunementStats, definition.name, definition.percentage ? "%" : ""] as const,
+      ([key, definition]) =>
+        [
+          key as keyof AttunementStats,
+          dataText(`system.attunement.${key}`, definition.name),
+          definition.percentage ? "%" : "",
+        ] as const,
     );
   const armorAttunementStart = attunementFields.findIndex(([key]) => attunementData[key]?.tags.includes("Armor"));
   const availableWeaponSets = Object.entries(typedWeaponSetDefinitions).filter(([, definition]) =>
@@ -1825,7 +1844,7 @@ function StatsTab({
     setAvailableForSettings(definition, settings, pathId),
   );
   const setupStatus = (group: string, value: string, active: boolean) => {
-    if (active) return <small className="setup-active-label">Active</small>;
+    if (active) return <small className="setup-active-label">{t("ui.app.active")}</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
     return comparison ? (
       <small
@@ -1833,7 +1852,7 @@ function StatsTab({
       >
         <span>
           {comparison.dpsDifference >= 0 ? "+" : ""}
-          {formatNumber(comparison.dpsDifference)} DPS
+          {formatNumber(comparison.dpsDifference)} {t("system.dps")}
         </span>
         <span>
           ({comparison.increase >= 0 ? "+" : ""}
@@ -1859,8 +1878,8 @@ function StatsTab({
           <button
             className="stat-reset-button"
             type="button"
-            aria-label={`Reset ${title}`}
-            title="Reset to build value"
+            aria-label={t("ui.app.resetNamedValue", { name: title })}
+            title={t("ui.app.resetToBuildValue")}
             onClick={() => onBuildSetupReset(key)}
           >
             <UiIcon name="reset" />
@@ -1872,7 +1891,7 @@ function StatsTab({
           const selectedTier = buildSetup[key][setName] ?? 0;
           return (
             <div className="setup-field" key={setName}>
-              <span>{definition.name}</span>
+              <span>{gameText(definition.name)}</span>
               <div className="setup-option-control">
                 <div className="setup-option-list">
                   {[0, 2, 4].map((tier) => (
@@ -1884,7 +1903,7 @@ function StatsTab({
                         onBuildSetupChange(key, selectSetTier(buildSetup[key], setName, tier as 0 | 2 | 4, definitions))
                       }
                     >
-                      {tier === 0 ? "0 piece" : `${tier} pieces`}
+                      {t(`system.setPieces.${tier}`)}
                       <span>{setupStatus(`${key}:${setName}`, String(tier), selectedTier === tier)}</span>
                     </button>
                   ))}
@@ -1919,21 +1938,21 @@ function StatsTab({
           <section className="panel stats-panel">
             <div className="panel-heading character-stats-heading">
               <div>
-                <h2>Character Stats</h2>
+                <h2>{t("ui.app.characterStats")}</h2>
               </div>
               <div className="character-profile-controls">
                 <select
-                  aria-label="Character profile"
+                  aria-label={t("ui.app.characterProfile")}
                   value={selectedProfileId}
                   onChange={(event) => {
                     if (event.target.value === "__calculated") selectProfile();
                     else selectProfile(characterProfiles.find(({ id }) => id === event.target.value));
                   }}
                 >
-                  <option value="__calculated">Calculated</option>
+                  <option value="__calculated">{t("ui.app.calculated")}</option>
                   {selectedProfileId === "__modified" && (
                     <option value="__modified" disabled>
-                      Unsaved changes
+                      {t("ui.app.unsavedChanges")}
                     </option>
                   )}
                   {characterProfiles.map((profile) => (
@@ -1950,10 +1969,10 @@ function StatsTab({
                     profileDialogRef.current?.showModal();
                   }}
                 >
-                  Profiles
+                  {t("ui.app.profiles")}
                 </button>
                 <button className="button button-secondary" type="button" onClick={() => selectProfile()}>
-                  Reset
+                  {t("ui.app.reset")}
                 </button>
               </div>
             </div>
@@ -1964,11 +1983,11 @@ function StatsTab({
                     definition={left}
                     derivedLabel={
                       index === 0
-                        ? "Effective Min Physical Attack"
+                        ? t("ui.app.effectiveMinPhysicalAttack")
                         : index === 3
-                          ? "Effective Critical"
+                          ? t("ui.app.effectiveCritical")
                           : index === 4
-                            ? "Effective Affinity"
+                            ? t("ui.app.effectiveAffinity")
                             : undefined
                     }
                     derivedValue={
@@ -1986,13 +2005,13 @@ function StatsTab({
                     definition={right}
                     derivedLabel={
                       index === 0
-                        ? "Effective Max Physical Attack"
+                        ? t("ui.app.effectiveMaxPhysicalAttack")
                         : index === 2
-                          ? "Effective Precision"
+                          ? t("ui.app.effectivePrecision")
                           : index === 3
-                            ? "Final Critical"
+                            ? t("ui.app.finalCritical")
                             : index === 4
-                              ? "Final Affinity"
+                              ? t("ui.app.finalAffinity")
                               : undefined
                     }
                     derivedValue={
@@ -2014,7 +2033,7 @@ function StatsTab({
                 <div className="stat-row" key={left.key}>
                   <CalculatedStatField
                     definition={left}
-                    derivedLabel={`Effective ${left.label}`}
+                    derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(left.label) })}
                     derivedValue={
                       derivedStats[
                         [
@@ -2028,7 +2047,7 @@ function StatsTab({
                   />
                   <CalculatedStatField
                     definition={right}
-                    derivedLabel={`Effective ${right.label}`}
+                    derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(right.label) })}
                     derivedValue={
                       derivedStats[
                         [
@@ -2102,7 +2121,7 @@ function StatsTab({
             <section className="panel attunement-panel">
               <div className="panel-heading">
                 <div>
-                  <h2>Attunement Stats</h2>
+                  <h2>{t("ui.app.attunementStats")}</h2>
                 </div>
               </div>
               <div className="attunement-list">
@@ -2117,8 +2136,8 @@ function StatsTab({
                         <button
                           className="stat-reset-button"
                           type="button"
-                          aria-label={`Reset ${label}`}
-                          title="Reset to calculated value"
+                          aria-label={t("ui.app.resetNamedValue", { name: label })}
+                          title={t("ui.app.resetToCalculatedValue")}
                           onClick={(event) => {
                             event.preventDefault();
                             resetAttunement(key);
@@ -2155,7 +2174,7 @@ function StatsTab({
             <section className="panel global-debuff-panel">
               <div className="panel-heading">
                 <div>
-                  <h2>Global Buffs/Debuffs</h2>
+                  <h2>{t("ui.app.globalBuffsDebuffs")}</h2>
                 </div>
               </div>
               <div className="global-debuff-list">
@@ -2169,7 +2188,7 @@ function StatsTab({
                   </div>
                 ))}
                 <div className="global-debuff-row">
-                  <span>Bitter Seasons</span>
+                  <span>{t("system.innerWay.bitterSeasons")}</span>
                   <div className="setup-option-list global-debuff-options qingyi-options">
                     {(["none", "T1", "T6"] as const).map((value) => {
                       const active = globalDebuffs.qingyisCharm === value;
@@ -2180,7 +2199,7 @@ function StatsTab({
                           key={value}
                           onClick={() => updateGlobalDebuff("qingyisCharm", value)}
                         >
-                          {value === "none" ? "None" : value}
+                          {value === "none" ? t("ui.app.none") : value}
                           <span>{setupStatus("debuff:qingyisCharm", value, active)}</span>
                         </button>
                       );
@@ -2195,14 +2214,14 @@ function StatsTab({
           <section className="panel inner-way-panel">
             <div className="panel-heading">
               <div>
-                <h2>Inner Ways</h2>
+                <h2>{t("ui.app.innerWays")}</h2>
               </div>
               {buildSetupOverrides.innerWays && (
                 <button
                   className="stat-reset-button"
                   type="button"
-                  aria-label="Reset Inner Ways"
-                  title="Reset to build value"
+                  aria-label={t("ui.app.resetInnerWays")}
+                  title={t("ui.app.resetToBuildValue")}
                   onClick={() => onBuildSetupReset("innerWays")}
                 >
                   <UiIcon name="reset" />
@@ -2213,7 +2232,7 @@ function StatsTab({
               {innerWays.map((row, index) => (
                 <div className="inner-way-row" key={index}>
                   <select
-                    aria-label={`Inner way ${index + 1}`}
+                    aria-label={t("ui.app.innerWayNumber", { number: index + 1 })}
                     value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""}
                     onChange={(event) => {
                       const next = innerWays.map((item, itemIndex) =>
@@ -2237,7 +2256,7 @@ function StatsTab({
                     ))}
                   </select>
                   <select
-                    aria-label={`Inner way ${index + 1} tier`}
+                    aria-label={t("ui.app.innerWayTierNumber", { number: index + 1 })}
                     value={row.tier}
                     onChange={(event) => {
                       const next = innerWays.map((item, itemIndex) =>
@@ -2248,7 +2267,7 @@ function StatsTab({
                     }}
                   >
                     {Array.from({ length: 7 }, (_, tier) => (
-                      <option key={tier}>T{tier}</option>
+                      <option value={`T${tier}`} key={tier}>{`T${tier}`}</option>
                     ))}
                   </select>
                 </div>
@@ -2261,14 +2280,14 @@ function StatsTab({
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading">
               <div>
-                <h2>Bow/Ring Set</h2>
+                <h2>{t("ui.app.bowRingSet")}</h2>
               </div>
               {buildSetupOverrides.bowRingSet !== undefined && (
                 <button
                   className="stat-reset-button"
                   type="button"
-                  aria-label="Reset Bow/Ring Set"
-                  title="Reset to build value"
+                  aria-label={t("ui.app.resetBowRingSet")}
+                  title={t("ui.app.resetToBuildValue")}
                   onClick={() => onBuildSetupReset("bowRingSet")}
                 >
                   <UiIcon name="reset" />
@@ -2283,7 +2302,7 @@ function StatsTab({
                   key={value}
                   onClick={() => onBuildSetupChange("bowRingSet", value)}
                 >
-                  {definition.name}
+                  {gameText(definition.name)}
                   <span>{setupStatus("bowRingSet", value, bowRingSet === value)}</span>
                 </button>
               ))}
@@ -2292,14 +2311,14 @@ function StatsTab({
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading">
               <div>
-                <h2>Arsenal</h2>
+                <h2>{t("ui.app.arsenal")}</h2>
               </div>
               {buildSetupOverrides.arsenal !== undefined && (
                 <button
                   className="stat-reset-button"
                   type="button"
-                  aria-label="Reset Arsenal"
-                  title="Reset to build value"
+                  aria-label={t("ui.app.resetArsenal")}
+                  title={t("ui.app.resetToBuildValue")}
                   onClick={() => onBuildSetupReset("arsenal")}
                 >
                   <UiIcon name="reset" />
@@ -2314,7 +2333,7 @@ function StatsTab({
                   key={value}
                   onClick={() => onBuildSetupChange("arsenal", value)}
                 >
-                  {definition.name}
+                  {gameText(definition.name)}
                   <span>{setupStatus("arsenal", value, arsenal === value)}</span>
                 </button>
               ))}
@@ -2323,7 +2342,7 @@ function StatsTab({
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading">
               <div>
-                <h2>Food</h2>
+                <h2>{t("ui.app.food")}</h2>
               </div>
             </div>
             <div className="setup-option-list setup-option-list-food">
@@ -2338,7 +2357,7 @@ function StatsTab({
                     onInnerWayChange();
                   }}
                 >
-                  {definition.name}
+                  {gameText(definition.name)}
                   <span>{setupStatus("food", value, food === value)}</span>
                 </button>
               ))}
@@ -2347,15 +2366,15 @@ function StatsTab({
           <section className="panel setup-placeholder-panel">
             <div className="panel-heading">
               <div>
-                <h2>Script</h2>
+                <h2>{t("ui.app.script")}</h2>
               </div>
             </div>
-            <p>Details will be added later.</p>
+            <p>{t("ui.app.detailsWillBeAddedLater")}</p>
           </section>
           <section className="panel setup-placeholder-panel divinecraft-panel">
             <div className="panel-heading">
               <div>
-                <h2>Divinecraft</h2>
+                <h2>{t("ui.app.divinecraft")}</h2>
               </div>
             </div>
             <div className="divinecraft-option-list">
@@ -2371,7 +2390,7 @@ function StatsTab({
                     type="button"
                     key={value}
                     disabled={!available}
-                    title={`${definition.name}: ${definition.description}${available ? "" : " Not available yet."}`}
+                    title={`${gameText(definition.name)}: ${gameText(definition.description)}${available ? "" : t("ui.app.notAvailableYet")}`}
                     onClick={() => {
                       setDivinecraft(value);
                       sessionStorage.setItem(divinecraftStorageKey, value);
@@ -2385,12 +2404,12 @@ function StatsTab({
                         <span className="divinecraft-none-mark" aria-hidden="true" />
                       )}
                     </span>
-                    <strong>{definition.name}</strong>
+                    <strong>{gameText(definition.name)}</strong>
                     <span className="divinecraft-option-status">
                       {available ? (
                         setupStatus("divinecraft", value, divinecraft === value)
                       ) : (
-                        <small>Not available yet</small>
+                        <small>{t("ui.app.divinecraftUnavailableBadge")}</small>
                       )}
                     </span>
                   </button>
@@ -2403,30 +2422,30 @@ function StatsTab({
           <section className="panel dps-panel">
             <div className="panel-heading">
               <div>
-                <h2>DPS</h2>
+                <h2>{t("system.dps")}</h2>
               </div>
             </div>
             <div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div>
             <DpsCalculationStatus />
             <div className="dps-context">
               <div>
-                <span>Build</span>
+                <span>{t("ui.app.build")}</span>
                 <strong title={activeBuildName}>{activeBuildName}</strong>
               </div>
               <div>
-                <span>Rotation</span>
+                <span>{t("ui.app.rotation")}</span>
                 <strong title={activeRotationName}>{activeRotationName}</strong>
               </div>
             </div>
           </section>
-          <PriorityPanel title="Stats Priority" rows={rotationMetrics?.statPriority ?? []} showMaxRoll />
+          <PriorityPanel title={t("ui.app.statsPriority")} rows={rotationMetrics?.statPriority ?? []} showMaxRoll />
           <PriorityPanel
-            title="Attunement Stats Priority"
+            title={t("ui.app.attunementStatsPriority")}
             rows={rotationMetrics?.attunementPriority ?? []}
             sectionBreakAt={2}
             showMaxRoll
           />
-          <PriorityPanel title="Inner Ways Priority" rows={rotationMetrics?.innerWayPriority ?? []} />
+          <PriorityPanel title={t("ui.app.innerWaysPriority")} rows={rotationMetrics?.innerWayPriority ?? []} />
         </aside>
       </div>
       <dialog
@@ -2436,13 +2455,13 @@ function StatsTab({
       >
         <div className="character-profile-dialog-heading">
           <div>
-            <h2>Character Profiles</h2>
-            <p>Profiles save modified stats and the complete Main-tab setup.</p>
+            <h2>{t("ui.app.characterProfiles")}</h2>
+            <p>{t("ui.app.profilesSaveModifiedStatsAndTheCompleteMain")}</p>
           </div>
           <button
             className="icon-button"
             type="button"
-            aria-label="Close character profiles"
+            aria-label={t("ui.app.closeCharacterProfiles")}
             onClick={() => profileDialogRef.current?.close()}
           >
             <UiIcon name="close" />
@@ -2451,8 +2470,8 @@ function StatsTab({
         <div className="character-profile-create">
           <input
             value={newProfileName}
-            placeholder="Profile name"
-            aria-label="New character profile name"
+            placeholder={t("ui.app.profileName")}
+            aria-label={t("ui.app.newCharacterProfileName")}
             onChange={(event) => setNewProfileName(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") createProfile();
@@ -2464,12 +2483,12 @@ function StatsTab({
             disabled={!newProfileName.trim()}
             onClick={createProfile}
           >
-            Save current
+            {t("ui.app.saveCurrent")}
           </button>
         </div>
         <div className="character-profile-list">
           <div className="character-profile-row calculated-profile-row">
-            <strong>Calculated</strong>
+            <strong>{t("ui.app.calculated")}</strong>
             <button
               className="button button-secondary button-small"
               type="button"
@@ -2478,14 +2497,14 @@ function StatsTab({
                 profileDialogRef.current?.close();
               }}
             >
-              Load
+              {t("ui.app.load")}
             </button>
           </div>
           {characterProfiles.map((profile) => (
             <div className="character-profile-row" key={profile.id}>
               <input
                 defaultValue={profile.name}
-                aria-label={`Rename ${profile.name}`}
+                aria-label={t("ui.app.renameNamedProfile", { name: profile.name })}
                 onBlur={(event) => {
                   const name = event.currentTarget.value.trim();
                   if (!name) {
@@ -2509,7 +2528,7 @@ function StatsTab({
                     profileDialogRef.current?.close();
                   }}
                 >
-                  Load
+                  {t("ui.app.load")}
                 </button>
                 <button
                   className="button button-secondary button-small"
@@ -2539,14 +2558,14 @@ function StatsTab({
                     ]);
                   }}
                 >
-                  Duplicate
+                  {t("ui.app.duplicate")}
                 </button>
                 <button
                   className="button button-danger button-small"
                   type="button"
                   onClick={() => onCharacterProfilesChange(characterProfiles.filter(({ id }) => id !== profile.id))}
                 >
-                  Delete
+                  {t("ui.app.delete")}
                 </button>
               </div>
             </div>
@@ -2560,14 +2579,14 @@ function StatsTab({
               disabled={characterProfiles.length === 0}
               onClick={exportProfiles}
             >
-              Export
+              {t("ui.app.export")}
             </button>
             <label className="button button-secondary button-small character-profile-import">
-              Import
+              {t("ui.app.import")}
               <input
                 type="file"
                 accept="application/json,.json"
-                aria-label="Import character profiles"
+                aria-label={t("ui.app.importCharacterProfiles")}
                 onChange={importProfiles}
               />
             </label>
@@ -2581,7 +2600,7 @@ function StatsTab({
             </p>
           )}
           <button className="button button-primary" type="button" onClick={() => profileDialogRef.current?.close()}>
-            Done
+            {t("ui.app.done")}
           </button>
         </div>
       </dialog>
@@ -2744,18 +2763,18 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
     <div className="requirement-editor">
       <div className="sub-editor-heading">
         <span>
-          Requirements <small>(all conditions must pass)</small>
+          {t("ui.app.requirements")} <small>{t("ui.app.allConditionsMustPass")}</small>
         </span>
         <div className="sub-editor-buttons">
           <button className="button button-small" type="button" onClick={addLeaf}>
-            Add condition
+            {t("ui.app.addCondition")}
           </button>
           <button className="button button-small" type="button" onClick={addOrGroup}>
-            Add OR
+            {t("ui.app.addOr")}
           </button>
         </div>
       </div>
-      {requirements.length === 0 && <span className="sub-editor-empty">No requirements</span>}
+      {requirements.length === 0 && <span className="sub-editor-empty">{t("ui.app.noRequirements")}</span>}
       {requirements.map((requirement, index) => {
         const item =
           requirement && typeof requirement === "object" && !Array.isArray(requirement)
@@ -2766,15 +2785,15 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
           return (
             <div className="or-condition" key={index}>
               <div className="or-condition-heading">
-                <span>OR group</span>
+                <span>{t("ui.app.orGroup")}</span>
                 <button type="button" onClick={() => remove(index)}>
-                  Remove
+                  {t("ui.app.remove")}
                 </button>
               </div>
               {operands.map((operand, operandIndex) =>
                 Array.isArray(operand) ? (
                   <div className="and-group" key={operandIndex}>
-                    <small>AND group</small>
+                    <small>{t("ui.app.andGroup")}</small>
                     {operand.map((leaf, nestedIndex) => (
                       <div className="condition-row" key={nestedIndex}>
                         <select
@@ -2789,14 +2808,14 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
                         </select>
                         <input
                           value={asString((leaf as EditableObject)?.value)}
-                          placeholder="Value"
+                          placeholder={t("ui.app.value")}
                           onChange={(event) =>
                             updateOrLeaf(index, operandIndex, "value", event.target.value, nestedIndex)
                           }
                         />
                         <button
                           type="button"
-                          aria-label="Remove alternative"
+                          aria-label={t("ui.app.removeAlternative")}
                           onClick={() => removeOrOperand(index, operandIndex, nestedIndex)}
                         >
                           <UiIcon name="close" />
@@ -2816,12 +2835,12 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
                     </select>
                     <input
                       value={asString((operand as EditableObject)?.value)}
-                      placeholder="Value"
+                      placeholder={t("ui.app.value")}
                       onChange={(event) => updateOrLeaf(index, operandIndex, "value", event.target.value)}
                     />
                     <button
                       type="button"
-                      aria-label="Remove alternative"
+                      aria-label={t("ui.app.removeAlternative")}
                       onClick={() => removeOrOperand(index, operandIndex)}
                     >
                       <UiIcon name="close" />
@@ -2830,7 +2849,7 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
                 ),
               )}
               <button className="button button-small" type="button" onClick={() => addOrOperand(index)}>
-                Add alternative
+                {t("ui.app.addAlternative")}
               </button>
             </div>
           );
@@ -2847,10 +2866,10 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
             </select>
             <input
               value={asString(item.value)}
-              placeholder="Value"
+              placeholder={t("ui.app.value")}
               onChange={(event) => updateLeaf(index, "value", event.target.value)}
             />
-            <button type="button" aria-label="Remove condition" onClick={() => remove(index)}>
+            <button type="button" aria-label={t("ui.app.removeCondition")} onClick={() => remove(index)}>
               <UiIcon name="close" />
             </button>
           </div>
@@ -2920,33 +2939,45 @@ function ActionDetails({
     <div className="structured-detail">
       <div className="detail-fields">
         <label className="detail-field">
-          <span>Type</span>
+          <span>{t("ui.app.type")}</span>
           <select value={type} onChange={(event) => set("type", event.target.value)}>
             {actionTypes.map((actionType) => (
               <option key={actionType}>{actionType}</option>
             ))}
           </select>
         </label>
-        <NumberField label="Time" value={item.time} onChange={(value) => set("time", value)} />
+        <NumberField label={t("ui.app.time")} value={item.time} onChange={(value) => set("time", value)} />
       </div>
       {type === "damage" && (
         <div className="detail-fields detail-fields-four">
-          <NumberField label="Physical Coefficient" value={item.phyCoef} onChange={(value) => set("phyCoef", value)} />
-          <NumberField label="Physical Bonus" value={item.phyBonus} onChange={(value) => set("phyBonus", value)} />
-          <NumberField label="Attribute Bonus" value={item.attrBonus} onChange={(value) => set("attrBonus", value)} />
+          <NumberField
+            label={t("ui.app.physicalCoefficient")}
+            value={item.phyCoef}
+            onChange={(value) => set("phyCoef", value)}
+          />
+          <NumberField
+            label={t("ui.app.physicalBonus")}
+            value={item.phyBonus}
+            onChange={(value) => set("phyBonus", value)}
+          />
+          <NumberField
+            label={t("ui.app.attributeBonus")}
+            value={item.attrBonus}
+            onChange={(value) => set("attrBonus", value)}
+          />
         </div>
       )}
       {(type === "apply" || type === "extend" || type === "clearCD") && (
         <div className="detail-fields">
           <label className="detail-field">
-            <span>Target</span>
+            <span>{t("ui.app.target")}</span>
             <select value={asString(item.target) || "self"} onChange={(event) => set("target", event.target.value)}>
-              <option>self</option>
-              <option>target</option>
+              <option value="self">{"self"}</option>
+              <option value="target">{"target"}</option>
             </select>
           </label>
           <label className="detail-field">
-            <span>Value</span>
+            <span>{t("ui.app.value")}</span>
             <input value={asString(item.value)} onChange={(event) => set("value", event.target.value)} />
           </label>
         </div>
@@ -2954,21 +2985,21 @@ function ActionDetails({
       {type === "consume" && (
         <div className="detail-fields consume-fields">
           <label className="detail-field">
-            <span>Target</span>
+            <span>{t("ui.app.target")}</span>
             <select value={asString(item.target) || "self"} onChange={(event) => set("target", event.target.value)}>
-              <option>self</option>
-              <option>target</option>
+              <option value="self">{"self"}</option>
+              <option value="target">{"target"}</option>
             </select>
           </label>
           <label className="detail-field">
-            <span>Value mode</span>
+            <span>{t("ui.app.valueMode")}</span>
             <select value={firstConsume ? "first" : "name"} onChange={(event) => setConsumeMode(event.target.value)}>
-              <option value="name">Single name</option>
-              <option value="first">First available</option>
+              <option value="name">{t("ui.app.singleName")}</option>
+              <option value="first">{t("ui.app.firstAvailable")}</option>
             </select>
           </label>
           <label className="detail-field consume-value-field">
-            <span>{firstConsume ? "Values (comma separated)" : "Value"}</span>
+            <span>{firstConsume ? t("ui.app.valuesCommaSeparated") : t("ui.app.value")}</span>
             <input value={consumeText} onChange={(event) => setConsumeText(event.target.value)} />
           </label>
         </div>
@@ -2982,11 +3013,11 @@ function ActionDetails({
                 checked={item.stack === "all"}
                 onChange={(event) => set("stack", event.target.checked ? "all" : 1)}
               />
-              <span>All stacks</span>
+              <span>{t("ui.app.allStacks")}</span>
             </label>
           )}
           {item.stack !== "all" && (
-            <NumberField label="Stack" value={item.stack} onChange={(value) => set("stack", value)} />
+            <NumberField label={t("ui.app.stack")} value={item.stack} onChange={(value) => set("stack", value)} />
           )}
           {type === "apply" && (
             <label className="checkbox-field">
@@ -2995,19 +3026,19 @@ function ActionDetails({
                 checked={item.reapply === true}
                 onChange={(event) => set("reapply", event.target.checked)}
               />
-              <span>Reapply</span>
+              <span>{t("ui.app.reapply")}</span>
             </label>
           )}
         </div>
       )}
       {(type === "apply" || type === "extend") && (
-        <NumberField label="Duration" value={item.duration} onChange={(value) => set("duration", value)} />
+        <NumberField label={t("ui.app.duration")} value={item.duration} onChange={(value) => set("duration", value)} />
       )}
       {type === "trigger" && (
         <label className="detail-field">
-          <span>Triggered skill</span>
+          <span>{t("ui.app.triggeredSkill")}</span>
           <select value={asString(item.value)} onChange={(event) => set("value", event.target.value)}>
-            <option value="">Select a skill</option>
+            <option value="">{t("ui.app.selectASkill")}</option>
             {skillIds.map((skillId) => (
               <option key={skillId}>{skillId}</option>
             ))}
@@ -3044,9 +3075,9 @@ function ModifierDetails({ item, onChange }: { item: EditableObject; onChange: (
     <div className="structured-detail">
       <RequirementEditor value={item.requirement} onChange={(value) => set("requirement", value)} />
       <div className="sub-editor-heading">
-        <span>Effects</span>
+        <span>{t("ui.app.effects")}</span>
         <button className="button button-small" type="button" onClick={addEffect}>
-          Add effect
+          {t("ui.app.addEffect")}
         </button>
       </div>
       {effectEntries.map(([field, value]) => (
@@ -3069,7 +3100,7 @@ function ModifierDetails({ item, onChange }: { item: EditableObject; onChange: (
             ))}
           </select>
           <EffectValueEditor value={value} onChange={(nextValue) => updateEffect(field, nextValue)} />
-          <button type="button" aria-label="Remove effect" onClick={() => removeEffect(field)}>
+          <button type="button" aria-label={t("ui.app.removeEffect")} onClick={() => removeEffect(field)}>
             <UiIcon name="close" />
           </button>
         </div>
@@ -3088,14 +3119,14 @@ function DynamicByStackValueEditor({
   return (
     <div className="dynamic-effect-editor">
       <label className="detail-field">
-        <span>Effect</span>
+        <span>{t("ui.app.effect")}</span>
         <input
           value={asString(value.param1)}
           onChange={(event) => onChange({ ...value, function: "byStack", param1: event.target.value })}
         />
       </label>
       <label className="detail-field">
-        <span>Value per stack</span>
+        <span>{t("ui.app.valuePerStack")}</span>
         <input
           type="number"
           step="0.0001"
@@ -3104,13 +3135,13 @@ function DynamicByStackValueEditor({
         />
       </label>
       <label className="detail-field">
-        <span>Target</span>
+        <span>{t("ui.app.target")}</span>
         <select
           value={value.target === "target" ? "target" : "self"}
           onChange={(event) => onChange({ ...value, function: "byStack", target: event.target.value })}
         >
-          <option value="self">Self</option>
-          <option value="target">Target</option>
+          <option value="self">{"self"}</option>
+          <option value="target">{"target"}</option>
         </select>
       </label>
     </div>
@@ -3127,14 +3158,14 @@ function DynamicMultiplyValueEditor({
   return (
     <div className="dynamic-effect-editor">
       <label className="detail-field">
-        <span>Parameter</span>
+        <span>{t("ui.app.parameter")}</span>
         <input
           value={asString(value.param1)}
           onChange={(event) => onChange({ ...value, function: "multiply", param1: event.target.value })}
         />
       </label>
       <label className="detail-field">
-        <span>Multiplier</span>
+        <span>{t("ui.app.multiplier")}</span>
         <input
           type="number"
           step="0.0001"
@@ -3160,14 +3191,14 @@ function DynamicSegmentValueEditor({
   return (
     <div className="dynamic-effect-editor">
       <label className="detail-field">
-        <span>Parameter</span>
+        <span>{t("ui.app.parameter")}</span>
         <input
           value={typeof value.param1 === "number" ? value.param1 : asString(value.param1)}
           onChange={(event) => onChange({ ...value, function: "segment", param1: event.target.value })}
         />
       </label>
       <div className="sub-editor-heading">
-        <span>Thresholds</span>
+        <span>{t("ui.app.thresholds")}</span>
         <button
           className="button button-small"
           type="button"
@@ -3176,14 +3207,14 @@ function DynamicSegmentValueEditor({
             onChange({ ...value, function: "segment", param2: nextThresholds, param3: resizeResults(nextThresholds) });
           }}
         >
-          Add
+          {t("ui.app.add")}
         </button>
       </div>
       <div className="dynamic-effect-values">
         {thresholds.map((item, index) => (
           <div key={index}>
             <input
-              aria-label={`Threshold ${index + 1}`}
+              aria-label={t("ui.app.thresholdNumber", { number: index + 1 })}
               type="number"
               step="0.0001"
               value={item}
@@ -3199,7 +3230,7 @@ function DynamicSegmentValueEditor({
             />
             <button
               type="button"
-              aria-label={`Remove threshold ${index + 1}`}
+              aria-label={t("ui.app.removeThresholdNumber", { number: index + 1 })}
               onClick={() => {
                 const nextThresholds = thresholds.filter((_, thresholdIndex) => thresholdIndex !== index);
                 const nextResults = results.filter((_, resultIndex) => resultIndex !== index);
@@ -3220,13 +3251,13 @@ function DynamicSegmentValueEditor({
         ))}
       </div>
       <div className="sub-editor-heading">
-        <span>Segment values</span>
+        <span>{t("ui.app.segmentValues")}</span>
       </div>
       <div className="dynamic-effect-values">
         {Array.from({ length: thresholds.length + 1 }, (_, index) => results[index] ?? 0).map((item, index) => (
           <div key={index}>
             <input
-              aria-label={`Segment value ${index + 1}`}
+              aria-label={t("ui.app.segmentValueNumber", { number: index + 1 })}
               type="number"
               step="0.0001"
               value={item}
@@ -3269,7 +3300,7 @@ function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (val
   return (
     <div className="effect-value-editor">
       <select
-        aria-label="Effect value type"
+        aria-label={t("ui.app.effectValueType")}
         value={kind}
         onChange={(event) => {
           const nextKind = event.target.value;
@@ -3288,12 +3319,12 @@ function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (val
           );
         }}
       >
-        <option value="number">Number</option>
-        <option value="boolean">Boolean</option>
-        <option value="byStack">By stack</option>
-        <option value="segment">Segment</option>
-        <option value="multiply">Multiply</option>
-        <option value="text">Text</option>
+        <option value="number">{"number"}</option>
+        <option value="boolean">{"boolean"}</option>
+        <option value="byStack">{"byStack"}</option>
+        <option value="segment">{"segment"}</option>
+        <option value="multiply">{"multiply"}</option>
+        <option value="text">{"text"}</option>
       </select>
       {kind === "byStack" && dynamicValue ? (
         <DynamicByStackValueEditor value={dynamicValue} onChange={onChange} />
@@ -3304,7 +3335,7 @@ function EffectValueEditor({ value, onChange }: { value: unknown; onChange: (val
       ) : kind === "boolean" ? (
         <label className="checkbox-field">
           <input type="checkbox" checked={value === true} onChange={(event) => onChange(event.target.checked)} />
-          <span>{value === true ? "True" : "False"}</span>
+          <span>{value === true ? "true" : "false"}</span>
         </label>
       ) : (
         <input
@@ -3345,13 +3376,13 @@ function EffectRuleDetails({ item, onChange }: { item: EditableObject; onChange:
       <RequirementEditor value={item.requirement} onChange={(requirement) => onChange({ ...item, requirement })} />
       <div className="sub-editor-heading">
         <span>
-          Effects <small>({wrapped ? "wrapped" : "direct"})</small>
+          {t("ui.app.effects")} <small>({wrapped ? t("ui.app.wrapped") : t("ui.app.direct")})</small>
         </span>
         <button className="button button-small" type="button" onClick={addEffect}>
-          Add effect
+          {t("ui.app.addEffect")}
         </button>
       </div>
-      {effectEntries.length === 0 && <span className="sub-editor-empty">No effects</span>}
+      {effectEntries.length === 0 && <span className="sub-editor-empty">{t("ui.app.noEffects")}</span>}
       {effectEntries.map(([field, value]) => (
         <div className="effect-row effect-rule-row" key={field}>
           <select
@@ -3372,7 +3403,11 @@ function EffectRuleDetails({ item, onChange }: { item: EditableObject; onChange:
             ))}
           </select>
           <EffectValueEditor value={value} onChange={(nextValue) => updateEffect(field, nextValue)} />
-          <button type="button" aria-label={`Remove ${field}`} onClick={() => removeEffect(field)}>
+          <button
+            type="button"
+            aria-label={t("ui.app.removeNamedEffect", { name: field })}
+            onClick={() => removeEffect(field)}
+          >
             <UiIcon name="close" />
           </button>
         </div>
@@ -3428,10 +3463,14 @@ function ArrayItemEditor({
       <div className="array-editor-heading">
         <span>{label}</span>
         <button className="button button-small" type="button" onClick={addItem}>
-          Add
+          {t("ui.app.add")}
         </button>
       </div>
-      {items.length === 0 && <p className="array-editor-empty">No {label.toLowerCase()} yet.</p>}
+      {items.length === 0 && (
+        <p className="array-editor-empty">
+          {t("ui.app.no")} {label.toLowerCase()} {t("ui.app.yet")}
+        </p>
+      )}
       <div className="array-editor-list">
         {items.map((item, index) => {
           return (
@@ -3445,18 +3484,23 @@ function ArrayItemEditor({
                   {itemSummary(JSON.stringify(item), index, kind)}
                 </button>
                 <div className="array-item-controls">
-                  <button type="button" aria-label="Move up" disabled={index === 0} onClick={() => moveItem(index, -1)}>
+                  <button
+                    type="button"
+                    aria-label={t("ui.app.moveUp")}
+                    disabled={index === 0}
+                    onClick={() => moveItem(index, -1)}
+                  >
                     <UiIcon name="up" />
                   </button>
                   <button
                     type="button"
-                    aria-label="Move down"
+                    aria-label={t("ui.app.moveDown")}
                     disabled={index === items.length - 1}
                     onClick={() => moveItem(index, 1)}
                   >
                     <UiIcon name="down" />
                   </button>
-                  <button type="button" aria-label="Delete" onClick={() => deleteItem(index)}>
+                  <button type="button" aria-label={t("ui.app.delete")} onClick={() => deleteItem(index)}>
                     <UiIcon name="close" />
                   </button>
                 </div>
@@ -3501,7 +3545,7 @@ function StackEffectsEditor({
   return (
     <section className="array-editor stack-effects-editor">
       <div className="array-editor-heading">
-        <span>Stack Effects</span>
+        <span>{t("ui.app.stackEffects")}</span>
         <button
           className="button button-small"
           type="button"
@@ -3511,10 +3555,10 @@ function StackEffectsEditor({
             setExpanded(next.length - 1);
           }}
         >
-          Add stack
+          {t("ui.app.addStack")}
         </button>
       </div>
-      {groups.length === 0 && <p className="array-editor-empty">No stack effects yet.</p>}
+      {groups.length === 0 && <p className="array-editor-empty">{t("ui.app.noStackEffectsYet")}</p>}
       <div className="array-editor-list">
         {groups.map((group, index) => (
           <div className={`array-item ${expanded === index ? "expanded" : ""}`} key={index}>
@@ -3524,12 +3568,13 @@ function StackEffectsEditor({
                 type="button"
                 onClick={() => setExpanded(expanded === index ? null : index)}
               >
-                Stack {index + 1} · {group.length} effect{group.length === 1 ? "" : "s"}
+                {t("ui.app.stack")} {index + 1} · {group.length} {t("ui.app.stackEffectCountNoun")}
+                {group.length === 1 ? "" : t("ui.app.s")}
               </button>
               <div className="array-item-controls">
                 <button
                   type="button"
-                  aria-label="Move stack up"
+                  aria-label={t("ui.app.moveStackUp")}
                   disabled={index === 0}
                   onClick={() => moveGroup(index, -1)}
                 >
@@ -3537,7 +3582,7 @@ function StackEffectsEditor({
                 </button>
                 <button
                   type="button"
-                  aria-label="Move stack down"
+                  aria-label={t("ui.app.moveStackDown")}
                   disabled={index === groups.length - 1}
                   onClick={() => moveGroup(index, 1)}
                 >
@@ -3545,7 +3590,7 @@ function StackEffectsEditor({
                 </button>
                 <button
                   type="button"
-                  aria-label="Delete stack"
+                  aria-label={t("ui.app.deleteStack")}
                   onClick={() => {
                     onChange(groups.filter((_, groupIndex) => groupIndex !== index));
                     setExpanded(null);
@@ -3558,7 +3603,7 @@ function StackEffectsEditor({
             {expanded === index && (
               <div className="array-item-detail">
                 <ArrayItemEditor
-                  label={`Stack ${index + 1} effects`}
+                  label={t("ui.app.stackEffectsNumber", { number: index + 1 })}
                   kind="effect"
                   items={group}
                   skillIds={skillIds}
@@ -3694,10 +3739,10 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
       };
       setOverrides(nextOverrides);
       sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
-      setStatus("Saved for this session");
+      setStatus(t("ui.app.savedForThisSession"));
       setError("");
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Could not save this record.");
+      setError(saveError instanceof Error ? saveError.message : t("ui.app.recordSaveError"));
       setStatus("");
     }
   }
@@ -3720,7 +3765,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
   return (
     <>
       <section className="panel skill-editor-panel">
-        <div className="skill-category-tabs" role="tablist" aria-label="Skill categories">
+        <div className="skill-category-tabs" role="tablist" aria-label={t("ui.app.skillCategories")}>
           {visibleCategories.map((item) => (
             <button
               key={item}
@@ -3733,7 +3778,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
           ))}
         </div>
         <div className="skill-editor-layout">
-          <aside className="skill-list" aria-label={`${category} skills`}>
+          <aside className="skill-list" aria-label={t("ui.app.namedSkills", { name: category })}>
             {skillIds.map((id) => (
               <button
                 key={id}
@@ -3758,11 +3803,11 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
               <>
                 <div className="skill-basic-fields definition-basic-fields">
                   <label className="editor-field">
-                    <span>Name</span>
+                    <span>{t("ui.app.name")}</span>
                     <input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
                   </label>
                   <label className="editor-field">
-                    <span>Max Stack</span>
+                    <span>{t("ui.app.maxStack")}</span>
                     <input
                       type="number"
                       min="1"
@@ -3772,14 +3817,14 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                     />
                   </label>
                   <label className="editor-field editor-field-wide">
-                    <span>Description</span>
+                    <span>{t("ui.app.description")}</span>
                     <input
                       value={draft.description}
                       onChange={(event) => setDraft({ ...draft, description: event.target.value })}
                     />
                   </label>
                   <label className="editor-field">
-                    <span>Duration</span>
+                    <span>{t("ui.app.duration")}</span>
                     <input
                       type="number"
                       min="0"
@@ -3789,7 +3834,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                     />
                   </label>
                   <label className="editor-field">
-                    <span>Cooldown</span>
+                    <span>{t("ui.app.cooldown")}</span>
                     <input
                       type="number"
                       min="0"
@@ -3799,7 +3844,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                     />
                   </label>
                   <label className="editor-field">
-                    <span>Refresh Duration</span>
+                    <span>{t("ui.app.refreshDuration")}</span>
                     <input
                       type="checkbox"
                       checked={draft.refresh}
@@ -3809,7 +3854,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                 </div>
                 <div className="structured-editor-grid">
                   <ArrayItemEditor
-                    label="Effects"
+                    label={t("ui.app.effects")}
                     kind="effect"
                     items={draft.effectItems}
                     onChange={(effectItems) => setDraft({ ...draft, effectItems })}
@@ -3826,11 +3871,11 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
               <>
                 <div className="skill-basic-fields">
                   <label className="editor-field">
-                    <span>Name</span>
+                    <span>{t("ui.app.name")}</span>
                     <input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} />
                   </label>
                   <label className="editor-field">
-                    <span>Short Name</span>
+                    <span>{t("ui.app.shortName")}</span>
                     <input
                       value={draft.shortName}
                       onChange={(event) => setDraft({ ...draft, shortName: event.target.value })}
@@ -3839,7 +3884,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                   {category === "DOT" ? (
                     <>
                       <label className="editor-field">
-                        <span>Interval</span>
+                        <span>{t("ui.app.interval")}</span>
                         <input
                           type="number"
                           min="0"
@@ -3849,7 +3894,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>First Tick</span>
+                        <span>{t("ui.app.firstTick")}</span>
                         <input
                           type="number"
                           min="0"
@@ -3859,7 +3904,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>Duration</span>
+                        <span>{t("ui.app.duration")}</span>
                         <input
                           type="number"
                           min="0"
@@ -3869,7 +3914,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>Max Stack</span>
+                        <span>{t("ui.app.maxStack")}</span>
                         <input
                           type="number"
                           min="1"
@@ -3879,7 +3924,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>Refresh Duration</span>
+                        <span>{t("ui.app.refreshDuration")}</span>
                         <input
                           type="checkbox"
                           checked={draft.refresh}
@@ -3887,7 +3932,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>Reset Period on Refresh</span>
+                        <span>{t("ui.app.resetPeriodOnRefresh")}</span>
                         <input
                           type="checkbox"
                           checked={draft.resetOnRefresh}
@@ -3898,7 +3943,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                   ) : (
                     <>
                       <label className="editor-field">
-                        <span>Cast Time</span>
+                        <span>{t("ui.app.castTime")}</span>
                         <input
                           type="number"
                           min="0"
@@ -3908,7 +3953,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                         />
                       </label>
                       <label className="editor-field">
-                        <span>Cooldown</span>
+                        <span>{t("ui.app.cooldown")}</span>
                         <input
                           type="number"
                           min="0"
@@ -3921,21 +3966,21 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
                   )}
                   <label className="editor-field editor-field-wide">
                     <span>
-                      Tags <small>(comma separated)</small>
+                      {t("ui.app.tags")} <small>{t("ui.app.commaSeparated")}</small>
                     </span>
                     <input value={draft.tags} onChange={(event) => setDraft({ ...draft, tags: event.target.value })} />
                   </label>
                 </div>
                 <div className="json-editor-grid">
                   <ArrayItemEditor
-                    label="Actions"
+                    label={t("ui.app.actions")}
                     kind="action"
                     items={draft.actionItems}
                     onChange={(actionItems) => setDraft({ ...draft, actionItems })}
                     skillIds={editorSkillIds}
                   />
                   <ArrayItemEditor
-                    label="Modifiers"
+                    label={t("ui.app.modifiers")}
                     kind="modifier"
                     items={draft.modifierItems}
                     onChange={(modifierItems) => setDraft({ ...draft, modifierItems })}
@@ -3947,10 +3992,10 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
             {error && <p className="editor-error">{error}</p>}
             <div className="editor-actions">
               <button className="button button-secondary" type="button" onClick={restoreDefault}>
-                Default
+                {t("ui.app.default")}
               </button>
               <button className="button button-primary" type="button" onClick={save}>
-                Save
+                {t("ui.app.save")}
               </button>
             </div>
           </div>
@@ -3981,7 +4026,7 @@ function SettingsTab({
         <div className="settings-weapon-row">
           {settings.weapons.map((weapon, index) => (
             <label className="editor-field" key={index}>
-              <span>{index === 0 ? "Left Weapon" : "Right Weapon"}</span>
+              <span>{index === 0 ? t("ui.app.leftWeapon") : t("ui.app.rightWeapon")}</span>
               <select
                 value={weapon}
                 disabled={weaponsLocked}
@@ -3998,7 +4043,7 @@ function SettingsTab({
                   .filter(([value]) => devMode || productionWeaponIds.has(value as WeaponId))
                   .map(([value, definition]) => (
                     <option key={value} value={value}>
-                      {definition.name} ({weaponFamilyNames[definition.weapon]})
+                      {gameText(definition.name)} ({gameText(weaponFamilyNames[definition.weapon])})
                     </option>
                   ))}
               </select>
@@ -4007,14 +4052,14 @@ function SettingsTab({
         </div>
         <div className="settings-enemy-row">
           <label className="editor-field">
-            <span>Enemy</span>
+            <span>{t("ui.app.enemy")}</span>
             <select
               value={settings.enemy}
               onChange={(event) => onSettingsChange((current) => ({ ...current, enemy: event.target.value }))}
             >
               {Object.entries(typedEnemyProfiles).map(([key, profile]) => (
                 <option key={key} value={key}>
-                  {profile.name}
+                  {gameText(profile.name)}
                 </option>
               ))}
             </select>
@@ -4022,10 +4067,18 @@ function SettingsTab({
         </div>
       </div>
       <div className="settings-summary">
-        <span>Defense: {enemy.defense}</span>
-        <span>Physical Resistance: {enemy.physicalResistance}</span>
-        <span>Attribute Resistance: {enemy.bellstrikeResistance}</span>
-        <span>Judgement Resistance: {formatNumber(enemy.judgementResistance * 100)}%</span>
+        <span>
+          {t("ui.app.defense")} {enemy.defense}
+        </span>
+        <span>
+          {t("ui.app.physicalResistance")} {enemy.physicalResistance}
+        </span>
+        <span>
+          {t("ui.app.attributeResistance")} {enemy.bellstrikeResistance}
+        </span>
+        <span>
+          {t("ui.app.judgementResistance")} {formatNumber(enemy.judgementResistance * 100)}%
+        </span>
       </div>
     </section>
   );
@@ -4479,7 +4532,7 @@ function RotationEditorTab({
   function save() {
     if (rotationLocked) return;
     if (!rotation.name.trim()) {
-      setError("Rotation name is required.");
+      setError(t("ui.app.rotationNameRequired"));
       setStatus("");
       return;
     }
@@ -4492,7 +4545,7 @@ function RotationEditorTab({
     persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", activeRotationId);
     setError("");
-    setStatus("Saved for this session");
+    setStatus(t("ui.app.savedForThisSession"));
     if (editingRotationId === activeRotationId) void calculateDiffsForRotation(editingRotationId, normalized);
   }
   function activateRotation(id: string) {
@@ -4540,7 +4593,7 @@ function RotationEditorTab({
     const current = migrateRotation(rotation);
     const id = `rotation-${Date.now()}`;
     const nextRotation: RotationRecord = {
-      name: "New Rotation",
+      name: t("ui.app.newRotation"),
       steps: [{ type: "skill", skill: rotationSkillIds[0] }],
       eventTimeReference: "battleStart",
     };
@@ -4636,7 +4689,7 @@ function RotationEditorTab({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({ message: `Exported ${exportedCount} rotations.` });
+    setTransferStatus({ message: t("ui.app.rotationsExported", { count: exportedCount }) });
   }
 
   async function importRotations(event: ChangeEvent<HTMLInputElement>) {
@@ -4669,10 +4722,10 @@ function RotationEditorTab({
         setStatus("");
         setError("");
       }
-      setTransferStatus({ message: `Imported ${result.importedCount} rotations.` });
+      setTransferStatus({ message: t("ui.app.rotationsImported", { count: result.importedCount }) });
     } catch (error) {
       setTransferStatus({
-        message: error instanceof Error ? error.message : "The rotation file could not be imported.",
+        message: error instanceof Error ? error.message : t("ui.app.rotationImportError"),
         error: true,
       });
     }
@@ -4890,11 +4943,11 @@ function RotationEditorTab({
         readableTextRef.current?.select();
         if (!document.execCommand("copy")) throw new Error("Copy is unavailable");
       }
-      setReadableCopyStatus("Copied");
+      setReadableCopyStatus(t("ui.app.copied"));
     } catch {
       readableTextRef.current?.focus();
       readableTextRef.current?.select();
-      setReadableCopyStatus("Select the text and copy it manually.");
+      setReadableCopyStatus(t("ui.app.manualCopyInstruction"));
     }
   }
   const makeTimelineInput = (
@@ -5190,9 +5243,9 @@ function RotationEditorTab({
       <div className="rotation-editor-layout">
         <aside className="rotation-list">
           <div className="rotation-list-heading">
-            <span>Rotations</span>
+            <span>{t("ui.app.rotations")}</span>
             <button className="button button-secondary button-small" type="button" onClick={addRotation}>
-              New Rotation
+              {t("ui.app.newRotation")}
             </button>
           </div>
           <div className="rotation-list-entries">
@@ -5209,7 +5262,7 @@ function RotationEditorTab({
               >
                 <strong>
                   {entry.id === activeRotationId && (
-                    <span className="active-rotation-icon" title="Active rotation">
+                    <span className="active-rotation-icon" title={t("ui.app.activeRotation")}>
                       <UiIcon name="active" />
                     </span>
                   )}
@@ -5220,8 +5273,10 @@ function RotationEditorTab({
                     <button
                       className="rotation-remove-button"
                       type="button"
-                      aria-label={`Remove ${entry.rotation.name || "rotation"}`}
-                      title="Remove rotation"
+                      aria-label={t("ui.app.removeNamedRotation", {
+                        name: entry.rotation.name || t("ui.app.rotation"),
+                      })}
+                      title={t("ui.app.removeRotation")}
                       disabled={visibleRotationEntries.length <= 1}
                       onClick={(event) => {
                         event.stopPropagation();
@@ -5238,14 +5293,14 @@ function RotationEditorTab({
           <div className="rotation-transfer-actions">
             <div>
               <button className="button button-secondary button-small" type="button" onClick={exportRotations}>
-                Export
+                {t("ui.app.export")}
               </button>
               <label className="button button-secondary button-small rotation-import-button">
-                Import
+                {t("ui.app.import")}
                 <input
                   type="file"
                   accept="application/json,.json"
-                  aria-label="Import rotations"
+                  aria-label={t("ui.app.importRotations")}
                   onChange={importRotations}
                 />
               </label>
@@ -5279,7 +5334,7 @@ function RotationEditorTab({
                       <button
                         className="icon-button"
                         type="button"
-                        aria-label="Edit rotation name"
+                        aria-label={t("ui.app.editRotationName")}
                         onClick={() => setEditingName(true)}
                       >
                         <UiIcon name="edit" />
@@ -5288,20 +5343,18 @@ function RotationEditorTab({
                   </h3>
                 )}
                 {rotationLocked && (
-                  <p className="rotation-default-note">
-                    This is a prebuilt default rotation and cannot be changed. Duplicate it to edit.
-                  </p>
+                  <p className="rotation-default-note">{t("ui.app.thisIsAPrebuiltDefaultRotationAndCannot")}</p>
                 )}
               </div>
               <div className="detail-active-actions">
                 {status && <span className="editor-status">{status}</span>}
                 <span className="rotation-heading-actions">
                   <button className="button button-secondary button-small" type="button" onClick={duplicateRotation}>
-                    Duplicate
+                    {t("ui.app.duplicate")}
                   </button>
                   {!rotationLocked && (
                     <button className="button button-primary button-small" type="button" onClick={save}>
-                      Save
+                      {t("ui.app.save")}
                     </button>
                   )}
                   <button
@@ -5310,7 +5363,7 @@ function RotationEditorTab({
                     disabled={editingRotationId === activeRotationId}
                     onClick={() => activateRotation(editingRotationId)}
                   >
-                    {editingRotationId === activeRotationId ? "Active" : "Make Active"}
+                    {editingRotationId === activeRotationId ? t("ui.app.active") : t("ui.app.makeActive")}
                   </button>
                 </span>
               </div>
@@ -5320,19 +5373,24 @@ function RotationEditorTab({
                 <button
                   className="button button-secondary button-small"
                   type="button"
-                  disabled={!readableRotation}
+                  disabled={timeline.length === 0}
                   onClick={openReadableRotation}
                 >
-                  Readable Format
+                  {t("ui.app.readableFormat")}
                 </button>
               </span>
               <span>
-                {rotation.steps.filter((step) => step.type === "skill").length} steps ·{" "}
-                {formatNumber(totalRotationTime)}s total time
+                {rotation.steps.filter((step) => step.type === "skill").length} {t("ui.app.steps")}{" "}
+                {formatNumber(totalRotationTime)}
+                {t("ui.app.sTotalTime")}
               </span>
               <span className="rotation-results">
-                <span>Total Damage: {formatNumber(rotationCalculation.totalDamage)}</span>
-                <span>DPS: {formatNumber(rotationCalculation.dps)}</span>
+                <span>
+                  {t("system.totalDamage")}: {formatNumber(rotationCalculation.totalDamage)}
+                </span>
+                <span>
+                  {t("system.dps")}: {formatNumber(rotationCalculation.dps)}
+                </span>
               </span>
             </div>
             <div className="rotation-scroll-content" ref={rotationScrollRef}>
@@ -5342,15 +5400,15 @@ function RotationEditorTab({
                 <div className="rotation-table-header">
                   <span></span>
                   <span>#</span>
-                  <span>Start Time</span>
-                  <span>Cast Time</span>
-                  <span>Skill</span>
-                  {showDistanceColumn && <span>Distance</span>}
-                  {showHPColumn && <span>Self HP</span>}
-                  <span className="rotation-damage-heading">Damage</span>
-                  <span>Buff</span>
-                  <span>Debuff</span>
-                  <span>Actions</span>
+                  <span>{t("ui.app.startTime")}</span>
+                  <span>{t("ui.app.castTime")}</span>
+                  <span>{t("ui.app.skill")}</span>
+                  {showDistanceColumn && <span>{t("ui.app.distance")}</span>}
+                  {showHPColumn && <span>{t("ui.app.selfHp")}</span>}
+                  <span className="rotation-damage-heading">{t("ui.app.damage")}</span>
+                  <span>{t("ui.app.buff")}</span>
+                  <span>{t("ui.app.debuff")}</span>
+                  <span>{t("ui.app.actions")}</span>
                 </div>
                 <div className="rotation-step-list">
                   {displayEntries.map((entry, index) => {
@@ -5368,9 +5426,9 @@ function RotationEditorTab({
                         <span className="effect-plates">
                           {effects.map((effect) => {
                             const definition = effectDefinitions[effect.name];
-                            const description = definition?.description?.trim();
-                            const name = definition?.name ?? effect.name;
-                            const label = `${definition?.shortName ?? name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`;
+                            const description = gameText(definition?.description?.trim());
+                            const name = gameText(definition?.name ?? effect.name);
+                            const label = `${gameText(definition?.shortName) || name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`;
                             const timeLeft =
                               effect.expiresAt === undefined ? "∞" : Math.max(0, effect.expiresAt - atTime).toFixed(2);
                             const plateKind = dotEffectIds.has(effect.name)
@@ -5383,7 +5441,7 @@ function RotationEditorTab({
                                 {label}
                                 <span className="effect-plate-tooltip" role="tooltip">
                                   <strong>
-                                    {name} - {timeLeft}s left
+                                    {name} - {t("ui.app.sLeft", { number: timeLeft })}
                                   </strong>
                                   {description && <span>{description}</span>}
                                 </span>
@@ -5486,7 +5544,7 @@ function RotationEditorTab({
                               <button
                                 className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`}
                                 type="button"
-                                aria-label="Set fight start here"
+                                aria-label={t("ui.app.setFightStartHere")}
                                 disabled={rotationLocked}
                                 onClick={() => selectStart(row.rotationIndex ?? 0)}
                               >
@@ -5498,7 +5556,10 @@ function RotationEditorTab({
                             <span className="rotation-index">{skillNumber}</span>
                             {isManualEvent ? (
                               isAttachedEvent || isDelayEvent || rotationLocked ? (
-                                <span>{formatNumber(displayTime(startTime))}s</span>
+                                <span>
+                                  {formatNumber(displayTime(startTime))}
+                                  {t("ui.app.s")}
+                                </span>
                               ) : (
                                 <input
                                   className="rotation-event-time"
@@ -5515,11 +5576,17 @@ function RotationEditorTab({
                                 />
                               )
                             ) : (
-                              <span>{formatNumber(displayTime(startTime))}s</span>
+                              <span>
+                                {formatNumber(displayTime(startTime))}
+                                {t("ui.app.s")}
+                              </span>
                             )}
                             {durationEvent ? (
                               rotationLocked ? (
-                                <span>{formatNumber(durationValue)}s</span>
+                                <span>
+                                  {formatNumber(durationValue)}
+                                  {t("ui.app.s")}
+                                </span>
                               ) : (
                                 <input
                                   className="rotation-event-time"
@@ -5561,7 +5628,7 @@ function RotationEditorTab({
                                   <select
                                     className="rotation-skill-select"
                                     data-rotation-step-index={row.rotationIndex}
-                                    aria-label="Skill or event"
+                                    aria-label={t("ui.app.skillOrEvent")}
                                     value={isManualEvent ? `__event:${step.event}` : (stepSkill ?? "")}
                                     onChange={(event) =>
                                       selectRotationItem(
@@ -5573,7 +5640,7 @@ function RotationEditorTab({
                                   >
                                     {stepSkill && !rotationSkillIds.includes(stepSkill) && (
                                       <option value={stepSkill} disabled>
-                                        {skillDisplayName(findSkill(stepSkill), stepSkill)} (unavailable)
+                                        {skillDisplayName(findSkill(stepSkill), stepSkill)} {t("ui.app.unavailable")}
                                       </option>
                                     )}
                                     {rotationSkillIds.map((id) => (
@@ -5597,12 +5664,15 @@ function RotationEditorTab({
                             {showDistanceColumn &&
                               (isManualEvent && step.event === "Move" ? (
                                 rotationLocked ? (
-                                  <span>{step.distance}m</span>
+                                  <span>
+                                    {step.distance}
+                                    {t("ui.app.m")}
+                                  </span>
                                 ) : (
                                   <span className="rotation-distance-input-wrap">
                                     <input
                                       className="rotation-event-time"
-                                      aria-label="Distance after move"
+                                      aria-label={t("ui.app.distanceAfterMove")}
                                       type="number"
                                       min="1"
                                       step="1"
@@ -5618,11 +5688,14 @@ function RotationEditorTab({
                                         if (event.key === "Enter") event.currentTarget.blur();
                                       }}
                                     />
-                                    <span>m</span>
+                                    <span>{t("ui.app.m")}</span>
                                   </span>
                                 )
                               ) : (
-                                <span>{formatNumber(row.distance)}m</span>
+                                <span>
+                                  {formatNumber(row.distance)}
+                                  {t("ui.app.m")}
+                                </span>
                               ))}
                             {showHPColumn &&
                               (isManualEvent && step.event === "HP" ? (
@@ -5632,7 +5705,7 @@ function RotationEditorTab({
                                   <span className="rotation-distance-input-wrap">
                                     <input
                                       className="rotation-event-time"
-                                      aria-label="Current HP percentage"
+                                      aria-label={t("ui.app.currentHpPercentage")}
                                       type="number"
                                       min="0"
                                       max="100"
@@ -5674,7 +5747,7 @@ function RotationEditorTab({
                                   >
                                     <select
                                       className="rotation-effect-select"
-                                      aria-label="Buff to apply"
+                                      aria-label={t("ui.app.buffToApply")}
                                       value={step.buff}
                                       onChange={(event) => {
                                         const buff = event.target.value;
@@ -5693,7 +5766,7 @@ function RotationEditorTab({
                                     {(effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
-                                        aria-label="Buff stacks"
+                                        aria-label={t("ui.app.buffStacks")}
                                         type="number"
                                         min="1"
                                         max={effectDefinitions[step.buff]?.maxStack}
@@ -5735,7 +5808,7 @@ function RotationEditorTab({
                                   >
                                     <select
                                       className="rotation-effect-select"
-                                      aria-label="Debuff to apply"
+                                      aria-label={t("ui.app.debuffToApply")}
                                       value={step.debuff}
                                       onChange={(event) => {
                                         const debuff = event.target.value;
@@ -5754,7 +5827,7 @@ function RotationEditorTab({
                                     {(effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
-                                        aria-label="Debuff stacks"
+                                        aria-label={t("ui.app.debuffStacks")}
                                         type="number"
                                         min="1"
                                         max={effectDefinitions[step.debuff]?.maxStack}
@@ -5789,7 +5862,7 @@ function RotationEditorTab({
                                   <span className="rotation-control-placeholder" aria-hidden="true" />
                                   <button
                                     type="button"
-                                    aria-label="Move event to previous action"
+                                    aria-label={t("ui.app.moveEventToPreviousAction")}
                                     disabled={rotationLocked || attachedTargetIndex <= 0}
                                     onClick={(event) =>
                                       moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)
@@ -5799,7 +5872,7 @@ function RotationEditorTab({
                                   </button>
                                   <button
                                     type="button"
-                                    aria-label="Move event to next action"
+                                    aria-label={t("ui.app.moveEventToNextAction")}
                                     disabled={
                                       rotationLocked ||
                                       attachedTargetIndex < 0 ||
@@ -5817,7 +5890,10 @@ function RotationEditorTab({
                                 <button
                                   className="rotation-expand-button"
                                   type="button"
-                                  aria-label={`${actionsExpanded ? "Collapse" : "Expand"} ${skillDisplayName(skill, stepSkill ?? "skill")} actions`}
+                                  aria-label={t("ui.app.toggleNamedSkillActions", {
+                                    action: actionsExpanded ? t("ui.app.collapse") : t("ui.app.expand"),
+                                    name: skillDisplayName(skill, stepSkill ?? t("ui.app.skillFallback")),
+                                  })}
                                   aria-expanded={actionsExpanded}
                                   onClick={() => toggleSkillActions(row.id)}
                                 >
@@ -5828,7 +5904,7 @@ function RotationEditorTab({
                                 <>
                                   <button
                                     type="button"
-                                    aria-label="Move up"
+                                    aria-label={t("ui.app.moveUp")}
                                     disabled={rotationLocked || (row.rotationIndex ?? 0) === 0}
                                     onClick={() => moveStep(row.rotationIndex ?? 0, -1)}
                                   >
@@ -5836,7 +5912,7 @@ function RotationEditorTab({
                                   </button>
                                   <button
                                     type="button"
-                                    aria-label="Move down"
+                                    aria-label={t("ui.app.moveDown")}
                                     disabled={rotationLocked || (row.rotationIndex ?? 0) === rotation.steps.length - 1}
                                     onClick={() => moveStep(row.rotationIndex ?? 0, 1)}
                                   >
@@ -5848,7 +5924,7 @@ function RotationEditorTab({
                                 <>
                                   <button
                                     type="button"
-                                    aria-label="Delete step"
+                                    aria-label={t("ui.app.deleteStep")}
                                     disabled={rotationLocked}
                                     onClick={() => removeStep(row.rotationIndex ?? 0)}
                                   >
@@ -5857,7 +5933,7 @@ function RotationEditorTab({
                                   {(!isManualEvent || isDelayEvent) && (
                                     <button
                                       type="button"
-                                      aria-label="Add step below"
+                                      aria-label={t("ui.app.addStepBelow")}
                                       disabled={rotationLocked}
                                       onClick={() => addStepBelow(row.rotationIndex ?? 0)}
                                     >
@@ -5885,7 +5961,7 @@ function RotationEditorTab({
                                   <button
                                     className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === actionIndex ? "active" : ""}`}
                                     type="button"
-                                    aria-label="Set fight start here"
+                                    aria-label={t("ui.app.setFightStartHere")}
                                     disabled={rotationLocked}
                                     onClick={() => selectStart(row.rotationIndex ?? 0, actionIndex)}
                                   >
@@ -5897,13 +5973,19 @@ function RotationEditorTab({
                                   <span aria-hidden="true" />
                                 )}
                                 <span aria-hidden="true" />
-                                <span>{formatNumber(displayTime(actionTime))}s</span>
+                                <span>
+                                  {formatNumber(displayTime(actionTime))}
+                                  {t("ui.app.s")}
+                                </span>
                                 <span aria-hidden="true" />
                                 <span>
                                   <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />
                                 </span>
                                 {showDistanceColumn && (
-                                  <span>{formatNumber(actionState?.distance ?? row.distance)}m</span>
+                                  <span>
+                                    {formatNumber(actionState?.distance ?? row.distance)}
+                                    {t("ui.app.m")}
+                                  </span>
                                 )}
                                 {showHPColumn && (
                                   <span>
@@ -5933,40 +6015,40 @@ function RotationEditorTab({
           </div>
         ) : (
           <div className="rotation-editor-content">
-            <p className="array-editor-empty">No rotations match the selected martial arts. Add a rotation to begin.</p>
+            <p className="array-editor-empty">{t("ui.app.noRotationsMatchTheSelectedMartialArtsAdd")}</p>
           </div>
         )}
       </div>
       <dialog className="rotation-readable-dialog" ref={readableDialogRef} onClose={() => setReadableDialogOpen(false)}>
         <div className="rotation-readable-heading">
           <div>
-            <span className="detail-kicker">Readable Format</span>
+            <span className="detail-kicker">{t("ui.app.readableFormat")}</span>
             <h3>{rotation.name || "Unnamed Rotation"}</h3>
           </div>
           <button
             className="icon-button"
             type="button"
-            aria-label="Close readable rotation"
+            aria-label={t("ui.app.closeReadableRotation")}
             onClick={() => readableDialogRef.current?.close()}
           >
             <UiIcon name="close" />
           </button>
         </div>
-        <p>Skills before the start use a rounded pre-fight countdown in 0.5-second increments.</p>
+        <p>{t("ui.app.skillsBeforeTheStartUseARoundedPre")}</p>
         <textarea
           ref={readableTextRef}
           readOnly
           value={readableRotation}
-          aria-label="Readable rotation"
+          aria-label={t("ui.app.readableRotation")}
           onFocus={(event) => event.currentTarget.select()}
         />
         <div className="rotation-readable-actions">
           <span role="status">{readableCopyStatus}</span>
           <button className="button button-secondary" type="button" onClick={() => readableDialogRef.current?.close()}>
-            Close
+            {t("ui.app.close")}
           </button>
           <button className="button button-primary" type="button" onClick={copyReadableRotation}>
-            Copy
+            {t("ui.app.copy")}
           </button>
         </div>
       </dialog>
@@ -5975,6 +6057,7 @@ function RotationEditorTab({
 }
 
 export default function App() {
+  const [locale, setLocale] = useState(getLocale);
   const [activeTab, setActiveTab] = useState<
     "main" | "build" | "breakdown" | "rotations" | "simulation" | "skills" | "settings"
   >("main");
@@ -6161,6 +6244,10 @@ export default function App() {
     localStorage.setItem(devModeStorageKey, String(nextDevMode));
     setDevMode(nextDevMode);
     if (!nextDevMode && typedPathDefinitions[pathId].wip) selectPath("stonesplitStrength");
+    if (!nextDevMode && isLocaleWip(locale)) void changeLocale("en");
+  };
+  const changeLocale = async (nextLocale: string) => {
+    if (await selectLocale(nextLocale)) setLocale(getLocale());
   };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
@@ -6189,19 +6276,35 @@ export default function App() {
     <main className={`page-shell ${activeTab === "build" || activeTab === "rotations" ? "viewport-page-shell" : ""}`}>
       <header className="page-header">
         <div>
-          <h1>Where Builds Meet</h1>
-          <p className="intro">Build, simulate, and optimize for Where Winds Meet.</p>
+          <h1>{t("ui.app.whereBuildsMeet")}</h1>
+          <p className="intro">{t("ui.app.buildSimulateAndOptimizeForWhereWindsMeet")}</p>
         </div>
-        <button
-          className="button button-secondary dev-mode-button"
-          type="button"
-          aria-pressed={devMode}
-          onClick={toggleDevMode}
-        >
-          Dev
-        </button>
+        <div className="page-header-controls">
+          <label className="locale-selector">
+            <span>{t("ui.app.language")}</span>
+            <select value={locale} onChange={(event) => void changeLocale(event.target.value)}>
+              {getSupportedLocales().map((supportedLocale) => (
+                <option
+                  value={supportedLocale}
+                  key={supportedLocale}
+                  disabled={!devMode && isLocaleWip(supportedLocale)}
+                >
+                  {getLocaleDisplayName(supportedLocale)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="button button-secondary dev-mode-button"
+            type="button"
+            aria-pressed={devMode}
+            onClick={toggleDevMode}
+          >
+            {t("ui.app.dev")}
+          </button>
+        </div>
       </header>
-      <section className="path-selector" aria-label="Combat path">
+      <section className="path-selector" aria-label={t("ui.app.combatPath")}>
         <div className="path-selector-options">
           {(Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).map(([value, definition]) => (
             <button
@@ -6213,32 +6316,32 @@ export default function App() {
               onClick={() => selectPath(value)}
             >
               {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
-              <span>{definition.name}</span>
-              {definition.wip && <small className="path-wip-badge">WIP</small>}
+              <span>{gameText(definition.name)}</span>
+              {definition.wip && <small className="path-wip-badge">{t("ui.app.wip")}</small>}
             </button>
           ))}
         </div>
       </section>
-      <nav className="main-tabs" aria-label="Main sections">
+      <nav className="main-tabs" aria-label={t("ui.app.mainSections")}>
         <button className={activeTab === "main" ? "active" : ""} type="button" onClick={() => setActiveTab("main")}>
-          Main
+          {t("ui.app.main")}
         </button>
         <button className={activeTab === "build" ? "active" : ""} type="button" onClick={() => setActiveTab("build")}>
-          Build
+          {t("ui.app.build")}
         </button>
         <button
           className={activeTab === "breakdown" ? "active" : ""}
           type="button"
           onClick={() => setActiveTab("breakdown")}
         >
-          DPS Breakdown
+          {t("ui.app.dpsBreakdown", { dps: t("system.dps") })}
         </button>
         <button
           className={activeTab === "rotations" ? "active" : ""}
           type="button"
           onClick={() => setActiveTab("rotations")}
         >
-          Rotation Editor
+          {t("ui.app.rotationEditor")}
         </button>
         <button
           className={activeTab === "simulation" ? "active" : ""}
@@ -6248,17 +6351,17 @@ export default function App() {
             setActiveTab("simulation");
           }}
         >
-          Simulation
+          {t("ui.app.simulation")}
         </button>
         <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>
-          Skill Editor
+          {t("ui.app.skillEditor")}
         </button>
         <button
           className={activeTab === "settings" ? "active" : ""}
           type="button"
           onClick={() => setActiveTab("settings")}
         >
-          Settings
+          {t("ui.app.settings")}
         </button>
       </nav>
       {activeTab === "main" ? (
@@ -6330,9 +6433,9 @@ export default function App() {
         </div>
       )}
       <footer className="page-footer">
-        <span>Author: greydust (WWM IGN) / greydust (Discord)</span>
+        <span>{t("ui.app.authorGreydustWwmIgnGreydustDiscord")}</span>
         <a href="https://github.com/greydust/where-builds-meet" target="_blank" rel="noreferrer">
-          GitHub
+          {t("ui.app.github")}
         </a>
       </footer>
     </main>

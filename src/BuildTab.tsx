@@ -57,6 +57,7 @@ import {
 } from "./gear";
 import type { WeaponId } from "./types";
 import { officialGearBookmarklet } from "./officialGearBookmarklet";
+import { gameText, t } from "./i18n";
 
 type GearOcrModule = typeof import("./gearOcr");
 
@@ -137,18 +138,22 @@ function itemAttributes(item: GearItem) {
   const rows: Array<{ label: string; value: string; kind: string }> = [];
   const baseDefinition = gearData.affixes[item.baseAffix.key];
   rows.push({
-    label: baseDefinition?.name ?? item.baseAffix.key,
+    label: gameText(baseDefinition?.name ?? item.baseAffix.key),
     value: displayValue(item.baseAffix.value, baseDefinition),
     kind: "Base affix",
   });
   for (const affix of item.additionalAffixes) {
     const definition = gearData.affixes[affix.key];
-    rows.push({ label: definition?.name ?? affix.key, value: displayValue(affix.value, definition), kind: "Affix" });
+    rows.push({
+      label: gameText(definition?.name ?? affix.key),
+      value: displayValue(affix.value, definition),
+      kind: "Affix",
+    });
   }
   if (item.attunement) {
     const attunementDefinition = attunementData[item.attunement.key];
     rows.push({
-      label: attunementDefinition?.name ?? item.attunement.key,
+      label: gameText(attunementDefinition?.name ?? item.attunement.key),
       value: displayValue(item.attunement.value, attunementDefinition),
       kind: "Attunement",
     });
@@ -160,39 +165,44 @@ function GearBaseStatSummary({ item }: { item: GearItem }) {
   const stats = gearBaseStats(item);
   if (typeof stats.minPhys === "number" && typeof stats.maxPhys === "number") {
     return (
-      <span className="gear-base-stat">
-        Physical Attack{" "}
-        <strong>
-          {formatNumber(stats.minPhys)}~{formatNumber(stats.maxPhys)}
-        </strong>
+      <span className="gear-base-stats">
+        <span className="gear-base-stat">
+          {t("ui.buildTab.physicalAttack")}{" "}
+          <strong>
+            {formatNumber(stats.minPhys)}~{formatNumber(stats.maxPhys)}
+          </strong>
+        </span>
       </span>
     );
   }
   if (typeof stats.minPhys === "number")
     return (
-      <span className="gear-base-stat">
-        Min Physical Attack <strong>{formatNumber(stats.minPhys)}</strong>
+      <span className="gear-base-stats">
+        <span className="gear-base-stat">
+          {t("stat.minPhys")} <strong>{formatNumber(stats.minPhys)}</strong>
+        </span>
       </span>
     );
   if (typeof stats.maxPhys === "number")
     return (
-      <span className="gear-base-stat">
-        Max Physical Attack <strong>{formatNumber(stats.maxPhys)}</strong>
+      <span className="gear-base-stats">
+        <span className="gear-base-stat">
+          {t("stat.maxPhys")} <strong>{formatNumber(stats.maxPhys)}</strong>
+        </span>
       </span>
     );
   if (typeof stats.maxHp === "number" || typeof stats.physicalDefense === "number")
     return (
-      <span className="gear-base-stat">
+      <span className="gear-base-stats">
         {typeof stats.maxHp === "number" && (
-          <>
-            Max HP <strong>{formatNumber(stats.maxHp)}</strong>
-          </>
+          <span className="gear-base-stat">
+            {t("stat.maxHp")} <strong>{formatNumber(stats.maxHp)}</strong>
+          </span>
         )}
-        {typeof stats.maxHp === "number" && typeof stats.physicalDefense === "number" && " · "}
         {typeof stats.physicalDefense === "number" && (
-          <>
-            Physical Defense <strong>{formatNumber(stats.physicalDefense)}</strong>
-          </>
+          <span className="gear-base-stat">
+            {t("stat.physicalDefense")} <strong>{formatNumber(stats.physicalDefense)}</strong>
+          </span>
         )}
       </span>
     );
@@ -220,7 +230,11 @@ function GearAttributes({ item, compact = false }: { item: GearItem; compact?: b
 
 function RelayedIndicator({ item }: { item?: GearItem }) {
   return item?.relayed ? (
-    <span className="gear-relayed-indicator" aria-label="Relayed gear" title="Relayed gear">
+    <span
+      className="gear-relayed-indicator"
+      aria-label={t("ui.buildTab.relayedGear")}
+      title={t("ui.buildTab.relayedGear")}
+    >
       <UiIcon name="up" />
     </span>
   ) : null;
@@ -292,25 +306,25 @@ function GearValueEditor({
       <label>
         <span>{label}</span>
         <select
-          aria-label={`${label} type`}
+          aria-label={t("ui.buildTab.namedType", { name: label })}
           value={value.key}
           onChange={(event) =>
             onChange(capDraftValue({ ...value, key: event.target.value }, definitions, category, relayed, level))
           }
         >
-          <option value="">Select an attribute</option>
+          <option value="">{t("ui.buildTab.selectAnAttribute")}</option>
           {options.map((key) => (
             <option key={key} value={key} disabled={key !== value.key && disabledKeys.has(key)}>
-              {definitions[key]?.name ?? key}
+              {gameText(definitions[key]?.name ?? key)}
             </option>
           ))}
         </select>
       </label>
       <label className="gear-value-input">
-        <span>Value</span>
+        <span>{t("ui.buildTab.value")}</span>
         <span>
           <input
-            aria-label={`${label} value`}
+            aria-label={t("ui.buildTab.namedValue", { name: label })}
             type="number"
             min="0"
             max={maximum}
@@ -403,7 +417,7 @@ export default function BuildTab({
         ...current.entries,
         {
           id,
-          name: "New Build",
+          name: t("ui.buildTab.newBuild"),
           martialArts: [...weapons],
           equipped: {},
           setup: normalizeBuildSetup(defaultBuildSetup),
@@ -419,12 +433,12 @@ export default function BuildTab({
         <div className="build-manager-layout">
           <aside className="build-list">
             <div className="build-list-heading">
-              <span>Builds</span>
+              <span>{t("ui.buildTab.builds")}</span>
               <button className="button button-secondary button-small" type="button" onClick={addBuild}>
-                New Build
+                {t("ui.buildTab.newBuild")}
               </button>
             </div>
-            <p className="array-editor-empty">No builds match the selected martial arts.</p>
+            <p className="array-editor-empty">{t("ui.buildTab.noBuildsMatchTheSelectedMartialArts")}</p>
           </aside>
         </div>
       </section>
@@ -511,7 +525,9 @@ export default function BuildTab({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({ message: `Exported ${buildState.gearItems.length} gear and ${exportedBuildCount} builds.` });
+    setTransferStatus({
+      message: t("ui.buildTab.exportComplete", { gear: buildState.gearItems.length, builds: exportedBuildCount }),
+    });
   }
 
   async function importBuilds(event: ChangeEvent<HTMLInputElement>) {
@@ -527,11 +543,14 @@ export default function BuildTab({
         setEditingName(false);
       }
       setTransferStatus({
-        message: `Imported ${result.importedGearCount} gear and ${result.importedBuildCount} builds.`,
+        message: t("ui.buildTab.importComplete", {
+          gear: result.importedGearCount,
+          builds: result.importedBuildCount,
+        }),
       });
     } catch (error) {
       setTransferStatus({
-        message: error instanceof Error ? error.message : "The build file could not be imported.",
+        message: error instanceof Error ? error.message : t("ui.buildTab.importFileError"),
         error: true,
       });
     }
@@ -549,19 +568,21 @@ export default function BuildTab({
       const official = parseOfficialGearExport(JSON.parse(officialImportText), weapons);
       const result = mergeImportedBuildState(buildState, official.exportValue, { reuseIdenticalGear: true });
       if (result.importedGearCount + result.reusedGearCount !== official.gearCount || result.importedBuildCount !== 1)
-        throw new Error("Some dashboard gear did not pass build validation and was not imported.");
+        throw new Error(t("ui.buildTab.dashboardValidationError"));
       official.warnings.forEach((warning) => console.warn(`[Official gear import] ${warning}`));
       onBuildStateChange(result.state);
       setEditingBuildId(result.importedBuildIds[0]);
       setEditingName(false);
       setTransferStatus({
-        message: `Imported a build from ${official.roleName} with ${result.importedGearCount} new gear${result.reusedGearCount ? ` and ${result.reusedGearCount} reused gear` : ""}.`,
+        message: t("ui.buildTab.officialImportComplete", {
+          name: official.roleName,
+          newGear: result.importedGearCount,
+          reusedGear: result.reusedGearCount,
+        }),
       });
       officialImportDialogRef.current?.close();
     } catch (error) {
-      setOfficialImportError(
-        error instanceof Error ? error.message : "The pasted dashboard data could not be imported.",
-      );
+      setOfficialImportError(error instanceof Error ? error.message : t("ui.buildTab.dashboardImportError"));
     }
   }
 
@@ -579,9 +600,9 @@ export default function BuildTab({
       <div className="build-manager-layout">
         <aside className="build-list">
           <div className="build-list-heading">
-            <span>Builds</span>
+            <span>{t("ui.buildTab.builds")}</span>
             <button className="button button-secondary button-small" type="button" onClick={addBuild}>
-              New Build
+              {t("ui.buildTab.newBuild")}
             </button>
           </div>
           <div className="build-list-entries">
@@ -593,7 +614,7 @@ export default function BuildTab({
                   key={entry.id}
                   role="button"
                   tabIndex={0}
-                  title={incompatible ? "Select this build and switch to its martial arts" : undefined}
+                  title={incompatible ? t("ui.buildTab.selectThisBuildAndSwitchToItsMartial") : undefined}
                   onClick={() => selectBuild(entry)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") selectBuild(entry);
@@ -602,19 +623,19 @@ export default function BuildTab({
                   <span>
                     <strong>
                       {entry.id === buildState.activeBuildId && (
-                        <i className="active-build-icon" title="Active build">
+                        <i className="active-build-icon" title={t("ui.buildTab.activeBuild")}>
                           <UiIcon name="active" />
                         </i>
                       )}
                       {entry.name || "Unnamed Build"}
                     </strong>
-                    {entry.isDefault && <small>Default preset</small>}
+                    {entry.isDefault && <small>{t("ui.buildTab.defaultPreset")}</small>}
                   </span>
                   {!entry.isDefault && (
                     <button
                       className="build-remove-button"
                       type="button"
-                      aria-label={`Remove ${entry.name || "build"}`}
+                      aria-label={t("ui.buildTab.removeNamedBuild", { name: entry.name || t("ui.buildTab.build") })}
                       onClick={(event) => {
                         event.stopPropagation();
                         removeBuild(entry.id);
@@ -630,14 +651,14 @@ export default function BuildTab({
           <div className="build-transfer-actions">
             <div>
               <button className="button button-secondary button-small" type="button" onClick={exportBuilds}>
-                Export
+                {t("ui.buildTab.export")}
               </button>
               <label className="button button-secondary button-small build-import-button">
-                Import
+                {t("ui.buildTab.import")}
                 <input
                   type="file"
                   accept="application/json,.json"
-                  aria-label="Import builds and gear"
+                  aria-label={t("ui.buildTab.importBuildsAndGear")}
                   onChange={importBuilds}
                 />
               </label>
@@ -647,7 +668,7 @@ export default function BuildTab({
               type="button"
               onClick={openOfficialImport}
             >
-              Import from Official
+              {t("ui.buildTab.importFromOfficial")}
             </button>
             {transferStatus && (
               <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>
@@ -676,7 +697,7 @@ export default function BuildTab({
                   <button
                     className="icon-button"
                     type="button"
-                    aria-label="Edit build name"
+                    aria-label={t("ui.buildTab.editBuildName")}
                     onClick={() => setEditingName(true)}
                   >
                     <UiIcon name="edit" />
@@ -690,7 +711,9 @@ export default function BuildTab({
               disabled={editingEntry.id === buildState.activeBuildId}
               onClick={activateBuild}
             >
-              {editingEntry.id === buildState.activeBuildId ? "Active" : "Make Active"}
+              {editingEntry.id === buildState.activeBuildId
+                ? t("ui.buildTab.activeBuildAction")
+                : t("ui.buildTab.makeActive")}
             </button>
           </div>
           <BuildManagement
@@ -714,13 +737,13 @@ export default function BuildTab({
       >
         <div className="official-import-heading">
           <div>
-            <span className="detail-kicker">Official Dashboard</span>
-            <h2>Import equipped gear</h2>
+            <span className="detail-kicker">{t("ui.buildTab.officialDashboard")}</span>
+            <h2>{t("ui.buildTab.importEquippedGear")}</h2>
           </div>
           <button
             className="icon-button"
             type="button"
-            aria-label="Close official import"
+            aria-label={t("ui.buildTab.closeOfficialImport")}
             onClick={() => officialImportDialogRef.current?.close()}
           >
             <UiIcon name="close" />
@@ -728,25 +751,25 @@ export default function BuildTab({
         </div>
         <ol className="official-import-steps">
           <li>
-            Drag{" "}
+            {t("ui.buildTab.drag")}{" "}
             <a className="button button-primary official-bookmarklet" ref={officialBookmarkletRef}>
-              Export WWM Gear
+              {t("ui.buildTab.exportWwmGear")}
             </a>{" "}
-            to your browser bookmarks bar.
+            {t("ui.buildTab.toYourBrowserBookmarksBar")}
           </li>
           <li>
-            Open the{" "}
+            {t("ui.buildTab.openThe")}{" "}
             <a href="https://www.wherewindsmeetgame.com/m/2025h5sjgj/en/" target="_blank" rel="noreferrer">
-              official Where Winds Meet dashboard
+              {t("ui.buildTab.officialWhereWindsMeetDashboard")}
             </a>{" "}
-            and log in.
+            {t("ui.buildTab.andLogIn")}
           </li>
-          <li>Click the saved bookmark. It copies your equipped gear data without copying your login token.</li>
-          <li>Return here and paste the copied JSON below.</li>
+          <li>{t("ui.buildTab.clickTheSavedBookmarkItCopiesYourEquipped")}</li>
+          <li>{t("ui.buildTab.returnHereAndPasteTheCopiedJsonBelow")}</li>
         </ol>
         <textarea
-          aria-label="Official dashboard gear JSON"
-          placeholder="Paste the copied dashboard JSON here"
+          aria-label={t("ui.buildTab.officialDashboardGearJson")}
+          placeholder={t("ui.buildTab.pasteTheCopiedDashboardJsonHere")}
           value={officialImportText}
           onChange={(event) => {
             setOfficialImportText(event.target.value);
@@ -764,7 +787,7 @@ export default function BuildTab({
             type="button"
             onClick={() => officialImportDialogRef.current?.close()}
           >
-            Cancel
+            {t("ui.buildTab.cancel")}
           </button>
           <button
             className="button button-primary"
@@ -772,12 +795,10 @@ export default function BuildTab({
             disabled={!officialImportText.trim()}
             onClick={importFromOfficial}
           >
-            Import Gear
+            {t("ui.buildTab.importGear")}
           </button>
         </div>
-        <p className="official-import-privacy">
-          The bookmark runs only on the official dashboard. Where Builds Meet receives only the JSON you paste here.
-        </p>
+        <p className="official-import-privacy">{t("ui.buildTab.theBookmarkRunsOnlyOnTheOfficialDashboard")}</p>
       </dialog>
     </section>
   );
@@ -823,7 +844,7 @@ function BuildSetupPanel({
           const selectedTier = setup[key][setName] ?? 0;
           return (
             <div className="setup-field" key={setName}>
-              <span>{definition.name}</span>
+              <span>{gameText(definition.name)}</span>
               <div className="setup-option-control">
                 <div className="setup-option-list">
                   {[0, 2, 4].map((tier) => (
@@ -840,7 +861,7 @@ function BuildSetupPanel({
                         })
                       }
                     >
-                      {tier === 0 ? "0 piece" : `${tier} pieces`}
+                      {t(`system.setPieces.${tier}`)}
                     </button>
                   ))}
                 </div>
@@ -852,18 +873,18 @@ function BuildSetupPanel({
     </section>
   );
   return (
-    <div className="build-setup-column" aria-label="Build setup">
+    <div className="build-setup-column" aria-label={t("ui.buildTab.buildSetup")}>
       <section className="panel setup-placeholder-panel build-setup-panel">
         <div className="panel-heading">
           <div>
-            <h2>Inner Ways</h2>
+            <h2>{t("ui.buildTab.innerWays")}</h2>
           </div>
         </div>
         <div className="inner-way-list">
           {setup.innerWays.map((row, index) => (
             <div className="inner-way-row" key={index}>
               <select
-                aria-label={`Build inner way ${index + 1}`}
+                aria-label={t("ui.buildTab.buildInnerWay", { number: index + 1 })}
                 value={innerWayOptions.some(([value]) => value === row.innerWay) ? row.innerWay : ""}
                 disabled={locked}
                 title={lockedTitle}
@@ -876,19 +897,19 @@ function BuildSetupPanel({
                   })
                 }
               >
-                <option value="">None</option>
+                <option value="">{t("ui.buildTab.none")}</option>
                 {innerWayOptions.map(([value, definition]) => (
                   <option
                     key={value}
                     value={value}
                     disabled={setup.innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}
                   >
-                    {definition.name}
+                    {gameText(definition.name)}
                   </option>
                 ))}
               </select>
               <select
-                aria-label={`Build inner way ${index + 1} tier`}
+                aria-label={t("ui.buildTab.buildInnerWayTier", { number: index + 1 })}
                 value={row.tier}
                 disabled={locked}
                 title={lockedTitle}
@@ -902,7 +923,7 @@ function BuildSetupPanel({
                 }
               >
                 {Array.from({ length: 7 }, (_, tier) => (
-                  <option key={tier}>T{tier}</option>
+                  <option value={`T${tier}`} key={tier}>{`T${tier}`}</option>
                 ))}
               </select>
             </div>
@@ -914,7 +935,7 @@ function BuildSetupPanel({
       <section className="panel setup-placeholder-panel build-setup-panel">
         <div className="panel-heading">
           <div>
-            <h2>Bow/Ring Set</h2>
+            <h2>{t("ui.buildTab.bowRingSet")}</h2>
           </div>
         </div>
         <div className="setup-option-list setup-option-list-wide">
@@ -927,7 +948,7 @@ function BuildSetupPanel({
               title={lockedTitle}
               onClick={() => onChange({ ...setup, bowRingSet: value })}
             >
-              {definition.name}
+              {gameText(definition.name)}
             </button>
           ))}
         </div>
@@ -935,7 +956,7 @@ function BuildSetupPanel({
       <section className="panel setup-placeholder-panel build-setup-panel">
         <div className="panel-heading">
           <div>
-            <h2>Arsenal</h2>
+            <h2>{t("ui.buildTab.arsenal")}</h2>
           </div>
         </div>
         <div className="setup-option-list setup-option-list-arsenal">
@@ -948,7 +969,7 @@ function BuildSetupPanel({
               title={lockedTitle}
               onClick={() => onChange({ ...setup, arsenal: value })}
             >
-              {definition.name}
+              {gameText(definition.name)}
             </button>
           ))}
         </div>
@@ -1063,30 +1084,30 @@ function BuildManagement({
       ? normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed, draft.level)
       : undefined;
     if (!baseAffix) {
-      setError("Choose a base affix and enter a non-negative value.");
+      setError(t("ui.buildTab.baseAffixValueError"));
       return;
     }
     if (!baseAffixOptions.includes(baseAffix.key)) {
-      setError("Choose a base affix available for this gear.");
+      setError(t("ui.buildTab.baseAffixAvailabilityError"));
       return;
     }
     if (additionalAffixes.some((affix) => !affix) || (hasAttunementDraft && !attunement)) {
-      setError("Complete or clear each optional attribute.");
+      setError(t("ui.buildTab.optionalAttributeError"));
       return;
     }
     if (attunement && !attunementOptions.includes(attunement.key)) {
-      setError("Choose an attunement available for the current path.");
+      setError(t("ui.buildTab.attunementAvailabilityError"));
       return;
     }
     const normalizedAdditional = additionalAffixes.filter((affix): affix is { key: string; value: number } =>
       Boolean(affix),
     );
     if (normalizedAdditional.some((affix) => !additionalAffixOptions.includes(affix.key))) {
-      setError("Choose additional affixes available for this gear.");
+      setError(t("ui.buildTab.additionalAffixAvailabilityError"));
       return;
     }
     if (new Set(normalizedAdditional.map((affix) => affix.key)).size !== normalizedAdditional.length) {
-      setError("Additional affixes cannot be duplicated.");
+      setError(t("ui.buildTab.duplicateAffixError"));
       return;
     }
     const item: GearItem = {
@@ -1162,11 +1183,11 @@ function BuildManagement({
         <section className="panel build-equipped-panel">
           <div className="panel-heading">
             <div>
-              <h2>Equipped Gear</h2>
+              <h2>{t("ui.buildTab.equippedGear")}</h2>
               <p>
                 {locked
-                  ? "This default build uses fixed preset gear. Use New Build to create your own build."
-                  : "Select a slot to equip gear from the shared inventory."}
+                  ? t("ui.buildTab.thisDefaultBuildUsesFixedPresetGearUse")
+                  : t("ui.buildTab.selectASlotToEquipGearFromThe")}
               </p>
             </div>
           </div>
@@ -1189,7 +1210,7 @@ function BuildManagement({
                   <span className="gear-slot-name">{gearData.slots[slot]}</span>
                   {item ? (
                     <>
-                      <strong>{definition?.name}</strong>
+                      <strong>{gameText(definition?.name)}</strong>
                       <small>
                         {item.level} {item.rarity}
                       </small>
@@ -1197,7 +1218,7 @@ function BuildManagement({
                       <GearAttributes item={item} compact />
                     </>
                   ) : (
-                    <span className="gear-empty">No gear equipped</span>
+                    <span className="gear-empty">{t("ui.buildTab.noGearEquipped")}</span>
                   )}
                 </button>
               );
@@ -1218,7 +1239,10 @@ function BuildManagement({
           <div className="panel-heading">
             <div>
               <h2>{gearData.slots[selectedSlot]}</h2>
-              <p>Shared {selected.definition?.name ?? "gear"} inventory. Edits and deletions apply to every build.</p>
+              <p>
+                {t("ui.buildTab.shared")} {selected.definition?.name ?? t("ui.buildTab.gear")}{" "}
+                {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
+              </p>
             </div>
           </div>
           <div className="available-gear-grid">
@@ -1230,17 +1254,17 @@ function BuildManagement({
                 <RelayedIndicator item={item} />
                 <div className="available-gear-heading">
                   <div>
-                    <strong>{selected.definition?.name}</strong>
+                    <strong>{gameText(selected.definition?.name)}</strong>
                     <small>
                       {item.level} {item.rarity}
                     </small>
                     <GearBaseStatSummary item={item} />
                   </div>
                   <div className="available-gear-status">
-                    {inventory.equipped[selectedSlot] === item.id && <span>Equipped</span>}
+                    {inventory.equipped[selectedSlot] === item.id && <span>{t("ui.buildTab.equippedGearStatus")}</span>}
                     <small>
-                      Used in {usageCounts.get(item.id) ?? 0}{" "}
-                      {(usageCounts.get(item.id) ?? 0) === 1 ? "build" : "builds"}
+                      {t("ui.buildTab.usedIn")} {usageCounts.get(item.id) ?? 0}{" "}
+                      {(usageCounts.get(item.id) ?? 0) === 1 ? t("ui.buildTab.build") : t("ui.buildTab.buildCountNoun")}
                     </small>
                   </div>
                 </div>
@@ -1252,22 +1276,26 @@ function BuildManagement({
                     disabled={inventory.equipped[selectedSlot] === item.id}
                     onClick={() => equip(item)}
                   >
-                    {inventory.equipped[selectedSlot] === item.id ? "Equipped" : "Equip"}
+                    {inventory.equipped[selectedSlot] === item.id
+                      ? t("ui.buildTab.equippedGearStatus")
+                      : t("ui.buildTab.equip")}
                   </button>
                   <button
                     className="button button-secondary button-small"
                     type="button"
                     onClick={() => beginEdit(item)}
                   >
-                    Edit
+                    {t("ui.buildTab.edit")}
                   </button>
                   <button
                     className={`button button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`}
                     type="button"
-                    aria-label={pendingDeleteId === item.id ? "Confirm delete gear" : "Delete gear"}
+                    aria-label={
+                      pendingDeleteId === item.id ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")
+                    }
                     onClick={() => remove(item)}
                   >
-                    {pendingDeleteId === item.id ? "Confirm Delete" : "Delete"}
+                    {pendingDeleteId === item.id ? t("ui.buildTab.confirmDelete") : t("ui.buildTab.delete")}
                   </button>
                 </div>
               </article>
@@ -1276,13 +1304,13 @@ function BuildManagement({
               className="add-gear-card"
               type="button"
               onClick={beginAdd}
-              aria-label={`Add ${gearData.slots[selectedSlot]} gear`}
+              aria-label={t("ui.buildTab.addNamedGear", { name: gameText(gearData.slots[selectedSlot]) })}
               data-testid="add-gear"
             >
               <span>
                 <UiIcon name="plus" />
               </span>
-              <strong>Add gear</strong>
+              <strong>{t("ui.buildTab.addGear")}</strong>
             </button>
           </div>
         </section>
@@ -1292,7 +1320,7 @@ function BuildManagement({
         <GearEditor
           definition={selected.definition}
           definitionId={selected.definitionId}
-          definitionName={selected.definition.name}
+          definitionName={gameText(selected.definition.name)}
           editingExisting={editingItemId !== null}
           draft={draft}
           error={error}
@@ -1391,12 +1419,12 @@ function GearEditor({
   const importImage = async (file?: File) => {
     if (!file || ocrBusy) return;
     if (file.size > 15 * 1024 * 1024) {
-      setOcrError("The image is larger than 15 MB. Crop or resize it and try again.");
+      setOcrError(t("ui.buildTab.imageTooLargeError"));
       return;
     }
     setOcrError("");
     setOcrBusy(true);
-    setOcrStatus("Loading OCR model");
+    setOcrStatus(t("ui.buildTab.loadingOcrModel"));
     setOcrProgress(0);
     setOcrPreview((current) => {
       if (current) URL.revokeObjectURL(current);
@@ -1427,7 +1455,7 @@ function GearEditor({
       );
       setOcrOpen(false);
     } catch (caught) {
-      setOcrError(caught instanceof Error ? caught.message : "The image could not be imported.");
+      setOcrError(caught instanceof Error ? caught.message : t("ui.buildTab.imageImportError"));
     } finally {
       setOcrBusy(false);
       setOcrStatus("");
@@ -1448,7 +1476,7 @@ function GearEditor({
         .find((item) => item.kind === "file" && item.type.startsWith("image/"))
         ?.getAsFile() ?? Array.from(event.clipboardData.files).find((file) => file.type.startsWith("image/"));
     if (!clipboardFile) {
-      setOcrError("The clipboard does not contain an image. Copy a screenshot and paste again.");
+      setOcrError(t("ui.buildTab.clipboardImageError"));
       return;
     }
     event.preventDefault();
@@ -1480,32 +1508,32 @@ function GearEditor({
       <div className="panel-heading">
         <div>
           <h2>
-            {editingExisting ? "Edit" : "Add"} {definitionName}
+            {editingExisting ? t("ui.buildTab.edit") : t("ui.buildTab.add")} {definitionName}
           </h2>
-          <p>Percentage values are entered as percentage points.</p>
+          <p>{t("ui.buildTab.percentageValuesAreEnteredAsPercentagePoints")}</p>
         </div>
         {!editingExisting && (
           <button className="button button-secondary button-small" type="button" onClick={openOcr}>
-            Import from Image
+            {t("ui.buildTab.importFromImage")}
           </button>
         )}
       </div>
       <div className="gear-editor-meta">
         <label className="editor-field">
-          <span>Level</span>
+          <span>{t("ui.buildTab.level")}</span>
           <select value={draft.level} onChange={(event) => onLevelChange(Number(event.target.value) as GearLevel)}>
             <option value={96}>96</option>
             <option value={91}>91</option>
           </select>
         </label>
         <label className="editor-field">
-          <span>Rarity</span>
+          <span>{t("ui.buildTab.rarity")}</span>
           <select
             value={draft.rarity}
             onChange={(event) => onDraftChange((current) => ({ ...current, rarity: event.target.value as GearRarity }))}
           >
-            <option>Gold</option>
-            <option>Purple</option>
+            <option value="Gold">{"Gold"}</option>
+            <option value="Purple">{"Purple"}</option>
           </select>
         </label>
         <div className="gear-editor-roll-controls">
@@ -1515,18 +1543,18 @@ function GearEditor({
               checked={draft.relayed}
               onChange={(event) => onRelayedChange(event.target.checked)}
             />
-            <span>Relayed</span>
+            <span>{t("ui.buildTab.relayedOptionLabel")}</span>
           </label>
           <button className="button button-secondary button-small" type="button" onClick={applyMax}>
-            Max
+            {t("ui.buildTab.max")}
           </button>
         </div>
       </div>
       <div className="gear-editor-sections">
         <div>
-          <h3>Base affix</h3>
+          <h3>{t("ui.buildTab.baseAffix")}</h3>
           <GearValueEditor
-            label="Base affix"
+            label={t("ui.buildTab.baseAffix")}
             value={draft.baseAffix}
             options={baseAffixOptions}
             definitions={gearData.affixes}
@@ -1537,12 +1565,12 @@ function GearEditor({
           />
         </div>
         <div>
-          <h3>Additional affixes (optional)</h3>
+          <h3>{t("ui.buildTab.additionalAffixesOptional")}</h3>
           <div className="gear-additional-affixes">
             {draft.additionalAffixes.map((affix, index) => (
               <GearValueEditor
                 key={index}
-                label={`Additional affix ${index + 1}`}
+                label={t("ui.buildTab.additionalAffixNumber", { number: index + 1 })}
                 value={affix}
                 options={additionalAffixOptions}
                 definitions={gearData.affixes}
@@ -1563,9 +1591,9 @@ function GearEditor({
           </div>
         </div>
         <div>
-          <h3>Attunement (optional)</h3>
+          <h3>{t("ui.buildTab.attunementOptional")}</h3>
           <GearValueEditor
-            label="Attunement"
+            label={t("ui.buildTab.attunement")}
             value={draft.attunement}
             options={attunementOptions}
             definitions={attunementData}
@@ -1583,10 +1611,10 @@ function GearEditor({
       )}
       <div className="editor-actions">
         <button className="button button-secondary" type="button" onClick={onCancel}>
-          Cancel
+          {t("ui.buildTab.cancel")}
         </button>
         <button className="button button-primary" type="button" onClick={onSave}>
-          {editingExisting ? "Save Changes" : "Save"}
+          {editingExisting ? t("ui.buildTab.saveChanges") : t("ui.buildTab.save")}
         </button>
       </div>
       <dialog
@@ -1600,11 +1628,13 @@ function GearEditor({
       >
         <div className="gear-ocr-heading">
           <div>
-            <h2>Import {definitionName} from image</h2>
-            <p>Use a clear, uncropped gear details screenshot. Recognition runs locally in your browser.</p>
+            <h2>
+              {t("ui.buildTab.import")} {definitionName} {t("ui.buildTab.fromImage")}
+            </h2>
+            <p>{t("ui.buildTab.useAClearUncroppedGearDetailsScreenshotRecognition")}</p>
           </div>
           <button className="button button-secondary button-small" type="button" disabled={ocrBusy} onClick={closeOcr}>
-            Close
+            {t("ui.buildTab.close")}
           </button>
         </div>
         <div className="gear-ocr-grid">
@@ -1621,11 +1651,11 @@ function GearEditor({
             onDrop={dropOcrFile}
           >
             {ocrPreview ? (
-              <img src={ocrPreview} alt="Selected gear screenshot" />
+              <img src={ocrPreview} alt={t("ui.buildTab.selectedGearScreenshot")} />
             ) : (
               <div>
-                <strong>Drop a screenshot or directly paste</strong>
-                <span>Press Ctrl+V, or use PNG, JPEG, or WebP; up to 15 MB</span>
+                <strong>{t("ui.buildTab.dropAScreenshotOrDirectlyPaste")}</strong>
+                <span>{t("ui.buildTab.pressCtrlVOrUsePngJpegOr")}</span>
               </div>
             )}
             <input
@@ -1641,15 +1671,15 @@ function GearEditor({
               disabled={ocrBusy}
               onClick={() => ocrInputRef.current?.click()}
             >
-              {ocrPreview ? "Choose another image" : "Choose image"}
+              {ocrPreview ? t("ui.buildTab.chooseAnotherImage") : t("ui.buildTab.chooseImage")}
             </button>
           </div>
           <figure className="gear-ocr-example">
             <img
               src={`${import.meta.env.BASE_URL}ocr/mo-blade-example.png`}
-              alt="Example Mo Blade gear details screenshot"
+              alt={t("ui.buildTab.exampleMoBladeGearDetailsScreenshot")}
             />
-            <figcaption>Example: include the rarity color, gear type, tier, every affix, and attunement.</figcaption>
+            <figcaption>{t("ui.buildTab.exampleIncludeTheRarityColorGearTypeTier")}</figcaption>
           </figure>
         </div>
         {ocrBusy && (

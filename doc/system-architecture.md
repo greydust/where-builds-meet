@@ -86,12 +86,14 @@ data/
 
 doc/
   damage-formula.md
+  localization.md
   skill-data.md
   system-architecture.md
 
 src/
   App.tsx                         UI, data composition, and current orchestration
   BuildTab.tsx                    equipped slots, inventory, and gear editor
+  i18n.ts                         locale resolution, message loading, and UI translation
   gear.ts                         persisted gear model and equipped effects
   readableRotation.ts             pure readable-sequence formatter
   types.ts                       character and enemy contracts
@@ -111,8 +113,23 @@ src/
 
 public/
   divinecraft/                   static selector images copied into the build
+  locales/                       generated per-locale runtime message JSON
   paths/                         static combat-path icons copied into the build
 ```
+
+## Localization boundary
+
+`locales/translations.csv` is the canonical translation source. The extraction
+script discovers UI message keys plus translatable JSON and stat labels, then
+generates the locale manifest and one JSON file per locale under
+`public/locales/`. At startup the application loads the saved user locale,
+falls back to the browser locale when none was saved, and finally falls back to
+English. Only an explicit user selection is persisted.
+
+Localization remains on the main-thread presentation boundary. Workers,
+calculation bundles, cache identities, stored builds, stored rotations, and
+game-data IDs never contain localized values. See `localization.md` for the
+catalog workflow and validation rules.
 
 ## Application and UI state
 
@@ -164,6 +181,7 @@ tab session.
 | State                                           | Storage                                            |
 | ----------------------------------------------- | -------------------------------------------------- |
 | Character stat overrides                        | `localStorage`, `wwm-stat-overrides-v1`            |
+| Explicitly selected locale                      | `localStorage`, `wwm-locale`                       |
 | Custom character profiles                       | `localStorage`, `wwm-character-profiles-v1`        |
 | Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1`                |
 | Active build ID                                 | `localStorage`, `wwm-active-build-v1`              |
@@ -380,6 +398,9 @@ are checked, and the state
 snapshot is recorded before the action mutates state. Damage-triggered setup and
 Inner Way rules then run, followed by the action's trigger, periodic-effect
 application, consume, extend, or cooldown behavior. Tracked effects with a
+top-level `action` array enqueue those actions after each accepted application
+or reapplication. Rejected applications, including effect-cooldown and
+`reapply: false` cases, do not enqueue effect actions. Tracked effects with a
 `periodic` definition schedule their nested actions in the same global queue.
 Refreshing can either preserve or restart the cadence according to
 `resetOnRefresh`; consuming the final stack cancels pending periodic rows. DOTs
