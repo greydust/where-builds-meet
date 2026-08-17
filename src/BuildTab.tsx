@@ -115,7 +115,7 @@ type BuildTabProps = {
   devMode: boolean;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
-  onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => void;
+  onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => boolean;
 };
 
 type BuildManagementProps = {
@@ -595,7 +595,7 @@ export default function BuildTab({
   function selectBuild(entry: typeof editingEntry) {
     if (!buildEntryAvailableForMartialArts(entry, weapons)) {
       const entryMartialArts = buildEntryMartialArts(entry);
-      if (entryMartialArts.length === 2) onSelectBuildWeapons([entryMartialArts[0], entryMartialArts[1]]);
+      if (entryMartialArts.length !== 2 || !onSelectBuildWeapons([entryMartialArts[0], entryMartialArts[1]])) return;
     }
     setEditingBuildId(entry.id);
     setEditingName(false);

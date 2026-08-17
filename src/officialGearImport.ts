@@ -262,10 +262,16 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const resolvedLevel = level === 91 || level === 96 ? level : (piece.signature?.level ?? commonLevel);
     const rarity = explicitRarity(piece.exVo, piece.detail) ?? piece.signature?.rarity;
     const resolvedRarity = rarity ?? "Gold";
-    const relayed = isRelayed(piece.exVo, piece.detail);
+    const mappedRows = piece.rows.map((row) => ({ row, key: officialAffixMap[row.statId] }));
+    const relayedAffixKeys = new Set([
+      ...(definition.baseAffixes[`${resolvedLevel}Relayed`] ?? []),
+      ...(definition.additionalAffixes[`${resolvedLevel}Relayed`] ?? []),
+    ]);
+    const relayed =
+      isRelayed(piece.exVo, piece.detail) ||
+      mappedRows.some(({ key }) => typeof key === "string" && relayedAffixKeys.has(key));
     if (!rarity) warnings.push(`${gearData.slots[piece.slot]} rarity was not exposed; Gold was used.`);
 
-    const mappedRows = piece.rows.map((row) => ({ row, key: officialAffixMap[row.statId] }));
     const allowedAttunements = attunementsForGearDefinition(definition);
     const attunementEntry =
       mappedRows.length > 1 && allowedAttunements.includes(mappedRows.at(-1)?.key ?? "")

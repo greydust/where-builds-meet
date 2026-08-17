@@ -222,6 +222,7 @@ type PathDefinition = {
   icon?: string;
   tag?: string;
   wip?: boolean;
+  devOnly?: boolean;
   lockedWeapons?: [WeaponId, WeaponId];
 };
 type DefaultSetup = {
@@ -237,9 +238,13 @@ const typedDefaultSetup = defaultSetup as DefaultSetup;
 const typedPathDefinitions = pathDefinitions as Record<PathId, PathDefinition>;
 const productionWeaponIds = new Set<WeaponId>(
   (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).flatMap(([id, definition]) =>
-    id !== "mixed" && !definition.wip ? (definition.lockedWeapons ?? []) : [],
+    id !== "mixed" && !definition.wip && !definition.devOnly ? (definition.lockedWeapons ?? []) : [],
   ),
 );
+
+function pathRequiresDev(definition: PathDefinition) {
+  return definition.wip === true || definition.devOnly === true;
+}
 
 const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Snowparting: snowpartingSkills as SkillMap,
@@ -470,7 +475,7 @@ function loadDevMode() {
 function loadSelectedPath(devMode = loadDevMode()): PathId {
   const saved = sessionStorage.getItem(pathStorageKey);
   const definition = saved ? typedPathDefinitions[saved as PathId] : undefined;
-  return definition && (!definition.wip || devMode) ? (saved as PathId) : "stonesplitStrength";
+  return definition && (!pathRequiresDev(definition) || devMode) ? (saved as PathId) : "stonesplitStrength";
 }
 
 function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath()) {
@@ -1223,6 +1228,12 @@ function loadSkillOverrides(): SkillOverrides {
   }
 }
 
+function hasSkillOverrides(overrides: SkillOverrides) {
+  return Object.values(overrides).some(
+    (categoryOverrides) => categoryOverrides && Object.keys(categoryOverrides).length > 0,
+  );
+}
+
 const defaultAttunementStats = Object.fromEntries(
   Object.keys(attunementData).map((key) => [key, 0]),
 ) as AttunementStats;
@@ -1581,6 +1592,25 @@ function BreakdownGroupTable({
   );
 }
 
+function CastBreakdownComparison({
+  value,
+  valueWithBuff,
+  stacked,
+}: {
+  value: number | undefined;
+  valueWithBuff: number | undefined;
+  stacked: boolean;
+}) {
+  if (valueWithBuff === undefined) return value === undefined ? "—" : formatNumber(value);
+  if (!stacked) return `${formatNumber(value ?? 0)} (${formatNumber(valueWithBuff)})`;
+  return (
+    <span className="breakdown-stacked-value">
+      <span>{formatNumber(value ?? 0)}</span>
+      <span>({formatNumber(valueWithBuff)})</span>
+    </span>
+  );
+}
+
 function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   if (!metrics)
     return (
@@ -1650,29 +1680,34 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
             <span>{t("ui.app.damage")}</span>
             <span>{t("ui.app.total")}</span>
           </div>
-          {breakdown.casts.map((row) => (
-            <div className="breakdown-table-row" key={row.id}>
-              <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name, row.skillId)}</span>
-              <strong>{row.casts}</strong>
-              <strong>
-                {formatNumber(row.averageCastTime)}
-                {t("ui.app.s")}
-              </strong>
-              <strong>
-                {row.averageDpsWithBuff === undefined
-                  ? row.averageDps === undefined
-                    ? "—"
-                    : formatNumber(row.averageDps)
-                  : `${formatNumber(row.averageDps ?? 0)} (${formatNumber(row.averageDpsWithBuff)})`}
-              </strong>
-              <strong>
-                {row.damageWithBuff === undefined
-                  ? formatNumber(row.damage)
-                  : `${formatNumber(row.damage)} (${formatNumber(row.damageWithBuff)})`}
-              </strong>
-              <strong>{formatNumber(row.percentage)}%</strong>
-            </div>
-          ))}
+          {breakdown.casts.map((row) => {
+            const stackBuffComparison = allSkillDefinitions[row.skillId]?.tags?.includes("FluteOfTheTides") ?? false;
+            return (
+              <div className="breakdown-table-row" key={row.id}>
+                <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name, row.skillId)}</span>
+                <strong>{row.casts}</strong>
+                <strong>
+                  {formatNumber(row.averageCastTime)}
+                  {t("ui.app.s")}
+                </strong>
+                <strong>
+                  <CastBreakdownComparison
+                    value={row.averageDps}
+                    valueWithBuff={row.averageDpsWithBuff}
+                    stacked={stackBuffComparison}
+                  />
+                </strong>
+                <strong>
+                  <CastBreakdownComparison
+                    value={row.damage}
+                    valueWithBuff={row.damageWithBuff}
+                    stacked={stackBuffComparison}
+                  />
+                </strong>
+                <strong>{formatNumber(row.percentage)}%</strong>
+              </div>
+            );
+          })}
         </div>
       </section>
       <BreakdownGroupTable title={t("ui.app.skillTypeBreakdown")} rows={breakdown.categories} />
@@ -3810,7 +3845,13 @@ function StackEffectsEditor({
   );
 }
 
-function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
+function SkillEditorTab({
+  weapons,
+  onModifiedChange,
+}: {
+  weapons: [WeaponId, WeaponId];
+  onModifiedChange: (modified: boolean) => void;
+}) {
   const [category, setCategory] = useState<EditorCategory>("Snowparting");
   const [selectedSkill, setSelectedSkill] = useState(Object.keys(defaultEditorMaps.Snowparting)[0]);
   const [overrides, setOverrides] = useState<SkillOverrides>(loadSkillOverrides);
@@ -3823,6 +3864,7 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
     [category, overrides],
   );
   const skillIds = useMemo(() => Object.keys(skills), [skills]);
+  const editorModified = hasSkillOverrides(overrides);
   const visibleCategories = useMemo<EditorCategory[]>(() => {
     const martialCategories = weapons.flatMap((weapon) => {
       const item = skillCategoryByWeapon[weapon];
@@ -3923,12 +3965,20 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
             : {}),
         };
       }
-      const nextOverrides: SkillOverrides = {
-        ...overrides,
-        [category]: { ...(overrides[category] ?? {}), [selectedSkill]: updatedSkill },
-      };
+      const nextCategoryOverrides = { ...(overrides[category] ?? {}) };
+      if (JSON.stringify(updatedSkill) === JSON.stringify(defaultEditorMaps[category][selectedSkill])) {
+        delete nextCategoryOverrides[selectedSkill];
+      } else {
+        nextCategoryOverrides[selectedSkill] = updatedSkill;
+      }
+      const nextOverrides: SkillOverrides = { ...overrides };
+      if (Object.keys(nextCategoryOverrides).length > 0) nextOverrides[category] = nextCategoryOverrides;
+      else delete nextOverrides[category];
       setOverrides(nextOverrides);
-      sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
+      const modified = hasSkillOverrides(nextOverrides);
+      if (modified) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
+      else sessionStorage.removeItem(skillStorageKey);
+      onModifiedChange(modified);
       setStatus(t("ui.app.savedForThisSession"));
       setError("");
     } catch (saveError) {
@@ -3940,9 +3990,22 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
   function restoreDefault() {
     const nextCategoryOverrides = { ...(overrides[category] ?? {}) };
     delete nextCategoryOverrides[selectedSkill];
-    const nextOverrides: SkillOverrides = { ...overrides, [category]: nextCategoryOverrides };
+    const nextOverrides: SkillOverrides = { ...overrides };
+    if (Object.keys(nextCategoryOverrides).length > 0) nextOverrides[category] = nextCategoryOverrides;
+    else delete nextOverrides[category];
     setOverrides(nextOverrides);
-    sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
+    if (hasSkillOverrides(nextOverrides)) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
+    else sessionStorage.removeItem(skillStorageKey);
+    onModifiedChange(hasSkillOverrides(nextOverrides));
+    setDraft(skillToDraft(defaultEditorMaps[category][selectedSkill]));
+    setError("");
+    setStatus("");
+  }
+
+  function restoreAllDefaults() {
+    setOverrides({});
+    sessionStorage.removeItem(skillStorageKey);
+    onModifiedChange(false);
     setDraft(skillToDraft(defaultEditorMaps[category][selectedSkill]));
     setError("");
     setStatus("");
@@ -3955,24 +4018,37 @@ function SkillEditorTab({ weapons }: { weapons: [WeaponId, WeaponId] }) {
   return (
     <>
       <section className="panel skill-editor-panel">
-        <div className="skill-category-tabs" role="tablist" aria-label={t("ui.app.skillCategories")}>
-          {visibleCategories.map((item) => (
-            <button
-              key={item}
-              className={`category-tab ${category === item ? "active" : ""}`}
-              type="button"
-              onClick={() => setCategory(item)}
-            >
-              {categoryLabel(item)}
-            </button>
-          ))}
+        <div className="skill-editor-toolbar">
+          <div className="skill-category-tabs" role="tablist" aria-label={t("ui.app.skillCategories")}>
+            {visibleCategories.map((item) => {
+              const categoryModified = Object.keys(overrides[item] ?? {}).length > 0;
+              return (
+                <button
+                  key={item}
+                  className={`category-tab ${category === item ? "active" : ""} ${categoryModified ? "modified" : ""}`}
+                  type="button"
+                  onClick={() => setCategory(item)}
+                >
+                  {categoryLabel(item)}
+                </button>
+              );
+            })}
+          </div>
+          <button
+            className={`category-tab skill-editor-reset ${editorModified ? "modified" : ""}`}
+            type="button"
+            disabled={!editorModified}
+            onClick={restoreAllDefaults}
+          >
+            {t("ui.app.reset")}
+          </button>
         </div>
         <div className="skill-editor-layout">
           <aside className="skill-list" aria-label={t("ui.app.namedSkills", { name: category })}>
             {skillIds.map((id) => (
               <button
                 key={id}
-                className={`skill-list-item ${selectedSkill === id ? "active" : ""}`}
+                className={`skill-list-item ${selectedSkill === id ? "active" : ""} ${overrides[category]?.[id] ? "modified" : ""}`}
                 type="button"
                 onClick={() => selectSkill(id)}
               >
@@ -6374,6 +6450,7 @@ export default function App() {
   // Load the large simulator only on first use, then keep it mounted while hidden.
   // Remounting would cancel its worker and discard progress/results on every tab switch.
   const [simulationMounted, setSimulationMounted] = useState(false);
+  const [skillEditorModified, setSkillEditorModified] = useState(() => hasSkillOverrides(loadSkillOverrides()));
   const [activeSimulation, setActiveSimulation] = useState<{
     bundle: RotationSimulationBundle;
     rotationName: string;
@@ -6534,7 +6611,7 @@ export default function App() {
       : activeSimulation.rotationName
     : "—";
   const selectPath = (nextPathId: PathId) => {
-    if (typedPathDefinitions[nextPathId].wip && !devMode) return;
+    if (pathRequiresDev(typedPathDefinitions[nextPathId]) && !devMode) return;
     sessionStorage.setItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) => settingsForPath(current, nextPathId));
@@ -6544,11 +6621,12 @@ export default function App() {
     const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(
       ([candidateId, definition]) =>
         candidateId !== "mixed" &&
-        (!definition.wip || devMode) &&
+        (!pathRequiresDev(definition) || devMode) &&
         definition.lockedWeapons &&
         sameWeaponPair(definition.lockedWeapons, nextWeapons),
     );
-    const nextPathId = matchingPath?.[0] ?? "mixed";
+    const nextPathId = matchingPath?.[0] ?? (devMode ? "mixed" : undefined);
+    if (!nextPathId) return false;
     sessionStorage.setItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) =>
@@ -6557,12 +6635,13 @@ export default function App() {
         : settingsForPath(current, nextPathId),
     );
     setInnerWayRevision((current) => current + 1);
+    return true;
   };
   const toggleDevMode = () => {
     const nextDevMode = !devMode;
     localStorage.setItem(devModeStorageKey, String(nextDevMode));
     setDevMode(nextDevMode);
-    if (!nextDevMode && typedPathDefinitions[pathId].wip) selectPath("stonesplitStrength");
+    if (!nextDevMode && pathRequiresDev(typedPathDefinitions[pathId])) selectPath("stonesplitStrength");
     if (!nextDevMode && isLocaleWip(locale)) void changeLocale("en");
   };
   const changeLocale = async (nextLocale: string) => {
@@ -6631,12 +6710,14 @@ export default function App() {
               type="button"
               key={value}
               aria-pressed={pathId === value}
-              disabled={definition.wip && !devMode}
+              disabled={pathRequiresDev(definition) && !devMode}
               onClick={() => selectPath(value)}
             >
               {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
               <span>{gameText(definition.name)}</span>
-              {definition.wip && <small className="path-wip-badge">{t("ui.app.wip")}</small>}
+              {(definition.wip || definition.devOnly) && (
+                <small className="path-status-badge">{definition.devOnly ? t("ui.app.dev") : t("ui.app.wip")}</small>
+              )}
             </button>
           ))}
         </div>
@@ -6672,7 +6753,11 @@ export default function App() {
         >
           {t("ui.app.simulation")}
         </button>
-        <button className={activeTab === "skills" ? "active" : ""} type="button" onClick={() => setActiveTab("skills")}>
+        <button
+          className={`${activeTab === "skills" ? "active" : ""} ${skillEditorModified ? "modified" : ""}`}
+          type="button"
+          onClick={() => setActiveTab("skills")}
+        >
           {t("ui.app.skillEditor")}
         </button>
         <button
@@ -6721,7 +6806,7 @@ export default function App() {
       ) : activeTab === "breakdown" ? (
         <BreakdownTab metrics={rotationMetrics} />
       ) : activeTab === "skills" ? (
-        <SkillEditorTab weapons={settings.weapons} />
+        <SkillEditorTab weapons={settings.weapons} onModifiedChange={setSkillEditorModified} />
       ) : activeTab === "settings" ? (
         <SettingsTab
           settings={settings}

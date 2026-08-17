@@ -687,10 +687,13 @@ physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and set eligibility use the tag.
 Paths may also declare `wip: true`; they remain visible with a WIP badge but are
 disabled until the header-level Dev toggle is enabled. This runtime gate behaves
-the same in local and deployed builds.
-Might, Dust, and Kite are currently WIP shells. Their weapons and shared gear
-tables are registered, but their skills, talents, and complete path-specific
-calculations are not implemented.
+the same in local and deployed builds. A path can instead declare `devOnly: true`
+when its mechanics are supported but the path itself is intended only for
+development and unrestricted test combinations. Dev-only paths remain visible,
+carry a Dev badge, and use the same runtime gate without being described as WIP.
+Mixed is the final selector option and is Dev-only. Dust and Kite remain WIP
+shells; their weapons and shared gear tables are registered, but their skills,
+talents, and complete path-specific calculations are not implemented.
 
 ### Manual event
 

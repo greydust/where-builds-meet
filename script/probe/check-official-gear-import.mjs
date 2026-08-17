@@ -199,6 +199,34 @@ try {
     JSON.stringify(dashboardShape.weapons) === JSON.stringify(["snowparting", "phalanxbane"]),
     "Importing the same weapon pair must not change the global weapon filter.",
   );
+  const relayedHengBlade = importer.parseOfficialGearExport(
+    {
+      roleInfo: {
+        roleName: "Relayed Heng Probe",
+        kongfuMain: 20801,
+        kongfuSub: 20402,
+        wearEquipsDetailed: {
+          1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [
+            actualRow(9713001, 73.132),
+            actualRow(9793007, 73.132),
+            actualRow(9793004, 46.436),
+            actualRow(9793012, 0.0752),
+            actualRow(9793026, 41.548),
+            actualRow(280701, 10.3),
+          ]),
+        },
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  assert(
+    relayedHengBlade.exportValue.gearItems[0].relayed === true &&
+      relayedHengBlade.exportValue.gearItems[0].additionalAffixes.some(
+        (affix) => affix.key === "maxStonesplit" && affix.value === 41.548,
+      ) &&
+      relayedHengBlade.warnings.length === 0,
+    "A relay-only official affix must identify relayed gear even when the dashboard omits an explicit relay field.",
+  );
   const dashboardBuild = dashboardShape.exportValue.builds[0];
   const dashboardItems = new Map(dashboardShape.exportValue.gearItems.map((item) => [item.id, item]));
   assert(
@@ -227,22 +255,22 @@ try {
   );
   const defensiveAdditionalAffix = importer.parseOfficialGearExport(
     {
-      roleName: "Unsupported Affix Probe",
+      roleName: "Gauntlet Defense Probe",
       wearEquipsDetailed: {
         1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [
-          actualRow(9713001, 62),
+          actualRow(9713004, 40.6),
           actualRow(9793003, 49.4),
           actualRow(9793004, 46.436),
           actualRow(280703, 10.2),
         ]),
       },
     },
-    ["snowparting", "phalanxbane"],
+    ["heavenwill", "skygrasp"],
   );
   assert(
-    defensiveAdditionalAffix.exportValue.gearItems[0].additionalAffixes.some((affix) => affix.key === "body") &&
+    defensiveAdditionalAffix.exportValue.gearItems[0].additionalAffixes.some((affix) => affix.key === "defense") &&
       defensiveAdditionalAffix.warnings.length === 0,
-    "Official Body rolls must import as universal additional affixes.",
+    "Official weapon Defense rolls must import as universal additional affixes.",
   );
   const kiteArmor = importer.parseOfficialGearExport(
     {

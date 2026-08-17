@@ -216,6 +216,18 @@ dashboard's fixed HP and Physical Defense values. Helmet and Bracer share one
 signature, Chestpiece uses doubled HP, and Greaves uses the Helmet/Bracer HP
 with its own higher Physical Defense value.
 
+The official payload does not consistently expose a separate relayed flag. If
+an imported piece contains an affix listed by its definition under
+`${level}Relayed`, the importer treats the piece as relayed before validating
+its affix pool. This preserves relay-only attribute attack rows such as official
+ID `9793026` (`maxStonesplit`) instead of discarding them as unsupported normal
+gear.
+
+Current-season weapon attribute IDs `9793003` and `9793006` represent Defense
+and Body respectively. Their order differs from the manually inferred mapping
+used before dashboard payloads exposed both rolls, so the official-ID map must
+not derive these meanings from numeric adjacency alone.
+
 Version 2 of the bookmarklet envelope carries the complete dashboard `roleInfo`
 object for inspecting additional profile fields. Known official martial-art and
 Inner Way IDs are recorded in `data/official/profile-map.json`. `kongfuMain`

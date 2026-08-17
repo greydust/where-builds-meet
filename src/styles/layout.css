@@ -83,6 +83,11 @@
     color: var(--text);
   }
 
+  .main-tabs button.modified {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+
   .path-selector {
     display: flex;
     align-items: center;
@@ -136,7 +141,7 @@
     object-fit: contain;
   }
 
-  .path-wip-badge {
+  .path-status-badge {
     border: 1px solid oklch(from var(--primary) l c h / 0.55);
     border-radius: var(--radius-pill);
     padding: 1px 6px;
@@ -205,7 +210,7 @@
 
   .app-layout {
     display: grid;
-    grid-template-columns: 48rem minmax(24rem, 30rem) minmax(22rem, 37.5rem);
+    grid-template-columns: 48rem minmax(26rem, 32rem) minmax(22rem, 37.5rem);
     align-items: start;
     justify-content: start;
     gap: 16px;
