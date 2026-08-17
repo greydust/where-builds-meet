@@ -46,6 +46,7 @@ import {
   setAvailableForTags,
   weaponSetDefinitions,
   type BuildSetup,
+  type BuildEntry,
   type BuildState,
   type GearDefinition,
   type GearInventory,
@@ -56,8 +57,8 @@ import {
   type GearValueDefinition,
 } from "./gear";
 import type { WeaponId } from "./types";
-import { officialGearBookmarklet } from "./officialGearBookmarklet";
-import { gameText, t } from "./i18n";
+import { createOfficialGearBookmarklet } from "./officialGearBookmarklet";
+import { dataText, gameText, t } from "./i18n";
 
 type GearOcrModule = typeof import("./gearOcr");
 
@@ -88,6 +89,14 @@ type GearValueDraft = { key: string; value: string };
 
 function gearRarityLabel(rarity: GearRarity) {
   return rarity === "Gold" ? t("system.gearRarity.gold") : t("system.gearRarity.purple");
+}
+
+function gearSlotLabel(slot: GearSlot) {
+  return dataText(`system.gearSlot.${slot}`, gearData.slots[slot]);
+}
+
+function buildEntryDisplayName(entry: Pick<BuildEntry, "name" | "isDefault">) {
+  return (entry.isDefault ? gameText(entry.name) : entry.name) || "Unnamed Build";
 }
 
 type GearDraft = {
@@ -223,7 +232,7 @@ function GearAttributes({ item, compact = false }: { item: GearItem; compact?: b
           key={`${row.kind}-${row.label}-${index}`}
         >
           <span>
-            {row.kind === "Attunement" && <small>{row.kind}</small>}
+            {row.kind === "Attunement" && <small>{t("ui.buildTab.attunement")}</small>}
             {row.label}
           </span>
           <strong>{row.value}</strong>
@@ -240,7 +249,7 @@ function RelayedIndicator({ item }: { item?: GearItem }) {
       aria-label={t("ui.buildTab.relayedGear")}
       title={t("ui.buildTab.relayedGear")}
     >
-      <UiIcon name="up" />
+      <UiIcon name="arrowUp" />
     </span>
   ) : null;
 }
@@ -401,9 +410,17 @@ export default function BuildTab({
   const [officialImportError, setOfficialImportError] = useState("");
   const officialImportDialogRef = useRef<HTMLDialogElement>(null);
   const officialBookmarkletRef = useRef<HTMLAnchorElement>(null);
+  const officialGearBookmarklet = createOfficialGearBookmarklet({
+    noGearData: t("ui.buildTab.bookmarkletNoGearData"),
+    copyPrompt: t("ui.buildTab.bookmarkletCopyPrompt"),
+    copySuccess: t("ui.buildTab.bookmarkletCopySuccess"),
+    notLoggedIn: t("ui.buildTab.bookmarkletNotLoggedIn"),
+    unreadableData: t("ui.buildTab.bookmarkletUnreadableData"),
+    dashboardUnreachable: t("ui.buildTab.bookmarkletDashboardUnreachable"),
+  });
   useEffect(() => {
     officialBookmarkletRef.current?.setAttribute("href", officialGearBookmarklet);
-  }, []);
+  }, [officialGearBookmarklet]);
   const listedEntries = buildState.entries.filter(
     (entry) =>
       (devMode || !buildEntryIsTestPreset(entry)) &&
@@ -507,7 +524,12 @@ export default function BuildTab({
 
   function removeBuild(id: string) {
     const entry = buildState.entries.find((candidate) => candidate.id === id);
-    if (!entry || entry.isDefault || !window.confirm(`Delete build "${entry.name}"?`)) return;
+    if (
+      !entry ||
+      entry.isDefault ||
+      !window.confirm(t("ui.buildTab.deleteNamedBuildConfirmation", { name: buildEntryDisplayName(entry) }))
+    )
+      return;
     const remaining = listedEntries.filter((candidate) => candidate.id !== id);
     const fallback = remaining.find((candidate) => candidate.isDefault) ?? remaining[0];
     onBuildStateChange((current) => ({
@@ -611,7 +633,7 @@ export default function BuildTab({
                           <UiIcon name="active" />
                         </i>
                       )}
-                      {entry.name || "Unnamed Build"}
+                      {buildEntryDisplayName(entry)}
                     </strong>
                     {entry.isDefault && <small>{t("ui.buildTab.defaultPreset")}</small>}
                   </span>
@@ -672,7 +694,7 @@ export default function BuildTab({
                 />
               ) : (
                 <h3>
-                  {editingEntry.name || "Unnamed Build"}
+                  {buildEntryDisplayName(editingEntry)}
                   <button
                     className="icon-button"
                     type="button"
@@ -1186,7 +1208,7 @@ function BuildManagement({
                   data-testid={`equipped-${slot}`}
                 >
                   <RelayedIndicator item={item} />
-                  <span className="gear-slot-name">{gearData.slots[slot]}</span>
+                  <span className="gear-slot-name">{gearSlotLabel(slot)}</span>
                   {item ? (
                     <>
                       <strong>{gameText(definition?.name)}</strong>
@@ -1217,9 +1239,9 @@ function BuildManagement({
         <section className="panel build-inventory-panel">
           <div className="panel-heading">
             <div>
-              <h2>{gearData.slots[selectedSlot]}</h2>
+              <h2>{gearSlotLabel(selectedSlot)}</h2>
               <p>
-                {t("ui.buildTab.shared")} {selected.definition?.name ?? t("ui.buildTab.gear")}{" "}
+                {t("ui.buildTab.shared")} {gameText(selected.definition?.name) || t("ui.buildTab.gear")}{" "}
                 {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
               </p>
             </div>
@@ -1283,7 +1305,7 @@ function BuildManagement({
               className="add-gear-card"
               type="button"
               onClick={beginAdd}
-              aria-label={t("ui.buildTab.addNamedGear", { name: gameText(gearData.slots[selectedSlot]) })}
+              aria-label={t("ui.buildTab.addNamedGear", { name: gearSlotLabel(selectedSlot) })}
               data-testid="add-gear"
             >
               <span>

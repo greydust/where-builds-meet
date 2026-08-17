@@ -37,10 +37,8 @@ function collectDataStrings(value, keyPrefix, entries, canonicalKeysByEnglish, o
   Object.entries(value).forEach(([key, child]) => {
     const nextPath = [...objectPath, key];
     if (translatableDataFields.has(key) && typeof child === "string" && child.trim()) {
-      entries.set(
-        canonicalKeysByEnglish.get(child) ?? `${keyPrefix}.${nextPath.map(normalizeSegment).join(".")}`,
-        child,
-      );
+      const canonicalKey = keyPrefix.startsWith("data.skill.") ? undefined : canonicalKeysByEnglish.get(child);
+      entries.set(canonicalKey ?? `${keyPrefix}.${nextPath.map(normalizeSegment).join(".")}`, child);
     } else collectDataStrings(child, keyPrefix, entries, canonicalKeysByEnglish, nextPath);
   });
 }
@@ -129,6 +127,14 @@ for (const file of await filesUnder(path.join(root, "data"), (candidate) => cand
       const key = `system.attunement.${normalizeSegment(id)}`;
       expectedEnglish.set(key, definition.name);
       canonicalKeysByEnglish.set(definition.name, key);
+    }
+  }
+  if (relative === "gear" && data?.slots && typeof data.slots === "object") {
+    for (const [id, name] of Object.entries(data.slots)) {
+      if (typeof name !== "string" || !name.trim()) continue;
+      const key = `system.gearSlot.${normalizeSegment(id)}`;
+      expectedEnglish.set(key, name);
+      canonicalKeysByEnglish.set(name, key);
     }
   }
   collectDataStrings(data, `data.${relative}`, expectedEnglish, canonicalKeysByEnglish);

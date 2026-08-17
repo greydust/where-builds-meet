@@ -1,11 +1,17 @@
 export type UiIconName =
-  "active" | "chevronDown" | "chevronRight" | "close" | "edit" | "plus" | "reset" | "up" | "down";
+  "active" | "arrowUp" | "chevronDown" | "chevronRight" | "close" | "edit" | "plus" | "reset" | "up" | "down";
 
 export function UiIcon({ name }: { name: UiIconName }) {
   if (name === "active")
     return (
       <svg className="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="5" fill="currentColor" stroke="none" />
+      </svg>
+    );
+  if (name === "arrowUp")
+    return (
+      <svg className="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5M6 11l6-6 6 6" />
       </svg>
     );
   if (name === "chevronDown")

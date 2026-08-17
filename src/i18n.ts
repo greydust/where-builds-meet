@@ -25,7 +25,7 @@ function localeAsset(name: string) {
 }
 
 async function loadJson<T>(name: string): Promise<T> {
-  const response = await fetch(localeAsset(name));
+  const response = await fetch(localeAsset(name), { cache: "no-cache" });
   if (!response.ok) throw new Error(`Unable to load locale asset ${name}.`);
   return response.json() as Promise<T>;
 }

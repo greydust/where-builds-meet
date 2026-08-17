@@ -358,6 +358,19 @@ const innerWayDefinitions = {
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
+const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
+  Snowparting: "snowpartingBlade",
+  Phalanxbane: "phalanxbaneBlade",
+  Thundercry: "thundercryBlade",
+  Stormbreaker: "stormbreakerSpear",
+  Mystic: "mystic",
+  General: "general",
+};
+const skillDataNamespaceById = new Map<string, string>(
+  (Object.entries(defaultSkillMaps) as Array<[SkillCategory, SkillMap]>).flatMap(([category, definitions]) =>
+    Object.keys(definitions).map((id) => [id, skillDataNamespaceByCategory[category]]),
+  ),
+);
 const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).flatMap((category) =>
   Object.keys(defaultSkillMaps[category]),
 );
@@ -972,15 +985,23 @@ function formatNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }
 
-function skillDisplayName(skill: SkillRecord | undefined, fallback = "") {
-  const name = gameText(skill?.name?.trim() || fallback);
-  const shortName = gameText(skill?.shortName?.trim());
+function skillFieldText(skillId: string, skill: SkillRecord | undefined, field: "name" | "shortName") {
+  const value = skill?.[field]?.trim();
+  if (!value) return field === "name" ? skillId : "";
+  const namespace = skillDataNamespaceById.get(skillId);
+  const defaultValue = allSkillDefinitions[skillId]?.[field]?.trim();
+  return namespace && value === defaultValue ? dataText(`data.skill.${namespace}.${skillId}.${field}`, value) : value;
+}
+
+function skillDisplayName(skill: SkillRecord | undefined, fallback = "", skillId = fallback) {
+  const name = skillFieldText(skillId, skill, "name");
+  const shortName = skillFieldText(skillId, skill, "shortName");
   return shortName ? `${name} (${shortName})` : name;
 }
 
 function RotationSkillName({ skill, fallback = "" }: { skill: SkillRecord | undefined; fallback?: string }) {
-  const name = gameText(skill?.name?.trim() || fallback);
-  const shortName = gameText(skill?.shortName?.trim());
+  const name = skillFieldText(fallback, skill, "name");
+  const shortName = skillFieldText(fallback, skill, "shortName");
   return (
     <span className="rotation-skill-label">
       <span>{name}</span>
@@ -1202,6 +1223,11 @@ function initialRotationEditorState(devMode: boolean) {
     ? { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action }
     : { rowId: "rotation-0" };
   return { entries, activeId, rotation, startAnchor };
+}
+
+function rotationEntryDisplayName(entry: RotationEntry) {
+  const name = entry.rotation.name || "Unnamed Rotation";
+  return entry.isDefault ? gameText(name) : name;
 }
 
 function globalStatEffects(settings: CalculatorSettings, gearStatEffect: StatEffectContainer, buildSetup: BuildSetup) {
@@ -1465,7 +1491,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
           </div>
           {breakdown.skills.map((row) => (
             <div className="breakdown-table-row" key={row.id}>
-              <span>{skillDisplayName(allSkillDefinitions[row.id], row.name)}</span>
+              <span>{skillDisplayName(allSkillDefinitions[row.id], row.name, row.id)}</span>
               <strong>{row.casts || ""}</strong>
               <strong>{row.triggers || ""}</strong>
               <strong>{row.hits || ""}</strong>
@@ -1496,7 +1522,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
           </div>
           {breakdown.casts.map((row) => (
             <div className="breakdown-table-row" key={row.id}>
-              <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name)}</span>
+              <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name, row.skillId)}</span>
               <strong>{row.casts}</strong>
               <strong>
                 {formatNumber(row.averageCastTime)}
@@ -2086,7 +2112,7 @@ function StatsTab({
               <div className="stat-row">
                 <CalculatedStatField
                   definition={defenseStats[13]}
-                  derivedLabel="Effective Crit DMG Bonus"
+                  derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(defenseStats[13].label) })}
                   derivedValue={derivedStats.effectiveCritDmgBonus * 100}
                   derivedUnit="%"
                   compact
@@ -4040,7 +4066,7 @@ function SettingsTab({
         <div className="settings-weapon-row">
           {settings.weapons.map((weapon, index) => (
             <label className="editor-field" key={index}>
-              <span>{index === 0 ? t("ui.app.leftWeapon") : t("ui.app.rightWeapon")}</span>
+              <span>{index === 0 ? t("system.gearSlot.leftWeapon") : t("system.gearSlot.rightWeapon")}</span>
               <select
                 value={weapon}
                 disabled={weaponsLocked}
@@ -4107,7 +4133,12 @@ function RotationEditorTab({
   character: CharacterState;
   devMode: boolean;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
-  onActiveSimulationBundleChange: (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) => void;
+  onActiveSimulationBundleChange: (
+    bundle: RotationSimulationBundle,
+    rotationName: string,
+    bundleKey: string,
+    isDefault: boolean,
+  ) => void;
 }) {
   const {
     rawStats: characterStats,
@@ -4169,6 +4200,7 @@ function RotationEditorTab({
   const resolvedActiveRotationIdRef = useRef(resolvedActiveRotationId);
   resolvedActiveRotationIdRef.current = resolvedActiveRotationId;
   const rotationLocked = editingEntry?.isDefault === true;
+  const editingRotationDisplayName = (rotationLocked ? gameText(rotation.name) : rotation.name) || "Unnamed Rotation";
   const currentGlobalDebuffs = loadGlobalDebuffs();
   const calculationContextKey = JSON.stringify({
     characterStats,
@@ -5152,11 +5184,13 @@ function RotationEditorTab({
       activeRotationId === editingRotationId
         ? rotation
         : rotationEntries.find((entry) => entry.id === activeRotationId)?.rotation;
+    const activeEntry = rotationEntries.find((entry) => entry.id === activeRotationId);
     if (activeRotation)
       onActiveSimulationBundleChange(
         calculationBundleFor(activeRotation, false),
         activeRotation.name || "Active rotation",
         `${activeRotationId}:${calculationContextKey}:${JSON.stringify(activeRotation)}`,
+        activeEntry?.isDefault === true,
       );
   }, [
     activeRotationId,
@@ -5313,7 +5347,7 @@ function RotationEditorTab({
                       <UiIcon name="active" />
                     </span>
                   )}
-                  {entry.rotation.name || "Unnamed Rotation"}
+                  {rotationEntryDisplayName(entry)}
                 </strong>
                 {!entry.isDefault && (
                   <span className="rotation-list-actions">
@@ -5376,7 +5410,7 @@ function RotationEditorTab({
                   />
                 ) : (
                   <h3>
-                    {rotation.name || "Unnamed Rotation"}
+                    {editingRotationDisplayName}
                     {!rotationLocked && (
                       <button
                         className="icon-button"
@@ -6075,7 +6109,7 @@ function RotationEditorTab({
         <div className="rotation-readable-heading">
           <div>
             <span className="detail-kicker">{t("ui.app.readableFormat")}</span>
-            <h3>{rotation.name || "Unnamed Rotation"}</h3>
+            <h3>{editingRotationDisplayName}</h3>
           </div>
           <button
             className="icon-button"
@@ -6120,6 +6154,7 @@ export default function App() {
     bundle: RotationSimulationBundle;
     rotationName: string;
     bundleKey: string;
+    rotationIsDefault: boolean;
   }>();
   const rotationMetrics = useSyncExternalStore(subscribeToRotationMetrics, getRotationMetrics, getRotationMetrics);
   const [innerWayRevision, setInnerWayRevision] = useState(0);
@@ -6137,6 +6172,9 @@ export default function App() {
   );
   const activeBuild =
     availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ?? availableBuildEntries[0];
+  const activeBuildDisplayName = activeBuild
+    ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || "Unnamed Build"
+    : "Unnamed Build";
   const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild]);
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() =>
     loadBuildSetupOverrides(activeBuildSetup),
@@ -6262,10 +6300,15 @@ export default function App() {
     if (isActive) publishRotationMetrics(metrics);
   };
   const handleActiveSimulationBundle = useCallback(
-    (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string) =>
-      setActiveSimulation({ bundle, rotationName, bundleKey }),
+    (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string, rotationIsDefault: boolean) =>
+      setActiveSimulation({ bundle, rotationName, bundleKey, rotationIsDefault }),
     [],
   );
+  const activeRotationDisplayName = activeSimulation
+    ? activeSimulation.rotationIsDefault
+      ? gameText(activeSimulation.rotationName)
+      : activeSimulation.rotationName
+    : "—";
   const selectPath = (nextPathId: PathId) => {
     if (typedPathDefinitions[nextPathId].wip && !devMode) return;
     sessionStorage.setItem(pathStorageKey, nextPathId);
@@ -6433,8 +6476,8 @@ export default function App() {
           onBuildSetupChange={updateBuildSetupOverride}
           onBuildSetupReset={resetBuildSetupOverride}
           rotationMetrics={rotationMetrics}
-          activeBuildName={activeBuild?.name || "Unnamed Build"}
-          activeRotationName={activeSimulation?.rotationName || "—"}
+          activeBuildName={activeBuildDisplayName}
+          activeRotationName={activeRotationDisplayName}
           onInnerWayChange={() => setInnerWayRevision((current) => current + 1)}
         />
       ) : activeTab === "build" ? (
@@ -6478,8 +6521,8 @@ export default function App() {
             <SimulationTab
               bundle={activeSimulation?.bundle}
               bundleKey={activeSimulation?.bundleKey}
-              rotationName={activeSimulation?.rotationName}
-              buildName={activeBuild?.name}
+              rotationName={activeSimulation ? activeRotationDisplayName : undefined}
+              buildName={activeBuildDisplayName}
             />
           </Suspense>
         </div>

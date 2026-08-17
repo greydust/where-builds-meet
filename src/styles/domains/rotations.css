@@ -30,7 +30,7 @@
 
   .rotation-list-heading {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) min-content;
+    grid-template-columns: minmax(max-content, 1fr) minmax(0, max-content);
     min-block-size: 44px;
     flex: 0 0 auto;
     align-items: center;
@@ -48,14 +48,13 @@
   }
 
   .rotation-list-heading .button {
-    inline-size: min-content;
+    inline-size: auto;
     min-inline-size: 0;
     padding-inline-end: 6px;
     padding-inline-start: 6px;
     line-height: 1.15;
     text-align: center;
-    white-space: normal;
-    overflow-wrap: normal;
+    white-space: nowrap;
   }
 
   .rotation-list-entries {
