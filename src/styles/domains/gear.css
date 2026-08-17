@@ -19,7 +19,7 @@
 
   .build-list-heading {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) min-content;
+    grid-template-columns: minmax(max-content, 1fr) minmax(min-content, max-content);
     align-items: center;
     justify-content: space-between;
     gap: 8px;
@@ -32,7 +32,7 @@
   }
 
   .build-list-heading .button {
-    inline-size: min-content;
+    inline-size: auto;
     min-inline-size: 0;
     line-height: 1.15;
     overflow-wrap: normal;

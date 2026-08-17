@@ -27,11 +27,11 @@ export const defaultGlobalDebuffs: GlobalDebuffState = {
 };
 
 export const globalDebuffRows = [
-  { key: "phantomChime", name: "Phantom Chime (Dust)" },
-  { key: "qiImbalance", name: "Qi Imbalance (Splendor)" },
-  { key: "soulShaken", name: "Soul-Shaken (Umbra)" },
-  { key: "vulnerable", name: "Vulnerable (Might)" },
-  { key: "fearfulBlade", name: "Fearful Blade (Strength)" },
+  { key: "phantomChime", name: "Phantom Chime", path: "Dust" },
+  { key: "qiImbalance", name: "Qi Imbalance", path: "Splendor" },
+  { key: "soulShaken", name: "Soul-Shaken", path: "Umbra" },
+  { key: "vulnerable", name: "Vulnerable", path: "Might" },
+  { key: "fearfulBlade", name: "Fearful Blade", path: "Strength" },
 ] as const;
 
 export function normalizeGlobalDebuffs(value: unknown): GlobalDebuffState {

@@ -337,6 +337,12 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
     tags: ["Event"],
   },
 };
+
+function rotationEventDisplayName(eventId: string) {
+  const key = `${eventId.charAt(0).toLowerCase()}${eventId.slice(1)}`;
+  return dataText(`game.event.${key}`, rotationEventDefinitions[eventId]?.name ?? eventId);
+}
+
 const innerWayDefinitions = {
   FrostCladNight: frostCladNight,
   MoraleChant: moraleChant,
@@ -1821,10 +1827,16 @@ function StatsTab({
     [defenseStats[2], defenseStats[3]],
   ];
   const innerWayOptions = [
-    ["", "None"],
+    ["", t("ui.app.none")],
     ...Object.entries(innerWayDefinitions)
       .filter(([value]) => innerWayAvailableForPath(value, pathId))
-      .map(([value, definition]) => [value, definition.name] as [string, string]),
+      .map(
+        ([value, definition]) =>
+          [value, dataText(`system.innerWay.${value.charAt(0).toLowerCase()}${value.slice(1)}`, definition.name)] as [
+            string,
+            string,
+          ],
+      ),
   ];
   const attunementFields = Object.entries(attunementData)
     .filter(([key]) => attunementAvailableForSettings(key, pathId, settings))
@@ -2178,12 +2190,14 @@ function StatsTab({
                 </div>
               </div>
               <div className="global-debuff-list">
-                {globalDebuffRows.map(({ key, name }) => (
+                {globalDebuffRows.map(({ key, name, path }) => (
                   <div className="global-debuff-row" key={key}>
-                    <span>{name}</span>
+                    <span>
+                      {gameText(name)} ({gameText(path)})
+                    </span>
                     <div className="setup-option-list global-debuff-options">
-                      {globalDebuffOption(key, false, "Off")}
-                      {globalDebuffOption(key, true, "On")}
+                      {globalDebuffOption(key, false, t("ui.app.off"))}
+                      {globalDebuffOption(key, true, t("ui.app.on"))}
                     </div>
                   </div>
                 ))}
@@ -4110,6 +4124,11 @@ function RotationEditorTab({
   const innerWayEffectRules = useMemo(() => innerWayEffectRulesFor(buildSetup.innerWays), [buildSetup.innerWays]);
   const [initialState] = useState(() => initialRotationEditorState(devMode));
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(initialState.entries);
+  const savedRotationSnapshotsRef = useRef<Map<string, RotationRecord> | null>(null);
+  if (savedRotationSnapshotsRef.current === null)
+    savedRotationSnapshotsRef.current = new Map(
+      initialState.entries.map((entry) => [entry.id, JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord]),
+    );
   const [activeRotationId, setActiveRotationId] = useState(initialState.activeId);
   const [editingRotationId, setEditingRotationId] = useState(initialState.activeId);
   const [rotation, setRotation] = useState<RotationRecord>(initialState.rotation);
@@ -4542,11 +4561,31 @@ function RotationEditorTab({
     );
     setRotationEntries(nextEntries);
     setRotation(normalized);
+    savedRotationSnapshotsRef.current?.set(editingRotationId, JSON.parse(JSON.stringify(normalized)) as RotationRecord);
     persistRotationEntries(nextEntries);
     sessionStorage.setItem("wwm-active-rotation-session-v1", activeRotationId);
     setError("");
     setStatus(t("ui.app.savedForThisSession"));
     if (editingRotationId === activeRotationId) void calculateDiffsForRotation(editingRotationId, normalized);
+  }
+  function resetRotation() {
+    if (rotationLocked) return;
+    const saved = savedRotationSnapshotsRef.current?.get(editingRotationId);
+    if (!saved) return;
+    const restored = JSON.parse(JSON.stringify(saved)) as RotationRecord;
+    setRotation(restored);
+    setStartAnchor(
+      restored.start
+        ? { rowId: `rotation-${restored.start.step}`, actionIndex: restored.start.action }
+        : { rowId: "rotation-0" },
+    );
+    setEventTimeDrafts({});
+    setEventDurationDrafts({});
+    setEventDistanceDrafts({});
+    setEventHPDrafts({});
+    setEditingName(false);
+    setStatus("");
+    setError("");
   }
   function activateRotation(id: string) {
     if (id === activeRotationId) return;
@@ -4604,6 +4643,7 @@ function RotationEditorTab({
     setRotationEntries(nextEntries);
     setEditingRotationId(id);
     setRotation(nextRotation);
+    savedRotationSnapshotsRef.current?.set(id, JSON.parse(JSON.stringify(nextRotation)) as RotationRecord);
     setStartAnchor({ rowId: "rotation-0" });
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
@@ -4622,6 +4662,7 @@ function RotationEditorTab({
     setRotationEntries(nextEntries);
     setEditingRotationId(id);
     setRotation(duplicate);
+    savedRotationSnapshotsRef.current?.set(id, JSON.parse(JSON.stringify(duplicate)) as RotationRecord);
     setStartAnchor(
       duplicate.start
         ? { rowId: `rotation-${duplicate.start.step}`, actionIndex: duplicate.start.action }
@@ -4638,6 +4679,7 @@ function RotationEditorTab({
     if (rotationEntries.find((entry) => entry.id === id)?.isDefault) return;
     if (visibleRotationEntries.length <= 1) return;
     const nextEntries = rotationEntries.filter((entry) => entry.id !== id);
+    savedRotationSnapshotsRef.current?.delete(id);
     if (id !== editingRotationId && id !== activeRotationId) {
       setRotationEntries(nextEntries);
       persistRotationEntries(nextEntries);
@@ -4702,6 +4744,11 @@ function RotationEditorTab({
       const migratedEntries = result.entries.map((entry) =>
         result.importedIds.includes(entry.id) ? { ...entry, rotation: migrateRotation(entry.rotation) } : entry,
       );
+      result.importedIds.forEach((id) => {
+        const imported = migratedEntries.find((entry) => entry.id === id);
+        if (imported)
+          savedRotationSnapshotsRef.current?.set(id, JSON.parse(JSON.stringify(imported.rotation)) as RotationRecord);
+      });
       setRotationEntries(migratedEntries);
       persistRotationEntries(migratedEntries);
       const importedEntry = migratedEntries.find((entry) => entry.id === result.importedIds[0]);
@@ -5353,9 +5400,14 @@ function RotationEditorTab({
                     {t("ui.app.duplicate")}
                   </button>
                   {!rotationLocked && (
-                    <button className="button button-primary button-small" type="button" onClick={save}>
-                      {t("ui.app.save")}
-                    </button>
+                    <>
+                      <button className="button button-secondary button-small" type="button" onClick={resetRotation}>
+                        {t("ui.app.reset")}
+                      </button>
+                      <button className="button button-primary button-small" type="button" onClick={save}>
+                        {t("ui.app.save")}
+                      </button>
+                    </>
                   )}
                   <button
                     className="button button-small detail-active-button"
@@ -5614,7 +5666,7 @@ function RotationEditorTab({
                               rotationLocked ? (
                                 <span className="rotation-skill-name">
                                   {isManualEvent ? (
-                                    <span>{rotationEventDefinitions[step.event]?.name ?? step.event}</span>
+                                    <span>{rotationEventDisplayName(step.event)}</span>
                                   ) : (
                                     <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />
                                   )}
@@ -5622,8 +5674,8 @@ function RotationEditorTab({
                               ) : (
                                 <span className="rotation-skill-select-wrap">
                                   <RotationSkillName
-                                    skill={isManualEvent ? rotationEventDefinitions[step.event] : skill}
-                                    fallback={stepSkill ?? ""}
+                                    skill={isManualEvent ? undefined : skill}
+                                    fallback={isManualEvent ? rotationEventDisplayName(step.event) : (stepSkill ?? "")}
                                   />
                                   <select
                                     className="rotation-skill-select"
@@ -5650,7 +5702,7 @@ function RotationEditorTab({
                                     ))}
                                     {rotationEventOptionIds.map((id) => (
                                       <option key={id} value={id}>
-                                        {rotationEventDefinitions[id.slice(8)]?.name ?? id}
+                                        {rotationEventDisplayName(id.slice(8))}
                                       </option>
                                     ))}
                                   </select>

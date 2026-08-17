@@ -85,6 +85,11 @@ const innerWayDefinitions = {
 } as Record<string, { name: string; tags?: string[] }>;
 
 type GearValueDraft = { key: string; value: string };
+
+function gearRarityLabel(rarity: GearRarity) {
+  return rarity === "Gold" ? t("system.gearRarity.gold") : t("system.gearRarity.purple");
+}
+
 type GearDraft = {
   level: GearLevel;
   rarity: GearRarity;
@@ -392,7 +397,6 @@ export default function BuildTab({
 }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
-  const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
   const [officialImportText, setOfficialImportText] = useState("");
   const [officialImportError, setOfficialImportError] = useState("");
   const officialImportDialogRef = useRef<HTMLDialogElement>(null);
@@ -515,7 +519,6 @@ export default function BuildTab({
   }
 
   function exportBuilds() {
-    const exportedBuildCount = buildState.entries.filter((entry) => !entry.isDefault).length;
     const blob = new Blob([exportBuildState(buildState)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -525,9 +528,6 @@ export default function BuildTab({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({
-      message: t("ui.buildTab.exportComplete", { gear: buildState.gearItems.length, builds: exportedBuildCount }),
-    });
   }
 
   async function importBuilds(event: ChangeEvent<HTMLInputElement>) {
@@ -542,17 +542,8 @@ export default function BuildTab({
         setEditingBuildId(result.importedBuildIds[0]);
         setEditingName(false);
       }
-      setTransferStatus({
-        message: t("ui.buildTab.importComplete", {
-          gear: result.importedGearCount,
-          builds: result.importedBuildCount,
-        }),
-      });
     } catch (error) {
-      setTransferStatus({
-        message: error instanceof Error ? error.message : t("ui.buildTab.importFileError"),
-        error: true,
-      });
+      console.error("[Build import] Could not import the selected file.", error);
     }
   }
 
@@ -573,13 +564,6 @@ export default function BuildTab({
       onBuildStateChange(result.state);
       setEditingBuildId(result.importedBuildIds[0]);
       setEditingName(false);
-      setTransferStatus({
-        message: t("ui.buildTab.officialImportComplete", {
-          name: official.roleName,
-          newGear: result.importedGearCount,
-          reusedGear: result.reusedGearCount,
-        }),
-      });
       officialImportDialogRef.current?.close();
     } catch (error) {
       setOfficialImportError(error instanceof Error ? error.message : t("ui.buildTab.dashboardImportError"));
@@ -670,11 +654,6 @@ export default function BuildTab({
             >
               {t("ui.buildTab.importFromOfficial")}
             </button>
-            {transferStatus && (
-              <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>
-                {transferStatus.message}
-              </p>
-            )}
           </div>
         </aside>
         <div className="build-editor-content">
@@ -1212,7 +1191,7 @@ function BuildManagement({
                     <>
                       <strong>{gameText(definition?.name)}</strong>
                       <small>
-                        {item.level} {item.rarity}
+                        {item.level} {gearRarityLabel(item.rarity)}
                       </small>
                       <GearBaseStatSummary item={item} />
                       <GearAttributes item={item} compact />
@@ -1256,7 +1235,7 @@ function BuildManagement({
                   <div>
                     <strong>{gameText(selected.definition?.name)}</strong>
                     <small>
-                      {item.level} {item.rarity}
+                      {item.level} {gearRarityLabel(item.rarity)}
                     </small>
                     <GearBaseStatSummary item={item} />
                   </div>
@@ -1532,8 +1511,8 @@ function GearEditor({
             value={draft.rarity}
             onChange={(event) => onDraftChange((current) => ({ ...current, rarity: event.target.value as GearRarity }))}
           >
-            <option value="Gold">{"Gold"}</option>
-            <option value="Purple">{"Purple"}</option>
+            <option value="Gold">{gearRarityLabel("Gold")}</option>
+            <option value="Purple">{gearRarityLabel("Purple")}</option>
           </select>
         </label>
         <div className="gear-editor-roll-controls">

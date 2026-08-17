@@ -121,6 +121,10 @@
     appearance: textfield;
   }
 
+  .simulation-percentile-add input:focus-visible {
+    outline-offset: -0.125rem;
+  }
+
   .simulation-percentile-add input::-webkit-outer-spin-button,
   .simulation-percentile-add input::-webkit-inner-spin-button {
     margin: 0;

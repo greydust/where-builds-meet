@@ -479,7 +479,9 @@
     color: var(--text);
   }
 
-  .rotation-skill-select:focus-visible {
+  .rotation-skill-select:focus {
+    outline: var(--focus-ring);
+    outline-offset: var(--focus-ring-offset);
     border-color: var(--primary);
     box-shadow: 0 0 0 2px var(--primary-soft);
   }
