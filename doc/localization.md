@@ -43,7 +43,7 @@ Browser detection is not written to storage. Only a user selection is saved.
 The selected locale and English fallback JSON are loaded together, and missing
 messages fall back per key. The `<html lang>` attribute is updated after load.
 
-Traditional Chinese (`zh-Hant`) is currently the only work-in-progress locale.
+Traditional Chinese (`zh-Hant`) is a published locale available without development mode.
 It is shown in the selector but disabled until Dev mode is enabled. Locale
 resolution applies the same gate to saved and browser-detected locales so the
 selector cannot be bypassed through storage or browser preferences. Locale

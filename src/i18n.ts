@@ -8,10 +8,10 @@ type Messages = Record<string, string>;
 const localeStorageKey = "wwm-locale";
 export const developmentModeStorageKey = "wwm-dev-mode-v1";
 const fallbackManifest: LocaleManifest = { default: "en", locales: ["en"] };
-const wipLocales = new Set(["zh-Hant"]);
+const wipLocales = new Set<string>();
 const localeDisplayNames: Record<string, string> = {
   en: "English",
-  "zh-Hant": "繁體中文（WIP）",
+  "zh-Hant": "繁體中文",
 };
 
 let manifest = fallbackManifest;
