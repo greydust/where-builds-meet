@@ -12,7 +12,6 @@
     "name": "Might",
     "icon": "might.png",
     "tag": "StonesplitMight",
-    "wip": true,
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
   "bamboocutDust": {
