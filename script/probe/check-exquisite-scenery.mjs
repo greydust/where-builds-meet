@@ -26,13 +26,16 @@ try {
       [
         ["Light", "Charged"],
         ["Heavy", "Charged"],
-        ["Light", "VariedCombo"],
-        ["Heavy", "VariedCombo"],
+        ["Light", "Charged", "VariedCombo"],
+        ["Heavy", "Charged", "VariedCombo"],
       ].every(sceneryT6Applies),
     "Exquisite Scenery T6 must grant 50% damage to all four charged and charged-varied attack categories.",
   );
   assert(
-    !sceneryT6Applies(["Light"]) && !sceneryT6Applies(["Charged"]) && !sceneryT6Applies(["Heavy", "MartialArts"]),
+    !sceneryT6Applies(["Light"]) &&
+      !sceneryT6Applies(["Charged"]) &&
+      !sceneryT6Applies(["Light", "VariedCombo"]) &&
+      !sceneryT6Applies(["Heavy", "VariedCombo"]),
     "Exquisite Scenery T6 must not affect attacks outside its charged and varied-combo categories.",
   );
 

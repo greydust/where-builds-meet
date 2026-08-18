@@ -68,6 +68,10 @@
                   },
                   {
                     "target": "skillTag",
+                    "value": "Charged"
+                  },
+                  {
+                    "target": "skillTag",
                     "value": "VariedCombo"
                   }
                 ],
@@ -75,6 +79,10 @@
                   {
                     "target": "skillTag",
                     "value": "Heavy"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Charged"
                   },
                   {
                     "target": "skillTag",
