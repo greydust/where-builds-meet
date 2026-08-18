@@ -520,11 +520,17 @@ function timelineDamageEntries(
             debuffs: row.debuffs,
             distance: row.distance,
             currentHPRatio: row.currentHPRatio,
+            resources: row.resources,
           };
           const buffs = actionState.buffs;
           const debuffs = actionState.debuffs;
+          const resources = actionState.resources;
           const skillTags = row.skill?.tags ?? [];
-          const effectsForState = (currentBuffs: typeof buffs, currentDebuffs: typeof debuffs) => {
+          const effectsForState = (
+            currentBuffs: typeof buffs,
+            currentDebuffs: typeof debuffs,
+            currentResources: typeof resources,
+          ) => {
             const activeSetupEffects = setupEffects
               .filter((effect) =>
                 requirementsPass(
@@ -534,6 +540,7 @@ function timelineDamageEntries(
                   skillTags,
                   conditions,
                   state.weapons,
+                  currentResources,
                 ),
               )
               .map((effect) =>
@@ -543,7 +550,15 @@ function timelineDamageEntries(
               );
             const activeInnerWayEffects = rules
               .filter((rule) =>
-                requirementsPass(rule.requirement, currentBuffs, currentDebuffs, skillTags, conditions, state.weapons),
+                requirementsPass(
+                  rule.requirement,
+                  currentBuffs,
+                  currentDebuffs,
+                  skillTags,
+                  conditions,
+                  state.weapons,
+                  currentResources,
+                ),
               )
               .map((rule) => rule.effect);
             const activeTrackedEffects = [...currentBuffs, ...currentDebuffs]
@@ -562,6 +577,7 @@ function timelineDamageEntries(
                         skillTags,
                         conditions,
                         state.weapons,
+                        currentResources,
                       ),
                   )
                   .map((effect) => effect.modify as EditableObject);
@@ -577,6 +593,7 @@ function timelineDamageEntries(
                         skillTags,
                         conditions,
                         state.weapons,
+                        currentResources,
                       ),
                   )
                   .map((rule) => rule.modify!);
@@ -597,6 +614,7 @@ function timelineDamageEntries(
                   skillTags,
                   conditions,
                   state.weapons,
+                  currentResources,
                 ),
               )
               .map((effect) =>
@@ -614,7 +632,7 @@ function timelineDamageEntries(
             buffs: buffs.map((effect) => effect.name),
             enemy: state.enemy,
             derivedStats,
-            effects: effectsForState(buffs, debuffs),
+            effects: effectsForState(buffs, debuffs, resources),
             distance: actionState.distance,
             currentHPRatio: actionState.currentHPRatio,
             isDot: row.kind === "dot",
@@ -628,7 +646,7 @@ function timelineDamageEntries(
                 context: {
                   ...context,
                   buffs: counterfactualBuffs.map((effect) => effect.name),
-                  effects: effectsForState(counterfactualBuffs, debuffs),
+                  effects: effectsForState(counterfactualBuffs, debuffs, resources),
                 },
               },
             ];

@@ -47,6 +47,7 @@ export type TrackedEffect = {
   persistent?: boolean;
   sourceRowId?: string;
 };
+export type ResourceState = Record<string, number>;
 export type InnerWayEffectRule = {
   requirement?: unknown;
   effect: EditableObject;
@@ -68,6 +69,7 @@ export type TimelineRow = {
   startTime: number;
   distance: number;
   currentHPRatio: number;
+  resources: ResourceState;
   effectiveCastTime: number;
   skill?: SkillRecord;
   actions: EditableObject[];
@@ -76,7 +78,13 @@ export type TimelineRow = {
   modifierEffects: EditableObject[];
   actionStates: Record<
     number,
-    { buffs: TrackedEffect[]; debuffs: TrackedEffect[]; distance: number; currentHPRatio: number }
+    {
+      buffs: TrackedEffect[];
+      debuffs: TrackedEffect[];
+      distance: number;
+      currentHPRatio: number;
+      resources: ResourceState;
+    }
   >;
   skipped?: boolean;
 };
@@ -129,6 +137,7 @@ export type TimelineBuildInput = {
   weapons: WeaponId[];
   initialBuffs?: TrackedEffect[];
   initialDebuffs?: TrackedEffect[];
+  initialResources?: ResourceState;
 };
 
 export const TIMELINE_TIME_EPSILON = 1e-4;
@@ -166,6 +175,7 @@ export function requirementsPass(
   skillTags: string[],
   innerWayConditions: Set<string>,
   weapons: WeaponId[] = [],
+  resources: ResourceState = {},
 ): boolean {
   if (!Array.isArray(requirement)) return true;
   const hasEffect = (target: unknown, value: unknown, requiredStack?: unknown) => {
@@ -184,6 +194,26 @@ export function requirementsPass(
     if (!condition || typeof condition !== "object") return false;
     const item = condition as EditableObject;
     if (item.operator === "or" && Array.isArray(item.operand)) return item.operand.some(evaluate);
+    if (item.target === "resource") {
+      const current = typeof item.value === "string" ? (resources[item.value] ?? 0) : 0;
+      if (typeof item.amount !== "number" || !Number.isFinite(item.amount)) return false;
+      switch (item.comparison) {
+        case ">=":
+          return current >= item.amount;
+        case ">":
+          return current > item.amount;
+        case "<=":
+          return current <= item.amount;
+        case "<":
+          return current < item.amount;
+        case "==":
+          return current === item.amount;
+        case "!=":
+          return current !== item.amount;
+        default:
+          return false;
+      }
+    }
     return hasEffect(item.target, item.value, item.stack);
   };
   return requirement.every(evaluate);
@@ -358,6 +388,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       startTime,
       distance: 1,
       currentHPRatio: 1,
+      resources: {},
       effectiveCastTime: castTime,
       skill,
       actions,
@@ -460,6 +491,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   }));
   let distance = 1;
   let currentHPRatio = 1;
+  let resources: ResourceState = { ...(input.initialResources ?? {}) };
   const cooldowns: Record<string, number> = {};
   const prune = (effects: TrackedEffect[], time: number) =>
     effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time);
@@ -476,7 +508,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           effect.modify &&
           typeof effect.modify === "object" &&
           !Array.isArray(effect.modify) &&
-          requirementsPass(effect.requirement, currentBuffs, currentDebuffs, skillTags, innerWayConditions, weapons),
+          requirementsPass(
+            effect.requirement,
+            currentBuffs,
+            currentDebuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+          ),
       )
       .map((effect) => effect.modify as EditableObject);
     const innerWayModifiers = innerWayRules
@@ -484,7 +524,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         (rule) =>
           rule.target === name &&
           rule.modify &&
-          requirementsPass(rule.requirement, currentBuffs, currentDebuffs, skillTags, innerWayConditions, weapons),
+          requirementsPass(
+            rule.requirement,
+            currentBuffs,
+            currentDebuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+          ),
       )
       .map((rule) => rule.modify!);
     return [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, {
@@ -551,6 +599,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         startTime: tickTime,
         distance,
         currentHPRatio,
+        resources: { ...resources },
         effectiveCastTime: 0,
         skill: rowSkill,
         actions,
@@ -614,6 +663,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       startTime: eventTime,
       distance,
       currentHPRatio,
+      resources: { ...resources },
       effectiveCastTime: 0,
       skill: definition,
       actions: actions.map((action) => ({ ...action })),
@@ -728,10 +778,19 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.debuffs = [...debuffs];
       event.row.distance = distance;
       event.row.currentHPRatio = currentHPRatio;
+      event.row.resources = { ...resources };
       const modifiers = Array.isArray(event.row.skill?.modifier) ? (event.row.skill.modifier as EditableObject[]) : [];
       event.row.modifierEffects = modifiers
         .filter((item) =>
-          requirementsPass(item.requirement, buffs, debuffs, event.row.skill?.tags ?? [], innerWayConditions, weapons),
+          requirementsPass(
+            item.requirement,
+            buffs,
+            debuffs,
+            event.row.skill?.tags ?? [],
+            innerWayConditions,
+            weapons,
+            resources,
+          ),
         )
         .map((item) =>
           item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
@@ -769,9 +828,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       debuffs: [...debuffs],
       distance,
       currentHPRatio,
+      resources: { ...resources },
     };
     const skillTags = event.row.skill?.tags ?? [];
-    if (!requirementsPass(action.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)) continue;
+    if (!requirementsPass(action.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources))
+      continue;
     const skillKey = event.row.step.type === "skill" ? (event.row.step.skill ?? "") : event.row.step.event;
     const actionCooldownKey = `action:${skillKey}:${event.actionIndex ?? -1}`;
     if (typeof action.cooldown === "number" && (cooldowns[actionCooldownKey] ?? 0) > event.time) continue;
@@ -791,6 +852,29 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       Number.isFinite(action.currentHPRatio)
     ) {
       currentHPRatio = Math.min(1, Math.max(0, action.currentHPRatio));
+      continue;
+    }
+    if (
+      (action.type === "setResource" || action.type === "addResource" || action.type === "consumeResource") &&
+      typeof action.value === "string" &&
+      typeof action.amount === "number" &&
+      Number.isFinite(action.amount) &&
+      action.amount >= 0
+    ) {
+      const current = resources[action.value] ?? 0;
+      let next = current;
+      switch (action.type) {
+        case "setResource":
+          next = action.amount;
+          break;
+        case "addResource":
+          next = current + action.amount;
+          break;
+        case "consumeResource":
+          next = current - action.amount;
+          break;
+      }
+      resources = { ...resources, [action.value]: Math.max(0, next) };
       continue;
     }
     if (action.type === "consume") {
@@ -847,6 +931,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         startTime: event.time,
         distance,
         currentHPRatio,
+        resources: { ...resources },
         effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0,
         skill: triggeredSkill,
         actions: actions.map((item) => ({ ...item })),
@@ -909,7 +994,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           ? (triggerAction.additionalStack as EditableObject)
           : undefined;
       const additionalStack =
-        additional && requirementsPass(additional.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)
+        additional &&
+        requirementsPass(additional.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)
           ? typeof additional.stack === "number"
             ? additional.stack
             : 1
@@ -986,7 +1072,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             : undefined;
         if (
           trigger?.event !== "damage" ||
-          !requirementsPass(trigger.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)
+          !requirementsPass(trigger.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)
         )
           return;
         if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action))
@@ -996,7 +1082,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         .filter((rule) => rule.trigger?.event === "damage" || rule.trigger?.target === "self")
         .forEach((rule) => {
           const requirement = rule.requirement ?? rule.trigger?.requirement;
-          if (!requirementsPass(requirement, buffs, debuffs, skillTags, innerWayConditions, weapons)) return;
+          if (!requirementsPass(requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)) return;
           const triggerActions = Array.isArray(rule.trigger?.action)
             ? rule.trigger.action
             : rule.trigger?.action && typeof rule.trigger.action === "object"

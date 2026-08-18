@@ -49,7 +49,8 @@ export function calculateRates(
   },
   options: { SteadfastGuaranteedCrit?: boolean } = {},
 ): RateCalculation {
-  const finalAffinity = input.effectiveAffinity + input.directAffinity;
+  const clampRate = (value: number) => Math.min(1, Math.max(0, value));
+  const finalAffinity = clampRate(input.effectiveAffinity + input.directAffinity);
   const baseFinalCrit =
     finalAffinity + input.directCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + input.directCrit) * input.effectivePrecision
@@ -69,14 +70,15 @@ export function calculateRates(
     };
   }
   const directCrit = input.directCrit + (SteadfastGuaranteedCrit ? 0.15 : 0);
-  const finalCrit = SteadfastGuaranteedCrit
+  const uncappedFinalCrit = SteadfastGuaranteedCrit
     ? finalAffinity + directCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + directCrit) * input.effectivePrecision
       : (1 - finalAffinity) * input.effectivePrecision
     : baseFinalCrit;
+  const finalCrit = clampRate(uncappedFinalCrit);
   const abrasionRate = (1 - input.effectivePrecision) * (1 - finalAffinity);
   const affinityRate = finalAffinity;
-  const critRate = Math.min(1, Math.max(0, finalCrit));
+  const critRate = finalCrit;
   return {
     effectivePrecision: input.effectivePrecision,
     effectiveCrit: input.effectiveCrit,

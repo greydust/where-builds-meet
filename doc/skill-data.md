@@ -247,6 +247,23 @@ decimal ratio even though the editor displays percentage points:
 The timeline starts at full HP (`1`) and snapshots the current ratio on every
 action. HP-dependent damage therefore reads the value at hit time.
 
+### Numeric resources
+
+The timeline also tracks named, nonnegative numeric resources. Resources start
+at zero unless supplied through `TimelineBuildInput.initialResources`. Skill and
+effect actions can update them:
+
+```json
+{ "type": "setResource", "value": "HeavensWill", "amount": 1, "time": 0 }
+{ "type": "addResource", "value": "HeavensWill", "amount": 1, "time": 1 }
+{ "type": "consumeResource", "value": "HeavensWill", "amount": 1, "time": 2 }
+```
+
+`setResource` replaces the value, `addResource` increases it, and
+`consumeResource` decreases it. Results are clamped to zero. Every action
+snapshots the resources before that action resolves, so a resource change
+affects later actions at the same timestamp but not earlier actions.
+
 ## Requirements
 
 A requirement array is an implicit AND group:
@@ -265,6 +282,14 @@ Supported targets are:
 - `skillTag`: a tag on the skill being evaluated
 - `martialArt`: the canonical martial-art tag on the skill being evaluated,
   such as `SnowpartingBlade` or `PhalanxbaneBlade`
+- `resource`: a named numeric timeline resource compared with `amount` using
+  `comparison`; supported comparisons are `>=`, `>`, `<=`, `<`, `==`, and `!=`
+
+For example, Heaven's Will requires at least one resource point:
+
+```json
+{ "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 1 }
+```
 
 For tracked effects, optional `stack` means at least that many stacks. The value
 `"max"` means the tracked stack count must have reached its resolved maximum.
@@ -835,16 +860,16 @@ when Formbend four-piece is selected.
 Drumbeat independently grants 15% Charged Skill damage for six seconds and is
 converted into the separate 42% Charged Skill damage buff Breakthrough by
 Predator's Shield. Breakthrough uses its own 12-second base duration. Art of
-Resistance T0 extends both Shield and Breakthrough by four seconds, and T4
-extends both by another two seconds. Breakthrough is not a shield, so Formbend
-does not extend it. Art of Resistance is an Inner Way rule requiring that
+Resistance T0 extends both Shield and Breakthrough by four seconds, T4 extends
+both by another two seconds, and Formbend four-piece extends both by another
+two seconds. Art of Resistance is an Inner Way rule requiring that
 Shield: T3 adds 5% general
 damage and cumulative T6 adds another 5%. The Shield Broken event consumes the
 Shield and, at T6, applies the 12-second, 10% Hardened Foe buff. Predator's
 Shield consumes Hardened Foe before applying a fresh Shield. Formbend is an
 armor set available to Stonesplit Strength and Might. Its four-piece option
 adds the `FormBend4` setup condition; Predator's Shield checks that condition
-and extends the refreshed Shield by two seconds.
+and extends the refreshed Shield and Breakthrough by two seconds.
 
 Divinecraft definitions use the same direct setup-effect shape as food and set
 effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;

@@ -2,5 +2,71 @@
   "name": "Heavenwill Gauntlets",
   "weapon": "Gauntlet",
   "tag": "HeavenwillGauntlets",
-  "talent": []
+  "talent": [
+    {
+      "name": "Physical Attack Up",
+      "effect": [
+        {
+          "stat": {
+            "minPhys": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.2639285714285714,
+                "max": 73.9
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Raptor's Instinct Crit Boost",
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "Falcon"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effectiveStat": {
+            "critDmgBonus": {
+              "formula": {
+                "source": "minPhys",
+                "multiplier": 0.0004,
+                "max": 0.3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bamboocut Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minBamboocut": 98,
+            "maxBamboocut": 196,
+            "bamboocutDmgBonus": {
+              "formula": {
+                "source": "effectiveMinBamboocut",
+                "multiplier": 0.0003353658536585366,
+                "max": 0.11
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -203,6 +203,19 @@
         "time": 1
       },
       {
+        "type": "extend",
+        "target": "self",
+        "value": "Breakthrough",
+        "duration": 2,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FormBend4"
+          }
+        ],
+        "time": 1
+      },
+      {
         "type": "consume",
         "target": "self",
         "value": "Drumbeat",

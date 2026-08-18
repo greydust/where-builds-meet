@@ -83,14 +83,55 @@ function penetrationMultiplier(penetration: number, resistance = 0) {
 }
 
 function mainAttribute(weapons: WeaponId[]) {
-  if (
-    weapons.includes("snowparting") ||
-    weapons.includes("phalanxbane") ||
-    weapons.includes("thundercry") ||
-    weapons.includes("stormbreaker")
-  )
-    return "stonesplit" as const;
-  return undefined;
+  let hasBamboocutWeapon = false;
+  for (const weapon of weapons) {
+    switch (weapon) {
+      case "snowparting":
+      case "phalanxbane":
+      case "thundercry":
+      case "stormbreaker":
+        return "stonesplit" as const;
+      case "everspring":
+      case "unfettered":
+      case "heavenwill":
+      case "skygrasp":
+        hasBamboocutWeapon = true;
+        break;
+    }
+  }
+  if (hasBamboocutWeapon) return "bamboocut" as const;
+}
+
+function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
+  for (const tag of skillTags) {
+    switch (tag) {
+      case "MoBlade":
+        return stats.moBladeDmgBoost;
+      case "HengBlade":
+        return stats.hengBladeDmgBoost;
+      case "Spear":
+        return stats.spearDmgBoost;
+      case "Gauntlet":
+        return stats.gauntletDmgBoost;
+      case "RopeDart":
+        return stats.ropeDartDmgBoost;
+      case "Umbrella":
+        return stats.umbrellaDmgBoost;
+    }
+  }
+  return 0;
+}
+
+function mysticSkillDamageBonus(stats: CharacterStats, skillTags: string[]) {
+  for (const tag of skillTags) {
+    switch (tag) {
+      case "SingleTargetMystic":
+        return stats.singleTargetMysticDmgBoost;
+      case "AreaMystic":
+        return stats.areaMysticDmgBoost;
+    }
+  }
+  return 0;
 }
 
 function calculateDamageBreakdownInternal(
@@ -220,36 +261,28 @@ function calculateDamageBreakdownInternal(
   const attunementBonus = attunementStat("attunementDMGBonus");
   const attunementPhysicalPenetration = attunementStat("physicalPenetration");
   const attunementFormlessPenetration = attunementStat("formlessPenetration");
-  const weaponArtBonus = skillTags.includes("MoBlade")
-    ? stats.moBladeDmgBoost
-    : skillTags.includes("HengBlade")
-      ? stats.hengBladeDmgBoost
-      : skillTags.includes("Spear")
-        ? stats.spearDmgBoost
-        : 0;
-  const mysticSkillBonus = skillTags.includes("SingleTargetMystic")
-    ? stats.singleTargetMysticDmgBoost
-    : skillTags.includes("AreaMystic")
-      ? stats.areaMysticDmgBoost
-      : 0;
+  const skillWeaponArtBonus = weaponArtBonus(stats, skillTags);
+  const mysticSkillBonus = mysticSkillDamageBonus(stats, skillTags);
   const damageBonusCategory1 =
     stats.vsBossDmg +
     (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +
-    weaponArtBonus +
+    skillWeaponArtBonus +
     mysticSkillBonus +
     innerWayDmgBonus;
   const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
   const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
-  const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) =>
-    mode === "min"
-      ? minimum
-      : mode === "max"
-        ? maximum
-        : mode === "simulate"
-          ? minimum === maximum
-            ? minimum
-            : minimum + (maximum - minimum) * randomUnit()
-          : (minimum + maximum) / 2;
+  const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => {
+    switch (mode) {
+      case "min":
+        return minimum;
+      case "max":
+        return maximum;
+      case "simulate":
+        return minimum === maximum ? minimum : minimum + (maximum - minimum) * randomUnit();
+      case "average":
+        return (minimum + maximum) / 2;
+    }
+  };
   const calculateAttributeDamage = (mode: AttackRollMode) =>
     attributeRanges.reduce(
       (total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {
@@ -320,23 +353,35 @@ function calculateDamageBreakdownInternal(
       };
   if (random) {
     const outcomeRoll = randomUnit();
-    const outcome: DamageOutcome =
-      outcomeRoll < rates.abrasionRate
-        ? "abrasion"
-        : outcomeRoll < rates.abrasionRate + rates.normalRate
-          ? "normal"
-          : outcomeRoll < rates.abrasionRate + rates.normalRate + rates.critRate
-            ? "critical"
-            : "affinity";
-    const selectedDamage =
-      outcome === "abrasion"
-        ? calculateVariant("min", 0)
-        : outcome === "affinity"
-          ? calculateVariant("max", stats.affinityDmgBonus)
-          : calculateVariant(
-              "simulate",
-              outcome === "critical" ? derivedStats.effectiveCritDmgBonus + effectCritDmgBonus : 0,
-            );
+    let outcome: DamageOutcome;
+    switch (true) {
+      case outcomeRoll < rates.abrasionRate:
+        outcome = "abrasion";
+        break;
+      case outcomeRoll < rates.abrasionRate + rates.normalRate:
+        outcome = "normal";
+        break;
+      case outcomeRoll < rates.abrasionRate + rates.normalRate + rates.critRate:
+        outcome = "critical";
+        break;
+      default:
+        outcome = "affinity";
+    }
+    let selectedDamage: ReturnType<typeof calculateVariant>;
+    switch (outcome) {
+      case "abrasion":
+        selectedDamage = calculateVariant("min", 0);
+        break;
+      case "affinity":
+        selectedDamage = calculateVariant("max", stats.affinityDmgBonus);
+        break;
+      case "critical":
+        selectedDamage = calculateVariant("simulate", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
+        break;
+      case "normal":
+        selectedDamage = calculateVariant("simulate", 0);
+        break;
+    }
     return {
       ...selectedDamage,
       total:

@@ -338,6 +338,10 @@ action has temporary `stat` or `effectiveStat` effects.
 ## Combat timeline
 
 `buildRotationTimeline()` turns an ordered rotation into one global event queue.
+Alongside buffs, debuffs, distance, and current HP, it tracks a map of named
+numeric resources. Resource actions update that map in event order, and each
+action snapshot carries the resource values used by action and setup-effect
+requirements.
 It produces four row kinds:
 
 - `rotation`: an explicit skill or manual event
@@ -728,7 +732,9 @@ from data.
   requirements and object-valued effects. The rotation simulator currently
   builds its combat maps from defaults, so overrides do not affect DPS yet.
 - Manual event definitions and supported weapons are hard-coded.
-- The primary attribute resolver only knows the current Stonesplit weapons.
+- Primary-attribute damage resolution supports the registered Stonesplit and
+  Bamboocut martial arts, but Void/Formless Attack folding currently remains
+  Stonesplit-only.
 - DMG Bonus Category 2 is specified but not implemented.
 - There is no automated test suite yet; `npm run build` is the current type and
   production-bundle verification step.

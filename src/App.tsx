@@ -4313,6 +4313,8 @@ function SettingsTab({
                 onChange={(event) =>
                   onSettingsChange((current) => {
                     const nextWeapon = event.target.value as WeaponId;
+                    const otherWeapon = current.weapons[index === 0 ? 1 : 0];
+                    if (pathId === "mixed" && nextWeapon === otherWeapon) return current;
                     const weapons: [WeaponId, WeaponId] = [...current.weapons] as [WeaponId, WeaponId];
                     weapons[index] = nextWeapon;
                     return { ...current, weapons };
@@ -4322,7 +4324,11 @@ function SettingsTab({
                 {Object.entries(martialArtDefinitions)
                   .filter(([value]) => devMode || productionWeaponIds.has(value as WeaponId))
                   .map(([value, definition]) => (
-                    <option key={value} value={value}>
+                    <option
+                      key={value}
+                      value={value}
+                      disabled={pathId === "mixed" && value === settings.weapons[index === 0 ? 1 : 0]}
+                    >
                       {gameText(definition.name)} ({gameText(weaponFamilyNames[definition.weapon])})
                     </option>
                   ))}
@@ -5883,6 +5889,7 @@ function RotationEditorTab({
                             debuffs: row.debuffs,
                             distance: row.distance,
                             currentHPRatio: row.currentHPRatio,
+                            resources: row.resources,
                           });
                     const durationEvent =
                       isManualEvent &&

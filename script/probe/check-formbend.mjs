@@ -149,12 +149,12 @@ try {
     "AoR and Formbend must extend Shield at the late probe.",
   );
   assert(
-    lateBuffs.some((effect) => effect.name === "Breakthrough" && effect.expiresAt === 20),
-    "Art of Resistance T0 and T4 must extend Breakthrough from 12 to 18 seconds.",
+    lateBuffs.some((effect) => effect.name === "Breakthrough" && effect.expiresAt === 22),
+    "Art of Resistance T0/T4 and Formbend must extend Breakthrough from 12 to 20 seconds.",
   );
   assert(
     lateBuffs.some((effect) => effect.name === "Shield" && effect.expiresAt === 18),
-    "Formbend must extend Shield without extending Breakthrough.",
+    "Art of Resistance and Formbend must extend Shield from 8 to 16 seconds.",
   );
   console.log("Art of Resistance and Formbend duration checks passed.");
 } finally {

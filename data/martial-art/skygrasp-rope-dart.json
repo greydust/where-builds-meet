@@ -2,5 +2,73 @@
   "name": "Skygrasp Rope Dart",
   "weapon": "RopeDart",
   "tag": "SkygraspRopeDart",
-  "talent": []
+  "talent": [
+    {
+      "name": "Critical Rate Up",
+      "effect": [
+        {
+          "stat": {
+            "crit": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.0003035714285714286,
+                "max": 0.085
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heaven's Will DMG Boost",
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "resource",
+              "value": "HeavensWill",
+              "comparison": ">=",
+              "amount": 1
+            }
+          ],
+          "effect": {
+            "stat": {
+              "physDmgBonus": {
+                "formula": {
+                  "source": "minPhys",
+                  "multiplier": 0.00012,
+                  "max": 0.09
+                }
+              },
+              "bamboocutDmgBonus": {
+                "formula": {
+                  "source": "minPhys",
+                  "multiplier": 0.00012,
+                  "max": 0.09
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bamboocut Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minBamboocut": 98,
+            "maxBamboocut": 196,
+            "bamboocutPenetration": {
+              "formula": {
+                "source": "effectiveMinBamboocut",
+                "multiplier": 0.06707317073170732,
+                "max": 22
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

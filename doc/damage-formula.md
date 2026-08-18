@@ -6,7 +6,7 @@ Enemy defense, path resistances, and Judgement Resistance come from the selected
 
 ## Stat resolution
 
-The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield:
+The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
@@ -38,7 +38,12 @@ Effective Max Stonesplit = max(
 )
 ```
 
-Snowparting Blade and Phalanxbane Blade currently use Stonesplit as their primary attribute. Because these are the only supported weapon settings, Stonesplit is the active primary path in the current application.
+Snowparting Blade, Phalanxbane Blade, Thundercry Blade, and Stormbreaker Spear
+use Stonesplit as their primary attribute. Everspring Umbrella, Unfettered Rope
+Dart, Heavenwill Gauntlets, and Skygrasp Rope Dart use Bamboocut. The primary
+attribute receives the action's attribute bonus, the 1.5 path multiplier, and
+Formless Penetration. Void/Formless Attack folding remains Stonesplit-only
+until its Bamboocut behavior is defined.
 
 ## Damage outcomes
 
@@ -271,7 +276,7 @@ For Judgement Resistance `J`:
 Effective Precision = min(1, (Precision − J) / (1 + J) + J)
 Effective Critical  = min(0.8, Critical / (1 + J) + Effective Critical Bonus)
 Effective Affinity  = min(0.4, Affinity / (1 + J))
-Final Affinity = Effective Affinity + Direct Affinity
+Final Affinity = clamp(Effective Affinity + Direct Affinity, 0, 1)
 ```
 
 Effective Critical Bonus is added after Judgement Resistance and shares the
@@ -288,6 +293,9 @@ Otherwise:
 ```text
 Final Critical = (1 − Final Affinity) × Effective Precision
 ```
+
+The resulting Final Critical is clamped to `[0, 1]`. Final Critical and Final
+Affinity therefore cannot exceed 100% or fall below 0%.
 
 The outcome distribution is:
 

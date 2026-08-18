@@ -137,43 +137,42 @@ for (const file of rotationFiles) {
 
 const mightRotation = await readJson("data/rotation/stonesplit-might/dummy-1-min.json");
 const mightSkillIds = mightRotation.steps.filter((step) => step.type === "skill").map((step) => step.skill);
-assert(mightRotation.name === "Dummy 1 min", "The Teams Dummy rotation must use its requested preset name.");
+assert(mightRotation.name === "Dummy 1 min", "The Might tank rotation must keep its built-in preset name.");
 assert(
-  mightRotation.start?.step === 4 && mightRotation.start.action === 0,
-  "The Might dummy rotation must start on the first Thunder Shock hit.",
+  mightRotation.start?.step === 4 && mightRotation.start.action === 1,
+  "The Might dummy rotation must start on Avalanche's second hit.",
 );
-assert(mightSkillIds.length === 47, "The Might dummy rotation must preserve its 47 skill entries.");
+assert(mightSkillIds.length === 61, "The Might dummy rotation must preserve its 61 skill entries.");
 assert(
-  mightSkillIds.slice(0, 8).join(",") ===
+  mightSkillIds.slice(0, 13).join(",") ===
     [
       "StormRoar",
+      "PredatorsShield",
       "FluteOfTheTidesCancel",
       "Deflect",
-      "PredatorsShield",
-      "ThunderShock",
       "Avalanche",
       "StonebreakerCleave",
+      "ThunderShock1",
+      "Deflect",
+      "LeapingToad",
+      "Deflect",
+      "DragonsBreath1",
+      "Deflect",
       "Defense",
     ].join(","),
-  "The Might dummy rotation opener must match the exported Teams Dummy sequence.",
+  "The Might dummy rotation opener must match the exported tank sequence.",
 );
 const defenseStepIndexes = mightRotation.steps
   .map((step, index) => ({ step, index }))
   .filter(({ step }) => step.type === "skill" && step.skill === "Defense")
   .map(({ index }) => index);
-assert(defenseStepIndexes.length === 4, "The Might dummy rotation must contain four Defense casts.");
+assert(defenseStepIndexes.length === 6, "The Might dummy rotation must contain six Defense casts.");
+const cadenceEvents = mightRotation.steps.filter(
+  (step) => step.type === "event" && step.event === "Buff" && step.buff === "Cadence" && step.stack === 2,
+);
 assert(
-  defenseStepIndexes.every((index) => {
-    const event = mightRotation.steps[index - 1];
-    return (
-      event?.type === "event" &&
-      event.event === "Buff" &&
-      event.buff === "Cadence" &&
-      event.stack === 2 &&
-      event.before?.action === "start"
-    );
-  }),
-  "Every Might Defense cast must have a two-stack Cadence event immediately before it.",
+  cadenceEvents.length === 5 && cadenceEvents.every((event) => event.before?.action === "start"),
+  "The Might dummy rotation must preserve its five two-stack Cadence events.",
 );
 assert(
   mightRotation.steps.at(-1)?.event === "BattleEnd" && mightRotation.steps.at(-1)?.startTime === 60,
