@@ -1,6 +1,8 @@
 {
   "martialArts": {
+    "20401": { "name": "Thundercry Blade", "weapon": "thundercry" },
     "20402": { "name": "Phalanxbane Blade", "weapon": "phalanxbane" },
+    "20103": { "name": "Stormbreaker Spear", "weapon": "stormbreaker" },
     "20801": { "name": "Snowparting Blade", "weapon": "snowparting" },
     "20901": { "name": "Heavenwill Gauntlets", "weapon": "heavenwill" },
     "20703": { "name": "Skygrasp Rope Dart", "weapon": "skygrasp" },

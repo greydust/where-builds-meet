@@ -130,6 +130,11 @@ try {
     "Observed Bamboocut - Kite martial-art IDs must map to their supported weapon definitions.",
   );
   assert(
+    profileMap.martialArts["20401"].weapon === "thundercry" &&
+      profileMap.martialArts["20103"].weapon === "stormbreaker",
+    "Observed Stonesplit - Might martial-art IDs must map to their supported weapon definitions.",
+  );
+  assert(
     profileMap.innerWays["551"].innerWay === "FrostCladNight" &&
       profileMap.innerWays["81"].innerWay === "MoraleChant" &&
       profileMap.innerWays["553"].innerWay === "SteadfastDevotion" &&
@@ -198,6 +203,31 @@ try {
   assert(
     JSON.stringify(dashboardShape.weapons) === JSON.stringify(["snowparting", "phalanxbane"]),
     "Importing the same weapon pair must not change the global weapon filter.",
+  );
+  const mightDashboardShape = importer.parseOfficialGearExport(
+    {
+      source: "wwm-dashboard",
+      v: 2,
+      roleInfo: {
+        roleName: "Might Dashboard Shape",
+        kongfuMain: 20401,
+        kongfuSub: 20103,
+        wearEquipsDetailed: {
+          1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 73)]),
+          2: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 72.6)]),
+        },
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  const mightBuild = mightDashboardShape.exportValue.builds[0];
+  const mightItems = new Map(mightDashboardShape.exportValue.gearItems.map((item) => [item.id, item]));
+  assert(
+    JSON.stringify(mightDashboardShape.weapons) === JSON.stringify(["thundercry", "stormbreaker"]) &&
+      JSON.stringify(mightBuild.martialArts) === JSON.stringify(["thundercry", "stormbreaker"]) &&
+      mightItems.get(mightBuild.equipped.leftWeapon)?.definitionId === "moBlade" &&
+      mightItems.get(mightBuild.equipped.rightWeapon)?.definitionId === "spear",
+    "Official Might IDs must import as left Thundercry Blade and right Stormbreaker Spear.",
   );
   const relayedHengBlade = importer.parseOfficialGearExport(
     {
