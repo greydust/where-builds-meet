@@ -121,8 +121,10 @@ try {
   const damagePerBaseCast = baseCast.damage / baseCast.casts;
   const expectedAverageDps = (damagePerBaseCast / 2.5 + damagePerBaseCast / 2) / 2;
   assert(
-    baseCast.averageCastTime === 2.25 && Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9,
-    "A following Deflect must be included in the preceding damaging skill's cast-time sample.",
+    baseCast.averageCastTime === 2.25 &&
+      Math.abs(baseCast.averageDamage - damagePerBaseCast) < 1e-9 &&
+      Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9,
+    "Per-cast damage must be averaged by cast count while a following Deflect contributes to the DPS time sample.",
   );
   assert(
     !result.metrics.breakdown.casts.some((row) => row.skillId === "Deflect" || row.skillId === "Utility"),
@@ -192,14 +194,103 @@ try {
   const fluteDifference = attributed.metrics.totalDamage - unbuffed.metrics.totalDamage;
   assert(fluteDifference > 0, "The Flute buff must increase the following hit.");
   assert(
-    fluteCast?.damage === 0 && Math.abs((fluteCast.damageWithBuff ?? 0) - fluteDifference) < 1e-9,
-    "Flute's inclusive cast damage must add exactly the damage caused by its buff.",
+    fluteCast?.damage === 0 &&
+      fluteCast.averageDamage === 0 &&
+      Math.abs((fluteCast.damageWithBuff ?? 0) - fluteDifference) < 1e-9 &&
+      Math.abs((fluteCast.averageDamageWithBuff ?? 0) - fluteDifference) < 1e-9,
+    "Flute's inclusive total and per-cast damage must add exactly the damage caused by its buff.",
   );
   assert(
     fluteCast?.averageDps === 0 && Math.abs((fluteCast.averageDpsWithBuff ?? 0) - fluteDifference) < 1e-9,
     "Flute's inclusive average DPS must include its attributed buff damage.",
   );
-  console.log("Per-cast damage attribution, Deflect timing, and zero-damage filtering checks passed.");
+
+  const ghostlyAttributionBundle = (withGhostlyEffect) => ({
+    timeline: {
+      rotation: {
+        name: "Ghostly attribution probe",
+        steps: [
+          { type: "skill", skill: "GhostlyCast" },
+          { type: "skill", skill: "PerfectDodge" },
+          { type: "skill", skill: "Hit" },
+        ],
+      },
+      skills: {
+        GhostlyCast: {
+          name: "Ghostly Step",
+          castTime: 1,
+          action: [{ type: "apply", target: "self", value: "Mystery", time: 0 }],
+          modifier: [],
+          tags: ["GhostlySteps"],
+        },
+        PerfectDodge: {
+          name: "Perfect Dodge",
+          castTime: 1,
+          action: [
+            {
+              type: "apply",
+              target: "self",
+              value: "MysteryDMGBoost",
+              time: 0,
+              requirement: [{ target: "self", value: "Mystery" }],
+            },
+          ],
+          modifier: [],
+          tags: ["PerfectDodge"],
+        },
+        Hit: {
+          name: "Hit",
+          castTime: 1,
+          action: [{ type: "damage", phyCoef: 1, time: 0.5 }],
+          modifier: [],
+          tags: ["DirectDamage"],
+        },
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: {
+        Mystery: { name: "Mystery", duration: 10, maxStack: 1, effect: [] },
+        MysteryDMGBoost: {
+          name: "Mystery DMG Boost",
+          duration: 10,
+          maxStack: 1,
+          damageAttribution: { type: "sourceCast", sourceEffects: ["Mystery"] },
+          effect: withGhostlyEffect ? [{ effect: { dmgBonus: 0.15 } }] : [],
+        },
+      },
+      innerWayConditions: [],
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: [],
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats: calculateDerivedStats(stats, 0),
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  const ghostlyAttributed = calculateRotationBaseline(ghostlyAttributionBundle(true));
+  const ghostlyUnbuffed = calculateRotationBaseline(ghostlyAttributionBundle(false));
+  const ghostlyCast = ghostlyAttributed.metrics.breakdown.casts.find((row) => row.skillId === "GhostlyCast");
+  const ghostlyDifference = ghostlyAttributed.metrics.totalDamage - ghostlyUnbuffed.metrics.totalDamage;
+  assert(ghostlyDifference > 0, "Mystery DMG Boost must increase the following hit.");
+  assert(
+    ghostlyCast?.damage === 0 &&
+      ghostlyCast.averageDamage === 0 &&
+      Math.abs((ghostlyCast.damageWithBuff ?? 0) - ghostlyDifference) < 1e-9 &&
+      Math.abs((ghostlyCast.averageDamageWithBuff ?? 0) - ghostlyDifference) < 1e-9,
+    "Ghostly Step's total and per-cast damage must inherit the indirect buff damage applied through Perfect Dodge.",
+  );
+  assert(
+    !ghostlyAttributed.metrics.breakdown.casts.some((row) => row.skillId === "PerfectDodge"),
+    "Perfect Dodge must not own Ghostly Step's attributed buff damage.",
+  );
+  console.log("Per-cast buff attribution, Deflect timing, and zero-damage filtering checks passed.");
 } finally {
   await viteServer.close();
 }

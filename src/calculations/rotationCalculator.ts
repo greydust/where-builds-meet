@@ -9,6 +9,7 @@ import { calculateDerivedStats } from "./effectiveStats";
 import {
   buildRotationTimeline,
   compareTimelineTime,
+  attributesDamageToSourceCast,
   mergeEffectDefinition,
   requirementsPass,
   type EditableObject,
@@ -395,9 +396,11 @@ function calculateBreakdown(
       .map(({ totalCastTime, dpsTotal, dpsWithBuffTotal, dpsSamples, buffedDamage, ...group }) => ({
         ...group,
         averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+        averageDamage: group.casts > 0 ? group.damage / group.casts : 0,
         ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
         ...(buffedDamage > 0
           ? {
+              averageDamageWithBuff: group.casts > 0 ? (group.damage + buffedDamage) / group.casts : 0,
               damageWithBuff: group.damage + buffedDamage,
               ...(dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {}),
             }
@@ -617,8 +620,7 @@ function timelineDamageEntries(
             isDot: row.kind === "dot",
           };
           const attributionContexts = buffs.flatMap((tracked) => {
-            if (input.effectDefinitions[tracked.name]?.damageAttribution !== "sourceCast" || !tracked.sourceRowId)
-              return [];
+            if (!attributesDamageToSourceCast(input.effectDefinitions[tracked.name]) || !tracked.sourceRowId) return [];
             const counterfactualBuffs = buffs.filter((candidate) => candidate !== tracked);
             return [
               {

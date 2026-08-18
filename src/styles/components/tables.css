@@ -43,8 +43,8 @@
   }
 
   .breakdown-cast-table {
-    grid-template-columns: minmax(16.25rem, 1fr) repeat(5, max-content);
-    min-inline-size: 56.125rem;
+    grid-template-columns: minmax(16.25rem, 1fr) repeat(6, max-content);
+    min-inline-size: 64rem;
   }
 
   .breakdown-group-table {
@@ -89,6 +89,21 @@
   .breakdown-table-header span:not(:first-child),
   .breakdown-table-row strong {
     text-align: end;
+  }
+
+  .breakdown-damage-header {
+    display: grid;
+    grid-column: span 2;
+    grid-template-columns: subgrid;
+
+    > :first-child {
+      grid-column: 1 / -1;
+      text-align: center;
+    }
+
+    > :not(:first-child) {
+      text-align: end;
+    }
   }
 
   .breakdown-table-row strong {

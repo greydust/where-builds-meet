@@ -1611,6 +1611,8 @@ function CastBreakdownComparison({
   );
 }
 
+const stackedBuffAttributionTags = new Set(["FluteOfTheTides", "GhostlySteps"]);
+
 function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
   if (!metrics)
     return (
@@ -1672,16 +1674,21 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
           </div>
         </div>
         <div className="breakdown-table breakdown-cast-table">
-          <div className="breakdown-table-header">
+          <div className="breakdown-table-header breakdown-cast-table-header">
             <span>{t("ui.app.skill")}</span>
             <span>{t("ui.app.casts")}</span>
             <span>{t("ui.app.avgCastTime")}</span>
             <span>{t("ui.app.averageDps")}</span>
-            <span>{t("ui.app.damage")}</span>
-            <span>{t("ui.app.total")}</span>
+            <span className="breakdown-damage-header">
+              <span>{t("ui.app.damage")}</span>
+              <span>{t("ui.app.perCast")}</span>
+              <span>{t("ui.app.total")}</span>
+            </span>
+            <span>{t("ui.app.percentage")}</span>
           </div>
           {breakdown.casts.map((row) => {
-            const stackBuffComparison = allSkillDefinitions[row.skillId]?.tags?.includes("FluteOfTheTides") ?? false;
+            const stackBuffComparison =
+              allSkillDefinitions[row.skillId]?.tags?.some((tag) => stackedBuffAttributionTags.has(tag)) ?? false;
             return (
               <div className="breakdown-table-row" key={row.id}>
                 <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name, row.skillId)}</span>
@@ -1694,6 +1701,13 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
                   <CastBreakdownComparison
                     value={row.averageDps}
                     valueWithBuff={row.averageDpsWithBuff}
+                    stacked={stackBuffComparison}
+                  />
+                </strong>
+                <strong>
+                  <CastBreakdownComparison
+                    value={row.averageDamage}
+                    valueWithBuff={row.averageDamageWithBuff}
                     stacked={stackBuffComparison}
                   />
                 </strong>

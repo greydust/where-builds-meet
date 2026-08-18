@@ -510,7 +510,10 @@ Chant is the current example. Each timed cast contributes damage divided by its
 effective cast time. When the next explicit skill is Deflect, its effective cast
 time is added to the preceding cast's time sample. Deflect and every other skill
 with no attributed damage are omitted from this breakdown. The row shows the
-arithmetic mean of the remaining cast DPS values plus average cast time.
+arithmetic mean of the remaining cast DPS values, average damage per cast,
+summed total damage, and average cast time. The two damage values sit beneath a
+shared Damage header. Attributed buff-inclusive values are calculated for both
+the per-cast average and total.
 Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
 descending.
 
@@ -521,6 +524,14 @@ source cast without changing rotation total damage or the damaged skill's own
 breakdown. Flute uses this metadata. Its per-cast Damage and Average DPS cells
 show direct values followed by parenthesized values that include this attributed
 buff damage; sorting uses the inclusive DPS.
+
+An attributed buff applied indirectly can use an object with
+`type: "sourceCast"` and an ordered `sourceEffects` list. When the buff is
+applied, its source cast is inherited from the first listed active tracked
+effect that has a source. `MysteryDMGBoost` uses `Mystery` and `MysteryUmbra` so
+the damage added after Perfect Dodge is credited to the Ghostly Step cast that
+enabled it, rather than to Perfect Dodge. Its per-cast cells use the same
+two-line direct-plus-parenthesized-inclusive presentation as Flute.
 
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and

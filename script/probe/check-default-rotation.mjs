@@ -31,7 +31,7 @@ try {
     (step) => step.type === "skill" && step.skill === "SnowpartingSpecial",
   );
   assert(
-    rotation.name === "Mixed Dummy Rotation Infinite Vitality 1 Min",
+    rotation.name === "Mixed Dummy Infinite Vitality 1 Min",
     "The bundled rotation name must match the requested name.",
   );
   assert(
@@ -102,6 +102,11 @@ try {
   assert(
     result.metrics.totalDamage > 0 && result.duration > 0,
     "The new default rotation must produce a valid calculation.",
+  );
+  const ghostlyCast = result.metrics.breakdown.casts.find((row) => row.skillId === "GhostlySteps");
+  assert(
+    (ghostlyCast?.damageWithBuff ?? 0) > (ghostlyCast?.damage ?? 0),
+    "The bundled Ghostly Step cast must include damage indirectly added by Mystery DMG Boost.",
   );
   console.log("Infinite Vitality default rotation sequence and calculation checks passed.");
 } finally {

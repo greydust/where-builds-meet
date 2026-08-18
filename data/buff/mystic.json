@@ -50,6 +50,10 @@
     "name": "Mystery DMG Boost",
     "shortName": "MDMG",
     "description": "From Ghostly Steps",
+    "damageAttribution": {
+      "type": "sourceCast",
+      "sourceEffects": ["Mystery", "MysteryUmbra"]
+    },
     "duration": 20,
     "maxStack": 1,
     "effect": [

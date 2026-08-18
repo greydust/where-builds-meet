@@ -88,12 +88,34 @@ export type EffectDefinition = {
   duration?: number;
   cooldown?: number;
   maxStack?: number;
-  damageAttribution?: "sourceCast";
+  damageAttribution?:
+    | "sourceCast"
+    | {
+        type: "sourceCast";
+        sourceEffects: string[];
+      };
   effect?: unknown[];
   stackEffects?: unknown[][];
   action?: unknown[];
   periodic?: PeriodicEffect;
 };
+
+export function attributesDamageToSourceCast(definition: EffectDefinition | undefined) {
+  return definition?.damageAttribution === "sourceCast" || definition?.damageAttribution?.type === "sourceCast";
+}
+
+function damageAttributionSourceRowId(
+  definition: EffectDefinition,
+  activeEffects: TrackedEffect[],
+  fallbackSourceRowId: string,
+) {
+  const attribution = definition.damageAttribution;
+  if (!attribution || attribution === "sourceCast") return fallbackSourceRowId;
+  const inheritedSource = attribution.sourceEffects
+    .map((name) => activeEffects.find((effect) => effect.name === name))
+    .find((effect) => effect?.sourceRowId);
+  return inheritedSource?.sourceRowId ?? fallbackSourceRowId;
+}
 
 export type TimelineBuildInput = {
   rotation: RotationRecord;
@@ -892,7 +914,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             ? additional.stack
             : 1
           : 0;
-      const sourceRowId = event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const fallbackSourceRowId =
+        event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const sourceRowId = damageAttributionSourceRowId(definition, [...buffs, ...debuffs], fallbackSourceRowId);
       const existing = targetEffects.find((effect) => effect.name === triggerAction.value);
       if (existing && triggerAction.reapply === false) return;
       const next = applyTrackedEffect(
@@ -1006,7 +1030,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             ? modifierDuration.duration
             : definition.duration;
       const existing = targetEffects.find((effect) => effect.name === action.value);
-      const sourceRowId = event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const fallbackSourceRowId =
+        event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
+      const sourceRowId = damageAttributionSourceRowId(definition, [...buffs, ...debuffs], fallbackSourceRowId);
       const shouldApply = action.type === "apply" && (!existing || action.reapply !== false);
       const next =
         action.type === "extend" && typeof duration === "number"

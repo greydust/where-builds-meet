@@ -195,6 +195,14 @@ their individual damage-per-effective-cast-time DPS values. A Deflect immediatel
 following an explicit skill contributes its effective cast time to that skill's
 sample. Skills with no attributed damage, including Deflect itself, are omitted.
 
+Buff damage attribution is declared on the buff definition. The string
+`"sourceCast"` credits the counterfactual damage added by that buff to its
+applying cast. The object form `{ "type": "sourceCast", "sourceEffects": [...] }`
+instead inherits ownership from the first named active effect with a recorded
+source cast. Ghostly Step uses the object form because Perfect Dodge applies
+`MysteryDMGBoost`, while the active `Mystery` or `MysteryUmbra` buff identifies
+the Ghostly Step cast that enabled the bonus.
+
 ### Extend
 
 ```json
