@@ -143,6 +143,7 @@ import {
   compareTimelineTime,
   type AttachedEventTarget,
   type EditableObject,
+  type EffectDefinition,
   type InnerWayEffectRule,
   type RotationRecord,
   type RotationStep,
@@ -150,6 +151,13 @@ import {
   type TimelineBuildInput,
   type TimelineRow,
 } from "./calculations/rotationTimeline";
+import {
+  resolveSkillCalculationDefinitions,
+  type EditorCategory,
+  type SkillCategory,
+  type SkillMap,
+  type SkillOverrides,
+} from "./skillOverrides";
 import {
   calculateStatsWithOverrides,
   type CharacterStatOverrides,
@@ -211,10 +219,6 @@ const percentageStatKeys = new Set<keyof CharacterStats>(
   allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key),
 );
 
-type SkillMap = Record<string, SkillRecord>;
-type SkillCategory = "Snowparting" | "Phalanxbane" | "Thundercry" | "Stormbreaker" | "Mystic" | "General";
-type EditorCategory = SkillCategory | "Buff" | "Debuff" | "DOT";
-type SkillOverrides = Partial<Record<EditorCategory, SkillMap>>;
 type CalculatorSettings = { weapons: [WeaponId, WeaponId]; enemy: string };
 type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutDust" | "bamboocutKite";
 type PathDefinition = {
@@ -433,21 +437,7 @@ const effectDefinitions = {
   ...innerWayDebuffs,
   ...generalDebuffs,
   ...dotDefinitions,
-} as Record<
-  string,
-  {
-    name?: string;
-    shortName?: string;
-    description?: string;
-    refresh?: boolean;
-    duration?: number;
-    cooldown?: number;
-    maxStack?: number;
-    effect?: unknown[];
-    stackEffects?: unknown[][];
-    action?: unknown[];
-  }
->;
+} as Record<string, EffectDefinition>;
 const globalEffectRules = Object.values(globalBuffs).flatMap(
   (definition) => definition.effect ?? [],
 ) as EditableObject[];
@@ -3861,14 +3851,15 @@ function StackEffectsEditor({
 
 function SkillEditorTab({
   weapons,
-  onModifiedChange,
+  overrides,
+  onOverridesChange,
 }: {
   weapons: [WeaponId, WeaponId];
-  onModifiedChange: (modified: boolean) => void;
+  overrides: SkillOverrides;
+  onOverridesChange: (overrides: SkillOverrides) => void;
 }) {
   const [category, setCategory] = useState<EditorCategory>("Snowparting");
   const [selectedSkill, setSelectedSkill] = useState(Object.keys(defaultEditorMaps.Snowparting)[0]);
-  const [overrides, setOverrides] = useState<SkillOverrides>(loadSkillOverrides);
   const [draft, setDraft] = useState(() => skillToDraft(defaultEditorMaps.Snowparting[selectedSkill]));
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
@@ -3988,11 +3979,7 @@ function SkillEditorTab({
       const nextOverrides: SkillOverrides = { ...overrides };
       if (Object.keys(nextCategoryOverrides).length > 0) nextOverrides[category] = nextCategoryOverrides;
       else delete nextOverrides[category];
-      setOverrides(nextOverrides);
-      const modified = hasSkillOverrides(nextOverrides);
-      if (modified) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
-      else sessionStorage.removeItem(skillStorageKey);
-      onModifiedChange(modified);
+      onOverridesChange(nextOverrides);
       setStatus(t("ui.app.savedForThisSession"));
       setError("");
     } catch (saveError) {
@@ -4007,19 +3994,14 @@ function SkillEditorTab({
     const nextOverrides: SkillOverrides = { ...overrides };
     if (Object.keys(nextCategoryOverrides).length > 0) nextOverrides[category] = nextCategoryOverrides;
     else delete nextOverrides[category];
-    setOverrides(nextOverrides);
-    if (hasSkillOverrides(nextOverrides)) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
-    else sessionStorage.removeItem(skillStorageKey);
-    onModifiedChange(hasSkillOverrides(nextOverrides));
+    onOverridesChange(nextOverrides);
     setDraft(skillToDraft(defaultEditorMaps[category][selectedSkill]));
     setError("");
     setStatus("");
   }
 
   function restoreAllDefaults() {
-    setOverrides({});
-    sessionStorage.removeItem(skillStorageKey);
-    onModifiedChange(false);
+    onOverridesChange({});
     setDraft(skillToDraft(defaultEditorMaps[category][selectedSkill]));
     setError("");
     setStatus("");
@@ -4373,11 +4355,13 @@ function SettingsTab({
 function RotationEditorTab({
   character,
   devMode,
+  skillOverrides,
   onMetricsChange,
   onActiveSimulationBundleChange,
 }: {
   character: CharacterState;
   devMode: boolean;
+  skillOverrides: SkillOverrides;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
   onActiveSimulationBundleChange: (
     bundle: RotationSimulationBundle,
@@ -4399,6 +4383,10 @@ function RotationEditorTab({
   const rotationSkillIds = useMemo(() => selectableRotationSkillIds(settings.weapons), [settings.weapons]);
   const innerWayConditions = useMemo(() => innerWayConditionsFor(buildSetup.innerWays), [buildSetup.innerWays]);
   const innerWayEffectRules = useMemo(() => innerWayEffectRulesFor(buildSetup.innerWays), [buildSetup.innerWays]);
+  const calculationDefinitions = useMemo(
+    () => resolveSkillCalculationDefinitions(defaultSkillMaps, effectDefinitions, dotDefinitions, skillOverrides),
+    [skillOverrides],
+  );
   const [initialState] = useState(() => initialRotationEditorState(devMode));
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(initialState.entries);
   const savedRotationSnapshotsRef = useRef<Map<string, RotationRecord> | null>(null);
@@ -4464,6 +4452,7 @@ function RotationEditorTab({
     food: loadFood(),
     divinecraft: loadDivinecraft(),
     globalDebuffs: currentGlobalDebuffs,
+    skillOverrides,
   });
   const rotationStateKey = `${editingRotationId}:${calculationContextKey}:${JSON.stringify(rotation)}`;
   const calculationContextKeyRef = useRef(calculationContextKey);
@@ -4513,15 +4502,10 @@ function RotationEditorTab({
   }, [readableDialogOpen]);
 
   function findSkill(skillId: string) {
-    for (const category of Object.keys(defaultSkillMaps) as SkillCategory[]) {
-      const skill = defaultSkillMaps[category][skillId];
-      if (skill) return skill;
-    }
-    return undefined;
+    return calculationDefinitions.skills[skillId];
   }
   function findDot(dotId: string) {
-    const dot = (mysticDots as Record<string, SkillRecord>)[dotId];
-    return dot;
+    return calculationDefinitions.dots[dotId];
   }
 
   function updateStep(index: number, changes: Record<string, unknown>) {
@@ -5286,10 +5270,10 @@ function RotationEditorTab({
     globalDebuffs = currentGlobalDebuffs,
   ): TimelineBuildInput => ({
     rotation: rotationRecord,
-    skills: Object.assign({}, ...Object.values(defaultSkillMaps)),
+    skills: calculationDefinitions.skills,
     eventDefinitions: rotationEventDefinitions,
-    dots: mysticDots as Record<string, SkillRecord>,
-    effectDefinitions,
+    dots: calculationDefinitions.dots,
+    effectDefinitions: calculationDefinitions.effectDefinitions,
     innerWayConditions: [...conditions, ...setupConditionsFor(setupEffects)],
     innerWayRules: rules,
     setupEffects,
@@ -5831,7 +5815,7 @@ function RotationEditorTab({
                       ) : (
                         <span className="effect-plates">
                           {effects.map((effect) => {
-                            const definition = effectDefinitions[effect.name];
+                            const definition = calculationDefinitions.effectDefinitions[effect.name];
                             const description = gameText(definition?.description?.trim());
                             const name = gameText(definition?.name ?? effect.name);
                             const label = `${gameText(definition?.shortName) || name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`;
@@ -6145,12 +6129,12 @@ function RotationEditorTab({
                               {isManualEvent && step.event === "Buff" ? (
                                 rotationLocked ? (
                                   <span>
-                                    {manualBuffDefinitions[step.buff]?.name ?? step.buff}
+                                    {calculationDefinitions.effectDefinitions[step.buff]?.name ?? step.buff}
                                     {(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}
                                   </span>
                                 ) : (
                                   <span
-                                    className={`rotation-effect-event-control ${(effectDefinitions[step.buff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
+                                    className={`rotation-effect-event-control ${(calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
                                   >
                                     <select
                                       className="rotation-effect-select"
@@ -6160,23 +6144,26 @@ function RotationEditorTab({
                                         const buff = event.target.value;
                                         updateStep(row.rotationIndex ?? 0, {
                                           buff,
-                                          stack: Math.min(step.stack ?? 1, effectDefinitions[buff]?.maxStack ?? 1),
+                                          stack: Math.min(
+                                            step.stack ?? 1,
+                                            calculationDefinitions.effectDefinitions[buff]?.maxStack ?? 1,
+                                          ),
                                         });
                                       }}
                                     >
-                                      {Object.entries(manualBuffDefinitions).map(([id, definition]) => (
+                                      {Object.keys(manualBuffDefinitions).map((id) => (
                                         <option value={id} key={id}>
-                                          {definition.name ?? id}
+                                          {calculationDefinitions.effectDefinitions[id]?.name ?? id}
                                         </option>
                                       ))}
                                     </select>
-                                    {(effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && (
+                                    {(calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
                                         aria-label={t("ui.app.buffStacks")}
                                         type="number"
                                         min="1"
-                                        max={effectDefinitions[step.buff]?.maxStack}
+                                        max={calculationDefinitions.effectDefinitions[step.buff]?.maxStack}
                                         step="1"
                                         value={step.stack ?? 1}
                                         onChange={(event) => {
@@ -6186,7 +6173,7 @@ function RotationEditorTab({
                                               stack: Math.max(
                                                 1,
                                                 Math.min(
-                                                  effectDefinitions[step.buff]?.maxStack ?? 1,
+                                                  calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1,
                                                   Math.floor(stack),
                                                 ),
                                               ),
@@ -6206,12 +6193,12 @@ function RotationEditorTab({
                               {isManualEvent && step.event === "Debuff" ? (
                                 rotationLocked ? (
                                   <span>
-                                    {manualDebuffDefinitions[step.debuff]?.name ?? step.debuff}
+                                    {calculationDefinitions.effectDefinitions[step.debuff]?.name ?? step.debuff}
                                     {(step.stack ?? 1) > 1 ? ` ×${step.stack}` : ""}
                                   </span>
                                 ) : (
                                   <span
-                                    className={`rotation-effect-event-control ${(effectDefinitions[step.debuff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
+                                    className={`rotation-effect-event-control ${(calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
                                   >
                                     <select
                                       className="rotation-effect-select"
@@ -6221,23 +6208,26 @@ function RotationEditorTab({
                                         const debuff = event.target.value;
                                         updateStep(row.rotationIndex ?? 0, {
                                           debuff,
-                                          stack: Math.min(step.stack ?? 1, effectDefinitions[debuff]?.maxStack ?? 1),
+                                          stack: Math.min(
+                                            step.stack ?? 1,
+                                            calculationDefinitions.effectDefinitions[debuff]?.maxStack ?? 1,
+                                          ),
                                         });
                                       }}
                                     >
-                                      {Object.entries(manualDebuffDefinitions).map(([id, definition]) => (
+                                      {Object.keys(manualDebuffDefinitions).map((id) => (
                                         <option value={id} key={id}>
-                                          {definition.name ?? id}
+                                          {calculationDefinitions.effectDefinitions[id]?.name ?? id}
                                         </option>
                                       ))}
                                     </select>
-                                    {(effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && (
+                                    {(calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
                                         aria-label={t("ui.app.debuffStacks")}
                                         type="number"
                                         min="1"
-                                        max={effectDefinitions[step.debuff]?.maxStack}
+                                        max={calculationDefinitions.effectDefinitions[step.debuff]?.maxStack}
                                         step="1"
                                         value={step.stack ?? 1}
                                         onChange={(event) => {
@@ -6247,7 +6237,7 @@ function RotationEditorTab({
                                               stack: Math.max(
                                                 1,
                                                 Math.min(
-                                                  effectDefinitions[step.debuff]?.maxStack ?? 1,
+                                                  calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1,
                                                   Math.floor(stack),
                                                 ),
                                               ),
@@ -6471,7 +6461,8 @@ export default function App() {
   // Load the large simulator only on first use, then keep it mounted while hidden.
   // Remounting would cancel its worker and discard progress/results on every tab switch.
   const [simulationMounted, setSimulationMounted] = useState(false);
-  const [skillEditorModified, setSkillEditorModified] = useState(() => hasSkillOverrides(loadSkillOverrides()));
+  const [skillOverrides, setSkillOverrides] = useState<SkillOverrides>(loadSkillOverrides);
+  const skillEditorModified = hasSkillOverrides(skillOverrides);
   const [activeSimulation, setActiveSimulation] = useState<{
     bundle: RotationSimulationBundle;
     rotationName: string;
@@ -6668,6 +6659,11 @@ export default function App() {
   const changeLocale = async (nextLocale: string) => {
     if (await selectLocale(nextLocale)) setLocale(getLocale());
   };
+  const updateSkillOverrides = (nextOverrides: SkillOverrides) => {
+    setSkillOverrides(nextOverrides);
+    if (hasSkillOverrides(nextOverrides)) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
+    else sessionStorage.removeItem(skillStorageKey);
+  };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
   useEffect(
@@ -6827,7 +6823,11 @@ export default function App() {
       ) : activeTab === "breakdown" ? (
         <BreakdownTab metrics={rotationMetrics} />
       ) : activeTab === "skills" ? (
-        <SkillEditorTab weapons={settings.weapons} onModifiedChange={setSkillEditorModified} />
+        <SkillEditorTab
+          weapons={settings.weapons}
+          overrides={skillOverrides}
+          onOverridesChange={updateSkillOverrides}
+        />
       ) : activeTab === "settings" ? (
         <SettingsTab
           settings={settings}
@@ -6841,6 +6841,7 @@ export default function App() {
         <RotationEditorTab
           character={character}
           devMode={devMode}
+          skillOverrides={skillOverrides}
           onMetricsChange={handleRotationMetrics}
           onActiveSimulationBundleChange={handleActiveSimulationBundle}
         />

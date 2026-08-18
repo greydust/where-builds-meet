@@ -585,8 +585,9 @@ that source cast, and a later refresh or extension transfers all subsequent tick
 to the cast that performed it. Nested DOTs inherit the original base cast.
 A displayed damage action without a breakdown was before the start anchor and
 has an empty damage cell.
-Every complete baseline input bundle, including stats, all setup selectors, and
-rotation content, receives a deterministic fingerprint. The editor keeps a
+Every complete baseline input bundle, including stats, all setup selectors,
+effective skill, buff, debuff, and DOT definitions, and rotation content,
+receives a deterministic fingerprint. The editor keeps a
 bounded in-memory baseline cache keyed by that fingerprint. Each comparison is
 split into a single variant request and cached under the pair of the baseline
 fingerprint and a fingerprint of that variant's category, group, and input.
@@ -726,11 +727,13 @@ from data.
 - `App.tsx` is still a large composition and UI module. The calculation engine
   is pure and worker-safe, but bundle construction remains inside
   `RotationEditorTab` rather than a top-level application service.
-- Skill Editor skill, buff, debuff, and DOT overrides are saved and displayed
-  for the session. Buff/debuff effect arrays and cumulative stack tiers use the
-  same structured rule controls as skill actions and modifiers, including
-  requirements and object-valued effects. The rotation simulator currently
-  builds its combat maps from defaults, so overrides do not affect DPS yet.
+- Skill Editor skill, buff, debuff, and DOT overrides are saved for the session
+  and composed over the default combat maps used by the calculator and
+  simulator. Buff/debuff effect arrays and cumulative stack tiers use the same
+  structured rule controls as skill actions and modifiers, including
+  requirements and object-valued effects. Effective definitions participate in
+  calculation fingerprints, so saving or resetting an override cannot reuse a
+  stale baseline or comparison result.
 - Manual event definitions and supported weapons are hard-coded.
 - Primary-attribute damage resolution supports the registered Stonesplit and
   Bamboocut martial arts, but Void/Formless Attack folding currently remains

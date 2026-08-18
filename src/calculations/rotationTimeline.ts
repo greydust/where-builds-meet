@@ -91,6 +91,7 @@ export type TimelineRow = {
 
 export type EffectDefinition = {
   name?: string;
+  shortName?: string;
   description?: string;
   refresh?: boolean;
   duration?: number;

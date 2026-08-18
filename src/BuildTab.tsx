@@ -292,6 +292,29 @@ function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
   };
 }
 
+function capAndFilterGearDraft(
+  draft: GearDraft,
+  definition: GearDefinition | undefined,
+  relayed = draft.relayed,
+): GearDraft {
+  const capped = capGearDraft(draft, relayed);
+  if (!definition) return capped;
+  const allowedBase = affixOptionsForGearDefinition(definition, "baseAffixes", capped.level, capped.relayed);
+  const allowedAdditional = affixOptionsForGearDefinition(
+    definition,
+    "additionalAffixes",
+    capped.level,
+    capped.relayed,
+  );
+  return {
+    ...capped,
+    baseAffix: allowedBase.includes(capped.baseAffix.key) ? capped.baseAffix : blankValue(),
+    additionalAffixes: capped.additionalAffixes.map((affix) =>
+      allowedAdditional.includes(affix.key) ? affix : blankValue(),
+    ),
+  };
+}
+
 function GearValueEditor({
   label,
   value,
@@ -1042,35 +1065,11 @@ function BuildManagement({
   }
 
   function updateLevel(level: GearLevel) {
-    setDraft((current) =>
-      capGearDraft({
-        ...current,
-        level,
-        baseAffix: blankValue(),
-        additionalAffixes: Array.from({ length: 4 }, blankValue),
-      }),
-    );
+    setDraft((current) => capAndFilterGearDraft({ ...current, level }, selected.definition));
   }
 
   function updateRelayed(relayed: boolean) {
-    setDraft((current) => {
-      const capped = capGearDraft(current, relayed);
-      if (relayed || !selected.definition) return capped;
-      const allowedBase = affixOptionsForGearDefinition(selected.definition, "baseAffixes", current.level, false);
-      const allowedAdditional = affixOptionsForGearDefinition(
-        selected.definition,
-        "additionalAffixes",
-        current.level,
-        false,
-      );
-      return {
-        ...capped,
-        baseAffix: allowedBase.includes(capped.baseAffix.key) ? capped.baseAffix : blankValue(),
-        additionalAffixes: capped.additionalAffixes.map((affix) =>
-          allowedAdditional.includes(affix.key) ? affix : blankValue(),
-        ),
-      };
-    });
+    setDraft((current) => capAndFilterGearDraft(current, selected.definition, relayed));
   }
 
   function save() {

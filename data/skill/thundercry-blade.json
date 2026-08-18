@@ -89,15 +89,48 @@
         "time": 1
       },
       {
-        "type": "damage",
-        "phyCoef": 1.6464,
-        "phyBonus": 455,
-        "attrBonus": 248,
+        "type": "trigger",
+        "requirement": [],
+        "value": "StonebreakerQuake",
         "time": 1
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Heavy", "VariedCombo", "MoBlade", "ThundercryBlade", "StonebreakerCleave"]
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "VariedCombo",
+      "MoBlade",
+      "ThundercryBlade",
+      "StonebreakerCleave"
+    ]
+  },
+  "StonebreakerQuake": {
+    "name": "Stonebreaker Quake",
+    "shortName": "",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.6464,
+        "phyBonus": 455,
+        "attrBonus": 248,
+        "time": 0
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "VariedCombo",
+      "MoBlade",
+      "ThundercryBlade",
+      "StonebreakerCleave",
+      "Triggered"
+    ]
   },
   "PredatorsShield": {
     "name": "Predator's Shield",

@@ -892,5 +892,7 @@ requirements, direct or wrapped effect fields, numeric and boolean values, and
 parameter-based object values such as Flute distance scaling. Cumulative
 `stackEffects` remain grouped by stack tier and each tier contains the same
 structured effect-rule editor. Editor overrides last for the browser session
-and do not currently replace the default combat maps used by rotation
-calculations.
+and replace their matching records in the skill, buff, debuff, and DOT maps
+used by rotation calculations and simulations. The resolved maps are part of
+the calculation fingerprint, so saving or resetting an override schedules a
+fresh result rather than restoring an incompatible cache entry.

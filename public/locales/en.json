@@ -257,6 +257,7 @@
   "data.skill.thundercryBlade.PredatorsShield.shortName": "Shield",
   "data.skill.thundercryBlade.StonebreakerCleave.name": "Stonebreaker Cleave",
   "data.skill.thundercryBlade.StonebreakerCleave.shortName": "VC",
+  "data.skill.thundercryBlade.StonebreakerQuake.name": "Stonebreaker Quake",
   "game.event.battleEnd": "Event: Battle End",
   "game.event.buff": "Event: Buff",
   "game.event.controlled": "Event: Controlled",
