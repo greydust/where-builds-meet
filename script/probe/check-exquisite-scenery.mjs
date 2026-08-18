@@ -22,7 +22,7 @@ try {
   const sceneryT6Applies = (tags) =>
     requirementsPass(sceneryT6.requirement, [], [], tags, ["ExquisiteSceneryT6"], ["thundercry", "stormbreaker"]);
   assert(
-    sceneryT6.effect.dmgBonus === 0.5 &&
+    sceneryT6.effect.baseDMGBonus === 0.5 &&
       [
         ["Light", "Charged"],
         ["Heavy", "Charged"],
@@ -91,6 +91,16 @@ try {
   assert(
     Math.abs(sceneryDamage(["Heavy", "Charged"], [t6Rule]) / heavyChargedBase - 1.5) < 1e-9,
     "Exquisite Scenery T6 must multiply qualifying calculated damage by 1.5 when no other damage bonus is present.",
+  );
+  const categoryBonusRule = {
+    requirement: [],
+    effect: { dmgBonus: 0.2 },
+    source: "Category bonus probe",
+    tier: 0,
+  };
+  assert(
+    Math.abs(sceneryDamage(["Heavy", "Charged"], [categoryBonusRule, t6Rule]) / heavyChargedBase - 1.8) < 1e-9,
+    "Exquisite Scenery T6 must multiply ordinary damage bonuses as a separate Base DMG Bonus category.",
   );
   assert(
     sceneryDamage(["Heavy", "MartialArts"], [t6Rule]) === sceneryDamage(["Heavy", "MartialArts"], []),

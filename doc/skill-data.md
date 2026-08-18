@@ -843,9 +843,11 @@ segment over `enduranceLost`, from 0% below 10 lost Endurance through 10% at 50
 or more; `enduranceLost` is not yet supplied by the calculator, so this tier is
 currently inert. Adaptive Steel adds 20% Charged Skill Critical DMG at T0, 38
 Max Bellstrike Attack at T2, and 3% Bellstrike DMG Bonus at T4.
-Exquisite Scenery T6 adds 50% damage to attacks carrying either Light or Heavy
-together with either Charged or Varied Combo. The four explicit tag combinations
-keep the rule from affecting an attack tagged with only one half of a category.
+Exquisite Scenery T6 adds 50% Base DMG Bonus to attacks carrying either Light
+or Heavy together with either Charged or Varied Combo. The four explicit tag
+combinations keep the rule from affecting an attack tagged with only one half
+of a category. Its `baseDMGBonus` is a separate multiplier from ordinary
+`dmgBonus` effects.
 
 Might actions use the same `phyCoef` for physical and attribute damage.
 Thundercry Blade's Max-HP talents use segmented stat/effective-stat values and
