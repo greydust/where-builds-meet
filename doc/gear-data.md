@@ -242,6 +242,17 @@ does not yet translate those set selections. Gear-set, arsenal, and Inner Way
 tiers are not carried explicitly, so the imported build uses the application's
 default setup values for those fields.
 
+Tier 96 Stonesplit Might armor attunements use IDs `280201` through `280205`:
+Thundercry Blade Shield, Charged Skill DMG, and Special Skill DMG Boost followed
+by Stormbreaker Spear Charged Skill DMG and Special Skill DMG Boost. ID `280202`
+is directly observed in a dashboard export; the remaining ordering follows the
+confirmed category sequence. Stonesplit Might has no Stormbreaker Spear Martial
+Art Skill DMG Boost attunement.
+
+Tier 96 Bamboocut Dust armor attunement ID `280601` maps to Everspring Umbrella
+Martial Art Skill DMG Boost. Together with the previously observed IDs `280602`
+through `280605`, this completes the Dust category mapping.
+
 The dashboard can report Physical Resistance as an accessory attunement. It is
 preserved on imported gear and shown in the gear editor, but is marked
 defensive and excluded from offensive character/priority controls because it

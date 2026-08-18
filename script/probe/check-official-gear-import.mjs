@@ -117,7 +117,13 @@ try {
   assert(
     affixMap["9713001"] === "minPhys" &&
       affixMap["9793017"] === "moBladeDmgBoost" &&
-      affixMap["280702"] === "physicalResistance",
+      affixMap["280702"] === "physicalResistance" &&
+      affixMap["280201"] === "thundercryShieldBoost" &&
+      affixMap["280202"] === "thundercryChargedBoost" &&
+      affixMap["280203"] === "thundercrySpecialBoost" &&
+      affixMap["280204"] === "stormbreakerChargedBoost" &&
+      affixMap["280205"] === "stormbreakerSpecialBoost" &&
+      affixMap["280601"] === "everspringMartialBoost",
     "Known dashboard IDs must use this project's canonical keys.",
   );
   assert(
@@ -215,6 +221,7 @@ try {
         wearEquipsDetailed: {
           1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 73)]),
           2: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 72.6)]),
+          3: detail({ W_DEF: 22, HP_MAX: 5774 }, [actualRow(9743004, 0.0846), actualRow(280202, 0.059)]),
         },
       },
     },
@@ -226,8 +233,40 @@ try {
     JSON.stringify(mightDashboardShape.weapons) === JSON.stringify(["thundercry", "stormbreaker"]) &&
       JSON.stringify(mightBuild.martialArts) === JSON.stringify(["thundercry", "stormbreaker"]) &&
       mightItems.get(mightBuild.equipped.leftWeapon)?.definitionId === "moBlade" &&
-      mightItems.get(mightBuild.equipped.rightWeapon)?.definitionId === "spear",
-    "Official Might IDs must import as left Thundercry Blade and right Stormbreaker Spear.",
+      mightItems.get(mightBuild.equipped.rightWeapon)?.definitionId === "spear" &&
+      mightItems.get(mightBuild.equipped.helmet)?.attunement?.key === "thundercryChargedBoost",
+    "Official Might IDs must import as left Thundercry Blade, right Stormbreaker Spear, and Thundercry Charged armor.",
+  );
+  for (const [statId, expectedKey] of [
+    [280201, "thundercryShieldBoost"],
+    [280202, "thundercryChargedBoost"],
+    [280203, "thundercrySpecialBoost"],
+    [280204, "stormbreakerChargedBoost"],
+    [280205, "stormbreakerSpecialBoost"],
+  ]) {
+    const parsedAttunement = importer.parseOfficialGearExport(
+      {
+        roleName: `Might Attunement ${statId}`,
+        wearEquipsDetailed: {
+          3: detail({ W_DEF: 22, HP_MAX: 5774 }, [actualRow(9743004, 0.0846), actualRow(statId, 0.06)]),
+        },
+      },
+      ["thundercry", "stormbreaker"],
+    ).exportValue.gearItems[0]?.attunement?.key;
+    assert(parsedAttunement === expectedKey, `Official Might attunement ${statId} must import as ${expectedKey}.`);
+  }
+  const dustMartialAttunement = importer.parseOfficialGearExport(
+    {
+      roleName: "Dust Martial Attunement",
+      wearEquipsDetailed: {
+        3: detail({ W_DEF: 22, HP_MAX: 5774 }, [actualRow(9743004, 0.0846), actualRow(280601, 0.06)]),
+      },
+    },
+    ["everspring", "unfettered"],
+  ).exportValue.gearItems[0]?.attunement?.key;
+  assert(
+    dustMartialAttunement === "everspringMartialBoost",
+    "Official Dust attunement 280601 must import as Everspring Martial Art Skill DMG Boost.",
   );
   const relayedHengBlade = importer.parseOfficialGearExport(
     {
