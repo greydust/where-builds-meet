@@ -69,7 +69,12 @@
         "effect": [
           {
             "stat": {
-              "precision": 0.08,
+              "precision": 0.08
+            }
+          },
+          {
+            "requirement": [],
+            "effect": {
               "critDmgBonus": 0.1
             }
           },

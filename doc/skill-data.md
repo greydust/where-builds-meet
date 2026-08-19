@@ -546,9 +546,11 @@ value conservatively rebuilds comparison timelines for that set; a false value
 reuses the baseline timeline and is valid only when every option changes
 damage/stat evaluation without changing combat events or tracked state.
 One set option may provide either one setup-effect object or an array of setup
-effects. Arrays allow unconditional stats and action-time conditional rules to
-coexist in the same tier; Rain Whisper four-piece uses this to require the
-player Shield for its additional Critical DMG bonus.
+effects. Arrays allow unconditional stats and action-time rules to coexist in
+the same tier. An explicit empty `requirement` array is an always-active
+action-time rule that remains outside the displayed character-stat pipeline.
+Rain Whisper four-piece uses one for its unconditional Critical DMG bonus and a
+Shield requirement for its additional Critical DMG bonus.
 
 Selecting tier `Tn` activates every tier condition and rule from T0 through Tn.
 Tier entries may contain:
@@ -883,8 +885,10 @@ At each Thunder Shock timestamp, damage resolves before its following
 Vulnerable application: hit one cannot benefit from its own application, while
 hit two sees the debuff from hit one and then refreshes it.
 
-The General Defense skill takes 0.3 seconds and applies one Cadence stack at
-cast end when Exquisite Scenery T0 or higher is selected. Cadence lasts 20
+The General Defense skill has zero cast time and applies one Cadence stack at
+cast start when Exquisite Scenery T0 or higher is selected. Preset rotations
+represent its 0.3-second animation with an explicit Delay immediately before
+each Defense step. Cadence lasts 20
 seconds and stacks twice. Each accepted Cadence application immediately tries
 to apply Riposte. Riposte lasts five seconds and has a 10-second cooldown. Only
 an accepted Riposte application consumes one Cadence stack and starts the

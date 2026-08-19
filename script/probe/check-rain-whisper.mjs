@@ -21,11 +21,17 @@ try {
   const rainWhisperEffects = weaponSets.RainWhisper.options["4"].effect;
   assert(Array.isArray(rainWhisperEffects), "Rain Whisper four-piece must expose separate setup effects.");
   assert(
-    rainWhisperEffects[0].stat.precision === 0.08 && rainWhisperEffects[0].stat.critDmgBonus === 0.1,
-    "Rain Whisper must retain its unconditional four-piece stats.",
+    rainWhisperEffects[0].stat.precision === 0.08 && rainWhisperEffects[0].stat.critDmgBonus === undefined,
+    "Rain Whisper must expose only Precision as a character stat.",
   );
   assert(
-    rainWhisperEffects[1].requirement[0].value === "Shield" && rainWhisperEffects[1].effect.critDmgBonus === 0.15,
+    Array.isArray(rainWhisperEffects[1].requirement) &&
+      rainWhisperEffects[1].requirement.length === 0 &&
+      rainWhisperEffects[1].effect.critDmgBonus === 0.1,
+    "Rain Whisper's unconditional Critical DMG must be a compute-time effect.",
+  );
+  assert(
+    rainWhisperEffects[2].requirement[0].value === "Shield" && rainWhisperEffects[2].effect.critDmgBonus === 0.15,
     "Rain Whisper must grant 15% Critical DMG while Shield is active.",
   );
 
@@ -87,13 +93,18 @@ try {
     }).metrics.totalDamage;
   };
 
+  const unshieldedStatOnly = calculate(false, [rainWhisperEffects[0]]);
   const unshielded = calculate(false, rainWhisperEffects);
-  const unshieldedWithoutConditional = calculate(false, [rainWhisperEffects[0]]);
+  const unshieldedWithoutConditional = calculate(false, rainWhisperEffects.slice(0, 2));
   const shielded = calculate(true, rainWhisperEffects);
-  const shieldedWithoutConditional = calculate(true, [rainWhisperEffects[0]]);
+  const shieldedWithoutConditional = calculate(true, rainWhisperEffects.slice(0, 2));
   assert(
     Math.abs(unshielded - unshieldedWithoutConditional) < 1e-9,
     "The conditional Rain Whisper bonus must remain inactive without Shield.",
+  );
+  assert(
+    unshielded > unshieldedStatOnly,
+    "The unconditional Rain Whisper Critical DMG must apply during damage calculation.",
   );
   assert(shielded > shieldedWithoutConditional, "The conditional Rain Whisper bonus must activate with Shield.");
   console.log("Rain Whisper Shield-dependent Critical DMG check passed.");

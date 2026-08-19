@@ -1,6 +1,9 @@
 {
   "name": "Dummy 1 min",
-  "martialArts": ["thundercry", "stormbreaker"],
+  "martialArts": [
+    "thundercry",
+    "stormbreaker"
+  ],
   "steps": [
     {
       "type": "skill",
@@ -45,6 +48,11 @@
     {
       "type": "skill",
       "skill": "DragonsBreath1"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.1
     },
     {
       "type": "skill",
@@ -100,6 +108,11 @@
       "skill": "StonebreakerCleave"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.3
+    },
+    {
       "type": "skill",
       "skill": "Defense"
     },
@@ -145,6 +158,11 @@
       "skill": "FluteOfTheTidesCancel"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.3
+    },
+    {
       "type": "skill",
       "skill": "Defense"
     },
@@ -176,6 +194,11 @@
     {
       "type": "skill",
       "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.3
     },
     {
       "type": "skill",
@@ -235,6 +258,11 @@
       "skill": "StonebreakerCleave"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.1
+    },
+    {
       "type": "skill",
       "skill": "Defense"
     },
@@ -268,11 +296,6 @@
       "skill": "PredatorsShield"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.26
-    },
-    {
       "type": "skill",
       "skill": "Avalanche"
     },
@@ -295,6 +318,11 @@
       "after": {
         "action": 0
       }
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.1
     },
     {
       "type": "skill",
@@ -323,7 +351,7 @@
     {
       "type": "event",
       "event": "BattleEnd",
-      "startTime": 60.82
+      "startTime": 60
     }
   ],
   "start": {

@@ -231,9 +231,10 @@ Affinity = 1 + Affinity DMG Bonus
 ```
 
 Critical and affinity bonuses multiply physical and every attribute component.
-Rain Whisper four-piece contributes its normal 10% Critical DMG stat and adds a
-separate 15% `critDmgBonus` to damage actions whose hit-time state contains the
-player Shield.
+Rain Whisper four-piece contributes 10% `critDmgBonus` as an unconditional
+compute-time effect, so it does not alter the displayed character Critical DMG
+stat. It adds a separate 15% `critDmgBonus` to damage actions whose hit-time
+state contains the player Shield.
 
 ### Path multiplier
 

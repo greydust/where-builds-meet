@@ -29,7 +29,7 @@ try {
       weapons: ["thundercry", "stormbreaker"],
     })[0];
 
-  assert(defenseTimeline([]).effectiveCastTime === 0.3, "Defense must take 0.3 seconds.");
+  assert(defenseTimeline([]).effectiveCastTime === 0, "Defense must have zero cast time.");
   assert(
     !defenseTimeline([]).actionStates[0].buffs.some((effect) => effect.name === "Cadence"),
     "Defense must not apply Cadence without Exquisite Scenery.",
@@ -77,7 +77,7 @@ try {
   ]);
   const defensePeriodicRow = followupTimeline.find((row) => row.kind === "periodic" && row.step.skill === "Cadence");
   const followupRow = followupTimeline.find((row) => row.id === "rotation-1");
-  assert(defensePeriodicRow?.startTime === 0.3, "Cadence must trigger immediately when Defense applies it.");
+  assert(defensePeriodicRow?.startTime === 0, "Cadence must trigger immediately when Defense applies it.");
   assert(
     followupRow.actionStates[0].buffs.some((effect) => effect.name === "Riposte") &&
       !followupRow.actionStates[0].buffs.some((effect) => effect.name === "Cadence"),
