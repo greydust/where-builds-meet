@@ -43,6 +43,7 @@ import {
   selectSetTier,
   serializeBuildState,
   setAvailableForTags,
+  setSelectionChangesTimeline,
   statRollsForLevel,
   weaponSetDefinitions,
   type BuildSetup,
@@ -5406,7 +5407,7 @@ function RotationEditorTab({
           ).flatMap(([key, definitions]) =>
             Object.entries(definitions)
               .filter(([, definition]) => setAvailableForSettings(definition, settings))
-              .map(([setName, definition]) => [
+              .map(([setName]) => [
                 `${key}:${setName}`,
                 [0, 2, 4]
                   .filter((tier) => tier !== buildSetup[key][setName])
@@ -5415,10 +5416,11 @@ function RotationEditorTab({
                     const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, {
                       [key]: selections,
                     });
+                    const rebuildTimeline = setSelectionChangesTimeline(buildSetup[key], selections, definitions);
                     return {
                       label: String(tier),
                       setupEffects,
-                      ...(definition.altersTimeline
+                      ...(rebuildTimeline
                         ? {
                             timeline: makeTimelineInput(
                               rotationRecord,

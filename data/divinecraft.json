@@ -71,7 +71,6 @@
     "name": "Poison-Fire",
     "description": "HP DMG +1.4% and Qi DMG +5%.",
     "image": "poisonfire.png",
-    "available": false,
     "effect": {
       "hpDMGBonus": 0.014,
       "qiDMGBonus": 0.05
@@ -81,7 +80,6 @@
     "name": "Poison-Water",
     "description": "HP DMG +1%, Qi DMG +5%, and healing grants 0.8 Vitality with a 3s cooldown.",
     "image": "poisonwater.png",
-    "available": false,
     "effect": {
       "hpDMGBonus": 0.01,
       "qiDMGBonus": 0.05,

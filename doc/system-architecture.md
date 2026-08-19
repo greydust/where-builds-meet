@@ -569,8 +569,10 @@ timeline because triggers, cooldowns, durations, stacks, and cast times may
 change. Setup candidates reuse
 the baseline timeline when they only change stats. Weapon and armor set
 definitions declare `altersTimeline`; a set comparison provides a replacement
-timeline only when that flag is true. Cleftpeak and Formbend currently opt in,
-while Rain Whisper reuses the baseline timeline. Every
+timeline when any timeline-changing set has a different tier between the
+current and replacement selections. This checks both the incoming set and sets
+removed to satisfy the four-piece limit. Cleftpeak and Formbend currently opt
+in, while a Rain Whisper-only tier change reuses the baseline timeline. Every
 replacement timeline resolves its own start anchor and duration for DPS; only
 timeline-reusing variants share the baseline duration.
 
@@ -643,7 +645,7 @@ header-level Dev toggle is enabled. The application currently recognizes:
 - Snowparting, Phalanxbane, Mystic, General, Buff, Debuff, and DOT editor categories
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
-- eight Divinecraft definitions, including a no-effect choice and two unavailable choices
+- eight available Divinecraft definitions, including a no-effect choice
 - seven Script definitions plus a no-effect choice
 - Exhausted, Controlled, Shield Broken, Battle End, Move, Self HP, Take Damage, target HP, Qi, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from

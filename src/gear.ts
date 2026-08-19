@@ -253,6 +253,16 @@ export function selectSetTier(
   );
 }
 
+export function setSelectionChangesTimeline(
+  current: SetSelections,
+  replacement: SetSelections,
+  definitions: Record<string, SetDefinition>,
+) {
+  return Object.entries(definitions).some(
+    ([setName, definition]) => definition.altersTimeline && (current[setName] ?? 0) !== (replacement[setName] ?? 0),
+  );
+}
+
 function parseInnerWays(value: unknown, expectedLength: number) {
   if (!Array.isArray(value) || value.length !== expectedLength) return undefined;
   const parsed = value.map((item) => {

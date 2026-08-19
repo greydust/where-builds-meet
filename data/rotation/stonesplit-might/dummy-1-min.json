@@ -1,9 +1,6 @@
 {
   "name": "Dummy 1 min",
-  "martialArts": [
-    "thundercry",
-    "stormbreaker"
-  ],
+  "martialArts": ["thundercry", "stormbreaker"],
   "steps": [
     {
       "type": "skill",

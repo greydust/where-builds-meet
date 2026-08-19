@@ -15,7 +15,9 @@ try {
     availableSetEntriesForTags,
     defaultBuildSetup,
     normalizeBuildSetup,
+    selectSetTier,
     setAvailableForTags,
+    setSelectionChangesTimeline,
     weaponSetDefinitions,
   } = await viteServer.ssrLoadModule("/src/gear.ts");
   const thundercrySkills = (await viteServer.ssrLoadModule("/data/skill/thundercry-blade.json")).default;
@@ -58,6 +60,21 @@ try {
   assert(
     migrated.weaponSets.Cleftpeak === 2 && migrated.weaponSets.RainWhisper === 2 && migrated.armorSets.Formbend === 0,
     "Legacy gearSets must migrate without losing the new armor-set default.",
+  );
+  const cleftpeakToRainWhisper = selectSetTier(
+    { Cleftpeak: 4, RainWhisper: 0 },
+    "RainWhisper",
+    4,
+    weaponSetDefinitions,
+  );
+  assert(
+    setSelectionChangesTimeline({ Cleftpeak: 4, RainWhisper: 0 }, cleftpeakToRainWhisper, weaponSetDefinitions),
+    "Replacing Cleftpeak with Rain Whisper must rebuild the timeline because Cleftpeak is removed.",
+  );
+  const rainWhisperTierChange = selectSetTier({ Cleftpeak: 0, RainWhisper: 2 }, "RainWhisper", 4, weaponSetDefinitions);
+  assert(
+    !setSelectionChangesTimeline({ Cleftpeak: 0, RainWhisper: 2 }, rainWhisperTierChange, weaponSetDefinitions),
+    "A Rain Whisper-only tier change must continue to reuse the baseline timeline.",
   );
   assert(
     mightBuffs.Drumbeat.effect[0].effect.dmgBonus === 0.15 &&

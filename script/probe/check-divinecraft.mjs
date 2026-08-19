@@ -17,14 +17,15 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-assert(Object.keys(definitions).length === 7, "Divinecraft data must contain exactly seven choices.");
+assert(Object.keys(definitions).length === 8, "Divinecraft data must contain seven effects and the None choice.");
 assert(defaultSetup.divinecraft === "Fire", "Fire must be the default Divinecraft.");
 assert(
-  definitions.PoisonFire.available === false && definitions.PoisonWater.available === false,
-  "The two Poison-first choices must remain unavailable.",
+  definitions.PoisonFire.available !== false && definitions.PoisonWater.available !== false,
+  "The two Poison-first choices must be available.",
 );
 for (const definition of Object.values(definitions)) {
-  assert(existsSync(`public/divinecraft/${definition.image}`), `Missing Divinecraft image: ${definition.image}`);
+  if (definition.image)
+    assert(existsSync(`public/divinecraft/${definition.image}`), `Missing Divinecraft image: ${definition.image}`);
 }
 
 const stats = { ...statDefinitions.emptyStats, minPhys: 100, maxPhys: 100 };
@@ -67,6 +68,14 @@ assert(
 assert(
   Math.abs(damageFor("WaterPoison") / baseline - 1.01) < 1e-9,
   "Water-Poison HP damage must apply as a 1% Category 1 bonus.",
+);
+assert(
+  Math.abs(damageFor("PoisonFire") / baseline - 1.014) < 1e-9,
+  "Poison-Fire HP damage must apply as a 1.4% Category 1 bonus.",
+);
+assert(
+  Math.abs(damageFor("PoisonWater") / baseline - 1.01) < 1e-9,
+  "Poison-Water HP damage must apply as a 1% Category 1 bonus.",
 );
 assert(
   Math.abs(damageFor("FireWater") - damageFor("Fire")) < 1e-9,
