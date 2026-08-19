@@ -87,6 +87,7 @@ try {
   ];
   const skills = Object.assign({}, ...(await Promise.all(skillPaths.map(moduleJson))));
   const effectDefinitions = Object.assign({}, ...(await Promise.all(effectPaths.map(moduleJson))));
+  const exhaustedDuration = Number(effectDefinitions.Exhausted?.duration ?? 10);
   const dots = await moduleJson("/data/dot/mystic.json");
   const innerWayDefinitions = Object.fromEntries(
     (await Promise.all(innerWayPaths.map(moduleJson))).map((definition) => [
@@ -178,9 +179,11 @@ try {
               time: row.startTime + Number(action.time ?? 0) - battleStart,
             })),
       );
-      for (const zeroRow of zeroRows) {
+      for (let index = 0; index < zeroRows.length; index += 1) {
+        const zeroRow = zeroRows[index];
         const zeroTime = zeroRow.startTime - battleStart;
-        const targetTime = zeroTime * 0.6;
+        const previousExhaustedEnd = index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
+        const targetTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * 0.6;
         const nearest = candidates.reduce((best, candidate) =>
           Math.abs(candidate.time - targetTime) < Math.abs(best.time - targetTime) ? candidate : best,
         );
@@ -196,10 +199,12 @@ try {
     for (let index = 0; index < zeroRows.length; index += 1) {
       const zeroTime = zeroRows[index].startTime - battleStart;
       const rampTime = rampRows[index].startTime - battleStart;
+      const previousExhaustedEnd = index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
+      const expectedRampTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * 0.6;
       assert(rampTime < zeroTime, `${rotation.name} Qi ramp ${index + 1} must precede depletion.`);
       assert(
-        Math.abs(rampTime - zeroTime * 0.6) <= 0.75,
-        `${rotation.name} Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; expected roughly ${(zeroTime * 0.6).toFixed(3)}s.`,
+        Math.abs(rampTime - expectedRampTime) <= 0.75,
+        `${rotation.name} Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; expected roughly ${expectedRampTime.toFixed(3)}s.`,
       );
     }
     console.log(`${rotation.name}: ${zeroRows.length} Qi ramp point(s) verified.`);
