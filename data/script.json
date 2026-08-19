@@ -1,0 +1,77 @@
+{
+  "Wraithstrike": {
+    "name": "Wraithstrike Script",
+    "description": "Critical DMG +10% against targets below 40% Qi.",
+    "image": "wraithstrike-script.png",
+    "effect": {
+      "requirement": [{ "target": "targetQiPercentage", "comparison": "<", "amount": 40 }],
+      "effect": { "critDmgBonus": 0.1 }
+    }
+  },
+  "Voidrot": {
+    "name": "Voidrot Script",
+    "description": "Affinity DMG +10% against targets below 40% Qi.",
+    "image": "voidrot-script.png",
+    "effect": {
+      "requirement": [{ "target": "targetQiPercentage", "comparison": "<", "amount": 40 }],
+      "effect": { "affinityDmgBonus": 0.1 }
+    }
+  },
+  "Convergence": {
+    "name": "Convergence Script",
+    "description": "All attribute attack damage +15% against targets above 60% Qi.",
+    "image": "convergence-script.png",
+    "effect": {
+      "requirement": [{ "target": "targetQiPercentage", "comparison": ">", "amount": 60 }],
+      "effect": { "attributeDMGBonus": 0.15 }
+    }
+  },
+  "Opportunity": {
+    "name": "Opportunity Script",
+    "description": "Critical DMG +10% against targets below 40% HP.",
+    "image": "opportunity-script.png",
+    "effect": {
+      "requirement": [{ "target": "targetHPPercentage", "comparison": "<", "amount": 40 }],
+      "effect": { "critDmgBonus": 0.1 }
+    }
+  },
+  "Detachment": {
+    "name": "Detachment Script",
+    "description": "Affinity DMG +10% against targets below 40% HP.",
+    "image": "detachment-script.png",
+    "effect": {
+      "requirement": [{ "target": "targetHPPercentage", "comparison": "<", "amount": 40 }],
+      "effect": { "affinityDmgBonus": 0.1 }
+    }
+  },
+  "Insight": {
+    "name": "Insight Script",
+    "description": "Mystic Skill DMG +15% against targets above 60% HP.",
+    "image": "insight-script.png",
+    "effect": {
+      "requirement": [
+        { "target": "targetHPPercentage", "comparison": ">", "amount": 60 },
+        { "target": "skillTag", "value": "Mystic" }
+      ],
+      "effect": { "dmgBonus": 0.15 }
+    }
+  },
+  "Revelry": {
+    "name": "Revelry Script",
+    "description": "Taking damage at or below 30% self HP grants Revelry.",
+    "image": "revelry-script.png",
+    "altersTimeline": true,
+    "effect": {
+      "trigger": {
+        "event": "takeDamage",
+        "requirement": [{ "target": "selfHPPercentage", "comparison": "<=", "amount": 30 }],
+        "action": { "type": "apply", "target": "self", "value": "Revelry", "stack": 1 }
+      }
+    }
+  },
+  "None": {
+    "name": "None",
+    "description": "No Script effect.",
+    "effect": {}
+  }
+}

@@ -226,6 +226,16 @@ export function setAvailableForTags(definition: SetDefinition, martialArtTags: s
   );
 }
 
+export function availableSetEntriesForTags<T extends SetDefinition>(
+  definitions: Record<string, T>,
+  martialArtTags: string[],
+  pathTag?: string,
+) {
+  return Object.entries(definitions).filter(([, definition]) =>
+    setAvailableForTags(definition, martialArtTags, pathTag),
+  );
+}
+
 export function selectSetTier(
   current: SetSelections,
   setName: string,

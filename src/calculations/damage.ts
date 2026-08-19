@@ -253,6 +253,8 @@ function calculateDamageBreakdownInternal(
     0,
   );
   const effectCritDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.critDmgBonus), 0);
+  const effectAffinityDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.affinityDmgBonus), 0);
+  const attributeDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.attributeDMGBonus), 0);
   const attunementStat = (target: string) =>
     Object.entries(attunement).reduce((total, [key, value]) => {
       const definition = attunementDefinitions[key];
@@ -272,7 +274,9 @@ function calculateDamageBreakdownInternal(
     skillWeaponArtBonus +
     mysticSkillBonus +
     innerWayDmgBonus;
-  const sharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
+  const physicalSharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
+  const attributeSharedBonus =
+    (1 + baseDmgBonus) * (1 + damageBonusCategory1 + attributeDmgBonus) * (1 + attunementBonus);
   const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
   const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => {
     switch (mode) {
@@ -319,15 +323,16 @@ function calculateDamageBreakdownInternal(
         enemy.physicalResistance + physicalResistanceAdjustment,
       ) *
       (1 + stats.physDmgBonus);
-    const multiplier = sharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
+    const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
+    const attributeMultiplier = attributeSharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
     const globalMultiplier = 1 + globalDmgBonus;
     const attributeDamage = calculateAttributeDamage(damageType);
     return {
-      physical: Math.max(0, physicalDamage * multiplier * globalMultiplier),
-      bellstrike: attributeDamage.bellstrike * multiplier * (globalMultiplier + globalBellstrikeDmgBonus),
-      stonesplit: attributeDamage.stonesplit * multiplier * globalMultiplier,
-      silkbind: attributeDamage.silkbind * multiplier * globalMultiplier,
-      bamboocut: attributeDamage.bamboocut * multiplier * globalMultiplier,
+      physical: Math.max(0, physicalDamage * physicalMultiplier * globalMultiplier),
+      bellstrike: attributeDamage.bellstrike * attributeMultiplier * (globalMultiplier + globalBellstrikeDmgBonus),
+      stonesplit: attributeDamage.stonesplit * attributeMultiplier * globalMultiplier,
+      silkbind: attributeDamage.silkbind * attributeMultiplier * globalMultiplier,
+      bamboocut: attributeDamage.bamboocut * attributeMultiplier * globalMultiplier,
     };
   };
   const effectiveCrit = derivedStats.effectiveCrit;
@@ -376,7 +381,7 @@ function calculateDamageBreakdownInternal(
         selectedDamage = calculateVariant("min", 0);
         break;
       case "affinity":
-        selectedDamage = calculateVariant("max", stats.affinityDmgBonus);
+        selectedDamage = calculateVariant("max", stats.affinityDmgBonus + effectAffinityDmgBonus);
         break;
       case "critical":
         selectedDamage = calculateVariant("simulate", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
@@ -405,7 +410,7 @@ function calculateDamageBreakdownInternal(
   const abrasionDamage = calculateVariant("min", 0);
   const normalDamage = calculateVariant("average", 0);
   const critDamage = calculateVariant("average", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
-  const affinityDamage = calculateVariant("max", stats.affinityDmgBonus);
+  const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + effectAffinityDmgBonus);
   const weighted = (key: keyof typeof abrasionDamage) =>
     abrasionDamage[key] * rates.abrasionRate +
     normalDamage[key] * rates.normalRate +

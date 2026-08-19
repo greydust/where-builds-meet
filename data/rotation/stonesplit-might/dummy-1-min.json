@@ -72,6 +72,14 @@
       "skill": "Avalanche"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0.4
+    },
+    {
       "type": "skill",
       "skill": "StonebreakerCleave"
     },
@@ -189,6 +197,14 @@
     {
       "type": "skill",
       "skill": "PredatorsShield"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 2
+      },
+      "targetQiRatio": 0.4
     },
     {
       "type": "skill",

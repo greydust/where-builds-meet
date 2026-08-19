@@ -153,8 +153,10 @@ Missing HP percentage points = (1 - current HP ratio) × 100
 Dragon Head DMG Bonus = Missing HP percentage points × 0.0045
 ```
 
-An HP event changes the timeline's current HP ratio for its target action and
-all subsequent actions. The initial ratio is `1` (100%).
+A Self HP event changes absolute current HP for its target action and all
+subsequent actions. The timeline initializes it from the calculated Max HP stat;
+Take Damage events subtract an absolute amount. Damage effects continue to read
+the derived percentage at hit time.
 
 Dynamic stat and effective-stat values may use `function: "segment"` with
 `param1: "maxHp"`. Its explicit inclusive thresholds are stored in `param2`
@@ -173,6 +175,13 @@ The selected Divinecraft contributes its `hpDMGBonus` through this category.
 Divinecraft `qiDMGBonus` and healing-triggered Vitality gain are retained in
 `data/divinecraft.json` as future-facing data, but neither mechanic is currently
 evaluated by the simulator.
+
+Script requirements are evaluated from each damage action's target HP and Qi
+snapshot. When a rotation declares target Max HP, target-HP requirements are
+reevaluated after every preceding hit. `critDmgBonus` and `affinityDmgBonus`
+extend their matching outcome bonuses. Convergence's `attributeDMGBonus` is
+added to damage-bonus Category 1 for every attribute channel only; it does not
+modify an individual Bellstrike, Stonesplit, Silkbind, or Bamboocut stat.
 
 Attunement definitions in `data/attunement.json` provide the target stat and
 required skill-match tags. Armor definitions target `attunementDMGBonus`;
@@ -348,4 +357,4 @@ The defensive base-attribute relationships are:
 1 Defense = 17 HP + 0.57 Physical Defense
 ```
 
-Inner Way priority is calculated by removing each selected Inner Way and measuring the resulting DPS loss. Every current Inner Way declares `altersTimeline: true`, so these removals conservatively rebuild the timeline. Setup comparisons replace the selected setup option with the candidate and omit the already-active choice. Weapon and armor sets whose definitions declare `altersTimeline: true`, such as Cleftpeak and Formbend, rebuild the timeline; stat-only sets such as Rain Whisper reuse the baseline timeline.
+Inner Way priority is calculated by removing each selected Inner Way and measuring the resulting DPS loss. Every current Inner Way declares `altersTimeline: true`, so these removals conservatively rebuild the timeline. Setup comparisons replace the selected setup option with the candidate and omit the already-active choice. Weapon and armor sets whose definitions declare `altersTimeline: true`, such as Cleftpeak and Formbend, rebuild the timeline; stat-only sets such as Rain Whisper reuse the baseline timeline. Revelry Script rebuilds the timeline because Take Damage can apply a buff; the other Script comparisons reuse it.

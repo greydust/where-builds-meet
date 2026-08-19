@@ -12,19 +12,13 @@ import {
 import { UiIcon } from "./UiIcon";
 import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
-import frostCladNight from "../data/innerway/frost-clad-night.json";
-import moraleChant from "../data/innerway/morale-chant.json";
-import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
-import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
-import breakingPoint from "../data/innerway/breaking-point.json";
-import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
-import exquisiteScenery from "../data/innerway/exquisite-scenery.json";
-import artOfResistance from "../data/innerway/art-of-resistance.json";
+import { innerWayEntriesForTag } from "./data/innerWayDefinitions";
 import {
   defaultBuildSetup,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
+  availableSetEntriesForTags,
   affixOptionsForGearDefinition,
   buildEntryAvailableForMartialArts,
   buildEntryIsTestPreset,
@@ -43,7 +37,6 @@ import {
   resolveBuildInventory,
   resolveBuildSetup,
   selectSetTier,
-  setAvailableForTags,
   weaponSetDefinitions,
   type BuildSetup,
   type BuildEntry,
@@ -73,17 +66,6 @@ function loadGearOcrModule() {
   }
   return gearOcrModulePromise;
 }
-
-const innerWayDefinitions = {
-  FrostCladNight: frostCladNight,
-  MoraleChant: moraleChant,
-  SteadfastDevotion: steadfastDevotion,
-  ThroatPiercingArt: throatPiercingArt,
-  BreakingPoint: breakingPoint,
-  EnvigoratedWarrior: envigoratedWarrior,
-  ExquisiteScenery: exquisiteScenery,
-  ArtOfResistance: artOfResistance,
-} as Record<string, { name: string; tags?: string[] }>;
 
 type GearValueDraft = { key: string; value: string };
 
@@ -842,15 +824,9 @@ function BuildSetupPanel({
   onChange: (setup: BuildSetup) => void;
 }) {
   const lockedTitle = locked ? "Fixed by this default preset" : undefined;
-  const innerWayOptions = Object.entries(innerWayDefinitions).filter(
-    ([, definition]) => !pathTag || definition.tags?.includes(pathTag),
-  );
-  const availableWeaponSets = Object.entries(weaponSetDefinitions).filter(([, definition]) =>
-    setAvailableForTags(definition, martialArtTags, pathTag),
-  );
-  const availableArmorSets = Object.entries(armorSetDefinitions).filter(([, definition]) =>
-    setAvailableForTags(definition, martialArtTags, pathTag),
-  );
+  const innerWayOptions = innerWayEntriesForTag(pathTag);
+  const availableWeaponSets = availableSetEntriesForTags(weaponSetDefinitions, martialArtTags, pathTag);
+  const availableArmorSets = availableSetEntriesForTags(armorSetDefinitions, martialArtTags, pathTag);
   const setPanel = (
     title: string,
     key: "weaponSets" | "armorSets",

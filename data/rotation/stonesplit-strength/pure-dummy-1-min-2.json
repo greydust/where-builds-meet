@@ -91,6 +91,14 @@
       "skill": "SnowpartingHeavyVC"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 4
+      },
+      "targetQiRatio": 0.4
+    },
+    {
       "type": "skill",
       "skill": "SnowpartingLightCharged"
     },

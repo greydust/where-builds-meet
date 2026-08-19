@@ -76,12 +76,28 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
   }
   if (
     step.type === "event" &&
-    (step.event === "SelfHP" || step.event === "HP") &&
+    step.event === "SelfHP" &&
     before &&
-    typeof step.currentHPRatio === "number" &&
-    Number.isFinite(step.currentHPRatio)
+    ((typeof step.currentHP === "number" && Number.isFinite(step.currentHP)) ||
+      (typeof step.currentHPRatio === "number" && Number.isFinite(step.currentHPRatio)))
   ) {
-    return { type: "event", event: "SelfHP", before, currentHPRatio: Math.min(1, Math.max(0, step.currentHPRatio)) };
+    return typeof step.currentHP === "number"
+      ? { type: "event", event: "SelfHP", before, currentHP: Math.max(0, step.currentHP) }
+      : {
+          type: "event",
+          event: "SelfHP",
+          before,
+          currentHPRatio: Math.min(1, Math.max(0, step.currentHPRatio as number)),
+        };
+  }
+  if (
+    step.type === "event" &&
+    step.event === "TakeDamage" &&
+    before &&
+    typeof step.damage === "number" &&
+    Number.isFinite(step.damage)
+  ) {
+    return { type: "event", event: "TakeDamage", before, damage: Math.max(0, step.damage) };
   }
   if (
     step.type === "event" &&
@@ -234,7 +250,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
   return JSON.stringify(
     {
       format: rotationExportFormat,
-      version: 6,
+      version: 7,
       exportedAt: new Date().toISOString(),
       rotations: entries
         .filter((entry) => !entry.isDefault)
@@ -256,7 +272,8 @@ export function mergeImportedRotationEntries(current: RotationEntry[], value: un
       source.version !== 3 &&
       source.version !== 4 &&
       source.version !== 5 &&
-      source.version !== 6) ||
+      source.version !== 6 &&
+      source.version !== 7) ||
     !Array.isArray(source.rotations)
   ) {
     throw new Error("This file uses an unsupported rotation export format.");

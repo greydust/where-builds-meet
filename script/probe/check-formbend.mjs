@@ -10,8 +10,14 @@ const viteServer = await createServer({
 
 try {
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
-  const { armorSetDefinitions, defaultBuildSetup, normalizeBuildSetup, setAvailableForTags } =
-    await viteServer.ssrLoadModule("/src/gear.ts");
+  const {
+    armorSetDefinitions,
+    availableSetEntriesForTags,
+    defaultBuildSetup,
+    normalizeBuildSetup,
+    setAvailableForTags,
+    weaponSetDefinitions,
+  } = await viteServer.ssrLoadModule("/src/gear.ts");
   const thundercrySkills = (await viteServer.ssrLoadModule("/data/skill/thundercry-blade.json")).default;
   const stormbreakerSkills = (await viteServer.ssrLoadModule("/data/skill/stormbreaker-spear.json")).default;
   const generalSkills = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
@@ -31,6 +37,19 @@ try {
   assert(
     !setAvailableForTags(armorSetDefinitions.Formbend, ["EverspringUmbrella", "UnfetteredRopeDart"], "BamboocutDust"),
     "Formbend must remain hidden for paths without an eligible armor set.",
+  );
+  const mightTags = ["ThundercryBlade", "StormbreakerSpear"];
+  assert(
+    availableSetEntriesForTags(weaponSetDefinitions, mightTags, "StonesplitMight")
+      .map(([setName]) => setName)
+      .join(",") === "RainWhisper",
+    "The shared set filter must return the Might weapon-set list.",
+  );
+  assert(
+    availableSetEntriesForTags(armorSetDefinitions, mightTags, "StonesplitMight")
+      .map(([setName]) => setName)
+      .join(",") === "Formbend",
+    "The shared set filter must return the Might armor-set list.",
   );
   const migrated = normalizeBuildSetup(
     { gearSets: { Cleftpeak: 2, RainWhisper: 2 }, bowRingSet: "Precision", arsenal: "Stonesplit" },

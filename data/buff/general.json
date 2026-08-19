@@ -7,6 +7,22 @@
     "maxStack": 1,
     "refresh": true
   },
+  "Revelry": {
+    "name": "Revelry",
+    "shortName": "Revelry",
+    "description": "Increases damage dealt by 20%.",
+    "duration": 20,
+    "cooldown": 60,
+    "maxStack": 1,
+    "effect": [
+      {
+        "effect": {
+          "dmgBonus": 0.2
+        }
+      }
+    ],
+    "refresh": true
+  },
   "YiRiver": {
     "name": "Yi River",
     "shortName": "Yi",

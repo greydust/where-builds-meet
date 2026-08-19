@@ -11,6 +11,7 @@ Combat data is split by responsibility:
 - `data/martial-art/`: weapon talent arrays
 - `data/rotation/`: default rotation records
 - `data/divinecraft.json`: selectable Divinecraft setup effects and availability
+- `data/script.json`: selectable Script effects, threshold requirements, and timeline triggers
 
 Maps use stable internal IDs as keys. References such as `trigger.value`,
 `apply.value`, and `modify.target` must use those IDs. User-facing text belongs
@@ -234,21 +235,38 @@ permanent, or already-expired states are not extended.
 
 This clears the named effect/application cooldown at that timestamp.
 
-### Set self HP
+### Set self HP and take damage
 
-The attached Self HP event emits a `setHP` action. Rotation data stores HP as a
-decimal ratio even though the editor displays percentage points:
+The timeline initializes self HP from the calculated Max HP stat. The attached
+Self HP event emits a `setHP` action and stores an absolute value:
 
 ```json
 {
   "type": "setHP",
-  "currentHPRatio": 0.8,
+  "currentHP": 100000,
   "time": 0
 }
 ```
 
-The timeline starts at full HP (`1`) and snapshots the current ratio on every
-action. HP-dependent damage therefore reads the value at hit time.
+The Take Damage event subtracts a nonnegative absolute amount:
+
+```json
+{ "type": "takeDamage", "damage": 70000, "time": 0 }
+```
+
+Like Self HP, Take Damage is attached before a selected skill action. It stays
+next to that target in the Rotation Editor and resolves after earlier attached
+events at the same action, allowing a preceding Self HP event to establish the
+state used by damage-triggered setup effects.
+
+Every action snapshots both current self HP and its ratio to Max HP. Percentage
+requirements therefore read the state after preceding actions at the same
+timestamp. Rotation import retains `currentHPRatio` only as a legacy boundary
+adapter and converts it against the current Max HP when building the timeline.
+The Rotation Editor displays this state as a percentage. Its Self HP event input
+also accepts a percentage and converts it to absolute `currentHP` at the UI
+boundary. Take Damage continues to accept an absolute damage amount and shows
+the resulting self-HP percentage beside it.
 
 ### Set target HP and Qi
 
@@ -318,6 +336,9 @@ Supported targets are:
   such as `SnowpartingBlade` or `PhalanxbaneBlade`
 - `resource`: a named numeric timeline resource compared with `amount` using
   `comparison`; supported comparisons are `>=`, `>`, `<=`, `<`, `==`, and `!=`
+- `selfHPPercentage`, `targetHPPercentage`, and `targetQiPercentage`: the
+  corresponding action-time percentage compared with `amount` using the same
+  operators
 
 For example, Heaven's Will requires at least one resource point:
 
@@ -641,7 +662,10 @@ type RotationRecord = {
     | { type: "event"; event: "Delay"; duration: number }
     | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number }
     | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
-    | { type: "event"; event: "HP"; before: AttachedEventTarget; currentHPRatio: number }
+    | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHP: number }
+    | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
+    | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
+    | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
     | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
     | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
     | { type: "event"; event: "Controlled" | "ShieldBroken" | "BattleEnd"; startTime: number; duration?: number }
@@ -663,9 +687,9 @@ type AttachedEventTarget = {
 Skill steps and `Delay` events are placed sequentially. A Delay starts when the
 preceding cast ends, advances every later sequential step by its nonnegative
 `duration`, and applies no action or effect. A trailing Delay still extends the
-rotation duration. `Move`, `HP`,
-`Buff`, `Debuff`, and `Exhausted` are action-attached events and must be stored
-immediately before their target skill. The first four use `before`; Exhausted
+rotation duration. `Move`, `SelfHP`, `TakeDamage`, `HP`, `Qi`, `Buff`, `Debuff`,
+and `Exhausted` are action-attached events and must be stored immediately before
+their target skill. The first seven use `before`; Exhausted
 uses `after`. The attachment's
 `action` is a zero-based action index in that skill; `"start"` is valid for
 before-attached events and targets cast start. When `trigger` is present, it is the
@@ -703,8 +727,9 @@ Distance starts at 1m. An attached `Move` event changes it to its integer
 `distance` immediately before the selected action. An attached Exhausted event
 applies at the same timestamp immediately after the selected action. Timeline rows store
 cast-start distance, while every action stores its own distance snapshot.
-An attached HP event similarly sets `currentHPRatio` immediately before its
-target. Buff and Debuff events select a definition from their respective data
+An attached Self HP event sets absolute `currentHP` immediately before its
+target, while Take Damage subtracts from that value and can fire setup triggers
+such as Revelry Script. Buff and Debuff events select a definition from their respective data
 directories and apply it before the target using that definition's duration.
 Buff and Debuff events may specify a positive integer `stack`; omitted values
 apply one stack, and tracked-effect resolution caps the result at the selected
@@ -819,7 +844,7 @@ dialog is closed and provides both selectable text and a Copy button.
 
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
-version 5. Versions 1 through 4 remain importable, and legacy Exhausted `before`
+version 7. Versions 1 through 6 remain importable, and legacy Exhausted `before`
 attachments migrate to `after`. The snapshot includes each custom rotation's `martialArts`
 eligibility and the current in-memory editor value, even before the Save button
 is pressed. Bundled default rotations are discovered from
@@ -911,6 +936,13 @@ Divinecraft definitions use the same direct setup-effect shape as food and set
 effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;
 `qiDMGBonus` and a `trigger` with `event: "healing"` are currently stored for
 future implementation and intentionally ignored by the calculation engine.
+
+Script definitions also use direct setup effects. Wraithstrike, Voidrot,
+Convergence, Opportunity, Detachment, and Insight use action-time HP/Qi or skill
+tag requirements. Revelry declares an `event: "takeDamage"` trigger. After the
+event subtracts damage, the trigger checks `selfHPPercentage <= 30` and applies
+the 20-second Revelry buff. Its data-defined 60-second cooldown prevents another
+application until the cooldown expires.
 
 Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
 for data completeness; healing is not currently simulated.

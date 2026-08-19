@@ -250,6 +250,82 @@
     white-space: normal;
   }
 
+  .script-option-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .script-option {
+    display: grid;
+    min-inline-size: 0;
+    grid-template-rows: auto minmax(24px, auto) minmax(22px, auto);
+    align-content: start;
+    gap: 5px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 5px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    text-align: center;
+  }
+
+  .script-option:hover,
+  .script-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--text);
+  }
+
+  .script-image-frame {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--radius-2xs);
+    background: oklch(from var(--border) calc(l + 0.1) c h / 0.35);
+  }
+
+  .script-image-frame img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+
+  .script-none-mark {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .script-option strong {
+    align-self: center;
+    min-inline-size: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+    line-height: 1.15;
+  }
+
+  .script-option-status {
+    align-self: center;
+    min-inline-size: 0;
+  }
+
+  .script-option-status small {
+    display: block;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  .script-option-status .setup-delta-label {
+    display: grid;
+    white-space: normal;
+  }
+
   /* Global Debuff Panel */
   .global-debuff-panel {
     padding: 12px;

@@ -26,7 +26,9 @@ export type RotationStep =
   | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number }
   | { type: "event"; event: "Exhausted"; before: AttachedEventTarget; duration?: number }
   | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
-  | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHPRatio: number }
+  | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHP: number; currentHPRatio?: number }
+  | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHPRatio: number; currentHP?: number }
+  | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
   | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
   | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
   | { type: "event"; event: "Qi"; after: AttachedEventTarget; targetQiRatio: number }
@@ -72,6 +74,7 @@ export type TimelineRow = {
   step: RotationStep;
   startTime: number;
   distance: number;
+  currentHP: number;
   currentHPRatio: number;
   targetHPRatio: number;
   targetQiRatio: number;
@@ -88,6 +91,7 @@ export type TimelineRow = {
       buffs: TrackedEffect[];
       debuffs: TrackedEffect[];
       distance: number;
+      currentHP: number;
       currentHPRatio: number;
       targetHPRatio: number;
       targetQiRatio: number;
@@ -147,6 +151,13 @@ export type TimelineBuildInput = {
   initialBuffs?: TrackedEffect[];
   initialDebuffs?: TrackedEffect[];
   initialResources?: ResourceState;
+  maxHP?: number;
+};
+
+export type RequirementState = {
+  selfHPPercentage?: number;
+  targetHPPercentage?: number;
+  targetQiPercentage?: number;
 };
 
 export const TIMELINE_TIME_EPSILON = 1e-4;
@@ -185,6 +196,7 @@ export function requirementsPass(
   innerWayConditions: Set<string>,
   weapons: WeaponId[] = [],
   resources: ResourceState = {},
+  state: RequirementState = {},
 ): boolean {
   if (!Array.isArray(requirement)) return true;
   const hasEffect = (target: unknown, value: unknown, requiredStack?: unknown) => {
@@ -203,8 +215,27 @@ export function requirementsPass(
     if (!condition || typeof condition !== "object") return false;
     const item = condition as EditableObject;
     if (item.operator === "or" && Array.isArray(item.operand)) return item.operand.some(evaluate);
-    if (item.target === "resource") {
-      const current = typeof item.value === "string" ? (resources[item.value] ?? 0) : 0;
+    if (
+      item.target === "resource" ||
+      item.target === "selfHPPercentage" ||
+      item.target === "targetHPPercentage" ||
+      item.target === "targetQiPercentage"
+    ) {
+      let current = 0;
+      switch (item.target) {
+        case "resource":
+          current = typeof item.value === "string" ? (resources[item.value] ?? 0) : 0;
+          break;
+        case "selfHPPercentage":
+          current = state.selfHPPercentage ?? 100;
+          break;
+        case "targetHPPercentage":
+          current = state.targetHPPercentage ?? 100;
+          break;
+        case "targetQiPercentage":
+          current = state.targetQiPercentage ?? 100;
+          break;
+      }
       if (typeof item.amount !== "number" || !Number.isFinite(item.amount)) return false;
       switch (item.comparison) {
         case ">=":
@@ -322,6 +353,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     if (
       (step.event === "Move" ||
         step.event === "SelfHP" ||
+        step.event === "TakeDamage" ||
         step.event === "HP" ||
         step.event === "Qi" ||
         step.event === "Buff" ||
@@ -381,7 +413,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             ? { distance: step.distance }
             : {}),
           ...(step.type === "event" && step.event === "SelfHP" && action.type === "setHP"
-            ? { currentHPRatio: step.currentHPRatio }
+            ? "currentHP" in step && typeof step.currentHP === "number"
+              ? { currentHP: step.currentHP }
+              : { currentHPRatio: step.currentHPRatio }
+            : {}),
+          ...(step.type === "event" && step.event === "TakeDamage" && action.type === "takeDamage"
+            ? { damage: step.damage }
             : {}),
           ...(step.type === "event" && step.event === "HP" && action.type === "setTargetHP"
             ? { targetHPRatio: step.targetHPRatio }
@@ -409,6 +446,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       step,
       startTime,
       distance: 1,
+      currentHP: Math.max(0, input.maxHP ?? 1),
       currentHPRatio: 1,
       targetHPRatio: 1,
       targetQiRatio: 1,
@@ -514,10 +552,21 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     expiresAt: undefined,
   }));
   let distance = 1;
-  let currentHPRatio = 1;
+  const maxHP = Math.max(0, input.maxHP ?? 1);
+  let currentHP = maxHP;
+  let currentHPRatio = maxHP > 0 ? 1 : 0;
+  const setCurrentHP = (value: number) => {
+    currentHP = Math.min(maxHP, Math.max(0, value));
+    currentHPRatio = maxHP > 0 ? currentHP / maxHP : 0;
+  };
   let targetHPRatio = 1;
   let targetQiRatio = 1;
   let resources: ResourceState = { Qi: 100, ...(input.initialResources ?? {}) };
+  const requirementState = (): RequirementState => ({
+    selfHPPercentage: currentHPRatio * 100,
+    targetHPPercentage: targetHPRatio * 100,
+    targetQiPercentage: targetQiRatio * 100,
+  });
   const cooldowns: Record<string, number> = {};
   const prune = (effects: TrackedEffect[], time: number) =>
     effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time);
@@ -542,6 +591,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             innerWayConditions,
             weapons,
             resources,
+            requirementState(),
           ),
       )
       .map((effect) => effect.modify as EditableObject);
@@ -558,6 +608,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             innerWayConditions,
             weapons,
             resources,
+            requirementState(),
           ),
       )
       .map((rule) => rule.modify!);
@@ -624,6 +675,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         step: { type: "skill", skill: name },
         startTime: tickTime,
         distance,
+        currentHP,
         currentHPRatio,
         targetHPRatio,
         targetQiRatio,
@@ -692,6 +744,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       step: { type: "skill", skill: name },
       startTime: eventTime,
       distance,
+      currentHP,
       currentHPRatio,
       targetHPRatio,
       targetQiRatio,
@@ -817,6 +870,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.buffs = [...buffs];
       event.row.debuffs = [...debuffs];
       event.row.distance = distance;
+      event.row.currentHP = currentHP;
       event.row.currentHPRatio = currentHPRatio;
       event.row.targetHPRatio = targetHPRatio;
       event.row.targetQiRatio = targetQiRatio;
@@ -832,6 +886,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             innerWayConditions,
             weapons,
             resources,
+            requirementState(),
           ),
         )
         .map((item) =>
@@ -869,13 +924,25 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       buffs: [...buffs],
       debuffs: [...debuffs],
       distance,
+      currentHP,
       currentHPRatio,
       targetHPRatio,
       targetQiRatio,
       resources: { ...resources },
     };
     const skillTags = event.row.skill?.tags ?? [];
-    if (!requirementsPass(action.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources))
+    if (
+      !requirementsPass(
+        action.requirement,
+        buffs,
+        debuffs,
+        skillTags,
+        innerWayConditions,
+        weapons,
+        resources,
+        requirementState(),
+      )
+    )
       continue;
     const skillKey = event.row.step.type === "skill" ? (event.row.step.skill ?? "") : event.row.step.event;
     const actionCooldownKey = `action:${skillKey}:${event.actionIndex ?? -1}`;
@@ -890,12 +957,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       distance = Math.max(1, Math.floor(action.distance));
       continue;
     }
-    if (
-      action.type === "setHP" &&
-      typeof action.currentHPRatio === "number" &&
-      Number.isFinite(action.currentHPRatio)
-    ) {
-      currentHPRatio = Math.min(1, Math.max(0, action.currentHPRatio));
+    if (action.type === "setHP") {
+      if (typeof action.currentHP === "number" && Number.isFinite(action.currentHP)) setCurrentHP(action.currentHP);
+      else if (typeof action.currentHPRatio === "number" && Number.isFinite(action.currentHPRatio))
+        setCurrentHP(action.currentHPRatio * maxHP);
       continue;
     }
     if (
@@ -987,6 +1052,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         step: { type: "skill", skill: skillId },
         startTime: event.time,
         distance,
+        currentHP,
         currentHPRatio,
         targetHPRatio,
         targetQiRatio,
@@ -1054,7 +1120,16 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : undefined;
       const additionalStack =
         additional &&
-        requirementsPass(additional.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)
+        requirementsPass(
+          additional.requirement,
+          buffs,
+          debuffs,
+          skillTags,
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        )
           ? typeof additional.stack === "number"
             ? additional.stack
             : 1
@@ -1125,25 +1200,54 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         if (definition.cooldown !== undefined) cooldowns[triggerAction.value] = event.time + definition.cooldown;
       }
     };
-    if (action.type === "damage") {
+    const runSetupTriggers = (triggerEvent: string) => {
       setupEffects.forEach((setup) => {
         const trigger =
           setup.trigger && typeof setup.trigger === "object" && !Array.isArray(setup.trigger)
             ? (setup.trigger as EditableObject)
             : undefined;
         if (
-          trigger?.event !== "damage" ||
-          !requirementsPass(trigger.requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)
+          trigger?.event !== triggerEvent ||
+          !requirementsPass(
+            trigger.requirement,
+            buffs,
+            debuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
+          )
         )
           return;
         if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action))
           applyTriggerAction(trigger.action as EditableObject, "setup");
       });
+    };
+    if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
+      setCurrentHP(currentHP - Math.max(0, action.damage));
+      runSetupTriggers("takeDamage");
+      continue;
+    }
+    if (action.type === "damage") {
+      runSetupTriggers("damage");
       innerWayRules
         .filter((rule) => rule.trigger?.event === "damage" || rule.trigger?.target === "self")
         .forEach((rule) => {
           const requirement = rule.requirement ?? rule.trigger?.requirement;
-          if (!requirementsPass(requirement, buffs, debuffs, skillTags, innerWayConditions, weapons, resources)) return;
+          if (
+            !requirementsPass(
+              requirement,
+              buffs,
+              debuffs,
+              skillTags,
+              innerWayConditions,
+              weapons,
+              resources,
+              requirementState(),
+            )
+          )
+            return;
           const triggerActions = Array.isArray(rule.trigger?.action)
             ? rule.trigger.action
             : rule.trigger?.action && typeof rule.trigger.action === "object"

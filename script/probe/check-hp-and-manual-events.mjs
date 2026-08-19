@@ -67,6 +67,13 @@ try {
     modifier: [],
     tags: ["DragonHeadTide", "HP"],
   };
+  const noDamage = {
+    name: "No Damage",
+    castTime: 1,
+    action: [{ type: "move", distance: 1, time: 0.5 }],
+    modifier: [],
+    tags: [],
+  };
   const hpRotation = {
     name: "HP probe",
     steps: [
@@ -115,8 +122,15 @@ try {
   const targetHPResult = calculateRotationBaseline({
     timeline: {
       ...baseInput,
-      rotation: { name: "Target HP probe", targetHP: 10000, steps: [{ type: "skill", skill: "Hit" }] },
-      skills: { Hit: hit },
+      rotation: {
+        name: "Target HP probe",
+        targetHP: 10000,
+        steps: [
+          { type: "skill", skill: "Hit" },
+          { type: "skill", skill: "NoDamage" },
+        ],
+      },
+      skills: { Hit: hit, NoDamage: noDamage },
     },
     startAnchor: { rowId: "rotation-0" },
     stats,
@@ -131,9 +145,16 @@ try {
   });
   const firstTargetHit = targetHPResult.actionBreakdowns["rotation-0:0"].total;
   const targetHPRow = targetHPResult.timeline.find((row) => row.id === "rotation-0");
+  const noDamageRow = targetHPResult.timeline.find((row) => row.id === "rotation-1");
+  const finalTargetHPRatio = Math.max(0, 1 - (firstTargetHit * 2) / 10000);
   assert(
     closeTo(targetHPRow.actionStates[1].targetHPRatio, Math.max(0, 1 - firstTargetHit / 10000)),
     "Specified target HP must decrease by each preceding calculated damage result.",
+  );
+  assert(
+    closeTo(noDamageRow.targetHPRatio, finalTargetHPRatio) &&
+      closeTo(noDamageRow.actionStates[0].targetHPRatio, finalTargetHPRatio),
+    "A non-damaging skill and its actions must inherit target HP from the preceding damage action.",
   );
   const hpHitRow = hpResult.timeline.find((row) => row.id === "rotation-1");
   assert(

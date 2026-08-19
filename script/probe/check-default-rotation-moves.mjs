@@ -123,12 +123,15 @@ try {
       console.log(`${rotation.name}: wrote attached events.`);
       continue;
     }
-    const mismatchIndex = rotation.steps.findIndex(
+    const stepsWithoutQiRamps = rotation.steps.filter(
+      (step) => !(step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0.4),
+    );
+    const mismatchIndex = stepsWithoutQiRamps.findIndex(
       (step, index) => JSON.stringify(step) !== JSON.stringify(expected.steps[index]),
     );
     assert(
-      mismatchIndex < 0 && rotation.steps.length === expected.steps.length,
-      `${rotation.name} attached event structure is out of date at ${mismatchIndex}: ${JSON.stringify(rotation.steps[mismatchIndex])} != ${JSON.stringify(expected.steps[mismatchIndex])}.`,
+      mismatchIndex < 0 && stepsWithoutQiRamps.length === expected.steps.length,
+      `${rotation.name} attached event structure is out of date at ${mismatchIndex}: ${JSON.stringify(stepsWithoutQiRamps[mismatchIndex])} != ${JSON.stringify(expected.steps[mismatchIndex])}.`,
     );
     const timeline = buildRotationTimeline({
       rotation,

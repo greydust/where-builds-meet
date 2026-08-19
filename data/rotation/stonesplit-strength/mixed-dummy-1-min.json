@@ -224,6 +224,14 @@
       "skill": "PhalanxbaneSpecial"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 1
+      },
+      "targetQiRatio": 0.4
+    },
+    {
       "type": "skill",
       "skill": "SnowpartingSpecial"
     },

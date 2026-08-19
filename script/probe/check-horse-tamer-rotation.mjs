@@ -67,6 +67,12 @@ try {
         },
         Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], tags: ["Event"] },
         SelfHP: { name: "Self HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
+        TakeDamage: {
+          name: "Take Damage",
+          castTime: 0,
+          action: [{ type: "takeDamage", time: 0 }],
+          tags: ["Event"],
+        },
         Buff: { name: "Buff", castTime: 0, action: [{ type: "apply", target: "self", time: 0 }], tags: ["Event"] },
         Debuff: {
           name: "Debuff",
@@ -98,9 +104,21 @@ try {
   const fluteIndex = rotation.steps.findIndex(
     (step) => step.type === "skill" && step.skill === "FluteOfTheTidesCancel",
   );
-  const exhausted = rotation.steps[dragonIndex - 1];
-  const hpEvent = rotation.steps[dragonIndex - 2];
-  const surgingWaves = rotation.steps[dragonIndex - 3];
+  const preDragonSteps = rotation.steps.slice(0, dragonIndex);
+  const surgingWavesIndex = preDragonSteps.findLastIndex(
+    (step) => step.type === "event" && step.event === "Buff" && step.buff === "SurgingWaves",
+  );
+  const hpEventIndex = preDragonSteps.findLastIndex(
+    (step) => step.type === "event" && step.event === "SelfHP" && step.currentHPRatio === 0.2,
+  );
+  const takeDamageIndex = preDragonSteps.findLastIndex((step) => step.type === "event" && step.event === "TakeDamage");
+  const exhaustedIndex = preDragonSteps.findLastIndex(
+    (step) => step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0,
+  );
+  const surgingWaves = rotation.steps[surgingWavesIndex];
+  const hpEvent = rotation.steps[hpEventIndex];
+  const takeDamage = rotation.steps[takeDamageIndex];
+  const exhausted = rotation.steps[exhaustedIndex];
   const postDragonCharged = result.timeline.filter(
     (row) =>
       row.kind === "rotation" &&
@@ -109,6 +127,7 @@ try {
       row.rotationIndex > dragonIndex,
   );
   assert(rotation.name === "Mixed Horse Tamer Standard", "Rotation name must match the requested preset name.");
+  assert(rotation.targetHP === 2800000, "Horse Tamer must use 2,800,000 target HP.");
   assert(
     rotation.steps[fluteIndex + 1]?.type === "skill" && rotation.steps[fluteIndex + 1].skill === "Deflect",
     "Flute Cancel must be followed immediately by Deflect.",
@@ -127,6 +146,15 @@ try {
       hpEvent.currentHPRatio === 0.2 &&
       hpEvent.before?.action === 8,
     "Dragon Head must be at 20% HP immediately before its damage hit.",
+  );
+  assert(
+    takeDamage?.type === "event" &&
+      takeDamage.event === "TakeDamage" &&
+      takeDamage.damage === 1 &&
+      takeDamage.before?.action === 8 &&
+      hpEventIndex < takeDamageIndex &&
+      takeDamageIndex < exhaustedIndex,
+    "Dragon Head must take damage immediately after self HP is set to 20%.",
   );
   assert(
     exhausted?.type === "event" &&
@@ -149,7 +177,10 @@ try {
     dragonRow?.actionStates[8].debuffs.some((effect) => effect.name === "Exhausted"),
     "Dragon Head's damage must see externally applied Exhausted.",
   );
-  assert(dragonRow?.actionStates[8].currentHPRatio === 0.2, "Dragon Head's damage must use 20% current HP.");
+  assert(
+    (dragonRow?.actionStates[8].currentHPRatio ?? 1) <= 0.2,
+    `Dragon Head's damage must use the HP remaining after the 20% HP damage trigger (saw ${dragonRow?.actionStates[8].currentHPRatio}).`,
+  );
   assert(
     readableRotationText(
       result.timeline,

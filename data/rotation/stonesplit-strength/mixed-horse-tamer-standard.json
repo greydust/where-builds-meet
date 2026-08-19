@@ -1,6 +1,7 @@
 {
   "name": "Mixed Horse Tamer Standard",
   "martialArts": ["snowparting", "phalanxbane"],
+  "targetHP": 2800000,
   "eventTimeReference": "battleStart",
   "start": {
     "step": 6,
@@ -146,6 +147,14 @@
       "distance": 2
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 5
+      },
+      "targetQiRatio": 0.4
+    },
+    {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
@@ -203,6 +212,14 @@
         "action": 8
       },
       "currentHPRatio": 0.2
+    },
+    {
+      "type": "event",
+      "event": "TakeDamage",
+      "before": {
+        "action": 8
+      },
+      "damage": 1
     },
     {
       "type": "event",

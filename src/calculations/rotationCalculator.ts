@@ -529,10 +529,16 @@ function timelineDamageEntries(
           const debuffs = actionState.debuffs;
           const resources = actionState.resources;
           const skillTags = row.skill?.tags ?? [];
+          const requirementState = {
+            selfHPPercentage: actionState.currentHPRatio * 100,
+            targetHPPercentage: actionState.targetHPRatio * 100,
+            targetQiPercentage: actionState.targetQiRatio * 100,
+          };
           const effectsForState = (
             currentBuffs: typeof buffs,
             currentDebuffs: typeof debuffs,
             currentResources: typeof resources,
+            currentRequirementState = requirementState,
           ) => {
             const activeSetupEffects = setupEffects
               .filter((effect) =>
@@ -544,6 +550,7 @@ function timelineDamageEntries(
                   conditions,
                   state.weapons,
                   currentResources,
+                  currentRequirementState,
                 ),
               )
               .map((effect) =>
@@ -561,6 +568,7 @@ function timelineDamageEntries(
                   conditions,
                   state.weapons,
                   currentResources,
+                  currentRequirementState,
                 ),
               )
               .map((rule) => rule.effect);
@@ -581,6 +589,7 @@ function timelineDamageEntries(
                         conditions,
                         state.weapons,
                         currentResources,
+                        currentRequirementState,
                       ),
                   )
                   .map((effect) => effect.modify as EditableObject);
@@ -597,6 +606,7 @@ function timelineDamageEntries(
                         conditions,
                         state.weapons,
                         currentResources,
+                        currentRequirementState,
                       ),
                   )
                   .map((rule) => rule.modify!);
@@ -618,6 +628,7 @@ function timelineDamageEntries(
                   conditions,
                   state.weapons,
                   currentResources,
+                  currentRequirementState,
                 ),
               )
               .map((effect) =>
@@ -662,11 +673,30 @@ function timelineDamageEntries(
               context,
               timelineTime: actionTime,
               timelineOrder: actionOrder,
+              updateTargetHPRatio: (ratio: number) => {
+                const currentRequirementState = { ...requirementState, targetHPPercentage: ratio * 100 };
+                context.targetHPRatio = ratio;
+                context.effects = effectsForState(buffs, debuffs, resources, currentRequirementState);
+                attributionContexts.forEach(({ context: attributionContext }) => {
+                  const counterfactualBuffs = buffs.filter(
+                    (tracked) => !attributionContext.buffs.includes(tracked.name),
+                  );
+                  attributionContext.targetHPRatio = ratio;
+                  attributionContext.effects = effectsForState(
+                    counterfactualBuffs,
+                    debuffs,
+                    resources,
+                    currentRequirementState,
+                  );
+                });
+              },
               ...(attributionContexts.length ? { attributionContexts } : {}),
             },
           ];
         }),
-  ) as Array<RotationDamageEntry & { timelineTime: number; timelineOrder: number }>;
+  ) as Array<
+    RotationDamageEntry & { timelineTime: number; timelineOrder: number; updateTargetHPRatio: (ratio: number) => void }
+  >;
   const hpEvents = timeline.flatMap((row) =>
     row.skipped
       ? []
@@ -679,6 +709,7 @@ function timelineDamageEntries(
                   kind: "set" as const,
                   time: row.startTime + Number(action.time ?? 0),
                   order: row.order + 10 + actionIndex,
+                  priority: 1,
                   ratio: Math.min(1, Math.max(0, action.targetHPRatio)),
                 },
               ]
@@ -687,40 +718,69 @@ function timelineDamageEntries(
   );
   const targetMaxHP = input.rotation.targetHP;
   let targetHPRatio = 1;
+  const targetHPStateSnapshots = updateTimelineState
+    ? timeline.flatMap((row) => {
+        if (row.skipped) return [];
+        return [
+          {
+            kind: "rowState" as const,
+            time: row.startTime,
+            order: row.order,
+            priority: 0,
+            update: (ratio: number) => {
+              row.targetHPRatio = ratio;
+            },
+          },
+          ...row.actions.flatMap((action, actionIndex) => {
+            const actionState = row.actionStates[actionIndex];
+            if (!actionState) return [];
+            return [
+              {
+                kind: "actionState" as const,
+                time: row.startTime + Number(action.time ?? 0),
+                order: row.order + 10 + actionIndex,
+                priority: 0,
+                update: (ratio: number) => {
+                  actionState.targetHPRatio = ratio;
+                },
+              },
+            ];
+          }),
+        ];
+      })
+    : [];
   const ordered = [
+    ...targetHPStateSnapshots,
     ...hpEvents,
     ...damageEntries.map((entry) => ({
       kind: "damage" as const,
       time: entry.timelineTime,
       order: entry.timelineOrder,
+      priority: 1,
       entry,
     })),
-  ].sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
+  ].sort(
+    (left, right) =>
+      compareTimelineTime(left.time, right.time) || left.order - right.order || left.priority - right.priority,
+  );
   ordered.forEach((item) => {
     if (item.kind === "set") {
       targetHPRatio = item.ratio;
       return;
     }
-    item.entry.context.targetHPRatio = targetHPRatio;
-    item.entry.attributionContexts?.forEach(({ context }) => {
-      context.targetHPRatio = targetHPRatio;
-    });
-    if (updateTimelineState) {
-      const [rowId, actionIndexText] = item.entry.id?.split(":") ?? [];
-      const row = timeline.find((candidate) => candidate.id === rowId);
-      const actionIndex = Number(actionIndexText);
-      if (row && Number.isInteger(actionIndex)) {
-        row.targetHPRatio = targetHPRatio;
-        const actionState = row.actionStates[actionIndex];
-        if (actionState) actionState.targetHPRatio = targetHPRatio;
-      }
+    if (item.kind === "rowState" || item.kind === "actionState") {
+      item.update(targetHPRatio);
+      return;
     }
+    item.entry.updateTargetHPRatio(targetHPRatio);
     if (typeof targetMaxHP === "number" && targetMaxHP > 0) {
       const damage = calculateDamageBreakdown(item.entry.action, item.entry.context).total;
       targetHPRatio = Math.max(0, targetHPRatio - damage / targetMaxHP);
     }
   });
-  return damageEntries.map(({ timelineTime: _time, timelineOrder: _order, ...entry }) => entry);
+  return damageEntries.map(
+    ({ timelineTime: _time, timelineOrder: _order, updateTargetHPRatio: _updateTargetHPRatio, ...entry }) => entry,
+  );
 }
 
 function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulationBundle["startAnchor"]) {

@@ -82,6 +82,7 @@ data/
   armor-set.json  armor-set definitions and tier effects
   food.json       setup choices and their effects
   divinecraft.json  Divinecraft choices, availability, images, and effects
+  script.json      Script choices, images, threshold requirements, and effects
   stat.json
 
 doc/
@@ -183,7 +184,9 @@ active-rotation comparisons remain tied to save, activation, or setup changes.
 
 Rotations may optionally store a target maximum HP. The centralized baseline
 calculation then walks damage actions in timeline order, subtracts each resolved
-damage result, and publishes target-HP snapshots with the worker timeline. Self
+damage result, and publishes target-HP snapshots with the worker timeline. Rows
+and actions without damage inherit the most recent target-HP ratio instead of
+falling back to the timeline's initial 100% state. Self
 HP, target HP, and target Qi are distinct timeline states. Qi reaching zero
 applies Exhausted; the debuff's data-defined `"expire"` action restores Qi when
 the current application expires, so duration refreshes remain authoritative.
@@ -208,6 +211,7 @@ tab session.
 | Build setup overrides                           | `sessionStorage`, `wwm-build-setup-overrides-v1`   |
 | Food                                            | `sessionStorage`, `wwm-food-session-v1`            |
 | Divinecraft                                     | `sessionStorage`, `wwm-divinecraft-session-v1`     |
+| Script                                          | `sessionStorage`, `wwm-script-session-v1`          |
 | Target debuff controls                          | `sessionStorage`, `wwm-global-debuffs-session-v1`  |
 | Rotation list                                   | `sessionStorage`, `wwm-rotation-list-session-v1`   |
 | Active rotation ID                              | `sessionStorage`, `wwm-active-rotation-session-v1` |
@@ -250,7 +254,7 @@ migrated to post-action `after` attachments.
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
 Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
-global buff/debuff controls, and future Script controls remain independent
+global buff/debuff controls, and Script controls remain independent
 session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
 persisted or exported. Import validates stat keys and setup shapes, discards
@@ -316,7 +320,7 @@ base. Modified stats therefore remain responsive in delta calculations.
 The compact Character Profile selector treats `Calculated` as an immutable
 reset profile. Loading it clears character, attunement, and build-setup
 overrides, thereby restoring the active build's setup. It does not change Food,
-Divinecraft, global buff/debuff controls, or future Script controls. A custom profile stores
+Divinecraft, global buff/debuff controls, or Script controls. A custom profile stores
 the user's current final-value character and attunement overrides plus the final
 weapon-set, armor-set, bow/ring, arsenal, and Inner Way selections. Loading
 one replaces that complete state. Profiles can be created, renamed, duplicated,
@@ -392,7 +396,7 @@ The timeline owns mutable simulation state while it is being built:
 - active player buffs
 - active target debuffs
 - current target distance, initially 1m
-- current HP ratio, initially 1 (100%)
+- absolute self HP initialized from calculated Max HP, plus its derived ratio
 - stacks, maximum stacks, and expirations
 - per-definition duration refresh behavior for stacked effects
 - skill, action, and effect cooldowns
@@ -640,7 +644,8 @@ header-level Dev toggle is enabled. The application currently recognizes:
 - six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
 - six Inner Ways
 - eight Divinecraft definitions, including a no-effect choice and two unavailable choices
-- Exhausted, Controlled, Shield Broken, Battle End, Move, HP, Buff, and Debuff manual events
+- seven Script definitions plus a no-effect choice
+- Exhausted, Controlled, Shield Broken, Battle End, Move, Self HP, Take Damage, target HP, Qi, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
 - eight gear slots, relayed status, one required base affix, up to four optional

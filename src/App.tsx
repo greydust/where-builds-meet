@@ -29,6 +29,7 @@ import {
   activeBuildStorageKey,
   armorSetDefinitions,
   attunementData,
+  availableSetEntriesForTags,
   buildEntryAvailableForMartialArts,
   buildEntryIsTestPreset,
   buildListStorageKey,
@@ -79,18 +80,9 @@ import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
 import stonesplitMightDebuffs from "../data/debuff/stonesplit-might.json";
 import mysticDots from "../data/dot/mystic.json";
 import enemyProfiles from "../data/enemy.json";
-import frostCladNight from "../data/innerway/frost-clad-night.json";
-import moraleChant from "../data/innerway/morale-chant.json";
-import steadfastDevotion from "../data/innerway/steadfast-devotion.json";
-import throatPiercingArt from "../data/innerway/throat-piercing-art.json";
-import breakingPoint from "../data/innerway/breaking-point.json";
-import envigoratedWarrior from "../data/innerway/envigorated-warrior.json";
-import exquisiteScenery from "../data/innerway/exquisite-scenery.json";
-import artOfResistance from "../data/innerway/art-of-resistance.json";
-import battleAnthem from "../data/innerway/battle-anthem.json";
-import adaptiveSteel from "../data/innerway/adaptive-steel.json";
 import systemStats from "../data/system.json";
 import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
+import { innerWayAvailableForTag, innerWayDefinitions, innerWayEntriesForTag } from "./data/innerWayDefinitions";
 import defaultSetup from "../data/default-setup.json";
 import {
   beginRotationCalculation,
@@ -113,6 +105,7 @@ import arsenalDefinitions from "../data/arsenal.json";
 import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import foodDefinitions from "../data/food.json";
 import divinecraftDefinitions from "../data/divinecraft.json";
+import scriptDefinitions from "../data/script.json";
 import pathDefinitions from "../data/path.json";
 import snowpartingMartialArt from "../data/martial-art/snowparting-blade.json";
 import phalanxbaneMartialArt from "../data/martial-art/phalanxbane-blade.json";
@@ -214,6 +207,7 @@ const bowRingSetStorageKey = "wwm-bow-ring-set-session-v1";
 const gearSetStorageKey = "wwm-gear-set-session-v1";
 const foodStorageKey = "wwm-food-session-v1";
 const divinecraftStorageKey = "wwm-divinecraft-session-v1";
+const scriptStorageKey = "wwm-script-session-v1";
 const pathStorageKey = "wwm-path-session-v1";
 const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(
@@ -338,6 +332,13 @@ const rotationEventDefinitions: Record<string, SkillRecord> = {
     modifier: [],
     tags: ["Event"],
   },
+  TakeDamage: {
+    name: "Event: Take Damage",
+    castTime: 0,
+    action: [{ type: "takeDamage", time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
   HP: {
     name: "Event: HP",
     castTime: 0,
@@ -383,24 +384,6 @@ function rotationEventDisplayName(eventId: string) {
   return dataText(`game.event.${key}`, rotationEventDefinitions[eventId]?.name ?? eventId);
 }
 
-type InnerWayDefinition = {
-  name: string;
-  tags: string[];
-  altersTimeline: boolean;
-  effect: Record<string, unknown>;
-};
-const innerWayDefinitions = {
-  FrostCladNight: frostCladNight,
-  MoraleChant: moraleChant,
-  SteadfastDevotion: steadfastDevotion,
-  ThroatPiercingArt: throatPiercingArt,
-  BreakingPoint: breakingPoint,
-  EnvigoratedWarrior: envigoratedWarrior,
-  ExquisiteScenery: exquisiteScenery,
-  ArtOfResistance: artOfResistance,
-  BattleAnthem: battleAnthem,
-  AdaptiveSteel: adaptiveSteel,
-} satisfies Record<string, InnerWayDefinition>;
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
@@ -434,6 +417,7 @@ const rotationEventOptionIds = [
   "__event:BattleEnd",
   "__event:Move",
   "__event:SelfHP",
+  "__event:TakeDamage",
   "__event:HP",
   "__event:Qi",
   "__event:Buff",
@@ -489,12 +473,7 @@ function loadSelectedPath(devMode = loadDevMode()): PathId {
 }
 
 function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath()) {
-  if (!innerWay) return true;
-  const requiredTag = typedPathDefinitions[pathId].tag;
-  if (!requiredTag) return true;
-  const definition = innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions] as
-    { tags?: string[] } | undefined;
-  return definition?.tags?.includes(requiredTag) === true;
+  return innerWayAvailableForTag(innerWay, typedPathDefinitions[pathId].tag);
 }
 
 function attunementAvailableForSettings(attunement: string, pathId: PathId, settings: CalculatorSettings) {
@@ -611,6 +590,7 @@ function attachedTargetForStep(step: RotationStep | undefined) {
   if (
     (step.event === "Move" ||
       step.event === "SelfHP" ||
+      step.event === "TakeDamage" ||
       step.event === "HP" ||
       step.event === "Qi" ||
       step.event === "Buff" ||
@@ -853,6 +833,18 @@ const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDe
 const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>;
 type DivinecraftDefinition = ArsenalDefinition & { description: string; image?: string; available?: boolean };
 const typedDivinecraftDefinitions = divinecraftDefinitions as Record<string, DivinecraftDefinition>;
+type ScriptDefinition = ArsenalDefinition & { description: string; image?: string; altersTimeline?: boolean };
+const typedScriptDefinitions = scriptDefinitions as Record<string, ScriptDefinition>;
+const scriptDisplayOrder = [
+  "Wraithstrike",
+  "Voidrot",
+  "Convergence",
+  "Opportunity",
+  "Detachment",
+  "Insight",
+  "Revelry",
+  "None",
+] as const;
 const divinecraftDisplayOrder = [
   "Fire",
   "FireWater",
@@ -1043,6 +1035,15 @@ function divinecraftEffectFor(value: string) {
   return typedDivinecraftDefinitions[value]?.effect ?? {};
 }
 
+function loadScript() {
+  const saved = sessionStorage.getItem(scriptStorageKey);
+  return saved && typedScriptDefinitions[saved] ? saved : "None";
+}
+
+function scriptEffectFor(value: string) {
+  return typedScriptDefinitions[value]?.effect ?? {};
+}
+
 function selectedMartialArtEffects(settings: CalculatorSettings) {
   return Array.from(new Set(settings.weapons)).flatMap((weapon) =>
     (martialArtDefinitions[weapon]?.talent ?? []).flatMap((talent) => talent.effect ?? []),
@@ -1053,7 +1054,7 @@ function selectedSetupEffects(
   settings: CalculatorSettings,
   gearStatEffect: StatEffectContainer,
   buildSetup: BuildSetup,
-  overrides: Partial<BuildSetup> & { food?: string; divinecraft?: string } = {},
+  overrides: Partial<BuildSetup> & { food?: string; divinecraft?: string; script?: string } = {},
 ) {
   const selectedBuildSetup = {
     ...buildSetup,
@@ -1063,6 +1064,7 @@ function selectedSetupEffects(
   };
   const foodEffect = overrides.food ? (typedFoodDefinitions[overrides.food]?.effect ?? {}) : selectedFoodEffect();
   const divinecraftEffect = divinecraftEffectFor(overrides.divinecraft ?? loadDivinecraft());
+  const scriptEffect = scriptEffectFor(overrides.script ?? loadScript());
   return [
     ...globalEffectRules,
     ...systemStatEffects,
@@ -1072,6 +1074,7 @@ function selectedSetupEffects(
     ...setEffectsFor(selectedBuildSetup.weaponSets, typedWeaponSetDefinitions, settings),
     ...setEffectsFor(selectedBuildSetup.armorSets, typedArmorSetDefinitions, settings),
     foodEffect,
+    scriptEffect,
     divinecraftEffect,
     gearStatEffect,
   ];
@@ -1084,6 +1087,18 @@ function setAvailableForSettings(
 ) {
   return setAvailableForTags(
     definition,
+    settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag),
+    typedPathDefinitions[pathId].tag,
+  );
+}
+
+function availableSetEntriesForSettings<T extends GearSetDefinition>(
+  definitions: Record<string, T>,
+  settings: CalculatorSettings,
+  pathId = loadSelectedPath(),
+) {
+  return availableSetEntriesForTags(
+    definitions,
     settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag),
     typedPathDefinitions[pathId].tag,
   );
@@ -1856,6 +1871,7 @@ function StatsTab({
 }) {
   const { stats, derivedStats, attunementStats, buildSetup, settings } = character;
   const [food, setFood] = useState(loadFood);
+  const [script, setScript] = useState(loadScript);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
   const [globalDebuffs, setGlobalDebuffs] = useState(loadGlobalDebuffs);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
@@ -1864,6 +1880,7 @@ function StatsTab({
   const profileDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
+  useEffect(() => sessionStorage.setItem(scriptStorageKey, script), [script]);
   useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
   useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
@@ -2067,15 +2084,13 @@ function StatsTab({
   ];
   const innerWayOptions = [
     ["", t("ui.app.none")],
-    ...Object.entries(innerWayDefinitions)
-      .filter(([value]) => innerWayAvailableForPath(value, pathId))
-      .map(
-        ([value, definition]) =>
-          [value, dataText(`system.innerWay.${value.charAt(0).toLowerCase()}${value.slice(1)}`, definition.name)] as [
-            string,
-            string,
-          ],
-      ),
+    ...innerWayEntriesForTag(typedPathDefinitions[pathId].tag).map(
+      ([value, definition]) =>
+        [value, dataText(`system.innerWay.${value.charAt(0).toLowerCase()}${value.slice(1)}`, definition.name)] as [
+          string,
+          string,
+        ],
+    ),
   ];
   const attunementFields = Object.entries(attunementData)
     .filter(([key]) => attunementAvailableForSettings(key, pathId, settings))
@@ -2088,12 +2103,8 @@ function StatsTab({
         ] as const,
     );
   const armorAttunementStart = attunementFields.findIndex(([key]) => attunementData[key]?.tags.includes("Armor"));
-  const availableWeaponSets = Object.entries(typedWeaponSetDefinitions).filter(([, definition]) =>
-    setAvailableForSettings(definition, settings, pathId),
-  );
-  const availableArmorSets = Object.entries(typedArmorSetDefinitions).filter(([, definition]) =>
-    setAvailableForSettings(definition, settings, pathId),
-  );
+  const availableWeaponSets = availableSetEntriesForSettings(typedWeaponSetDefinitions, settings, pathId);
+  const availableArmorSets = availableSetEntriesForSettings(typedArmorSetDefinitions, settings, pathId);
   const setupStatus = (group: string, value: string, active: boolean) => {
     if (active) return <small className="setup-active-label">{t("ui.app.active")}</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
@@ -2629,7 +2640,35 @@ function StatsTab({
                 <CalculationStatus category="script" />
               </div>
             </div>
-            <p>{t("ui.app.detailsWillBeAddedLater")}</p>
+            <div className="script-option-list">
+              {scriptDisplayOrder.map((value) => {
+                const definition = typedScriptDefinitions[value];
+                if (!definition) return null;
+                return (
+                  <button
+                    className={`script-option ${script === value ? "selected" : ""}`}
+                    type="button"
+                    key={value}
+                    title={`${gameText(definition.name)}: ${gameText(definition.description)}`}
+                    onClick={() => {
+                      setScript(value);
+                      sessionStorage.setItem(scriptStorageKey, value);
+                      onInnerWayChange();
+                    }}
+                  >
+                    <span className="script-image-frame">
+                      {definition.image ? (
+                        <img src={`${import.meta.env.BASE_URL}script/${definition.image}`} alt="" />
+                      ) : (
+                        <span className="script-none-mark" aria-hidden="true" />
+                      )}
+                    </span>
+                    <strong>{gameText(definition.name)}</strong>
+                    <span className="script-option-status">{setupStatus("script", value, script === value)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </section>
           <section className="panel setup-placeholder-panel divinecraft-panel">
             <div className="panel-heading">
@@ -4413,6 +4452,7 @@ function RotationEditorTab({
   ) => void;
 }) {
   const {
+    stats: displayedCharacterStats,
     rawStats: characterStats,
     attunementStats,
     settings,
@@ -4483,6 +4523,7 @@ function RotationEditorTab({
   const editingRotationDisplayName = (rotationLocked ? gameText(rotation.name) : rotation.name) || "Unnamed Rotation";
   const currentGlobalDebuffs = loadGlobalDebuffs();
   const currentFood = loadFood();
+  const currentScript = loadScript();
   const currentDivinecraft = loadDivinecraft();
   const currentGlobalDebuffsKey = JSON.stringify(currentGlobalDebuffs);
   const calculationContextKey = useMemo(
@@ -4498,6 +4539,7 @@ function RotationEditorTab({
         gearStatEffect,
         buildSetup,
         food: currentFood,
+        script: currentScript,
         divinecraft: currentDivinecraft,
         globalDebuffs: currentGlobalDebuffs,
         skillOverrides,
@@ -4513,6 +4555,7 @@ function RotationEditorTab({
       gearStatEffect,
       buildSetup,
       currentFood,
+      currentScript,
       currentDivinecraft,
       currentGlobalDebuffsKey,
       skillOverrides,
@@ -4583,7 +4626,15 @@ function RotationEditorTab({
   function selectRotationItem(index: number, value: string, control: HTMLSelectElement) {
     if (rotationLocked) return;
     if (
-      ["__event:Move", "__event:SelfHP", "__event:HP", "__event:Qi", "__event:Buff", "__event:Debuff"].includes(value)
+      [
+        "__event:Move",
+        "__event:SelfHP",
+        "__event:TakeDamage",
+        "__event:HP",
+        "__event:Qi",
+        "__event:Buff",
+        "__event:Debuff",
+      ].includes(value)
     ) {
       const scrollContainer = rotationScrollRef.current;
       const row = control.closest<HTMLElement>("[data-rotation-step-index]");
@@ -4629,7 +4680,14 @@ function RotationEditorTab({
           };
         if (value === "__event:Move") return { type: "event", event: "Move", before: { action: "start" }, distance: 1 };
         if (value === "__event:SelfHP")
-          return { type: "event", event: "SelfHP", before: { action: "start" }, currentHPRatio: 1 };
+          return {
+            type: "event",
+            event: "SelfHP",
+            before: { action: "start" },
+            currentHP: displayedCharacterStats.maxHp,
+          };
+        if (value === "__event:TakeDamage")
+          return { type: "event", event: "TakeDamage", before: { action: "start" }, damage: 0 };
         if (value === "__event:HP")
           return { type: "event", event: "HP", before: { action: "start" }, targetHPRatio: 1 };
         if (value === "__event:Qi")
@@ -4655,6 +4713,7 @@ function RotationEditorTab({
       const attached = [
         "__event:Move",
         "__event:SelfHP",
+        "__event:TakeDamage",
         "__event:HP",
         "__event:Qi",
         "__event:Buff",
@@ -4701,19 +4760,24 @@ function RotationEditorTab({
   function commitEventHP(rowId: string, stepIndex: number) {
     const draft = eventHPDrafts[rowId];
     if (draft === undefined) return;
-    const percentage = Number(draft);
+    const value = Number(draft);
     const step = rotation.steps[stepIndex];
-    if (Number.isFinite(percentage) && step?.type === "event") {
-      const ratio = Math.min(1, Math.max(0, percentage / 100));
+    if (Number.isFinite(value) && step?.type === "event") {
       switch (step.event) {
         case "SelfHP":
-          updateStep(stepIndex, { currentHPRatio: ratio });
+          updateStep(stepIndex, {
+            currentHP: (Math.min(100, Math.max(0, value)) / 100) * displayedCharacterStats.maxHp,
+            currentHPRatio: undefined,
+          });
+          break;
+        case "TakeDamage":
+          updateStep(stepIndex, { damage: Math.max(0, value) });
           break;
         case "HP":
-          updateStep(stepIndex, { targetHPRatio: ratio });
+          updateStep(stepIndex, { targetHPRatio: Math.min(1, Math.max(0, value / 100)) });
           break;
         case "Qi":
-          updateStep(stepIndex, { targetQiRatio: ratio });
+          updateStep(stepIndex, { targetQiRatio: Math.min(1, Math.max(0, value / 100)) });
           break;
       }
     }
@@ -5246,7 +5310,7 @@ function RotationEditorTab({
     () =>
       rotation.steps.some(
         (step) =>
-          (step.type === "event" && step.event === "SelfHP") ||
+          (step.type === "event" && (step.event === "SelfHP" || step.event === "TakeDamage")) ||
           (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("HP")),
       ),
     [rotation.steps],
@@ -5325,6 +5389,7 @@ function RotationEditorTab({
     setupEffects,
     weapons: settings.weapons,
     initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
+    maxHP: displayedCharacterStats.maxHp,
   });
   function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
     const rotationAnchor = rotationRecord.start
@@ -5370,6 +5435,7 @@ function RotationEditorTab({
         )
       : {};
     const selectedFood = currentFood;
+    const selectedScript = currentScript;
     const selectedDivinecraft = currentDivinecraft;
     return {
       timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, baselineSetupEffects),
@@ -5439,6 +5505,25 @@ function RotationEditorTab({
                 label: value,
                 setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { food: value }),
               })),
+            script: Object.entries(typedScriptDefinitions)
+              .filter(([value]) => value !== selectedScript)
+              .map(([value, definition]) => {
+                const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { script: value });
+                return {
+                  label: value,
+                  setupEffects,
+                  ...(definition.altersTimeline
+                    ? {
+                        timeline: makeTimelineInput(
+                          rotationRecord,
+                          innerWayConditions,
+                          innerWayEffectRules,
+                          setupEffects,
+                        ),
+                      }
+                    : {}),
+                };
+              }),
             divinecraft: Object.entries(typedDivinecraftDefinitions)
               .filter(([value, definition]) => definition.available !== false && value !== selectedDivinecraft)
               .map(([value]) => ({
@@ -5986,6 +6071,18 @@ function RotationEditorTab({
                             targetQiRatio: row.targetQiRatio,
                             resources: row.resources,
                           });
+                    const selfHPMaximum = Math.max(1, displayedCharacterStats.maxHp);
+                    const selfHPPercentage = (actionState?.currentHPRatio ?? row.currentHPRatio) * 100;
+                    const selfHPEventPercentage =
+                      step.type === "event" && step.event === "SelfHP"
+                        ? ("currentHP" in step && typeof step.currentHP === "number"
+                            ? step.currentHP / selfHPMaximum
+                            : (step.currentHPRatio ?? 1)) * 100
+                        : selfHPPercentage;
+                    const postDamageSelfHPPercentage =
+                      step.type === "event" && step.event === "TakeDamage"
+                        ? (Math.max(0, row.currentHP - step.damage) / selfHPMaximum) * 100
+                        : selfHPPercentage;
                     const durationEvent =
                       isManualEvent && (step.event === "Controlled" || step.event === "Delay") ? step.event : undefined;
                     const durationValue = durationEvent
@@ -6197,19 +6294,29 @@ function RotationEditorTab({
                                 </span>
                               ))}
                             {showSelfHPColumn &&
-                              (isManualEvent && step.event === "SelfHP" ? (
+                              (isManualEvent && (step.event === "SelfHP" || step.event === "TakeDamage") ? (
                                 rotationLocked ? (
-                                  <span>{formatNumber(step.currentHPRatio * 100)}%</span>
+                                  <span>
+                                    {formatNumber(
+                                      step.event === "SelfHP" ? selfHPEventPercentage : postDamageSelfHPPercentage,
+                                    )}
+                                    %
+                                  </span>
                                 ) : (
                                   <span className="rotation-distance-input-wrap">
                                     <input
                                       className="rotation-event-time"
-                                      aria-label={t("ui.app.currentHpPercentage")}
+                                      aria-label={
+                                        step.event === "SelfHP" ? t("ui.app.currentSelfHp") : t("ui.app.damageTaken")
+                                      }
                                       type="number"
                                       min="0"
-                                      max="100"
+                                      {...(step.event === "SelfHP" ? { max: 100 } : {})}
                                       step="0.01"
-                                      value={eventHPDrafts[row.id] ?? String(step.currentHPRatio * 100)}
+                                      value={
+                                        eventHPDrafts[row.id] ??
+                                        String(step.event === "SelfHP" ? selfHPEventPercentage : step.damage)
+                                      }
                                       onChange={(event) =>
                                         setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
                                       }
@@ -6218,7 +6325,14 @@ function RotationEditorTab({
                                         if (event.key === "Enter") event.currentTarget.blur();
                                       }}
                                     />
-                                    <span>%</span>
+                                    {step.event === "SelfHP" ? (
+                                      <span>%</span>
+                                    ) : (
+                                      <>
+                                        <span>{t("ui.app.damage")}</span>
+                                        <span>({formatNumber(postDamageSelfHPPercentage)}%)</span>
+                                      </>
+                                    )}
                                   </span>
                                 )
                               ) : (
@@ -6548,11 +6662,7 @@ function RotationEditorTab({
                                     {t("ui.app.m")}
                                   </span>
                                 )}
-                                {showSelfHPColumn && (
-                                  <span>
-                                    {formatNumber((actionState?.currentHPRatio ?? row.currentHPRatio) * 100)}%
-                                  </span>
-                                )}
+                                {showSelfHPColumn && <span>{formatNumber(selfHPPercentage)}%</span>}
                                 {showTargetHPColumn && (
                                   <span>{formatNumber((actionState?.targetHPRatio ?? row.targetHPRatio) * 100)}%</span>
                                 )}
