@@ -76,23 +76,48 @@
     ],
     "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
   },
-  "StonebreakerCleave": {
-    "name": "Stonebreaker Cleave",
+  "StonebreakerCleave1": {
+    "name": "Stonebreaker Cleave 1-Hit [Cancel]",
     "shortName": "VC",
-    "castTime": 1,
+    "castTime": 0.6875,
     "action": [
       {
         "type": "damage",
         "phyCoef": 1.7562,
         "phyBonus": 485,
         "attrBonus": 265,
-        "time": 1
+        "time": 0.6875
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Heavy",
+      "Charged",
+      "VariedCombo",
+      "MoBlade",
+      "ThundercryBlade",
+      "StonebreakerCleave"
+    ]
+  },
+  "StonebreakerCleave": {
+    "name": "Stonebreaker Cleave [Cancel]",
+    "shortName": "VC",
+    "castTime": 0.9375,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.7562,
+        "phyBonus": 485,
+        "attrBonus": 265,
+        "time": 0.6875
       },
       {
         "type": "trigger",
         "requirement": [],
         "value": "StonebreakerQuake",
-        "time": 1
+        "time": 0.9375
       }
     ],
     "modifier": [],

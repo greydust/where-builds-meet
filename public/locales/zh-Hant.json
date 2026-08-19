@@ -254,6 +254,7 @@
   "data.skill.thundercryBlade.PredatorsShield.shortName": "上盾",
   "data.skill.thundercryBlade.StonebreakerCleave.name": "破石穿岩劈",
   "data.skill.thundercryBlade.StonebreakerCleave.shortName": "R",
+  "data.skill.thundercryBlade.StonebreakerCleave1.shortName": "R",
   "data.skill.thundercryBlade.StonebreakerQuake.name": "破石穿岩震",
   "game.event.battleEnd": "事件:戰鬥結束",
   "game.event.buff": "事件:增益",

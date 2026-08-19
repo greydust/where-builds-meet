@@ -93,10 +93,6 @@
     },
     {
       "type": "skill",
-      "skill": "Defense"
-    },
-    {
-      "type": "skill",
       "skill": "Avalanche"
     },
     {
@@ -272,6 +268,11 @@
       "skill": "PredatorsShield"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.26
+    },
+    {
       "type": "skill",
       "skill": "Avalanche"
     },
@@ -322,7 +323,7 @@
     {
       "type": "event",
       "event": "BattleEnd",
-      "startTime": 60.3
+      "startTime": 60.82
     }
   ],
   "start": {

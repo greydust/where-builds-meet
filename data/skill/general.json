@@ -9,7 +9,7 @@
         "value": "Cadence",
         "stack": 1,
         "reapply": true,
-        "time": 0.3,
+        "time": 0,
         "requirement": [
           {
             "target": "self",
