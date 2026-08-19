@@ -60,11 +60,9 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
   if (step.type === "event" && step.event === "Exhausted" && (after || before)) {
     return {
       type: "event",
-      event: "Exhausted",
+      event: "Qi",
       after: after ?? before!,
-      ...(typeof step.duration === "number" && Number.isFinite(step.duration)
-        ? { duration: Math.max(0, step.duration) }
-        : {}),
+      targetQiRatio: 0,
     };
   }
   if (
@@ -78,12 +76,35 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
   }
   if (
     step.type === "event" &&
-    step.event === "HP" &&
+    (step.event === "SelfHP" || step.event === "HP") &&
     before &&
     typeof step.currentHPRatio === "number" &&
     Number.isFinite(step.currentHPRatio)
   ) {
-    return { type: "event", event: "HP", before, currentHPRatio: Math.min(1, Math.max(0, step.currentHPRatio)) };
+    return { type: "event", event: "SelfHP", before, currentHPRatio: Math.min(1, Math.max(0, step.currentHPRatio)) };
+  }
+  if (
+    step.type === "event" &&
+    step.event === "HP" &&
+    before &&
+    typeof step.targetHPRatio === "number" &&
+    Number.isFinite(step.targetHPRatio)
+  ) {
+    return { type: "event", event: "HP", before, targetHPRatio: Math.min(1, Math.max(0, step.targetHPRatio)) };
+  }
+  if (
+    step.type === "event" &&
+    step.event === "Qi" &&
+    (before || after) &&
+    typeof step.targetQiRatio === "number" &&
+    Number.isFinite(step.targetQiRatio)
+  ) {
+    return {
+      type: "event",
+      event: "Qi",
+      ...(before ? { before } : { after: after! }),
+      targetQiRatio: Math.min(1, Math.max(0, step.targetQiRatio)),
+    };
   }
   if (step.type === "event" && step.event === "Buff" && before && typeof step.buff === "string" && step.buff) {
     const stack =
@@ -91,6 +112,7 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
     return { type: "event", event: "Buff", before, buff: step.buff, ...(stack === undefined ? {} : { stack }) };
   }
   if (step.type === "event" && step.event === "Debuff" && before && typeof step.debuff === "string" && step.debuff) {
+    if (step.debuff === "Exhausted") return { type: "event", event: "Qi", before, targetQiRatio: 0 };
     const stack =
       typeof step.stack === "number" && Number.isFinite(step.stack) ? Math.max(1, Math.floor(step.stack)) : undefined;
     return { type: "event", event: "Debuff", before, debuff: step.debuff, ...(stack === undefined ? {} : { stack }) };
@@ -153,7 +175,13 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
 
 function parseRotation(value: unknown): RotationRecord | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  const candidate = value as { name?: unknown; steps?: unknown; start?: unknown; eventTimeReference?: unknown };
+  const candidate = value as {
+    name?: unknown;
+    steps?: unknown;
+    targetHP?: unknown;
+    start?: unknown;
+    eventTimeReference?: unknown;
+  };
   if (typeof candidate.name !== "string" || !candidate.name.trim() || !Array.isArray(candidate.steps)) return undefined;
   const steps = candidate.steps.map(parseRotationStep);
   if (steps.some((step) => !step)) return undefined;
@@ -181,6 +209,9 @@ function parseRotation(value: unknown): RotationRecord | undefined {
   return {
     name: candidate.name,
     steps: parsedSteps,
+    ...(typeof candidate.targetHP === "number" && Number.isFinite(candidate.targetHP) && candidate.targetHP > 0
+      ? { targetHP: candidate.targetHP }
+      : {}),
     ...(start ? { start } : {}),
     ...(candidate.eventTimeReference === "battleStart" ? { eventTimeReference: "battleStart" as const } : {}),
   };
@@ -203,7 +234,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
   return JSON.stringify(
     {
       format: rotationExportFormat,
-      version: 5,
+      version: 6,
       exportedAt: new Date().toISOString(),
       rotations: entries
         .filter((entry) => !entry.isDefault)
@@ -224,7 +255,8 @@ export function mergeImportedRotationEntries(current: RotationEntry[], value: un
       source.version !== 2 &&
       source.version !== 3 &&
       source.version !== 4 &&
-      source.version !== 5) ||
+      source.version !== 5 &&
+      source.version !== 6) ||
     !Array.isArray(source.rotations)
   ) {
     throw new Error("This file uses an unsupported rotation export format.");

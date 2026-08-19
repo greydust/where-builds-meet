@@ -357,7 +357,8 @@
     },
     {
       "type": "event",
-      "event": "Exhausted",
+      "event": "Qi",
+      "targetQiRatio": 0,
       "after": {
         "action": 3
       }

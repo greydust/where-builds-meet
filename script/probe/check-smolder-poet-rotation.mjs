@@ -35,10 +35,13 @@ try {
     rotation,
     skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
     eventDefinitions: {
-      Exhausted: {
-        name: "Event: Exhausted",
+      Qi: {
+        name: "Event: Qi",
         castTime: 0,
-        action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+        action: [
+          { type: "setQi", time: 0 },
+          { type: "apply", target: "target", value: "Exhausted", time: 0 },
+        ],
         tags: ["Event"],
       },
     },
@@ -124,11 +127,13 @@ try {
     Math.abs(enhancedDamage / unenhancedDamage - 1.8) < 1e-9,
     "Four Enhanced Drunken Poet stacks must multiply Poet 5 direct damage by 1.8.",
   );
-  const exhaustedIndex = rotation.steps.findIndex((step) => step.type === "event" && step.event === "Exhausted");
+  const exhaustedIndex = rotation.steps.findIndex(
+    (step) => step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0,
+  );
   const exhaustedEvent = rotation.steps[exhaustedIndex];
   assert(
     exhaustedEvent?.type === "event" &&
-      exhaustedEvent.event === "Exhausted" &&
+      exhaustedEvent.event === "Qi" &&
       "after" in exhaustedEvent &&
       exhaustedEvent.after.action === 3,
     "Exhausted must attach after the fourth slam's first damage action.",

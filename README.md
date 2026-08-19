@@ -92,3 +92,5 @@ The bundled Noto Sans font is licensed under the [SIL Open Font License 1.1](pub
 - The **Where Winds Math** site, for its work and contributions to the community
 - **Mhysa**, for detailed Stonesplit Strength timing data and testing
 - **Xia**, for Stonesplit Might skill data and mechanical explanations
+- **Royal**, for help with the Stonesplit Might rotation
+- **Yu Seol-ha**, for translating the Chinese spreadsheet and providing insights

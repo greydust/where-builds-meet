@@ -486,6 +486,7 @@ function timelineDamageEntries(
   state: Pick<RotationSimulationBundle, "stats" | "attunement" | "enemy" | "derivedStats" | "weapons">,
   startAnchor: RotationSimulationBundle["startAnchor"],
   overrides: RotationSimulationVariant = { label: "" },
+  updateTimelineState = false,
 ): RotationDamageEntry[] {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
   const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
@@ -503,7 +504,7 @@ function timelineDamageEntries(
     : 0;
   const anchorOrder = anchorRow ? anchorRow.order + (anchorActionIndex === undefined ? 0 : 10 + anchorActionIndex) : 0;
   const battleEnd = battleEndCutoff(timeline);
-  return timeline.flatMap((row) =>
+  const damageEntries = timeline.flatMap((row) =>
     row.skipped
       ? []
       : row.actions.flatMap((action, actionIndex) => {
@@ -520,6 +521,8 @@ function timelineDamageEntries(
             debuffs: row.debuffs,
             distance: row.distance,
             currentHPRatio: row.currentHPRatio,
+            targetHPRatio: row.targetHPRatio,
+            targetQiRatio: row.targetQiRatio,
             resources: row.resources,
           };
           const buffs = actionState.buffs;
@@ -635,6 +638,7 @@ function timelineDamageEntries(
             effects: effectsForState(buffs, debuffs, resources),
             distance: actionState.distance,
             currentHPRatio: actionState.currentHPRatio,
+            targetHPRatio: actionState.targetHPRatio,
             isDot: row.kind === "dot",
           };
           const attributionContexts = buffs.flatMap((tracked) => {
@@ -656,11 +660,67 @@ function timelineDamageEntries(
               id: `${row.id}:${actionIndex}`,
               action,
               context,
+              timelineTime: actionTime,
+              timelineOrder: actionOrder,
               ...(attributionContexts.length ? { attributionContexts } : {}),
             },
           ];
         }),
+  ) as Array<RotationDamageEntry & { timelineTime: number; timelineOrder: number }>;
+  const hpEvents = timeline.flatMap((row) =>
+    row.skipped
+      ? []
+      : row.actions.flatMap((action, actionIndex) =>
+          action.type === "setTargetHP" &&
+          typeof action.targetHPRatio === "number" &&
+          Number.isFinite(action.targetHPRatio)
+            ? [
+                {
+                  kind: "set" as const,
+                  time: row.startTime + Number(action.time ?? 0),
+                  order: row.order + 10 + actionIndex,
+                  ratio: Math.min(1, Math.max(0, action.targetHPRatio)),
+                },
+              ]
+            : [],
+        ),
   );
+  const targetMaxHP = input.rotation.targetHP;
+  let targetHPRatio = 1;
+  const ordered = [
+    ...hpEvents,
+    ...damageEntries.map((entry) => ({
+      kind: "damage" as const,
+      time: entry.timelineTime,
+      order: entry.timelineOrder,
+      entry,
+    })),
+  ].sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
+  ordered.forEach((item) => {
+    if (item.kind === "set") {
+      targetHPRatio = item.ratio;
+      return;
+    }
+    item.entry.context.targetHPRatio = targetHPRatio;
+    item.entry.attributionContexts?.forEach(({ context }) => {
+      context.targetHPRatio = targetHPRatio;
+    });
+    if (updateTimelineState) {
+      const [rowId, actionIndexText] = item.entry.id?.split(":") ?? [];
+      const row = timeline.find((candidate) => candidate.id === rowId);
+      const actionIndex = Number(actionIndexText);
+      if (row && Number.isInteger(actionIndex)) {
+        row.targetHPRatio = targetHPRatio;
+        const actionState = row.actionStates[actionIndex];
+        if (actionState) actionState.targetHPRatio = targetHPRatio;
+      }
+    }
+    if (typeof targetMaxHP === "number" && targetMaxHP > 0) {
+      const damage = calculateDamageBreakdown(item.entry.action, item.entry.context).total;
+      targetHPRatio = Math.max(0, targetHPRatio - damage / targetMaxHP);
+    }
+  });
+  return damageEntries.map(({ timelineTime: _time, timelineOrder: _order, ...entry }) => entry);
 }
 
 function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulationBundle["startAnchor"]) {
@@ -681,7 +741,9 @@ function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulation
               row.step.type === "event" && row.step.event === "Delay"
                 ? row.startTime + row.effectiveCastTime
                 : row.startTime,
-              ...row.actions.map((action) => row.startTime + Number(action.time ?? 0)),
+              ...row.actions.flatMap((action) =>
+                typeof action.time === "number" ? [row.startTime + action.time] : [],
+              ),
             ),
       0,
     );
@@ -698,7 +760,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     derivedStats: bundle.derivedStats,
     weapons: bundle.weapons,
   };
-  const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor);
+  const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor, { label: "" }, true);
   let baselineDamage = 0;
   const actionBreakdowns = Object.fromEntries(
     baseline

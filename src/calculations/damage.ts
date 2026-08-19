@@ -73,6 +73,7 @@ export type DamageContext = {
   effects: Record<string, unknown>[];
   distance?: number;
   currentHPRatio?: number;
+  targetHPRatio?: number;
   isDot?: boolean;
 };
 
@@ -163,6 +164,8 @@ function calculateDamageBreakdownInternal(
       maxHp: stats.maxHp,
       currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
       missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
+      targetHPPercentage: (context.targetHPRatio ?? 1) * 100,
+      missingTargetHPPercentage: (1 - (context.targetHPRatio ?? 1)) * 100,
     };
     const multiplied = resolveMultiplyValue(value, dynamicParameters);
     if (multiplied !== undefined) return multiplied;

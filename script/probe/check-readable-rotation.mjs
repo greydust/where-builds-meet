@@ -39,7 +39,7 @@ try {
       kind: "rotation",
       rotationIndex: 4,
       order: 4000,
-      step: { type: "event", event: "Exhausted", startTime: 3.5 },
+      step: { type: "event", event: "Qi", after: { action: 0 }, targetQiRatio: 0 },
       startTime: 3.5,
       effectiveCastTime: 0,
       skill: {},

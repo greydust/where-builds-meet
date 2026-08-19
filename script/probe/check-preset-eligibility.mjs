@@ -142,7 +142,7 @@ assert(
   mightRotation.start?.step === 4 && mightRotation.start.action === 1,
   "The Might dummy rotation must start on Avalanche's second hit.",
 );
-assert(mightSkillIds.length === 61, "The Might dummy rotation must preserve its 61 skill entries.");
+assert(mightSkillIds.length === 60, "The Might dummy rotation must preserve its 60 skill entries.");
 assert(
   mightSkillIds.slice(0, 13).join(",") ===
     [
@@ -157,8 +157,8 @@ assert(
       "LeapingToad",
       "Deflect",
       "DragonsBreath1",
-      "Deflect",
       "Defense",
+      "Avalanche",
     ].join(","),
   "The Might dummy rotation opener must match the exported tank sequence.",
 );
@@ -166,7 +166,7 @@ const defenseStepIndexes = mightRotation.steps
   .map((step, index) => ({ step, index }))
   .filter(({ step }) => step.type === "skill" && step.skill === "Defense")
   .map(({ index }) => index);
-assert(defenseStepIndexes.length === 6, "The Might dummy rotation must contain six Defense casts.");
+assert(defenseStepIndexes.length === 7, "The Might dummy rotation must contain seven Defense casts.");
 const cadenceEvents = mightRotation.steps.filter(
   (step) => step.type === "event" && step.event === "Buff" && step.buff === "Cadence" && step.stack === 2,
 );
@@ -175,8 +175,8 @@ assert(
   "The Might dummy rotation must preserve its five two-stack Cadence events.",
 );
 assert(
-  mightRotation.steps.at(-1)?.event === "BattleEnd" && mightRotation.steps.at(-1)?.startTime === 60,
-  "The Might dummy rotation must end at 60 seconds.",
+  mightRotation.steps.at(-1)?.event === "BattleEnd" && mightRotation.steps.at(-1)?.startTime === 60.3,
+  "The Might dummy rotation must end at 60.3 seconds.",
 );
 
 console.log("Path, attunement, build, and rotation eligibility checks passed.");

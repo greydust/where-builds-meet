@@ -48,10 +48,6 @@
     },
     {
       "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
       "skill": "Defense"
     },
     {
@@ -89,7 +85,7 @@
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "Defense"
     },
     {
       "type": "skill",
@@ -126,11 +122,11 @@
     },
     {
       "type": "event",
-      "event": "Exhausted",
+      "event": "Qi",
+      "targetQiRatio": 0,
       "after": {
         "action": 0
-      },
-      "duration": 10
+      }
     },
     {
       "type": "skill",
@@ -146,10 +142,6 @@
     },
     {
       "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
       "skill": "Defense"
     },
     {
@@ -215,11 +207,6 @@
       "skill": "Deflect"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.2
-    },
-    {
       "type": "skill",
       "skill": "Avalanche"
     },
@@ -258,15 +245,15 @@
     },
     {
       "type": "skill",
-      "skill": "PredatorsShield"
-    },
-    {
-      "type": "skill",
       "skill": "ThunderShock1"
     },
     {
       "type": "skill",
       "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PredatorsShield"
     },
     {
       "type": "skill",
@@ -286,11 +273,11 @@
     },
     {
       "type": "event",
-      "event": "Exhausted",
+      "event": "Qi",
+      "targetQiRatio": 0,
       "after": {
         "action": 0
-      },
-      "duration": 10
+      }
     },
     {
       "type": "skill",
@@ -311,11 +298,15 @@
     {
       "type": "skill",
       "skill": "StonebreakerCleave"
+    },
+    {
+      "type": "skill",
+      "skill": "Avalanche"
     },
     {
       "type": "event",
       "event": "BattleEnd",
-      "startTime": 60
+      "startTime": 60.3
     }
   ],
   "start": {

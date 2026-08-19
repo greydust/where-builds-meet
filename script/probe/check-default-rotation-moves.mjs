@@ -39,10 +39,13 @@ try {
     Array.from({ length: 7 }, (_, tier) => `${name}T${tier}`),
   );
   const eventDefinitions = {
-    Exhausted: {
-      name: "Exhausted",
+    Qi: {
+      name: "Qi",
       castTime: 0,
-      action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+      action: [
+        { type: "setQi", time: 0 },
+        { type: "apply", target: "target", value: "Exhausted", time: 0 },
+      ],
       tags: ["Event"],
     },
     BattleEnd: { name: "Battle End", castTime: 0, action: [], tags: ["Event"] },
@@ -54,11 +57,13 @@ try {
   const move = (distance, before) => ({ type: "event", event: "Move", before, distance });
 
   function expectedRotation(rotation) {
-    const exhaustedIndex = rotation.steps.findIndex((step) => step.type === "event" && step.event === "Exhausted");
+    const exhaustedIndex = rotation.steps.findIndex(
+      (step) => step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0,
+    );
     const exhaustedSkillOrdinal =
       exhaustedIndex < 0 ? -1 : rotation.steps.slice(0, exhaustedIndex).filter((step) => step.type === "skill").length;
     const retained = rotation.steps.filter(
-      (step) => step.type !== "event" || (step.event !== "Move" && step.event !== "Exhausted"),
+      (step) => step.type !== "event" || (step.event !== "Move" && step.event !== "Qi"),
     );
     const skillsWithIndexes = retained.flatMap((step, index) => (step.type === "skill" ? [{ step, index }] : []));
     const before = new Map();
@@ -88,7 +93,8 @@ try {
     const exhaustedTarget = rotation.name.includes("Smolder Poet")
       ? burning[7]
       : skillsWithIndexes[exhaustedSkillOrdinal];
-    if (exhaustedTarget) add(exhaustedTarget.index, { type: "event", event: "Exhausted", after: { action: 3 } });
+    if (exhaustedTarget)
+      add(exhaustedTarget.index, { type: "event", event: "Qi", targetQiRatio: 0, after: { action: 3 } });
 
     const oldStartSkill = rotation.steps[rotation.start?.step];
     const steps = retained.flatMap((step, index) =>
@@ -117,9 +123,12 @@ try {
       console.log(`${rotation.name}: wrote attached events.`);
       continue;
     }
+    const mismatchIndex = rotation.steps.findIndex(
+      (step, index) => JSON.stringify(step) !== JSON.stringify(expected.steps[index]),
+    );
     assert(
-      JSON.stringify(rotation.steps) === JSON.stringify(expected.steps),
-      `${rotation.name} attached event structure is out of date.`,
+      mismatchIndex < 0 && rotation.steps.length === expected.steps.length,
+      `${rotation.name} attached event structure is out of date at ${mismatchIndex}: ${JSON.stringify(rotation.steps[mismatchIndex])} != ${JSON.stringify(expected.steps[mismatchIndex])}.`,
     );
     const timeline = buildRotationTimeline({
       rotation,

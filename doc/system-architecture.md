@@ -172,6 +172,22 @@ arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
 
+Rotation editing uses a separate baseline-preview schedule. Input changes render
+immediately while a short debounce coalesces rapid edits before constructing and
+fingerprinting the worker bundle. A matching main-thread baseline cache entry is
+published without recalculation; a cache miss is queued as low-priority worker
+work. Results enter the cache when completed, but only the latest requested
+fingerprint may replace the editor preview. The previous completed preview stays
+visible while newer work runs. Editor previews never request comparison variants;
+active-rotation comparisons remain tied to save, activation, or setup changes.
+
+Rotations may optionally store a target maximum HP. The centralized baseline
+calculation then walks damage actions in timeline order, subtracts each resolved
+damage result, and publishes target-HP snapshots with the worker timeline. Self
+HP, target HP, and target Qi are distinct timeline states. Qi reaching zero
+applies Exhausted; the debuff's data-defined `"expire"` action restores Qi when
+the current application expires, so duration refreshes remain authoritative.
+
 ## Browser persistence
 
 Character stat overrides use `localStorage`, so they persist across browser sessions.

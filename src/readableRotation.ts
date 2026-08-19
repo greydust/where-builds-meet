@@ -17,7 +17,8 @@ export function readableRotationText(
     (row) =>
       row.kind === "rotation" &&
       row.step.type === "event" &&
-      (row.step.event === "Exhausted" || (row.step.event === "Debuff" && row.step.debuff === "Exhausted")) &&
+      row.step.event === "Qi" &&
+      row.step.targetQiRatio === 0 &&
       !row.skipped,
   );
   breakEvents.forEach((breakEvent) => {

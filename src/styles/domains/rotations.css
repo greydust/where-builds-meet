@@ -211,6 +211,18 @@
     font-size: 1.3rem;
   }
 
+  .rotation-target-hp {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-block-start: 0.45rem;
+    color: var(--text-muted);
+  }
+
+  .rotation-target-hp input {
+    inline-size: 10rem;
+  }
+
   .rotation-toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -219,13 +231,6 @@
     gap: 12px;
     margin-block-end: 8px;
     color: var(--text-muted);
-  }
-
-  .rotation-toolbar-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 7px;
   }
 
   .rotation-heading-actions {
@@ -257,53 +262,20 @@
     border-radius: var(--radius-md);
   }
 
-  .rotation-table.show-hp {
-    min-inline-size: 72.8125rem;
-  }
-
-  .rotation-table.show-distance {
-    min-inline-size: 73.6875rem;
-  }
-
-  .rotation-table.show-distance.show-hp {
-    min-inline-size: 78.6875rem;
-  }
-
   .rotation-table-header,
   .rotation-table-row,
   .rotation-action-row {
     display: grid;
     grid-template-columns:
-      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr)
+      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) var(--rotation-state-columns) minmax(10.3125rem, 0.9fr) minmax(
+        6.875rem,
+        1fr
+      )
       minmax(6.875rem, 1fr) 11rem;
     gap: 0.625rem;
     align-items: center;
     inline-size: 100%;
     padding: 0.5rem 0.75rem;
-  }
-
-  .rotation-table.show-distance:not(.show-hp) .rotation-table-header,
-  .rotation-table.show-distance:not(.show-hp) .rotation-table-row,
-  .rotation-table.show-distance:not(.show-hp) .rotation-action-row {
-    grid-template-columns:
-      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 10ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr)
-      minmax(6.875rem, 1fr) 11rem;
-  }
-
-  .rotation-table.show-hp:not(.show-distance) .rotation-table-header,
-  .rotation-table.show-hp:not(.show-distance) .rotation-table-row,
-  .rotation-table.show-hp:not(.show-distance) .rotation-action-row {
-    grid-template-columns:
-      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 8ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr)
-      minmax(6.875rem, 1fr) 11rem;
-  }
-
-  .rotation-table.show-distance.show-hp .rotation-table-header,
-  .rotation-table.show-distance.show-hp .rotation-table-row,
-  .rotation-table.show-distance.show-hp .rotation-action-row {
-    grid-template-columns:
-      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) 10ch 8ch minmax(10.3125rem, 0.9fr) minmax(6.875rem, 1fr)
-      minmax(6.875rem, 1fr) 11rem;
   }
 
   .rotation-table-header {

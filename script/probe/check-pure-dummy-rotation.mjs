@@ -103,7 +103,9 @@ try {
     rotation.steps.some((step) => step.type === "event" && step.event === "Move" && step.distance === 3),
     "The first Fleeting Trace must begin at 3m.",
   );
-  const exhaustedIndex = rotation.steps.findIndex((step) => step.type === "event" && step.event === "Exhausted");
+  const exhaustedIndex = rotation.steps.findIndex(
+    (step) => step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0,
+  );
   assert(
     exhaustedIndex > 0 &&
       rotation.steps[exhaustedIndex].after?.action === 4 &&
@@ -132,10 +134,13 @@ try {
       rotation,
       skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
       eventDefinitions: {
-        Exhausted: {
-          name: "Exhausted",
+        Qi: {
+          name: "Qi",
           castTime: 0,
-          action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+          action: [
+            { type: "setQi", time: 0 },
+            { type: "apply", target: "target", value: "Exhausted", time: 0 },
+          ],
         },
         Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }] },
         BattleEnd: { name: "Battle End", castTime: 0, action: [] },

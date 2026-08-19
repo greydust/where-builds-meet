@@ -24,16 +24,19 @@ const customEntry = {
   martialArts: ["snowparting", "phalanxbane"],
   rotation: {
     name: "Custom",
+    targetHP: 123456,
     steps: [
       { type: "event", event: "Move", before: { trigger: 0, action: 1 }, distance: 6 },
-      { type: "event", event: "HP", before: { action: 0 }, currentHPRatio: 0.555 },
+      { type: "event", event: "SelfHP", before: { action: 0 }, currentHPRatio: 0.555 },
+      { type: "event", event: "HP", before: { action: 0 }, targetHPRatio: 0.75 },
+      { type: "event", event: "Qi", before: { action: 0 }, targetQiRatio: 0.5 },
       { type: "event", event: "Buff", before: { action: "start" }, buff: "Flute", stack: 3 },
       { type: "event", event: "Debuff", before: { action: 0 }, debuff: "Controlled", stack: 2 },
       { type: "event", event: "Delay", duration: 1.25 },
       { type: "skill", skill: "SnowpartingQStab", causesBreak: true },
       { type: "event", event: "Controlled", startTime: 1.5, duration: 3 },
     ],
-    start: { step: 5, action: 1 },
+    start: { step: 7, action: 1 },
   },
 };
 const current = [defaultEntry, customEntry];
@@ -45,7 +48,7 @@ assert(
 const exported = JSON.parse(transfer.exportRotationEntries(current));
 assert(
   exported.format === transfer.rotationExportFormat &&
-    exported.version === 5 &&
+    exported.version === 6 &&
     exported.rotations.length === 1 &&
     exported.rotations[0].id === customEntry.id,
   "Rotation export must omit the bundled default.",
@@ -63,7 +66,10 @@ assert(
 assert(merged.importedIds[0] !== customEntry.id, "A colliding imported rotation ID must be remapped.");
 const imported = merged.entries.find((entry) => entry.id === merged.importedIds[0]);
 assert(
-  imported?.rotation.steps.length === 7 && imported.rotation.start.step === 5 && imported.rotation.start.action === 1,
+  imported?.rotation.steps.length === 9 &&
+    imported.rotation.targetHP === 123456 &&
+    imported.rotation.start.step === 7 &&
+    imported.rotation.start.action === 1,
   "Rotation steps and start anchor must survive export and import.",
 );
 assert(
@@ -78,23 +84,31 @@ assert(
   "Attached event targets must survive export and import.",
 );
 assert(
-  imported?.rotation.steps[1].event === "HP" && imported.rotation.steps[1].currentHPRatio === 0.555,
-  "HP events must survive export and import.",
+  imported?.rotation.steps[1].event === "SelfHP" && imported.rotation.steps[1].currentHPRatio === 0.555,
+  "Self HP events must survive export and import.",
 );
 assert(
-  imported?.rotation.steps[2].event === "Buff" &&
-    imported.rotation.steps[2].buff === "Flute" &&
-    imported.rotation.steps[2].stack === 3,
+  imported?.rotation.steps[2].event === "HP" && imported.rotation.steps[2].targetHPRatio === 0.75,
+  "Target HP events must survive export and import.",
+);
+assert(
+  imported?.rotation.steps[3].event === "Qi" && imported.rotation.steps[3].targetQiRatio === 0.5,
+  "Qi events must survive export and import.",
+);
+assert(
+  imported?.rotation.steps[4].event === "Buff" &&
+    imported.rotation.steps[4].buff === "Flute" &&
+    imported.rotation.steps[4].stack === 3,
   "Buff events and their stack counts must survive export and import.",
 );
 assert(
-  imported?.rotation.steps[3].event === "Debuff" &&
-    imported.rotation.steps[3].debuff === "Controlled" &&
-    imported.rotation.steps[3].stack === 2,
+  imported?.rotation.steps[5].event === "Debuff" &&
+    imported.rotation.steps[5].debuff === "Controlled" &&
+    imported.rotation.steps[5].stack === 2,
   "Debuff events and their stack counts must survive export and import.",
 );
 assert(
-  imported?.rotation.steps[4].event === "Delay" && imported.rotation.steps[4].duration === 1.25,
+  imported?.rotation.steps[6].event === "Delay" && imported.rotation.steps[6].duration === 1.25,
   "Delay events and their durations must survive export and import.",
 );
 
@@ -134,8 +148,11 @@ const legacyExhaustedImport = transfer.mergeImportedRotationEntries(current, {
 const legacyExhausted = legacyExhaustedImport.entries.find((entry) => entry.id === legacyExhaustedImport.importedIds[0])
   ?.rotation.steps[0];
 assert(
-  legacyExhausted?.event === "Exhausted" && legacyExhausted.after?.action === 3 && !("before" in legacyExhausted),
-  "Legacy Exhausted attachments must migrate from before to after.",
+  legacyExhausted?.event === "Qi" &&
+    legacyExhausted.targetQiRatio === 0 &&
+    legacyExhausted.after?.action === 3 &&
+    !("before" in legacyExhausted),
+  "Legacy Exhausted attachments must migrate to after-action Qi depletion.",
 );
 
 const partiallyInvalid = {

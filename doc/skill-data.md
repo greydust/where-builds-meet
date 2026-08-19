@@ -83,7 +83,10 @@ martial-art-specific effect from applying to Mystic or another equipped art.
 
 All normal skill actions have a numeric `time` measured from cast start and may
 have a `requirement` array. Inner Way trigger actions execute at the triggering
-damage event and may omit `time`.
+damage event and may omit `time`. An action stored on a buff or debuff
+definition may instead use `"time": "expire"`; it runs only when that exact
+application expires. Refreshing the effect invalidates the previously scheduled
+expiry action and schedules it for the refreshed expiration time.
 
 ### Damage
 
@@ -231,9 +234,9 @@ permanent, or already-expired states are not extended.
 
 This clears the named effect/application cooldown at that timestamp.
 
-### Set HP
+### Set self HP
 
-The attached HP event emits a `setHP` action. Rotation data stores HP as a
+The attached Self HP event emits a `setHP` action. Rotation data stores HP as a
 decimal ratio even though the editor displays percentage points:
 
 ```json
@@ -246,6 +249,37 @@ decimal ratio even though the editor displays percentage points:
 
 The timeline starts at full HP (`1`) and snapshots the current ratio on every
 action. HP-dependent damage therefore reads the value at hit time.
+
+### Set target HP and Qi
+
+An optional positive `targetHP` on the rotation enables target-health tracking.
+The target starts at 100%, each damage action subtracts its calculated damage
+from the remaining target HP, and later actions snapshot the resulting ratio.
+Without `targetHP`, damage does not reduce the displayed target percentage.
+An attached target HP event can set the percentage explicitly:
+
+```json
+{
+  "type": "setTargetHP",
+  "targetHPRatio": 0.5,
+  "time": 0
+}
+```
+
+Qi also starts at 100%. A Qi event emits `setQi`; setting Qi to zero immediately
+applies Exhausted. Exhausted declares a generic expiry action which restores Qi
+to 100% when its data-defined duration ends:
+
+```json
+{
+  "type": "setQi",
+  "targetQiRatio": 1,
+  "time": "expire"
+}
+```
+
+Rotation loaders migrate legacy Exhausted events to Qi-at-zero events and
+legacy `HP` events containing `currentHPRatio` to explicit Self HP events.
 
 ### Numeric resources
 

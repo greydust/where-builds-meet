@@ -21,15 +21,25 @@ try {
   };
   const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9;
   const eventDefinitions = {
-    HP: { name: "HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
-    Buff: { name: "Buff", castTime: 0, action: [{ type: "apply", target: "self", time: 0 }], tags: ["Event"] },
-    Debuff: { name: "Debuff", castTime: 0, action: [{ type: "apply", target: "target", time: 0 }], tags: ["Event"] },
-    Exhausted: {
-      name: "Exhausted",
+    SelfHP: { name: "Self HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
+    HP: { name: "HP", castTime: 0, action: [{ type: "setTargetHP", time: 0 }], tags: ["Event"] },
+    Qi: {
+      name: "Qi",
       castTime: 0,
-      action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+      action: [
+        { type: "setQi", time: 0 },
+        {
+          type: "apply",
+          target: "target",
+          value: "Exhausted",
+          requirement: [{ target: "resource", value: "Qi", comparison: "==", amount: 0 }],
+          time: 0,
+        },
+      ],
       tags: ["Event"],
     },
+    Buff: { name: "Buff", castTime: 0, action: [{ type: "apply", target: "self", time: 0 }], tags: ["Event"] },
+    Debuff: { name: "Debuff", castTime: 0, action: [{ type: "apply", target: "target", time: 0 }], tags: ["Event"] },
     Controlled: {
       name: "Controlled",
       castTime: 0,
@@ -60,7 +70,7 @@ try {
   const hpRotation = {
     name: "HP probe",
     steps: [
-      { type: "event", event: "HP", before: { action: 1 }, currentHPRatio: 0.8 },
+      { type: "event", event: "SelfHP", before: { action: 1 }, currentHPRatio: 0.8 },
       { type: "skill", skill: "Hit" },
     ],
     start: { step: 1 },
@@ -101,6 +111,30 @@ try {
     closeTo(missingHPHit / fullHPHit, 1.09),
     "Twenty missing HP percentage points must grant Dragon Head 9% damage at hit time.",
   );
+
+  const targetHPResult = calculateRotationBaseline({
+    timeline: {
+      ...baseInput,
+      rotation: { name: "Target HP probe", targetHP: 10000, steps: [{ type: "skill", skill: "Hit" }] },
+      skills: { Hit: hit },
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats: calculateDerivedStats(stats, 0),
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  const firstTargetHit = targetHPResult.actionBreakdowns["rotation-0:0"].total;
+  const targetHPRow = targetHPResult.timeline.find((row) => row.id === "rotation-0");
+  assert(
+    closeTo(targetHPRow.actionStates[1].targetHPRatio, Math.max(0, 1 - firstTargetHit / 10000)),
+    "Specified target HP must decrease by each preceding calculated damage result.",
+  );
   const hpHitRow = hpResult.timeline.find((row) => row.id === "rotation-1");
   assert(
     hpHitRow.actionStates[0].currentHPRatio === 1 && hpHitRow.actionStates[1].currentHPRatio === 0.8,
@@ -130,7 +164,7 @@ try {
       steps: [
         { type: "event", event: "Buff", before: { action: "start" }, buff: "Flute" },
         { type: "event", event: "Debuff", before: { action: "start" }, debuff: "Controlled" },
-        { type: "event", event: "Exhausted", after: { action: 0 } },
+        { type: "event", event: "Qi", after: { action: 0 }, targetQiRatio: 0 },
         { type: "skill", skill: "Probe" },
       ],
       start: { step: 3 },
@@ -155,6 +189,11 @@ try {
     "Exhausted must expire after its data-defined default duration.",
   );
   assert(
+    probeRow.actionStates[3].targetQiRatio === 0,
+    `Qi zero must remain active while Exhausted is active (saw ${probeRow.actionStates[3].targetQiRatio}).`,
+  );
+  assert(probeRow.actionStates[4].targetQiRatio === 1, "Exhausted expiration must restore Qi to 100%.");
+  assert(
     probeRow.actionStates[5].buffs.some((effect) => effect.name === "Flute"),
     "A manual Buff event must use the selected buff's default duration.",
   );
@@ -163,7 +202,7 @@ try {
     "The manually applied buff must expire at its data-defined duration.",
   );
 
-  console.log("Hit-time HP scaling and manual Buff/Debuff duration checks passed.");
+  console.log("Self HP, target HP, Qi exhaustion, and manual effect duration checks passed.");
 } finally {
   await viteServer.close();
 }

@@ -56,14 +56,17 @@ try {
       rotation,
       skills,
       eventDefinitions: {
-        Exhausted: {
-          name: "Exhausted",
+        Qi: {
+          name: "Qi",
           castTime: 0,
-          action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+          action: [
+            { type: "setQi", time: 0 },
+            { type: "apply", target: "target", value: "Exhausted", time: 0 },
+          ],
           tags: ["Event"],
         },
         Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], tags: ["Event"] },
-        HP: { name: "HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
+        SelfHP: { name: "Self HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
         Buff: { name: "Buff", castTime: 0, action: [{ type: "apply", target: "self", time: 0 }], tags: ["Event"] },
         Debuff: {
           name: "Debuff",
@@ -120,15 +123,15 @@ try {
   );
   assert(
     hpEvent?.type === "event" &&
-      hpEvent.event === "HP" &&
+      hpEvent.event === "SelfHP" &&
       hpEvent.currentHPRatio === 0.2 &&
       hpEvent.before?.action === 8,
     "Dragon Head must be at 20% HP immediately before its damage hit.",
   );
   assert(
     exhausted?.type === "event" &&
-      exhausted.event === "Debuff" &&
-      exhausted.debuff === "Exhausted" &&
+      exhausted.event === "Qi" &&
+      exhausted.targetQiRatio === 0 &&
       exhausted.before?.action === 8,
     "External Exhausted must apply immediately before Dragon Head's damage hit.",
   );
@@ -169,7 +172,10 @@ try {
     postDragonCharged[0].effectiveCastTime > postDragonCharged[1].effectiveCastTime,
     "The first post-break charged cast must be slow and grant enhancement to the next cast.",
   );
-  assert(result.metrics.totalDamage > 0 && result.duration > 0, "The preset must produce a valid calculation.");
+  assert(
+    result.metrics.totalDamage > 0 && result.duration > 0,
+    `The preset must produce a valid calculation (damage=${result.metrics.totalDamage}, duration=${result.duration}).`,
+  );
   console.log("Mixed Horse Tamer Standard sequence, break, charged timing, and calculation verified.");
 } finally {
   await viteServer.close();

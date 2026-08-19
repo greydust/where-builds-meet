@@ -198,7 +198,7 @@
     },
     {
       "type": "event",
-      "event": "HP",
+      "event": "SelfHP",
       "before": {
         "action": 8
       },
@@ -206,11 +206,11 @@
     },
     {
       "type": "event",
-      "event": "Debuff",
+      "event": "Qi",
       "before": {
         "action": 8
       },
-      "debuff": "Exhausted"
+      "targetQiRatio": 0
     },
     {
       "type": "skill",
@@ -218,7 +218,7 @@
     },
     {
       "type": "event",
-      "event": "HP",
+      "event": "SelfHP",
       "before": {
         "action": "start"
       },

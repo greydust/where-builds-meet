@@ -44,8 +44,10 @@ try {
     skillIds.filter((id) => id === "PhalanxbaneHeavyCharged3").length === 15,
     "The slam groups must expand to 4 + 7 + 3 + 1 casts.",
   );
-  const exhaustedEvent = rotation.steps.find((step) => step.type === "event" && step.event === "Exhausted");
-  assert(exhaustedEvent, "The rotation must contain an Exhausted event.");
+  const exhaustedEvent = rotation.steps.find(
+    (step) => step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0,
+  );
+  assert(exhaustedEvent, "The rotation must contain a Qi-depletion event.");
   const soaringIndex = skillIds.indexOf("SoaringSpin2");
   assert(
     soaringIndex > 0 && skillIds[soaringIndex - 1] === "PerfectDodgeCancel",
@@ -69,10 +71,13 @@ try {
       rotation,
       skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
       eventDefinitions: {
-        Exhausted: {
-          name: "Exhausted",
+        Qi: {
+          name: "Qi",
           castTime: 0,
-          action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
+          action: [
+            { type: "setQi", time: 0 },
+            { type: "apply", target: "target", value: "Exhausted", time: 0 },
+          ],
         },
         Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }] },
         BattleEnd: { name: "Battle End", castTime: 0, action: [] },

@@ -13,6 +13,13 @@
         }
       }
     ],
+    "action": [
+      {
+        "type": "setQi",
+        "targetQiRatio": 1,
+        "time": "expire"
+      }
+    ],
     "refresh": true
   },
   "Controlled": {
