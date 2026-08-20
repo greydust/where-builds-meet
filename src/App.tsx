@@ -135,6 +135,7 @@ import {
   rotationVariantFingerprint,
 } from "./calculations/rotationCalculationCache";
 import {
+  buildRotationTimeline,
   compareTimelineTime,
   type AttachedEventTarget,
   type EditableObject,
@@ -618,6 +619,13 @@ function baseRotationAnchorTime(rotation: RotationRecord) {
     else if (step.event === "Delay") time += Math.max(0, step.duration);
   }
   return 0;
+}
+
+function timelineAnchorTime(timeline: TimelineRow[], startAnchor: { rowId: string; actionIndex?: number }) {
+  const anchorRow = timeline.find((row) => row.id === startAnchor.rowId);
+  if (!anchorRow) return 0;
+  if (startAnchor.actionIndex === undefined) return anchorRow.startTime;
+  return anchorRow.startTime + Number(anchorRow.actions[startAnchor.actionIndex]?.time ?? 0);
 }
 
 function migrateRotation(rotation: RotationRecord): RotationRecord {
@@ -5155,8 +5163,11 @@ function RotationEditorTab({
   }
 
   const currentCachedResult = rotationResults[editingRotationId]?.result;
-  const timeline = currentCachedResult?.timeline ?? [];
-  const anchorTime = currentCachedResult?.anchorTime ?? 0;
+  const timeline = useMemo(
+    () => buildRotationTimeline(makeTimelineInput(rotation)),
+    [calculationContextKey, rotation.eventTimeReference, rotation.start, rotation.steps, rotation.targetHP],
+  );
+  const anchorTime = useMemo(() => timelineAnchorTime(timeline, startAnchor), [startAnchor, timeline]);
   useLayoutEffect(() => {
     const scrollContainer = rotationScrollRef.current;
     const pendingScroll = pendingEventScrollRef.current;
@@ -5382,25 +5393,27 @@ function RotationEditorTab({
       setReadableCopyStatus(t("ui.app.manualCopyInstruction"));
     }
   }
-  const makeTimelineInput = (
+  function makeTimelineInput(
     rotationRecord: RotationRecord,
     conditions = innerWayConditions,
     rules = innerWayEffectRules,
     setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup),
     globalDebuffs = currentGlobalDebuffs,
-  ): TimelineBuildInput => ({
-    rotation: rotationRecord,
-    skills: calculationDefinitions.skills,
-    eventDefinitions: rotationEventDefinitions,
-    dots: calculationDefinitions.dots,
-    effectDefinitions: calculationDefinitions.effectDefinitions,
-    innerWayConditions: [...conditions, ...setupConditionsFor(setupEffects)],
-    innerWayRules: rules,
-    setupEffects,
-    weapons: settings.weapons,
-    initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
-    maxHP: displayedCharacterStats.maxHp,
-  });
+  ): TimelineBuildInput {
+    return {
+      rotation: rotationRecord,
+      skills: calculationDefinitions.skills,
+      eventDefinitions: rotationEventDefinitions,
+      dots: calculationDefinitions.dots,
+      effectDefinitions: calculationDefinitions.effectDefinitions,
+      innerWayConditions: [...conditions, ...setupConditionsFor(setupEffects)],
+      innerWayRules: rules,
+      setupEffects,
+      weapons: settings.weapons,
+      initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
+      maxHP: displayedCharacterStats.maxHp,
+    };
+  }
   function calculationBundleFor(rotationRecord: RotationRecord, includeDiffs: boolean): RotationSimulationBundle {
     const rotationAnchor = rotationRecord.start
       ? { rowId: `rotation-${rotationRecord.start.step}`, actionIndex: rotationRecord.start.action }

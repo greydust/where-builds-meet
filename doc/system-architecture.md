@@ -599,7 +599,12 @@ Each public baseline result contains:
 - anchor time and duration
 - per-action `DamageBreakdown` map
 
-The Rotation Editor uses the timeline and action map for its table and tooltips.
+The Rotation Editor rebuilds its draft timeline immediately with the shared
+timeline builder whenever structural rotation content or the combat context
+changes. This main-thread pass is memoized and does not calculate damage, DPS,
+or comparison variants, so adding, removing, or moving a step updates the editor
+without waiting for the worker debounce. The completed worker result supplies
+the action map, metrics, and cached baseline for the table and tooltips.
 Base skills have collapsible action groups. Triggered skills and DOTs do not add
 skill rows; their damage actions inherit the originating base skill's expansion
 state and contribute to its displayed damage total. A DOT application records
