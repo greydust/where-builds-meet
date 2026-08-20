@@ -199,13 +199,14 @@ their individual damage-per-effective-cast-time DPS values. A Deflect immediatel
 following an explicit skill contributes its effective cast time to that skill's
 sample. Skills with no attributed damage, including Deflect itself, are omitted.
 
-Buff damage attribution is declared on the buff definition. The string
-`"sourceCast"` credits the counterfactual damage added by that buff to its
-applying cast. The object form `{ "type": "sourceCast", "sourceEffects": [...] }`
-instead inherits ownership from the first named active effect with a recorded
-source cast. Ghostly Step uses the object form because Perfect Dodge applies
-`MysteryDMGBoost`, while the active `Mystery` or `MysteryUmbra` buff identifies
-the Ghostly Step cast that enabled the bonus.
+Boost-damage attribution is declared on the enabling skill with
+`collectBoostDamage`. Its value is the buff ID whose counterfactual damage
+should be credited to that cast. The field and source cast are passed into buffs
+applied by the skill. If the named buff is applied later, the active carrier
+buff passes the same source forward. Flute names its directly applied `Flute`
+buff. Ghostly Step names `MysteryDMGBoost`, so `Mystery` or `MysteryUmbra`
+carries the source until Perfect Dodge applies the damage buff. Both then use
+the same per-hit calculation with and without the named buff.
 
 ### Extend
 
@@ -453,8 +454,6 @@ Definition fields:
 - `refresh`: whether a successful reapplication resets the duration
 - `action`: actions scheduled relative to each accepted application or
   reapplication; a rejected application does not schedule them
-- `damageAttribution: "sourceCast"`: measure each affected hit with and without
-  this buff and attribute only the difference to the cast that applied it
 - `effect`: action-time effect rules
 - `stackEffects`: cumulative effect rules indexed by current stack count
 - `shared`: descriptive game metadata; it does not currently change simulation

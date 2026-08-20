@@ -724,6 +724,7 @@
   "FluteOfTheTidesCancel": {
     "name": "Flute of the Tides [Cancel]",
     "shortName": "Flute Cancel",
+    "collectBoostDamage": "Flute",
     "castTime": 0.8,
     "action": [
       {
@@ -745,6 +746,7 @@
   "FluteOfTheTides": {
     "name": "Flute of the Tides Full",
     "shortName": "Flute Full",
+    "collectBoostDamage": "Flute",
     "castTime": 3.275,
     "action": [
       {
@@ -822,6 +824,7 @@
   },
   "GhostlySteps": {
     "name": "Ghostly Step",
+    "collectBoostDamage": "MysteryDMGBoost",
     "castTime": 0,
     "action": [
       {
@@ -837,6 +840,7 @@
   },
   "GhostlyStepsUmbra": {
     "name": "Ghostly Step - Umbra",
+    "collectBoostDamage": "MysteryDMGBoost",
     "castTime": 0,
     "action": [
       {

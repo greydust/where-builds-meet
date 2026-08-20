@@ -147,8 +147,12 @@ try {
       skills: {
         FluteCast: {
           name: "Flute",
+          collectBoostDamage: "Flute",
           castTime: 1,
-          action: [{ type: "apply", target: "self", value: "Flute", time: 0 }],
+          action: [
+            { type: "apply", target: "self", value: "OtherBuff", time: 0 },
+            { type: "apply", target: "self", value: "Flute", time: 0 },
+          ],
           modifier: [],
           tags: ["FluteOfTheTides"],
         },
@@ -167,9 +171,13 @@ try {
           name: "Flute",
           duration: 10,
           maxStack: 1,
-          ...(withFluteEffect
-            ? { damageAttribution: "sourceCast", effect: [{ effect: { dmgBonus: 0.2 } }] }
-            : { effect: [] }),
+          effect: withFluteEffect ? [{ effect: { dmgBonus: 0.2 } }] : [],
+        },
+        OtherBuff: {
+          name: "Other Buff",
+          duration: 10,
+          maxStack: 1,
+          effect: [{ effect: { dmgBonus: 0.5 } }],
         },
       },
       innerWayConditions: [],
@@ -218,6 +226,7 @@ try {
       skills: {
         GhostlyCast: {
           name: "Ghostly Step",
+          collectBoostDamage: "MysteryDMGBoost",
           castTime: 1,
           action: [{ type: "apply", target: "self", value: "Mystery", time: 0 }],
           modifier: [],
@@ -254,7 +263,6 @@ try {
           name: "Mystery DMG Boost",
           duration: 10,
           maxStack: 1,
-          damageAttribution: { type: "sourceCast", sourceEffects: ["Mystery"] },
           effect: withGhostlyEffect ? [{ effect: { dmgBonus: 0.15 } }] : [],
         },
       },

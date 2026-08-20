@@ -9,7 +9,6 @@ import { calculateDerivedStats } from "./effectiveStats";
 import {
   buildRotationTimeline,
   compareTimelineTime,
-  attributesDamageToSourceCast,
   mergeEffectDefinition,
   requirementsPass,
   type EditableObject,
@@ -653,7 +652,7 @@ function timelineDamageEntries(
             isDot: row.kind === "dot",
           };
           const attributionContexts = buffs.flatMap((tracked) => {
-            if (!attributesDamageToSourceCast(input.effectDefinitions[tracked.name]) || !tracked.sourceRowId) return [];
+            if (tracked.collectBoostDamage !== tracked.name || !tracked.sourceRowId) return [];
             const counterfactualBuffs = buffs.filter((candidate) => candidate !== tracked);
             return [
               {
@@ -678,8 +677,8 @@ function timelineDamageEntries(
                 context.targetHPRatio = ratio;
                 context.effects = effectsForState(buffs, debuffs, resources, currentRequirementState);
                 attributionContexts.forEach(({ context: attributionContext }) => {
-                  const counterfactualBuffs = buffs.filter(
-                    (tracked) => !attributionContext.buffs.includes(tracked.name),
+                  const counterfactualBuffs = buffs.filter((tracked) =>
+                    attributionContext.buffs.includes(tracked.name),
                   );
                   attributionContext.targetHPRatio = ratio;
                   attributionContext.effects = effectsForState(

@@ -15,6 +15,7 @@ export type SkillRecord = {
   castTime?: number;
   cooldown?: number;
   duration?: number;
+  collectBoostDamage?: string;
   action?: unknown[];
   periodic?: PeriodicEffect;
   modifier?: unknown[];
@@ -66,6 +67,7 @@ export type TrackedEffect = {
   maxStack?: number;
   persistent?: boolean;
   sourceRowId?: string;
+  collectBoostDamage?: string;
 };
 export type ResourceState = Record<string, number>;
 export type InnerWayEffectRule = {
@@ -123,33 +125,27 @@ export type EffectDefinition = {
   duration?: number;
   cooldown?: number;
   maxStack?: number;
-  damageAttribution?:
-    | "sourceCast"
-    | {
-        type: "sourceCast";
-        sourceEffects: string[];
-      };
   effect?: unknown[];
   stackEffects?: unknown[][];
   action?: unknown[];
   periodic?: PeriodicEffect;
 };
 
-export function attributesDamageToSourceCast(definition: EffectDefinition | undefined) {
-  return definition?.damageAttribution === "sourceCast" || definition?.damageAttribution?.type === "sourceCast";
-}
-
-function damageAttributionSourceRowId(
-  definition: EffectDefinition,
+function boostDamageCollection(
+  skill: SkillRecord | undefined,
+  effectName: string,
   activeEffects: TrackedEffect[],
   fallbackSourceRowId: string,
 ) {
-  const attribution = definition.damageAttribution;
-  if (!attribution || attribution === "sourceCast") return fallbackSourceRowId;
-  const inheritedSource = attribution.sourceEffects
-    .map((name) => activeEffects.find((effect) => effect.name === name))
-    .find((effect) => effect?.sourceRowId);
-  return inheritedSource?.sourceRowId ?? fallbackSourceRowId;
+  if (typeof skill?.collectBoostDamage === "string") {
+    return { sourceRowId: fallbackSourceRowId, collectBoostDamage: skill.collectBoostDamage };
+  }
+  const inheritedSource = activeEffects.find(
+    (effect) => effect.collectBoostDamage === effectName && effect.sourceRowId,
+  );
+  return inheritedSource
+    ? { sourceRowId: inheritedSource.sourceRowId ?? fallbackSourceRowId, collectBoostDamage: effectName }
+    : { sourceRowId: fallbackSourceRowId };
 }
 
 export type TimelineBuildInput = {
@@ -282,6 +278,7 @@ function applyTrackedEffect(
   maxStackOverride?: number,
   refresh = true,
   sourceRowId?: string,
+  collectBoostDamage?: string,
 ) {
   const existing = effects.find((effect) => effect.name === name);
   const nextStack = Math.min(maxStackOverride ?? Number.POSITIVE_INFINITY, (existing?.stack ?? 0) + (stack ?? 1));
@@ -295,6 +292,11 @@ function applyTrackedEffect(
     expiresAt,
     ...(persistent ? { persistent: true } : {}),
     ...(sourceRowId ? { sourceRowId } : existing?.sourceRowId ? { sourceRowId: existing.sourceRowId } : {}),
+    ...(collectBoostDamage
+      ? { collectBoostDamage }
+      : existing?.collectBoostDamage
+        ? { collectBoostDamage: existing.collectBoostDamage }
+        : {}),
   };
   return [...effects.filter((effect) => effect.name !== name), nextEffect];
 }
@@ -1150,7 +1152,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : 0;
       const fallbackSourceRowId =
         event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
-      const sourceRowId = damageAttributionSourceRowId(definition, [...buffs, ...debuffs], fallbackSourceRowId);
+      const collection = boostDamageCollection(
+        undefined,
+        triggerAction.value,
+        [...buffs, ...debuffs],
+        fallbackSourceRowId,
+      );
       const existing = targetEffects.find((effect) => effect.name === triggerAction.value);
       if (existing && triggerAction.reapply === false) return;
       const next = applyTrackedEffect(
@@ -1161,7 +1168,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         event.time,
         definition.maxStack,
         definition.refresh !== false,
-        sourceRowId,
+        collection.sourceRowId,
+        collection.collectBoostDamage,
       );
       if (triggerAction.target === "target") debuffs = next;
       else buffs = next;
@@ -1205,7 +1213,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           triggerAction.value,
           definition,
           event.time,
-          sourceRowId,
+          collection.sourceRowId,
           event.sortOrder,
           event.row.order + (event.actionIndex ?? 0),
           periodicTarget,
@@ -1297,7 +1305,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const existing = targetEffects.find((effect) => effect.name === action.value);
       const fallbackSourceRowId =
         event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
-      const sourceRowId = damageAttributionSourceRowId(definition, [...buffs, ...debuffs], fallbackSourceRowId);
+      const collection = boostDamageCollection(
+        event.row.skill,
+        action.value,
+        [...buffs, ...debuffs],
+        fallbackSourceRowId,
+      );
       const shouldApply = action.type === "apply" && (!existing || action.reapply !== false);
       const next =
         action.type === "extend" && typeof duration === "number"
@@ -1311,7 +1324,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
                 event.time,
                 definition.maxStack,
                 definition.refresh !== false,
-                sourceRowId,
+                collection.sourceRowId,
+                collection.collectBoostDamage,
               )
             : targetEffects;
       if (action.target === "target") debuffs = next;
@@ -1374,7 +1388,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           action.value,
           definition,
           event.time,
-          sourceRowId,
+          collection.sourceRowId,
           event.sortOrder,
           event.row.order + (event.actionIndex ?? 0),
           periodicTarget,

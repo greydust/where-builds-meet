@@ -547,21 +547,18 @@ the per-cast average and total.
 Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
 descending.
 
-Tracked effects retain the cast row that applied them. A buff definition with
-`damageAttribution: "sourceCast"` requests a counterfactual calculation for
-every affected hit with that buff removed. The difference is attributed to the
-source cast without changing rotation total damage or the damaged skill's own
-breakdown. Flute uses this metadata. Its per-cast Damage and Average DPS cells
-show direct values followed by parenthesized values that include this attributed
-buff damage; sorting uses the inclusive DPS.
-
-An attributed buff applied indirectly can use an object with
-`type: "sourceCast"` and an ordered `sourceEffects` list. When the buff is
-applied, its source cast is inherited from the first listed active tracked
-effect that has a source. `MysteryDMGBoost` uses `Mystery` and `MysteryUmbra` so
-the damage added after Perfect Dodge is credited to the Ghostly Step cast that
-enabled it, rather than to Perfect Dodge. Its per-cast cells use the same
-two-line direct-plus-parenthesized-inclusive presentation as Flute.
+Tracked effects retain the cast row that applied them. A skill with
+`collectBoostDamage` passes that target effect ID and its cast row into buffs it
+applies. When the named effect becomes active directly or through a later buff
+application, each affected hit is recalculated with that effect removed. Only
+the difference is attributed to the source cast; rotation total damage and the
+damaged skill's own breakdown do not change. Flute names `Flute`, while Ghostly
+Step names `MysteryDMGBoost`; the intermediate `Mystery` or `MysteryUmbra` buff
+carries Ghostly Step's source until Perfect Dodge applies the named damage buff.
+Both skills therefore use the same tracked-effect and counterfactual path.
+Their per-cast Damage and Average DPS cells show direct values followed by
+parenthesized values that include the attributed buff damage; sorting uses the
+inclusive DPS.
 
 `calculateRotationComparisons()` then evaluates priority and setup variants
 against the cached timeline, damage entries, duration, total damage, and
