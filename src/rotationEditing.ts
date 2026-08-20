@@ -1,4 +1,9 @@
-import type { AttachedEventTarget, RotationStep } from "./calculations/rotationTimeline";
+import {
+  canAnchorAttachedEvent,
+  isAttachmentAnchorStep,
+  type AttachedEventTarget,
+  type RotationStep,
+} from "./calculations/rotationTimeline";
 
 export type AttachedEventPhase = "before" | "after";
 
@@ -25,8 +30,10 @@ function targetsMatch(left: AttachedEventTarget, right: AttachedEventTarget) {
 }
 
 function attachedEventAnchorIndex(steps: RotationStep[], stepIndex: number) {
+  const target = attachedTargetForStep(steps[stepIndex]);
+  if (!target) return -1;
   for (let index = stepIndex + 1; index < steps.length; index += 1) {
-    if (steps[index]?.type === "skill") return index;
+    if (canAnchorAttachedEvent(steps[index], target)) return index;
   }
   return -1;
 }
@@ -47,9 +54,10 @@ function sameAttachedEventTarget(steps: RotationStep[], leftIndex: number, right
 
 export function attachedEventSiblingIndex(steps: RotationStep[], stepIndex: number, direction: -1 | 1) {
   const step = steps[stepIndex];
-  if (!attachedTargetForStep(step)) return -1;
+  const target = attachedTargetForStep(step);
+  if (!target) return -1;
   for (let index = stepIndex + direction; index >= 0 && index < steps.length; index += direction) {
-    if (steps[index]?.type === "skill") return -1;
+    if (isAttachmentAnchorStep(steps[index]) && canAnchorAttachedEvent(steps[index], target)) return -1;
     if (sameAttachedEventTarget(steps, stepIndex, index)) return index;
   }
   return -1;

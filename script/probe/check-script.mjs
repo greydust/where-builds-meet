@@ -14,12 +14,27 @@ try {
   );
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
+  const { scriptSelectionChangesTimeline } = await viteServer.ssrLoadModule("/src/data/scriptDefinitions.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const scripts = (await viteServer.ssrLoadModule("/data/script.json")).default;
   const generalBuffs = (await viteServer.ssrLoadModule("/data/buff/general.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
+
+  assert(scripts.Revelry.altersTimeline === true, "Revelry must declare that it alters the timeline.");
+  assert(
+    scriptSelectionChangesTimeline("None", "Revelry", scripts),
+    "A Revelry comparison must rebuild the timeline when Revelry is the candidate.",
+  );
+  assert(
+    scriptSelectionChangesTimeline("Revelry", "None", scripts),
+    "A comparison from baseline Revelry must rebuild the timeline when the candidate removes it.",
+  );
+  assert(
+    !scriptSelectionChangesTimeline("Wraithstrike", "Insight", scripts),
+    "Scripts that only affect damage calculation must continue reusing the baseline timeline.",
+  );
 
   assert(
     requirementsPass(

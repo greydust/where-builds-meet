@@ -1,0 +1,178 @@
+{
+  "name": "Pure Horse Tamer Standard 27s",
+  "steps": [
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingSpecial"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.05
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 3
+      },
+      "targetQiRatio": 0.4
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "event",
+      "event": "SelfHP",
+      "before": {
+        "action": 0
+      },
+      "currentHP": 31345.800000000003
+    },
+    {
+      "type": "event",
+      "event": "TakeDamage",
+      "startTime": 13.5,
+      "damage": 1
+    },
+    {
+      "type": "event",
+      "event": "Buff",
+      "before": {
+        "action": 8
+      },
+      "buff": "SurgingWaves",
+      "stack": 32
+    },
+    {
+      "type": "skill",
+      "skill": "DragonHeadTide"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0
+    },
+    {
+      "type": "event",
+      "event": "TakeDamage",
+      "startTime": 14,
+      "damage": 0
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingLightCharged"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingConversion"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingHeavyVC"
+    }
+  ],
+  "targetHP": 2526534,
+  "start": {
+    "step": 4,
+    "action": 0
+  },
+  "eventTimeReference": "battleStart",
+  "martialArts": ["snowparting", "phalanxbane"]
+}

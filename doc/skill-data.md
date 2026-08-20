@@ -254,10 +254,10 @@ The Take Damage event subtracts a nonnegative absolute amount:
 { "type": "takeDamage", "damage": 70000, "time": 0 }
 ```
 
-Like Self HP, Take Damage is attached before a selected skill action. It stays
-next to that target in the Rotation Editor and resolves after earlier attached
-events at the same action, allowing a preceding Self HP event to establish the
-state used by damage-triggered setup effects.
+Unlike Self HP, Take Damage is a fight-relative timed event. Its `startTime`
+is editable independently of skills and resolves before skill actions at an
+equal timestamp. This lets incoming encounter damage and damage-triggered setup
+effects remain fixed even when rotation cast timing changes.
 
 Every action snapshots both current self HP and its ratio to Max HP. Percentage
 requirements therefore read the state after preceding actions at the same
@@ -265,8 +265,8 @@ timestamp. Rotation import retains `currentHPRatio` only as a legacy boundary
 adapter and converts it against the current Max HP when building the timeline.
 The Rotation Editor displays this state as a percentage. Its Self HP event input
 also accepts a percentage and converts it to absolute `currentHP` at the UI
-boundary. Take Damage continues to accept an absolute damage amount and shows
-the resulting self-HP percentage beside it.
+boundary. Take Damage accepts only an absolute damage amount in the Self HP
+column; its row does not display a derived self-HP result.
 
 ### Set target HP and Qi
 
@@ -665,7 +665,7 @@ type RotationRecord = {
     | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number }
     | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
     | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHP: number }
-    | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
+    | { type: "event"; event: "TakeDamage"; startTime: number; damage: number }
     | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
     | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
     | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
@@ -689,9 +689,9 @@ type AttachedEventTarget = {
 Skill steps and `Delay` events are placed sequentially. A Delay starts when the
 preceding cast ends, advances every later sequential step by its nonnegative
 `duration`, and applies no action or effect. A trailing Delay still extends the
-rotation duration. `Move`, `SelfHP`, `TakeDamage`, `HP`, `Qi`, `Buff`, `Debuff`,
+rotation duration. `Move`, `SelfHP`, `HP`, `Qi`, `Buff`, `Debuff`,
 and `Exhausted` are action-attached events and must be stored immediately before
-their target skill. The first seven use `before`; Exhausted
+their target skill. The first six use `before`; Exhausted
 uses `after`. The attachment's
 `action` is a zero-based action index in that skill; `"start"` is valid for
 before-attached events and targets cast start. When `trigger` is present, it is the
@@ -716,8 +716,9 @@ Bundled rotation JSON records declare the martial-art IDs they use in
 current weapon selection. The all-tagged empty rotation uses `test: true`, so it
 is bundled but hidden until the header-level Dev toggle is enabled.
 
-With `eventTimeReference: "battleStart"`, timed encounter events use a
-`startTime` relative to the selected fight start and consume no cast time.
+With `eventTimeReference: "battleStart"`, timed encounter events, including
+Take Damage, use a `startTime` relative to the selected fight start and consume
+no cast time.
 `Exhausted` and `Controlled` take their default durations from their debuff
 definitions. Each event's editable `duration` overrides that default.
 `ShieldBroken` consumes the general player `Shield`. When Art of Resistance T6
@@ -733,8 +734,8 @@ Distance starts at 1m. An attached `Move` event changes it to its integer
 applies at the same timestamp immediately after the selected action. Timeline rows store
 cast-start distance, while every action stores its own distance snapshot.
 An attached Self HP event sets absolute `currentHP` immediately before its
-target, while Take Damage subtracts from that value and can fire setup triggers
-such as Revelry Script. Buff and Debuff events select a definition from their respective data
+target. A timed Take Damage event subtracts from the current value and can fire
+setup triggers such as Revelry Script. Buff and Debuff events select a definition from their respective data
 directories and apply it before the target using that definition's duration.
 Buff and Debuff events may specify a positive integer `stack`; omitted values
 apply one stack, and tracked-effect resolution caps the result at the selected
@@ -849,7 +850,8 @@ dialog is closed and provides both selectable text and a Copy button.
 
 The Rotation Editor sidebar exports all custom rotation records as a formatted
 JSON file with the `where-builds-meet-rotations` format identifier and schema
-version 7. Versions 1 through 6 remain importable, and legacy Exhausted `before`
+version 8. Versions 1 through 7 remain importable; legacy attached Take Damage
+events migrate to fight-relative timestamps, and legacy Exhausted `before`
 attachments migrate to `after`. The snapshot includes each custom rotation's `martialArts`
 eligibility and the current in-memory editor value, even before the Save button
 is pressed. Bundled default rotations are discovered from
@@ -949,7 +951,10 @@ Convergence, Opportunity, Detachment, and Insight use action-time HP/Qi or skill
 tag requirements. Revelry declares an `event: "takeDamage"` trigger. After the
 event subtracts damage, the trigger checks `selfHPPercentage <= 30` and applies
 the 20-second Revelry buff. Its data-defined 60-second cooldown prevents another
-application until the cooldown expires.
+application until the cooldown expires. Revelry is marked `altersTimeline`;
+Script comparisons rebuild when either the selected baseline Script or the
+candidate Script has that flag. Damage-only Script comparisons reuse the
+baseline timeline.
 
 Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
 for data completeness; healing is not currently simulated.

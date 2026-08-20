@@ -28,6 +28,8 @@ export type RotationStep =
   | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
   | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHP: number; currentHPRatio?: number }
   | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHPRatio: number; currentHP?: number }
+  | { type: "event"; event: "TakeDamage"; startTime: number; damage: number }
+  // Accepted only at persistence/import boundaries and migrated to startTime.
   | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
   | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
   | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
@@ -38,6 +40,18 @@ export type RotationStep =
   | { type: "event"; event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
+
+export function isAttachmentAnchorStep(step: RotationStep | undefined): boolean {
+  return Boolean(
+    step && (step.type === "skill" || (step.type === "event" && step.event === "TakeDamage" && "startTime" in step)),
+  );
+}
+
+export function canAnchorAttachedEvent(step: RotationStep | undefined, target: AttachedEventTarget): boolean {
+  if (!step) return false;
+  if (step.type === "skill") return true;
+  return step.event === "TakeDamage" && "startTime" in step && target.trigger === undefined && target.action === 0;
+}
 export type RotationRecord = {
   name: string;
   steps: RotationStep[];
@@ -505,7 +519,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     const targetRow = rows.find(
       (candidate) =>
         candidate.kind === "rotation" &&
-        candidate.step.type === "skill" &&
+        canAnchorAttachedEvent(candidate.step, resolved.target) &&
         (candidate.rotationIndex ?? -1) > (eventRow.rotationIndex ?? -1),
     );
     if (!targetRow) {

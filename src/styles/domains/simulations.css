@@ -151,6 +151,67 @@
     accent-color: var(--primary);
   }
 
+  .simulation-history {
+    display: grid;
+    gap: 22px;
+    margin-block-start: 22px;
+  }
+
+  .simulation-record {
+    min-inline-size: 0;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+
+    & .simulation-record-heading {
+      display: flex;
+      min-inline-size: 0;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    & .simulation-record-heading p {
+      display: flex;
+      min-inline-size: 0;
+      flex: 1;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 10px;
+      margin: 0;
+      color: var(--text-muted);
+    }
+
+    & .simulation-record-heading p > span {
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    & .simulation-record-delete {
+      display: grid;
+      flex: 0 0 auto;
+      inline-size: 44px;
+      block-size: 44px;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    & .simulation-record-delete:hover {
+      border-color: var(--error);
+      background: var(--error-soft);
+      color: var(--error);
+    }
+
+    & .simulation-results {
+      margin-block-start: 12px;
+    }
+  }
+
   .simulation-results {
     margin-block-start: 22px;
     overflow-x: auto;
@@ -205,16 +266,24 @@
     color: var(--primary);
   }
 
-  .simulation-outdated {
+  :is(.simulation-current, .simulation-outdated) {
     display: inline-block;
     margin-inline-start: 7px;
     padding: 2px 6px;
-    border: 1px solid oklch(from var(--error) l c h / 0.5);
     border-radius: var(--radius-pill);
-    color: var(--error);
     font-size: 0.75rem;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     vertical-align: middle;
+  }
+
+  .simulation-current {
+    border: 1px solid oklch(from var(--primary) l c h / 0.5);
+    color: var(--primary);
+  }
+
+  .simulation-outdated {
+    border: 1px solid oklch(from var(--error) l c h / 0.5);
+    color: var(--error);
   }
 }

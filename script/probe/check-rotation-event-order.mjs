@@ -39,6 +39,29 @@ try {
     attachedEventSiblingIndex(afterEventSteps, 0, 1) === -1,
     "Before- and after-action events must remain separate ordering groups.",
   );
+
+  const takeDamageSteps = [
+    { type: "event", event: "Qi", before: target, targetQiRatio: 0 },
+    { type: "event", event: "Buff", before: target, buff: "Cadence" },
+    { type: "event", event: "TakeDamage", startTime: 1, damage: 100 },
+    { type: "skill", skill: "Avalanche" },
+  ];
+  const movedAroundTakeDamage = reorderAttachedEventWithinTarget(takeDamageSteps, 0, 1);
+  assert(
+    movedAroundTakeDamage?.steps[1]?.event === "Qi",
+    "Attached events must share and reorder within a fixed-time Take Damage anchor.",
+  );
+  const dragonTarget = { action: 8 };
+  const dragonEventsAcrossTakeDamage = [
+    { type: "event", event: "Buff", before: dragonTarget, buff: "SurgingWaves" },
+    { type: "event", event: "SelfHP", before: dragonTarget, currentHPRatio: 0.2 },
+    { type: "event", event: "TakeDamage", startTime: 1, damage: 1 },
+    { type: "skill", skill: "DragonHeadTide" },
+  ];
+  assert(
+    attachedEventSiblingIndex(dragonEventsAcrossTakeDamage, 0, 1) === 1,
+    "Take Damage must not split events targeting an action that only the following skill provides.",
+  );
   console.log("Rotation event ordering checks passed.");
 } finally {
   await viteServer.close();

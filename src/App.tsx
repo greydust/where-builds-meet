@@ -137,6 +137,7 @@ import {
 import {
   buildRotationTimeline,
   compareTimelineTime,
+  isAttachmentAnchorStep,
   type AttachedEventTarget,
   type EditableObject,
   type EffectDefinition,
@@ -154,6 +155,7 @@ import {
   type SkillMap,
   type SkillOverrides,
 } from "./skillOverrides";
+import { scriptSelectionChangesTimeline } from "./data/scriptDefinitions";
 import {
   calculateStatsWithOverrides,
   type CharacterStatOverrides,
@@ -621,6 +623,31 @@ function baseRotationAnchorTime(rotation: RotationRecord) {
   return 0;
 }
 
+function baseAttachedEventTime(rotation: RotationRecord, eventStepIndex: number, target: AttachedEventTarget) {
+  let elapsed = 0;
+  for (const [stepIndex, step] of rotation.steps.entries()) {
+    if (step.type === "skill") {
+      const skill = allSkillDefinitions[step.skill ?? ""];
+      if (stepIndex > eventStepIndex) {
+        if (target.action === "start") return elapsed;
+        const actions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : [];
+        if (target.trigger === undefined) return elapsed + Number(actions[target.action]?.time ?? 0);
+        const triggerAction = actions.filter((action) => action.type === "trigger")[target.trigger];
+        if (!triggerAction || typeof triggerAction.value !== "string") return elapsed;
+        const triggeredSkill = allSkillDefinitions[triggerAction.value];
+        const triggeredActions = Array.isArray(triggeredSkill?.action)
+          ? (triggeredSkill.action as EditableObject[])
+          : [];
+        return elapsed + Number(triggerAction.time ?? 0) + Number(triggeredActions[target.action]?.time ?? 0);
+      }
+      elapsed += Number(skill?.castTime ?? 0);
+    } else if (step.event === "Delay") {
+      elapsed += Math.max(0, step.duration);
+    }
+  }
+  return elapsed;
+}
+
 function timelineAnchorTime(timeline: TimelineRow[], startAnchor: { rowId: string; actionIndex?: number }) {
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId);
   if (!anchorRow) return 0;
@@ -630,9 +657,42 @@ function timelineAnchorTime(timeline: TimelineRow[], startAnchor: { rowId: strin
 
 function migrateRotation(rotation: RotationRecord): RotationRecord {
   const migrated = normalizeRotation(rotation);
-  migrated.steps = migrated.steps.map((step) => {
+  const attachedDamageIndexes = migrated.steps.flatMap((step, index) =>
+    step.type === "event" && step.event === "TakeDamage" && "before" in step ? [index] : [],
+  );
+  const migrationTimeline = attachedDamageIndexes.length
+    ? buildRotationTimeline({
+        rotation: migrated,
+        skills: allSkillDefinitions,
+        eventDefinitions: rotationEventDefinitions,
+        dots: dotDefinitions,
+        effectDefinitions,
+        innerWayConditions: [],
+        innerWayRules: [],
+        setupEffects: [],
+        weapons: [],
+      })
+    : [];
+  const anchorTime = migrationTimeline.length
+    ? timelineAnchorTime(migrationTimeline, {
+        rowId: `rotation-${migrated.start?.step ?? 0}`,
+        actionIndex: migrated.start?.action,
+      })
+    : baseRotationAnchorTime(migrated);
+  migrated.steps = migrated.steps.map((step, stepIndex) => {
     const legacyStep = step as unknown as Record<string, unknown>;
     if (step.type !== "event") return step;
+    if (step.event === "TakeDamage" && "before" in step) {
+      const targetTime =
+        migrationTimeline.find((row) => row.id === `rotation-${stepIndex}`)?.startTime ??
+        baseAttachedEventTime(migrated, stepIndex, step.before);
+      return {
+        type: "event",
+        event: "TakeDamage",
+        startTime: migrated.eventTimeReference === "battleStart" ? targetTime - anchorTime : targetTime,
+        damage: step.damage,
+      };
+    }
     if (step.event === "HP" && typeof legacyStep.currentHPRatio === "number")
       return {
         type: "event",
@@ -4624,15 +4684,7 @@ function RotationEditorTab({
   function selectRotationItem(index: number, value: string, control: HTMLSelectElement) {
     if (rotationLocked) return;
     if (
-      [
-        "__event:Move",
-        "__event:SelfHP",
-        "__event:TakeDamage",
-        "__event:HP",
-        "__event:Qi",
-        "__event:Buff",
-        "__event:Debuff",
-      ].includes(value)
+      ["__event:Move", "__event:SelfHP", "__event:HP", "__event:Qi", "__event:Buff", "__event:Debuff"].includes(value)
     ) {
       const scrollContainer = rotationScrollRef.current;
       const row = control.closest<HTMLElement>("[data-rotation-step-index]");
@@ -4685,7 +4737,12 @@ function RotationEditorTab({
             currentHP: displayedCharacterStats.maxHp,
           };
         if (value === "__event:TakeDamage")
-          return { type: "event", event: "TakeDamage", before: { action: "start" }, damage: 0 };
+          return {
+            type: "event",
+            event: "TakeDamage",
+            startTime: previousSkill ? previousSkill.startTime - anchorTime : 0,
+            damage: 0,
+          };
         if (value === "__event:HP")
           return { type: "event", event: "HP", before: { action: "start" }, targetHPRatio: 1 };
         if (value === "__event:Qi")
@@ -4711,7 +4768,6 @@ function RotationEditorTab({
       const attached = [
         "__event:Move",
         "__event:SelfHP",
-        "__event:TakeDamage",
         "__event:HP",
         "__event:Qi",
         "__event:Buff",
@@ -4817,7 +4873,7 @@ function RotationEditorTab({
     const eventRow = timeline.find((row) => row.id === `rotation-${stepIndex}`);
     const currentTargetIndex = availableTargets.findIndex(
       (target) =>
-        target.skillRowId === eventRow?.sourceRowId &&
+        target.sourceRowId === eventRow?.sourceRowId &&
         target.target.action === eventTarget.action &&
         target.target.trigger === eventTarget.trigger,
     );
@@ -4826,11 +4882,11 @@ function RotationEditorTab({
 
     const startStep = rotation.start ? rotation.steps[rotation.start.step] : undefined;
     const currentTargetRow = timeline.find((row) => row.id === eventRow?.sourceRowId);
-    const currentTargetSkill =
+    const currentTargetStep =
       currentTargetRow?.rotationIndex === undefined ? undefined : rotation.steps[currentTargetRow.rotationIndex];
-    const targetSkill = rotation.steps[nextTarget.skillStepIndex];
+    const targetStep = rotation.steps[nextTarget.sourceStepIndex];
     const withoutEvent = rotation.steps.filter((_, index) => index !== stepIndex);
-    const targetIndex = withoutEvent.indexOf(targetSkill);
+    const targetIndex = withoutEvent.indexOf(targetStep);
     if (targetIndex < 0) return;
     const movedEvent = eventAfterAction
       ? ({ ...eventStep, after: nextTarget.target } as RotationStep)
@@ -4853,15 +4909,16 @@ function RotationEditorTab({
     setRotation(nextRotation);
     if (nextStartStep >= 0 && rotation.start)
       setStartAnchor({ rowId: `rotation-${nextStartStep}`, actionIndex: rotation.start.action });
-    const movedTargetIndex = steps.indexOf(targetSkill);
-    const previousTargetIndex = currentTargetSkill ? steps.indexOf(currentTargetSkill) : -1;
+    const movedTargetIndex = steps.indexOf(targetStep);
+    const previousTargetIndex = currentTargetStep ? steps.indexOf(currentTargetStep) : -1;
     setExpandedSkillRows((current) => {
       const next = new Set(current);
-      if (currentTargetSkill !== targetSkill) {
+      if (currentTargetStep !== targetStep) {
         if (currentTargetRow) next.delete(`${editingRotationId}:${currentTargetRow.id}`);
         if (previousTargetIndex >= 0) next.delete(`${editingRotationId}:rotation-${previousTargetIndex}`);
       }
-      if (nextTarget.target.action !== "start") next.add(`${editingRotationId}:rotation-${movedTargetIndex}`);
+      if (targetStep?.type === "skill" && nextTarget.target.action !== "start")
+        next.add(`${editingRotationId}:rotation-${movedTargetIndex}`);
       return next;
     });
   }
@@ -5224,39 +5281,40 @@ function RotationEditorTab({
     });
 
     return timeline
-      .filter((row) => row.kind === "rotation" && row.step.type === "skill" && !row.skipped)
-      .flatMap((skillRow) => {
-        const skillStepIndex = skillRow.rotationIndex ?? -1;
+      .filter((row) => row.kind === "rotation" && isAttachmentAnchorStep(row.step) && !row.skipped)
+      .flatMap((sourceRow) => {
+        const sourceStepIndex = sourceRow.rotationIndex ?? -1;
         const targets: Array<{
-          skillRowId: string;
-          skillStepIndex: number;
+          sourceRowId: string;
+          sourceStepIndex: number;
           target: AttachedEventTarget;
           time: number;
           order: number;
-        }> = [
-          {
-            skillRowId: skillRow.id,
-            skillStepIndex,
+        }> = [];
+        if (sourceRow.step.type === "skill")
+          targets.push({
+            sourceRowId: sourceRow.id,
+            sourceStepIndex,
             target: { action: "start" },
-            time: skillRow.startTime,
-            order: skillRow.order,
-          },
-        ];
-        skillRow.actions.forEach((action, actionIndex) => {
-          if (action.type === "damage")
+            time: sourceRow.startTime,
+            order: sourceRow.order,
+          });
+        sourceRow.actions.forEach((action, actionIndex) => {
+          if (action.type === "damage" || action.type === "takeDamage")
             targets.push({
-              skillRowId: skillRow.id,
-              skillStepIndex,
+              sourceRowId: sourceRow.id,
+              sourceStepIndex,
               target: { action: actionIndex },
-              time: skillRow.startTime + Number(action.time ?? 0),
-              order: skillRow.order + 10 + actionIndex,
+              time: sourceRow.startTime + Number(action.time ?? 0),
+              order: sourceRow.order + 10 + actionIndex,
             });
         });
+        if (sourceRow.step.type !== "skill") return targets;
         const nextTriggeredRowBySkill = new Map<string, number>();
         let triggerOrdinal = 0;
-        skillRow.actions.forEach((action) => {
+        sourceRow.actions.forEach((action) => {
           if (action.type !== "trigger" || typeof action.value !== "string") return;
-          const key = `${skillRow.id}:${action.value}`;
+          const key = `${sourceRow.id}:${action.value}`;
           const matchIndex = nextTriggeredRowBySkill.get(action.value) ?? 0;
           const triggeredRow = triggeredRowsBySourceAndSkill.get(key)?.[matchIndex];
           nextTriggeredRowBySkill.set(action.value, matchIndex + 1);
@@ -5264,8 +5322,8 @@ function RotationEditorTab({
             triggeredRow.actions.forEach((triggeredAction, actionIndex) => {
               if (triggeredAction.type === "damage")
                 targets.push({
-                  skillRowId: skillRow.id,
-                  skillStepIndex,
+                  sourceRowId: sourceRow.id,
+                  sourceStepIndex,
                   target: { trigger: triggerOrdinal, action: actionIndex },
                   time: triggeredRow.startTime + Number(triggeredAction.time ?? 0),
                   order: triggeredRow.order + 10 + actionIndex,
@@ -5531,12 +5589,13 @@ function RotationEditorTab({
               })),
             script: Object.entries(typedScriptDefinitions)
               .filter(([value]) => value !== selectedScript)
-              .map(([value, definition]) => {
+              .map(([value]) => {
                 const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { script: value });
+                const rebuildTimeline = scriptSelectionChangesTimeline(selectedScript, value, typedScriptDefinitions);
                 return {
                   label: value,
                   setupEffects,
-                  ...(definition.altersTimeline
+                  ...(rebuildTimeline
                     ? {
                         timeline: makeTimelineInput(
                           rotationRecord,
@@ -6076,7 +6135,7 @@ function RotationEditorTab({
                     const attachedTargetIndex = attachedTarget
                       ? availableAttachmentTargets.findIndex(
                           (target) =>
-                            target.skillRowId === row.sourceRowId &&
+                            target.sourceRowId === row.sourceRowId &&
                             target.target.action === attachedTarget.action &&
                             target.target.trigger === attachedTarget.trigger,
                         )
@@ -6110,10 +6169,6 @@ function RotationEditorTab({
                         ? ("currentHP" in step && typeof step.currentHP === "number"
                             ? step.currentHP / selfHPMaximum
                             : (step.currentHPRatio ?? 1)) * 100
-                        : selfHPPercentage;
-                    const postDamageSelfHPPercentage =
-                      step.type === "event" && step.event === "TakeDamage"
-                        ? (Math.max(0, row.currentHP - step.damage) / selfHPMaximum) * 100
                         : selfHPPercentage;
                     const durationEvent =
                       isManualEvent && (step.event === "Controlled" || step.event === "Delay") ? step.event : undefined;
@@ -6326,29 +6381,18 @@ function RotationEditorTab({
                                 </span>
                               ))}
                             {showSelfHPColumn &&
-                              (isManualEvent && (step.event === "SelfHP" || step.event === "TakeDamage") ? (
+                              (isManualEvent && step.event === "TakeDamage" ? (
                                 rotationLocked ? (
-                                  <span>
-                                    {formatNumber(
-                                      step.event === "SelfHP" ? selfHPEventPercentage : postDamageSelfHPPercentage,
-                                    )}
-                                    %
-                                  </span>
+                                  <span>{formatNumber(step.damage)}</span>
                                 ) : (
                                   <span className="rotation-distance-input-wrap">
                                     <input
                                       className="rotation-event-time"
-                                      aria-label={
-                                        step.event === "SelfHP" ? t("ui.app.currentSelfHp") : t("ui.app.damageTaken")
-                                      }
+                                      aria-label={t("ui.app.damageTaken")}
                                       type="number"
                                       min="0"
-                                      {...(step.event === "SelfHP" ? { max: 100 } : {})}
                                       step="0.01"
-                                      value={
-                                        eventHPDrafts[row.id] ??
-                                        String(step.event === "SelfHP" ? selfHPEventPercentage : step.damage)
-                                      }
+                                      value={eventHPDrafts[row.id] ?? String(step.damage)}
                                       onChange={(event) =>
                                         setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
                                       }
@@ -6357,14 +6401,30 @@ function RotationEditorTab({
                                         if (event.key === "Enter") event.currentTarget.blur();
                                       }}
                                     />
-                                    {step.event === "SelfHP" ? (
-                                      <span>%</span>
-                                    ) : (
-                                      <>
-                                        <span>{t("ui.app.damage")}</span>
-                                        <span>({formatNumber(postDamageSelfHPPercentage)}%)</span>
-                                      </>
-                                    )}
+                                  </span>
+                                )
+                              ) : isManualEvent && step.event === "SelfHP" ? (
+                                rotationLocked ? (
+                                  <span>{formatNumber(selfHPEventPercentage)}%</span>
+                                ) : (
+                                  <span className="rotation-distance-input-wrap">
+                                    <input
+                                      className="rotation-event-time"
+                                      aria-label={t("ui.app.currentSelfHp")}
+                                      type="number"
+                                      min="0"
+                                      max="100"
+                                      step="0.01"
+                                      value={eventHPDrafts[row.id] ?? String(selfHPEventPercentage)}
+                                      onChange={(event) =>
+                                        setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                      }
+                                      onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
+                                      onKeyDown={(event) => {
+                                        if (event.key === "Enter") event.currentTarget.blur();
+                                      }}
+                                    />
+                                    <span>%</span>
                                   </span>
                                 )
                               ) : (

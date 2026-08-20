@@ -16,6 +16,14 @@ type SimulationTabProps = {
   buildName?: string;
 };
 
+type SimulationRecord = {
+  id: number;
+  summary: SimulationSummary;
+  bundleKey: string;
+  rotationName: string;
+  buildName: string;
+};
+
 const customPercentileStorageKey = "wwm-simulation-percentiles-v1";
 const presetPercentiles = new Set([99, 95, 90, 75, 50]);
 
@@ -43,20 +51,105 @@ function loadCustomPercentiles() {
 const formatNumber = (value: number) => value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 const formatPercentage = (value: number) => `${value.toFixed(2)}%`;
 
+function simulationResultRows(summary: SimulationSummary, customPercentiles: number[]) {
+  return [
+    { label: t("ui.simulationTab.best"), percentile: 101, result: summary.results.best },
+    { label: "P99", percentile: 99, result: summary.results.p99 },
+    { label: "P95", percentile: 95, result: summary.results.p95 },
+    { label: "P90", percentile: 90, result: summary.results.p90 },
+    { label: "P75", percentile: 75, result: summary.results.p75 },
+    { label: t("ui.simulationTab.median"), percentile: 50, result: summary.results.median },
+    ...customPercentiles.map((percentile) => ({
+      label: `P${percentile}`,
+      percentile,
+      result: selectSimulationPercentile(summary.runs, percentile / 100),
+    })),
+  ].sort((left, right) => right.percentile - left.percentile);
+}
+
+function SimulationResultCard({
+  record,
+  customPercentiles,
+  currentBundleKey,
+  onDelete,
+}: {
+  record: SimulationRecord;
+  customPercentiles: number[];
+  currentBundleKey: string;
+  onDelete: (id: number) => void;
+}) {
+  const current = record.bundleKey === currentBundleKey;
+  const statusLabel = current ? t("ui.simulationTab.current") : t("ui.simulationTab.outdated");
+  const resultRows: Array<{ label: string; percentile: number; result: SimulationRunResult }> = simulationResultRows(
+    record.summary,
+    customPercentiles,
+  );
+  return (
+    <article className="simulation-record">
+      <header className="simulation-record-heading">
+        <p>
+          <span>
+            {t("ui.simulationTab.rotation")} {record.rotationName}
+          </span>
+          <span>
+            {t("ui.simulationTab.build")} {record.buildName}
+          </span>
+          <span>
+            {record.summary.runCount.toLocaleString()} {t("ui.simulationTab.runs")}{" "}
+            {formatNumber(record.summary.duration)}
+            {t("ui.simulationTab.s")}
+          </span>
+          <span className={current ? "simulation-current" : "simulation-outdated"}>{statusLabel}</span>
+        </p>
+        <button
+          className="simulation-record-delete"
+          type="button"
+          aria-label={t("ui.simulationTab.deleteResult")}
+          onClick={() => onDelete(record.id)}
+        >
+          <UiIcon name="trash" />
+        </button>
+      </header>
+      <div className="simulation-results">
+        <div className="simulation-table" role="table" aria-label={t("ui.simulationTab.simulationPercentileResults")}>
+          <div className="simulation-table-row simulation-table-header" role="row">
+            <span>{t("ui.simulationTab.result")}</span>
+            <span>{t("system.totalDamage")}</span>
+            <span>{t("system.dps")}</span>
+            <span>{t("system.abrasion")}</span>
+            <span>{t("system.normal")}</span>
+            <span>{t("system.critical")}</span>
+            <span>{t("system.affinity")}</span>
+          </div>
+          {resultRows.map(({ label, result }) => (
+            <div className="simulation-table-row" role="row" key={label}>
+              <strong>{label}</strong>
+              <span>{formatNumber(result.totalDamage)}</span>
+              <span>{formatNumber(result.dps)}</span>
+              <span>{formatPercentage(result.abrasionPercentage)}</span>
+              <span>{formatPercentage(result.normalPercentage)}</span>
+              <span>{formatPercentage(result.criticalPercentage)}</span>
+              <span>{formatPercentage(result.affinityPercentage)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function SimulationTab({ bundle, bundleKey, rotationName, buildName }: SimulationTabProps) {
   const [count, setCount] = useState("100");
   const [progress, setProgress] = useState({ completed: 0, total: 100 });
   const [running, setRunning] = useState(false);
-  const [summary, setSummary] = useState<SimulationSummary>();
-  const [simulatedBundleKey, setSimulatedBundleKey] = useState("");
-  const [simulatedRotationName, setSimulatedRotationName] = useState("");
-  const [simulatedBuildName, setSimulatedBuildName] = useState("");
+  const [records, setRecords] = useState<SimulationRecord[]>([]);
   const [customPercentiles, setCustomPercentiles] = useState<number[]>(loadCustomPercentiles);
   const [addingPercentile, setAddingPercentile] = useState(false);
   const [percentileDraft, setPercentileDraft] = useState("");
   const [percentileError, setPercentileError] = useState("");
   const [error, setError] = useState("");
   const taskRef = useRef<SimulationTask | undefined>(undefined);
+  const nextRecordIdRef = useRef(1);
 
   useEffect(() => () => taskRef.current?.cancel(), []);
   useEffect(
@@ -97,14 +190,22 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
     setError("");
     setProgress({ completed: 0, total: runCount });
     setRunning(true);
-    setSimulatedRotationName(rotationName ?? t("ui.simulationTab.activeRotation"));
-    setSimulatedBuildName(buildName ?? t("ui.simulationTab.activeBuild"));
     const simulationBundleKey = bundleKey ?? "";
+    const simulationRotationName = rotationName ?? t("ui.simulationTab.activeRotation");
+    const simulationBuildName = buildName ?? t("ui.simulationTab.activeBuild");
     const task = startSimulation(bundle, runCount, (completed, total) => setProgress({ completed, total }));
     taskRef.current = task;
     try {
-      setSummary(await task.promise);
-      setSimulatedBundleKey(simulationBundleKey);
+      const summary = await task.promise;
+      const record: SimulationRecord = {
+        id: nextRecordIdRef.current,
+        summary,
+        bundleKey: simulationBundleKey,
+        rotationName: simulationRotationName,
+        buildName: simulationBuildName,
+      };
+      nextRecordIdRef.current += 1;
+      setRecords((current) => [record, ...current]);
     } catch (taskError) {
       if (taskError instanceof Error && taskError.message !== "Simulation cancelled") setError(taskError.message);
     } finally {
@@ -114,37 +215,8 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
   };
 
   const percentComplete = progress.total > 0 ? (progress.completed / progress.total) * 100 : 0;
-  const outdated = Boolean(summary && simulatedBundleKey !== (bundleKey ?? ""));
-  const resultRows: Array<{ label: string; percentile: number; result: SimulationRunResult }> = summary
-    ? [
-        { label: t("ui.simulationTab.best"), percentile: 101, result: summary.results.best },
-        { label: "P99", percentile: 99, result: summary.results.p99 },
-        { label: "P95", percentile: 95, result: summary.results.p95 },
-        { label: "P90", percentile: 90, result: summary.results.p90 },
-        { label: "P75", percentile: 75, result: summary.results.p75 },
-        { label: t("ui.simulationTab.median"), percentile: 50, result: summary.results.median },
-        ...customPercentiles.map((percentile) => ({
-          label: `P${percentile}`,
-          percentile,
-          result: selectSimulationPercentile(summary.runs, percentile / 100),
-        })),
-      ].sort((left, right) => right.percentile - left.percentile)
-    : [];
   return (
     <section className="panel simulation-panel">
-      {summary && (
-        <div className="panel-heading">
-          <div>
-            <p>
-              {t("ui.simulationTab.rotation")} {simulatedRotationName} {t("ui.simulationTab.build")}{" "}
-              {simulatedBuildName} · {summary.runCount.toLocaleString()} {t("ui.simulationTab.runs")}{" "}
-              {formatNumber(summary.duration)}
-              {t("ui.simulationTab.s")}{" "}
-              {outdated && <span className="simulation-outdated">{t("ui.simulationTab.outdated")}</span>}
-            </p>
-          </div>
-        </div>
-      )}
       <div className="simulation-controls">
         <label className="editor-field">
           {t("ui.simulationTab.simulationCount")}
@@ -254,30 +326,17 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
           {error}
         </p>
       )}
-      {summary && (
-        <div className="simulation-results">
-          <div className="simulation-table" role="table" aria-label={t("ui.simulationTab.simulationPercentileResults")}>
-            <div className="simulation-table-row simulation-table-header" role="row">
-              <span>{t("ui.simulationTab.result")}</span>
-              <span>{t("system.totalDamage")}</span>
-              <span>{t("system.dps")}</span>
-              <span>{t("system.abrasion")}</span>
-              <span>{t("system.normal")}</span>
-              <span>{t("system.critical")}</span>
-              <span>{t("system.affinity")}</span>
-            </div>
-            {resultRows.map(({ label, result }) => (
-              <div className="simulation-table-row" role="row" key={label}>
-                <strong>{label}</strong>
-                <span>{formatNumber(result.totalDamage)}</span>
-                <span>{formatNumber(result.dps)}</span>
-                <span>{formatPercentage(result.abrasionPercentage)}</span>
-                <span>{formatPercentage(result.normalPercentage)}</span>
-                <span>{formatPercentage(result.criticalPercentage)}</span>
-                <span>{formatPercentage(result.affinityPercentage)}</span>
-              </div>
-            ))}
-          </div>
+      {records.length > 0 && (
+        <div className="simulation-history">
+          {records.map((record) => (
+            <SimulationResultCard
+              key={record.id}
+              record={record}
+              customPercentiles={customPercentiles}
+              currentBundleKey={bundleKey ?? ""}
+              onDelete={(id) => setRecords((current) => current.filter((candidate) => candidate.id !== id))}
+            />
+          ))}
         </div>
       )}
     </section>

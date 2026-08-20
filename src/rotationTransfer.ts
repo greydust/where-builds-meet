@@ -93,6 +93,16 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
   if (
     step.type === "event" &&
     step.event === "TakeDamage" &&
+    typeof step.startTime === "number" &&
+    Number.isFinite(step.startTime) &&
+    typeof step.damage === "number" &&
+    Number.isFinite(step.damage)
+  ) {
+    return { type: "event", event: "TakeDamage", startTime: step.startTime, damage: Math.max(0, step.damage) };
+  }
+  if (
+    step.type === "event" &&
+    step.event === "TakeDamage" &&
     before &&
     typeof step.damage === "number" &&
     Number.isFinite(step.damage)
@@ -250,7 +260,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
   return JSON.stringify(
     {
       format: rotationExportFormat,
-      version: 7,
+      version: 8,
       exportedAt: new Date().toISOString(),
       rotations: entries
         .filter((entry) => !entry.isDefault)
@@ -273,7 +283,8 @@ export function mergeImportedRotationEntries(current: RotationEntry[], value: un
       source.version !== 4 &&
       source.version !== 5 &&
       source.version !== 6 &&
-      source.version !== 7) ||
+      source.version !== 7 &&
+      source.version !== 8) ||
     !Array.isArray(source.rotations)
   ) {
     throw new Error("This file uses an unsupported rotation export format.");

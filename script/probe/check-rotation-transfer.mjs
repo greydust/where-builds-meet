@@ -28,7 +28,7 @@ const customEntry = {
     steps: [
       { type: "event", event: "Move", before: { trigger: 0, action: 1 }, distance: 6 },
       { type: "event", event: "SelfHP", before: { action: 0 }, currentHPRatio: 0.555 },
-      { type: "event", event: "TakeDamage", before: { action: 0 }, damage: 1234 },
+      { type: "event", event: "TakeDamage", startTime: 0.75, damage: 1234 },
       { type: "event", event: "HP", before: { action: 0 }, targetHPRatio: 0.75 },
       { type: "event", event: "Qi", before: { action: 0 }, targetQiRatio: 0.5 },
       { type: "event", event: "Buff", before: { action: "start" }, buff: "Flute", stack: 3 },
@@ -49,7 +49,7 @@ assert(
 const exported = JSON.parse(transfer.exportRotationEntries(current));
 assert(
   exported.format === transfer.rotationExportFormat &&
-    exported.version === 7 &&
+    exported.version === 8 &&
     exported.rotations.length === 1 &&
     exported.rotations[0].id === customEntry.id,
   "Rotation export must omit the bundled default.",
@@ -89,7 +89,9 @@ assert(
   "Self HP events must survive export and import.",
 );
 assert(
-  imported?.rotation.steps[2].event === "TakeDamage" && imported.rotation.steps[2].damage === 1234,
+  imported?.rotation.steps[2].event === "TakeDamage" &&
+    imported.rotation.steps[2].startTime === 0.75 &&
+    imported.rotation.steps[2].damage === 1234,
   "Take Damage events must survive export and import.",
 );
 assert(

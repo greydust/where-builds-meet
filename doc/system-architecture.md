@@ -190,6 +190,10 @@ falling back to the timeline's initial 100% state. Self
 HP, target HP, and target Qi are distinct timeline states. Qi reaching zero
 applies Exhausted; the debuff's data-defined `"expire"` action restores Qi when
 the current application expires, so duration refreshes remain authoritative.
+Attached manual events can target either a skill action or a fixed-time Take
+Damage action. The editor keeps the attached event immediately before its
+anchor in stored rotation order, while timeline sort order determines whether
+its effect resolves before or after the selected action at the shared timestamp.
 
 ## Browser persistence
 
@@ -375,7 +379,7 @@ all later sequential rows, and counts toward rotation duration when it is the
 last step. Move rows run before a
 following skill's cast start, direct action, or triggered-skill action. Exhausted
 rows run after their attached direct or triggered action. Both are rescheduled
-with that target. Timed manual-event `startTime`
+with that target. Take Damage and other timed manual-event `startTime`
 values are offsets from the selected fight-start anchor and consume no cast time.
 The builder resolves cast-time modifiers and the fight-start anchor in a bounded
 convergence pass, then processes manual events at their final absolute times.
@@ -501,17 +505,19 @@ best, P99, P95, P90, P75, and median runs. Cancel terminates that disposable wor
 it cannot disturb the persistent deterministic worker or its queue. Simulation
 results are UI-local and are not published as `RotationMetrics` or persisted.
 Like the Rotation Editor, the Simulation subtree remains mounted while another
-tab is visible, so an in-progress worker and its completed result survive tab
-switches. Each result retains the calculation-context and rotation key used to
-start it. A later stat, build, setup, or active-rotation change marks that result
-outdated without clearing it; the next completed simulation replaces it.
-The result heading displays the rotation and build names captured when that run
-started, so outdated results remain identifiable.
+tab is visible, so an in-progress worker and its completed-result history
+survive tab switches. New results are prepended and individual records can be
+deleted without affecting the worker or other records. Each result retains the
+calculation-context and rotation key, rotation and build names, run count, and
+duration captured when that run started. Records matching the current
+fingerprint are marked Current; other records remain visible and are marked
+Outdated.
 Users can add custom percentiles in `[0, 100)`, including decimal values, except
 for the locked preset rows P99, P95, P90, P75, and P50/Median. The completed
 worker result retains its DPS-sorted runs, so adding or removing a display row
-updates the current result immediately without making it outdated. Custom row
-choices persist for the browser session.
+updates every retained result immediately without changing fingerprint status.
+Custom row choices persist for the browser session; simulation history itself
+remains component memory and is not stored.
 
 ## Baseline and variant calculation
 
@@ -743,7 +749,7 @@ talents, and complete path-specific calculations are not implemented.
 
 Add the event to the `RotationStep` union, `rotationEventDefinitions`, editor
 options, transfer validation, and any special duration UI. `Exhausted`,
-`Controlled`, `ShieldBroken`, and `BattleEnd` use fight-relative timestamps.
+`Controlled`, `ShieldBroken`, `BattleEnd`, and `TakeDamage` use fight-relative timestamps.
 Shield Broken consumes the shared player Shield and can use ordinary action
 requirements for follow-up effects. Battle End has no actions; the calculator
 treats its ordered timestamp as the damage and duration cutoff. Delay instead participates in sequential cast timing and has an editable
