@@ -267,7 +267,7 @@
   .rotation-action-row {
     display: grid;
     grid-template-columns:
-      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) var(--rotation-state-columns) minmax(10.3125rem, 0.9fr) minmax(
+      26px 2.5rem 7rem 6.25rem minmax(10rem, 1.6fr) var(--rotation-state-columns,) minmax(10.3125rem, 0.9fr) minmax(
         6.875rem,
         1fr
       )

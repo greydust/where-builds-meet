@@ -704,7 +704,10 @@ as editable text. Their up/down controls move the attachment through skill
 starts (for before-attached events), direct damage actions, and declared triggered-skill damage
 actions in effective timeline order. Exhausted skips skill-start targets. Moving to an action expands its owning skill so the
 attachment and target remain visible together; leaving that skill collapses the
-auto-expanded action list. The editor preserves the attached-event row's visual
+auto-expanded action list. When multiple events share the same skill, action,
+trigger, and before/after phase, the controls first reorder those events before
+moving beyond that attachment target. Their stored array order is their execution
+order at the shared timestamp. The editor preserves the attached-event row's visual
 scroll position while moving it. A newly inserted skill receives focus, and
 converting it to an attached event targets the following skill.
 

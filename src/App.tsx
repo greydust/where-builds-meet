@@ -167,6 +167,12 @@ import {
 } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
 import {
+  attachedEventPhase,
+  attachedEventSiblingIndex,
+  attachedTargetForStep,
+  reorderAttachedEventWithinTarget,
+} from "./rotationEditing";
+import {
   characterProfileMatches,
   characterProfileStorageKey,
   exportCharacterProfiles,
@@ -584,23 +590,6 @@ function normalizeRotation(rotation: RotationRecord): RotationRecord {
     start: rotation.start,
     ...(rotation.eventTimeReference === "battleStart" ? { eventTimeReference: "battleStart" as const } : {}),
   };
-}
-
-function attachedTargetForStep(step: RotationStep | undefined) {
-  if (step?.type !== "event") return undefined;
-  if (
-    (step.event === "Move" ||
-      step.event === "SelfHP" ||
-      step.event === "TakeDamage" ||
-      step.event === "HP" ||
-      step.event === "Qi" ||
-      step.event === "Buff" ||
-      step.event === "Debuff") &&
-    "before" in step
-  )
-    return step.before;
-  if (step.event === "Qi" && "after" in step) return step.after;
-  return undefined;
 }
 
 function eventDefaultDuration(event: "Exhausted" | "Controlled") {
@@ -4793,7 +4782,27 @@ function RotationEditorTab({
     const eventStep = rotation.steps[stepIndex];
     const eventTarget = attachedTargetForStep(eventStep);
     if (eventStep?.type !== "event" || !eventTarget) return;
-    const eventAfterAction = eventStep.event === "Qi" && "after" in eventStep;
+    const reordered = reorderAttachedEventWithinTarget(rotation.steps, stepIndex, direction);
+    if (reordered) {
+      const scrollContainer = rotationScrollRef.current;
+      const eventElement = control.closest<HTMLElement>("[data-rotation-step-index]");
+      if (scrollContainer && eventElement)
+        pendingEventScrollRef.current = {
+          stepIndex: reordered.movedIndex,
+          top: eventElement.getBoundingClientRect().top - scrollContainer.getBoundingClientRect().top,
+        };
+      const startStep = rotation.start ? rotation.steps[rotation.start.step] : undefined;
+      const nextStartStep = startStep ? reordered.steps.indexOf(startStep) : -1;
+      setRotation({
+        ...rotation,
+        steps: reordered.steps,
+        ...(rotation.start && nextStartStep >= 0 ? { start: { ...rotation.start, step: nextStartStep } } : {}),
+      });
+      if (nextStartStep >= 0 && rotation.start)
+        setStartAnchor({ rowId: `rotation-${nextStartStep}`, actionIndex: rotation.start.action });
+      return;
+    }
+    const eventAfterAction = attachedEventPhase(eventStep) === "after";
     const availableTargets = eventAfterAction
       ? attachmentTargets.filter((target) => target.target.action !== "start")
       : attachmentTargets;
@@ -6048,7 +6057,7 @@ function RotationEditorTab({
                     const attachedTarget = attachedTargetForStep(step);
                     const isAttachedEvent = Boolean(attachedTarget);
                     const availableAttachmentTargets =
-                      step.type === "event" && step.event === "Qi" && "after" in step
+                      attachedEventPhase(step) === "after"
                         ? attachmentTargets.filter((target) => target.target.action !== "start")
                         : attachmentTargets;
                     const attachedTargetIndex = attachedTarget
@@ -6059,6 +6068,14 @@ function RotationEditorTab({
                             target.target.trigger === attachedTarget.trigger,
                         )
                       : -1;
+                    const attachedSiblingAbove =
+                      row.rotationIndex === undefined
+                        ? -1
+                        : attachedEventSiblingIndex(rotation.steps, row.rotationIndex, -1);
+                    const attachedSiblingBelow =
+                      row.rotationIndex === undefined
+                        ? -1
+                        : attachedEventSiblingIndex(rotation.steps, row.rotationIndex, 1);
                     const stepSkill = step.type === "skill" ? step.skill : undefined;
                     const actionsExpanded = skillActionsExpanded(row.id);
                     const actionState =
@@ -6540,7 +6557,7 @@ function RotationEditorTab({
                                   <button
                                     type="button"
                                     aria-label={t("ui.app.moveEventToPreviousAction")}
-                                    disabled={rotationLocked || attachedTargetIndex <= 0}
+                                    disabled={rotationLocked || (attachedSiblingAbove < 0 && attachedTargetIndex <= 0)}
                                     onClick={(event) =>
                                       moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)
                                     }
@@ -6552,8 +6569,9 @@ function RotationEditorTab({
                                     aria-label={t("ui.app.moveEventToNextAction")}
                                     disabled={
                                       rotationLocked ||
-                                      attachedTargetIndex < 0 ||
-                                      attachedTargetIndex >= availableAttachmentTargets.length - 1
+                                      (attachedSiblingBelow < 0 &&
+                                        (attachedTargetIndex < 0 ||
+                                          attachedTargetIndex >= availableAttachmentTargets.length - 1))
                                     }
                                     onClick={(event) =>
                                       moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)
