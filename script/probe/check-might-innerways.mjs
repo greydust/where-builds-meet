@@ -7,10 +7,15 @@ const assert = (condition, message) => {
 
 const battleAnthem = await readJson("data/innerway/battle-anthem.json");
 const adaptiveSteel = await readJson("data/innerway/adaptive-steel.json");
+const breakingPoint = await readJson("data/innerway/breaking-point.json");
 
 assert(
   battleAnthem.tags.includes("StonesplitMight") && adaptiveSteel.tags.includes("StonesplitMight"),
   "Might alternative Inner Ways must use the Stonesplit Might path tag.",
+);
+assert(
+  breakingPoint.tags.includes("StonesplitStrength") && breakingPoint.tags.includes("StonesplitMight"),
+  "Breaking Point must remain available to both Stonesplit paths.",
 );
 
 const battleT0 = battleAnthem.effect.BattleAnthemT0.effect[0];

@@ -1,7 +1,7 @@
 {
   "name": "Breaking Point",
   "altersTimeline": true,
-  "tags": ["StonesplitStrength"],
+  "tags": ["StonesplitStrength", "StonesplitMight"],
   "effect": {
     "BreakingPointT0": {
       "trigger": [

@@ -934,6 +934,8 @@ Avalanche's cast and hit timing by two seconds and is consumed when the
 Avalanche cast starts.
 
 Battle Anthem and Adaptive Steel are alternative Stonesplit Might Inner Ways.
+Breaking Point is also available to both Stonesplit Strength and Stonesplit
+Might through its path tags.
 Battle Anthem adds 10% Charged Skill damage at T0, 3.9% Affinity at T2, and a
 further 5% Charged Skill damage at T4. Its T6 damage scaling is stored as a
 segment over `enduranceLost`, from 0% below 10 lost Endurance through 10% at 50
