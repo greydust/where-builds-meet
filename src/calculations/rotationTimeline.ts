@@ -850,6 +850,25 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     });
   };
   let processedEvents = 0;
+  const startResolvedActionValues = new Map<string, unknown>();
+  const actionResolutionKey = (row: TimelineRow, actionIndex: number) => `${row.id}:${actionIndex}`;
+  const resolveStartBoundActionValues = (row: TimelineRow, actionIndexes: number[]) => {
+    actionIndexes.forEach((actionIndex) => {
+      const action = row.actions[actionIndex];
+      const valueObject =
+        action?.value && typeof action.value === "object" && !Array.isArray(action.value)
+          ? (action.value as EditableObject)
+          : undefined;
+      if (valueObject?.operator !== "first" || valueObject.resolveAt !== "skillStart") return;
+      const targetEffects = action.target === "target" ? debuffs : buffs;
+      const resolvedValue = Array.isArray(valueObject.operand)
+        ? valueObject.operand.find(
+            (candidate) => typeof candidate === "string" && targetEffects.some((effect) => effect.name === candidate),
+          )
+        : undefined;
+      startResolvedActionValues.set(actionResolutionKey(row, actionIndex), resolvedValue);
+    });
+  };
   const syncDirectAttachments = (row: TimelineRow) => {
     (directAttachments.get(row.id) ?? []).forEach((attachment) => {
       const targetTime =
@@ -916,6 +935,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const segments = multiActionSegments.get(event.row.id);
       const segment = segments?.[event.subActionIndex ?? -1];
       if (!segment) continue;
+      resolveStartBoundActionValues(event.row, segment.actionIndexes);
       const skillTags = segment.skill.tags ?? [];
       const modifiers = Array.isArray(segment.skill.modifier)
         ? (segment.skill.modifier as EditableObject[])
@@ -1044,6 +1064,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.targetQiRatio = targetQiRatio;
       event.row.resources = { ...resources };
       if (multiActionSegments.has(event.row.id)) continue;
+      resolveStartBoundActionValues(
+        event.row,
+        event.row.actions.map((_action, actionIndex) => actionIndex),
+      );
       const modifiers = Array.isArray(event.row.skill?.modifier) ? (event.row.skill.modifier as EditableObject[]) : [];
       event.row.modifierEffects = modifiers
         .filter((item) =>
@@ -1174,12 +1198,18 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         action.value && typeof action.value === "object" && !Array.isArray(action.value)
           ? (action.value as EditableObject)
           : undefined;
-      const value =
-        valueObject?.operator === "first" && Array.isArray(valueObject.operand)
-          ? valueObject.operand.find(
-              (candidate) => typeof candidate === "string" && targetEffects.some((effect) => effect.name === candidate),
-            )
-          : action.value;
+      const resolutionKey = actionResolutionKey(event.row, event.actionIndex ?? -1);
+      let value = startResolvedActionValues.has(resolutionKey)
+        ? startResolvedActionValues.get(resolutionKey)
+        : action.value;
+      if (
+        !startResolvedActionValues.has(resolutionKey) &&
+        valueObject?.operator === "first" &&
+        Array.isArray(valueObject.operand)
+      )
+        value = valueObject.operand.find(
+          (candidate) => typeof candidate === "string" && targetEffects.some((effect) => effect.name === candidate),
+        );
       if (typeof value === "string") {
         const next = consumeTrackedEffect(
           targetEffects,

@@ -573,6 +573,7 @@
   "ui.app.resetPeriodOnRefresh": "刷新時重設週期",
   "ui.app.resetToBuildValue": "重設為配裝值",
   "ui.app.resetToCalculatedValue": "重設為計算值",
+  "ui.app.resolveAtSkillStart": "在技能開始時決定",
   "ui.app.rotation": "循環",
   "ui.app.rotationEditor": "循環編輯器",
   "ui.app.rotationImportError": "無法匯入循環檔案。",

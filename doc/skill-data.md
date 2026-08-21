@@ -178,6 +178,15 @@ Consumption occurs at the declared action time. The default amount is one;
 }
 ```
 
+By default, `first` is resolved when the consume action executes. Add
+`"resolveAt": "skillStart"` to remember the first available operand when the
+skill starts and consume only that remembered effect later. If the remembered
+effect expires before the consume action, nothing is consumed; the action does
+not fall through to another operand. For a multi-action skill, `skillStart`
+means the start of the component definition that owns the consume action. This
+also lets the following component snapshot its modifiers before a consume
+scheduled just after the preceding component's cast time.
+
 ### Trigger
 
 ```json

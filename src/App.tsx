@@ -3274,14 +3274,15 @@ function ActionDetails({
 }) {
   const type = asString(item.type) || "damage";
   const set = (field: string, value: unknown) => onChange(updateObjectField(item, field, value));
-  const firstConsume =
-    item.value &&
-    typeof item.value === "object" &&
-    !Array.isArray(item.value) &&
-    (item.value as EditableObject).operator === "first";
+  const consumeValueObject =
+    item.value && typeof item.value === "object" && !Array.isArray(item.value)
+      ? (item.value as EditableObject)
+      : undefined;
+  const firstConsume = consumeValueObject?.operator === "first";
+  const consumeResolvesAtSkillStart = firstConsume && consumeValueObject.resolveAt === "skillStart";
   const consumeText = firstConsume
-    ? Array.isArray((item.value as EditableObject).operand)
-      ? ((item.value as EditableObject).operand as unknown[]).map(asString).join(", ")
+    ? Array.isArray(consumeValueObject?.operand)
+      ? (consumeValueObject.operand as unknown[]).map(asString).join(", ")
       : ""
     : asString(item.value);
   function setConsumeMode(mode: string) {
@@ -3289,7 +3290,16 @@ function ActionDetails({
       .split(",")
       .map((value) => value.trim())
       .filter(Boolean);
-    set("value", mode === "first" ? { operator: "first", operand: current } : (current[0] ?? ""));
+    set(
+      "value",
+      mode === "first"
+        ? {
+            operator: "first",
+            operand: current,
+            ...(consumeResolvesAtSkillStart ? { resolveAt: "skillStart" } : {}),
+          }
+        : (current[0] ?? ""),
+    );
   }
   function setConsumeText(value: string) {
     set(
@@ -3301,9 +3311,17 @@ function ActionDetails({
               .split(",")
               .map((part) => part.trim())
               .filter(Boolean),
+            ...(consumeResolvesAtSkillStart ? { resolveAt: "skillStart" } : {}),
           }
         : value,
     );
+  }
+  function setConsumeResolveAtSkillStart(enabled: boolean) {
+    if (!firstConsume) return;
+    const nextValue = { ...(consumeValueObject ?? {}) };
+    if (enabled) nextValue.resolveAt = "skillStart";
+    else delete nextValue.resolveAt;
+    set("value", nextValue);
   }
   return (
     <div className="structured-detail">
@@ -3384,6 +3402,16 @@ function ActionDetails({
                 onChange={(event) => set("stack", event.target.checked ? "all" : 1)}
               />
               <span>{t("ui.app.allStacks")}</span>
+            </label>
+          )}
+          {type === "consume" && firstConsume && (
+            <label className="checkbox-field">
+              <input
+                type="checkbox"
+                checked={consumeResolvesAtSkillStart}
+                onChange={(event) => setConsumeResolveAtSkillStart(event.target.checked)}
+              />
+              <span>{t("ui.app.resolveAtSkillStart")}</span>
             </label>
           )}
           {item.stack !== "all" && (

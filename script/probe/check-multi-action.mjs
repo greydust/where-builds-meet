@@ -139,6 +139,108 @@ try {
     "Sub-action damage and cast time must belong to the parent skill breakdown.",
   );
 
+  const startBoundSkills = {
+    Primer: {
+      name: "Primer",
+      castTime: 0,
+      action: [
+        { type: "apply", target: "self", value: "InnerPassion", time: 0 },
+        { type: "apply", target: "self", value: "ChargeEnhancement", time: 0 },
+      ],
+      modifier: [],
+      tags: [],
+    },
+    BoundComposite: {
+      name: "Bound composite",
+      castTime: 0,
+      action: [],
+      subAction: ["BoundCharge", "BoundSlam"],
+      modifier: [],
+      tags: [],
+    },
+    BoundCharge: {
+      name: "Bound charge",
+      castTime: 1,
+      action: [
+        {
+          type: "consume",
+          target: "self",
+          value: {
+            operator: "first",
+            operand: ["InnerPassion", "ChargeEnhancement"],
+            resolveAt: "skillStart",
+          },
+          stack: 1,
+          time: 1.01,
+        },
+      ],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+    BoundSlam: {
+      name: "Bound slam",
+      castTime: 0.1,
+      action: [{ type: "damage", phyCoef: 1, time: 0 }],
+      modifier: [
+        {
+          requirement: [{ target: "self", value: "InnerPassion" }],
+          effect: { dmgBonus: 0.5 },
+        },
+      ],
+      tags: ["SubAction"],
+    },
+    Inspect: { name: "Inspect", castTime: 0, action: [], modifier: [], tags: [] },
+  };
+  const startBoundRotation = {
+    name: "Start-bound consume probe",
+    steps: [
+      { type: "skill", skill: "Primer" },
+      { type: "skill", skill: "BoundComposite" },
+      { type: "skill", skill: "Inspect" },
+    ],
+  };
+  const startBoundDefinitions = (innerPassionDuration) => ({
+    InnerPassion: { name: "Inner Passion", duration: innerPassionDuration, maxStack: 1, effect: [] },
+    ChargeEnhancement: { name: "Charge Enhancement", duration: 10, maxStack: 1, effect: [] },
+  });
+  const expiredSelection = calculateRotationBaseline(
+    bundle(startBoundSkills, startBoundRotation, [], startBoundDefinitions(0.5)),
+  );
+  const afterExpiredSelection = expiredSelection.timeline.find((row) => row.id === "rotation-2");
+  assert(
+    afterExpiredSelection?.buffs.some((effect) => effect.name === "ChargeEnhancement"),
+    "A start-bound consume must not fall through when its selected effect expires before execution.",
+  );
+
+  const liveSelection = calculateRotationBaseline(
+    bundle(startBoundSkills, startBoundRotation, [], startBoundDefinitions(10)),
+  );
+  const liveComposite = liveSelection.timeline.find((row) => row.id === "rotation-1");
+  const afterLiveSelection = liveSelection.timeline.find((row) => row.id === "rotation-2");
+  assert(
+    liveComposite?.actionModifierEffects?.[1]?.some((effect) => effect.dmgBonus === 0.5),
+    "The following component must snapshot its modifier before the delayed consume executes.",
+  );
+  assert(
+    !afterLiveSelection?.buffs.some((effect) => effect.name === "InnerPassion") &&
+      afterLiveSelection?.buffs.some((effect) => effect.name === "ChargeEnhancement"),
+    "A live start-bound selection must consume only the effect selected at component start.",
+  );
+
+  const assertBoundConsume = (chargeId, slamId, expectedTime) => {
+    const consume = phalanxbaneSkills[chargeId].action.find((action) => action.type === "consume");
+    assert(
+      consume?.value?.resolveAt === "skillStart" && closeTo(consume.time, expectedTime),
+      `${chargeId} must consume its start-bound acceleration effect after charging.`,
+    );
+    assert(
+      !phalanxbaneSkills[slamId].action.some((action) => action.type === "consume"),
+      `${slamId} must not consume the acceleration effect at slam start.`,
+    );
+  };
+  assertBoundConsume("PhalanxbaneHeavyCharge2", "PhalanxbaneHeavySlam2", 0.96);
+  assertBoundConsume("PhalanxbaneHeavyCharge3", "PhalanxbaneHeavySlam3", 1.61);
+
   const phalanxbane = calculateRotationBaseline(
     bundle(phalanxbaneSkills, {
       name: "Phalanxbane multi-action probe",
@@ -168,7 +270,9 @@ try {
     "Burning Heart component damage must be collected under the main charged skill.",
   );
 
-  console.log("Sequential multi-action timing, state, tags, modifiers, and parent ownership checks passed.");
+  console.log(
+    "Sequential multi-action timing, state, tags, modifiers, ownership, and start-bound consume checks passed.",
+  );
 } finally {
   await viteServer.close();
 }

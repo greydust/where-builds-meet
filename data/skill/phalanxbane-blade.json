@@ -131,6 +131,17 @@
         ],
         "value": "AnxiSoldierBurningHeart2",
         "time": 0.95
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": ["InnerPassion", "ChargeEnhancement"],
+          "resolveAt": "skillStart"
+        },
+        "stack": 1,
+        "time": 0.96
       }
     ],
     "modifier": [
@@ -171,16 +182,6 @@
     "name": "Burning Heart Slam 2",
     "castTime": 1.05,
     "action": [
-      {
-        "type": "consume",
-        "target": "self",
-        "value": {
-          "operator": "first",
-          "operand": ["InnerPassion", "ChargeEnhancement"]
-        },
-        "stack": 1,
-        "time": 0
-      },
       {
         "type": "apply",
         "requirement": [
@@ -293,6 +294,17 @@
         ],
         "value": "AnxiSoldierBurningHeart3",
         "time": 1.6
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": ["InnerPassion", "ChargeEnhancement"],
+          "resolveAt": "skillStart"
+        },
+        "stack": 1,
+        "time": 1.61
       }
     ],
     "modifier": [
@@ -333,16 +345,6 @@
     "name": "Burning Heart Slam 3",
     "castTime": 0.9875,
     "action": [
-      {
-        "type": "consume",
-        "target": "self",
-        "value": {
-          "operator": "first",
-          "operand": ["InnerPassion", "ChargeEnhancement"]
-        },
-        "stack": 1,
-        "time": 0
-      },
       {
         "type": "apply",
         "requirement": [

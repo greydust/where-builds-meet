@@ -604,6 +604,7 @@
   "ui.app.resetPeriodOnRefresh": "Reset Period on Refresh",
   "ui.app.resetToBuildValue": "Reset to build value",
   "ui.app.resetToCalculatedValue": "Reset to calculated value",
+  "ui.app.resolveAtSkillStart": "Resolve at skill start",
   "ui.app.rotation": "Rotation",
   "ui.app.rotationEditor": "Rotation Editor",
   "ui.app.rotationImportError": "The rotation file could not be imported.",
