@@ -1,6 +1,6 @@
 {
   "name": "Battle Anthem",
-  "altersTimeline": true,
+  "altersTimeline": false,
   "tags": ["StonesplitMight"],
   "effect": {
     "BattleAnthemT0": {

@@ -1,6 +1,6 @@
 {
   "name": "Adaptive Steel",
-  "altersTimeline": true,
+  "altersTimeline": false,
   "tags": ["StonesplitMight"],
   "effect": {
     "AdaptiveSteelT0": {

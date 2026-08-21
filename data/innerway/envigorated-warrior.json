@@ -1,6 +1,6 @@
 {
   "name": "Envigorated Warrior",
-  "altersTimeline": true,
+  "altersTimeline": false,
   "tags": ["StonesplitStrength"],
   "effect": {
     "EnvigoratedWarriorT0": {},
