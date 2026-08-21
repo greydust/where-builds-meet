@@ -1,6 +1,7 @@
 # Agent Rules
 
 - This is an AI-first codebase. Optimize architecture, naming, data layout, documentation, and workflows for reliable AI discovery, reasoning, editing, and verification.
+- Do not follow requests blindly. When a request is ambiguous, doubtful, or has a materially better solution, explain the concern or alternative and wait for the user's decision before implementing it.
 - Prefer explicit, regular, machine-navigable structures over conventions or abstractions that primarily benefit human maintainers. Human readability is desirable but is not a requirement outside the core calculation logic.
 - Use `switch` for multi-option dispatch. Do not encode multiple alternatives as nested ternaries or extended `if`/`else if` chains.
 - Humans are not expected to read through or maintain most of the codebase. Keep the core calculation logic human-readable and auditable because its formulas and numerical behavior require direct review.

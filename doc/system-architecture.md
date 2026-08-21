@@ -27,6 +27,14 @@ other non-text controls. UI icons are SVG components so their geometry does
 not depend on the active font. Noto Sans is therefore a repeatable visual
 baseline, not a layout requirement.
 
+PC and mobile are explicit presentation modes over the same React state and
+calculation components. PC retains the established wide grids and viewport-bound
+Build and Rotation workspaces. Mobile uses normal document scrolling, compact
+single-column panels, horizontal item choosers, and card-style rotation rows.
+The production mode follows a `48em` viewport query. Dev mode exposes a PC/Mobile
+selector that overrides that query for the current session, allowing either
+presentation to be tested without changing calculation or stored game data.
+
 The long-term product direction is to accept complete character and gear data,
 simulate rotations, compare alternatives, and recommend builds or rotations.
 
@@ -162,10 +170,10 @@ continue. Main and DPS Breakdown subscribe to `rotationMetrics.ts` with
 `useSyncExternalStore`; they render the latest published immutable metrics rather
 than calculating independently.
 
-When Build or Rotation Editor is active, the page shell is constrained to the
-visible viewport. The header, tabs, and footer remain visible while the build
-manager and rotation table use the remaining height and scroll internally.
-Other tabs retain normal document scrolling.
+In PC mode, Build or Rotation Editor constrains the page shell to the visible
+viewport. The header, tabs, and footer remain visible while the build manager
+and rotation table use the remaining height and scroll internally. Mobile mode
+and the other tabs retain normal document scrolling.
 
 The currently viewed build and active build are separate concepts. Only the
 active build contributes gear stats, attunement, weapon and armor sets, bow/ring set, and
@@ -210,6 +218,7 @@ tab session.
 | Active build ID                                 | `localStorage`, `wwm-active-build-v1`              |
 | Skill editor overrides                          | `sessionStorage`, `wwm-skill-editor-session-v1`    |
 | Combat path                                     | `sessionStorage`, `wwm-path-session-v1`            |
+| Dev layout preview                              | `sessionStorage`, `wwm-layout-preview-session-v1`  |
 | Attunement overrides                            | `sessionStorage`, `wwm-attunement-overrides-v1`    |
 | Weapons and enemy                               | `sessionStorage`, `wwm-settings-session-v1`        |
 | Build setup overrides                           | `sessionStorage`, `wwm-build-setup-overrides-v1`   |

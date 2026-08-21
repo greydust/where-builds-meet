@@ -11,7 +11,9 @@ import {
 } from "./statEffects";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 
-type AttunementDefinition = { effect?: { stat?: Record<string, number>; tags?: string[] } };
+type AttunementDefinition = {
+  effect?: { stat?: Record<string, number>; tags?: string[]; excludeTags?: string[] };
+};
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
 
 export type AttunementStats = {
@@ -260,6 +262,8 @@ function calculateDamageBreakdownInternal(
       const definition = attunementDefinitions[key];
       const matchTags = definition?.effect?.tags;
       if (matchTags && !matchTags.every((tag) => skillTags.includes(tag))) return total;
+      const excludeTags = definition?.effect?.excludeTags;
+      if (excludeTags?.some((tag) => skillTags.includes(tag))) return total;
       const multiplier = definition.effect?.stat?.[target];
       return total + (typeof multiplier === "number" && Number.isFinite(multiplier) ? value * multiplier : 0);
     }, 0);

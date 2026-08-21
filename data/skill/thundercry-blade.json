@@ -150,10 +150,12 @@
       "DirectDamage",
       "MartialArts",
       "Heavy",
+      "Charged",
       "VariedCombo",
       "MoBlade",
       "ThundercryBlade",
       "StonebreakerCleave",
+      "StonebreakerQuake",
       "Triggered"
     ]
   },

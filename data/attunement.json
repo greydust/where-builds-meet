@@ -87,7 +87,8 @@
       "stat": {
         "attunementDMGBonus": 1
       },
-      "tags": ["ThundercryBlade", "Charged"]
+      "tags": ["ThundercryBlade", "Charged"],
+      "excludeTags": ["StonebreakerQuake"]
     }
   },
   "thundercryShieldBoost": {

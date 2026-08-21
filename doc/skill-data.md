@@ -946,6 +946,12 @@ combinations keep the rule from affecting an attack tagged with only one half
 of a category. Its `baseDMGBonus` is a separate multiplier from ordinary
 `dmgBonus` effects.
 
+Attunement effects match every entry in `effect.tags` and reject an action when
+any entry in the optional `effect.excludeTags` appears on that action. This
+keeps general combat tags intact when an individual attunement has a narrower
+scope. Stonebreaker Quake remains tagged `Charged` for other mechanics but is
+excluded from Thundercry Blade's Charged Skill DMG Boost.
+
 Might actions use the same `phyCoef` for physical and attribute damage.
 Thundercry Blade's Max-HP talents use segmented stat/effective-stat values and
 per-action tag requirements. Its Critical talent contributes to Effective

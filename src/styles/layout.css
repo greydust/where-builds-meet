@@ -173,6 +173,29 @@
       gap: 12px;
     }
 
+    .layout-preview-selector {
+      display: grid;
+      min-inline-size: 0;
+      flex: 1 0 100%;
+      gap: 4px;
+
+      span {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+      }
+
+      select {
+        inline-size: 100%;
+        min-block-size: 44px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 8px;
+        background: var(--surface-alt);
+        color: var(--text);
+        font: inherit;
+      }
+    }
+
     .locale-selector {
       display: grid;
       gap: 4px;

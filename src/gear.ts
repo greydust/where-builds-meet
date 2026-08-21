@@ -105,6 +105,7 @@ export type AttunementDefinition = GearValueDefinition & {
   effect: {
     stat: Record<string, number>;
     tags?: string[];
+    excludeTags?: string[];
   };
 };
 

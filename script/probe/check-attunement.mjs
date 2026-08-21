@@ -10,8 +10,10 @@ const viteServer = await createServer({
 
 try {
   const { calculateDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
+  const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
+  const thundercrySkills = (await viteServer.ssrLoadModule("/data/skill/thundercry-blade.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -36,6 +38,7 @@ try {
     snowpartingChargedBoost: 0,
     snowpartingVariedComboBoost: 0,
     snowpartingMartialBoost: 0,
+    thundercryChargedBoost: 0,
   };
   const damage = (attunement, skillTags) =>
     calculateDamageBreakdown(
@@ -75,6 +78,51 @@ try {
   assert(
     closeTo(penetrated / baseline, 1.05),
     "A weapon attunement without skill-match tags must apply to its penetration channel.",
+  );
+
+  const cleaveBundle = (attunement) => ({
+    timeline: {
+      rotation: { name: "Thundercry attunement probe", steps: [{ type: "skill", skill: "StonebreakerCleave" }] },
+      skills: {
+        StonebreakerCleave: thundercrySkills.StonebreakerCleave,
+        StonebreakerQuake: thundercrySkills.StonebreakerQuake,
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: {},
+      innerWayConditions: [],
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: ["thundercry", "stormbreaker"],
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement,
+    enemy,
+    derivedStats: calculateDerivedStats(stats, enemy.judgementResistance),
+    weapons: ["thundercry", "stormbreaker"],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  const cleaveBaseline = calculateRotationBaseline(cleaveBundle(baseAttunement));
+  const cleaveBoosted = calculateRotationBaseline(cleaveBundle({ ...baseAttunement, thundercryChargedBoost: 0.06 }));
+  const damageBySkill = (result, skillId) => {
+    const row = result.timeline.find((candidate) => candidate.step.skill === skillId);
+    if (!row) throw new Error(`Missing ${skillId} timeline row.`);
+    return result.actionBreakdowns[`${row.id}:0`]?.total ?? 0;
+  };
+  assert(
+    closeTo(
+      damageBySkill(cleaveBoosted, "StonebreakerCleave") / damageBySkill(cleaveBaseline, "StonebreakerCleave"),
+      1.06,
+    ),
+    "Thundercry Charged attunement must apply to Stonebreaker Cleave.",
+  );
+  assert(
+    closeTo(damageBySkill(cleaveBoosted, "StonebreakerQuake"), damageBySkill(cleaveBaseline, "StonebreakerQuake")),
+    "Thundercry Charged attunement must exclude Stonebreaker Quake without removing its Charged tag.",
   );
   console.log("Attunement tag and standalone multiplier checks passed.");
 } finally {

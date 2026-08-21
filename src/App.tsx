@@ -207,6 +207,7 @@ const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
 const statOverrideStorageKey = "wwm-stat-overrides-v1";
 const skillStorageKey = "wwm-skill-editor-session-v1";
+const layoutPreviewStorageKey = "wwm-layout-preview-session-v1";
 const legacyInnerWayStorageKey = "wwm-inner-way-session-v1";
 const attunementStorageKey = "wwm-attunement-session-v2";
 const legacyAttunementStorageKey = "wwm-attunement-session-v1";
@@ -225,6 +226,7 @@ const percentageStatKeys = new Set<keyof CharacterStats>(
 );
 
 type CalculatorSettings = { weapons: [WeaponId, WeaponId]; enemy: string };
+type LayoutMode = "pc" | "mobile";
 type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutDust" | "bamboocutKite";
 type PathDefinition = {
   name: string;
@@ -474,6 +476,23 @@ const manualDebuffDefinitions = {
 
 function loadDevMode() {
   return localStorage.getItem(devModeStorageKey) === "true";
+}
+
+const compactLayoutQuery = "(max-width: 48em)";
+
+function subscribeToCompactLayout(callback: () => void) {
+  const query = window.matchMedia(compactLayoutQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+function compactLayoutSnapshot() {
+  return window.matchMedia(compactLayoutQuery).matches;
+}
+
+function loadLayoutPreview(compact: boolean): LayoutMode {
+  const saved = sessionStorage.getItem(layoutPreviewStorageKey);
+  return saved === "pc" || saved === "mobile" ? saved : compact ? "mobile" : "pc";
 }
 
 function loadSelectedPath(devMode = loadDevMode()): PathId {
@@ -6267,62 +6286,67 @@ function RotationEditorTab({
                               <span aria-hidden="true" />
                             )}
                             <span className="rotation-index">{skillNumber}</span>
-                            {isManualEvent ? (
-                              isAttachedEvent || isDelayEvent || rotationLocked ? (
+                            <span className="rotation-mobile-field" data-mobile-label={t("ui.app.startTime")}>
+                              {isManualEvent ? (
+                                isAttachedEvent || isDelayEvent || rotationLocked ? (
+                                  <span>
+                                    {formatNumber(displayTime(startTime))}
+                                    {t("ui.app.s")}
+                                  </span>
+                                ) : (
+                                  <input
+                                    className="rotation-event-time"
+                                    type="number"
+                                    step="0.01"
+                                    value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))}
+                                    onChange={(event) =>
+                                      setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                    }
+                                    onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)}
+                                    onKeyDown={(event) => {
+                                      if (event.key === "Enter") event.currentTarget.blur();
+                                    }}
+                                  />
+                                )
+                              ) : (
                                 <span>
                                   {formatNumber(displayTime(startTime))}
                                   {t("ui.app.s")}
                                 </span>
-                              ) : (
-                                <input
-                                  className="rotation-event-time"
-                                  type="number"
-                                  step="0.01"
-                                  value={eventTimeDrafts[row.id] ?? formatNumber(displayTime(startTime))}
-                                  onChange={(event) =>
-                                    setEventTimeDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                  }
-                                  onBlur={() => commitEventTime(row.id, row.rotationIndex ?? 0)}
-                                  onKeyDown={(event) => {
-                                    if (event.key === "Enter") event.currentTarget.blur();
-                                  }}
-                                />
-                              )
-                            ) : (
-                              <span>
-                                {formatNumber(displayTime(startTime))}
-                                {t("ui.app.s")}
-                              </span>
-                            )}
-                            {durationEvent ? (
-                              rotationLocked ? (
+                              )}
+                            </span>
+                            <span className="rotation-mobile-field" data-mobile-label={t("ui.app.castTime")}>
+                              {durationEvent ? (
+                                rotationLocked ? (
+                                  <span>
+                                    {formatNumber(durationValue)}
+                                    {t("ui.app.s")}
+                                  </span>
+                                ) : (
+                                  <input
+                                    className="rotation-event-time"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={eventDurationDrafts[row.id] ?? String(durationValue)}
+                                    onChange={(event) =>
+                                      setEventDurationDrafts((current) => ({
+                                        ...current,
+                                        [row.id]: event.target.value,
+                                      }))
+                                    }
+                                    onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)}
+                                    onKeyDown={(event) => {
+                                      if (event.key === "Enter") event.currentTarget.blur();
+                                    }}
+                                  />
+                                )
+                              ) : isAttachedEvent ? null : (
                                 <span>
-                                  {formatNumber(durationValue)}
-                                  {t("ui.app.s")}
+                                  {isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}
                                 </span>
-                              ) : (
-                                <input
-                                  className="rotation-event-time"
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={eventDurationDrafts[row.id] ?? String(durationValue)}
-                                  onChange={(event) =>
-                                    setEventDurationDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                  }
-                                  onBlur={() => commitEventDuration(row.id, row.rotationIndex ?? 0)}
-                                  onKeyDown={(event) => {
-                                    if (event.key === "Enter") event.currentTarget.blur();
-                                  }}
-                                />
-                              )
-                            ) : isAttachedEvent ? (
-                              <span />
-                            ) : (
-                              <span>
-                                {isManualEvent ? "" : row.kind === "rotation" ? `${formatNumber(castTime)}s` : "—"}
-                              </span>
-                            )}
+                              )}
+                            </span>
                             {row.kind === "rotation" ? (
                               rotationLocked ? (
                                 <span className="rotation-skill-name">
@@ -6374,149 +6398,161 @@ function RotationEditorTab({
                                 <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />
                               </span>
                             )}
-                            {showDistanceColumn &&
-                              (isManualEvent && step.event === "Move" ? (
-                                rotationLocked ? (
+                            {showDistanceColumn && (
+                              <span data-mobile-label={t("ui.app.distance")}>
+                                {isManualEvent && step.event === "Move" ? (
+                                  rotationLocked ? (
+                                    <span>
+                                      {step.distance}
+                                      {t("ui.app.m")}
+                                    </span>
+                                  ) : (
+                                    <span className="rotation-distance-input-wrap">
+                                      <input
+                                        className="rotation-event-time"
+                                        aria-label={t("ui.app.distanceAfterMove")}
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={eventDistanceDrafts[row.id] ?? String(step.distance)}
+                                        onChange={(event) =>
+                                          setEventDistanceDrafts((current) => ({
+                                            ...current,
+                                            [row.id]: event.target.value,
+                                          }))
+                                        }
+                                        onBlur={() => commitEventDistance(row.id, row.rotationIndex ?? 0)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter") event.currentTarget.blur();
+                                        }}
+                                      />
+                                      <span>{t("ui.app.m")}</span>
+                                    </span>
+                                  )
+                                ) : (
                                   <span>
-                                    {step.distance}
+                                    {formatNumber(row.distance)}
                                     {t("ui.app.m")}
                                   </span>
+                                )}
+                              </span>
+                            )}
+                            {showSelfHPColumn && (
+                              <span data-mobile-label={t("ui.app.selfHp")}>
+                                {isManualEvent && step.event === "TakeDamage" ? (
+                                  rotationLocked ? (
+                                    <span>{formatNumber(step.damage)}</span>
+                                  ) : (
+                                    <span className="rotation-distance-input-wrap">
+                                      <input
+                                        className="rotation-event-time"
+                                        aria-label={t("ui.app.damageTaken")}
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={eventHPDrafts[row.id] ?? String(step.damage)}
+                                        onChange={(event) =>
+                                          setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                        }
+                                        onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter") event.currentTarget.blur();
+                                        }}
+                                      />
+                                    </span>
+                                  )
+                                ) : isManualEvent && step.event === "SelfHP" ? (
+                                  rotationLocked ? (
+                                    <span>{formatNumber(selfHPEventPercentage)}%</span>
+                                  ) : (
+                                    <span className="rotation-distance-input-wrap">
+                                      <input
+                                        className="rotation-event-time"
+                                        aria-label={t("ui.app.currentSelfHp")}
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value={eventHPDrafts[row.id] ?? String(selfHPEventPercentage)}
+                                        onChange={(event) =>
+                                          setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                        }
+                                        onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter") event.currentTarget.blur();
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <span className="rotation-distance-input-wrap">
-                                    <input
-                                      className="rotation-event-time"
-                                      aria-label={t("ui.app.distanceAfterMove")}
-                                      type="number"
-                                      min="1"
-                                      step="1"
-                                      value={eventDistanceDrafts[row.id] ?? String(step.distance)}
-                                      onChange={(event) =>
-                                        setEventDistanceDrafts((current) => ({
-                                          ...current,
-                                          [row.id]: event.target.value,
-                                        }))
-                                      }
-                                      onBlur={() => commitEventDistance(row.id, row.rotationIndex ?? 0)}
-                                      onKeyDown={(event) => {
-                                        if (event.key === "Enter") event.currentTarget.blur();
-                                      }}
-                                    />
-                                    <span>{t("ui.app.m")}</span>
-                                  </span>
-                                )
-                              ) : (
-                                <span>
-                                  {formatNumber(row.distance)}
-                                  {t("ui.app.m")}
-                                </span>
-                              ))}
-                            {showSelfHPColumn &&
-                              (isManualEvent && step.event === "TakeDamage" ? (
-                                rotationLocked ? (
-                                  <span>{formatNumber(step.damage)}</span>
+                                  <span>{formatNumber(row.currentHPRatio * 100)}%</span>
+                                )}
+                              </span>
+                            )}
+                            {showTargetHPColumn && (
+                              <span data-mobile-label={t("ui.app.hp")}>
+                                {isManualEvent && step.event === "HP" ? (
+                                  rotationLocked ? (
+                                    <span>{formatNumber(step.targetHPRatio * 100)}%</span>
+                                  ) : (
+                                    <span className="rotation-distance-input-wrap">
+                                      <input
+                                        className="rotation-event-time"
+                                        aria-label={t("ui.app.targetHpPercentage")}
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value={eventHPDrafts[row.id] ?? String(step.targetHPRatio * 100)}
+                                        onChange={(event) =>
+                                          setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                        }
+                                        onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter") event.currentTarget.blur();
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <span className="rotation-distance-input-wrap">
-                                    <input
-                                      className="rotation-event-time"
-                                      aria-label={t("ui.app.damageTaken")}
-                                      type="number"
-                                      min="0"
-                                      step="0.01"
-                                      value={eventHPDrafts[row.id] ?? String(step.damage)}
-                                      onChange={(event) =>
-                                        setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                      }
-                                      onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
-                                      onKeyDown={(event) => {
-                                        if (event.key === "Enter") event.currentTarget.blur();
-                                      }}
-                                    />
-                                  </span>
-                                )
-                              ) : isManualEvent && step.event === "SelfHP" ? (
-                                rotationLocked ? (
-                                  <span>{formatNumber(selfHPEventPercentage)}%</span>
+                                  <span>{formatNumber(row.targetHPRatio * 100)}%</span>
+                                )}
+                              </span>
+                            )}
+                            {showQiColumn && (
+                              <span data-mobile-label={t("ui.app.qi")}>
+                                {isManualEvent && step.event === "Qi" ? (
+                                  rotationLocked ? (
+                                    <span>{formatNumber(step.targetQiRatio * 100)}%</span>
+                                  ) : (
+                                    <span className="rotation-distance-input-wrap">
+                                      <input
+                                        className="rotation-event-time"
+                                        aria-label={t("ui.app.targetQiPercentage")}
+                                        type="number"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                        value={eventHPDrafts[row.id] ?? String(step.targetQiRatio * 100)}
+                                        onChange={(event) =>
+                                          setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
+                                        }
+                                        onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
+                                        onKeyDown={(event) => {
+                                          if (event.key === "Enter") event.currentTarget.blur();
+                                        }}
+                                      />
+                                      <span>%</span>
+                                    </span>
+                                  )
                                 ) : (
-                                  <span className="rotation-distance-input-wrap">
-                                    <input
-                                      className="rotation-event-time"
-                                      aria-label={t("ui.app.currentSelfHp")}
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                      step="0.01"
-                                      value={eventHPDrafts[row.id] ?? String(selfHPEventPercentage)}
-                                      onChange={(event) =>
-                                        setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                      }
-                                      onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
-                                      onKeyDown={(event) => {
-                                        if (event.key === "Enter") event.currentTarget.blur();
-                                      }}
-                                    />
-                                    <span>%</span>
-                                  </span>
-                                )
-                              ) : (
-                                <span>{formatNumber(row.currentHPRatio * 100)}%</span>
-                              ))}
-                            {showTargetHPColumn &&
-                              (isManualEvent && step.event === "HP" ? (
-                                rotationLocked ? (
-                                  <span>{formatNumber(step.targetHPRatio * 100)}%</span>
-                                ) : (
-                                  <span className="rotation-distance-input-wrap">
-                                    <input
-                                      className="rotation-event-time"
-                                      aria-label={t("ui.app.targetHpPercentage")}
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                      step="0.01"
-                                      value={eventHPDrafts[row.id] ?? String(step.targetHPRatio * 100)}
-                                      onChange={(event) =>
-                                        setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                      }
-                                      onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
-                                      onKeyDown={(event) => {
-                                        if (event.key === "Enter") event.currentTarget.blur();
-                                      }}
-                                    />
-                                    <span>%</span>
-                                  </span>
-                                )
-                              ) : (
-                                <span>{formatNumber(row.targetHPRatio * 100)}%</span>
-                              ))}
-                            {showQiColumn &&
-                              (isManualEvent && step.event === "Qi" ? (
-                                rotationLocked ? (
-                                  <span>{formatNumber(step.targetQiRatio * 100)}%</span>
-                                ) : (
-                                  <span className="rotation-distance-input-wrap">
-                                    <input
-                                      className="rotation-event-time"
-                                      aria-label={t("ui.app.targetQiPercentage")}
-                                      type="number"
-                                      min="0"
-                                      max="100"
-                                      step="0.01"
-                                      value={eventHPDrafts[row.id] ?? String(step.targetQiRatio * 100)}
-                                      onChange={(event) =>
-                                        setEventHPDrafts((current) => ({ ...current, [row.id]: event.target.value }))
-                                      }
-                                      onBlur={() => commitEventHP(row.id, row.rotationIndex ?? 0)}
-                                      onKeyDown={(event) => {
-                                        if (event.key === "Enter") event.currentTarget.blur();
-                                      }}
-                                    />
-                                    <span>%</span>
-                                  </span>
-                                )
-                              ) : (
-                                <span>{formatNumber(row.targetQiRatio * 100)}%</span>
-                              ))}
-                            <span className="rotation-damage-value">
+                                  <span>{formatNumber(row.targetQiRatio * 100)}%</span>
+                                )}
+                              </span>
+                            )}
+                            <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
                                 ""
                               ) : step.type === "skill" && skillBreakdown.total > 0 ? (
@@ -6525,7 +6561,7 @@ function RotationEditorTab({
                                 ""
                               )}
                             </span>
-                            <span>
+                            <span data-mobile-label={t("ui.app.buff")}>
                               {isManualEvent && step.event === "Buff" ? (
                                 rotationLocked ? (
                                   <span>
@@ -6589,7 +6625,7 @@ function RotationEditorTab({
                                 effectNames(row.buffs, startTime)
                               )}
                             </span>
-                            <span>
+                            <span data-mobile-label={t("ui.app.debuff")}>
                               {isManualEvent && step.event === "Debuff" ? (
                                 rotationLocked ? (
                                   <span>
@@ -6771,7 +6807,7 @@ function RotationEditorTab({
                                   <span aria-hidden="true" />
                                 )}
                                 <span aria-hidden="true" />
-                                <span>
+                                <span className="rotation-mobile-field" data-mobile-label={t("ui.app.startTime")}>
                                   {formatNumber(displayTime(actionTime))}
                                   {t("ui.app.s")}
                                 </span>
@@ -6780,27 +6816,35 @@ function RotationEditorTab({
                                   <RotationSkillName skill={skill} fallback={stepSkill ?? ""} />
                                 </span>
                                 {showDistanceColumn && (
-                                  <span>
+                                  <span data-mobile-label={t("ui.app.distance")}>
                                     {formatNumber(actionState?.distance ?? row.distance)}
                                     {t("ui.app.m")}
                                   </span>
                                 )}
-                                {showSelfHPColumn && <span>{formatNumber(selfHPPercentage)}%</span>}
+                                {showSelfHPColumn && (
+                                  <span data-mobile-label={t("ui.app.selfHp")}>{formatNumber(selfHPPercentage)}%</span>
+                                )}
                                 {showTargetHPColumn && (
-                                  <span>{formatNumber((actionState?.targetHPRatio ?? row.targetHPRatio) * 100)}%</span>
+                                  <span data-mobile-label={t("ui.app.hp")}>
+                                    {formatNumber((actionState?.targetHPRatio ?? row.targetHPRatio) * 100)}%
+                                  </span>
                                 )}
                                 {showQiColumn && (
-                                  <span>{formatNumber((actionState?.targetQiRatio ?? row.targetQiRatio) * 100)}%</span>
+                                  <span data-mobile-label={t("ui.app.qi")}>
+                                    {formatNumber((actionState?.targetQiRatio ?? row.targetQiRatio) * 100)}%
+                                  </span>
                                 )}
-                                <span className="rotation-action-damage">
+                                <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>
                                   {actionCalculated ? (
                                     <DamageBreakdownValue
                                       breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)}
                                     />
                                   ) : null}
                                 </span>
-                                <span>{effectNames(actionBuffs, actionTime)}</span>
-                                <span>{effectNames(actionDebuffs, actionTime)}</span>
+                                <span data-mobile-label={t("ui.app.buff")}>{effectNames(actionBuffs, actionTime)}</span>
+                                <span data-mobile-label={t("ui.app.debuff")}>
+                                  {effectNames(actionDebuffs, actionTime)}
+                                </span>
                                 <span aria-hidden="true" />
                               </div>
                             );
@@ -6857,6 +6901,7 @@ function RotationEditorTab({
 }
 
 export default function App() {
+  const compactViewport = useSyncExternalStore(subscribeToCompactLayout, compactLayoutSnapshot, () => false);
   const [locale, setLocale] = useState(getLocale);
   const [activeTab, setActiveTab] = useState<
     "main" | "build" | "breakdown" | "rotations" | "simulation" | "skills" | "settings"
@@ -6878,6 +6923,8 @@ export default function App() {
   const [attunementOverrides, setAttunementOverrides] = useState<AttunementOverrides>(loadAttunementOverrides);
   const [characterProfiles, setCharacterProfiles] = useState<CharacterProfile[]>(loadCharacterProfiles);
   const [devMode, setDevMode] = useState(loadDevMode);
+  const [layoutPreview, setLayoutPreview] = useState<LayoutMode>(() => loadLayoutPreview(compactViewport));
+  const layoutMode: LayoutMode = devMode ? layoutPreview : compactViewport ? "mobile" : "pc";
   const [pathId, setPathId] = useState<PathId>(() => loadSelectedPath(devMode));
   const [settings, setSettings] = useState<CalculatorSettings>(() => settingsForPath(loadSettings(), pathId));
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
@@ -7062,6 +7109,10 @@ export default function App() {
   const changeLocale = async (nextLocale: string) => {
     if (await selectLocale(nextLocale)) setLocale(getLocale());
   };
+  const changeLayoutPreview = (nextLayout: LayoutMode) => {
+    sessionStorage.setItem(layoutPreviewStorageKey, nextLayout);
+    setLayoutPreview(nextLayout);
+  };
   const updateSkillOverrides = (nextOverrides: SkillOverrides) => {
     setSkillOverrides(nextOverrides);
     if (hasSkillOverrides(nextOverrides)) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
@@ -7091,7 +7142,10 @@ export default function App() {
   useEffect(() => sessionStorage.setItem(pathStorageKey, pathId), [pathId]);
 
   return (
-    <main className={`page-shell ${activeTab === "build" || activeTab === "rotations" ? "viewport-page-shell" : ""}`}>
+    <main
+      className={`page-shell layout-${layoutMode} ${layoutMode === "pc" && (activeTab === "build" || activeTab === "rotations") ? "viewport-page-shell" : ""}`}
+      data-layout={layoutMode}
+    >
       <header className="page-header">
         <div>
           <h1>{t("ui.app.whereBuildsMeet")}</h1>
@@ -7120,6 +7174,15 @@ export default function App() {
           >
             {t("ui.app.dev")}
           </button>
+          {devMode && (
+            <label className="layout-preview-selector">
+              <span>{t("ui.app.layout")}</span>
+              <select value={layoutPreview} onChange={(event) => changeLayoutPreview(event.target.value as LayoutMode)}>
+                <option value="pc">{t("ui.app.pc")}</option>
+                <option value="mobile">{t("ui.app.mobile")}</option>
+              </select>
+            </label>
+          )}
         </div>
       </header>
       <section className="path-selector" aria-label={t("ui.app.combatPath")}>

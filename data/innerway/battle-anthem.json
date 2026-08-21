@@ -44,7 +44,15 @@
         }
       ]
     },
-    "BattleAnthemT5": {},
+    "BattleAnthemT5": {
+      "effect": [
+        {
+          "stat": {
+            "affinityDmgBonus": 0.052
+          }
+        }
+      ]
+    },
     "BattleAnthemT6": {
       "effect": [
         {

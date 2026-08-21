@@ -17,6 +17,7 @@ import "./styles/domains/gear.css";
 import "./styles/domains/rotations.css";
 import "./styles/domains/skills.css";
 import "./styles/domains/simulations.css";
+import "./styles/mobile.css";
 
 await initializeI18n();
 
