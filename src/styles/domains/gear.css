@@ -1,5 +1,6 @@
 @layer components {
   .build-manager-panel {
+    min-block-size: 0;
     padding: 0;
     overflow: hidden;
   }
@@ -10,8 +11,13 @@
     min-block-size: 650px;
   }
 
+  .viewport-page-shell .build-manager-layout {
+    min-block-size: 0;
+  }
+
   .build-list {
     display: flex;
+    min-block-size: 0;
     flex-direction: column;
     border-inline-end: 1px solid var(--border);
     background: oklch(from var(--surface-alt) l c h / 0.7);

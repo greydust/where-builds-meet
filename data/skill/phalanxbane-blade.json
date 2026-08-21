@@ -4,12 +4,7 @@
     "castTime": 0.4,
     "action": [],
     "modifier": [],
-    "tags": [
-      "MoBlade",
-      "PhalanxbaneBlade",
-      "BurningHeart",
-      "SubAction"
-    ]
+    "tags": ["MoBlade", "PhalanxbaneBlade", "BurningHeart", "SubAction"]
   },
   "PhalanxbaneHeavySlam1": {
     "name": "Burning Heart Slam 1",
@@ -20,10 +15,17 @@
         "target": "self",
         "value": {
           "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
+          "operand": ["InnerPassion", "ChargeEnhancement"]
+        },
+        "stack": 1,
+        "time": 0
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": ["InnerPassion", "ChargeEnhancement"]
         },
         "stack": 1,
         "time": 0
@@ -129,19 +131,6 @@
         ],
         "value": "AnxiSoldierBurningHeart2",
         "time": 0.95
-      },
-      {
-        "type": "consume",
-        "target": "self",
-        "value": {
-          "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
-        },
-        "stack": 1,
-        "time": 0.95
       }
     ],
     "modifier": [
@@ -182,6 +171,16 @@
     "name": "Burning Heart Slam 2",
     "castTime": 1.05,
     "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": ["InnerPassion", "ChargeEnhancement"]
+        },
+        "stack": 1,
+        "time": 0
+      },
       {
         "type": "apply",
         "requirement": [
@@ -294,19 +293,6 @@
         ],
         "value": "AnxiSoldierBurningHeart3",
         "time": 1.6
-      },
-      {
-        "type": "consume",
-        "target": "self",
-        "value": {
-          "operator": "first",
-          "operand": [
-            "InnerPassion",
-            "ChargeEnhancement"
-          ]
-        },
-        "stack": 1,
-        "time": 1.6
       }
     ],
     "modifier": [
@@ -347,6 +333,16 @@
     "name": "Burning Heart Slam 3",
     "castTime": 0.9875,
     "action": [
+      {
+        "type": "consume",
+        "target": "self",
+        "value": {
+          "operator": "first",
+          "operand": ["InnerPassion", "ChargeEnhancement"]
+        },
+        "stack": 1,
+        "time": 0
+      },
       {
         "type": "apply",
         "requirement": [
@@ -439,10 +435,7 @@
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": [
-      "PhalanxbaneHeavyPreCharge",
-      "PhalanxbaneHeavySlam1"
-    ],
+    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavySlam1"],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -460,11 +453,7 @@
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": [
-      "PhalanxbaneHeavyPreCharge",
-      "PhalanxbaneHeavyCharge2",
-      "PhalanxbaneHeavySlam2"
-    ],
+    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavyCharge2", "PhalanxbaneHeavySlam2"],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -482,11 +471,7 @@
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": [
-      "PhalanxbaneHeavyPreCharge",
-      "PhalanxbaneHeavyCharge3",
-      "PhalanxbaneHeavySlam3"
-    ],
+    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavyCharge3", "PhalanxbaneHeavySlam3"],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -526,14 +511,7 @@
         }
       }
     ],
-    "tags": [
-      "DirectDamage",
-      "MartialArts",
-      "Special",
-      "MoBlade",
-      "PhalanxbaneBlade",
-      "LegionSummon"
-    ]
+    "tags": ["DirectDamage", "MartialArts", "Special", "MoBlade", "PhalanxbaneBlade", "LegionSummon"]
   },
   "PhalanxbaneQ": {
     "name": "Total Annihilation",
