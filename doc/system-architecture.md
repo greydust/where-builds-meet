@@ -225,7 +225,7 @@ tab session.
 | Food                                            | `sessionStorage`, `wwm-food-session-v1`            |
 | Divinecraft                                     | `sessionStorage`, `wwm-divinecraft-session-v1`     |
 | Script                                          | `sessionStorage`, `wwm-script-session-v1`          |
-| Target debuff controls                          | `sessionStorage`, `wwm-global-debuffs-session-v1`  |
+| Global buff/debuff controls                     | `sessionStorage`, `wwm-global-debuffs-session-v1`  |
 | Rotation list                                   | `sessionStorage`, `wwm-rotation-list-session-v1`   |
 | Active rotation ID                              | `sessionStorage`, `wwm-active-rotation-session-v1` |
 | Custom simulation percentiles                   | `sessionStorage`, `wwm-simulation-percentiles-v1`  |
@@ -415,11 +415,13 @@ The timeline owns mutable simulation state while it is being built:
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
-Main-tab global-effect controls seed permanent tracked target debuffs into this
-initial state at their configured stack count. They therefore use ordinary
-effect-definition and requirement resolution, appear in timeline state, and
-share the same unique tracked entry with any matching application from the
-rotation. Reapplication cannot expire or duplicate a permanent seeded effect.
+Main-tab global-effect controls seed permanent tracked player buffs or target
+debuffs into this initial state at their configured stack count. They therefore
+use ordinary effect-definition and requirement resolution, appear in timeline
+state, and share the same unique tracked entry with any matching application
+from the rotation. Floating Grace selects either its base Mixed definition or
+its stronger Deluge definition through `initialBuffs`. Reapplication cannot
+expire or duplicate a permanent seeded effect.
 Always-active rules from `data/buff/global.json` instead enter through setup
 effects. They are evaluated at each damage action without creating a visible or
 expiring tracked buff.
@@ -615,7 +617,9 @@ The Rotation Editor rebuilds its draft timeline immediately with the shared
 timeline builder whenever structural rotation content or the combat context
 changes. This main-thread pass is memoized and does not calculate damage, DPS,
 or comparison variants, so adding, removing, or moving a step updates the editor
-without waiting for the worker debounce. The completed worker result supplies
+without waiting for the worker debounce. The editor overlays calculated target-HP
+snapshots from compatible worker rows onto this structural timeline; row identity
+and structure still come from the immediate draft. The completed worker result supplies
 the action map, metrics, and cached baseline for the table and tooltips.
 Base skills have collapsible action groups. Triggered skills and DOTs do not add
 skill rows; their damage actions inherit the originating base skill's expansion

@@ -71,6 +71,7 @@ import generalBuffs from "../data/buff/general.json";
 import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
 import stonesplitMightBuffs from "../data/buff/stonesplit-might.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
+import silkbindDelugeBuffs from "../data/buff/silkbind-deluge.json";
 import globalBuffs from "../data/buff/global.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
@@ -138,6 +139,7 @@ import {
   buildRotationTimeline,
   compareTimelineTime,
   isAttachmentAnchorStep,
+  mergeCalculatedTargetHPState,
   type AttachedEventTarget,
   type EditableObject,
   type EffectDefinition,
@@ -187,6 +189,7 @@ import {
 import {
   globalDebuffRows,
   globalDebuffStorageKey,
+  globalBuffTimelineEffects,
   globalDebuffTimelineEffects,
   loadGlobalDebuffs,
   type GlobalDebuffState,
@@ -273,6 +276,7 @@ const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
     ...stonesplitStrengthBuffs,
     ...stonesplitMightBuffs,
     ...bamboocutWindBuffs,
+    ...silkbindDelugeBuffs,
   } as SkillMap,
   Debuff: {
     ...stonesplitStrengthDebuffs,
@@ -444,6 +448,7 @@ const effectDefinitions = {
   ...stonesplitStrengthBuffs,
   ...stonesplitMightBuffs,
   ...bamboocutWindBuffs,
+  ...silkbindDelugeBuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,
   ...bellstrikeSplendorDebuffs,
@@ -462,6 +467,7 @@ const manualBuffDefinitions = {
   ...stonesplitStrengthBuffs,
   ...stonesplitMightBuffs,
   ...bamboocutWindBuffs,
+  ...silkbindDelugeBuffs,
 } as Record<string, { name?: string }>;
 const manualGeneralDebuffs = Object.fromEntries(Object.entries(generalDebuffs).filter(([id]) => id !== "Exhausted"));
 const manualDebuffDefinitions = {
@@ -942,7 +948,7 @@ const comparisonCategoryOrder: RotationCalculationCategory[] = rotationCalculati
 function setupGroupMatchesCategory(group: string, category: RotationCalculationCategory) {
   if (category === "weaponSets") return group.startsWith("weaponSets:");
   if (category === "armorSets") return group.startsWith("armorSets:");
-  if (category === "globalDebuffs") return group.startsWith("debuff:");
+  if (category === "globalDebuffs") return group.startsWith("debuff:") || group.startsWith("buff:");
   return group === category;
 }
 
@@ -2272,6 +2278,16 @@ function StatsTab({
       </button>
     );
   };
+  const floatingGraceOptionLabel = (value: GlobalDebuffState["floatingGrace"]) => {
+    switch (value) {
+      case "none":
+        return t("ui.app.none");
+      case "mixed":
+        return t("data.path.mixed.name");
+      case "deluge":
+        return t("system.path.deluge");
+    }
+  };
 
   return (
     <>
@@ -2533,6 +2549,27 @@ function StatsTab({
                     </div>
                   </div>
                 ))}
+                <div className="global-debuff-row">
+                  <span>
+                    {gameText("Floating Grace")} ({t("system.path.deluge")})
+                  </span>
+                  <div className="setup-option-list global-debuff-options qingyi-options">
+                    {(["none", "mixed", "deluge"] as const).map((value) => {
+                      const active = globalDebuffs.floatingGrace === value;
+                      return (
+                        <button
+                          className={active ? "selected" : ""}
+                          type="button"
+                          key={value}
+                          onClick={() => updateGlobalDebuff("floatingGrace", value)}
+                        >
+                          {floatingGraceOptionLabel(value)}
+                          <span>{setupStatus("buff:floatingGrace", value, active)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
                 <div className="global-debuff-row">
                   <span>{t("system.innerWay.bitterSeasons")}</span>
                   <div className="setup-option-list global-debuff-options qingyi-options">
@@ -5269,9 +5306,13 @@ function RotationEditorTab({
   }
 
   const currentCachedResult = rotationResults[editingRotationId]?.result;
-  const timeline = useMemo(
+  const structuralTimeline = useMemo(
     () => buildRotationTimeline(makeTimelineInput(rotation)),
     [calculationContextKey, rotation.eventTimeReference, rotation.start, rotation.steps, rotation.targetHP],
+  );
+  const timeline = useMemo(
+    () => mergeCalculatedTargetHPState(structuralTimeline, currentCachedResult?.timeline),
+    [currentCachedResult?.timeline, structuralTimeline],
   );
   const anchorTime = useMemo(() => timelineAnchorTime(timeline, startAnchor), [startAnchor, timeline]);
   useLayoutEffect(() => {
@@ -5517,6 +5558,7 @@ function RotationEditorTab({
       innerWayRules: rules,
       setupEffects,
       weapons: settings.weapons,
+      initialBuffs: globalBuffTimelineEffects(globalDebuffs),
       initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
       maxHP: displayedCharacterStats.maxHp,
     };
@@ -5686,6 +5728,21 @@ function RotationEditorTab({
               .filter((value) => value !== currentGlobalDebuffs.qingyisCharm)
               .map((value) => {
                 const globalDebuffs = { ...currentGlobalDebuffs, qingyisCharm: value };
+                return {
+                  label: value,
+                  timeline: makeTimelineInput(
+                    rotationRecord,
+                    innerWayConditions,
+                    innerWayEffectRules,
+                    baselineSetupEffects,
+                    globalDebuffs,
+                  ),
+                };
+              }),
+            "buff:floatingGrace": (["none", "mixed", "deluge"] as const)
+              .filter((value) => value !== currentGlobalDebuffs.floatingGrace)
+              .map((value) => {
+                const globalDebuffs = { ...currentGlobalDebuffs, floatingGrace: value };
                 return {
                   label: value,
                   timeline: makeTimelineInput(

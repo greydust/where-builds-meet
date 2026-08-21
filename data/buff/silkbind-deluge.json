@@ -1,0 +1,30 @@
+{
+  "FloatingGrace": {
+    "name": "Floating Grace",
+    "shortName": "FG",
+    "description": "Increases damage dealt by 10%.",
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      {
+        "effect": {
+          "dmgBonus": 0.1
+        }
+      }
+    ]
+  },
+  "FloatingGraceDeluge": {
+    "name": "Floating Grace - Deluge",
+    "shortName": "FGD",
+    "description": "Increases damage dealt by 24%.",
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      {
+        "effect": {
+          "dmgBonus": 0.24
+        }
+      }
+    ]
+  }
+}

@@ -120,6 +120,32 @@ export type TimelineRow = {
   skipped?: boolean;
 };
 
+function timelineRowsRepresentSameStep(left: TimelineRow, right: TimelineRow) {
+  if (left.kind !== right.kind || left.step.type !== right.step.type) return false;
+  switch (left.step.type) {
+    case "skill":
+      return right.step.type === "skill" && left.step.skill === right.step.skill;
+    case "event":
+      return right.step.type === "event" && left.step.event === right.step.event;
+  }
+}
+
+export function mergeCalculatedTargetHPState(structuralTimeline: TimelineRow[], calculatedTimeline?: TimelineRow[]) {
+  if (!calculatedTimeline) return structuralTimeline;
+  const calculatedRows = new Map(calculatedTimeline.map((row) => [row.id, row]));
+  return structuralTimeline.map((row) => {
+    const calculatedRow = calculatedRows.get(row.id);
+    if (!calculatedRow || !timelineRowsRepresentSameStep(row, calculatedRow)) return row;
+    const actionStates = Object.fromEntries(
+      Object.entries(row.actionStates).map(([actionIndex, state]) => {
+        const calculatedState = calculatedRow.actionStates[Number(actionIndex)];
+        return [actionIndex, calculatedState ? { ...state, targetHPRatio: calculatedState.targetHPRatio } : state];
+      }),
+    );
+    return { ...row, targetHPRatio: calculatedRow.targetHPRatio, actionStates };
+  });
+}
+
 export type EffectDefinition = {
   name?: string;
   shortName?: string;

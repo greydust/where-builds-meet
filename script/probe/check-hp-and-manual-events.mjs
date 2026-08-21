@@ -10,7 +10,9 @@ const viteServer = await createServer({
 
 try {
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
-  const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
+  const { buildRotationTimeline, mergeCalculatedTargetHPState } = await viteServer.ssrLoadModule(
+    "/src/calculations/rotationTimeline.ts",
+  );
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const globalBuffs = (await viteServer.ssrLoadModule("/data/buff/global.json")).default;
@@ -163,6 +165,26 @@ try {
     closeTo(noDamageRow.targetHPRatio, finalTargetHPRatio) &&
       closeTo(noDamageRow.actionStates[0].targetHPRatio, finalTargetHPRatio),
     "A non-damaging skill and its actions must inherit target HP from the preceding damage action.",
+  );
+  const structuralTargetHPTimeline = buildRotationTimeline({
+    ...baseInput,
+    rotation: {
+      name: "Target HP probe",
+      targetHP: 10000,
+      steps: [
+        { type: "skill", skill: "Hit" },
+        { type: "skill", skill: "NoDamage" },
+      ],
+    },
+    skills: { Hit: hit, NoDamage: noDamage },
+  });
+  const displayedTargetHPTimeline = mergeCalculatedTargetHPState(structuralTargetHPTimeline, targetHPResult.timeline);
+  const displayedHitRow = displayedTargetHPTimeline.find((row) => row.id === "rotation-0");
+  const displayedNoDamageRow = displayedTargetHPTimeline.find((row) => row.id === "rotation-1");
+  assert(
+    closeTo(displayedHitRow.actionStates[1].targetHPRatio, Math.max(0, 1 - firstTargetHit / 10000)) &&
+      closeTo(displayedNoDamageRow.targetHPRatio, finalTargetHPRatio),
+    "The editor's structural timeline must display target-HP snapshots from its completed calculation.",
   );
   const hpHitRow = hpResult.timeline.find((row) => row.id === "rotation-1");
   assert(

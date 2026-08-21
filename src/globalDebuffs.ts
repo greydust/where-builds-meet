@@ -4,6 +4,7 @@ import soulShakenDefinitions from "../data/debuff/bellstrike-umbra.json";
 import qingyisCharmDefinitions from "../data/debuff/innerway.json";
 import vulnerableDefinitions from "../data/debuff/stonesplit-might.json";
 import fearfulBladeDefinitions from "../data/debuff/stonesplit-strength.json";
+import floatingGraceDefinitions from "../data/buff/silkbind-deluge.json";
 import type { TrackedEffect } from "./calculations/rotationTimeline";
 
 export const globalDebuffStorageKey = "wwm-global-debuffs-session-v1";
@@ -15,6 +16,7 @@ export type GlobalDebuffState = {
   vulnerable: boolean;
   fearfulBlade: boolean;
   qingyisCharm: "none" | "T1" | "T6";
+  floatingGrace: "none" | "mixed" | "deluge";
 };
 
 export const defaultGlobalDebuffs: GlobalDebuffState = {
@@ -24,6 +26,7 @@ export const defaultGlobalDebuffs: GlobalDebuffState = {
   vulnerable: false,
   fearfulBlade: false,
   qingyisCharm: "none",
+  floatingGrace: "none",
 };
 
 export const globalDebuffRows = [
@@ -38,6 +41,8 @@ export function normalizeGlobalDebuffs(value: unknown): GlobalDebuffState {
   if (!value || typeof value !== "object" || Array.isArray(value)) return { ...defaultGlobalDebuffs };
   const source = value as Record<string, unknown>;
   const qingyisCharm = source.qingyisCharm === "T1" || source.qingyisCharm === "T6" ? source.qingyisCharm : "none";
+  const floatingGrace =
+    source.floatingGrace === "mixed" || source.floatingGrace === "deluge" ? source.floatingGrace : "none";
   return {
     phantomChime: source.phantomChime === true,
     qiImbalance: source.qiImbalance === true,
@@ -45,6 +50,7 @@ export function normalizeGlobalDebuffs(value: unknown): GlobalDebuffState {
     vulnerable: source.vulnerable === true,
     fearfulBlade: source.fearfulBlade === true,
     qingyisCharm,
+    floatingGrace,
   };
 }
 
@@ -65,7 +71,24 @@ const definitions = {
   FearfulBlade: fearfulBladeDefinitions.FearfulBlade,
   QingyisCharmT1: qingyisCharmDefinitions.QingyisCharmT1,
   QingyisCharmT6: qingyisCharmDefinitions.QingyisCharmT6,
+  FloatingGrace: floatingGraceDefinitions.FloatingGrace,
+  FloatingGraceDeluge: floatingGraceDefinitions.FloatingGraceDeluge,
 } as const;
+
+function permanentEffect(name: string, definition: { maxStack?: number }): TrackedEffect {
+  return { name, stack: definition.maxStack ?? 1, maxStack: definition.maxStack, persistent: true };
+}
+
+export function globalBuffTimelineEffects(state: GlobalDebuffState): TrackedEffect[] {
+  switch (state.floatingGrace) {
+    case "mixed":
+      return [permanentEffect("FloatingGrace", definitions.FloatingGrace)];
+    case "deluge":
+      return [permanentEffect("FloatingGraceDeluge", definitions.FloatingGraceDeluge)];
+    case "none":
+      return [];
+  }
+}
 
 export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEffect[] {
   const selectedDefinitions = [
@@ -80,7 +103,5 @@ export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEf
         ? (["QingyisCharmT6", definitions.QingyisCharmT6] as const)
         : undefined,
   ];
-  return selectedDefinitions.flatMap((entry) =>
-    entry ? [{ name: entry[0], stack: entry[1].maxStack ?? 1, maxStack: entry[1].maxStack, persistent: true }] : [],
-  );
+  return selectedDefinitions.flatMap((entry) => (entry ? [permanentEffect(entry[0], entry[1])] : []));
 }

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { createServer } from "vite";
 
 const readJson = async (file) => JSON.parse(await readFile(file, "utf8"));
 const assert = (condition, message) => {
@@ -17,6 +18,23 @@ assert(
   breakingPoint.tags.includes("StonesplitStrength") && breakingPoint.tags.includes("StonesplitMight"),
   "Breaking Point must remain available to both Stonesplit paths.",
 );
+
+const viteServer = await createServer({
+  root: process.cwd(),
+  configFile: false,
+  server: { middlewareMode: true },
+  appType: "custom",
+  logLevel: "silent",
+});
+try {
+  const { innerWayEntriesForTag } = await viteServer.ssrLoadModule("/src/data/innerWayDefinitions.ts");
+  assert(
+    innerWayEntriesForTag("StonesplitMight").some(([id]) => id === "BreakingPoint"),
+    "The shared Main/Build Inner Way selector must expose Breaking Point for Stonesplit Might.",
+  );
+} finally {
+  await viteServer.close();
+}
 
 const battleT0 = battleAnthem.effect.BattleAnthemT0.effect[0];
 const battleT4 = battleAnthem.effect.BattleAnthemT4.effect[0];

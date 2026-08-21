@@ -12,8 +12,9 @@ try {
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
-  const { defaultGlobalDebuffs, globalDebuffTimelineEffects, normalizeGlobalDebuffs } =
+  const { defaultGlobalDebuffs, globalBuffTimelineEffects, globalDebuffTimelineEffects, normalizeGlobalDebuffs } =
     await viteServer.ssrLoadModule("/src/globalDebuffs.ts");
+  const delugeBuffs = (await viteServer.ssrLoadModule("/data/buff/silkbind-deluge.json")).default;
   const generalDebuffs = (await viteServer.ssrLoadModule("/data/debuff/general.json")).default;
   const strengthDebuffs = (await viteServer.ssrLoadModule("/data/debuff/stonesplit-strength.json")).default;
   const mightDebuffs = (await viteServer.ssrLoadModule("/data/debuff/stonesplit-might.json")).default;
@@ -22,6 +23,7 @@ try {
   const dustDebuffs = (await viteServer.ssrLoadModule("/data/debuff/bamboocut-dust.json")).default;
   const innerWayDebuffs = (await viteServer.ssrLoadModule("/data/debuff/innerway.json")).default;
   const effectDefinitions = {
+    ...delugeBuffs,
     ...generalDebuffs,
     ...strengthDebuffs,
     ...mightDebuffs,
@@ -61,7 +63,7 @@ try {
     ],
     tags,
   });
-  const result = (initialDebuffs, tags = [], exhausted = false, appliesFearful = false) => {
+  const result = (initialDebuffs, tags = [], exhausted = false, appliesFearful = false, initialBuffs = []) => {
     const steps = exhausted
       ? [
           { type: "event", event: "Exhausted", startTime: 0 },
@@ -81,6 +83,7 @@ try {
         setupEffects: [],
         weapons: [],
         initialDebuffs,
+        initialBuffs,
       },
       startAnchor: { rowId: `rotation-${skillIndex}` },
       stats,
@@ -116,6 +119,24 @@ try {
   );
 
   const baseline = result([]);
+  const mixedGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "mixed" });
+  const delugeGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "deluge" });
+  assert(
+    mixedGraceEffects[0]?.name === "FloatingGrace" && mixedGraceEffects[0]?.persistent,
+    "Floating Grace Mixed must initialize the permanent 10% base buff.",
+  );
+  assert(
+    delugeGraceEffects[0]?.name === "FloatingGraceDeluge" && delugeGraceEffects[0]?.persistent,
+    "Floating Grace Deluge must initialize the permanent 24% Deluge buff.",
+  );
+  assert(
+    closeTo(result([], [], false, false, mixedGraceEffects) / baseline, 1.1),
+    "Floating Grace Mixed must increase general damage by 10%.",
+  );
+  assert(
+    closeTo(result([], [], false, false, delugeGraceEffects) / baseline, 1.24),
+    "Floating Grace Deluge must increase general damage by 24%.",
+  );
   const phantom = result(phantomEffects);
   assert(
     closeTo(phantom / baseline, 1.05),
