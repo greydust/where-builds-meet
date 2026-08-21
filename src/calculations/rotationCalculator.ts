@@ -527,7 +527,7 @@ function timelineDamageEntries(
           const buffs = actionState.buffs;
           const debuffs = actionState.debuffs;
           const resources = actionState.resources;
-          const skillTags = row.skill?.tags ?? [];
+          const skillTags = row.actionSkillTags?.[actionIndex] ?? row.skill?.tags ?? [];
           const requirementState = {
             selfHPPercentage: actionState.currentHPRatio * 100,
             targetHPPercentage: actionState.targetHPRatio * 100,
@@ -635,7 +635,12 @@ function timelineDamageEntries(
                   ? (effect.effect as EditableObject)
                   : effect,
               );
-            return [...activeSetupEffects, ...activeInnerWayEffects, ...activeTrackedEffects, ...row.modifierEffects];
+            return [
+              ...activeSetupEffects,
+              ...activeInnerWayEffects,
+              ...activeTrackedEffects,
+              ...(row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects),
+            ];
           };
           const context: DamageContext = {
             stats,

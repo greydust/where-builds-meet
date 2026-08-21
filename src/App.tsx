@@ -508,7 +508,9 @@ function selectableRotationSkillIds(weapons: [WeaponId, WeaponId]) {
   const categories = [...new Set<SkillCategory>([...martialCategories, "Mystic", "General"])] as SkillCategory[];
   return categories
     .flatMap((category) => Object.keys(defaultSkillMaps[category]))
-    .filter((skillId) => !allSkillDefinitions[skillId]?.tags?.includes("Triggered"));
+    .filter(
+      (skillId) => !allSkillDefinitions[skillId]?.tags?.some((tag) => tag === "Triggered" || tag === "SubAction"),
+    );
 }
 
 function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], excludedInnerWay?: string) {

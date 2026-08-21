@@ -16,6 +16,7 @@ export type SkillRecord = {
   cooldown?: number;
   duration?: number;
   collectBoostDamage?: string;
+  subAction?: string[];
   action?: unknown[];
   periodic?: PeriodicEffect;
   modifier?: unknown[];
@@ -101,6 +102,8 @@ export type TimelineRow = {
   buffs: TrackedEffect[];
   debuffs: TrackedEffect[];
   modifierEffects: EditableObject[];
+  actionSkillTags?: Record<number, string[]>;
+  actionModifierEffects?: Record<number, EditableObject[]>;
   actionStates: Record<
     number,
     {
@@ -341,9 +344,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   type TimelineEvent = {
     time: number;
     sortOrder: number[];
-    kind: "start" | "action";
+    kind: "start" | "subActionStart" | "action";
     row: TimelineRow;
     actionIndex?: number;
+    subActionIndex?: number;
     expiresEffect?: { target: "self" | "target"; name: string; expiresAt: number };
   };
   const compareSortOrder = (left: number[], right: number[]) => {
@@ -355,9 +359,48 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   const { rotation, skills, eventDefinitions, dots, effectDefinitions, innerWayRules, setupEffects, weapons } = input;
   const isSequentialStep = (step: RotationStep) => step.type === "skill" || step.event === "Delay";
+  type ExpandedSkillSegment = {
+    skillId: string;
+    skill: SkillRecord;
+    baseCastTime: number;
+    baseStartOffset: number;
+    actionIndexes: number[];
+    localActionTimes: number[];
+  };
+  const expandSkill = (skillId: string) => {
+    const root = skills[skillId];
+    const segments: ExpandedSkillSegment[] = [];
+    const actions: EditableObject[] = [];
+    let castTime = 0;
+    const append = (currentSkillId: string, ancestry: Set<string>) => {
+      if (ancestry.has(currentSkillId)) return;
+      const skill = skills[currentSkillId];
+      if (!skill) return;
+      const baseCastTime = typeof skill.castTime === "number" ? skill.castTime : 0;
+      const baseActions = Array.isArray(skill.action) ? (skill.action as EditableObject[]) : [];
+      const actionIndexes = baseActions.map((action) => {
+        const actionIndex = actions.length;
+        actions.push({ ...action, time: castTime + (typeof action.time === "number" ? action.time : 0) });
+        return actionIndex;
+      });
+      segments.push({
+        skillId: currentSkillId,
+        skill,
+        baseCastTime,
+        baseStartOffset: castTime,
+        actionIndexes,
+        localActionTimes: baseActions.map((action) => (typeof action.time === "number" ? action.time : 0)),
+      });
+      castTime += baseCastTime;
+      const nextAncestry = new Set(ancestry).add(currentSkillId);
+      if (Array.isArray(skill.subAction)) skill.subAction.forEach((subActionId) => append(subActionId, nextAncestry));
+    };
+    append(skillId, new Set());
+    return { skill: root, actions, segments, castTime, isMultiAction: Boolean(root?.subAction?.length) };
+  };
   const sequentialCastTime = (step: RotationStep) =>
     step.type === "skill"
-      ? Number(skills[step.skill ?? ""]?.castTime ?? 0)
+      ? expandSkill(step.skill ?? "").castTime
       : step.event === "Delay"
         ? Math.max(0, step.duration)
         : 0;
@@ -390,23 +433,23 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     for (const [stepIndex, step] of rotation.steps.entries()) {
       if (stepIndex === startStepIndex) {
         if (step.type !== "skill") return time;
-        const skill = skills[step.skill ?? ""];
+        const expanded = expandSkill(step.skill ?? "");
         const actionIndex = rotation.start?.action;
-        return (
-          time +
-          (actionIndex === undefined || !Array.isArray(skill?.action)
-            ? 0
-            : Number((skill.action[actionIndex] as EditableObject | undefined)?.time ?? 0))
-        );
+        return time + (actionIndex === undefined ? 0 : Number(expanded.actions[actionIndex]?.time ?? 0));
       }
       if (isSequentialStep(step)) time += sequentialCastTime(step);
     }
     return 0;
   })();
+  const multiActionSegments = new Map<
+    string,
+    Array<ExpandedSkillSegment & { startOffset: number; effectiveCastTime: number }>
+  >();
   let elapsed = 0;
   for (const [rowIndex, step] of rotation.steps.entries()) {
-    const skill = step.type === "skill" ? skills[step.skill ?? ""] : eventDefinitions[step.event];
-    const castTime = sequentialCastTime(step);
+    const expandedSkill = step.type === "skill" ? expandSkill(step.skill ?? "") : undefined;
+    const skill = expandedSkill?.skill ?? (step.type === "event" ? eventDefinitions[step.event] : undefined);
+    const castTime = expandedSkill?.castTime ?? sequentialCastTime(step);
     const startTime =
       step.type === "event"
         ? step.event === "Delay"
@@ -416,40 +459,41 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
               (rotation.eventTimeReference === "battleStart" ? (resolvedAnchorTime ?? initialAnchorTime) : 0)
             : 0
         : elapsed;
-    const actions: EditableObject[] = Array.isArray(skill?.action)
-      ? (skill.action as EditableObject[]).map((action) => ({
-          ...action,
-          ...(step.type === "event" &&
-          (step.event === "Controlled" || step.event === "Exhausted") &&
-          action.type === "apply" &&
-          step.duration !== undefined
-            ? { duration: step.duration }
-            : {}),
-          ...(step.type === "event" && step.event === "Move" && action.type === "move"
-            ? { distance: step.distance }
-            : {}),
-          ...(step.type === "event" && step.event === "SelfHP" && action.type === "setHP"
-            ? "currentHP" in step && typeof step.currentHP === "number"
-              ? { currentHP: step.currentHP }
-              : { currentHPRatio: step.currentHPRatio }
-            : {}),
-          ...(step.type === "event" && step.event === "TakeDamage" && action.type === "takeDamage"
-            ? { damage: step.damage }
-            : {}),
-          ...(step.type === "event" && step.event === "HP" && action.type === "setTargetHP"
-            ? { targetHPRatio: step.targetHPRatio }
-            : {}),
-          ...(step.type === "event" && step.event === "Qi" && action.type === "setQi"
-            ? { targetQiRatio: step.targetQiRatio }
-            : {}),
-          ...(step.type === "event" && step.event === "Buff" && action.type === "apply"
-            ? { value: step.buff, stack: step.stack ?? 1 }
-            : {}),
-          ...(step.type === "event" && step.event === "Debuff" && action.type === "apply"
-            ? { value: step.debuff, stack: step.stack ?? 1 }
-            : {}),
-        }))
-      : [];
+    const sourceActions = expandedSkill?.isMultiAction
+      ? expandedSkill.actions
+      : Array.isArray(skill?.action)
+        ? (skill.action as EditableObject[])
+        : [];
+    const actions: EditableObject[] = sourceActions.map((action) => ({
+      ...action,
+      ...(step.type === "event" &&
+      (step.event === "Controlled" || step.event === "Exhausted") &&
+      action.type === "apply" &&
+      step.duration !== undefined
+        ? { duration: step.duration }
+        : {}),
+      ...(step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {}),
+      ...(step.type === "event" && step.event === "SelfHP" && action.type === "setHP"
+        ? "currentHP" in step && typeof step.currentHP === "number"
+          ? { currentHP: step.currentHP }
+          : { currentHPRatio: step.currentHPRatio }
+        : {}),
+      ...(step.type === "event" && step.event === "TakeDamage" && action.type === "takeDamage"
+        ? { damage: step.damage }
+        : {}),
+      ...(step.type === "event" && step.event === "HP" && action.type === "setTargetHP"
+        ? { targetHPRatio: step.targetHPRatio }
+        : {}),
+      ...(step.type === "event" && step.event === "Qi" && action.type === "setQi"
+        ? { targetQiRatio: step.targetQiRatio }
+        : {}),
+      ...(step.type === "event" && step.event === "Buff" && action.type === "apply"
+        ? { value: step.buff, stack: step.stack ?? 1 }
+        : {}),
+      ...(step.type === "event" && step.event === "Debuff" && action.type === "apply"
+        ? { value: step.debuff, stack: step.stack ?? 1 }
+        : {}),
+    }));
     // Fixed-time and Move events resolve before other rows at an equal timestamp.
     // After-action Qi attachments receive a causal order after their target action below.
     const rowOrder = step.type === "event" ? -((rotation.steps.length - rowIndex) * 1000) : rowIndex * 1000;
@@ -476,12 +520,30 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       actionStates: {},
     };
     rows.push(row);
+    if (expandedSkill?.isMultiAction)
+      multiActionSegments.set(
+        row.id,
+        expandedSkill.segments.map((segment) => ({
+          ...segment,
+          startOffset: segment.baseStartOffset,
+          effectiveCastTime: segment.baseCastTime,
+        })),
+      );
     if (!attachedEvent(step)) {
       events.push({ time: startTime, sortOrder: [...sortPrefix, 0], kind: "start", row });
+      multiActionSegments.get(row.id)?.forEach((segment, subActionIndex) =>
+        events.push({
+          time: startTime + segment.startOffset,
+          sortOrder: [...sortPrefix, 1, segment.actionIndexes[0] ?? actions.length, -1, subActionIndex],
+          kind: "subActionStart",
+          row,
+          subActionIndex,
+        }),
+      );
       actions.forEach((action, actionIndex) =>
         events.push({
           time: startTime + (typeof action.time === "number" ? action.time : 0),
-          sortOrder: [...sortPrefix, 1, actionIndex],
+          sortOrder: [...sortPrefix, 1, actionIndex, 0],
           kind: "action",
           row,
           actionIndex,
@@ -540,7 +602,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     const targetSortOrder =
       attachment.target.action === "start"
         ? [0, targetRow.rotationIndex ?? 0, 0]
-        : [0, targetRow.rotationIndex ?? 0, 1, attachment.target.action];
+        : [0, targetRow.rotationIndex ?? 0, 1, attachment.target.action, 0];
     const targetDisplayOrder =
       attachment.target.action === "start" ? targetRow.order : targetRow.order + 10 + attachment.target.action;
     queueAttachedEvent(attachment, targetTime, targetSortOrder, targetDisplayOrder);
@@ -788,6 +850,21 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     });
   };
   let processedEvents = 0;
+  const syncDirectAttachments = (row: TimelineRow) => {
+    (directAttachments.get(row.id) ?? []).forEach((attachment) => {
+      const targetTime =
+        attachment.target.action === "start"
+          ? row.startTime
+          : row.startTime + Number(row.actions[attachment.target.action]?.time ?? 0);
+      attachment.eventRow.startTime = targetTime;
+      events.forEach((queued) => {
+        if (queued.row !== attachment.eventRow) return;
+        queued.time =
+          targetTime +
+          (queued.kind === "action" ? Number(attachment.eventRow.actions[queued.actionIndex ?? -1]?.time ?? 0) : 0);
+      });
+    });
+  };
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
     const timingValue = (value: unknown, actionTime: number, fallback: number) =>
       typeof value === "number" && Number.isFinite(value)
@@ -818,19 +895,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
               ? (row.actions[queued.actionIndex ?? -1].time as number)
               : 0);
     });
-    (directAttachments.get(row.id) ?? []).forEach((attachment) => {
-      const targetTime =
-        attachment.target.action === "start"
-          ? row.startTime
-          : row.startTime + Number(row.actions[attachment.target.action]?.time ?? 0);
-      attachment.eventRow.startTime = targetTime;
-      events.forEach((queued) => {
-        if (queued.row !== attachment.eventRow) return;
-        queued.time =
-          targetTime +
-          (queued.kind === "action" ? Number(attachment.eventRow.actions[queued.actionIndex ?? -1]?.time ?? 0) : 0);
-      });
-    });
+    syncDirectAttachments(row);
     return row.effectiveCastTime;
   };
 
@@ -847,6 +912,93 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     }
     buffs = prune(buffs, event.time);
     debuffs = prune(debuffs, event.time);
+    if (event.kind === "subActionStart") {
+      const segments = multiActionSegments.get(event.row.id);
+      const segment = segments?.[event.subActionIndex ?? -1];
+      if (!segment) continue;
+      const skillTags = segment.skill.tags ?? [];
+      const modifiers = Array.isArray(segment.skill.modifier)
+        ? (segment.skill.modifier as EditableObject[])
+            .filter((item) =>
+              requirementsPass(
+                item.requirement,
+                buffs,
+                debuffs,
+                skillTags,
+                innerWayConditions,
+                weapons,
+                resources,
+                requirementState(),
+              ),
+            )
+            .map((item) =>
+              item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
+                ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs)
+                : {},
+            )
+        : [];
+      const timingValue = (value: unknown, actionTime: number, fallback: number) =>
+        typeof value === "number" && Number.isFinite(value)
+          ? value
+          : (resolveSegmentValue(value, { actionTime }) ?? fallback);
+      const adjust = (time: number) => {
+        const modifier = modifiers.reduce((total, effect) => total + timingValue(effect.castTimeModifier, time, 0), 0);
+        const multiplier = modifiers.reduce(
+          (total, effect) => total * timingValue(effect.castTimeMultiplier, time, 1),
+          1,
+        );
+        return Math.max(0, time + modifier) * multiplier;
+      };
+      event.row.actionSkillTags ??= {};
+      event.row.actionModifierEffects ??= {};
+      const segmentStartOffset = event.time - event.row.startTime;
+      segment.actionIndexes.forEach((actionIndex, localIndex) => {
+        const actionTime = segmentStartOffset + adjust(segment.localActionTimes[localIndex] ?? 0);
+        event.row.actions[actionIndex] = { ...event.row.actions[actionIndex], time: actionTime };
+        event.row.actionSkillTags![actionIndex] = skillTags;
+        event.row.actionModifierEffects![actionIndex] = modifiers;
+        events.forEach((queued) => {
+          if (queued.row === event.row && queued.kind === "action" && queued.actionIndex === actionIndex)
+            queued.time = event.row.startTime + actionTime;
+        });
+      });
+      const adjustedCastTime = adjust(segment.baseCastTime);
+      const shift = adjustedCastTime - segment.effectiveCastTime;
+      segment.effectiveCastTime = adjustedCastTime;
+      if (shift) {
+        event.row.effectiveCastTime += shift;
+        segments!.slice((event.subActionIndex ?? -1) + 1).forEach((laterSegment) => {
+          laterSegment.startOffset += shift;
+          laterSegment.actionIndexes.forEach((actionIndex) => {
+            const action = event.row.actions[actionIndex];
+            if (typeof action?.time === "number") action.time += shift;
+          });
+        });
+        events.forEach((queued) => {
+          if (queued.row !== event.row) return;
+          if (queued.kind === "subActionStart" && (queued.subActionIndex ?? -1) > (event.subActionIndex ?? -1))
+            queued.time += shift;
+          if (
+            queued.kind === "action" &&
+            segments!
+              .slice((event.subActionIndex ?? -1) + 1)
+              .some((laterSegment) => laterSegment.actionIndexes.includes(queued.actionIndex ?? -1))
+          )
+            queued.time += shift;
+        });
+        rows.forEach((row) => {
+          if (
+            row.kind !== "rotation" ||
+            (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) ||
+            !isSequentialStep(row.step)
+          )
+            return;
+          shiftRotationRowAndAttachments(row, shift);
+        });
+      }
+      syncDirectAttachments(event.row);
+      continue;
+    }
     if (event.kind === "start") {
       const skillId = event.row.step.type === "skill" ? (event.row.step.skill ?? "") : "";
       if (
@@ -891,6 +1043,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.targetHPRatio = targetHPRatio;
       event.row.targetQiRatio = targetQiRatio;
       event.row.resources = { ...resources };
+      if (multiActionSegments.has(event.row.id)) continue;
       const modifiers = Array.isArray(event.row.skill?.modifier) ? (event.row.skill.modifier as EditableObject[]) : [];
       event.row.modifierEffects = modifiers
         .filter((item) =>
@@ -946,7 +1099,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       targetQiRatio,
       resources: { ...resources },
     };
-    const skillTags = event.row.skill?.tags ?? [];
+    const skillTags = event.row.actionSkillTags?.[event.actionIndex ?? -1] ?? event.row.skill?.tags ?? [];
     if (
       !requirementsPass(
         action.requirement,
@@ -1294,7 +1447,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     if ((action.type === "apply" || action.type === "extend") && typeof action.value === "string") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
       const periodicTarget = action.target === "target" ? "target" : "self";
-      const modifierDuration = event.row.modifierEffects.find((effect) => typeof effect.duration === "number");
+      const modifierDuration = (
+        event.row.actionModifierEffects?.[event.actionIndex ?? -1] ?? event.row.modifierEffects
+      ).find((effect) => typeof effect.duration === "number");
       const definition = getModifiedEffectDefinition(action.value, buffs, debuffs, skillTags);
       const duration =
         typeof action.duration === "number"

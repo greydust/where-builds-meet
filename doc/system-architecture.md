@@ -613,6 +613,10 @@ skill rows; their damage actions inherit the originating base skill's expansion
 state and contribute to its displayed damage total. A DOT application records
 that source cast, and a later refresh or extension transfers all subsequent ticks
 to the cast that performed it. Nested DOTs inherit the original base cast.
+A multi-action skill likewise remains one base row. Its component actions are
+flattened into that row, while each sequential component retains its own tags,
+start-time modifier evaluation, and effective cast duration. Component damage
+and triggers remain owned by the base row.
 A displayed damage action without a breakdown was before the start anchor and
 has an empty damage cell.
 Every complete baseline input bundle, including stats, all setup selectors,

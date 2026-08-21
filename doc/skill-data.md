@@ -46,6 +46,7 @@ type SkillDefinition = {
   castTime: number;
   cooldown?: number;
   action: SkillAction[];
+  subAction?: string[];
   modifier: SkillModifier[];
   tags: string[];
 };
@@ -65,6 +66,8 @@ Current tag conventions include:
 - `DOT` for DOT definitions
 - `Triggered` for skills that can only be inserted by a `trigger` action; these
   skills are excluded from the Rotation Editor's castable skill dropdown
+- `SubAction` for component skills referenced by another skill's `subAction`
+  list; these are also excluded from the Rotation Editor dropdown
 - `MartialArts` for the All Martial Arts bonus
 - `Mystic` for breakdown grouping
 - weapon, move, and behavior tags such as `SnowpartingBlade`, `MoBlade`,
@@ -207,6 +210,24 @@ buff passes the same source forward. Flute names its directly applied `Flute`
 buff. Ghostly Step names `MysteryDMGBoost`, so `Mystery` or `MysteryUmbra`
 carries the source until Perfect Dodge applies the damage buff. Both then use
 the same per-hit calculation with and without the named buff.
+
+### Multi-action skills
+
+A castable skill can declare an ordered `subAction` list of skill IDs. Its own
+cast and actions execute first, followed by each referenced component in array
+order. Unlike a `trigger`, every component consumes its effective cast time.
+Each component evaluates its modifier when that component starts, after all
+actions from the preceding component at the shared boundary have executed.
+
+Component actions retain the component's tags and resolved modifiers for
+requirements and damage calculation. Their times are flattened onto the parent
+cast, and their damage, triggered actions, cast time, timeline display, and
+per-cast breakdown ownership all remain assigned to the parent skill. Existing
+action attachments and trigger ordinals therefore address the flattened parent
+action list exactly as they did before the skill was decomposed. Referenced
+component definitions use the `SubAction` tag and cannot be selected directly
+in the Rotation Editor. Nested lists are expanded in order; a cyclic reference
+is ignored at the repeated edge.
 
 ### Extend
 
