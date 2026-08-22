@@ -124,7 +124,8 @@ try {
       continue;
     }
     const stepsWithoutQiRamps = rotation.steps.filter(
-      (step) => !(step.type === "event" && step.event === "Qi" && step.targetQiRatio === 0.4),
+      (step) =>
+        !(step.type === "event" && step.event === "Qi" && (step.targetQiRatio === 0.59 || step.targetQiRatio === 0.4)),
     );
     const mismatchIndex = stepsWithoutQiRamps.findIndex(
       (step, index) => JSON.stringify(step) !== JSON.stringify(expected.steps[index]),

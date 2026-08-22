@@ -52,9 +52,11 @@ try {
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json",
-    "/data/rotation/stonesplit-strength/mixed-horse-tamer-standard.json",
+    "/data/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s.json",
+    "/data/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s-no-fcn.json",
     "/data/rotation/stonesplit-strength/pure-dummy-1-min.json",
     "/data/rotation/stonesplit-strength/pure-dummy-1-min-2.json",
+    "/data/rotation/stonesplit-strength/pure-horse-tamer-standard-27s.json",
     "/data/rotation/stonesplit-might/dummy-1-min.json",
   ];
   const skillPaths = [
@@ -168,7 +170,7 @@ try {
       (row) => row.kind === "rotation" && row.step.type === "event" && row.step.event === "Qi",
     );
     const zeroRows = qiRows.filter((row) => row.step.targetQiRatio === 0);
-    const rampRows = qiRows.filter((row) => row.step.targetQiRatio === 0.4);
+    const rampRatios = [0.59, 0.4];
     if (process.argv.includes("--suggest")) {
       const candidates = timeline.flatMap((row) =>
         row.kind !== "rotation" || row.step.type !== "skill" || row.skipped
@@ -179,35 +181,44 @@ try {
               time: row.startTime + Number(action.time ?? 0) - battleStart,
             })),
       );
-      for (let index = 0; index < zeroRows.length; index += 1) {
-        const zeroRow = zeroRows[index];
-        const zeroTime = zeroRow.startTime - battleStart;
-        const previousExhaustedEnd = index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
-        const targetTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * 0.6;
-        const nearest = candidates.reduce((best, candidate) =>
-          Math.abs(candidate.time - targetTime) < Math.abs(best.time - targetTime) ? candidate : best,
-        );
-        console.log(
-          `${rotation.name}: Qi 0 at ${zeroTime.toFixed(3)}s; target ${targetTime.toFixed(3)}s; ` +
-            `attach before step ${nearest.row.rotationIndex} ${nearest.row.step.skill} action ${nearest.actionIndex} ` +
-            `at ${nearest.time.toFixed(3)}s.`,
-        );
-      }
+      for (const ratio of rampRatios)
+        for (let index = 0; index < zeroRows.length; index += 1) {
+          const zeroRow = zeroRows[index];
+          const zeroTime = zeroRow.startTime - battleStart;
+          const previousExhaustedEnd =
+            index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
+          const targetTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * (1 - ratio);
+          const nearest = candidates.reduce((best, candidate) =>
+            Math.abs(candidate.time - targetTime) < Math.abs(best.time - targetTime) ? candidate : best,
+          );
+          console.log(
+            `${rotation.name}: Qi ${(ratio * 100).toFixed(0)}% target ${targetTime.toFixed(3)}s; ` +
+              `attach before step ${nearest.row.rotationIndex} ${nearest.row.step.skill} action ${nearest.actionIndex} ` +
+              `at ${nearest.time.toFixed(3)}s (Qi 0 at ${zeroTime.toFixed(3)}s).`,
+          );
+        }
       continue;
     }
-    assert(rampRows.length === zeroRows.length, `${rotation.name} must have one 40% Qi event per 0% Qi event.`);
-    for (let index = 0; index < zeroRows.length; index += 1) {
-      const zeroTime = zeroRows[index].startTime - battleStart;
-      const rampTime = rampRows[index].startTime - battleStart;
-      const previousExhaustedEnd = index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
-      const expectedRampTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * 0.6;
-      assert(rampTime < zeroTime, `${rotation.name} Qi ramp ${index + 1} must precede depletion.`);
+    for (const ratio of rampRatios) {
+      const rampRows = qiRows.filter((row) => row.step.targetQiRatio === ratio);
       assert(
-        Math.abs(rampTime - expectedRampTime) <= 0.75,
-        `${rotation.name} Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; expected roughly ${expectedRampTime.toFixed(3)}s.`,
+        rampRows.length === zeroRows.length,
+        `${rotation.name} must have one ${(ratio * 100).toFixed(0)}% Qi event per 0% Qi event.`,
       );
+      for (let index = 0; index < zeroRows.length; index += 1) {
+        const zeroTime = zeroRows[index].startTime - battleStart;
+        const rampTime = rampRows[index].startTime - battleStart;
+        const previousExhaustedEnd = index === 0 ? 0 : zeroRows[index - 1].startTime - battleStart + exhaustedDuration;
+        const expectedRampTime = previousExhaustedEnd + (zeroTime - previousExhaustedEnd) * (1 - ratio);
+        assert(rampTime < zeroTime, `${rotation.name} Qi ramp ${index + 1} must precede depletion.`);
+        assert(
+          Math.abs(rampTime - expectedRampTime) <= 0.75,
+          `${rotation.name} ${(ratio * 100).toFixed(0)}% Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; ` +
+            `expected roughly ${expectedRampTime.toFixed(3)}s.`,
+        );
+      }
     }
-    console.log(`${rotation.name}: ${zeroRows.length} Qi ramp point(s) verified.`);
+    console.log(`${rotation.name}: ${zeroRows.length} Qi segment(s) verified.`);
   }
 } finally {
   await viteServer.close();

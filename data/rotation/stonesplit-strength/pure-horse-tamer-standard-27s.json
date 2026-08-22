@@ -43,6 +43,14 @@
       "duration": 0.05
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0.59
+    },
+    {
       "type": "skill",
       "skill": "SnowpartingConversion"
     },

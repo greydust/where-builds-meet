@@ -72,6 +72,14 @@
       "skill": "SoaringSpin2"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 1
+      },
+      "targetQiRatio": 0.59
+    },
+    {
       "type": "skill",
       "skill": "SnowpartingLightCharged"
     },

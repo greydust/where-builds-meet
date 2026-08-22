@@ -71,6 +71,14 @@
       "skill": "SnowpartingHeavyVC"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0.59
+    },
+    {
       "type": "skill",
       "skill": "PhalanxbaneQ"
     },

@@ -80,34 +80,12 @@
       "distance": 2
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
       "type": "event",
-      "event": "Move",
+      "event": "Qi",
       "before": {
-        "trigger": 0,
-        "action": 0
+        "action": 5
       },
-      "distance": 6
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "trigger": 1,
-        "action": 0
-      },
-      "distance": 4
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": 3
-      },
-      "distance": 2
+      "targetQiRatio": 0.59
     },
     {
       "type": "skill",
@@ -146,6 +124,36 @@
         "action": 5
       },
       "targetQiRatio": 0.4
+    },
+    {
+      "type": "skill",
+      "skill": "PhalanxbaneHeavyCharged3"
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 0,
+        "action": 0
+      },
+      "distance": 6
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "trigger": 1,
+        "action": 0
+      },
+      "distance": 4
+    },
+    {
+      "type": "event",
+      "event": "Move",
+      "before": {
+        "action": 3
+      },
+      "distance": 2
     },
     {
       "type": "skill",
