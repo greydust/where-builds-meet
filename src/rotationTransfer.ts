@@ -145,6 +145,21 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
   }
   if (
     step.type === "event" &&
+    step.event === "MartialArt" &&
+    before?.action === "start" &&
+    before.trigger === undefined &&
+    typeof step.martialArt === "string" &&
+    weaponIdSet.has(step.martialArt as WeaponId)
+  ) {
+    return {
+      type: "event",
+      event: "MartialArt",
+      before: { action: "start" },
+      martialArt: step.martialArt as WeaponId,
+    };
+  }
+  if (
+    step.type === "event" &&
     step.event === "Delay" &&
     typeof step.duration === "number" &&
     Number.isFinite(step.duration)

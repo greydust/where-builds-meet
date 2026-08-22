@@ -343,6 +343,22 @@ The action total is the sum of expected Physical, Bellstrike, Stonesplit, Silkbi
 
 DOT damage ignores the action's flat Physical Bonus and Attribute Bonus. Its coefficient, attacks, penetration, path bonus, active effects, and outcome rates are otherwise calculated normally.
 
+## Replayed damage
+
+A `replay` action does not enter the normal damage formula. Its source is the
+final resolved damage of the damage event that triggered its `Replayed` skill:
+
+```text
+Replay Damage = Source Event Final Damage × replay.coef
+```
+
+No attack roll, defense, resistance, penetration, damage bonus, Critical,
+Affinity, Abrasion, or other outcome is evaluated again. Replay damage is
+reported in the physical/total breakdown channel, cannot emit another damage
+event, and is excluded from simulation outcome-rate hit counts. The average
+calculator and Monte Carlo simulator use the same source-link resolution, so a
+simulation replay copies that run's randomized source hit.
+
 ## Stat-priority conversion
 
 Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the active enemy profile's numeric level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:

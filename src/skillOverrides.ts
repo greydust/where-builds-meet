@@ -1,7 +1,8 @@
 import type { EffectDefinition, SkillRecord } from "./calculations/rotationTimeline";
 
 export type SkillMap = Record<string, SkillRecord>;
-export type SkillCategory = "Snowparting" | "Phalanxbane" | "Thundercry" | "Stormbreaker" | "Mystic" | "General";
+export type SkillCategory =
+  "Snowparting" | "Phalanxbane" | "Thundercry" | "Stormbreaker" | "Heavenwill" | "Skygrasp" | "Mystic" | "General";
 export type EditorCategory = SkillCategory | "Buff" | "Debuff" | "DOT";
 export type SkillOverrides = Partial<Record<EditorCategory, SkillMap>>;
 

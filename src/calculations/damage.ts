@@ -49,6 +49,7 @@ export type DamageAction = {
   phyCoef?: unknown;
   phyBonus?: unknown;
   attrBonus?: unknown;
+  coef?: unknown;
 };
 export type DamageOutcome = "abrasion" | "normal" | "critical" | "affinity";
 export type DamageOutcomeRates = { abrasion: number; normal: number; critical: number; affinity: number };

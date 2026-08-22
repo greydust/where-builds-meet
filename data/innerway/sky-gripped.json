@@ -1,0 +1,103 @@
+{
+  "name": "Sky Gripped",
+  "altersTimeline": true,
+  "tags": ["BamboocutKite"],
+  "effect": {
+    "SkyGrippedT0": {},
+    "SkyGrippedT1": {
+      "effect": [
+        {
+          "target": "HeavensMight",
+          "modify": {
+            "duration": 24
+          }
+        }
+      ]
+    },
+    "SkyGrippedT2": {
+      "effect": [
+        {
+          "stat": {
+            "crit": 0.077
+          }
+        }
+      ]
+    },
+    "SkyGrippedT3": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "Falcon"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "qiDMGBonus": 0.3
+          }
+        }
+      ]
+    },
+    "SkyGrippedT4": {},
+    "SkyGrippedT5": {
+      "effect": [
+        {
+          "stat": {
+            "critDmgBonus": 0.04
+          }
+        }
+      ]
+    },
+    "SkyGrippedT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Charged"
+            },
+            {
+              "target": "target",
+              "value": "HeavensMight"
+            }
+          ],
+          "effect": {
+            "critDmgBonus": 0.1
+          }
+        }
+      ],
+      "listen": [
+        {
+          "event": "damage",
+          "cooldown": 18,
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Charged"
+            },
+            {
+              "target": "target",
+              "value": "HeavensMight"
+            }
+          ],
+          "action": {
+            "type": "trigger",
+            "value": "SkyGrippedReplay",
+            "parameter": {
+              "damage": "event.damage"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

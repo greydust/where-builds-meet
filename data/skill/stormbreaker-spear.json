@@ -32,7 +32,9 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"]
+    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"],
+    "martialArt": "stormbreaker",
+    "weapon": "Spear"
   },
   "ThunderShock1": {
     "name": "Thunder Shock 1-Hit [Cancel]",
@@ -54,7 +56,9 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"]
+    "tags": ["DirectDamage", "MartialArts", "Special", "Spear", "StormbreakerSpear", "ThunderShock"],
+    "martialArt": "stormbreaker",
+    "weapon": "Spear"
   },
   "StormRoar": {
     "name": "Storm Roar",
@@ -76,6 +80,8 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "StormbreakerSpear", "StormRoar"]
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "StormbreakerSpear", "StormRoar"],
+    "martialArt": "stormbreaker",
+    "weapon": "Spear"
   }
 }

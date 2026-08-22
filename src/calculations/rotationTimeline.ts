@@ -1,4 +1,4 @@
-import type { WeaponId } from "../types";
+import type { WeaponFamily, WeaponId } from "../types";
 import { resolveSegmentValue } from "./dynamicValues";
 
 export type EditableObject = Record<string, unknown>;
@@ -8,6 +8,11 @@ export type PeriodicEffect = {
   resetOnRefresh?: boolean;
   action?: unknown[];
 };
+export type SubActionReference = {
+  value: string;
+  requirement?: unknown;
+  fallback?: string;
+};
 export type SkillRecord = {
   [key: string]: unknown;
   name?: string;
@@ -16,11 +21,13 @@ export type SkillRecord = {
   cooldown?: number;
   duration?: number;
   collectBoostDamage?: string;
-  subAction?: string[];
+  subAction?: Array<string | SubActionReference>;
   action?: unknown[];
   periodic?: PeriodicEffect;
   modifier?: unknown[];
   tags?: string[];
+  martialArt?: WeaponId;
+  weapon?: WeaponFamily;
 };
 export type AttachedEventTarget = { action: number | "start"; trigger?: number };
 export type RotationStep =
@@ -38,6 +45,12 @@ export type RotationStep =
   | { type: "event"; event: "Qi"; after: AttachedEventTarget; targetQiRatio: number }
   | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
   | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
+  | {
+      type: "event";
+      event: "MartialArt";
+      before: AttachedEventTarget & { action: "start"; trigger?: undefined };
+      martialArt: WeaponId;
+    }
   | { type: "event"; event: "Delay"; duration: number }
   | { type: "event"; event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
@@ -75,6 +88,7 @@ export type InnerWayEffectRule = {
   requirement?: unknown;
   effect: EditableObject;
   trigger?: EditableObject;
+  listen?: EditableObject;
   target?: string;
   modify?: EditableObject;
   source: string;
@@ -96,6 +110,8 @@ export type TimelineRow = {
   targetHPRatio: number;
   targetQiRatio: number;
   resources: ResourceState;
+  currentMartialArt?: WeaponId;
+  currentWeapon?: WeaponFamily;
   effectiveCastTime: number;
   skill?: SkillRecord;
   actions: EditableObject[];
@@ -115,6 +131,8 @@ export type TimelineRow = {
       targetHPRatio: number;
       targetQiRatio: number;
       resources: ResourceState;
+      currentMartialArt?: WeaponId;
+      currentWeapon?: WeaponFamily;
     }
   >;
   skipped?: boolean;
@@ -187,9 +205,12 @@ export type TimelineBuildInput = {
   innerWayRules: InnerWayEffectRule[];
   setupEffects: EditableObject[];
   weapons: WeaponId[];
+  martialArtState?: Partial<Record<WeaponId, { weapon: WeaponFamily }>>;
   initialBuffs?: TrackedEffect[];
   initialDebuffs?: TrackedEffect[];
   initialResources?: ResourceState;
+  resourceRegeneration?: ResourceState;
+  resourceMaximums?: ResourceState;
   maxHP?: number;
 };
 
@@ -197,6 +218,10 @@ export type RequirementState = {
   selfHPPercentage?: number;
   targetHPPercentage?: number;
   targetQiPercentage?: number;
+  skillCooldowns?: Record<string, number>;
+  currentTime?: number;
+  currentMartialArt?: WeaponId;
+  currentWeapon?: WeaponFamily;
 };
 
 export const TIMELINE_TIME_EPSILON = 1e-4;
@@ -240,8 +265,19 @@ export function requirementsPass(
   if (!Array.isArray(requirement)) return true;
   const hasEffect = (target: unknown, value: unknown, requiredStack?: unknown) => {
     if (typeof value !== "string") return false;
-    if (target === "skillTag") return skillTags.includes(value);
-    if (target === "martialArt") return skillTags.includes(value);
+    switch (target) {
+      case "skillTag":
+      case "martialArt":
+        return skillTags.includes(value);
+      case "equippedMartialArt":
+        return weapons.includes(value as WeaponId);
+      case "currentMartialArt":
+        return state.currentMartialArt === value;
+      case "currentWeapon":
+        return state.currentWeapon === value;
+      default:
+        break;
+    }
     const trackedEffect = (target === "target" ? debuffs : buffs).find((effect) => effect.name === value);
     if (requiredStack === "max")
       return Boolean(trackedEffect?.maxStack !== undefined && (trackedEffect.stack ?? 0) >= trackedEffect.maxStack);
@@ -254,6 +290,10 @@ export function requirementsPass(
     if (!condition || typeof condition !== "object") return false;
     const item = condition as EditableObject;
     if (item.operator === "or" && Array.isArray(item.operand)) return item.operand.some(evaluate);
+    if (item.target === "skillCooldown") {
+      if (typeof item.value !== "string" || item.comparison !== "ready") return false;
+      return (state.skillCooldowns?.[`skill:${item.value}`] ?? 0) <= (state.currentTime ?? 0);
+    }
     if (
       item.target === "resource" ||
       item.target === "selfHPPercentage" ||
@@ -388,6 +428,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   type ExpandedSkillSegment = {
     skillId: string;
     skill: SkillRecord;
+    reference?: SubActionReference;
     baseCastTime: number;
     baseStartOffset: number;
     actionIndexes: number[];
@@ -398,28 +439,49 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     const segments: ExpandedSkillSegment[] = [];
     const actions: EditableObject[] = [];
     let castTime = 0;
-    const append = (currentSkillId: string, ancestry: Set<string>) => {
+    const normalizeSubAction = (value: string | SubActionReference): SubActionReference =>
+      typeof value === "string" ? { value } : value;
+    const append = (currentSkillId: string, ancestry: Set<string>, reference?: SubActionReference) => {
       if (ancestry.has(currentSkillId)) return;
       const skill = skills[currentSkillId];
       if (!skill) return;
       const baseCastTime = typeof skill.castTime === "number" ? skill.castTime : 0;
       const baseActions = Array.isArray(skill.action) ? (skill.action as EditableObject[]) : [];
-      const actionIndexes = baseActions.map((action) => {
+      const fallbackActions = reference?.fallback
+        ? Array.isArray(skills[reference.fallback]?.action)
+          ? (skills[reference.fallback].action as EditableObject[])
+          : []
+        : [];
+      const actionSlotCount = Math.max(baseActions.length, fallbackActions.length);
+      const actionIndexes = Array.from({ length: actionSlotCount }, (_, localIndex) => {
+        const action = baseActions[localIndex];
         const actionIndex = actions.length;
-        actions.push({ ...action, time: castTime + (typeof action.time === "number" ? action.time : 0) });
+        actions.push(
+          action
+            ? { ...action, time: castTime + (typeof action.time === "number" ? action.time : 0) }
+            : { type: "inactive", time: castTime + baseCastTime },
+        );
         return actionIndex;
       });
       segments.push({
         skillId: currentSkillId,
         skill,
+        reference,
         baseCastTime,
         baseStartOffset: castTime,
         actionIndexes,
-        localActionTimes: baseActions.map((action) => (typeof action.time === "number" ? action.time : 0)),
+        localActionTimes: Array.from({ length: actionSlotCount }, (_, localIndex) => {
+          const action = baseActions[localIndex];
+          return action && typeof action.time === "number" ? action.time : baseCastTime;
+        }),
       });
       castTime += baseCastTime;
       const nextAncestry = new Set(ancestry).add(currentSkillId);
-      if (Array.isArray(skill.subAction)) skill.subAction.forEach((subActionId) => append(subActionId, nextAncestry));
+      if (Array.isArray(skill.subAction))
+        skill.subAction.forEach((entry) => {
+          const subAction = normalizeSubAction(entry);
+          append(subAction.value, nextAncestry, subAction);
+        });
     };
     append(skillId, new Set());
     return { skill: root, actions, segments, castTime, isMultiAction: Boolean(root?.subAction?.length) };
@@ -442,7 +504,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         step.event === "HP" ||
         step.event === "Qi" ||
         step.event === "Buff" ||
-        step.event === "Debuff") &&
+        step.event === "Debuff" ||
+        step.event === "MartialArt") &&
       "before" in step
     )
       return { target: step.before, placement: "before" as const };
@@ -518,6 +581,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         : {}),
       ...(step.type === "event" && step.event === "Debuff" && action.type === "apply"
         ? { value: step.debuff, stack: step.stack ?? 1 }
+        : {}),
+      ...(step.type === "event" && step.event === "MartialArt" && action.type === "switchMartialArt"
+        ? { martialArt: step.martialArt }
         : {}),
     }));
     // Fixed-time and Move events resolve before other rows at an equal timestamp.
@@ -665,13 +731,55 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   let targetHPRatio = 1;
   let targetQiRatio = 1;
-  let resources: ResourceState = { Qi: 100, ...(input.initialResources ?? {}) };
+  let currentMartialArt = weapons[0];
+  let currentWeapon = currentMartialArt ? input.martialArtState?.[currentMartialArt]?.weapon : undefined;
+  const resourceMaximums = Object.fromEntries(
+    Object.entries(input.resourceMaximums ?? {}).filter(
+      ([, maximum]) => typeof maximum === "number" && Number.isFinite(maximum) && maximum >= 0,
+    ),
+  );
+  const clampResource = (name: string, value: number) =>
+    Math.min(resourceMaximums[name] ?? Number.POSITIVE_INFINITY, Math.max(0, Math.round(value * 1e9) / 1e9));
+  let resources: ResourceState = Object.fromEntries(
+    Object.entries({ Qi: 100, ...(input.initialResources ?? {}) }).map(([name, value]) => [
+      name,
+      clampResource(name, value),
+    ]),
+  );
+  const resourceRegeneration = Object.fromEntries(
+    Object.entries(input.resourceRegeneration ?? {}).filter(
+      ([, rate]) => typeof rate === "number" && Number.isFinite(rate) && rate > 0,
+    ),
+  );
+  let lastResourceRegenerationTime = events.reduce(
+    (earliest, event) => Math.min(earliest, event.time),
+    Number.POSITIVE_INFINITY,
+  );
+  if (!Number.isFinite(lastResourceRegenerationTime)) lastResourceRegenerationTime = 0;
+  const regenerateResources = (time: number) => {
+    const elapsed = Math.max(0, time - lastResourceRegenerationTime);
+    if (elapsed > 0) {
+      resources = Object.entries(resourceRegeneration).reduce(
+        (next, [name, rate]) => ({
+          ...next,
+          [name]: clampResource(name, (next[name] ?? 0) + rate * elapsed),
+        }),
+        resources,
+      );
+    }
+    lastResourceRegenerationTime = Math.max(lastResourceRegenerationTime, time);
+  };
+  const cooldowns: Record<string, number> = {};
+  let currentTimelineTime = 0;
   const requirementState = (): RequirementState => ({
     selfHPPercentage: currentHPRatio * 100,
     targetHPPercentage: targetHPRatio * 100,
     targetQiPercentage: targetQiRatio * 100,
+    skillCooldowns: cooldowns,
+    currentTime: currentTimelineTime,
+    currentMartialArt,
+    currentWeapon,
   });
-  const cooldowns: Record<string, number> = {};
   const prune = (effects: TrackedEffect[], time: number) =>
     effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time);
   const getModifiedEffectDefinition = (
@@ -784,6 +892,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         targetHPRatio,
         targetQiRatio,
         resources: { ...resources },
+        currentMartialArt,
+        currentWeapon,
         effectiveCastTime: 0,
         skill: rowSkill,
         actions,
@@ -853,6 +963,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       targetHPRatio,
       targetQiRatio,
       resources: { ...resources },
+      currentMartialArt,
+      currentWeapon,
       effectiveCastTime: 0,
       skill: definition,
       actions: actions.map((action) => ({ ...action })),
@@ -877,10 +989,29 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   let processedEvents = 0;
   const startResolvedActionValues = new Map<string, unknown>();
+  const startResolvedActionRequirements = new Map<string, boolean>();
   const actionResolutionKey = (row: TimelineRow, actionIndex: number) => `${row.id}:${actionIndex}`;
   const resolveStartBoundActionValues = (row: TimelineRow, actionIndexes: number[]) => {
     actionIndexes.forEach((actionIndex) => {
       const action = row.actions[actionIndex];
+      const requirementObject =
+        action?.requirement && typeof action.requirement === "object" && !Array.isArray(action.requirement)
+          ? (action.requirement as EditableObject)
+          : undefined;
+      if (requirementObject?.resolveAt === "skillStart" && Array.isArray(requirementObject.operand))
+        startResolvedActionRequirements.set(
+          actionResolutionKey(row, actionIndex),
+          requirementsPass(
+            requirementObject.operand,
+            buffs,
+            debuffs,
+            row.actionSkillTags?.[actionIndex] ?? row.skill?.tags ?? [],
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
+          ),
+        );
       const valueObject =
         action?.value && typeof action.value === "object" && !Array.isArray(action.value)
           ? (action.value as EditableObject)
@@ -950,6 +1081,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     );
     const event = events.shift()!;
     processedEvents += 1;
+    currentTimelineTime = event.time;
+    regenerateResources(event.time);
     if (event.expiresEffect) {
       const targetEffects = event.expiresEffect.target === "target" ? debuffs : buffs;
       const current = targetEffects.find((effect) => effect.name === event.expiresEffect!.name);
@@ -961,28 +1094,75 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const segments = multiActionSegments.get(event.row.id);
       const segment = segments?.[event.subActionIndex ?? -1];
       if (!segment) continue;
-      resolveStartBoundActionValues(event.row, segment.actionIndexes);
+      const modifiersFor = (skill: SkillRecord) => {
+        const tags = skill.tags ?? [];
+        return Array.isArray(skill.modifier)
+          ? (skill.modifier as EditableObject[])
+              .filter((item) =>
+                requirementsPass(
+                  item.requirement,
+                  buffs,
+                  debuffs,
+                  tags,
+                  innerWayConditions,
+                  weapons,
+                  resources,
+                  requirementState(),
+                ),
+              )
+              .map((item) =>
+                item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
+                  ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs)
+                  : {},
+              )
+          : [];
+      };
+      const reference = segment.reference;
+      const primaryPasses =
+        !reference?.requirement ||
+        requirementsPass(
+          reference.requirement,
+          buffs,
+          debuffs,
+          segment.skill.tags ?? [],
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        );
+      const selectedId = reference ? (primaryPasses ? reference.value : reference.fallback) : segment.skillId;
+      const selectedSkill = selectedId ? skills[selectedId] : undefined;
+      const selectedActions = Array.isArray(selectedSkill?.action) ? (selectedSkill.action as EditableObject[]) : [];
+      const segmentStartOffset = event.time - event.row.startTime;
+      segment.skillId = selectedId ?? segment.skillId;
+      segment.skill = selectedSkill ?? { name: "Inactive sub-action", castTime: 0, action: [], tags: ["SubAction"] };
+      segment.baseCastTime = typeof selectedSkill?.castTime === "number" ? selectedSkill.castTime : 0;
+      segment.localActionTimes = segment.actionIndexes.map((_, localIndex) => {
+        const action = selectedActions[localIndex];
+        return action && typeof action.time === "number" ? action.time : segment.baseCastTime;
+      });
+      segment.actionIndexes.forEach((actionIndex, localIndex) => {
+        const selectedAction = selectedActions[localIndex];
+        event.row.actions[actionIndex] = selectedAction
+          ? { ...selectedAction, time: segmentStartOffset + segment.localActionTimes[localIndex] }
+          : { type: "inactive", time: segmentStartOffset + segment.baseCastTime };
+      });
+      if (selectedId && typeof selectedSkill?.cooldown === "number")
+        cooldowns[`skill:${selectedId}`] = event.time + selectedSkill.cooldown;
+      const inactiveActionIndexes = new Set(segment.actionIndexes.slice(selectedActions.length));
+      (directAttachments.get(event.row.id) ?? []).forEach(({ eventRow, target }) => {
+        if (typeof target.action !== "number" || !inactiveActionIndexes.has(target.action)) return;
+        eventRow.skipped = true;
+        for (let index = events.length - 1; index >= 0; index -= 1)
+          if (events[index].row === eventRow) events.splice(index, 1);
+      });
       const skillTags = segment.skill.tags ?? [];
-      const modifiers = Array.isArray(segment.skill.modifier)
-        ? (segment.skill.modifier as EditableObject[])
-            .filter((item) =>
-              requirementsPass(
-                item.requirement,
-                buffs,
-                debuffs,
-                skillTags,
-                innerWayConditions,
-                weapons,
-                resources,
-                requirementState(),
-              ),
-            )
-            .map((item) =>
-              item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
-                ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs)
-                : {},
-            )
-        : [];
+      event.row.actionSkillTags ??= {};
+      segment.actionIndexes.forEach((actionIndex) => {
+        event.row.actionSkillTags![actionIndex] = skillTags;
+      });
+      resolveStartBoundActionValues(event.row, segment.actionIndexes);
+      const modifiers = modifiersFor(segment.skill);
       const timingValue = (value: unknown, actionTime: number, fallback: number) =>
         typeof value === "number" && Number.isFinite(value)
           ? value
@@ -995,13 +1175,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         );
         return Math.max(0, time + modifier) * multiplier;
       };
-      event.row.actionSkillTags ??= {};
       event.row.actionModifierEffects ??= {};
-      const segmentStartOffset = event.time - event.row.startTime;
       segment.actionIndexes.forEach((actionIndex, localIndex) => {
         const actionTime = segmentStartOffset + adjust(segment.localActionTimes[localIndex] ?? 0);
         event.row.actions[actionIndex] = { ...event.row.actions[actionIndex], time: actionTime };
-        event.row.actionSkillTags![actionIndex] = skillTags;
         event.row.actionModifierEffects![actionIndex] = modifiers;
         events.forEach((queued) => {
           if (queued.row === event.row && queued.kind === "action" && queued.actionIndex === actionIndex)
@@ -1081,6 +1258,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         typeof event.row.skill?.cooldown === "number"
       )
         cooldowns[`skill:${skillId}`] = event.time + event.row.skill.cooldown;
+      if (
+        event.row.step.type === "skill" &&
+        event.row.skill?.tags?.includes("MartialArts") &&
+        event.row.skill.martialArt &&
+        event.row.skill.weapon
+      ) {
+        currentMartialArt = event.row.skill.martialArt;
+        currentWeapon = event.row.skill.weapon;
+      }
       event.row.buffs = [...buffs];
       event.row.debuffs = [...debuffs];
       event.row.distance = distance;
@@ -1089,6 +1275,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       event.row.targetHPRatio = targetHPRatio;
       event.row.targetQiRatio = targetQiRatio;
       event.row.resources = { ...resources };
+      event.row.currentMartialArt = currentMartialArt;
+      event.row.currentWeapon = currentWeapon;
       if (multiActionSegments.has(event.row.id)) continue;
       resolveStartBoundActionValues(
         event.row,
@@ -1148,21 +1336,24 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       targetHPRatio,
       targetQiRatio,
       resources: { ...resources },
+      currentMartialArt,
+      currentWeapon,
     };
     const skillTags = event.row.actionSkillTags?.[event.actionIndex ?? -1] ?? event.row.skill?.tags ?? [];
-    if (
-      !requirementsPass(
-        action.requirement,
-        buffs,
-        debuffs,
-        skillTags,
-        innerWayConditions,
-        weapons,
-        resources,
-        requirementState(),
-      )
-    )
-      continue;
+    const resolutionKey = actionResolutionKey(event.row, event.actionIndex ?? -1);
+    const requirementPasses = startResolvedActionRequirements.has(resolutionKey)
+      ? startResolvedActionRequirements.get(resolutionKey) === true
+      : requirementsPass(
+          action.requirement,
+          buffs,
+          debuffs,
+          skillTags,
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        );
+    if (!requirementPasses) continue;
     const skillKey = event.row.step.type === "skill" ? (event.row.step.skill ?? "") : event.row.step.event;
     const actionCooldownKey = `action:${skillKey}:${event.actionIndex ?? -1}`;
     if (typeof action.cooldown === "number" && (cooldowns[actionCooldownKey] ?? 0) > event.time) continue;
@@ -1170,6 +1361,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       continue;
     if (action.type === "clearCD" && typeof action.value === "string") {
       cooldowns[action.value] = event.time;
+      cooldowns[`skill:${action.value}`] = event.time;
       continue;
     }
     if (action.type === "move" && typeof action.distance === "number" && Number.isFinite(action.distance)) {
@@ -1196,26 +1388,59 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       continue;
     }
     if (
+      action.type === "switchMartialArt" &&
+      typeof action.martialArt === "string" &&
+      input.martialArtState?.[action.martialArt as WeaponId]?.weapon
+    ) {
+      currentMartialArt = action.martialArt as WeaponId;
+      currentWeapon = input.martialArtState?.[currentMartialArt]?.weapon;
+      continue;
+    }
+    if (
       (action.type === "setResource" || action.type === "addResource" || action.type === "consumeResource") &&
       typeof action.value === "string" &&
-      typeof action.amount === "number" &&
-      Number.isFinite(action.amount) &&
-      action.amount >= 0
+      ((typeof action.amount === "number" && Number.isFinite(action.amount) && action.amount >= 0) ||
+        (action.type === "consumeResource" && action.amount === "all"))
     ) {
       const current = resources[action.value] ?? 0;
+      const resourceAmount = typeof action.amount === "number" ? action.amount : 0;
+      const additionalAmountDefinition =
+        action.type === "addResource" &&
+        action.additionalAmount &&
+        typeof action.additionalAmount === "object" &&
+        !Array.isArray(action.additionalAmount)
+          ? (action.additionalAmount as EditableObject)
+          : undefined;
+      const additionalAmount =
+        additionalAmountDefinition &&
+        typeof additionalAmountDefinition.amount === "number" &&
+        Number.isFinite(additionalAmountDefinition.amount) &&
+        additionalAmountDefinition.amount >= 0 &&
+        requirementsPass(
+          additionalAmountDefinition.requirement,
+          buffs,
+          debuffs,
+          skillTags,
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        )
+          ? additionalAmountDefinition.amount
+          : 0;
       let next = current;
       switch (action.type) {
         case "setResource":
-          next = action.amount;
+          next = resourceAmount;
           break;
         case "addResource":
-          next = current + action.amount;
+          next = current + resourceAmount + additionalAmount;
           break;
         case "consumeResource":
-          next = current - action.amount;
+          next = action.amount === "all" ? 0 : current - resourceAmount;
           break;
       }
-      resources = { ...resources, [action.value]: Math.max(0, next) };
+      resources = { ...resources, [action.value]: clampResource(action.value, next) };
       continue;
     }
     if (action.type === "consume") {
@@ -1224,7 +1449,6 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         action.value && typeof action.value === "object" && !Array.isArray(action.value)
           ? (action.value as EditableObject)
           : undefined;
-      const resolutionKey = actionResolutionKey(event.row, event.actionIndex ?? -1);
       let value = startResolvedActionValues.has(resolutionKey)
         ? startResolvedActionValues.get(resolutionKey)
         : action.value;
@@ -1282,6 +1506,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         targetHPRatio,
         targetQiRatio,
         resources: { ...resources },
+        currentMartialArt,
+        currentWeapon,
         effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0,
         skill: triggeredSkill,
         actions: actions.map((item) => ({ ...item })),
@@ -1322,6 +1548,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       if (typeof triggeredSkill.cooldown === "number") cooldowns[key] = event.time + triggeredSkill.cooldown;
     };
     const applyTriggerAction = (triggerAction: EditableObject, triggerSource: "setup" | "innerWay") => {
+      if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
+        cooldowns[triggerAction.value] = event.time;
+        cooldowns[`skill:${triggerAction.value}`] = event.time;
+        return;
+      }
       if (triggerAction.type === "trigger" && typeof triggerAction.value === "string") {
         enqueueTriggeredSkill(triggerAction.value, event.row.sourceRowId ?? event.row.id, undefined, triggerSource);
         return;

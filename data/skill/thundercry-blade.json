@@ -39,7 +39,9 @@
         }
       }
     ],
-    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"],
+    "martialArt": "thundercry",
+    "weapon": "MoBlade"
   },
   "Avalanche1": {
     "name": "Avalanche 1-Hit [Cancel]",
@@ -74,7 +76,9 @@
         }
       }
     ],
-    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"]
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Charged", "MoBlade", "ThundercryBlade", "Avalanche"],
+    "martialArt": "thundercry",
+    "weapon": "MoBlade"
   },
   "StonebreakerCleave1": {
     "name": "Stonebreaker Cleave 1-Hit [Cancel]",
@@ -99,7 +103,9 @@
       "MoBlade",
       "ThundercryBlade",
       "StonebreakerCleave"
-    ]
+    ],
+    "martialArt": "thundercry",
+    "weapon": "MoBlade"
   },
   "StonebreakerCleave": {
     "name": "Stonebreaker Cleave [Cancel]",
@@ -130,7 +136,9 @@
       "MoBlade",
       "ThundercryBlade",
       "StonebreakerCleave"
-    ]
+    ],
+    "martialArt": "thundercry",
+    "weapon": "MoBlade"
   },
   "StonebreakerQuake": {
     "name": "Stonebreaker Quake",
@@ -283,6 +291,8 @@
       }
     ],
     "modifier": [],
-    "tags": ["MartialArts", "MartialArt", "MoBlade", "ThundercryBlade", "Shield"]
+    "tags": ["MartialArts", "MartialArt", "MoBlade", "ThundercryBlade", "Shield"],
+    "martialArt": "thundercry",
+    "weapon": "MoBlade"
   }
 }

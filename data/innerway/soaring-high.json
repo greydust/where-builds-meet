@@ -1,0 +1,68 @@
+{
+  "name": "Soaring High",
+  "altersTimeline": true,
+  "tags": ["BamboocutKite"],
+  "effect": {
+    "SoaringHighT0": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "Falcon"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "hpDMGBonus": 0.2
+          }
+        }
+      ]
+    },
+    "SoaringHighT1": {},
+    "SoaringHighT2": {
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 74.4
+          }
+        }
+      ]
+    },
+    "SoaringHighT3": {
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Falcon"
+            },
+            {
+              "target": "target",
+              "value": "Exhausted"
+            }
+          ],
+          "action": [
+            {
+              "type": "clearCD",
+              "target": "self",
+              "value": "VileCondemnedEndHit"
+            }
+          ]
+        }
+      ]
+    },
+    "SoaringHighT4": {},
+    "SoaringHighT5": {},
+    "SoaringHighT6": {}
+  }
+}

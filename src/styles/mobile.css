@@ -35,19 +35,13 @@
     margin-block-start: 0;
   }
 
-  .layout-mobile .layout-preview-selector {
-    grid-column: 1 / -1;
-  }
-
-  .layout-mobile .locale-selector,
-  .layout-mobile .layout-preview-selector {
+  .layout-mobile .locale-selector {
     display: grid;
     gap: 0.25rem;
     min-inline-size: 0;
   }
 
-  .layout-mobile .locale-selector select,
-  .layout-mobile .layout-preview-selector select {
+  .layout-mobile .locale-selector select {
     inline-size: 100%;
     min-inline-size: 0;
     min-block-size: 2.75rem;

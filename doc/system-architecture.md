@@ -31,9 +31,10 @@ PC and mobile are explicit presentation modes over the same React state and
 calculation components. PC retains the established wide grids and viewport-bound
 Build and Rotation workspaces. Mobile uses normal document scrolling, compact
 single-column panels, horizontal item choosers, and card-style rotation rows.
-The production mode follows a `48em` viewport query. Dev mode exposes a PC/Mobile
-selector that overrides that query for the current session, allowing either
-presentation to be tested without changing calculation or stored game data.
+The production mode follows a `48em` viewport query. Settings always shows the
+currently resolved PC/Mobile layout below Enemy. The selector remains disabled
+and dimmed until Dev mode is enabled, at which point it overrides the viewport
+query for the current session without changing calculation or stored game data.
 
 The long-term product direction is to accept complete character and gear data,
 simulate rotations, compare alternatives, and recommend builds or rotations.
@@ -203,6 +204,14 @@ Damage action. The editor keeps the attached event immediately before its
 anchor in stored rotation order, while timeline sort order determines whether
 its effect resolves before or after the selected action at the shared timestamp.
 
+Current martial art and physical weapon are timeline state as well. They start
+from the left equipped martial art, change automatically at the start of each
+castable `MartialArts` skill from that skill's data fields, and remain unchanged
+through General, Mystic, and triggered skills. A start-only Martial Art event
+can switch them explicitly before a cast. Ordinary requirements can inspect
+both values, and rows and actions snapshot them so a Mystic follow-up such as
+Ghostly Step - Umbra Dodge can dispatch weapon-specific damage definitions.
+
 ## Browser persistence
 
 Character stat overrides use `localStorage`, so they persist across browser sessions.
@@ -311,6 +320,12 @@ effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
 shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
+The hidden base stat `heavensWillRegen` is also resolved through this pipeline.
+It is passed into the timeline as the per-second regeneration rate for the
+numeric `HeavensWill` resource rather than exposed as an editable combat stat.
+The resource's universal maximum of four is stored in `system.json` and passed
+through `TimelineBuildInput.resourceMaximums`, so passive regeneration and
+explicit resource actions share the same cap.
 Innate Max HP is stored directly in `baseStats`; its `101929` value excludes the
 `25980` HP from four Tier 96 Purple armor pieces that was present in the observed
 `127909` value. Armor base HP remains a separate equipped-gear contribution,
@@ -374,7 +389,12 @@ action has temporary `stat` or `effectiveStat` effects.
 Alongside buffs, debuffs, distance, and current HP, it tracks a map of named
 numeric resources. Resource actions update that map in event order, and each
 action snapshot carries the resource values used by action and setup-effect
-requirements.
+requirements. Optional resource-regeneration rates accrue from elapsed timeline
+time before each ordered event is processed.
+Actions may wrap their requirement operands with `resolveAt: "skillStart"`.
+The timeline evaluates and stores that boolean when the owning skill component
+begins, then uses the stored result when the action executes. This keeps delayed
+resource consumption and similar mechanics bound to their release-start state.
 It produces four row kinds:
 
 - `rotation`: an explicit skill or manual event
@@ -465,6 +485,20 @@ are applied only to that returned component.
 `calculateSimulatedDamageBreakdown()` uses the same internal formula with its
 attack-roll mode set to `simulate`. It selects one outcome and samples the
 normal/critical attack ranges instead of rate-weighting expected variants.
+
+After an ordinary hit resolves, the centralized damage sequence emits a typed,
+synchronous damage event containing its final damage, action-specific tags, and
+the immutable combat-state snapshot for that action. Active Inner Way listeners
+are data-defined and evaluated against this event. A successful listener may
+spawn a parameterized `Replayed` skill; its delayed actions retain a link to the
+source entry rather than copying a deterministic value into the timeline.
+
+The average calculator and simulator resolve that link after calculating the
+source hit. Replay actions therefore follow randomized source damage during
+Monte Carlo runs while bypassing normal multipliers and outcomes. Generated
+replay rows participate in duration, target-HP progression, Battle End cutoff,
+timeline display, and breakdown attribution. They do not emit damage events,
+which makes the event graph acyclic.
 
 ## Calculation bundle and worker
 
@@ -667,8 +701,8 @@ custom builds with `weapons` are migrated at the persistence/import boundary.
 Presets with `test: true` remain bundled but are hidden until the persisted
 header-level Dev toggle is enabled. The application currently recognizes:
 
-- Snowparting, Phalanxbane, Mystic, General, Buff, Debuff, and DOT editor categories
-- six martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, and Gauntlet weapon families
+- Snowparting, Phalanxbane, Thundercry, Stormbreaker, Heavenwill, Mystic, General, Buff, Debuff, and DOT editor categories
+- eight martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, Gauntlet, and Spear weapon families
 - six Inner Ways
 - eight available Divinecraft definitions, including a no-effect choice
 - seven Script definitions plus a no-effect choice

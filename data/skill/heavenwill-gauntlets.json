@@ -1,0 +1,354 @@
+{
+  "HeavenwillDeclared": {
+    "name": "Heavenwill Declared",
+    "shortName": "Gauntlet Q",
+    "castTime": 0.9,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2201,
+        "phyBonus": 61,
+        "attrBonus": 33,
+        "time": 0.9
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.8804,
+        "phyBonus": 244,
+        "attrBonus": 132,
+        "time": 0.9
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Gauntlet", "HeavenwillGauntlets"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "CelestialMandate": {
+    "name": "Celestial Mandate",
+    "shortName": "Gauntlet Q",
+    "castTime": 1.23,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2293,
+        "phyBonus": 63,
+        "attrBonus": 34,
+        "time": 1.23
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.2293,
+        "phyBonus": 63,
+        "attrBonus": 34,
+        "time": 1.23
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.2293,
+        "phyBonus": 63,
+        "attrBonus": 34,
+        "time": 1.23
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.2293,
+        "phyBonus": 63,
+        "attrBonus": 34,
+        "time": 1.23
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.6115,
+        "phyBonus": 169,
+        "attrBonus": 92,
+        "time": 1.23
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.1,
+        "time": 1.23,
+        "additionalAmount": {
+          "amount": 0.2,
+          "requirement": [
+            {
+              "target": "self",
+              "value": "HeavensUnity"
+            }
+          ]
+        }
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Gauntlet", "HeavenwillGauntlets", "Falcon"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign5thHit": {
+    "name": "Righteous Reign 5th Hit",
+    "shortName": "Gauntlet 5LA",
+    "castTime": 0.8,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4674,
+        "phyBonus": 130,
+        "attrBonus": 71,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "LightAttack", "Gauntlet", "HeavenwillGauntlets"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign6thHitCancel": {
+    "name": "Righteous Reign 6th Hit [Cancel]",
+    "shortName": "Gauntlet 6LA",
+    "castTime": 0.36,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.8202,
+        "phyBonus": 228,
+        "attrBonus": 124,
+        "time": 0.36
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "value": "LightAttackFalcon",
+        "time": 0.36
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "LightAttack", "Gauntlet", "HeavenwillGauntlets"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "LightAttackFalcon": {
+    "name": "Light Attack Falcon",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "HeavenwillGauntlets", "Falcon", "Triggered"]
+  },
+  "AllUnderJustice": {
+    "name": "All Under Justice",
+    "shortName": "Gauntlet Special",
+    "castTime": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4884,
+        "phyBonus": 135,
+        "attrBonus": 73,
+        "time": 1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4884,
+        "phyBonus": 135,
+        "attrBonus": 73,
+        "time": 1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4884,
+        "phyBonus": 135,
+        "attrBonus": 73,
+        "time": 1
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.9769,
+        "phyBonus": 270,
+        "attrBonus": 147,
+        "time": 1
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Special", "Gauntlet", "HeavenwillGauntlets"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VileCondemned": {
+    "name": "Vile Condemned",
+    "shortName": "Gauntlet Charged",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "VileCondemnedCharge"
+      },
+      {
+        "value": "VileCondemnedEndHit",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SoaringHighT0"
+          },
+          {
+            "target": "resource",
+            "value": "HeavensWill",
+            "comparison": ">=",
+            "amount": 3
+          },
+          {
+            "target": "skillCooldown",
+            "value": "VileCondemnedEndHit",
+            "comparison": "ready"
+          }
+        ],
+        "fallback": "VileCondemnedHit"
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VileCondemnedCharge": {
+    "name": "Vile Condemned Charge",
+    "castTime": 1,
+    "action": [],
+    "modifier": [],
+    "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"]
+  },
+  "VileCondemnedHit": {
+    "name": "Vile Condemned Hit",
+    "castTime": 2,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 7.2178,
+        "phyBonus": 1997,
+        "attrBonus": 1088,
+        "time": 2,
+        "requirement": [
+          {
+            "target": "resource",
+            "value": "HeavensWill",
+            "comparison": ">=",
+            "amount": 2
+          }
+        ]
+      },
+      {
+        "type": "consumeResource",
+        "value": "HeavensWill",
+        "amount": "all",
+        "time": 2,
+        "requirement": [
+          {
+            "target": "resource",
+            "value": "HeavensWill",
+            "comparison": ">=",
+            "amount": 2
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VileCondemnedEndHit": {
+    "name": "Vile Condemned End Hit",
+    "castTime": 2,
+    "cooldown": 18,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 11.7527,
+        "phyBonus": 3250,
+        "attrBonus": 1771,
+        "time": 2
+      },
+      {
+        "type": "consumeResource",
+        "value": "HeavensWill",
+        "amount": 1,
+        "time": 2,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            {
+              "target": "self",
+              "value": "SoaringHighT6"
+            },
+            {
+              "target": "resource",
+              "value": "HeavensWill",
+              "comparison": "==",
+              "amount": 4
+            }
+          ]
+        }
+      },
+      {
+        "type": "consumeResource",
+        "value": "HeavensWill",
+        "amount": 3,
+        "time": 2
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SoaringHighT6"
+          },
+          {
+            "target": "resource",
+            "value": "HeavensWill",
+            "comparison": "==",
+            "amount": 4
+          }
+        ],
+        "effect": {
+          "baseDMGBonus": 0.3,
+          "critDmgBonus": 0.1
+        }
+      }
+    ],
+    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "SkyGrippedReplay": {
+    "name": "Sky Gripped Replay",
+    "shortName": "Sky Gripped",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "replay",
+        "coef": 0.13333333333333333,
+        "time": 1
+      },
+      {
+        "type": "replay",
+        "coef": 0.13333333333333333,
+        "time": 2
+      },
+      {
+        "type": "replay",
+        "coef": 0.13333333333333333,
+        "time": 3
+      }
+    ],
+    "modifier": [],
+    "tags": ["Triggered", "DOT", "Replayed", "BamboocutKite"]
+  }
+}

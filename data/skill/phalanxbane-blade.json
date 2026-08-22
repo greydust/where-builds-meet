@@ -115,7 +115,9 @@
       "BurningHeart",
       "TriggerAnxiSolder",
       "SubAction"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavyCharge2": {
     "name": "Burning Heart Charge 2",
@@ -176,7 +178,9 @@
       "BurningHeart",
       "TriggerAnxiSolder",
       "SubAction"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavySlam2": {
     "name": "Burning Heart Slam 2",
@@ -267,7 +271,9 @@
       "BurningHeart",
       "TriggerAnxiSolder",
       "SubAction"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavyCharge3": {
     "name": "Burning Heart Charge 3",
@@ -339,7 +345,9 @@
       "BurningHeart",
       "TriggerAnxiSolder",
       "SubAction"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavySlam3": {
     "name": "Burning Heart Slam 3",
@@ -430,14 +438,23 @@
       "BurningHeart",
       "TriggerAnxiSolder",
       "SubAction"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavyCharged1": {
     "name": "Burning Heart 1st Stage",
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavySlam1"],
+    "subAction": [
+      {
+        "value": "PhalanxbaneHeavyPreCharge"
+      },
+      {
+        "value": "PhalanxbaneHeavySlam1"
+      }
+    ],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -448,14 +465,26 @@
       "PhalanxbaneBlade",
       "BurningHeart",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavyCharged2": {
     "name": "Burning Heart 2nd Stage",
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavyCharge2", "PhalanxbaneHeavySlam2"],
+    "subAction": [
+      {
+        "value": "PhalanxbaneHeavyPreCharge"
+      },
+      {
+        "value": "PhalanxbaneHeavyCharge2"
+      },
+      {
+        "value": "PhalanxbaneHeavySlam2"
+      }
+    ],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -466,14 +495,26 @@
       "PhalanxbaneBlade",
       "BurningHeart",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneHeavyCharged3": {
     "name": "Burning Heart 3rd Stage",
     "shortName": "Mo Charged",
     "castTime": 0,
     "action": [],
-    "subAction": ["PhalanxbaneHeavyPreCharge", "PhalanxbaneHeavyCharge3", "PhalanxbaneHeavySlam3"],
+    "subAction": [
+      {
+        "value": "PhalanxbaneHeavyPreCharge"
+      },
+      {
+        "value": "PhalanxbaneHeavyCharge3"
+      },
+      {
+        "value": "PhalanxbaneHeavySlam3"
+      }
+    ],
     "modifier": [],
     "tags": [
       "DirectDamage",
@@ -484,7 +525,9 @@
       "PhalanxbaneBlade",
       "BurningHeart",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneSpecial": {
     "name": "Legion Summon",
@@ -513,7 +556,9 @@
         }
       }
     ],
-    "tags": ["DirectDamage", "MartialArts", "Special", "MoBlade", "PhalanxbaneBlade", "LegionSummon"]
+    "tags": ["DirectDamage", "MartialArts", "Special", "MoBlade", "PhalanxbaneBlade", "LegionSummon"],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "PhalanxbaneQ": {
     "name": "Total Annihilation",
@@ -548,7 +593,9 @@
       "PhalanxbaneBlade",
       "TotalAnnihilation",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   },
   "AnxiSoldierBurningHeart2": {
     "name": "Anxi Soldier Burning Heart 2nd Stage",

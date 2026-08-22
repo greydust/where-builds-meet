@@ -70,9 +70,10 @@ assert(
       path.basename(file) === "empty.json" ||
       path.basename(file).startsWith("mixed-fully-relayed-") ||
       path.basename(file).startsWith("pure-fully-relayed-") ||
-      path.basename(file).startsWith("might-fully-relayed-"),
+      path.basename(file).startsWith("might-fully-relayed-") ||
+      path.basename(file).startsWith("kite-fully-relayed-"),
   ),
-  "Fully-relayed preset filenames must identify mixed, pure, or Might builds.",
+  "Fully-relayed preset filenames must identify mixed, pure, Might, or Kite builds.",
 );
 for (const file of buildFiles) {
   const preset = JSON.parse(await readFile(file, "utf8"));
@@ -111,6 +112,33 @@ assert(
   mightBuild.setup.weaponSets.RainWhisper === 4 && mightBuild.setup.armorSets.Formbend === 4,
   "The Might max preset must use its Rain Whisper and Formbend setup.",
 );
+
+for (const variant of ["min", "max"]) {
+  const kiteBuild = await readJson(`data/build/bamboocut-kite/kite-fully-relayed-${variant}.json`);
+  assert(
+    kiteBuild.id === `kite-fully-relayed-${variant}` &&
+      kiteBuild.name === `Kite Fully Relayed ${variant === "min" ? "Min" : "Max"} Build`,
+    `The Kite ${variant} preset must use its Kite identity.`,
+  );
+  assert(
+    kiteBuild.martialArts.join(",") === "heavenwill,skygrasp" &&
+      kiteBuild.gear.leftWeapon.definitionId === "gauntlet" &&
+      kiteBuild.gear.rightWeapon.definitionId === "skygraspRopeDart",
+    `The Kite ${variant} preset must use Heavenwill Gauntlets and Skygrasp Rope Dart.`,
+  );
+  assert(
+    kiteBuild.setup.innerWays.length === 1 &&
+      kiteBuild.setup.innerWays[0].innerWay === "SoaringHigh" &&
+      kiteBuild.setup.arsenal === "Bamboocut",
+    `The Kite ${variant} preset must use its available Inner Way and Bamboocut arsenal.`,
+  );
+  assert(
+    ["helmet", "chestpiece", "greaves", "bracer"].every(
+      (slot) => kiteBuild.gear[slot].attunement.key === "heavenwillChargedBoost",
+    ),
+    `The Kite ${variant} preset armor must use the Heavenwill Charged attunement.`,
+  );
+}
 
 const rotationDirectories = [path.join(root, "data/rotation")];
 const rotationFiles = [];

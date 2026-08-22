@@ -1,0 +1,10 @@
+{
+  "HeavensUnity": {
+    "name": "Heaven's Unity",
+    "shortName": "Unity",
+    "description": "Increases Celestial Mandate's Heaven's Will generation from 0.1 to 0.3.",
+    "duration": 24,
+    "maxStack": 1,
+    "refresh": true
+  }
+}

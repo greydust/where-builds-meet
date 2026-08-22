@@ -46,9 +46,15 @@ type SkillDefinition = {
   castTime: number;
   cooldown?: number;
   action: SkillAction[];
-  subAction?: string[];
+  subAction?: Array<{
+    value: string;
+    requirement?: Requirement[];
+    fallback?: string;
+  }>;
   modifier: SkillModifier[];
   tags: string[];
+  martialArt?: WeaponId;
+  weapon?: WeaponFamily;
 };
 ```
 
@@ -83,6 +89,18 @@ example, `SnowpartingBlade` or `PhalanxbaneBlade`. They match the action's skill
 tags, not the IDs of the currently equipped weapons. This prevents a
 martial-art-specific effect from applying to Mystic or another equipped art.
 
+Use `"target": "equippedMartialArt"` with a martial-art ID such as
+`heavenwill` when a mechanic depends on the player's equipped pair rather than
+the skill currently executing. This requirement checks either equipped slot and
+does not depend on their order.
+
+Every castable skill tagged `MartialArts` declares its canonical `martialArt`
+ID and physical `weapon` family. At cast start, these fields replace the
+timeline's current martial art and weapon. Triggered martial-art component
+skills omit both fields so they inherit state instead of switching it. General
+and Mystic casts leave both values unchanged. Requirements can inspect the
+state with `currentMartialArt` or `currentWeapon`.
+
 ## Actions
 
 All normal skill actions have a numeric `time` measured from cast start and may
@@ -106,6 +124,23 @@ expiry action and schedules it for the refreshed expiration time.
 
 `phyCoef` drives physical and all four attribute paths. `attrBonus` is used only
 by the equipped weapons' primary attribute. See `damage-formula.md`.
+
+### Replay
+
+Only a skill tagged `Replayed` may be spawned by a damage-event listener. Its
+actions use a fixed coefficient instead of ordinary damage fields:
+
+```json
+{
+  "type": "replay",
+  "coef": 0.13333333333333333,
+  "time": 1
+}
+```
+
+The triggering listener passes `event.damage`; each replay action deals exactly
+that final damage multiplied by `coef`. Replay actions bypass the damage formula
+and do not emit damage events, preventing recursive replay chains.
 
 ### Apply
 
@@ -222,21 +257,31 @@ the same per-hit calculation with and without the named buff.
 
 ### Multi-action skills
 
-A castable skill can declare an ordered `subAction` list of skill IDs. Its own
-cast and actions execute first, followed by each referenced component in array
-order. Unlike a `trigger`, every component consumes its effective cast time.
-Each component evaluates its modifier when that component starts, after all
-actions from the preceding component at the shared boundary have executed.
+A castable skill can declare an ordered `subAction` list of objects. `value`
+names the primary component. Its optional `requirement` is evaluated when that
+component starts, after earlier components finish. A passing requirement uses
+the primary component; a failing requirement uses `fallback` when provided or
+skips the component otherwise. The selection remains locked for that component
+cast.
 
-Component actions retain the component's tags and resolved modifiers for
-requirements and damage calculation. Their times are flattened onto the parent
-cast, and their damage, triggered actions, cast time, timeline display, and
-per-cast breakdown ownership all remain assigned to the parent skill. Existing
-action attachments and trigger ordinals therefore address the flattened parent
-action list exactly as they did before the skill was decomposed. Referenced
-component definitions use the `SubAction` tag and cannot be selected directly
-in the Rotation Editor. Nested lists are expanded in order; a cyclic reference
-is ignored at the repeated edge.
+The parent skill's own cast and actions execute first, followed by each selected
+component in array order. Unlike a `trigger`, every selected component consumes
+its effective cast time. Component actions retain the selected component's tags
+and resolved modifiers for requirements and damage calculation. Their damage,
+triggered actions, cast time, timeline display, and per-cast breakdown ownership
+remain assigned to the parent skill.
+
+Both primary and fallback action capacities are allocated during expansion.
+Unused action slots are inert, allowing the candidates to have different action
+counts while preserving stable indexes for stored action attachments. An
+attachment targeting an unselected action is skipped. Component definitions use
+the `SubAction` tag and cannot be selected directly in the Rotation Editor.
+
+Legacy string entries from stored skill overrides are interpreted as objects
+with only `value`; bundled data uses the object form. Nested lists are expanded
+in order, and a cyclic reference is ignored at the repeated edge. Conditional
+primary and fallback definitions are currently required to be leaf components;
+unconditional component references may still contain nested subactions.
 
 ### Extend
 
@@ -265,6 +310,9 @@ permanent, or already-expired states are not extended.
 ```
 
 This clears the named effect/application cooldown at that timestamp.
+It also clears a skill cooldown with the same identifier. Inner-way and setup
+trigger actions support `clearCD`, so an on-damage rule can reset a skill or
+effect cooldown without a triggered helper skill.
 
 ### Set self HP and take damage
 
@@ -343,9 +391,39 @@ effect actions can update them:
 ```
 
 `setResource` replaces the value, `addResource` increases it, and
-`consumeResource` decreases it. Results are clamped to zero. Every action
+`consumeResource` decreases it. A `consumeResource` action may use `"all"` as
+its amount to set the resource to zero. Results are clamped to zero and to an
+optional named maximum supplied by `TimelineBuildInput.resourceMaximums`. Every action
 snapshots the resources before that action resolves, so a resource change
 affects later actions at the same timestamp but not earlier actions.
+
+An action can lock its requirement result when its owning skill or sub-action
+component begins:
+
+```json
+{
+  "requirement": {
+    "resolveAt": "skillStart",
+    "operand": [
+      { "target": "self", "value": "SoaringHighT6" },
+      { "target": "resource", "value": "HeavensWill", "comparison": "==", "amount": 4 }
+    ]
+  }
+}
+```
+
+The complete operand uses the normal implicit-AND requirement semantics. Its
+boolean result is remembered for that action and does not change when effects
+or resources change before the action executes. In a multi-action skill,
+`skillStart` means the start of the selected component that owns the action.
+
+`TimelineBuildInput.resourceRegeneration` maps resource IDs to the amount
+generated per second. Regeneration accrues continuously between ordered
+timeline events before the next event snapshots its state. Heaven's Will starts
+at zero and uses the character's hidden `heavensWillRegen` stat; its innate
+value of `0.1` therefore generates one Heaven's Will every 10 seconds. Explicit
+resource actions operate on the regenerated value, and equal-time actions retain
+their declared causal order.
 
 ## Requirements
 
@@ -365,6 +443,9 @@ Supported targets are:
 - `skillTag`: a tag on the skill being evaluated
 - `martialArt`: the canonical martial-art tag on the skill being evaluated,
   such as `SnowpartingBlade` or `PhalanxbaneBlade`
+- `equippedMartialArt`: a canonical martial-art ID present in either equipped slot
+- `currentMartialArt`: the canonical martial-art ID active at this timeline event
+- `currentWeapon`: the active physical weapon family, such as `HengBlade` or `MoBlade`
 - `resource`: a named numeric timeline resource compared with `amount` using
   `comparison`; supported comparisons are `>=`, `>`, `<=`, `<`, `==`, and `!=`
 - `selfHPPercentage`, `targetHPPercentage`, and `targetQiPercentage`: the
@@ -586,6 +667,8 @@ Tier entries may contain:
 
 - `effect`: passive stats, conditional action effects, or `target`/`modify`
 - `trigger`: reactive actions evaluated on each damage action
+- `listen`: post-formula damage listeners that can spawn parameterized
+  `Replayed` skills
 
 Reactive trigger example:
 
@@ -699,6 +782,7 @@ type RotationRecord = {
     | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
     | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
     | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number }
+    | { type: "event"; event: "MartialArt"; before: { action: "start" }; martialArt: WeaponId }
     | { type: "event"; event: "Controlled" | "ShieldBroken" | "BattleEnd"; startTime: number; duration?: number }
   >;
   start?: { step: number; action?: number };
@@ -718,9 +802,9 @@ type AttachedEventTarget = {
 Skill steps and `Delay` events are placed sequentially. A Delay starts when the
 preceding cast ends, advances every later sequential step by its nonnegative
 `duration`, and applies no action or effect. A trailing Delay still extends the
-rotation duration. `Move`, `SelfHP`, `HP`, `Qi`, `Buff`, `Debuff`,
+rotation duration. `Move`, `SelfHP`, `HP`, `Qi`, `Buff`, `Debuff`, `MartialArt`,
 and `Exhausted` are action-attached events and must be stored immediately before
-their target skill. The first six use `before`; Exhausted
+their target skill. The first seven use `before`; Exhausted
 uses `after`. The attachment's
 `action` is a zero-based action index in that skill; `"start"` is valid for
 before-attached events and targets cast start. When `trigger` is present, it is the
@@ -739,6 +823,18 @@ moving beyond that attachment target. Their stored array order is their executio
 order at the shared timestamp. The editor preserves the attached-event row's visual
 scroll position while moving it. A newly inserted skill receives focus, and
 converting it to an attached event targets the following skill.
+
+The Martial Art event is restricted to `{ "action": "start" }`; it cannot
+target a skill action or a triggered action. Its editor control appears in the
+Damage column and can select either equipped martial art. It switches the
+current martial art and derives the current physical weapon immediately before
+the target cast without consuming time. The initial state uses the left martial
+art. A later castable `MartialArts` skill may switch it again automatically.
+
+Perfect Dodge uses `currentWeapon` requirements to trigger one of the six
+weapon-tagged Ghostly Step - Umbra Dodge definitions. This lets its Mystic
+damage inherit the physical weapon used before the dodge without turning the
+dodge itself into a martial-art skill.
 
 Bundled rotation JSON records declare the martial-art IDs they use in
 `martialArts`. The Rotation Editor shows a preset only when those tags match the
@@ -1013,3 +1109,115 @@ and replace their matching records in the skill, buff, debuff, and DOT maps
 used by rotation calculations and simulations. The resolved maps are part of
 the calculation fingerprint, so saving or resetting an override schedules a
 fresh result rather than restoring an incompatible cache entry.
+
+### Bamboocut Kite definition status
+
+Heavenwill Gauntlets currently defines Heavenwill Declared (Gauntlet Q) as a
+0.9-second Martial Art skill. Its two hits use coefficients `0.2201` and
+`0.8804`, with their respective flat physical and attribute bonuses, and both
+land at cast end until measured per-hit timing becomes available.
+
+Celestial Mandate is a 1.23-second Falcon skill with five cast-end hits. Its
+first four hits each use physical coefficient `0.2293`, `63` flat physical
+bonus, and `34` flat attribute bonus, while the fifth uses its larger
+finishing-hit values. At cast end it adds `0.1` to the numeric `HeavensWill`
+resource. Heaven's Unity is represented as a regular self buff;
+while it is active, the resource action's conditional `additionalAmount` adds
+another `0.2`, for `0.3` total generation. This generic field contains an
+`amount` and optional `requirement` and applies only to `addResource` actions.
+Heaven's Unity lasts 24 seconds, has one maximum stack, and refreshes its
+duration when reapplied.
+Explicit resource changes and passive resource regeneration are normalized to
+nine decimal places so fractional additions remain stable at requirement and
+display boundaries.
+
+Skygrasp Rope Dart currently defines Sky Grasped (RD Special) as a 0.9-second
+Special skill. Its cast-end hit uses physical coefficient `1.2503`, `347` flat
+physical bonus, and `189` flat attribute bonus. Immediately after that hit at
+the same timestamp, it applies or refreshes Heaven's Unity on self.
+
+Snaring Lash [Cancel] (RD Q [Cancel]) is a 0.6-second Martial Art skill. Its
+single cast-end hit uses physical coefficient `0.4975`, `137` flat physical
+bonus, and `75` flat attribute bonus.
+
+The full Snaring Lash (RD Q) has a 1.7-second cast. It retains the cancel
+variant's first hit at 0.6 seconds and adds a second hit at 1.7 seconds with
+physical coefficient `1.1609`, `321` flat physical bonus, and `175` flat
+attribute bonus.
+
+A `skillCooldown` requirement with comparison `ready` checks whether the named
+skill's cooldown has expired at the current timeline event. This supports
+cooldown-aware component replacement without embedding skill-specific fallback
+logic in the calculator.
+
+Righteous Reign 5th Hit (Gauntlet 5LA) is a 0.8-second Light Attack with one
+cast-end damage action. Its physical coefficient is `0.4674`, with `130` flat
+physical bonus and `71` flat attribute bonus.
+
+Righteous Reign 6th Hit [Cancel] (Gauntlet 6LA) is a 0.36-second Light Attack.
+Its cast-end hit uses physical coefficient `0.8202`, `228` flat physical bonus,
+and `124` flat attribute bonus, then triggers Light Attack Falcon at the same
+timestamp. Light Attack Falcon is a zero-cast-time `Triggered` skill tagged
+`Falcon`; its `0.748` physical-coefficient hit lands 0.6 seconds after it is
+triggered without extending the rotation's sequential cast time.
+
+All Under Justice (Gauntlet Special) is a 1-second Special skill with four
+cast-end hits. The first three each use physical coefficient `0.4884`, `135`
+flat physical bonus, and `73` flat attribute bonus. The final hit uses physical
+coefficient `0.9769`, `270` flat physical bonus, and `147` flat attribute bonus.
+
+Vile Condemned (Gauntlet Charged) contains a one-second
+`VileCondemnedCharge` component followed by a conditional release component.
+At release start, Soaring High T0, three or more Heaven's Will, and a ready End
+Hit cooldown select `VileCondemnedEndHit`; otherwise the component falls back to
+`VileCondemnedHit`. The weaker hit uses physical
+coefficient `7.2178`, `1997` flat physical bonus, and `1088` flat attribute
+bonus. End Hit has an 18-second cooldown and uses physical coefficient
+`11.7527`, `3250` flat physical bonus, and `1771` flat attribute bonus. With
+Soaring High T6, exactly four Heaven's Will at release start locks a `0.3`
+base-damage bonus and `0.1` Critical Damage bonus for End Hit.
+The normal release consumes all available Heaven's Will. End Hit consumes three
+at cast end, plus one additional point when its start-bound requirement found
+Soaring High T6 and exactly four Heaven's Will at release start. Heaven's Will
+is capped at four.
+
+Soaring High T0 enables the Vile Condemned End Hit branch. Without the
+`SoaringHighT0` condition, Vile Condemned uses its normal release even when the
+resource and cooldown conditions for End Hit otherwise pass. T0 also grants
+`0.2` HP damage bonus to actions tagged `Falcon` or `VileCondemned`. Both the
+normal and End Hit release components carry the `VileCondemned` tag.
+Soaring High T2 adds `74.4` minimum physical attack through the shared stat
+effect pipeline.
+Soaring High T3 clears `VileCondemnedEndHit` cooldown when a damaging action
+tagged `Falcon` hits an exhausted target. The reset occurs after the qualifying
+damage action resolves and affects subsequent Vile Condemned releases.
+Soaring High T6 grants Vile Condemned End Hit `0.3` base-damage bonus and `0.1`
+Critical Damage bonus when the release begins at exactly four Heaven's Will.
+An Inner Way tier may listen to final damage events:
+
+```json
+{
+  "listen": [
+    {
+      "event": "damage",
+      "cooldown": 18,
+      "requirement": [
+        { "target": "skillTag", "value": "Charged" },
+        { "target": "target", "value": "HeavensMight" }
+      ],
+      "action": {
+        "type": "trigger",
+        "value": "SkyGrippedReplay",
+        "parameter": { "damage": "event.damage" }
+      }
+    }
+  ]
+}
+```
+
+The event snapshot contains the source action's final damage, action-specific
+tags, buffs, debuffs, resources, and target state at hit time. Requirements use
+the existing targets against that snapshot. A listener cooldown is local to
+that listener and begins only when it successfully spawns its skill. For a
+multi-hit skill, the first eligible event starts the cooldown, so later hits in
+that window do not replay.

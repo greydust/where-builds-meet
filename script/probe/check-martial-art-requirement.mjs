@@ -28,6 +28,24 @@ try {
     ]),
     "Legacy weapon IDs must not be accepted as martial-art tags.",
   );
+  assert(
+    requirementsPass([{ target: "equippedMartialArt", value: "heavenwill" }], [], [], ["SkygraspRopeDart"], new Set(), [
+      "skygrasp",
+      "heavenwill",
+    ]),
+    "An equipped-martial-art requirement must match either equipped slot.",
+  );
+  assert(
+    !requirementsPass(
+      [{ target: "equippedMartialArt", value: "heavenwill" }],
+      [],
+      [],
+      ["SkygraspRopeDart"],
+      new Set(),
+      ["skygrasp", "thundercry"],
+    ),
+    "An equipped-martial-art requirement must fail when the art is not equipped.",
+  );
   console.log("Canonical martial-art requirement tag checks passed.");
 } finally {
   await viteServer.close();

@@ -1,0 +1,130 @@
+{
+  "SkyGrasped": {
+    "name": "Sky Grasped",
+    "shortName": "RD Special",
+    "castTime": 0.9,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.2503,
+        "phyBonus": 347,
+        "attrBonus": 189,
+        "time": 0.9
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.87,
+        "time": 0.9,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SkyGrippedT3"
+          },
+          {
+            "target": "equippedMartialArt",
+            "value": "heavenwill"
+          }
+        ]
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.25,
+        "time": 0.9,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SkyGrippedT3"
+          },
+          {
+            "target": "equippedMartialArt",
+            "value": "heavenwill"
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "HeavensUnity",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.9
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Special", "RopeDart", "SkygraspRopeDart"],
+    "martialArt": "skygrasp",
+    "weapon": "RopeDart"
+  },
+  "SnaringLashCancel": {
+    "name": "Snaring Lash [Cancel]",
+    "shortName": "RD Q [Cancel]",
+    "castTime": 0.6,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4975,
+        "phyBonus": 137,
+        "attrBonus": 75,
+        "time": 0.6
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "HeavensMight",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.6,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SkyGrippedT0"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart"],
+    "martialArt": "skygrasp",
+    "weapon": "RopeDart"
+  },
+  "SnaringLash": {
+    "name": "Snaring Lash",
+    "shortName": "RD Q",
+    "castTime": 1.7,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4975,
+        "phyBonus": 137,
+        "attrBonus": 75,
+        "time": 0.6
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "HeavensMight",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.6,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "SkyGrippedT0"
+          }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.1609,
+        "phyBonus": 321,
+        "attrBonus": 175,
+        "time": 1.7
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart"],
+    "martialArt": "skygrasp",
+    "weapon": "RopeDart"
+  }
+}

@@ -183,6 +183,18 @@
     max-inline-size: calc(50% - 7px);
   }
 
+  .settings-layout-row {
+    max-inline-size: calc(50% - 7px);
+
+    .editor-field:has(select:disabled) {
+      opacity: 0.5;
+    }
+
+    select:disabled {
+      cursor: not-allowed;
+    }
+  }
+
   .settings-summary {
     display: flex;
     flex-wrap: wrap;

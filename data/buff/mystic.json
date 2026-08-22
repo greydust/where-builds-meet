@@ -49,7 +49,7 @@
     "name": "Mystery DMG Boost",
     "shortName": "MDMG",
     "description": "From Ghostly Steps",
-    "duration": 20,
+    "duration": 8,
     "maxStack": 1,
     "effect": [
       {

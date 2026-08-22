@@ -17,6 +17,8 @@ export type CharacterStats = {
   physicalDefense: number;
   maxEndurance: number;
   maxVitality: number;
+  /** Heaven's Will generated per second. */
+  heavensWillRegen: number;
   minSilkbind: number;
   maxSilkbind: number;
   minBellstrike: number;
@@ -73,6 +75,7 @@ export const weaponIds = [
   "skygrasp",
 ] as const;
 export type WeaponId = (typeof weaponIds)[number];
+export type WeaponFamily = "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet";
 
 export type StatKey = keyof CharacterStats;
 

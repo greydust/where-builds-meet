@@ -356,6 +356,11 @@
     text-align: start;
   }
 
+  .rotation-martial-art-select {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
   .damage-breakdown-wrap {
     position: relative;
     display: inline-block;

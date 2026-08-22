@@ -57,6 +57,7 @@ import {
   type CharacterStats,
   type EnemyProfile,
   type StatDefinition,
+  type WeaponFamily,
   type WeaponId,
 } from "./types";
 import type { DerivedStats } from "./calculations/effectiveStats";
@@ -64,6 +65,8 @@ import snowpartingSkills from "../data/skill/snowparting-blade.json";
 import phalanxbaneSkills from "../data/skill/phalanxbane-blade.json";
 import thundercrySkills from "../data/skill/thundercry-blade.json";
 import stormbreakerSkills from "../data/skill/stormbreaker-spear.json";
+import heavenwillSkills from "../data/skill/heavenwill-gauntlets.json";
+import skygraspSkills from "../data/skill/skygrasp-rope-dart.json";
 import mysticSkills from "../data/skill/mystic.json";
 import generalSkills from "../data/skill/general.json";
 import mysticBuffs from "../data/buff/mystic.json";
@@ -71,6 +74,7 @@ import generalBuffs from "../data/buff/general.json";
 import stonesplitStrengthBuffs from "../data/buff/stonesplit-strength.json";
 import stonesplitMightBuffs from "../data/buff/stonesplit-might.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
+import bamboocutKiteBuffs from "../data/buff/bamboocut-kite.json";
 import silkbindDelugeBuffs from "../data/buff/silkbind-deluge.json";
 import globalBuffs from "../data/buff/global.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
@@ -79,6 +83,7 @@ import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
 import bellstrikeUmbraDebuffs from "../data/debuff/bellstrike-umbra.json";
 import innerWayDebuffs from "../data/debuff/innerway.json";
 import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
+import bamboocutKiteDebuffs from "../data/debuff/bamboocut-kite.json";
 import stonesplitMightDebuffs from "../data/debuff/stonesplit-might.json";
 import mysticDots from "../data/dot/mystic.json";
 import enemyProfiles from "../data/enemy.json";
@@ -265,6 +270,8 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Phalanxbane: phalanxbaneSkills as SkillMap,
   Thundercry: thundercrySkills as SkillMap,
   Stormbreaker: stormbreakerSkills as SkillMap,
+  Heavenwill: heavenwillSkills as SkillMap,
+  Skygrasp: skygraspSkills as SkillMap,
   Mystic: mysticSkills as SkillMap,
   General: generalSkills as SkillMap,
 };
@@ -276,6 +283,7 @@ const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
     ...stonesplitStrengthBuffs,
     ...stonesplitMightBuffs,
     ...bamboocutWindBuffs,
+    ...bamboocutKiteBuffs,
     ...silkbindDelugeBuffs,
   } as SkillMap,
   Debuff: {
@@ -284,6 +292,7 @@ const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
     ...bellstrikeSplendorDebuffs,
     ...bellstrikeUmbraDebuffs,
     ...bamboocutDustDebuffs,
+    ...bamboocutKiteDebuffs,
     ...innerWayDebuffs,
     ...generalDebuffs,
   } as SkillMap,
@@ -294,12 +303,21 @@ const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
   phalanxbane: "Phalanxbane",
   thundercry: "Thundercry",
   stormbreaker: "Stormbreaker",
+  heavenwill: "Heavenwill",
+  skygrasp: "Skygrasp",
 };
 const rotationEventDefinitions: Record<string, SkillRecord> = {
   Controlled: {
     name: "Event: Controlled",
     castTime: 0,
     action: [{ type: "apply", target: "target", value: "Controlled", stack: 1, time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  MartialArt: {
+    name: "Event: Switch Martial Art",
+    castTime: 0,
+    action: [{ type: "switchMartialArt", time: 0 }],
     modifier: [],
     tags: ["Event"],
   },
@@ -408,6 +426,8 @@ const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
   Phalanxbane: "phalanxbaneBlade",
   Thundercry: "thundercryBlade",
   Stormbreaker: "stormbreakerSpear",
+  Heavenwill: "heavenwillGauntlets",
+  Skygrasp: "skygraspRopeDart",
   Mystic: "mystic",
   General: "general",
 };
@@ -425,6 +445,8 @@ const martialArtBySkillId = new Map<string, WeaponId>([
   ...Object.keys(phalanxbaneSkills).map((id) => [id, "phalanxbane"] as const),
   ...Object.keys(thundercrySkills).map((id) => [id, "thundercry"] as const),
   ...Object.keys(stormbreakerSkills).map((id) => [id, "stormbreaker"] as const),
+  ...Object.keys(heavenwillSkills).map((id) => [id, "heavenwill"] as const),
+  ...Object.keys(skygraspSkills).map((id) => [id, "skygrasp"] as const),
 ]);
 const rotationEventOptionIds = [
   "__event:Delay",
@@ -438,6 +460,7 @@ const rotationEventOptionIds = [
   "__event:Qi",
   "__event:Buff",
   "__event:Debuff",
+  "__event:MartialArt",
 ];
 const dotDefinitions = mysticDots as Record<string, SkillRecord>;
 const generalDebuffIds = new Set(Object.keys(generalDebuffs));
@@ -448,12 +471,14 @@ const effectDefinitions = {
   ...stonesplitStrengthBuffs,
   ...stonesplitMightBuffs,
   ...bamboocutWindBuffs,
+  ...bamboocutKiteBuffs,
   ...silkbindDelugeBuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,
   ...bellstrikeSplendorDebuffs,
   ...bellstrikeUmbraDebuffs,
   ...bamboocutDustDebuffs,
+  ...bamboocutKiteDebuffs,
   ...innerWayDebuffs,
   ...generalDebuffs,
   ...dotDefinitions,
@@ -467,6 +492,7 @@ const manualBuffDefinitions = {
   ...stonesplitStrengthBuffs,
   ...stonesplitMightBuffs,
   ...bamboocutWindBuffs,
+  ...bamboocutKiteBuffs,
   ...silkbindDelugeBuffs,
 } as Record<string, { name?: string }>;
 const manualGeneralDebuffs = Object.fromEntries(Object.entries(generalDebuffs).filter(([id]) => id !== "Exhausted"));
@@ -476,6 +502,7 @@ const manualDebuffDefinitions = {
   ...bellstrikeSplendorDebuffs,
   ...bellstrikeUmbraDebuffs,
   ...bamboocutDustDebuffs,
+  ...bamboocutKiteDebuffs,
   ...innerWayDebuffs,
   ...manualGeneralDebuffs,
 } as Record<string, { name?: string }>;
@@ -555,13 +582,14 @@ function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): Inn
   return selected.flatMap(({ innerWay, tier }) => {
     if (!innerWay || !innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions]) return [];
     const definition = innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions] as {
-      effect?: Record<string, { effect?: unknown[]; trigger?: unknown[] }>;
+      effect?: Record<string, { effect?: unknown[]; trigger?: unknown[]; listen?: unknown[] }>;
     };
     const tierNumber = Number(tier.slice(1));
     return Array.from({ length: tierNumber + 1 }, (_, currentTier) => {
       const tierDefinition = definition.effect?.[`${innerWay}T${currentTier}`];
       const effects = tierDefinition?.effect ?? [];
       const triggers = tierDefinition?.trigger ?? [];
+      const listeners = tierDefinition?.listen ?? [];
       const effectRules = effects
         .filter((item): item is EditableObject => Boolean(item) && typeof item === "object" && !Array.isArray(item))
         .map((item) => ({
@@ -596,7 +624,16 @@ function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): Inn
           source: innerWay,
           tier: currentTier,
         }));
-      return [...effectRules, ...triggerRules];
+      const listenerRules = listeners
+        .filter((item): item is EditableObject => Boolean(item) && typeof item === "object" && !Array.isArray(item))
+        .map((item) => ({
+          requirement: item.requirement,
+          listen: item,
+          effect: {},
+          source: innerWay,
+          tier: currentTier,
+        }));
+      return [...effectRules, ...triggerRules, ...listenerRules];
     }).flat();
   });
 }
@@ -1049,10 +1086,9 @@ function mergeComparisonCategory(
   return { ...current, setupComparisons };
 }
 
-type MartialArtWeapon = "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet";
 type MartialArtDefinition = {
   name: string;
-  weapon: MartialArtWeapon;
+  weapon: WeaponFamily;
   tag: string;
   talent: Array<{ name: string; effect?: SetupEffect[] }>;
 };
@@ -1066,7 +1102,7 @@ const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
   heavenwill: heavenwillMartialArt as MartialArtDefinition,
   skygrasp: skygraspMartialArt as MartialArtDefinition,
 };
-const weaponFamilyNames: Record<MartialArtWeapon, string> = {
+const weaponFamilyNames: Record<WeaponFamily, string> = {
   HengBlade: "Heng Blade",
   MoBlade: "Mo Blade",
   Spear: "Spear",
@@ -1078,7 +1114,7 @@ const weaponIdSet = new Set<WeaponId>(allWeaponIds);
 const isWeaponId = (value: unknown): value is WeaponId =>
   typeof value === "string" && weaponIdSet.has(value as WeaponId);
 
-const artStatByWeaponFamily: Record<MartialArtWeapon, keyof CharacterStats> = {
+const artStatByWeaponFamily: Record<WeaponFamily, keyof CharacterStats> = {
   HengBlade: "hengBladeDmgBoost",
   MoBlade: "moBladeDmgBoost",
   Spear: "spearDmgBoost",
@@ -3061,8 +3097,29 @@ function skillToDraft(skill: SkillRecord) {
   };
 }
 
-const actionTypes = ["damage", "consume", "apply", "trigger", "extend", "clearCD"];
-const conditionTargets = ["self", "target", "skillTag", "martialArt"];
+const actionTypes = [
+  "damage",
+  "replay",
+  "consume",
+  "apply",
+  "trigger",
+  "extend",
+  "clearCD",
+  "setResource",
+  "addResource",
+  "consumeResource",
+];
+const conditionTargets = [
+  "self",
+  "target",
+  "skillTag",
+  "martialArt",
+  "equippedMartialArt",
+  "currentMartialArt",
+  "currentWeapon",
+  "resource",
+  "skillCooldown",
+];
 const effectFields = [
   "castTimeModifier",
   "castTimeMultiplier",
@@ -3119,8 +3176,17 @@ function updateObjectField(object: EditableObject, field: string, value: unknown
   return { ...object, [field]: value };
 }
 
-function RequirementEditor({ value, onChange }: { value: unknown; onChange: (value: unknown[]) => void }) {
-  const requirements = Array.isArray(value) ? (value as unknown[]) : [];
+function RequirementEditor({ value, onChange }: { value: unknown; onChange: (value: unknown) => void }) {
+  const wrapper =
+    value && typeof value === "object" && !Array.isArray(value) && (value as EditableObject).resolveAt === "skillStart"
+      ? (value as EditableObject)
+      : undefined;
+  const requirements = Array.isArray(wrapper?.operand)
+    ? (wrapper.operand as unknown[])
+    : Array.isArray(value)
+      ? (value as unknown[])
+      : [];
+  const emit = (next: unknown[]) => onChange(wrapper ? { ...wrapper, operand: next } : next);
   function editLeaf(leaf: unknown, field: string, fieldValue: string) {
     const current = leaf && typeof leaf === "object" && !Array.isArray(leaf) ? (leaf as EditableObject) : {};
     return { ...current, [field]: fieldValue };
@@ -3128,7 +3194,7 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
   function updateLeaf(index: number, field: string, fieldValue: string) {
     const next = [...requirements];
     next[index] = editLeaf(next[index], field, fieldValue);
-    onChange(next);
+    emit(next);
   }
   function updateOrLeaf(
     groupIndex: number,
@@ -3147,10 +3213,10 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
     }
     const next = [...requirements];
     next[groupIndex] = { ...group, operand: operands };
-    onChange(next);
+    emit(next);
   }
   function addOrGroup() {
-    onChange([
+    emit([
       ...requirements,
       {
         operator: "or",
@@ -3168,7 +3234,7 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
       ...group,
       operand: [...(Array.isArray(group.operand) ? group.operand : []), { target: "self", value: "" }],
     };
-    onChange(next);
+    emit(next);
   }
   function removeOrOperand(groupIndex: number, operandIndex: number, nestedIndex?: number) {
     const group = requirements[groupIndex] as EditableObject;
@@ -3181,10 +3247,10 @@ function RequirementEditor({ value, onChange }: { value: unknown; onChange: (val
     }
     const next = [...requirements];
     next[groupIndex] = { ...group, operand: operands };
-    onChange(next);
+    emit(next);
   }
-  const addLeaf = () => onChange([...requirements, { target: "self", value: "" }]);
-  const remove = (index: number) => onChange(requirements.filter((_, itemIndex) => itemIndex !== index));
+  const addLeaf = () => emit([...requirements, { target: "self", value: "" }]);
+  const remove = (index: number) => emit(requirements.filter((_, itemIndex) => itemIndex !== index));
   return (
     <div className="requirement-editor">
       <div className="sub-editor-heading">
@@ -3329,6 +3395,7 @@ function ActionDetails({
   skillIds: string[];
 }) {
   const type = asString(item.type) || "damage";
+  const isResourceAction = type === "setResource" || type === "addResource" || type === "consumeResource";
   const set = (field: string, value: unknown) => onChange(updateObjectField(item, field, value));
   const consumeValueObject =
     item.value && typeof item.value === "object" && !Array.isArray(item.value)
@@ -3336,6 +3403,12 @@ function ActionDetails({
       : undefined;
   const firstConsume = consumeValueObject?.operator === "first";
   const consumeResolvesAtSkillStart = firstConsume && consumeValueObject.resolveAt === "skillStart";
+  const requirementObject =
+    item.requirement && typeof item.requirement === "object" && !Array.isArray(item.requirement)
+      ? (item.requirement as EditableObject)
+      : undefined;
+  const requirementResolvesAtSkillStart =
+    requirementObject?.resolveAt === "skillStart" && Array.isArray(requirementObject.operand);
   const consumeText = firstConsume
     ? Array.isArray(consumeValueObject?.operand)
       ? (consumeValueObject.operand as unknown[]).map(asString).join(", ")
@@ -3379,6 +3452,14 @@ function ActionDetails({
     else delete nextValue.resolveAt;
     set("value", nextValue);
   }
+  function setRequirementResolveAtSkillStart(enabled: boolean) {
+    const operand = requirementResolvesAtSkillStart
+      ? (requirementObject?.operand as unknown[])
+      : Array.isArray(item.requirement)
+        ? item.requirement
+        : [];
+    set("requirement", enabled ? { resolveAt: "skillStart", operand } : operand);
+  }
   return (
     <div className="structured-detail">
       <div className="detail-fields">
@@ -3409,6 +3490,11 @@ function ActionDetails({
             value={item.attrBonus}
             onChange={(value) => set("attrBonus", value)}
           />
+        </div>
+      )}
+      {type === "replay" && (
+        <div className="detail-fields">
+          <NumberField label={t("ui.app.coefficient")} value={item.coef} onChange={(value) => set("coef", value)} />
         </div>
       )}
       {(type === "apply" || type === "extend" || type === "clearCD") && (
@@ -3446,6 +3532,30 @@ function ActionDetails({
             <span>{firstConsume ? t("ui.app.valuesCommaSeparated") : t("ui.app.value")}</span>
             <input value={consumeText} onChange={(event) => setConsumeText(event.target.value)} />
           </label>
+        </div>
+      )}
+      {isResourceAction && (
+        <div className="detail-fields">
+          <label className="detail-field">
+            <span>{t("ui.app.value")}</span>
+            <input value={asString(item.value)} onChange={(event) => set("value", event.target.value)} />
+          </label>
+          {type === "consumeResource" && item.amount === "all" ? (
+            <label className="checkbox-field">
+              <input type="checkbox" checked onChange={() => set("amount", 0)} />
+              <span>{t("ui.app.all")}</span>
+            </label>
+          ) : (
+            <>
+              <NumberField label={t("ui.app.amount")} value={item.amount} onChange={(value) => set("amount", value)} />
+              {type === "consumeResource" && (
+                <label className="checkbox-field">
+                  <input type="checkbox" checked={false} onChange={() => set("amount", "all")} />
+                  <span>{t("ui.app.all")}</span>
+                </label>
+              )}
+            </>
+          )}
         </div>
       )}
       {(type === "apply" || type === "consume") && (
@@ -3499,8 +3609,18 @@ function ActionDetails({
           </select>
         </label>
       )}
-      {(type === "apply" || type === "trigger" || type === "extend" || type === "clearCD") && (
-        <RequirementEditor value={item.requirement} onChange={(value) => set("requirement", value)} />
+      {(type === "apply" || type === "trigger" || type === "extend" || type === "clearCD" || isResourceAction) && (
+        <>
+          <label className="checkbox-field">
+            <input
+              type="checkbox"
+              checked={requirementResolvesAtSkillStart}
+              onChange={(event) => setRequirementResolveAtSkillStart(event.target.checked)}
+            />
+            <span>{t("ui.app.resolveAtSkillStart")}</span>
+          </label>
+          <RequirementEditor value={item.requirement} onChange={(value) => set("requirement", value)} />
+        </>
       )}
     </div>
   );
@@ -4497,13 +4617,17 @@ function SettingsTab({
   enemy,
   pathId,
   devMode,
+  layoutMode,
   onSettingsChange,
+  onLayoutChange,
 }: {
   settings: CalculatorSettings;
   enemy: EnemyProfile;
   pathId: PathId;
   devMode: boolean;
+  layoutMode: LayoutMode;
   onSettingsChange: Dispatch<SetStateAction<CalculatorSettings>>;
+  onLayoutChange: (layout: LayoutMode) => void;
 }) {
   const weaponsLocked = Boolean(typedPathDefinitions[pathId].lockedWeapons);
 
@@ -4555,6 +4679,19 @@ function SettingsTab({
                   {gameText(profile.name)}
                 </option>
               ))}
+            </select>
+          </label>
+        </div>
+        <div className="settings-layout-row">
+          <label className="editor-field">
+            <span>{t("ui.app.layout")}</span>
+            <select
+              value={layoutMode}
+              disabled={!devMode}
+              onChange={(event) => onLayoutChange(event.target.value as LayoutMode)}
+            >
+              <option value="pc">{t("ui.app.pc")}</option>
+              <option value="mobile">{t("ui.app.mobile")}</option>
             </select>
           </label>
         </div>
@@ -4770,7 +4907,15 @@ function RotationEditorTab({
   function selectRotationItem(index: number, value: string, control: HTMLSelectElement) {
     if (rotationLocked) return;
     if (
-      ["__event:Move", "__event:SelfHP", "__event:HP", "__event:Qi", "__event:Buff", "__event:Debuff"].includes(value)
+      [
+        "__event:Move",
+        "__event:SelfHP",
+        "__event:HP",
+        "__event:Qi",
+        "__event:Buff",
+        "__event:Debuff",
+        "__event:MartialArt",
+      ].includes(value)
     ) {
       const scrollContainer = rotationScrollRef.current;
       const row = control.closest<HTMLElement>("[data-rotation-step-index]");
@@ -4849,6 +4994,13 @@ function RotationEditorTab({
             debuff: Object.keys(manualDebuffDefinitions)[0],
             stack: 1,
           };
+        if (value === "__event:MartialArt")
+          return {
+            type: "event",
+            event: "MartialArt",
+            before: { action: "start" },
+            martialArt: settings.weapons[0],
+          };
         return { type: "skill", skill: value };
       }) as RotationStep[];
       const attached = [
@@ -4858,6 +5010,7 @@ function RotationEditorTab({
         "__event:Qi",
         "__event:Buff",
         "__event:Debuff",
+        "__event:MartialArt",
       ].includes(value);
       if (attached && !steps.slice(index + 1).some((step) => step.type === "skill"))
         steps.push({ type: "skill", skill: rotationSkillIds[0] });
@@ -4953,9 +5106,12 @@ function RotationEditorTab({
       return;
     }
     const eventAfterAction = attachedEventPhase(eventStep) === "after";
-    const availableTargets = eventAfterAction
-      ? attachmentTargets.filter((target) => target.target.action !== "start")
-      : attachmentTargets;
+    const availableTargets =
+      eventStep.event === "MartialArt"
+        ? attachmentTargets.filter((target) => target.target.action === "start")
+        : eventAfterAction
+          ? attachmentTargets.filter((target) => target.target.action !== "start")
+          : attachmentTargets;
     const eventRow = timeline.find((row) => row.id === `rotation-${stepIndex}`);
     const currentTargetIndex = availableTargets.findIndex(
       (target) =>
@@ -5453,7 +5609,7 @@ function RotationEditorTab({
             row.step.type !== "skill" ||
             actionsExpanded(row.id) ||
             isStartingAction;
-          if (action.type === "damage" && actionsVisible)
+          if ((action.type === "damage" || action.type === "replay") && actionsVisible)
             entries.push({
               row,
               kind: "action",
@@ -5558,8 +5714,13 @@ function RotationEditorTab({
       innerWayRules: rules,
       setupEffects,
       weapons: settings.weapons,
+      martialArtState: Object.fromEntries(
+        settings.weapons.map((martialArt) => [martialArt, { weapon: martialArtDefinitions[martialArt].weapon }]),
+      ),
       initialBuffs: globalBuffTimelineEffects(globalDebuffs),
       initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
+      resourceRegeneration: { HeavensWill: displayedCharacterStats.heavensWillRegen },
+      resourceMaximums: systemStats.resourceMaximums,
       maxHP: displayedCharacterStats.maxHp,
     };
   }
@@ -6235,9 +6396,11 @@ function RotationEditorTab({
                     const attachedTarget = attachedTargetForStep(step);
                     const isAttachedEvent = Boolean(attachedTarget);
                     const availableAttachmentTargets =
-                      attachedEventPhase(step) === "after"
-                        ? attachmentTargets.filter((target) => target.target.action !== "start")
-                        : attachmentTargets;
+                      step.type === "event" && step.event === "MartialArt"
+                        ? attachmentTargets.filter((target) => target.target.action === "start")
+                        : attachedEventPhase(step) === "after"
+                          ? attachmentTargets.filter((target) => target.target.action !== "start")
+                          : attachmentTargets;
                     const attachedTargetIndex = attachedTarget
                       ? availableAttachmentTargets.findIndex(
                           (target) =>
@@ -6302,7 +6465,7 @@ function RotationEditorTab({
                     const skillBreakdown = skillDamageRows.reduce<DamageBreakdown>(
                       (skillTotal, damageRow) =>
                         damageRow.actions.reduce<DamageBreakdown>((total, action, damageIndex) => {
-                          if (action.type !== "damage") return total;
+                          if (action.type !== "damage" && action.type !== "replay") return total;
                           const breakdown = calculateTimelineActionBreakdown(damageRow, damageIndex);
                           return {
                             physical: total.physical + breakdown.physical,
@@ -6611,7 +6774,36 @@ function RotationEditorTab({
                             )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
-                                ""
+                                step.event === "MartialArt" ? (
+                                  rotationLocked ? (
+                                    <span>{gameText(martialArtDefinitions[step.martialArt].name)}</span>
+                                  ) : (
+                                    <select
+                                      className="rotation-martial-art-select"
+                                      aria-label={t("ui.app.martialArtToSwitchTo")}
+                                      value={step.martialArt}
+                                      onChange={(event) =>
+                                        updateStep(row.rotationIndex ?? 0, {
+                                          martialArt: event.target.value as WeaponId,
+                                        })
+                                      }
+                                    >
+                                      {!settings.weapons.includes(step.martialArt) && (
+                                        <option value={step.martialArt} disabled>
+                                          {gameText(martialArtDefinitions[step.martialArt].name)}{" "}
+                                          {t("ui.app.unavailable")}
+                                        </option>
+                                      )}
+                                      {settings.weapons.map((martialArt) => (
+                                        <option value={martialArt} key={martialArt}>
+                                          {gameText(martialArtDefinitions[martialArt].name)}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  )
+                                ) : (
+                                  ""
+                                )
                               ) : step.type === "skill" && skillBreakdown.total > 0 ? (
                                 <DamageBreakdownValue breakdown={skillBreakdown} />
                               ) : (
@@ -7231,15 +7423,6 @@ export default function App() {
           >
             {t("ui.app.dev")}
           </button>
-          {devMode && (
-            <label className="layout-preview-selector">
-              <span>{t("ui.app.layout")}</span>
-              <select value={layoutPreview} onChange={(event) => changeLayoutPreview(event.target.value as LayoutMode)}>
-                <option value="pc">{t("ui.app.pc")}</option>
-                <option value="mobile">{t("ui.app.mobile")}</option>
-              </select>
-            </label>
-          )}
         </div>
       </header>
       <section className="path-selector" aria-label={t("ui.app.combatPath")}>
@@ -7357,7 +7540,9 @@ export default function App() {
           enemy={enemy}
           pathId={pathId}
           devMode={devMode}
+          layoutMode={layoutMode}
           onSettingsChange={setSettings}
+          onLayoutChange={changeLayoutPreview}
         />
       ) : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}>

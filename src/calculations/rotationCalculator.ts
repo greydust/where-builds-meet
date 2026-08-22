@@ -1,4 +1,10 @@
-import { calculateDamageBreakdown, type DamageBreakdown, type DamageContext, type DamageAction } from "./damage";
+import {
+  calculateDamageBreakdown,
+  calculateSimulatedDamageBreakdown,
+  type DamageBreakdown,
+  type DamageContext,
+  type DamageAction,
+} from "./damage";
 import {
   emptyRotationBreakdown,
   type RotationBreakdown,
@@ -14,8 +20,10 @@ import {
   type EditableObject,
   type EffectDefinition,
   type InnerWayEffectRule,
+  type ResourceState,
   type TimelineBuildInput,
   type TimelineRow,
+  type TrackedEffect,
 } from "./rotationTimeline";
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
@@ -26,6 +34,21 @@ export type RotationDamageEntry = {
   action: DamageAction;
   context: DamageContext;
   attributionContexts?: Array<{ sourceRowId: string; context: DamageContext }>;
+  timelineTime?: number;
+  timelineOrder?: number;
+  sourceRowId?: string;
+  replay?: { sourceEntryId: string; coef: number };
+  damageEvent?: {
+    buffs: TrackedEffect[];
+    debuffs: TrackedEffect[];
+    resources: ResourceState;
+    requirementState: {
+      selfHPPercentage: number;
+      targetHPPercentage: number;
+      targetQiPercentage: number;
+    };
+    listeners: Array<{ key: string; rule: InnerWayEffectRule }>;
+  };
 };
 
 export type RotationActionBreakdown = DamageBreakdown & { buffedDamageBySource?: Record<string, number> };
@@ -112,9 +135,36 @@ const emptyBreakdown = (): DamageBreakdown => ({
   total: 0,
 });
 
+function replayBreakdown(damage: number): DamageBreakdown {
+  const total = Math.max(0, damage);
+  return { physical: total, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total };
+}
+
+function calculateRotationDamageEntry(
+  entry: RotationDamageEntry,
+  resolved: Map<string, DamageBreakdown>,
+  random?: () => number,
+): DamageBreakdown {
+  let breakdown: DamageBreakdown;
+  if (entry.replay) {
+    const sourceDamage = resolved.get(entry.replay.sourceEntryId)?.total ?? 0;
+    breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
+  } else {
+    breakdown = random
+      ? calculateSimulatedDamageBreakdown(entry.action, entry.context, random)
+      : calculateDamageBreakdown(entry.action, entry.context);
+  }
+  if (entry.id) resolved.set(entry.id, breakdown);
+  return breakdown;
+}
+
+export function calculateRotationDamageSequence(entries: RotationDamageEntry[], random?: () => number) {
+  const resolved = new Map<string, DamageBreakdown>();
+  return entries.map((entry) => ({ entry, breakdown: calculateRotationDamageEntry(entry, resolved, random) }));
+}
+
 function sumEntries(entries: RotationDamageEntry[]) {
-  return entries.reduce((total, entry) => {
-    const breakdown = calculateDamageBreakdown(entry.action, entry.context);
+  return calculateRotationDamageSequence(entries).reduce((total, { breakdown }) => {
     return {
       physical: total.physical + breakdown.physical,
       bellstrike: total.bellstrike + breakdown.bellstrike,
@@ -300,7 +350,7 @@ function calculateBreakdown(
     if (row.kind === "rotation") current.casts += 1;
     else current.triggers += 1;
     row.actions.forEach((action, actionIndex) => {
-      if (action.type === "damage") {
+      if (action.type === "damage" || action.type === "replay") {
         const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
         if (!breakdown) return;
         const castId = owningCastId(row);
@@ -488,6 +538,9 @@ function timelineDamageEntries(
   updateTimelineState = false,
 ): RotationDamageEntry[] {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
+  const damageListeners = rules.flatMap((rule, index) =>
+    rule.listen?.event === "damage" ? [{ key: `${rule.source}:T${rule.tier}:${index}`, rule }] : [],
+  );
   const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
   const setupEffects = overrides.setupEffects ?? input.setupEffects;
   const stats = overrides.stats ?? state.stats;
@@ -677,6 +730,14 @@ function timelineDamageEntries(
               context,
               timelineTime: actionTime,
               timelineOrder: actionOrder,
+              sourceRowId: row.sourceRowId ?? row.id,
+              damageEvent: {
+                buffs: buffs.map((effect) => ({ ...effect })),
+                debuffs: debuffs.map((effect) => ({ ...effect })),
+                resources: { ...resources },
+                requirementState: { ...requirementState },
+                listeners: damageListeners,
+              },
               updateTargetHPRatio: (ratio: number) => {
                 const currentRequirementState = { ...requirementState, targetHPPercentage: ratio * 100 };
                 context.targetHPRatio = ratio;
@@ -753,7 +814,19 @@ function timelineDamageEntries(
         ];
       })
     : [];
-  const ordered = [
+  type OrderedItem =
+    | (typeof targetHPStateSnapshots)[number]
+    | (typeof hpEvents)[number]
+    | {
+        kind: "damage";
+        time: number;
+        order: number;
+        priority: number;
+        entry: (typeof damageEntries)[number];
+      };
+  const compareOrderedItems = (left: OrderedItem, right: OrderedItem) =>
+    compareTimelineTime(left.time, right.time) || left.order - right.order || left.priority - right.priority;
+  const ordered: OrderedItem[] = [
     ...targetHPStateSnapshots,
     ...hpEvents,
     ...damageEntries.map((entry) => ({
@@ -763,31 +836,166 @@ function timelineDamageEntries(
       priority: 1,
       entry,
     })),
-  ].sort(
-    (left, right) =>
-      compareTimelineTime(left.time, right.time) || left.order - right.order || left.priority - right.priority,
-  );
-  ordered.forEach((item) => {
+  ].sort(compareOrderedItems);
+  const resolvedDamage = new Map<string, DamageBreakdown>();
+  const listenerCooldowns = new Map<string, number>();
+  let replayInvocation = 0;
+  let replayOrder = timeline.reduce((maximum, row) => Math.max(maximum, row.order), 0) + 1;
+  const enqueueReplay = (
+    sourceEntry: (typeof damageEntries)[number],
+    listenerKey: string,
+    listener: EditableObject,
+  ) => {
+    if (!sourceEntry.id || typeof sourceEntry.timelineTime !== "number") return false;
+    const triggerAction =
+      listener.action && typeof listener.action === "object" && !Array.isArray(listener.action)
+        ? (listener.action as EditableObject)
+        : undefined;
+    const parameter =
+      triggerAction?.parameter && typeof triggerAction.parameter === "object" && !Array.isArray(triggerAction.parameter)
+        ? (triggerAction.parameter as EditableObject)
+        : undefined;
+    if (
+      triggerAction?.type !== "trigger" ||
+      typeof triggerAction.value !== "string" ||
+      parameter?.damage !== "event.damage"
+    )
+      return false;
+    const replaySkill = input.skills[triggerAction.value];
+    if (!replaySkill?.tags?.includes("Replayed") || !Array.isArray(replaySkill.action)) return false;
+    const invocationId = `replay-${listenerKey}-${sourceEntry.id}-${replayInvocation++}`;
+    const rowOrder = replayOrder++;
+    const replayActions = (replaySkill.action as EditableObject[]).map((action) => ({ ...action }));
+    const replayRow: TimelineRow = {
+      id: invocationId,
+      kind: "trigger",
+      sourceRowId: sourceEntry.sourceRowId,
+      triggerSource: "innerWay",
+      order: rowOrder,
+      step: { type: "skill", skill: triggerAction.value },
+      startTime: sourceEntry.timelineTime,
+      distance: sourceEntry.context.distance ?? 1,
+      currentHP: (sourceEntry.context.currentHPRatio ?? 1) * (input.maxHP ?? 0),
+      currentHPRatio: sourceEntry.context.currentHPRatio ?? 1,
+      targetHPRatio,
+      targetQiRatio:
+        typeof sourceEntry.damageEvent?.requirementState.targetQiPercentage === "number"
+          ? sourceEntry.damageEvent.requirementState.targetQiPercentage / 100
+          : 1,
+      resources: { ...(sourceEntry.damageEvent?.resources ?? {}) },
+      effectiveCastTime: typeof replaySkill.castTime === "number" ? replaySkill.castTime : 0,
+      skill: replaySkill,
+      actions: replayActions,
+      buffs: [...(sourceEntry.damageEvent?.buffs ?? [])],
+      debuffs: [...(sourceEntry.damageEvent?.debuffs ?? [])],
+      modifierEffects: [],
+      actionStates: {},
+    };
+    const replayEntries = replayActions.flatMap((action, actionIndex) => {
+      if (action.type !== "replay" || typeof action.coef !== "number" || !Number.isFinite(action.coef)) return [];
+      const actionTime = replayRow.startTime + Number(action.time ?? 0);
+      const actionOrder = replayRow.order + 10 + actionIndex;
+      const battleEndTimeOrder = battleEnd ? compareTimelineTime(actionTime, battleEnd.time) : -1;
+      if (battleEnd && (battleEndTimeOrder > 0 || (battleEndTimeOrder === 0 && actionOrder >= battleEnd.order)))
+        return [];
+      const context: DamageContext = { ...sourceEntry.context, targetHPRatio };
+      replayRow.actionStates[actionIndex] = {
+        buffs: [...replayRow.buffs],
+        debuffs: [...replayRow.debuffs],
+        distance: replayRow.distance,
+        currentHP: replayRow.currentHP,
+        currentHPRatio: replayRow.currentHPRatio,
+        targetHPRatio,
+        targetQiRatio: replayRow.targetQiRatio,
+        resources: { ...replayRow.resources },
+      };
+      const entry = {
+        id: `${invocationId}:${actionIndex}`,
+        action,
+        context,
+        timelineTime: actionTime,
+        timelineOrder: actionOrder,
+        sourceRowId: sourceEntry.sourceRowId,
+        replay: { sourceEntryId: sourceEntry.id!, coef: action.coef },
+        updateTargetHPRatio: (ratio: number) => {
+          context.targetHPRatio = ratio;
+          replayRow.targetHPRatio = ratio;
+          replayRow.actionStates[actionIndex].targetHPRatio = ratio;
+        },
+      };
+      return [entry];
+    });
+    if (replayEntries.length === 0) return false;
+    if (updateTimelineState) timeline.push(replayRow);
+    damageEntries.push(...replayEntries);
+    ordered.push(
+      ...replayEntries.map((entry) => ({
+        kind: "damage" as const,
+        time: entry.timelineTime,
+        order: entry.timelineOrder,
+        priority: 1,
+        entry,
+      })),
+    );
+    ordered.sort(compareOrderedItems);
+    return true;
+  };
+  while (ordered.length > 0) {
+    const item = ordered.shift()!;
     if (item.kind === "set") {
       targetHPRatio = item.ratio;
-      return;
+      continue;
     }
     if (item.kind === "rowState" || item.kind === "actionState") {
       item.update(targetHPRatio);
-      return;
+      continue;
     }
     item.entry.updateTargetHPRatio(targetHPRatio);
-    if (typeof targetMaxHP === "number" && targetMaxHP > 0) {
-      const damage = calculateDamageBreakdown(item.entry.action, item.entry.context).total;
-      targetHPRatio = Math.max(0, targetHPRatio - damage / targetMaxHP);
+    const breakdown = calculateRotationDamageEntry(item.entry, resolvedDamage);
+    const damageEvent = item.entry.damageEvent;
+    if (!item.entry.replay && breakdown.total > 0 && damageEvent) {
+      damageEvent.listeners.forEach(({ key, rule }) => {
+        const listener = rule.listen;
+        if (!listener || (listenerCooldowns.get(key) ?? Number.NEGATIVE_INFINITY) > item.time) return;
+        const eventRequirementState = {
+          ...damageEvent.requirementState,
+          targetHPPercentage: targetHPRatio * 100,
+        };
+        if (
+          !requirementsPass(
+            listener.requirement ?? rule.requirement,
+            damageEvent.buffs,
+            damageEvent.debuffs,
+            item.entry.context.skillTags,
+            conditions,
+            state.weapons,
+            damageEvent.resources,
+            eventRequirementState,
+          )
+        )
+          return;
+        const triggered = enqueueReplay(item.entry, key, listener);
+        if (triggered && typeof listener.cooldown === "number" && Number.isFinite(listener.cooldown))
+          listenerCooldowns.set(key, item.time + Math.max(0, listener.cooldown));
+      });
     }
-  });
-  return damageEntries.map(
-    ({ timelineTime: _time, timelineOrder: _order, updateTargetHPRatio: _updateTargetHPRatio, ...entry }) => entry,
+    if (typeof targetMaxHP === "number" && targetMaxHP > 0) {
+      targetHPRatio = Math.max(0, targetHPRatio - breakdown.total / targetMaxHP);
+    }
+  }
+  damageEntries.sort(
+    (left, right) =>
+      compareTimelineTime(left.timelineTime, right.timelineTime) ||
+      (left.timelineOrder ?? 0) - (right.timelineOrder ?? 0),
   );
+  return damageEntries.map(({ updateTargetHPRatio: _updateTargetHPRatio, ...entry }) => entry);
 }
 
-function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulationBundle["startAnchor"]) {
+function timelineTiming(
+  timeline: TimelineRow[],
+  startAnchor: RotationSimulationBundle["startAnchor"],
+  damageEntries: RotationDamageEntry[] = [],
+) {
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorTime = anchorRow
     ? anchorRow.startTime +
@@ -811,12 +1019,19 @@ function timelineTiming(timeline: TimelineRow[], startAnchor: RotationSimulation
             ),
       0,
     );
-  return { anchorTime, duration: Math.max(0, lastActionTime - anchorTime) };
+  const lastDamageTime = damageEntries.reduce(
+    (latest, entry) => Math.max(latest, entry.timelineTime ?? Number.NEGATIVE_INFINITY),
+    Number.NEGATIVE_INFINITY,
+  );
+  return {
+    anchorTime,
+    duration: Math.max(0, (battleEnd ? lastActionTime : Math.max(lastActionTime, lastDamageTime)) - anchorTime),
+  };
 }
 
 export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
   const timeline = buildRotationTimeline(bundle.timeline);
-  const { anchorTime, duration } = timelineTiming(timeline, bundle.startAnchor);
+  const { anchorTime } = timelineTiming(timeline, bundle.startAnchor);
   const state = {
     stats: bundle.stats,
     attunement: bundle.attunement,
@@ -825,15 +1040,16 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     weapons: bundle.weapons,
   };
   const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor, { label: "" }, true);
+  const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
   let baselineDamage = 0;
+  const resolvedSequence = calculateRotationDamageSequence(baseline);
   const actionBreakdowns = Object.fromEntries(
-    baseline
-      .filter((entry) => entry.id)
-      .map((entry) => {
-        const breakdown = calculateDamageBreakdown(entry.action, entry.context);
+    resolvedSequence
+      .filter(({ entry }) => entry.id)
+      .map(({ entry, breakdown }) => {
         baselineDamage += breakdown.total;
         const buffedDamageBySource = Object.fromEntries(
-          (entry.attributionContexts ?? [])
+          (entry.replay ? [] : (entry.attributionContexts ?? []))
             .map(({ sourceRowId, context }) => [
               sourceRowId,
               breakdown.total - calculateDamageBreakdown(entry.action, context).total,
@@ -888,7 +1104,7 @@ export function calculateRotationComparisons(
       entries,
       damage: sumEntries(entries).total,
       duration: variant.timeline
-        ? timelineTiming(variantTimeline, bundle.startAnchor).duration
+        ? timelineTiming(variantTimeline, bundle.startAnchor, entries).duration
         : baselineResult.duration,
     };
     completedVariants += 1;

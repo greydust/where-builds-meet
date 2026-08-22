@@ -1,5 +1,9 @@
-import { calculateSimulatedDamageBreakdown, type DamageOutcome } from "./damage";
-import { calculateRotationBaseline, type RotationSimulationBundle } from "./rotationCalculator";
+import type { DamageOutcome } from "./damage";
+import {
+  calculateRotationBaseline,
+  calculateRotationDamageSequence,
+  type RotationSimulationBundle,
+} from "./rotationCalculator";
 
 export type SimulationRunResult = {
   totalDamage: number;
@@ -57,12 +61,14 @@ export function simulateRotation(
   for (let runIndex = 0; runIndex < count; runIndex += 1) {
     let totalDamage = 0;
     const outcomes: Record<DamageOutcome, number> = { abrasion: 0, normal: 0, critical: 0, affinity: 0 };
-    baseline.baseline.forEach((entry) => {
-      const breakdown = calculateSimulatedDamageBreakdown(entry.action, entry.context, random);
+    let hitCount = 0;
+    calculateRotationDamageSequence(baseline.baseline, random).forEach(({ breakdown }) => {
       totalDamage += breakdown.total;
-      outcomes[breakdown.outcome] += 1;
+      if (breakdown.outcome) {
+        outcomes[breakdown.outcome] += 1;
+        hitCount += 1;
+      }
     });
-    const hitCount = baseline.baseline.length;
     const percentage = (outcome: DamageOutcome) => (hitCount > 0 ? (outcomes[outcome] / hitCount) * 100 : 0);
     runs.push({
       totalDamage,

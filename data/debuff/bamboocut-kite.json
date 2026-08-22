@@ -1,0 +1,32 @@
+{
+  "HeavensMight": {
+    "name": "Heaven's Might",
+    "shortName": "Might",
+    "description": "Increases HP damage from Falcon and Vile Condemned skills by 10%.",
+    "duration": 15,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              {
+                "target": "skillTag",
+                "value": "Falcon"
+              },
+              {
+                "target": "skillTag",
+                "value": "VileCondemned"
+              }
+            ]
+          }
+        ],
+        "effect": {
+          "hpDMGBonus": 0.1
+        }
+      }
+    ]
+  }
+}

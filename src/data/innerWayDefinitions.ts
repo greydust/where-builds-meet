@@ -6,6 +6,8 @@ import envigoratedWarrior from "../../data/innerway/envigorated-warrior.json";
 import exquisiteScenery from "../../data/innerway/exquisite-scenery.json";
 import frostCladNight from "../../data/innerway/frost-clad-night.json";
 import moraleChant from "../../data/innerway/morale-chant.json";
+import soaringHigh from "../../data/innerway/soaring-high.json";
+import skyGripped from "../../data/innerway/sky-gripped.json";
 import steadfastDevotion from "../../data/innerway/steadfast-devotion.json";
 import throatPiercingArt from "../../data/innerway/throat-piercing-art.json";
 
@@ -27,6 +29,8 @@ export const innerWayDefinitions = {
   ArtOfResistance: artOfResistance,
   BattleAnthem: battleAnthem,
   AdaptiveSteel: adaptiveSteel,
+  SoaringHigh: soaringHigh,
+  SkyGripped: skyGripped,
 } satisfies Record<string, InnerWayDefinition>;
 
 export function innerWayAvailableForTag(innerWay: string, requiredTag?: string) {

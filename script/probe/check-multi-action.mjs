@@ -29,7 +29,7 @@ try {
     bamboocutResistance: 0,
     judgementResistance: 0,
   };
-  const bundle = (skills, rotation, setupEffects = [], effectDefinitions = {}) => ({
+  const bundle = (skills, rotation, setupEffects = [], effectDefinitions = {}, initialBuffs = []) => ({
     timeline: {
       rotation,
       skills,
@@ -40,6 +40,7 @@ try {
       innerWayRules: [],
       setupEffects,
       weapons: [],
+      initialBuffs,
     },
     startAnchor: { rowId: "rotation-0" },
     stats,
@@ -54,7 +55,13 @@ try {
   });
 
   const referencedSubActions = new Set(
-    Object.values(phalanxbaneSkills).flatMap((skill) => (Array.isArray(skill.subAction) ? skill.subAction : [])),
+    Object.values(phalanxbaneSkills).flatMap((skill) =>
+      Array.isArray(skill.subAction)
+        ? skill.subAction.flatMap((entry) =>
+            typeof entry === "string" ? [entry] : [entry.value, entry.fallback].filter(Boolean),
+          )
+        : [],
+    ),
   );
   referencedSubActions.forEach((skillId) => {
     assert(phalanxbaneSkills[skillId], `Sub-action ${skillId} must have a skill definition.`);
@@ -71,7 +78,7 @@ try {
       name: "Composite",
       castTime: 0,
       action: [],
-      subAction: ["Warmup", "Strike"],
+      subAction: [{ value: "Warmup" }, { value: "Strike" }],
       modifier: [],
       tags: ["DirectDamage"],
     },
@@ -139,6 +146,70 @@ try {
     "Sub-action damage and cast time must belong to the parent skill breakdown.",
   );
 
+  const conditionalSkills = {
+    ConditionalComposite: {
+      name: "Conditional composite",
+      castTime: 0,
+      action: [],
+      subAction: [
+        {
+          value: "LongBranch",
+          requirement: [{ target: "self", value: "ChooseLong" }],
+          fallback: "ShortBranch",
+        },
+      ],
+      modifier: [],
+      tags: [],
+    },
+    LongBranch: {
+      name: "Long branch",
+      castTime: 2,
+      action: [
+        { type: "damage", phyCoef: 1, time: 1 },
+        { type: "damage", phyCoef: 2, time: 1.5 },
+        { type: "damage", phyCoef: 3, time: 2 },
+      ],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+    ShortBranch: {
+      name: "Short branch",
+      castTime: 1,
+      action: [{ type: "damage", phyCoef: 4, time: 1 }],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+    ConditionalFollowing: { name: "Following", castTime: 1, action: [], modifier: [], tags: [] },
+  };
+  const conditionalRotation = {
+    name: "Conditional sub-action probe",
+    steps: [
+      { type: "skill", skill: "ConditionalComposite" },
+      { type: "skill", skill: "ConditionalFollowing" },
+    ],
+  };
+  const chooseLongDefinition = { ChooseLong: { name: "Choose long", duration: 10, maxStack: 1, effect: [] } };
+  const fallbackResult = calculateRotationBaseline(bundle(conditionalSkills, conditionalRotation));
+  const fallbackRow = fallbackResult.timeline.find((row) => row.id === "rotation-0");
+  const fallbackFollowing = fallbackResult.timeline.find((row) => row.id === "rotation-1");
+  assert(
+    fallbackRow?.effectiveCastTime === 1 && fallbackFollowing?.startTime === 1,
+    "A failed conditional sub-action requirement must select and time its fallback.",
+  );
+  assert(
+    fallbackRow.actions.filter((action) => action.type === "damage").length === 1 &&
+      fallbackRow.actions.filter((action) => action.type === "inactive").length === 2,
+    "A shorter fallback must leave its unused stable action slots inert.",
+  );
+  const primaryResult = calculateRotationBaseline(
+    bundle(conditionalSkills, conditionalRotation, [], chooseLongDefinition, [{ name: "ChooseLong", stack: 1 }]),
+  );
+  const primaryRow = primaryResult.timeline.find((row) => row.id === "rotation-0");
+  assert(
+    primaryRow?.effectiveCastTime === 2 && primaryRow.actions.filter((action) => action.type === "damage").length === 3,
+    "A passing conditional sub-action requirement must select every primary action.",
+  );
+
   const startBoundSkills = {
     Primer: {
       name: "Primer",
@@ -154,7 +225,7 @@ try {
       name: "Bound composite",
       castTime: 0,
       action: [],
-      subAction: ["BoundCharge", "BoundSlam"],
+      subAction: [{ value: "BoundCharge" }, { value: "BoundSlam" }],
       modifier: [],
       tags: [],
     },

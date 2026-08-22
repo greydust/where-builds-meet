@@ -156,9 +156,93 @@
           {
             "target": "self",
             "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "HengBlade"
           }
         ],
-        "value": "GhostlyStepsUmbraDodge",
+        "value": "GhostlyStepsUmbraDodgeHengBlade",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "MoBlade"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeMoBlade",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Spear"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeSpear",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Umbrella"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeUmbrella",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "RopeDart"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeRopeDart",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Gauntlet"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeGauntlet",
         "time": 0
       }
     ],
@@ -213,9 +297,93 @@
           {
             "target": "self",
             "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "HengBlade"
           }
         ],
-        "value": "GhostlyStepsUmbraDodge",
+        "value": "GhostlyStepsUmbraDodgeHengBlade",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "MoBlade"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeMoBlade",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Spear"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeSpear",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Umbrella"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeUmbrella",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "RopeDart"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeRopeDart",
+        "time": 0
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "MysteryUmbra"
+          },
+          {
+            "target": "currentWeapon",
+            "value": "Gauntlet"
+          }
+        ],
+        "value": "GhostlyStepsUmbraDodgeGauntlet",
         "time": 0
       }
     ],

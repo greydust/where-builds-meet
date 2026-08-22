@@ -87,3 +87,4 @@ export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialA
 
 export const emptyStats = Object.fromEntries(allStatDefinitions.map(({ key }) => [key, 0])) as CharacterStats;
 emptyStats.effectiveCritBonus = 0;
+emptyStats.heavensWillRegen = 0;

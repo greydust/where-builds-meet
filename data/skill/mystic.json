@@ -854,21 +854,6 @@
     "modifier": [],
     "tags": ["Mystic", "GhostlySteps"]
   },
-  "GhostlyStepsUmbraDodge": {
-    "name": "Ghostly Step - Umbra Dodge",
-    "castTime": 0,
-    "action": [
-      {
-        "type": "damage",
-        "phyCoef": 2.0416,
-        "phyBonus": 312,
-        "attrBonus": 0,
-        "time": 0.8
-      }
-    ],
-    "modifier": [],
-    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered"]
-  },
   "DragonHeadTide": {
     "name": "Dragon Head - Tide",
     "castTime": 5.85,
@@ -947,5 +932,95 @@
     ],
     "modifier": [],
     "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "HP", "DragonHead", "DragonHeadTide"]
+  },
+  "GhostlyStepsUmbraDodgeHengBlade": {
+    "name": "Ghostly Step - Umbra Dodge (Heng Blade)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "HengBlade"]
+  },
+  "GhostlyStepsUmbraDodgeMoBlade": {
+    "name": "Ghostly Step - Umbra Dodge (Mo Blade)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "MoBlade"]
+  },
+  "GhostlyStepsUmbraDodgeSpear": {
+    "name": "Ghostly Step - Umbra Dodge (Spear)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "Spear"]
+  },
+  "GhostlyStepsUmbraDodgeUmbrella": {
+    "name": "Ghostly Step - Umbra Dodge (Umbrella)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "Umbrella"]
+  },
+  "GhostlyStepsUmbraDodgeRopeDart": {
+    "name": "Ghostly Step - Umbra Dodge (Rope Dart)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "RopeDart"]
+  },
+  "GhostlyStepsUmbraDodgeGauntlet": {
+    "name": "Ghostly Step - Umbra Dodge (Gauntlet)",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.0416,
+        "phyBonus": 312,
+        "attrBonus": 0,
+        "time": 0.8
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "Gauntlet"]
   }
 }

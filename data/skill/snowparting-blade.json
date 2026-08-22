@@ -62,7 +62,9 @@
       "HengBlade",
       "SnowpartingBlade",
       "GraveFrost"
-    ]
+    ],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingHeavyVC": {
     "name": "Snowbreak Spring",
@@ -155,7 +157,9 @@
       "SnowpartingBlade",
       "SnowbreakSpring",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingSpecial": {
     "name": "Fleeting Trace",
@@ -256,7 +260,9 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Special", "HengBlade", "SnowpartingBlade", "FleetingTrace"]
+    "tags": ["DirectDamage", "MartialArts", "Special", "HengBlade", "SnowpartingBlade", "FleetingTrace"],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingQSlide": {
     "name": "General's Bane - Slide",
@@ -264,7 +270,9 @@
     "castTime": 0.711,
     "action": [],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"]
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingQ": {
     "name": "General's Bane",
@@ -280,7 +288,9 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"]
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingQSlash": {
     "name": "General's Bane: Slash",
@@ -311,7 +321,9 @@
       "SnowpartingBlade",
       "General's Bane",
       "General's Bane: Slash"
-    ]
+    ],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingQStab": {
     "name": "General's Bane: Stab",
@@ -374,7 +386,9 @@
       "General's Bane",
       "General's Bane: Stab",
       "TriggerAnxiSolder"
-    ]
+    ],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "SnowpartingConversion": {
     "name": "Snowparting Conversion",
@@ -390,7 +404,9 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Conversion", "HengBlade", "SnowpartingBlade", "General's Bane"]
+    "tags": ["DirectDamage", "MartialArts", "Conversion", "HengBlade", "SnowpartingBlade", "General's Bane"],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   },
   "AnxiSoldierSnowbreakSpring": {
     "name": "Anxi Soldier Snowbreak Spring",
