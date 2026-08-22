@@ -578,4 +578,8 @@
     gap: 0.35rem;
     margin-block-start: 0.75rem;
   }
+
+  .layout-mobile .page-footer-accuracy {
+    text-align: start;
+  }
 }

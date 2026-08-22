@@ -7383,6 +7383,12 @@ export default function App() {
       )}
       <footer className="page-footer">
         <span>{t("ui.app.authorGreydustWwmIgnGreydustDiscord")}</span>
+        <span className="page-footer-accuracy">
+          {t("ui.app.accuracyMatters")}{" "}
+          <a href="https://github.com/greydust/where-builds-meet/issues" target="_blank" rel="noreferrer">
+            {t("ui.app.reportAnyDamageDiscrepancy")}
+          </a>
+        </span>
         <a href="https://github.com/greydust/where-builds-meet" target="_blank" rel="noreferrer">
           {t("ui.app.github")}
         </a>

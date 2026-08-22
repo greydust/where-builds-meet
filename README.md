@@ -2,6 +2,8 @@
 
 Where Builds Meet is a browser-based build and rotation simulator for **Where Winds Meet**. It combines character stats, equipment, effects, and a timed combat rotation to calculate damage, DPS, and comparison metrics.
 
+The goal of this website is to simulate **Where Winds Meet** rotations as accurately as possible. Even a 1% damage discrepancy will be carefully investigated, so please report any difference you find.
+
 The app is built with React, TypeScript, and Vite. It is fully client-side: game data is bundled from JSON, user settings are stored in the browser, and simulations run in a Web Worker.
 
 ## Quick start
