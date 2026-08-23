@@ -16,8 +16,44 @@ export type SegmentStatValue = { function: "segment"; param1: string | number; p
 export type StatEffectValues = Partial<Record<keyof CharacterStats, number | FormulaStatValue | SegmentStatValue>>;
 export type StatEffectContainer = { stat?: StatEffectValues };
 export type EffectiveStatEffectContainer = { effectiveStat?: StatEffectValues };
+export type StatConversion = { from: string; to: string; ratio: number; max?: number };
+export type StatConversionEffectContainer = { convert?: StatConversion | StatConversion[] };
 
 const normalizeInternalValue = (value: number) => Math.round(value * 1_000_000_000) / 1_000_000_000;
+
+export function applyStatConversions<T extends Record<string, number>>(
+  currentStats: T,
+  effects: StatConversionEffectContainer[],
+) {
+  const convertedStats: Record<string, number> = { ...currentStats };
+  const conversions = effects.flatMap((effect) => {
+    if (Array.isArray(effect.convert)) return effect.convert;
+    return effect.convert ? [effect.convert] : [];
+  });
+
+  for (const conversion of conversions) {
+    const source = convertedStats[conversion.from];
+    const target = convertedStats[conversion.to];
+    if (
+      typeof source !== "number" ||
+      !Number.isFinite(source) ||
+      typeof target !== "number" ||
+      !Number.isFinite(target) ||
+      typeof conversion.ratio !== "number" ||
+      !Number.isFinite(conversion.ratio)
+    )
+      continue;
+    const maximum =
+      typeof conversion.max === "number" && Number.isFinite(conversion.max)
+        ? Math.max(0, conversion.max)
+        : Number.POSITIVE_INFINITY;
+    const convertedAmount = Math.min(Math.max(0, source), maximum);
+    convertedStats[conversion.from] = normalizeInternalValue(source - convertedAmount);
+    convertedStats[conversion.to] = normalizeInternalValue(target + convertedAmount * conversion.ratio);
+  }
+
+  return convertedStats as T;
+}
 
 export function resolveFormulaValue(formula: StatFormula, sources: Record<string, unknown>) {
   const source = sources[formula.source];

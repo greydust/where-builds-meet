@@ -61,7 +61,26 @@
         }
       ]
     },
-    "SoaringHighT4": {},
+    "SoaringHighT4": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "VileCondemned"
+            }
+          ],
+          "effect": {
+            "convert": {
+              "from": "finalAffinity",
+              "to": "directCrit",
+              "ratio": 1,
+              "max": 0.12
+            }
+          }
+        }
+      ]
+    },
     "SoaringHighT5": {},
     "SoaringHighT6": {
       "trigger": [

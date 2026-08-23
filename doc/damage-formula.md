@@ -67,6 +67,29 @@ receives the same per-stack increase without changing displayed character
 stats. Effect-supplied penetration is likewise resolved independently for all
 five damage channels.
 
+### Per-action stat conversion
+
+An active effect may convert one named numeric calculation stat into another:
+
+```json
+{
+  "convert": {
+    "from": "finalAffinity",
+    "to": "directCrit",
+    "ratio": 1,
+    "max": 0.12
+  }
+}
+```
+
+The calculator reads both names from the current per-action stat snapshot. It
+removes `min(max(source, 0), max)` from the source and adds that amount times
+`ratio` to the target. Missing or non-numeric names make the conversion inert.
+Multiple conversions run in data order and therefore read the result of the
+previous conversion. `max` caps the source amount consumed, not the resulting
+target amount. Converted rate fields are passed through the ordinary outcome
+rate formula and its existing caps.
+
 ### Monte Carlo outcome and attack sampling
 
 The deterministic calculator and Monte Carlo simulator share the same

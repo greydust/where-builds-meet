@@ -52,7 +52,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Special", "RopeDart", "SkygraspRopeDart"],
+    "tags": ["DirectDamage", "MartialArts", "Special", "RopeDart", "SkygraspRopeDart", "SkyGrasped"],
     "martialArt": "skygrasp",
     "weapon": "RopeDart"
   },
@@ -90,7 +90,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart"],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart", "SnaringLash"],
     "martialArt": "skygrasp",
     "weapon": "RopeDart"
   },
@@ -135,7 +135,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart"],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart", "SnaringLash"],
     "martialArt": "skygrasp",
     "weapon": "RopeDart"
   },

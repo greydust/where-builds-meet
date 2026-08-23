@@ -2,7 +2,14 @@
   "Cleftpeak": {
     "name": "Cleftpeak",
     "altersTimeline": true,
-    "tags": ["StonesplitStrength", "SnowpartingBlade", "PhalanxbaneBlade"],
+    "tags": [
+      "StonesplitStrength",
+      "BamboocutKite",
+      "SnowpartingBlade",
+      "PhalanxbaneBlade",
+      "HeavenwillGauntlets",
+      "SkygraspRopeDart"
+    ],
     "options": {
       "0": {
         "name": "0",

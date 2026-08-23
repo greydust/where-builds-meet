@@ -4,8 +4,10 @@ import { calculateRates } from "./effectiveStats";
 import type { DerivedStats } from "./effectiveStats";
 import {
   calculateStatsWithEffects,
+  applyStatConversions,
   resolveFormulaValue,
   type EffectiveStatEffectContainer,
+  type StatConversionEffectContainer,
   type StatEffectContainer,
   type StatFormula,
 } from "./statEffects";
@@ -341,30 +343,21 @@ function calculateDamageBreakdownInternal(
       bamboocut: attributeDamage.bamboocut * attributeMultiplier * globalMultiplier,
     };
   };
-  const effectiveCrit = derivedStats.effectiveCrit;
+  const convertedRateStats = applyStatConversions(
+    {
+      effectivePrecision: derivedStats.effectivePrecision,
+      effectiveCrit: derivedStats.effectiveCrit,
+      effectiveAffinity: derivedStats.effectiveAffinity,
+      directCrit: derivedStats.directCrit,
+      directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
+      finalAffinity: derivedStats.finalAffinity,
+    },
+    effects as StatConversionEffectContainer[],
+  );
   const SteadfastGuaranteedCrit =
     effects.some((effect) => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"));
-  const rates = SteadfastGuaranteedCrit
-    ? calculateRates(
-        {
-          effectivePrecision: derivedStats.effectivePrecision,
-          effectiveCrit,
-          effectiveAffinity: derivedStats.effectiveAffinity,
-          directCrit: derivedStats.directCrit,
-          directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
-        },
-        { SteadfastGuaranteedCrit: true },
-      )
-    : {
-        ...calculateRates({
-          effectivePrecision: derivedStats.effectivePrecision,
-          effectiveCrit,
-          effectiveAffinity: derivedStats.effectiveAffinity,
-          directCrit: derivedStats.directCrit,
-          directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
-        }),
-      };
+  const rates = calculateRates(convertedRateStats, { SteadfastGuaranteedCrit });
   if (random) {
     const outcomeRoll = randomUnit();
     let outcome: DamageOutcome;

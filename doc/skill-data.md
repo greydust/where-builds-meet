@@ -1230,6 +1230,9 @@ effect pipeline.
 Soaring High T3 clears `VileCondemnedEndHit` cooldown when a damaging action
 tagged `Falcon` hits an exhausted target. The reset occurs after the qualifying
 damage action resolves and affects subsequent Vile Condemned releases.
+Soaring High T4 uses the generic `convert` effect for actions tagged
+`VileCondemned`. It converts Final Affinity to Direct Critical at a 1:1 ratio,
+up to `0.12` per action, before the ordinary outcome rates are calculated.
 Soaring High T6 grants Vile Condemned End Hit `0.3` base-damage bonus and `0.1`
 Critical Damage bonus when the release begins at exactly four Heaven's Will.
 An Inner Way tier may listen to final damage events:

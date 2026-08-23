@@ -20,7 +20,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Gauntlet", "HeavenwillGauntlets"],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Gauntlet", "HeavenwillGauntlets", "HeavenwillDeclared"],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -91,7 +91,8 @@
       "Gauntlet",
       "HeavenwillGauntlets",
       "Falcon",
-      "MartialArtEffect"
+      "MartialArtEffect",
+      "CelestialMandate"
     ],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
@@ -110,7 +111,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "LightAttack", "Gauntlet", "HeavenwillGauntlets"],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -134,7 +135,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "LightAttack", "Gauntlet", "HeavenwillGauntlets"],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -220,7 +221,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Special", "Gauntlet", "HeavenwillGauntlets"],
+    "tags": ["DirectDamage", "MartialArts", "Special", "Gauntlet", "HeavenwillGauntlets", "AllUnderJustice"],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },

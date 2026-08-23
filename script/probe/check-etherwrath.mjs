@@ -43,6 +43,12 @@ try {
     ),
     "Etherwrath must be available to Stonesplit Strength.",
   );
+  assert(
+    ["BamboocutKite", "HeavenwillGauntlets", "SkygraspRopeDart"].every((tag) =>
+      weaponSets.Cleftpeak.tags.includes(tag),
+    ),
+    "Cleftpeak must be available to Bamboocut Kite.",
+  );
   const sparseSetup = normalizeBuildSetup({ weaponSets: { Etherwrath: 4 } });
   assert(
     sparseSetup.weaponSets.Etherwrath === 4 &&

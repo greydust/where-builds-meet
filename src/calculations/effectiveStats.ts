@@ -46,11 +46,12 @@ export function calculateRates(
     effectiveAffinity: number;
     directCrit: number;
     directAffinity: number;
+    finalAffinity?: number;
   },
   options: { SteadfastGuaranteedCrit?: boolean } = {},
 ): RateCalculation {
   const clampRate = (value: number) => Math.min(1, Math.max(0, value));
-  const finalAffinity = clampRate(input.effectiveAffinity + input.directAffinity);
+  const finalAffinity = clampRate(input.finalAffinity ?? input.effectiveAffinity + input.directAffinity);
   const baseFinalCrit =
     finalAffinity + input.directCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + input.directCrit) * input.effectivePrecision

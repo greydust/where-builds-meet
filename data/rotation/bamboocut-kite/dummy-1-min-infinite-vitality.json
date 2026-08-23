@@ -81,16 +81,12 @@
     },
     {
       "type": "skill",
-      "skill": "LeapingToad"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
+      "skill": "BurstingNine2Shots"
     },
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.16
+      "duration": 0.04
     },
     {
       "type": "skill",
@@ -159,7 +155,7 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.57
+      "duration": 0.58
     },
     {
       "type": "skill",
@@ -281,6 +277,11 @@
       "skill": "BurstingNine2Shots"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.04
+    },
+    {
       "type": "skill",
       "skill": "AllUnderJustice"
     },
@@ -291,11 +292,6 @@
     {
       "type": "skill",
       "skill": "RighteousReign6thHitCancel"
-    },
-    {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.04
     },
     {
       "type": "skill",
