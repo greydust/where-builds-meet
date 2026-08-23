@@ -1,6 +1,6 @@
 {
   "id": "kite-fully-relayed-max",
-  "name": "Kite Fully Relayed Max Build",
+  "name": "Fully Relayed Max Build",
   "order": 1,
   "martialArts": ["heavenwill", "skygrasp"],
   "relayed": true,

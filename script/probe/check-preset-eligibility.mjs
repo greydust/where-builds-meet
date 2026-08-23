@@ -97,7 +97,7 @@ for (const file of buildFiles) {
 }
 
 const mightBuild = await readJson("data/build/stonesplit-might/might-fully-relayed-max.json");
-assert(mightBuild.name === "Might Fully Relayed Max Build", "The Might max preset must use its requested name.");
+assert(mightBuild.name === "Fully Relayed Max Build", "The Might max preset must use its requested name.");
 assert(
   mightBuild.martialArts.join(",") === "thundercry,stormbreaker",
   "The Might max preset must use Thundercry Blade and Stormbreaker Spear.",
@@ -125,7 +125,7 @@ for (const variant of ["min", "max"]) {
   const kiteBuild = await readJson(`data/build/bamboocut-kite/kite-fully-relayed-${variant}.json`);
   assert(
     kiteBuild.id === `kite-fully-relayed-${variant}` &&
-      kiteBuild.name === `Kite Fully Relayed ${variant === "min" ? "Min" : "Max"} Build`,
+      kiteBuild.name === `Fully Relayed ${variant === "min" ? "Min" : "Max"} Build`,
     `The Kite ${variant} preset must use its Kite identity.`,
   );
   assert(

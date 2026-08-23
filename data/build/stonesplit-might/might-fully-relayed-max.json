@@ -1,6 +1,6 @@
 {
   "id": "might-fully-relayed-max",
-  "name": "Might Fully Relayed Max Build",
+  "name": "Fully Relayed Max Build",
   "order": 1,
   "martialArts": ["thundercry", "stormbreaker"],
   "relayed": true,
