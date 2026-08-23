@@ -84,7 +84,15 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Gauntlet", "HeavenwillGauntlets", "Falcon"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "Falcon",
+      "MartialArtEffect"
+    ],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -175,7 +183,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "HeavenwillGauntlets", "Falcon", "Triggered"]
+    "tags": ["DirectDamage", "MartialArts", "HeavenwillGauntlets", "Falcon", "MartialArtEffect", "Triggered"]
   },
   "AllUnderJustice": {
     "name": "All Under Justice",
@@ -248,7 +256,15 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "MartialArtEffect"
+    ],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -257,7 +273,7 @@
     "castTime": 1,
     "action": [],
     "modifier": [],
-    "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"]
+    "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "MartialArtEffect", "SubAction"]
   },
   "VileCondemnedHit": {
     "name": "Vile Condemned Hit",
@@ -294,7 +310,16 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "MartialArtEffect",
+      "SubAction"
+    ],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
@@ -366,6 +391,7 @@
       "HeavenwillGauntlets",
       "VileCondemned",
       "VileCondemnedEnd",
+      "MartialArtEffect",
       "SubAction"
     ],
     "martialArt": "heavenwill",

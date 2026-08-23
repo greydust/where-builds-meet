@@ -78,10 +78,14 @@ Current tag conventions include:
 - `Mystic` for breakdown grouping
 - weapon, move, and behavior tags such as `SnowpartingBlade`, `MoBlade`,
   `VariedCombo`, `BurningHeart`, `AnxiSoldier`, and `TriggerAnxiSolder`
+- `MartialArtEffect` for secondary martial-art effects such as Falcon, Vile
+  Condemned, and Anxi Soldier damage
 
 Tags are exact, case-sensitive strings. `MartialArts` is intentionally distinct
 from the older `MartialArt` tag used by some attunement matching.
 Use `VariedCombo` for every varied-combo skill tag and requirement.
+Every `Falcon` skill also carries `MartialArts`, including triggered Falcon
+attacks, so All Martial Arts bonuses apply consistently.
 
 Requirement conditions with `"target": "martialArt"` use the same canonical
 martial-art tag stored in `data/martial-art/*.json` and on that art's skills—for
@@ -1205,6 +1209,16 @@ Bursting Nine 2 Shots retains the same 1.3-second cast and first nine hits,
 then adds a second set of nine cast-end hits. Each second-set hit uses 50% of
 the corresponding first-set hit's physical coefficient and flat physical
 bonus.
+
+Etherwrath is available to Bamboocut Kite and Stonesplit Strength. Two pieces
+add `78` minimum physical attack. With four pieces, every damage action adds or
+refreshes one stack of the eight-second Etherwrath buff, up to five stacks,
+while Perfect Dodge applies five stacks directly. Each stack adds `0.012` to
+the calculation-time attack value multiplier for Physical, Bellstrike,
+Stonesplit, Silkbind, and Bamboocut. At five stacks, actions tagged
+`MartialArtEffect` also gain `6` Physical, Bellstrike, Stonesplit, Silkbind, and
+Bamboocut penetration. Each attack and penetration channel remains a separate
+effect entry in the buff definition.
 
 Soaring High T0 enables the Vile Condemned End Hit branch. Without the
 `SoaringHighT0` condition, Vile Condemned uses its normal release even when the

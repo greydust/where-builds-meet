@@ -183,37 +183,40 @@ function calculateDamageBreakdownInternal(
   const physicalBonus = context.isDot ? 0 : numberValue(action.phyBonus);
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
   const path = mainAttribute(weapons);
-  const minPhysicalAttack = derivedStats.effectiveMinPhys;
-  const maxPhysicalAttack = derivedStats.effectiveMaxPhys;
+  const attackBonus = (type: string) =>
+    effects.reduce((total, effect) => total + effectValue(effect[`${type}AttackBonus`]), 0);
+  const physicalAttackMultiplier = 1 + attackBonus("physical");
+  const minPhysicalAttack = derivedStats.effectiveMinPhys * physicalAttackMultiplier;
+  const maxPhysicalAttack = derivedStats.effectiveMaxPhys * physicalAttackMultiplier;
   const averagePhysicalAttack = (minPhysicalAttack + maxPhysicalAttack) / 2;
   const attributeRanges = [
     [
-      derivedStats.effectiveMinBellstrike,
-      derivedStats.effectiveMaxBellstrike,
+      derivedStats.effectiveMinBellstrike * (1 + attackBonus("bellstrike")),
+      derivedStats.effectiveMaxBellstrike * (1 + attackBonus("bellstrike")),
       stats.bellstrikePenetration,
       stats.bellstrikeDmgBonus,
       "bellstrike",
       enemy.bellstrikeResistance,
     ],
     [
-      derivedStats.effectiveMinStonesplit,
-      derivedStats.effectiveMaxStonesplit,
+      derivedStats.effectiveMinStonesplit * (1 + attackBonus("stonesplit")),
+      derivedStats.effectiveMaxStonesplit * (1 + attackBonus("stonesplit")),
       stats.stonesplitPenetration,
       stats.stonesplitDmgBonus,
       "stonesplit",
       enemy.stonesplitResistance,
     ],
     [
-      derivedStats.effectiveMinSilkbind,
-      derivedStats.effectiveMaxSilkbind,
+      derivedStats.effectiveMinSilkbind * (1 + attackBonus("silkbind")),
+      derivedStats.effectiveMaxSilkbind * (1 + attackBonus("silkbind")),
       stats.silkbindPenetration,
       stats.silkbindDmgBonus,
       "silkbind",
       enemy.silkbindResistance,
     ],
     [
-      derivedStats.effectiveMinBamboocut,
-      derivedStats.effectiveMaxBamboocut,
+      derivedStats.effectiveMinBamboocut * (1 + attackBonus("bamboocut")),
+      derivedStats.effectiveMaxBamboocut * (1 + attackBonus("bamboocut")),
       stats.bamboocutPenetration,
       stats.bamboocutDmgBonus,
       "bamboocut",
@@ -251,10 +254,8 @@ function calculateDamageBreakdownInternal(
     (total, effect) => total + effectValue(effect.physicalResistance),
     0,
   );
-  const effectStonesplitPenetration = effects.reduce(
-    (total, effect) => total + effectValue(effect.stonesplitPenetration),
-    0,
-  );
+  const effectAttributePenetration = (attribute: string) =>
+    effects.reduce((total, effect) => total + effectValue(effect[`${attribute}Penetration`]), 0);
   const effectCritDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.critDmgBonus), 0);
   const effectAffinityDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.affinityDmgBonus), 0);
   const attributeDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.attributeDMGBonus), 0);
@@ -307,7 +308,7 @@ function calculateDamageBreakdownInternal(
           (coefficient * attack + (attribute === path ? attributeBonus : 0)) *
           penetrationMultiplier(
             penetration +
-              (attribute === "stonesplit" ? effectStonesplitPenetration : 0) +
+              effectAttributePenetration(attribute) +
               (attribute === path ? attunementFormlessPenetration : 0),
             resistance + resistanceAdjustment,
           ) *

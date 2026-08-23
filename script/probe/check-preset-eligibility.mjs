@@ -127,6 +127,10 @@ for (const variant of ["min", "max"]) {
     `The Kite ${variant} preset must use Heavenwill Gauntlets and Skygrasp Rope Dart.`,
   );
   assert(
+    kiteBuild.setup.weaponSets.Etherwrath === 4,
+    `The Kite ${variant} preset must use the Etherwrath four-piece weapon set.`,
+  );
+  assert(
     JSON.stringify(kiteBuild.setup.innerWays) ===
       JSON.stringify([
         { innerWay: "SoaringHigh", tier: "T6" },

@@ -58,6 +58,15 @@ Every damage action is evaluated as four possible outcomes and then rate weighte
 
 The effective average is `(effective minimum + effective maximum) / 2`.
 
+Calculation-time attack-value bonuses multiply the resolved minimum and maximum
+of their named attack type before the attack roll is selected. They do not
+multiply an action's flat physical or attribute bonus. Etherwrath uses separate
+`physicalAttackBonus`, `bellstrikeAttackBonus`, `stonesplitAttackBonus`,
+`silkbindAttackBonus`, and `bamboocutAttackBonus` effects so each damage channel
+receives the same per-stack increase without changing displayed character
+stats. Effect-supplied penetration is likewise resolved independently for all
+five damage channels.
+
 ### Monte Carlo outcome and attack sampling
 
 The deterministic calculator and Monte Carlo simulator share the same

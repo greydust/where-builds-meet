@@ -6,5 +6,70 @@
     "duration": 24,
     "maxStack": 1,
     "refresh": true
+  },
+  "Etherwrath": {
+    "name": "Etherwrath",
+    "shortName": "Etherwrath",
+    "description": "Increases all attack values by 1.2% per stack. At five stacks, Martial Art Effects gain 6 of every penetration type.",
+    "duration": 8,
+    "maxStack": 5,
+    "stackEffects": [
+      [
+        { "effect": { "physicalAttackBonus": 0.012 } },
+        { "effect": { "bellstrikeAttackBonus": 0.012 } },
+        { "effect": { "stonesplitAttackBonus": 0.012 } },
+        { "effect": { "silkbindAttackBonus": 0.012 } },
+        { "effect": { "bamboocutAttackBonus": 0.012 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.024 } },
+        { "effect": { "bellstrikeAttackBonus": 0.024 } },
+        { "effect": { "stonesplitAttackBonus": 0.024 } },
+        { "effect": { "silkbindAttackBonus": 0.024 } },
+        { "effect": { "bamboocutAttackBonus": 0.024 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.036 } },
+        { "effect": { "bellstrikeAttackBonus": 0.036 } },
+        { "effect": { "stonesplitAttackBonus": 0.036 } },
+        { "effect": { "silkbindAttackBonus": 0.036 } },
+        { "effect": { "bamboocutAttackBonus": 0.036 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.048 } },
+        { "effect": { "bellstrikeAttackBonus": 0.048 } },
+        { "effect": { "stonesplitAttackBonus": 0.048 } },
+        { "effect": { "silkbindAttackBonus": 0.048 } },
+        { "effect": { "bamboocutAttackBonus": 0.048 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.06 } },
+        { "effect": { "bellstrikeAttackBonus": 0.06 } },
+        { "effect": { "stonesplitAttackBonus": 0.06 } },
+        { "effect": { "silkbindAttackBonus": 0.06 } },
+        { "effect": { "bamboocutAttackBonus": 0.06 } },
+        {
+          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
+          "effect": { "physicalPenetration": 6 }
+        },
+        {
+          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
+          "effect": { "bellstrikePenetration": 6 }
+        },
+        {
+          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
+          "effect": { "stonesplitPenetration": 6 }
+        },
+        {
+          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
+          "effect": { "silkbindPenetration": 6 }
+        },
+        {
+          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
+          "effect": { "bamboocutPenetration": 6 }
+        }
+      ]
+    ],
+    "refresh": true
   }
 }

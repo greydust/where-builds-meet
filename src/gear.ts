@@ -214,13 +214,13 @@ const cloneBuildSetup = (setup: BuildSetup): BuildSetup => ({
 const validTier = (value: unknown): value is GearSetTier => value === 0 || value === 2 || value === 4;
 
 function normalizeSetSelections(value: unknown, definitions: Record<string, SetDefinition>, fallback: SetSelections) {
-  const candidate =
-    value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  const hasCandidate = Boolean(value && typeof value === "object" && !Array.isArray(value));
+  const candidate = hasCandidate ? (value as Record<string, unknown>) : {};
   let remaining = 4;
   return Object.fromEntries(
     Object.keys(definitions).map((setName) => {
       const raw = candidate[setName];
-      const fallbackTier = fallback[setName] ?? 0;
+      const fallbackTier = hasCandidate ? 0 : (fallback[setName] ?? 0);
       const requested = validTier(raw) && String(raw) in definitions[setName].options ? raw : fallbackTier;
       const tier = Math.min(requested, remaining) as GearSetTier;
       remaining -= tier;
@@ -233,9 +233,9 @@ function validSetSelections(value: unknown, definitions: Record<string, SetDefin
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const candidate = value as Record<string, unknown>;
   return (
-    Object.keys(definitions).every(
-      (setName) => validTier(candidate[setName]) && String(candidate[setName]) in definitions[setName].options,
-    ) && Object.keys(definitions).reduce((total, setName) => total + Number(candidate[setName]), 0) <= 4
+    Object.entries(candidate).every(
+      ([setName, tier]) => definitions[setName] && validTier(tier) && String(tier) in definitions[setName].options,
+    ) && Object.values(candidate).reduce<number>((total, tier) => total + (validTier(tier) ? tier : 0), 0) <= 4
   );
 }
 

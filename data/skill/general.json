@@ -115,6 +115,15 @@
       {
         "type": "apply",
         "target": "self",
+        "value": "Etherwrath",
+        "stack": 5,
+        "reapply": true,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "Etherwrath4P" }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
         "value": "Disintegration",
         "stack": 5,
         "reapply": true,
@@ -253,6 +262,15 @@
     "name": "Perfect Dodge",
     "castTime": 0.8333,
     "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Etherwrath",
+        "stack": 5,
+        "reapply": true,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "Etherwrath4P" }]
+      },
       {
         "type": "apply",
         "target": "self",

@@ -630,6 +630,7 @@
       "MoBlade",
       "PhalanxbaneBlade",
       "AnxiSoldier",
+      "MartialArtEffect",
       "Triggered"
     ]
   },
@@ -666,6 +667,7 @@
       "MoBlade",
       "PhalanxbaneBlade",
       "AnxiSoldier",
+      "MartialArtEffect",
       "Triggered"
     ]
   },
@@ -708,6 +710,7 @@
       "MoBlade",
       "PhalanxbaneBlade",
       "AnxiSoldier",
+      "MartialArtEffect",
       "Triggered"
     ]
   }

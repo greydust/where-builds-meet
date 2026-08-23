@@ -23,7 +23,9 @@
         "tier": "T6"
       }
     ],
-    "weaponSets": {},
+    "weaponSets": {
+      "Etherwrath": 4
+    },
     "armorSets": {},
     "bowRingSet": "Precision",
     "arsenal": "Bamboocut"

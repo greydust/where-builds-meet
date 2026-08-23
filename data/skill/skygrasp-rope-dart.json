@@ -184,6 +184,6 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "SkygraspRopeDart", "Falcon", "Triggered"]
+    "tags": ["DirectDamage", "MartialArts", "SkygraspRopeDart", "Falcon", "MartialArtEffect", "Triggered"]
   }
 }
