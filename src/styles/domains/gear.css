@@ -214,8 +214,19 @@
   .build-overview-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(22rem, 24rem);
-    align-items: stretch;
+    align-items: start;
     gap: 10px;
+  }
+
+  .build-management-grid {
+    display: grid;
+    min-inline-size: 0;
+    align-content: start;
+    gap: 10px;
+  }
+
+  .build-management-grid .panel {
+    margin-block-end: 0;
   }
 
   .build-setup-column {
@@ -246,6 +257,58 @@
     color: var(--text);
     cursor: not-allowed;
     opacity: 0.72;
+  }
+
+  .build-affix-summary-heading {
+    display: flex;
+    inline-size: 100%;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .build-affix-summary-heading > span {
+    flex: 0 0 auto;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .build-affix-summary-list {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .build-affix-summary-list li {
+    display: flex;
+    min-inline-size: 0;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-block: 7px;
+    border-block-end: 1px solid var(--border-muted);
+    color: var(--text-muted);
+  }
+
+  .build-affix-summary-list li:last-child {
+    border-block-end: 0;
+  }
+
+  .build-affix-summary-list span {
+    min-inline-size: 0;
+    overflow-wrap: normal;
+  }
+
+  .build-affix-summary-list strong {
+    flex: 0 0 auto;
+    color: var(--text);
+  }
+
+  .build-affix-summary-empty {
+    margin: 0;
+    color: var(--text-muted);
   }
 
   /* Equipped Gear Grid */

@@ -42,6 +42,30 @@ const assert = (condition, message) => {
 
 assert(gear.gearSlots.length === 8, "Expected eight gear slots.");
 assert(gear.defaultBuildPresets.length >= 2, "Expected populated and empty default builds.");
+const gearAffixSummary = gear.summarizeGearAffixes([
+  {
+    baseAffix: { key: "agility", value: 1 },
+    additionalAffixes: [
+      { key: "agility", value: 1 },
+      { key: "minPhys", value: 1 },
+    ],
+    attunement: { key: "agility", value: 1 },
+  },
+  {
+    baseAffix: { key: "minPhys", value: 1 },
+    additionalAffixes: [{ key: "agility", value: 1 }],
+    attunement: { key: "minPhys", value: 1 },
+  },
+]);
+assert(
+  gearAffixSummary.total === 5 &&
+    JSON.stringify(gearAffixSummary.affixes) ===
+      JSON.stringify([
+        { key: "agility", count: 3 },
+        { key: "minPhys", count: 2 },
+      ]),
+  "Build affix summaries must count and sort equipped base and additional affixes without counting attunements.",
+);
 assert(gear.gearData.gear.hengBlade.baseStats["96"].Gold.minPhys === 65, "Unexpected Heng Blade base stat.");
 assert(
   gear.gearData.gear.helmet.baseStats["96"].Gold.maxHp === 5774 &&

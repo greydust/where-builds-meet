@@ -51,11 +51,14 @@ if (mandateFinalHit.phyCoef !== 0.6115 || mandateFinalHit.phyBonus !== 169 || ma
   throw new Error("Celestial Mandate's final hit values are incorrect.");
 const mandateResource = mandate.action.filter((action) => action.type === "addResource");
 if (
-  mandateResource.length !== 1 ||
+  mandateResource.length !== 2 ||
   mandateResource[0].value !== "HeavensWill" ||
   mandateResource[0].amount !== 0.1 ||
-  mandateResource[0].additionalAmount?.amount !== 0.2 ||
-  mandateResource[0].additionalAmount?.requirement?.[0]?.value !== "HeavensUnity"
+  mandateResource[0].time !== 1.23 ||
+  mandateResource[1].value !== "HeavensWill" ||
+  mandateResource[1].amount !== 0.2 ||
+  mandateResource[1].time !== 1.23 ||
+  mandateResource[1].requirement?.[0]?.value !== "HeavensUnity"
 )
   throw new Error("Celestial Mandate's conditional Heaven's Will generation is incorrect.");
 if (!mandate.tags.includes("Falcon")) throw new Error("Celestial Mandate must carry the Falcon tag.");

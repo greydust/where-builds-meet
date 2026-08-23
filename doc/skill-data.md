@@ -425,11 +425,13 @@ or resources change before the action executes. In a multi-action skill,
 
 `TimelineBuildInput.resourceRegeneration` maps resource IDs to the amount
 generated per second. Regeneration accrues continuously between ordered
-timeline events before the next event snapshots its state. Heaven's Will starts
-at zero and uses the character's hidden `heavensWillRegen` stat; its innate
-value of `0.1` therefore generates one Heaven's Will every 10 seconds. Explicit
-resource actions operate on the regenerated value, and equal-time actions retain
-their declared causal order.
+timeline events before the next event snapshots its state, beginning at the
+resolved fight-start anchor rather than the earliest prepull action. Heaven's
+Will starts at the system-defined value of `2` and uses the character's hidden
+`heavensWillRegen` stat; its innate value of `0.1` therefore generates one
+Heaven's Will every 10 seconds after the fight starts. Explicit resource actions
+operate on the regenerated value, and equal-time actions retain their declared
+causal order.
 
 ## Requirements
 
@@ -1128,9 +1130,8 @@ first four hits each use physical coefficient `0.2293`, `63` flat physical
 bonus, and `34` flat attribute bonus, while the fifth uses its larger
 finishing-hit values. At cast end it adds `0.1` to the numeric `HeavensWill`
 resource. Heaven's Unity is represented as a regular self buff;
-while it is active, the resource action's conditional `additionalAmount` adds
-another `0.2`, for `0.3` total generation. This generic field contains an
-`amount` and optional `requirement` and applies only to `addResource` actions.
+while it is active, a second `addResource` action with the standard action
+`requirement` adds another `0.2`, for `0.3` total generation.
 Heaven's Unity lasts 24 seconds, has one maximum stack, and refreshes its
 duration when reapplied.
 Explicit resource changes and passive resource regeneration are normalized to
@@ -1181,11 +1182,29 @@ coefficient `7.2178`, `1997` flat physical bonus, and `1088` flat attribute
 bonus. End Hit has an 18-second cooldown and uses physical coefficient
 `11.7527`, `3250` flat physical bonus, and `1771` flat attribute bonus. With
 Soaring High T6, exactly four Heaven's Will at release start locks a `0.3`
-base-damage bonus and `0.1` Critical Damage bonus for End Hit.
-The normal release consumes all available Heaven's Will. End Hit consumes three
-at cast end, plus one additional point when its start-bound requirement found
-Soaring High T6 and exactly four Heaven's Will at release start. Heaven's Will
-is capped at four.
+base-damage bonus and `0.1` Critical Damage bonus for End Hit. The normal hit
+consumes exactly two Heaven's Will. End Hit consumes three, leaving any
+fractional amount above three intact, and consumes one additional point when a
+start-bound requirement found Soaring High T6 and exactly four Heaven's Will at
+release start. Heaven's Will is capped at four.
+
+When End Hit deals damage, Soaring High T6 triggers a one-point Heaven's Will
+refund. The refund uses its own 18-second cooldown, independent of End Hit's
+skill cooldown, so resetting End Hit does not also reset the refund. The
+triggered refund resolves immediately after the End Hit actions and remains
+subject to the four-point Heaven's Will cap.
+
+Bursting Nine is a 1.3-second Mystic skill whose nine hits currently land at
+cast end. Its first hit uses physical coefficient `2.5471` and `492` flat
+physical bonus. The second hit uses 30% of both values (`0.76413` and `147.6`),
+while hits three through nine each use 10% (`0.25471` and `49.2`). Its
+Single-Target or Area classification remains unset until that mechanic is
+confirmed.
+
+Bursting Nine 2 Shots retains the same 1.3-second cast and first nine hits,
+then adds a second set of nine cast-end hits. Each second-set hit uses 50% of
+the corresponding first-set hit's physical coefficient and flat physical
+bonus.
 
 Soaring High T0 enables the Vile Condemned End Hit branch. Without the
 `SoaringHighT0` condition, Vile Condemned uses its normal release even when the

@@ -5649,6 +5649,7 @@ function RotationEditorTab({
     () => rotation.steps.some((step) => step.type === "event" && step.event === "Qi"),
     [rotation.steps],
   );
+  const showHeavensWillColumn = settings.weapons.includes("heavenwill") && settings.weapons.includes("skygrasp");
   const totalRotationTime = currentCachedResult?.duration ?? 0;
   const readableRotation = useMemo(
     () => (readableDialogOpen ? readableRotationText(timeline, startAnchor, anchorTime) : ""),
@@ -5719,6 +5720,7 @@ function RotationEditorTab({
       ),
       initialBuffs: globalBuffTimelineEffects(globalDebuffs),
       initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
+      initialResources: systemStats.initialResources,
       resourceRegeneration: { HeavensWill: displayedCharacterStats.heavensWillRegen },
       resourceMaximums: systemStats.resourceMaximums,
       maxHP: displayedCharacterStats.maxHp,
@@ -6322,10 +6324,11 @@ function RotationEditorTab({
                       showSelfHPColumn ? "8ch" : "",
                       showTargetHPColumn ? "8ch" : "",
                       showQiColumn ? "8ch" : "",
+                      showHeavensWillColumn ? "13ch" : "",
                     ]
                       .filter(Boolean)
                       .join(" "),
-                    minInlineSize: `${67.5 + (Number(showDistanceColumn) + Number(showSelfHPColumn) + Number(showTargetHPColumn) + Number(showQiColumn)) * 5.3125}rem`,
+                    minInlineSize: `${67.5 + (Number(showDistanceColumn) + Number(showSelfHPColumn) + Number(showTargetHPColumn) + Number(showQiColumn)) * 5.3125 + Number(showHeavensWillColumn) * 6.875}rem`,
                   } as CSSProperties
                 }
               >
@@ -6339,6 +6342,7 @@ function RotationEditorTab({
                   {showSelfHPColumn && <span>{t("ui.app.selfHp")}</span>}
                   {showTargetHPColumn && <span>{t("ui.app.hp")}</span>}
                   {showQiColumn && <span>{t("ui.app.qi")}</span>}
+                  {showHeavensWillColumn && <span>{t("system.resource.heavensWill")}</span>}
                   <span className="rotation-damage-heading">{t("ui.app.damage")}</span>
                   <span>{t("ui.app.buff")}</span>
                   <span>{t("ui.app.debuff")}</span>
@@ -6772,6 +6776,11 @@ function RotationEditorTab({
                                 )}
                               </span>
                             )}
+                            {showHeavensWillColumn && (
+                              <span data-mobile-label={t("system.resource.heavensWill")}>
+                                {formatNumber(row.resources.HeavensWill ?? 0)}
+                              </span>
+                            )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
                                 step.event === "MartialArt" ? (
@@ -7081,6 +7090,11 @@ function RotationEditorTab({
                                 {showQiColumn && (
                                   <span data-mobile-label={t("ui.app.qi")}>
                                     {formatNumber((actionState?.targetQiRatio ?? row.targetQiRatio) * 100)}%
+                                  </span>
+                                )}
+                                {showHeavensWillColumn && (
+                                  <span data-mobile-label={t("system.resource.heavensWill")}>
+                                    {formatNumber(actionState?.resources.HeavensWill ?? row.resources.HeavensWill ?? 0)}
                                   </span>
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>

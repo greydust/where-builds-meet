@@ -57,6 +57,25 @@ export type GearInventory = {
   equipped: Partial<Record<GearSlot, string>>;
 };
 
+export type GearAffixCount = { key: string; count: number };
+export type GearAffixSummary = { total: number; affixes: GearAffixCount[] };
+
+export function summarizeGearAffixes(items: readonly (GearItem | undefined)[]): GearAffixSummary {
+  const counts = new Map<string, number>();
+  let total = 0;
+  for (const item of items) {
+    if (!item) continue;
+    for (const affix of [item.baseAffix, ...item.additionalAffixes]) {
+      counts.set(affix.key, (counts.get(affix.key) ?? 0) + 1);
+      total += 1;
+    }
+  }
+  const affixes = [...counts.entries()]
+    .map(([key, count]) => ({ key, count }))
+    .sort((left, right) => right.count - left.count || left.key.localeCompare(right.key));
+  return { total, affixes };
+}
+
 export type BuildPresetGear = {
   definitionId: string;
   level: GearLevel;

@@ -37,8 +37,10 @@ import {
   resolveBuildInventory,
   resolveBuildSetup,
   selectSetTier,
+  summarizeGearAffixes,
   weaponSetDefinitions,
   type BuildSetup,
+  type GearAffixSummary,
   type BuildEntry,
   type BuildState,
   type GearDefinition,
@@ -812,12 +814,14 @@ export default function BuildTab({
 
 function BuildSetupPanel({
   setup,
+  affixSummary,
   martialArtTags,
   pathTag,
   locked,
   onChange,
 }: {
   setup: BuildSetup;
+  affixSummary: GearAffixSummary;
   martialArtTags: string[];
   pathTag?: string;
   locked: boolean;
@@ -975,6 +979,26 @@ function BuildSetupPanel({
           ))}
         </div>
       </section>
+      <section className="panel setup-placeholder-panel build-setup-panel build-affix-summary-panel">
+        <div className="panel-heading">
+          <div className="build-affix-summary-heading">
+            <h2>{t("ui.buildTab.affixes")}</h2>
+            <span>{t("ui.buildTab.affixTotal", { number: affixSummary.total })}</span>
+          </div>
+        </div>
+        {affixSummary.affixes.length > 0 ? (
+          <ol className="build-affix-summary-list">
+            {affixSummary.affixes.map(({ key, count }) => (
+              <li key={key}>
+                <span>{gameText(gearData.affixes[key]?.name ?? key)}</span>
+                <strong>×{count}</strong>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="build-affix-summary-empty">{t("ui.buildTab.noAffixes")}</p>
+        )}
+      </section>
     </div>
   );
 }
@@ -1012,6 +1036,10 @@ function BuildManagement({
         }),
       ) as Partial<Record<GearSlot, GearItem>>,
     [inventory, weapons, locked],
+  );
+  const affixSummary = useMemo(
+    () => summarizeGearAffixes(gearSlots.map((slot) => equippedItems[slot])),
+    [equippedItems],
   );
 
   function selectSlot(slot: GearSlot) {
@@ -1157,165 +1185,172 @@ function BuildManagement({
   return (
     <div className="build-page">
       <div className="build-overview-grid">
-        <section className="panel build-equipped-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>{t("ui.buildTab.equippedGear")}</h2>
-              <p>
-                {locked
-                  ? t("ui.buildTab.thisDefaultBuildUsesFixedPresetGearUse")
-                  : t("ui.buildTab.selectASlotToEquipGearFromThe")}
-              </p>
+        <div className="build-management-grid">
+          <section className="panel build-equipped-panel">
+            <div className="panel-heading">
+              <div>
+                <h2>{t("ui.buildTab.equippedGear")}</h2>
+                <p>
+                  {locked
+                    ? t("ui.buildTab.thisDefaultBuildUsesFixedPresetGearUse")
+                    : t("ui.buildTab.selectASlotToEquipGearFromThe")}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="equipped-gear-grid">
-            {gearSlots.map((slot) => {
-              const item = equippedItems[slot];
-              const definition = item
-                ? gearData.gear[item.definitionId]
-                : gearDefinitionForSlot(slot, weapons).definition;
-              return (
+            <div className="equipped-gear-grid">
+              {gearSlots.map((slot) => {
+                const item = equippedItems[slot];
+                const definition = item
+                  ? gearData.gear[item.definitionId]
+                  : gearDefinitionForSlot(slot, weapons).definition;
+                return (
+                  <button
+                    className={`equipped-gear-card ${!locked && selectedSlot === slot ? "selected" : ""}`}
+                    type="button"
+                    key={slot}
+                    disabled={locked}
+                    onClick={() => selectSlot(slot)}
+                    data-testid={`equipped-${slot}`}
+                  >
+                    <RelayedIndicator item={item} />
+                    <span className="gear-slot-name">{gearSlotLabel(slot)}</span>
+                    {item ? (
+                      <>
+                        <strong>{gameText(definition?.name)}</strong>
+                        <small>
+                          {item.level} {gearRarityLabel(item.rarity)}
+                        </small>
+                        <GearBaseStatSummary item={item} />
+                        <GearAttributes item={item} compact />
+                      </>
+                    ) : (
+                      <span className="gear-empty">{t("ui.buildTab.noGearEquipped")}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {!locked && (
+            <section className="panel build-inventory-panel">
+              <div className="panel-heading">
+                <div>
+                  <h2>{gearSlotLabel(selectedSlot)}</h2>
+                  <p>
+                    {t("ui.buildTab.shared")} {gameText(selected.definition?.name) || t("ui.buildTab.gear")}{" "}
+                    {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
+                  </p>
+                </div>
+              </div>
+              <div className="available-gear-grid">
+                {availableItems.map((item) => (
+                  <article
+                    className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""} ${item.relayed ? "relayed" : ""}`}
+                    key={item.id}
+                  >
+                    <RelayedIndicator item={item} />
+                    <div className="available-gear-heading">
+                      <div>
+                        <strong>{gameText(selected.definition?.name)}</strong>
+                        <small>
+                          {item.level} {gearRarityLabel(item.rarity)}
+                        </small>
+                        <GearBaseStatSummary item={item} />
+                      </div>
+                      <div className="available-gear-status">
+                        {inventory.equipped[selectedSlot] === item.id && (
+                          <span>{t("ui.buildTab.equippedGearStatus")}</span>
+                        )}
+                        <small>
+                          {t("ui.buildTab.usedIn")} {usageCounts.get(item.id) ?? 0}{" "}
+                          {(usageCounts.get(item.id) ?? 0) === 1
+                            ? t("ui.buildTab.build")
+                            : t("ui.buildTab.buildCountNoun")}
+                        </small>
+                      </div>
+                    </div>
+                    <GearAttributes item={item} />
+                    <div className="gear-card-actions">
+                      <button
+                        className="button button-primary button-small"
+                        type="button"
+                        disabled={inventory.equipped[selectedSlot] === item.id}
+                        onClick={() => equip(item)}
+                      >
+                        {inventory.equipped[selectedSlot] === item.id
+                          ? t("ui.buildTab.equippedGearStatus")
+                          : t("ui.buildTab.equip")}
+                      </button>
+                      <button
+                        className="button button-secondary button-small"
+                        type="button"
+                        onClick={() => beginEdit(item)}
+                      >
+                        {t("ui.buildTab.edit")}
+                      </button>
+                      <button
+                        className={`button button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`}
+                        type="button"
+                        aria-label={
+                          pendingDeleteId === item.id ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")
+                        }
+                        onClick={() => remove(item)}
+                      >
+                        {pendingDeleteId === item.id ? t("ui.buildTab.confirmDelete") : t("ui.buildTab.delete")}
+                      </button>
+                    </div>
+                  </article>
+                ))}
                 <button
-                  className={`equipped-gear-card ${!locked && selectedSlot === slot ? "selected" : ""}`}
+                  className="add-gear-card"
                   type="button"
-                  key={slot}
-                  disabled={locked}
-                  onClick={() => selectSlot(slot)}
-                  data-testid={`equipped-${slot}`}
+                  onClick={beginAdd}
+                  aria-label={t("ui.buildTab.addNamedGear", { name: gearSlotLabel(selectedSlot) })}
+                  data-testid="add-gear"
                 >
-                  <RelayedIndicator item={item} />
-                  <span className="gear-slot-name">{gearSlotLabel(slot)}</span>
-                  {item ? (
-                    <>
-                      <strong>{gameText(definition?.name)}</strong>
-                      <small>
-                        {item.level} {gearRarityLabel(item.rarity)}
-                      </small>
-                      <GearBaseStatSummary item={item} />
-                      <GearAttributes item={item} compact />
-                    </>
-                  ) : (
-                    <span className="gear-empty">{t("ui.buildTab.noGearEquipped")}</span>
-                  )}
+                  <span>
+                    <UiIcon name="plus" />
+                  </span>
+                  <strong>{t("ui.buildTab.addGear")}</strong>
                 </button>
-              );
-            })}
-          </div>
-        </section>
+              </div>
+            </section>
+          )}
+
+          {!locked && editing && selected.definition && (
+            <GearEditor
+              definition={selected.definition}
+              definitionId={selected.definitionId}
+              definitionName={gameText(selected.definition.name)}
+              editingExisting={editingItemId !== null}
+              draft={draft}
+              error={error}
+              baseAffixOptions={baseAffixOptions}
+              additionalAffixOptions={additionalAffixOptions}
+              attunementOptions={attunementOptions}
+              selectedAdditionalKeys={selectedAdditionalKeys}
+              onDraftChange={setDraft}
+              onLevelChange={updateLevel}
+              onRelayedChange={updateRelayed}
+              onCancel={() => {
+                setEditing(false);
+                setEditingItemId(null);
+                setError("");
+              }}
+              onSave={save}
+            />
+          )}
+        </div>
         <BuildSetupPanel
           setup={setup}
+          affixSummary={affixSummary}
           martialArtTags={martialArtTags}
           pathTag={pathTag}
           locked={locked}
           onChange={onSetupChange}
         />
       </div>
-
-      {!locked && (
-        <section className="panel build-inventory-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>{gearSlotLabel(selectedSlot)}</h2>
-              <p>
-                {t("ui.buildTab.shared")} {gameText(selected.definition?.name) || t("ui.buildTab.gear")}{" "}
-                {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
-              </p>
-            </div>
-          </div>
-          <div className="available-gear-grid">
-            {availableItems.map((item) => (
-              <article
-                className={`available-gear-card ${inventory.equipped[selectedSlot] === item.id ? "equipped" : ""} ${item.relayed ? "relayed" : ""}`}
-                key={item.id}
-              >
-                <RelayedIndicator item={item} />
-                <div className="available-gear-heading">
-                  <div>
-                    <strong>{gameText(selected.definition?.name)}</strong>
-                    <small>
-                      {item.level} {gearRarityLabel(item.rarity)}
-                    </small>
-                    <GearBaseStatSummary item={item} />
-                  </div>
-                  <div className="available-gear-status">
-                    {inventory.equipped[selectedSlot] === item.id && <span>{t("ui.buildTab.equippedGearStatus")}</span>}
-                    <small>
-                      {t("ui.buildTab.usedIn")} {usageCounts.get(item.id) ?? 0}{" "}
-                      {(usageCounts.get(item.id) ?? 0) === 1 ? t("ui.buildTab.build") : t("ui.buildTab.buildCountNoun")}
-                    </small>
-                  </div>
-                </div>
-                <GearAttributes item={item} />
-                <div className="gear-card-actions">
-                  <button
-                    className="button button-primary button-small"
-                    type="button"
-                    disabled={inventory.equipped[selectedSlot] === item.id}
-                    onClick={() => equip(item)}
-                  >
-                    {inventory.equipped[selectedSlot] === item.id
-                      ? t("ui.buildTab.equippedGearStatus")
-                      : t("ui.buildTab.equip")}
-                  </button>
-                  <button
-                    className="button button-secondary button-small"
-                    type="button"
-                    onClick={() => beginEdit(item)}
-                  >
-                    {t("ui.buildTab.edit")}
-                  </button>
-                  <button
-                    className={`button button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`}
-                    type="button"
-                    aria-label={
-                      pendingDeleteId === item.id ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")
-                    }
-                    onClick={() => remove(item)}
-                  >
-                    {pendingDeleteId === item.id ? t("ui.buildTab.confirmDelete") : t("ui.buildTab.delete")}
-                  </button>
-                </div>
-              </article>
-            ))}
-            <button
-              className="add-gear-card"
-              type="button"
-              onClick={beginAdd}
-              aria-label={t("ui.buildTab.addNamedGear", { name: gearSlotLabel(selectedSlot) })}
-              data-testid="add-gear"
-            >
-              <span>
-                <UiIcon name="plus" />
-              </span>
-              <strong>{t("ui.buildTab.addGear")}</strong>
-            </button>
-          </div>
-        </section>
-      )}
-
-      {!locked && editing && selected.definition && (
-        <GearEditor
-          definition={selected.definition}
-          definitionId={selected.definitionId}
-          definitionName={gameText(selected.definition.name)}
-          editingExisting={editingItemId !== null}
-          draft={draft}
-          error={error}
-          baseAffixOptions={baseAffixOptions}
-          additionalAffixOptions={additionalAffixOptions}
-          attunementOptions={attunementOptions}
-          selectedAdditionalKeys={selectedAdditionalKeys}
-          onDraftChange={setDraft}
-          onLevelChange={updateLevel}
-          onRelayedChange={updateRelayed}
-          onCancel={() => {
-            setEditing(false);
-            setEditingItemId(null);
-            setError("");
-          }}
-          onSave={save}
-        />
-      )}
     </div>
   );
 }

@@ -28,6 +28,7 @@ try {
     systemCharacter.heavensWillRegen === 0.1,
     "The innate character pipeline must provide 0.1 Heaven's Will per second.",
   );
+  assert(system.initialResources.HeavensWill === 2, "Heaven's Will must start at the system-defined value of two.");
 
   assert(
     !requirementsPass(requirement, [], [], [], new Set(), ["heavenwill", "skygrasp"], {}),
@@ -116,6 +117,52 @@ try {
       regenerationStates[3].resources.HeavensWill === 0.25 &&
       regenerationStates[4].resources.HeavensWill === 0.75,
     "Resource regeneration must accrue by elapsed time and preserve same-time action ordering.",
+  );
+
+  const fightStartTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Fight-start resource regeneration probe",
+      start: { step: 1 },
+      steps: [
+        { type: "skill", skill: "PrepullSequence" },
+        { type: "skill", skill: "CombatSequence" },
+      ],
+    },
+    skills: {
+      PrepullSequence: {
+        name: "Prepull Sequence",
+        castTime: 5,
+        action: [{ type: "damage", phyCoef: 1, time: 0 }],
+        modifier: [],
+        tags: ["General"],
+      },
+      CombatSequence: {
+        name: "Combat Sequence",
+        castTime: 5,
+        action: [
+          { type: "damage", phyCoef: 1, time: 0 },
+          { type: "damage", phyCoef: 1, time: 5 },
+        ],
+        modifier: [],
+        tags: ["MartialArts", "SkygraspRopeDart"],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["heavenwill", "skygrasp"],
+    initialResources: system.initialResources,
+    resourceRegeneration: { HeavensWill: systemCharacter.heavensWillRegen },
+    resourceMaximums: system.resourceMaximums,
+  });
+  assert(
+    fightStartTimeline[0].actionStates[0].resources.HeavensWill === 2 &&
+      fightStartTimeline[1].actionStates[0].resources.HeavensWill === 2 &&
+      fightStartTimeline[1].actionStates[1].resources.HeavensWill === 2.5,
+    "Heaven's Will must not regenerate during prepull time and must begin regenerating at fight start.",
   );
 
   const buildMandateTimeline = (withUnity) =>

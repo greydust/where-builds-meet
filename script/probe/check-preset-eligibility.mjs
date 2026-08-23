@@ -127,10 +127,14 @@ for (const variant of ["min", "max"]) {
     `The Kite ${variant} preset must use Heavenwill Gauntlets and Skygrasp Rope Dart.`,
   );
   assert(
-    kiteBuild.setup.innerWays.length === 1 &&
-      kiteBuild.setup.innerWays[0].innerWay === "SoaringHigh" &&
-      kiteBuild.setup.arsenal === "Bamboocut",
-    `The Kite ${variant} preset must use its available Inner Way and Bamboocut arsenal.`,
+    JSON.stringify(kiteBuild.setup.innerWays) ===
+      JSON.stringify([
+        { innerWay: "SoaringHigh", tier: "T6" },
+        { innerWay: "SkyGripped", tier: "T6" },
+        { innerWay: "MoraleChant", tier: "T6" },
+        { innerWay: "EnvigoratedWarrior", tier: "T6" },
+      ]) && kiteBuild.setup.arsenal === "Bamboocut",
+    `The Kite ${variant} preset must use its four selected Inner Ways and Bamboocut arsenal.`,
   );
   assert(
     ["helmet", "chestpiece", "greaves", "bracer"].every(

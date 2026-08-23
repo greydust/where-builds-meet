@@ -75,7 +75,46 @@ try {
   assert(weakCast.actions[0].phyCoef === 7.2178, "Two Heaven's Will must select Vile Condemned Hit.");
   assert(
     weakObserver.actionStates[0].resources.HeavensWill === 0,
-    "Vile Condemned Hit must consume all Heaven's Will.",
+    "Vile Condemned Hit must consume exactly two Heaven's Will.",
+  );
+
+  const fractionalFallbackTimeline = build(
+    [
+      { type: "skill", skill: "VileCondemned" },
+      { type: "skill", skill: "ObserveHeavensWill" },
+    ],
+    { initialResources: { HeavensWill: 3.5 } },
+  );
+  const fractionalFallbackCast = fractionalFallbackTimeline.find((row) => row.step.skill === "VileCondemned");
+  const fractionalFallbackObserver = fractionalFallbackTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
+  assert(
+    fractionalFallbackCast.actions[0].phyCoef === 7.2178,
+    "Vile Condemned without Soaring High T0 must use the normal release.",
+  );
+  assert(
+    fractionalFallbackObserver.actionStates[0].resources.HeavensWill === 1.5,
+    "Vile Condemned Hit must consume exactly two from a fractional resource value.",
+  );
+
+  const fractionalEndTimeline = build(
+    [
+      { type: "skill", skill: "VileCondemned" },
+      { type: "skill", skill: "ObserveHeavensWill" },
+    ],
+    {
+      initialResources: { HeavensWill: 3.5 },
+      innerWayConditions: ["SoaringHighT0"],
+    },
+  );
+  const fractionalEndCast = fractionalEndTimeline.find((row) => row.step.skill === "VileCondemned");
+  const fractionalEndObserver = fractionalEndTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
+  assert(
+    fractionalEndCast.actions[0].phyCoef === 11.7527,
+    "Vile Condemned with Soaring High T0 must select End Hit at 3.5 Heaven's Will.",
+  );
+  assert(
+    fractionalEndObserver.actionStates[0].resources.HeavensWill === 0.5,
+    "Vile Condemned End Hit must consume exactly three at 3.5 Heaven's Will.",
   );
 
   const endTimeline = build(
@@ -226,6 +265,16 @@ try {
       action: [{ type: "clearCD", target: "self", value: "VileCondemnedEndHit" }],
     },
   };
+  const t6RefundRule = {
+    source: "SoaringHigh",
+    tier: 6,
+    requirement: [{ target: "skillTag", value: "VileCondemnedEnd" }],
+    effect: {},
+    trigger: {
+      target: "self",
+      action: [{ type: "trigger", value: "SoaringHighT6Refund" }],
+    },
+  };
   const resetTimeline = build(
     [
       { type: "skill", skill: "VileCondemned" },
@@ -244,6 +293,40 @@ try {
   assert(
     resetCasts.every((row) => row.actions[0].phyCoef === 11.7527),
     "Soaring High T3 Falcon damage against an exhausted target must reset End Hit cooldown.",
+  );
+
+  const refundTimeline = build(
+    [
+      { type: "skill", skill: "VileCondemned" },
+      { type: "skill", skill: "ObserveHeavensWill" },
+      { type: "skill", skill: "RestoreHeavensWill" },
+      { type: "skill", skill: "FalconProbe" },
+      { type: "skill", skill: "VileCondemned" },
+      { type: "skill", skill: "ObserveHeavensWill" },
+    ],
+    {
+      initialResources: { HeavensWill: 3 },
+      innerWayConditions: [
+        "SoaringHighT0",
+        "SoaringHighT1",
+        "SoaringHighT2",
+        "SoaringHighT3",
+        "SoaringHighT4",
+        "SoaringHighT5",
+        "SoaringHighT6",
+      ],
+      innerWayRules: [t3Rule, t6RefundRule],
+      initialDebuffs: [{ name: "Exhausted", stack: 1, expiresAt: 100 }],
+    },
+  );
+  const refundObservers = refundTimeline.filter((row) => row.step.skill === "ObserveHeavensWill");
+  assert(
+    refundObservers[0].actionStates[0].resources.HeavensWill === 1,
+    "The first Soaring High T6 End Hit must refund one Heaven's Will.",
+  );
+  assert(
+    refundObservers[1].actionStates[0].resources.HeavensWill === 0,
+    "Resetting End Hit must not reset the separate T6 refund cooldown.",
   );
 
   console.log("Vile Condemned branch, cooldown, start-bound requirement, and consumption checks passed.");

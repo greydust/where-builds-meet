@@ -58,6 +58,7 @@ try {
     "/data/rotation/stonesplit-strength/pure-dummy-1-min-2.json",
     "/data/rotation/stonesplit-strength/pure-horse-tamer-standard-27s.json",
     "/data/rotation/stonesplit-might/dummy-1-min.json",
+    "/data/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json",
   ];
   const skillPaths = [
     "/data/skill/general.json",
@@ -66,6 +67,8 @@ try {
     "/data/skill/snowparting-blade.json",
     "/data/skill/stormbreaker-spear.json",
     "/data/skill/thundercry-blade.json",
+    "/data/skill/heavenwill-gauntlets.json",
+    "/data/skill/skygrasp-rope-dart.json",
   ];
   const effectPaths = [
     "/data/buff/general.json",
@@ -77,6 +80,8 @@ try {
     "/data/debuff/innerway.json",
     "/data/debuff/stonesplit-might.json",
     "/data/debuff/stonesplit-strength.json",
+    "/data/buff/bamboocut-kite.json",
+    "/data/debuff/bamboocut-kite.json",
     "/data/dot/mystic.json",
   ];
   const innerWayPaths = [
@@ -86,6 +91,9 @@ try {
     "/data/innerway/morale-chant.json",
     "/data/innerway/steadfast-devotion.json",
     "/data/innerway/throat-piercing-art.json",
+    "/data/innerway/sky-gripped.json",
+    "/data/innerway/soaring-high.json",
+    "/data/innerway/envigorated-warrior.json",
   ];
   const skills = Object.assign({}, ...(await Promise.all(skillPaths.map(moduleJson))));
   const effectDefinitions = Object.assign({}, ...(await Promise.all(effectPaths.map(moduleJson))));
@@ -144,10 +152,26 @@ try {
     { innerWay: "ArtOfResistance", tier: "T6" },
     { innerWay: "ThroatPiercingArt", tier: "T6" },
   ];
+  const kiteInnerWays = [
+    { innerWay: "SoaringHigh", tier: "T6" },
+    { innerWay: "SkyGripped", tier: "T6" },
+    { innerWay: "MoraleChant", tier: "T6" },
+    { innerWay: "EnvigoratedWarrior", tier: "T6" },
+  ];
+  const selectedInnerWaysFor = (rotationPath) => {
+    switch (true) {
+      case rotationPath.includes("stonesplit-might"):
+        return mightInnerWays;
+      case rotationPath.includes("bamboocut-kite"):
+        return kiteInnerWays;
+      default:
+        return strengthInnerWays;
+    }
+  };
 
   for (const rotationPath of rotationPaths) {
     const rotation = await moduleJson(rotationPath);
-    const selectedInnerWays = rotationPath.includes("stonesplit-might") ? mightInnerWays : strengthInnerWays;
+    const selectedInnerWays = selectedInnerWaysFor(rotationPath);
     const { conditions, rules } = innerWayState(selectedInnerWays, innerWayDefinitions);
     const timeline = buildRotationTimeline({
       rotation,

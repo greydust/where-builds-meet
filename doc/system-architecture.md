@@ -323,9 +323,11 @@ source use the same conversion rules.
 The hidden base stat `heavensWillRegen` is also resolved through this pipeline.
 It is passed into the timeline as the per-second regeneration rate for the
 numeric `HeavensWill` resource rather than exposed as an editable combat stat.
-The resource's universal maximum of four is stored in `system.json` and passed
-through `TimelineBuildInput.resourceMaximums`, so passive regeneration and
-explicit resource actions share the same cap.
+The resource's universal initial value of two and maximum of four are stored in
+`system.json` and passed through `TimelineBuildInput.initialResources` and
+`TimelineBuildInput.resourceMaximums`. Passive regeneration starts at the
+resolved fight-start anchor, so prepull time does not generate Heaven's Will;
+passive regeneration and explicit resource actions share the same cap.
 Innate Max HP is stored directly in `baseStats`; its `101929` value excludes the
 `25980` HP from four Tier 96 Purple armor pieces that was present in the observed
 `127909` value. Armor base HP remains a separate equipped-gear contribution,

@@ -9,6 +9,18 @@
       {
         "innerWay": "SoaringHigh",
         "tier": "T6"
+      },
+      {
+        "innerWay": "SkyGripped",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "MoraleChant",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "EnvigoratedWarrior",
+        "tier": "T6"
       }
     ],
     "weaponSets": {},
@@ -31,8 +43,8 @@
           "value": 73.132
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "gauntletDmgBoost",

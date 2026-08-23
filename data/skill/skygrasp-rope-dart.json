@@ -69,6 +69,12 @@
         "time": 0.6
       },
       {
+        "type": "trigger",
+        "target": "self",
+        "value": "SnaringLashFalcon",
+        "time": 0.6
+      },
+      {
         "type": "apply",
         "target": "target",
         "value": "HeavensMight",
@@ -101,6 +107,12 @@
         "time": 0.6
       },
       {
+        "type": "trigger",
+        "target": "self",
+        "value": "SnaringLashFalcon",
+        "time": 0.6
+      },
+      {
         "type": "apply",
         "target": "target",
         "value": "HeavensMight",
@@ -126,5 +138,52 @@
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "RopeDart", "SkygraspRopeDart"],
     "martialArt": "skygrasp",
     "weapon": "RopeDart"
+  },
+  "SnaringLashFalcon": {
+    "name": "Snaring Lash Falcon",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.1,
+        "time": 0.6
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.2,
+        "time": 0.6,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "HeavensUnity"
+          }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "SkygraspRopeDart", "Falcon", "Triggered"]
   }
 }

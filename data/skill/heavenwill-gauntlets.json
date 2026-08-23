@@ -1,7 +1,7 @@
 {
   "HeavenwillDeclared": {
     "name": "Heavenwill Declared",
-    "shortName": "Gauntlet Q",
+    "shortName": "Gauntlet Q1",
     "castTime": 0.9,
     "action": [
       {
@@ -26,7 +26,7 @@
   },
   "CelestialMandate": {
     "name": "Celestial Mandate",
-    "shortName": "Gauntlet Q",
+    "shortName": "Gauntlet Q2",
     "castTime": 1.23,
     "action": [
       {
@@ -68,16 +68,19 @@
         "type": "addResource",
         "value": "HeavensWill",
         "amount": 0.1,
+        "time": 1.23
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.2,
         "time": 1.23,
-        "additionalAmount": {
-          "amount": 0.2,
-          "requirement": [
-            {
-              "target": "self",
-              "value": "HeavensUnity"
-            }
-          ]
-        }
+        "requirement": [
+          {
+            "target": "self",
+            "value": "HeavensUnity"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -87,7 +90,7 @@
   },
   "RighteousReign5thHit": {
     "name": "Righteous Reign 5th Hit",
-    "shortName": "Gauntlet 5LA",
+    "shortName": "Gauntlet A5",
     "castTime": 0.8,
     "action": [
       {
@@ -105,7 +108,7 @@
   },
   "RighteousReign6thHitCancel": {
     "name": "Righteous Reign 6th Hit [Cancel]",
-    "shortName": "Gauntlet 6LA",
+    "shortName": "Gauntlet A6",
     "castTime": 0.36,
     "action": [
       {
@@ -131,6 +134,38 @@
     "name": "Light Attack Falcon",
     "castTime": 0,
     "action": [
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.1,
+        "time": 0.6
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.2,
+        "time": 0.6,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "HeavensUnity"
+          }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.6
+      },
       {
         "type": "damage",
         "phyCoef": 0.748,
@@ -246,7 +281,7 @@
       {
         "type": "consumeResource",
         "value": "HeavensWill",
-        "amount": "all",
+        "amount": 2,
         "time": 2,
         "requirement": [
           {
@@ -323,28 +358,66 @@
         }
       }
     ],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "SubAction"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "VileCondemnedEnd",
+      "SubAction"
+    ],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
+  "SoaringHighT6Refund": {
+    "name": "Soaring High T6 Refund",
+    "castTime": 0,
+    "cooldown": 18,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 1,
+        "time": 0.001
+      }
+    ],
+    "modifier": [],
+    "tags": ["Triggered", "BamboocutKite"]
+  },
   "SkyGrippedReplay": {
     "name": "Sky Gripped Replay",
-    "shortName": "Sky Gripped",
     "castTime": 0,
     "action": [
       {
         "type": "replay",
-        "coef": 0.13333333333333333,
+        "coef": 0.066667,
+        "time": 0.5
+      },
+      {
+        "type": "replay",
+        "coef": 0.066667,
         "time": 1
       },
       {
         "type": "replay",
-        "coef": 0.13333333333333333,
+        "coef": 0.066667,
+        "time": 1.5
+      },
+      {
+        "type": "replay",
+        "coef": 0.066667,
         "time": 2
       },
       {
         "type": "replay",
-        "coef": 0.13333333333333333,
+        "coef": 0.066667,
+        "time": 2.5
+      },
+      {
+        "type": "replay",
+        "coef": 0.066667,
         "time": 3
       }
     ],

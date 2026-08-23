@@ -751,11 +751,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       ([, rate]) => typeof rate === "number" && Number.isFinite(rate) && rate > 0,
     ),
   );
-  let lastResourceRegenerationTime = events.reduce(
-    (earliest, event) => Math.min(earliest, event.time),
-    Number.POSITIVE_INFINITY,
-  );
-  if (!Number.isFinite(lastResourceRegenerationTime)) lastResourceRegenerationTime = 0;
+  // Pre-fight actions can change resources, but passive regeneration begins only
+  // when combat starts. The converged pass supplies the exact resolved anchor.
+  let lastResourceRegenerationTime = resolvedAnchorTime ?? initialAnchorTime;
   const regenerateResources = (time: number) => {
     const elapsed = Math.max(0, time - lastResourceRegenerationTime);
     if (elapsed > 0) {
@@ -1404,37 +1402,13 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     ) {
       const current = resources[action.value] ?? 0;
       const resourceAmount = typeof action.amount === "number" ? action.amount : 0;
-      const additionalAmountDefinition =
-        action.type === "addResource" &&
-        action.additionalAmount &&
-        typeof action.additionalAmount === "object" &&
-        !Array.isArray(action.additionalAmount)
-          ? (action.additionalAmount as EditableObject)
-          : undefined;
-      const additionalAmount =
-        additionalAmountDefinition &&
-        typeof additionalAmountDefinition.amount === "number" &&
-        Number.isFinite(additionalAmountDefinition.amount) &&
-        additionalAmountDefinition.amount >= 0 &&
-        requirementsPass(
-          additionalAmountDefinition.requirement,
-          buffs,
-          debuffs,
-          skillTags,
-          innerWayConditions,
-          weapons,
-          resources,
-          requirementState(),
-        )
-          ? additionalAmountDefinition.amount
-          : 0;
       let next = current;
       switch (action.type) {
         case "setResource":
           next = resourceAmount;
           break;
         case "addResource":
-          next = current + resourceAmount + additionalAmount;
+          next = current + resourceAmount;
           break;
         case "consumeResource":
           next = action.amount === "all" ? 0 : current - resourceAmount;

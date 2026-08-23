@@ -63,6 +63,24 @@
     },
     "SoaringHighT4": {},
     "SoaringHighT5": {},
-    "SoaringHighT6": {}
+    "SoaringHighT6": {
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "VileCondemnedEnd"
+            }
+          ],
+          "action": [
+            {
+              "type": "trigger",
+              "value": "SoaringHighT6Refund"
+            }
+          ]
+        }
+      ]
+    }
   }
 }

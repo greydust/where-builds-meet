@@ -1,4 +1,7 @@
 {
+  "initialResources": {
+    "HeavensWill": 2
+  },
   "resourceMaximums": {
     "HeavensWill": 4
   },
