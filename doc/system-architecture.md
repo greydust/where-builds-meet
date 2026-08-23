@@ -791,9 +791,10 @@ the same in local and deployed builds. A path can instead declare `devOnly: true
 when its mechanics are supported but the path itself is intended only for
 development and unrestricted test combinations. Dev-only paths remain visible,
 carry a Dev badge, and use the same runtime gate without being described as WIP.
-Mixed is the final selector option and is Dev-only. Dust and Kite remain WIP
-shells; their weapons and shared gear tables are registered, but their skills,
-talents, and complete path-specific calculations are not implemented.
+Mixed is the final selector option and is Dev-only. Kite is available without
+Dev mode. Wind and Dust remain WIP shells; Wind has no weapon lock until its
+martial arts are registered, while Dust retains its existing registered weapon
+pair.
 
 ### Manual event
 

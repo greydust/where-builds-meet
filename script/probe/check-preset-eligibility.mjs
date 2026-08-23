@@ -35,8 +35,12 @@ const martialArtTags = Object.fromEntries(
 
 const paths = await readJson("data/path.json");
 assert(
-  paths.bamboocutDust.wip === true && paths.bamboocutKite.wip === true,
-  "Both unfinished Bamboocut paths must remain explicitly WIP.",
+  paths.bamboocutKite.wip !== true && paths.bamboocutWind.wip === true && paths.bamboocutDust.wip === true,
+  "Kite must be production-ready while Wind and Dust remain explicitly WIP.",
+);
+assert(
+  Object.keys(paths).join(",") === "stonesplitStrength,stonesplitMight,bamboocutKite,bamboocutWind,bamboocutDust,mixed",
+  "The path selector must place Kite beside Might and Wind beside Kite.",
 );
 assert(
   paths.bamboocutDust.lockedWeapons.join(",") === "everspring,unfettered",
@@ -45,6 +49,10 @@ assert(
 assert(
   paths.bamboocutKite.lockedWeapons.join(",") === "heavenwill,skygrasp",
   "Kite must lock the expected martial arts.",
+);
+assert(
+  paths.bamboocutWind.icon === "wind.png" && paths.bamboocutWind.tag === "BamboocutWind",
+  "Wind must expose its WIP icon and shared eligibility tag.",
 );
 
 const attunements = await readJson("data/attunement.json");

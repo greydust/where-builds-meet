@@ -1233,6 +1233,18 @@ damage action resolves and affects subsequent Vile Condemned releases.
 Soaring High T4 uses the generic `convert` effect for actions tagged
 `VileCondemned`. It converts Final Affinity to Direct Critical at a 1:1 ratio,
 up to `0.12` per action, before the ordinary outcome rates are calculated.
+Empirical Edge T0 listens to damage tagged `MartialArtEffect` and applies one
+stack of Cognition after the hit. Cognition lasts five seconds, refreshes on an
+accepted application, stacks three times, and has a one-second application
+cooldown. Each stack grants Martial Art Effects `2` Bellstrike, Stonesplit,
+Silkbind, and Bamboocut penetration. Effects carrying both `HeavenwillGauntlets`
+and `Falcon`, or carrying `VileCondemned`, gain another `2` of each attribute
+penetration per stack. T1 extends Cognition to eight seconds, T2 grants `22.3`
+Min Physical Attack and `44.7` Max Physical Attack, T3 raises the stack cap to
+five, T4 removes the application cooldown, and T5 grants `0.025` Physical DMG
+Bonus. T6 grants Physical Penetration equal to Cognition's total attribute
+penetration for that action. Every penetration channel remains a separate
+effect entry; T0 does not grant Physical Penetration.
 Soaring High T6 grants Vile Condemned End Hit `0.3` base-damage bonus and `0.1`
 Critical Damage bonus when the release begins at exactly four Heaven's Will.
 An Inner Way tier may listen to final damage events:

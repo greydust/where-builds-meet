@@ -235,7 +235,7 @@ const percentageStatKeys = new Set<keyof CharacterStats>(
 
 type CalculatorSettings = { weapons: [WeaponId, WeaponId]; enemy: string };
 type LayoutMode = "pc" | "mobile";
-type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutDust" | "bamboocutKite";
+type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutKite" | "bamboocutWind" | "bamboocutDust";
 type PathDefinition = {
   name: string;
   icon?: string;

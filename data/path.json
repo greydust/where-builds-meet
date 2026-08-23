@@ -11,19 +11,24 @@
     "tag": "StonesplitMight",
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
+  "bamboocutKite": {
+    "name": "Kite",
+    "icon": "kite.png",
+    "tag": "BamboocutKite",
+    "lockedWeapons": ["heavenwill", "skygrasp"]
+  },
+  "bamboocutWind": {
+    "name": "Wind",
+    "icon": "wind.png",
+    "tag": "BamboocutWind",
+    "wip": true
+  },
   "bamboocutDust": {
     "name": "Dust",
     "icon": "dust.png",
     "tag": "BamboocutDust",
     "wip": true,
     "lockedWeapons": ["everspring", "unfettered"]
-  },
-  "bamboocutKite": {
-    "name": "Kite",
-    "icon": "kite.png",
-    "tag": "BamboocutKite",
-    "wip": true,
-    "lockedWeapons": ["heavenwill", "skygrasp"]
   },
   "mixed": {
     "name": "Mixed",

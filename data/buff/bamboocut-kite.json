@@ -15,58 +15,1179 @@
     "maxStack": 5,
     "stackEffects": [
       [
-        { "effect": { "physicalAttackBonus": 0.012 } },
-        { "effect": { "bellstrikeAttackBonus": 0.012 } },
-        { "effect": { "stonesplitAttackBonus": 0.012 } },
-        { "effect": { "silkbindAttackBonus": 0.012 } },
-        { "effect": { "bamboocutAttackBonus": 0.012 } }
-      ],
-      [
-        { "effect": { "physicalAttackBonus": 0.024 } },
-        { "effect": { "bellstrikeAttackBonus": 0.024 } },
-        { "effect": { "stonesplitAttackBonus": 0.024 } },
-        { "effect": { "silkbindAttackBonus": 0.024 } },
-        { "effect": { "bamboocutAttackBonus": 0.024 } }
-      ],
-      [
-        { "effect": { "physicalAttackBonus": 0.036 } },
-        { "effect": { "bellstrikeAttackBonus": 0.036 } },
-        { "effect": { "stonesplitAttackBonus": 0.036 } },
-        { "effect": { "silkbindAttackBonus": 0.036 } },
-        { "effect": { "bamboocutAttackBonus": 0.036 } }
-      ],
-      [
-        { "effect": { "physicalAttackBonus": 0.048 } },
-        { "effect": { "bellstrikeAttackBonus": 0.048 } },
-        { "effect": { "stonesplitAttackBonus": 0.048 } },
-        { "effect": { "silkbindAttackBonus": 0.048 } },
-        { "effect": { "bamboocutAttackBonus": 0.048 } }
-      ],
-      [
-        { "effect": { "physicalAttackBonus": 0.06 } },
-        { "effect": { "bellstrikeAttackBonus": 0.06 } },
-        { "effect": { "stonesplitAttackBonus": 0.06 } },
-        { "effect": { "silkbindAttackBonus": 0.06 } },
-        { "effect": { "bamboocutAttackBonus": 0.06 } },
         {
-          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
-          "effect": { "physicalPenetration": 6 }
+          "effect": {
+            "physicalAttackBonus": 0.012
+          }
         },
         {
-          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
-          "effect": { "bellstrikePenetration": 6 }
+          "effect": {
+            "bellstrikeAttackBonus": 0.012
+          }
         },
         {
-          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
-          "effect": { "stonesplitPenetration": 6 }
+          "effect": {
+            "stonesplitAttackBonus": 0.012
+          }
         },
         {
-          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
-          "effect": { "silkbindPenetration": 6 }
+          "effect": {
+            "silkbindAttackBonus": 0.012
+          }
         },
         {
-          "requirement": [{ "target": "skillTag", "value": "MartialArtEffect" }],
-          "effect": { "bamboocutPenetration": 6 }
+          "effect": {
+            "bamboocutAttackBonus": 0.012
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.024
+          }
+        },
+        {
+          "effect": {
+            "bellstrikeAttackBonus": 0.024
+          }
+        },
+        {
+          "effect": {
+            "stonesplitAttackBonus": 0.024
+          }
+        },
+        {
+          "effect": {
+            "silkbindAttackBonus": 0.024
+          }
+        },
+        {
+          "effect": {
+            "bamboocutAttackBonus": 0.024
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.036000000000000004
+          }
+        },
+        {
+          "effect": {
+            "bellstrikeAttackBonus": 0.036000000000000004
+          }
+        },
+        {
+          "effect": {
+            "stonesplitAttackBonus": 0.036000000000000004
+          }
+        },
+        {
+          "effect": {
+            "silkbindAttackBonus": 0.036000000000000004
+          }
+        },
+        {
+          "effect": {
+            "bamboocutAttackBonus": 0.036000000000000004
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.048
+          }
+        },
+        {
+          "effect": {
+            "bellstrikeAttackBonus": 0.048
+          }
+        },
+        {
+          "effect": {
+            "stonesplitAttackBonus": 0.048
+          }
+        },
+        {
+          "effect": {
+            "silkbindAttackBonus": 0.048
+          }
+        },
+        {
+          "effect": {
+            "bamboocutAttackBonus": 0.048
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.06
+          }
+        },
+        {
+          "effect": {
+            "bellstrikeAttackBonus": 0.06
+          }
+        },
+        {
+          "effect": {
+            "stonesplitAttackBonus": 0.06
+          }
+        },
+        {
+          "effect": {
+            "silkbindAttackBonus": 0.06
+          }
+        },
+        {
+          "effect": {
+            "bamboocutAttackBonus": 0.06
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 6
+          }
+        }
+      ]
+    ],
+    "refresh": true
+  },
+  "Cognition": {
+    "name": "Cognition",
+    "shortName": "Cognition",
+    "description": "Each stack grants Martial Art Effects 2 of every attribute penetration. Heavenwill Gauntlets Falcon effects and Vile Condemned effects gain another 2 per stack. At Empirical Edge T6, Physical Penetration increases by the same amount.",
+    "duration": 5,
+    "cooldown": 1,
+    "maxStack": 5,
+    "stackEffects": [
+      [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 2
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 2
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 4
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 4
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 6
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 6
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 8
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 8
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "self",
+              "value": "EmpiricalEdgeT6"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bellstrikePenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "stonesplitPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "silkbindPenetration": 10
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                [
+                  {
+                    "target": "skillTag",
+                    "value": "HeavenwillGauntlets"
+                  },
+                  {
+                    "target": "skillTag",
+                    "value": "Falcon"
+                  }
+                ],
+                {
+                  "target": "skillTag",
+                  "value": "VileCondemned"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "bamboocutPenetration": 10
+          }
         }
       ]
     ],

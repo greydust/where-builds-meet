@@ -21,7 +21,7 @@
     "41": { "name": "Envigorated Warrior", "innerWay": "EnvigoratedWarrior" },
     "601": { "name": "Soaring High" },
     "82": { "name": "Seasonal Edge" },
-    "603": { "name": "Empirical Edge" },
+    "603": { "name": "Empirical Edge", "innerWay": "EmpiricalEdge" },
     "602": { "name": "Sky Gripped" }
   }
 }

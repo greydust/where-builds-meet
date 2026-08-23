@@ -160,6 +160,7 @@ try {
     profileMap.innerWays["601"].name === "Soaring High" &&
       profileMap.innerWays["82"].name === "Seasonal Edge" &&
       profileMap.innerWays["603"].name === "Empirical Edge" &&
+      profileMap.innerWays["603"].innerWay === "EmpiricalEdge" &&
       profileMap.innerWays["602"].name === "Sky Gripped",
     "The second observed Bamboocut - Kite passiveSlots set must retain its Inner Way names.",
   );

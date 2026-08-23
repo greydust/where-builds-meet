@@ -3,6 +3,7 @@ import artOfResistance from "../../data/innerway/art-of-resistance.json";
 import battleAnthem from "../../data/innerway/battle-anthem.json";
 import breakingPoint from "../../data/innerway/breaking-point.json";
 import envigoratedWarrior from "../../data/innerway/envigorated-warrior.json";
+import empiricalEdge from "../../data/innerway/empirical-edge.json";
 import exquisiteScenery from "../../data/innerway/exquisite-scenery.json";
 import frostCladNight from "../../data/innerway/frost-clad-night.json";
 import moraleChant from "../../data/innerway/morale-chant.json";
@@ -25,6 +26,7 @@ export const innerWayDefinitions = {
   ThroatPiercingArt: throatPiercingArt,
   BreakingPoint: breakingPoint,
   EnvigoratedWarrior: envigoratedWarrior,
+  EmpiricalEdge: empiricalEdge,
   ExquisiteScenery: exquisiteScenery,
   ArtOfResistance: artOfResistance,
   BattleAnthem: battleAnthem,

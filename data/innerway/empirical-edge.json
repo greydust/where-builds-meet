@@ -1,0 +1,66 @@
+{
+  "name": "Empirical Edge",
+  "altersTimeline": true,
+  "tags": ["BamboocutKite"],
+  "effect": {
+    "EmpiricalEdgeT0": {
+      "effect": [
+        {
+          "target": "Cognition",
+          "modify": { "maxStack": 3 }
+        }
+      ],
+      "trigger": [
+        {
+          "target": "self",
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "MartialArtEffect"
+            }
+          ],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "Cognition",
+              "stack": 1,
+              "reapply": true
+            }
+          ]
+        }
+      ]
+    },
+    "EmpiricalEdgeT1": {
+      "effect": [
+        {
+          "target": "Cognition",
+          "modify": { "duration": 8 }
+        }
+      ]
+    },
+    "EmpiricalEdgeT2": {
+      "effect": [{ "target": "stat", "effect": { "minPhysAtk": 22.3, "maxPhysAtk": 44.7 } }]
+    },
+    "EmpiricalEdgeT3": {
+      "effect": [
+        {
+          "target": "Cognition",
+          "modify": { "maxStack": 5 }
+        }
+      ]
+    },
+    "EmpiricalEdgeT4": {
+      "effect": [
+        {
+          "target": "Cognition",
+          "modify": { "cooldown": 0 }
+        }
+      ]
+    },
+    "EmpiricalEdgeT5": {
+      "effect": [{ "target": "stat", "effect": { "physDmgBonus": 0.025 } }]
+    },
+    "EmpiricalEdgeT6": {}
+  }
+}
