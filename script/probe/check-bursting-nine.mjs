@@ -7,11 +7,11 @@ const assert = (condition, message) => {
 };
 const approximately = (actual, expected) => Math.abs(actual - expected) < 1e-9;
 
-assert(skill?.castTime === 1.3, "Bursting Nine must have a 1.3-second cast time.");
+assert(skill?.castTime === 1.45, "Bursting Nine must have a 1.45-second cast time.");
 assert(skill.action?.length === 9, "Bursting Nine must contain nine actions.");
 assert(
-  skill.action.every((action) => action.type === "damage" && action.time === 1.3),
-  "All hits must land at cast end.",
+  skill.action.every((action) => action.type === "damage" && action.time === 1.1625),
+  "All hits must land at 1.1625 seconds.",
 );
 assert(
   skill.action[0].phyCoef === 2.546 && skill.action[0].phyBonus === 365,
@@ -34,12 +34,12 @@ assert(
 );
 
 const twoShots = mysticSkills.BurstingNine2Shots;
-assert(twoShots?.castTime === 1.7, "Bursting Nine 2 Shots must have a 1.7-second cast time.");
+assert(twoShots?.castTime === 1.925, "Bursting Nine 2 Shots must have a 1.925-second cast time.");
 assert(twoShots.action?.length === 18, "Bursting Nine 2 Shots must contain eighteen actions.");
 assert(
-  twoShots.action.slice(0, 9).every((action) => action.type === "damage" && action.time === 1.3) &&
-    twoShots.action.slice(9).every((action) => action.type === "damage" && action.time === 1.7),
-  "Bursting Nine 2 Shots must place its first volley at 1.3 seconds and its second at cast end.",
+  twoShots.action.slice(0, 9).every((action) => action.type === "damage" && action.time === 1.1625) &&
+    twoShots.action.slice(9).every((action) => action.type === "damage" && action.time === 1.6125),
+  "Bursting Nine 2 Shots must place its volleys at 1.1625 and 1.6125 seconds.",
 );
 assert(
   twoShots.action

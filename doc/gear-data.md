@@ -105,6 +105,13 @@ than filled with invented values. Changing weapon settings
 does not delete incompatible saved items; they become available again if the
 matching martial art is selected later.
 
+Duplicating a custom build creates another editable build that references the
+same shared equipped item IDs and copies its Inner Ways and setup selections.
+Duplicating a preset converts its synthetic loadout into an editable build. For
+each preset slot, an exactly matching shared item is reused when available;
+otherwise, a concrete shared item is created from the preset values. A single
+physical item is never equipped into two slots of the duplicate.
+
 Saved gear can be equipped, edited in place, or deleted from the shared slot
 inventory. Editing keeps the item's ID, so it remains equipped in every build
 that uses it. Deletion is a two-step action: the first click arms a red `Confirm

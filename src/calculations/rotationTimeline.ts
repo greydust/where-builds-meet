@@ -15,9 +15,9 @@ export type PeriodicEffect = {
   action?: unknown[];
 };
 export type SubActionReference = {
-  value: string;
+  value: string | string[];
   requirement?: unknown;
-  fallback?: string;
+  fallback?: string | string[];
 };
 export type SkillRecord = {
   [key: string]: unknown;
@@ -449,7 +449,13 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   type ExpandedSkillSegment = {
     skillId: string;
     skill: SkillRecord;
-    reference?: SubActionReference;
+    reference?: {
+      value?: string;
+      requirement?: unknown;
+      fallback?: string;
+      choiceGroup?: number;
+      choiceIndex?: number;
+    };
     baseCastTime: number;
     baseStartOffset: number;
     actionIndexes: number[];
@@ -460,19 +466,21 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     const segments: ExpandedSkillSegment[] = [];
     const actions: EditableObject[] = [];
     let castTime = 0;
+    let nextChoiceGroup = 0;
     const normalizeSubAction = (value: string | SubActionReference): SubActionReference =>
       typeof value === "string" ? { value } : value;
-    const append = (currentSkillId: string, ancestry: Set<string>, reference?: SubActionReference) => {
-      if (ancestry.has(currentSkillId)) return;
-      const skill = skills[currentSkillId];
-      if (!skill) return;
-      const baseCastTime = typeof skill.castTime === "number" ? skill.castTime : 0;
-      const baseActions = Array.isArray(skill.action) ? (skill.action as EditableObject[]) : [];
-      const fallbackActions = reference?.fallback
-        ? Array.isArray(skills[reference.fallback]?.action)
-          ? (skills[reference.fallback].action as EditableObject[])
-          : []
-        : [];
+    const append = (
+      currentSkillId: string | undefined,
+      ancestry: Set<string>,
+      reference?: ExpandedSkillSegment["reference"],
+    ) => {
+      if (currentSkillId && ancestry.has(currentSkillId)) return;
+      const skill = currentSkillId ? skills[currentSkillId] : undefined;
+      const fallbackSkill = reference?.fallback ? skills[reference.fallback] : undefined;
+      if (!skill && !fallbackSkill) return;
+      const baseCastTime = typeof skill?.castTime === "number" ? skill.castTime : 0;
+      const baseActions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : [];
+      const fallbackActions = Array.isArray(fallbackSkill?.action) ? (fallbackSkill.action as EditableObject[]) : [];
       const actionSlotCount = Math.max(baseActions.length, fallbackActions.length);
       const actionIndexes = Array.from({ length: actionSlotCount }, (_, localIndex) => {
         const action = baseActions[localIndex];
@@ -485,8 +493,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         return actionIndex;
       });
       segments.push({
-        skillId: currentSkillId,
-        skill,
+        skillId: currentSkillId ?? reference?.fallback ?? "",
+        skill: skill ?? { name: "Inactive sub-action", castTime: 0, action: [], tags: ["SubAction"] },
         reference,
         baseCastTime,
         baseStartOffset: castTime,
@@ -497,11 +505,38 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         }),
       });
       castTime += baseCastTime;
-      const nextAncestry = new Set(ancestry).add(currentSkillId);
-      if (Array.isArray(skill.subAction))
+      const nextAncestry = currentSkillId ? new Set(ancestry).add(currentSkillId) : new Set(ancestry);
+      if (Array.isArray(skill?.subAction))
         skill.subAction.forEach((entry) => {
           const subAction = normalizeSubAction(entry);
-          append(subAction.value, nextAncestry, subAction);
+          appendSubAction(subAction, nextAncestry);
+        });
+    };
+    const appendSubAction = (reference: SubActionReference, ancestry: Set<string>) => {
+      const primary = Array.isArray(reference.value) ? reference.value : [reference.value];
+      const fallback = Array.isArray(reference.fallback)
+        ? reference.fallback
+        : reference.fallback
+          ? [reference.fallback]
+          : [];
+      const isSequence = Array.isArray(reference.value) || Array.isArray(reference.fallback);
+      if (!isSequence) {
+        append(primary[0], ancestry, {
+          value: primary[0],
+          requirement: reference.requirement,
+          fallback: fallback[0],
+        });
+        return;
+      }
+      const choiceGroup = nextChoiceGroup++;
+      const componentCount = Math.max(primary.length, fallback.length);
+      for (let choiceIndex = 0; choiceIndex < componentCount; choiceIndex += 1)
+        append(primary[choiceIndex], ancestry, {
+          value: primary[choiceIndex],
+          requirement: reference.requirement,
+          fallback: fallback[choiceIndex],
+          choiceGroup,
+          choiceIndex,
         });
     };
     append(skillId, new Set());
@@ -514,6 +549,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         ? Math.max(0, step.duration)
         : 0;
   const innerWayConditions = new Set(input.innerWayConditions);
+  const subActionChoices = new Map<string, boolean>();
   const rows: TimelineRow[] = [];
   const events: TimelineEvent[] = [];
   const attachedEvent = (step: RotationStep) => {
@@ -1192,18 +1228,23 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : [];
       };
       const reference = segment.reference;
-      const primaryPasses =
-        !reference?.requirement ||
-        requirementsPass(
-          reference.requirement,
-          buffs,
-          debuffs,
-          segment.skill.tags ?? [],
-          innerWayConditions,
-          weapons,
-          resources,
-          requirementState(),
-        );
+      const choiceKey = reference?.choiceGroup === undefined ? undefined : `${event.row.id}:${reference.choiceGroup}`;
+      let primaryPasses = choiceKey ? subActionChoices.get(choiceKey) : undefined;
+      if (primaryPasses === undefined) {
+        primaryPasses =
+          !reference?.requirement ||
+          requirementsPass(
+            reference.requirement,
+            buffs,
+            debuffs,
+            segment.skill.tags ?? [],
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
+          );
+        if (choiceKey) subActionChoices.set(choiceKey, primaryPasses);
+      }
       const selectedId = reference ? (primaryPasses ? reference.value : reference.fallback) : segment.skillId;
       const selectedSkill = selectedId ? skills[selectedId] : undefined;
       const selectedActions = Array.isArray(selectedSkill?.action) ? (selectedSkill.action as EditableObject[]) : [];

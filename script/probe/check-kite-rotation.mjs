@@ -34,8 +34,8 @@ assert(
   breakEvent?.type === "event" &&
     breakEvent.event === "Qi" &&
     breakEvent.targetQiRatio === 0 &&
-    breakEvent.after?.action === 0,
-  "The break must set Qi to zero immediately after the declared Charged hit.",
+    breakEvent.after?.action === 3,
+  "The break setup must set Qi to zero after the declared preceding action.",
 );
 assert(
   rotation.steps.at(-1)?.event === "BattleEnd" && rotation.steps.at(-1)?.startTime === 60,

@@ -15,6 +15,7 @@ import bowRingSetDefinitions from "../data/bow-ring-set.json";
 import { innerWayEntriesForTag } from "./data/innerWayDefinitions";
 import {
   defaultBuildSetup,
+  duplicateBuildState,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
@@ -519,6 +520,14 @@ export default function BuildTab({
     onBuildStateChange((current) => ({ ...current, activeBuildId: editingEntry.id }));
   }
 
+  function duplicateBuild() {
+    const id = `build-${Date.now()}`;
+    const name = t("ui.buildTab.copyOfNamedBuild", { name: buildEntryDisplayName(editingEntry) });
+    onBuildStateChange((current) => duplicateBuildState(current, editingEntry.id, { id, name }));
+    setEditingBuildId(id);
+    setEditingName(false);
+  }
+
   function updateSetup(nextSetup: BuildSetup) {
     if (editingEntry.isDefault) return;
     onBuildStateChange((current) => ({
@@ -713,16 +722,21 @@ export default function BuildTab({
                 </h3>
               )}
             </div>
-            <button
-              className="button button-small detail-active-button"
-              type="button"
-              disabled={editingEntry.id === buildState.activeBuildId}
-              onClick={activateBuild}
-            >
-              {editingEntry.id === buildState.activeBuildId
-                ? t("ui.buildTab.activeBuildAction")
-                : t("ui.buildTab.makeActive")}
-            </button>
+            <div className="detail-active-actions">
+              <button className="button button-secondary button-small" type="button" onClick={duplicateBuild}>
+                {t("ui.app.duplicate")}
+              </button>
+              <button
+                className="button button-small detail-active-button"
+                type="button"
+                disabled={editingEntry.id === buildState.activeBuildId}
+                onClick={activateBuild}
+              >
+                {editingEntry.id === buildState.activeBuildId
+                  ? t("ui.buildTab.activeBuildAction")
+                  : t("ui.buildTab.makeActive")}
+              </button>
+            </div>
           </div>
           <BuildManagement
             key={editingEntry.id}

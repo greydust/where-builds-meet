@@ -661,6 +661,74 @@ export function resolveBuildSetup(entry?: BuildEntry): BuildSetup {
   return normalizeBuildSetup(entry?.setup);
 }
 
+function duplicateGearId(buildId: string, slot: GearSlot, usedIds: Set<string>) {
+  const baseId = `${buildId}:gear:${slot}`;
+  let id = baseId;
+  let suffix = 2;
+  while (usedIds.has(id)) id = `${baseId}:${suffix++}`;
+  usedIds.add(id);
+  return id;
+}
+
+function cloneGearItem(item: GearItem, id: string): GearItem {
+  return {
+    ...item,
+    id,
+    baseAffix: { ...item.baseAffix },
+    additionalAffixes: item.additionalAffixes.map((affix) => ({ ...affix })),
+    ...(item.attunement ? { attunement: { ...item.attunement } } : {}),
+  };
+}
+
+export function duplicateBuildState(
+  current: BuildState,
+  sourceId: string,
+  duplicate: { id: string; name: string },
+): BuildState {
+  const source = current.entries.find((entry) => entry.id === sourceId);
+  if (!source) throw new Error(`Cannot duplicate missing build ${sourceId}.`);
+  if (current.entries.some((entry) => entry.id === duplicate.id))
+    throw new Error(`Cannot duplicate a build using existing ID ${duplicate.id}.`);
+
+  const baseEntry: BuildEntry = {
+    id: duplicate.id,
+    name: duplicate.name,
+    martialArts: [...buildEntryMartialArts(source)],
+    setup: normalizeBuildSetup(resolveBuildSetup(source)),
+  };
+  if (!source.isDefault) {
+    return {
+      ...current,
+      entries: [...current.entries, { ...baseEntry, equipped: { ...(source.equipped ?? {}) } }],
+    };
+  }
+
+  const presetInventory = resolveBuildInventory(source);
+  const usedGearIds = new Set(current.gearItems.map((item) => item.id));
+  const equippedGearIds = new Set<string>();
+  const addedItems: GearItem[] = [];
+  const equipped = Object.fromEntries(
+    gearSlots.flatMap((slot) => {
+      const presetItemId = presetInventory.equipped[slot];
+      const presetItem = presetItemId ? presetInventory.items.find((item) => item.id === presetItemId) : undefined;
+      if (!presetItem) return [];
+      const existing = [...current.gearItems, ...addedItems].find(
+        (candidate) => !equippedGearIds.has(candidate.id) && gearItemsExactlyMatch(candidate, presetItem),
+      );
+      const item = existing ?? cloneGearItem(presetItem, duplicateGearId(duplicate.id, slot, usedGearIds));
+      if (!existing) addedItems.push(item);
+      equippedGearIds.add(item.id);
+      return [[slot, item.id]];
+    }),
+  ) as Partial<Record<GearSlot, string>>;
+
+  return {
+    ...current,
+    gearItems: [...current.gearItems, ...addedItems],
+    entries: [...current.entries, { ...baseEntry, equipped }],
+  };
+}
+
 function migrateInventoryToShared(inventory: GearInventory, ownerId: string, sharedItems: GearItem[]) {
   const usedIds = new Set(sharedItems.map((item) => item.id));
   const migratedIds = new Map<string, string>();

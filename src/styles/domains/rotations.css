@@ -87,6 +87,15 @@
     background: var(--primary-soft);
   }
 
+  .rotation-list-item.incompatible {
+    opacity: 0.48;
+  }
+
+  .rotation-list-item.incompatible:hover,
+  .rotation-list-item.incompatible.editing {
+    opacity: 0.78;
+  }
+
   .rotation-list-item .button {
     flex: 0 0 auto;
     padding: 5px 7px;

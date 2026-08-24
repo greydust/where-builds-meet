@@ -46,9 +46,9 @@ type SkillDefinition = {
   cooldown?: number;
   action: SkillAction[];
   subAction?: Array<{
-    value: string;
+    value: string | string[];
     requirement?: Requirement[];
-    fallback?: string;
+    fallback?: string | string[];
   }>;
   modifier: SkillModifier[];
   tags: string[];
@@ -270,6 +270,14 @@ the primary component; a failing requirement uses `fallback` when provided or
 skips the component otherwise. The selection remains locked for that component
 cast.
 
+`value` and `fallback` may instead be equal-length arrays. The requirement is
+evaluated once when the first component in the group starts, and the entire
+primary or fallback sequence is locked from that result. Later components do
+not re-evaluate the requirement after earlier components change resources,
+effects, or cooldowns. Each paired position reserves enough action slots for
+either candidate, using the same stable attachment behavior as a scalar
+fallback.
+
 The parent skill's own cast and actions execute first, followed by each selected
 component in array order. Unlike a `trigger`, every selected component consumes
 its effective cast time. Component actions retain the selected component's tags
@@ -288,6 +296,17 @@ with only `value`; bundled data uses the object form. Nested lists are expanded
 in order, and a cyclic reference is ignored at the repeated edge. Conditional
 primary and fallback definitions are currently required to be leaf components;
 unconditional component references may still contain nested subactions.
+Conditional sequences provide grouping without adding nested conditional
+definitions.
+
+Burning Heart uses a conditional sequence immediately after its 0.4-second
+PreCharge. Inner Passion or Charge Enhancement selects and locks the Fast
+Charge/Fast Slam sequence; otherwise the Slow Charge/Slow Slam fallback is
+locked. Fast Charge takes exactly two-thirds of the corresponding Slow Charge
+time, with its internal action times scaled by the same ratio. Slam timing and
+damage timing are unchanged. Only the Fast Slam can receive Steadfast Devotion
+T4's `0.32` Base DMG Bonus, and it checks only that Inner Way condition because
+the acceleration state was already captured by the sequence selection.
 
 ### Extend
 

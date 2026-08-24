@@ -8,6 +8,7 @@ const loadBundledModule = async (entryPoint) => {
     format: "esm",
     platform: "node",
     target: "node22",
+    define: { "import.meta.env.DEV": "false" },
     write: false,
   });
   const source = bundled.outputFiles[0].text;
@@ -296,6 +297,46 @@ assert(
 );
 assert(presetLeftWeapon.baseAffix.value === 73.132, "Preset affixes must preserve their explicit saved values.");
 assert(presetLeftWeapon.attunement.value === 11, "Preset attunements must preserve their explicit saved values.");
+const presetEntry = {
+  id: preset.id,
+  name: preset.name,
+  isDefault: true,
+  presetId: preset.id,
+  martialArts: [...preset.martialArts],
+};
+const matchingPresetItem = {
+  ...presetLeftWeapon,
+  id: "existing-preset-match",
+  baseAffix: { ...presetLeftWeapon.baseAffix },
+  additionalAffixes: presetLeftWeapon.additionalAffixes.map((affix) => ({ ...affix })),
+  attunement: { ...presetLeftWeapon.attunement },
+};
+const presetDuplicateState = gear.duplicateBuildState(
+  { entries: [presetEntry], activeBuildId: preset.id, gearItems: [matchingPresetItem] },
+  preset.id,
+  { id: "preset-copy", name: "Preset Copy" },
+);
+const presetCopy = presetDuplicateState.entries.find((entry) => entry.id === "preset-copy");
+assert(
+  presetCopy &&
+    !presetCopy.isDefault &&
+    presetCopy.equipped.leftWeapon === matchingPresetItem.id &&
+    presetDuplicateState.gearItems.length === presetInventory.items.length &&
+    JSON.stringify(presetCopy.setup) === JSON.stringify(gear.resolveBuildSetup(presetEntry)),
+  "Duplicating a preset must create an editable build, reuse exact shared gear, materialize missing gear, and copy setup.",
+);
+const customDuplicateState = gear.duplicateBuildState(presetDuplicateState, presetCopy.id, {
+  id: "custom-copy",
+  name: "Custom Copy",
+});
+const customCopy = customDuplicateState.entries.find((entry) => entry.id === "custom-copy");
+assert(
+  customCopy &&
+    JSON.stringify(customCopy.equipped) === JSON.stringify(presetCopy.equipped) &&
+    JSON.stringify(customCopy.setup) === JSON.stringify(presetCopy.setup) &&
+    customDuplicateState.gearItems.length === presetDuplicateState.gearItems.length,
+  "Duplicating a custom build must reuse every equipped item and copy all setup selections without adding gear.",
+);
 assert(gear.maxGearRoll("minPhys", "affix", false) === 77.8, "Level 96 Normal Max must use the full affix roll.");
 assert(
   Math.abs(gear.maxGearRoll("minPhys", "affix", true) - 73.132) < 1e-9,

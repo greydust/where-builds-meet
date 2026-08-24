@@ -4727,12 +4727,14 @@ function RotationEditorTab({
   character,
   devMode,
   skillOverrides,
+  onSelectRotationWeapons,
   onMetricsChange,
   onActiveSimulationBundleChange,
 }: {
   character: CharacterState;
   devMode: boolean;
   skillOverrides: SkillOverrides;
+  onSelectRotationWeapons: (weapons: [WeaponId, WeaponId]) => boolean;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
   onActiveSimulationBundleChange: (
     bundle: RotationSimulationBundle,
@@ -4796,17 +4798,22 @@ function RotationEditorTab({
   const rotationScrollRef = useRef<HTMLDivElement>(null);
   const pendingEventScrollRef = useRef<{ stepIndex: number; top: number } | null>(null);
   const pendingSkillFocusRef = useRef<number | null>(null);
-  const visibleRotationEntries = useMemo(
+  const listedRotationEntries = useMemo(
     () =>
       rotationEntries.filter(
-        (entry) => (devMode || !entry.test) && rotationAvailableForWeapons(entry, settings.weapons),
+        (entry) =>
+          (devMode || !entry.test) && (!entry.isDefault || rotationAvailableForWeapons(entry, settings.weapons)),
       ),
     [devMode, rotationEntries, settings.weapons],
   );
+  const compatibleRotationEntries = useMemo(
+    () => listedRotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons)),
+    [listedRotationEntries, settings.weapons],
+  );
   const editingEntry =
-    visibleRotationEntries.find((entry) => entry.id === editingRotationId) ?? visibleRotationEntries[0];
+    listedRotationEntries.find((entry) => entry.id === editingRotationId) ?? compatibleRotationEntries[0];
   const resolvedActiveRotationId =
-    visibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ?? visibleRotationEntries[0]?.id;
+    compatibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ?? compatibleRotationEntries[0]?.id;
   const resolvedActiveRotationIdRef = useRef(resolvedActiveRotationId);
   resolvedActiveRotationIdRef.current = resolvedActiveRotationId;
   const rotationLocked = editingEntry?.isDefault === true;
@@ -4866,13 +4873,14 @@ function RotationEditorTab({
   }, []);
 
   useEffect(() => {
-    const fallback = visibleRotationEntries.find((entry) => entry.id === activeRotationId) ?? visibleRotationEntries[0];
+    const fallback =
+      compatibleRotationEntries.find((entry) => entry.id === activeRotationId) ?? compatibleRotationEntries[0];
     if (!fallback) return;
-    if (!visibleRotationEntries.some((entry) => entry.id === activeRotationId)) {
+    if (!compatibleRotationEntries.some((entry) => entry.id === activeRotationId)) {
       setActiveRotationId(fallback.id);
       sessionStorage.setItem("wwm-active-rotation-session-v1", fallback.id);
     }
-    if (!visibleRotationEntries.some((entry) => entry.id === editingRotationId)) {
+    if (!listedRotationEntries.some((entry) => entry.id === editingRotationId)) {
       setEditingRotationId(fallback.id);
       setRotation(JSON.parse(JSON.stringify(fallback.rotation)) as RotationRecord);
       setStartAnchor(
@@ -4882,7 +4890,7 @@ function RotationEditorTab({
       );
       setEventTimeDrafts({});
     }
-  }, [activeRotationId, editingRotationId, visibleRotationEntries]);
+  }, [activeRotationId, compatibleRotationEntries, editingRotationId, listedRotationEntries]);
 
   useEffect(() => {
     if (startAnchor.actionIndex === undefined) return;
@@ -5321,6 +5329,13 @@ function RotationEditorTab({
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
   }
+  function selectRotation(entry: RotationEntry) {
+    if (!rotationAvailableForWeapons(entry, settings.weapons)) {
+      const entryMartialArts = [...new Set(entry.martialArts)];
+      if (entryMartialArts.length !== 2 || !onSelectRotationWeapons([entryMartialArts[0], entryMartialArts[1]])) return;
+    }
+    editRotation(entry.id);
+  }
   function addRotation() {
     const current = migrateRotation(rotation);
     const id = `rotation-${Date.now()}`;
@@ -5370,7 +5385,7 @@ function RotationEditorTab({
   }
   function removeRotation(id: string) {
     if (rotationEntries.find((entry) => entry.id === id)?.isDefault) return;
-    if (visibleRotationEntries.length <= 1) return;
+    if (listedRotationEntries.length <= 1) return;
     const nextEntries = rotationEntries.filter((entry) => entry.id !== id);
     savedRotationSnapshotsRef.current?.delete(id);
     if (id !== editingRotationId && id !== activeRotationId) {
@@ -5380,7 +5395,7 @@ function RotationEditorTab({
     }
     const nextVisibleEntries = nextEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons));
     const nextActive =
-      nextVisibleEntries[Math.max(0, visibleRotationEntries.findIndex((entry) => entry.id === id) - 1)] ??
+      nextVisibleEntries[Math.max(0, listedRotationEntries.findIndex((entry) => entry.id === id) - 1)] ??
       nextVisibleEntries[0];
     if (!nextActive) return;
     setRotationEntries(nextEntries);
@@ -6156,46 +6171,50 @@ function RotationEditorTab({
             </button>
           </div>
           <div className="rotation-list-entries">
-            {visibleRotationEntries.map((entry) => (
-              <div
-                className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""}`}
-                key={entry.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => editRotation(entry.id)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") editRotation(entry.id);
-                }}
-              >
-                <strong>
-                  {entry.id === activeRotationId && (
-                    <span className="active-rotation-icon" title={t("ui.app.activeRotation")}>
-                      <UiIcon name="active" />
+            {listedRotationEntries.map((entry) => {
+              const incompatible = !rotationAvailableForWeapons(entry, settings.weapons);
+              return (
+                <div
+                  className={`rotation-list-item ${entry.id === activeRotationId ? "active" : ""} ${entry.id === editingRotationId ? "editing" : ""} ${incompatible ? "incompatible" : ""}`}
+                  key={entry.id}
+                  role="button"
+                  tabIndex={0}
+                  title={incompatible ? t("ui.app.selectThisRotationAndSwitchToItsMartial") : undefined}
+                  onClick={() => selectRotation(entry)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") selectRotation(entry);
+                  }}
+                >
+                  <strong>
+                    {entry.id === activeRotationId && (
+                      <span className="active-rotation-icon" title={t("ui.app.activeRotation")}>
+                        <UiIcon name="active" />
+                      </span>
+                    )}
+                    {rotationEntryDisplayName(entry)}
+                  </strong>
+                  {!entry.isDefault && (
+                    <span className="rotation-list-actions">
+                      <button
+                        className="rotation-remove-button"
+                        type="button"
+                        aria-label={t("ui.app.removeNamedRotation", {
+                          name: entry.rotation.name || t("ui.app.rotation"),
+                        })}
+                        title={t("ui.app.removeRotation")}
+                        disabled={listedRotationEntries.length <= 1}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          removeRotation(entry.id);
+                        }}
+                      >
+                        <UiIcon name="close" />
+                      </button>
                     </span>
                   )}
-                  {rotationEntryDisplayName(entry)}
-                </strong>
-                {!entry.isDefault && (
-                  <span className="rotation-list-actions">
-                    <button
-                      className="rotation-remove-button"
-                      type="button"
-                      aria-label={t("ui.app.removeNamedRotation", {
-                        name: entry.rotation.name || t("ui.app.rotation"),
-                      })}
-                      title={t("ui.app.removeRotation")}
-                      disabled={visibleRotationEntries.length <= 1}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        removeRotation(entry.id);
-                      }}
-                    >
-                      <UiIcon name="close" />
-                    </button>
-                  </span>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
           <div className="rotation-transfer-actions">
             <div>
@@ -7573,6 +7592,7 @@ export default function App() {
           character={character}
           devMode={devMode}
           skillOverrides={skillOverrides}
+          onSelectRotationWeapons={selectBuildWeapons}
           onMetricsChange={handleRotationMetrics}
           onActiveSimulationBundleChange={handleActiveSimulationBundle}
         />

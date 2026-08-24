@@ -58,7 +58,9 @@ try {
     Object.values(phalanxbaneSkills).flatMap((skill) =>
       Array.isArray(skill.subAction)
         ? skill.subAction.flatMap((entry) =>
-            typeof entry === "string" ? [entry] : [entry.value, entry.fallback].filter(Boolean),
+            typeof entry === "string"
+              ? [entry]
+              : [entry.value, entry.fallback].flatMap((value) => (Array.isArray(value) ? value : value ? [value] : [])),
           )
         : [],
     ),
@@ -210,6 +212,68 @@ try {
     "A passing conditional sub-action requirement must select every primary action.",
   );
 
+  const sequenceSkills = {
+    SequenceComposite: {
+      name: "Sequence composite",
+      castTime: 0,
+      action: [],
+      subAction: [
+        {
+          value: ["PrimaryStart", "PrimaryEnd"],
+          requirement: [{ target: "self", value: "ChoosePrimary" }],
+          fallback: ["FallbackStart", "FallbackEnd"],
+        },
+      ],
+      modifier: [],
+      tags: [],
+    },
+    PrimaryStart: {
+      name: "Primary start",
+      castTime: 1,
+      action: [{ type: "consume", target: "self", value: "ChoosePrimary", stack: 1, time: 0 }],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+    PrimaryEnd: {
+      name: "Primary end",
+      castTime: 2,
+      action: [{ type: "damage", phyCoef: 2, time: 2 }],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+    FallbackStart: { name: "Fallback start", castTime: 0.5, action: [], modifier: [], tags: ["SubAction"] },
+    FallbackEnd: {
+      name: "Fallback end",
+      castTime: 1,
+      action: [{ type: "damage", phyCoef: 1, time: 1 }],
+      modifier: [],
+      tags: ["SubAction"],
+    },
+  };
+  const sequenceRotation = { name: "Sequence probe", steps: [{ type: "skill", skill: "SequenceComposite" }] };
+  const primarySequence = calculateRotationBaseline(
+    bundle(
+      sequenceSkills,
+      sequenceRotation,
+      [],
+      { ChoosePrimary: { name: "Choose primary", duration: 10, maxStack: 1, effect: [] } },
+      [{ name: "ChoosePrimary", stack: 1 }],
+    ),
+  ).timeline.find((row) => row.id === "rotation-0");
+  assert(
+    closeTo(primarySequence?.effectiveCastTime, 3) &&
+      primarySequence?.actions.some((action) => action.type === "damage" && action.phyCoef === 2),
+    "A conditional sequence must keep its primary branch locked after its first component changes the requirement.",
+  );
+  const fallbackSequence = calculateRotationBaseline(bundle(sequenceSkills, sequenceRotation)).timeline.find(
+    (row) => row.id === "rotation-0",
+  );
+  assert(
+    closeTo(fallbackSequence?.effectiveCastTime, 1.5) &&
+      fallbackSequence?.actions.some((action) => action.type === "damage" && action.phyCoef === 1),
+    "A failed conditional sequence requirement must lock and execute the entire fallback branch.",
+  );
+
   const startBoundSkills = {
     Primer: {
       name: "Primer",
@@ -311,6 +375,106 @@ try {
   };
   assertBoundConsume("PhalanxbaneHeavyCharge2", "PhalanxbaneHeavySlam2", 0.96);
   assertBoundConsume("PhalanxbaneHeavyCharge3", "PhalanxbaneHeavySlam3", 1.61);
+  assertBoundConsume("PhalanxbaneHeavyFastCharge2", "PhalanxbaneHeavyFastSlam2", 0.64);
+  assertBoundConsume("PhalanxbaneHeavyFastCharge3", "PhalanxbaneHeavyFastSlam3", 1.0733333333333333);
+
+  assert(
+    phalanxbaneSkills.PhalanxbaneHeavyCharge2.modifier.length === 0 &&
+      phalanxbaneSkills.PhalanxbaneHeavyCharge3.modifier.length === 0 &&
+      phalanxbaneSkills.PhalanxbaneHeavyFastCharge2.modifier.length === 0 &&
+      phalanxbaneSkills.PhalanxbaneHeavyFastCharge3.modifier.length === 0,
+    "Burning Heart charge timing must be encoded by its selected component rather than a live cast-time modifier.",
+  );
+  assert(
+    closeTo(
+      phalanxbaneSkills.PhalanxbaneHeavyFastCharge2.castTime,
+      phalanxbaneSkills.PhalanxbaneHeavyCharge2.castTime / 1.5,
+    ) &&
+      closeTo(
+        phalanxbaneSkills.PhalanxbaneHeavyFastCharge3.castTime,
+        phalanxbaneSkills.PhalanxbaneHeavyCharge3.castTime / 1.5,
+      ),
+    "Fast Burning Heart charge components must take exactly the slow charge time divided by 1.5.",
+  );
+
+  const burningPrimer = {
+    name: "Burning Heart primer",
+    castTime: 0,
+    action: [
+      { type: "apply", target: "self", value: "InnerPassion", time: 0 },
+      { type: "apply", target: "self", value: "SteadfastDevotionT4", time: 0 },
+    ],
+    modifier: [],
+    tags: [],
+  };
+  const burningDefinitions = {
+    InnerPassion: { name: "Inner Passion", duration: 0.5, maxStack: 1, effect: [] },
+    SteadfastDevotionT4: { name: "Steadfast Devotion T4", duration: 10, maxStack: 1, effect: [] },
+  };
+  const fastBurning = calculateRotationBaseline(
+    bundle(
+      { ...phalanxbaneSkills, BurningPrimer: burningPrimer },
+      {
+        name: "Fast Burning Heart probe",
+        steps: [
+          { type: "skill", skill: "BurningPrimer" },
+          { type: "skill", skill: "PhalanxbaneHeavyCharged2" },
+        ],
+      },
+      [],
+      burningDefinitions,
+    ),
+  ).timeline.find((row) => row.id === "rotation-1");
+  const fastBurningDamageIndexes = fastBurning?.actions.flatMap((action, index) =>
+    action.type === "damage" ? [index] : [],
+  );
+  assert(
+    closeTo(fastBurning?.effectiveCastTime, 0.4 + 0.95 / 1.5 + 1.05),
+    "Inner Passion at the end of PreCharge must lock Burning Heart's exact fast sequence timing.",
+  );
+  assert(
+    fastBurningDamageIndexes?.every((index) =>
+      fastBurning?.actionModifierEffects?.[index]?.some((effect) => effect.baseDMGBonus === 0.32),
+    ),
+    "The fast Slam must retain Steadfast Devotion T4's Base DMG Bonus after Inner Passion expires during Charge.",
+  );
+
+  const slowBurning = calculateRotationBaseline(
+    bundle(
+      {
+        ...phalanxbaneSkills,
+        SteadfastPrimer: {
+          name: "Steadfast primer",
+          castTime: 0,
+          action: [{ type: "apply", target: "self", value: "SteadfastDevotionT4", time: 0 }],
+          modifier: [],
+          tags: [],
+        },
+      },
+      {
+        name: "Slow Burning Heart probe",
+        steps: [
+          { type: "skill", skill: "SteadfastPrimer" },
+          { type: "skill", skill: "PhalanxbaneHeavyCharged2" },
+        ],
+      },
+      [],
+      burningDefinitions,
+    ),
+  ).timeline.find((row) => row.id === "rotation-1");
+  const slowBurningDamageIndexes = slowBurning?.actions.flatMap((action, index) =>
+    action.type === "damage" ? [index] : [],
+  );
+  assert(
+    closeTo(slowBurning?.effectiveCastTime, 0.4 + 0.95 + 1.05),
+    "Burning Heart without Inner Passion or Charge Enhancement must lock the slow sequence.",
+  );
+  assert(
+    slowBurningDamageIndexes?.every(
+      (index) => !slowBurning?.actionModifierEffects?.[index]?.some((effect) => effect.baseDMGBonus === 0.32),
+    ),
+    "Steadfast Devotion T4 alone must not grant Slow Slam the fast-sequence Base DMG Bonus.",
+  );
 
   const phalanxbane = calculateRotationBaseline(
     bundle(phalanxbaneSkills, {

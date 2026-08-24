@@ -84,11 +84,6 @@
       "skill": "BurstingNine2Shots"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.18
-    },
-    {
       "type": "skill",
       "skill": "AllUnderJustice"
     },
@@ -284,14 +279,6 @@
     },
     {
       "type": "skill",
-      "skill": "RighteousReign6thHitCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "AllUnderJustice"
-    },
-    {
-      "type": "skill",
       "skill": "RighteousReign5thHit"
     },
     {
@@ -305,6 +292,10 @@
     {
       "type": "skill",
       "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SkyGrasped"
     },
     {
       "type": "skill",
