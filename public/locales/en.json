@@ -554,6 +554,7 @@
   "ui.app.default": "Default",
   "ui.app.defense": "Defense:",
   "ui.app.delete": "Delete",
+  "ui.app.deleteNamedRotationConfirmation": "Delete rotation “{name}”?",
   "ui.app.deleteStack": "Delete stack",
   "ui.app.deleteStep": "Delete step",
   "ui.app.description": "Description",

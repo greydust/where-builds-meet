@@ -5387,7 +5387,17 @@ function RotationEditorTab({
     persistRotationEntries(nextEntries);
   }
   function removeRotation(id: string) {
-    if (rotationEntries.find((entry) => entry.id === id)?.isDefault) return;
+    const entry = rotationEntries.find((candidate) => candidate.id === id);
+    if (
+      !entry ||
+      entry.isDefault ||
+      !window.confirm(
+        t("ui.app.deleteNamedRotationConfirmation", {
+          name: rotationEntryDisplayName(entry),
+        }),
+      )
+    )
+      return;
     if (listedRotationEntries.length <= 1) return;
     const nextEntries = rotationEntries.filter((entry) => entry.id !== id);
     savedRotationSnapshotsRef.current?.delete(id);

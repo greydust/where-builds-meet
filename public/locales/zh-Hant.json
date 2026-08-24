@@ -493,6 +493,7 @@
   "ui.app.default": "預設",
   "ui.app.defense": "防禦：",
   "ui.app.delete": "刪除",
+  "ui.app.deleteNamedRotationConfirmation": "刪除循環「{name}」？",
   "ui.app.deleteStack": "刪除層數",
   "ui.app.deleteStep": "刪除步驟",
   "ui.app.description": "說明",
