@@ -343,17 +343,17 @@ function calculateDamageBreakdownInternal(
       bamboocut: attributeDamage.bamboocut * attributeMultiplier * globalMultiplier,
     };
   };
-  const convertedRateStats = applyStatConversions(
-    {
-      effectivePrecision: derivedStats.effectivePrecision,
-      effectiveCrit: derivedStats.effectiveCrit,
-      effectiveAffinity: derivedStats.effectiveAffinity,
-      directCrit: derivedStats.directCrit,
-      directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
-      finalAffinity: derivedStats.finalAffinity,
-    },
-    effects as StatConversionEffectContainer[],
-  );
+  const rateStats = {
+    effectivePrecision: derivedStats.effectivePrecision,
+    effectiveCrit: derivedStats.effectiveCrit,
+    effectiveAffinity: derivedStats.effectiveAffinity,
+    directCrit: derivedStats.directCrit,
+    directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
+    finalAffinity: derivedStats.finalAffinity,
+  };
+  const convertedRateStats = effects.some((effect) => effect.convert !== undefined)
+    ? applyStatConversions(rateStats, effects as StatConversionEffectContainer[])
+    : rateStats;
   const SteadfastGuaranteedCrit =
     effects.some((effect) => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"));

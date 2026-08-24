@@ -163,8 +163,10 @@ export function calculateRotationDamageSequence(entries: RotationDamageEntry[], 
   return entries.map((entry) => ({ entry, breakdown: calculateRotationDamageEntry(entry, resolved, random) }));
 }
 
-function sumEntries(entries: RotationDamageEntry[]) {
-  return calculateRotationDamageSequence(entries).reduce((total, { breakdown }) => {
+type ResolvedRotationDamageSequence = ReturnType<typeof calculateRotationDamageSequence>;
+
+function sumResolvedSequence(sequence: ResolvedRotationDamageSequence) {
+  return sequence.reduce((total, { breakdown }) => {
     return {
       physical: total.physical + breakdown.physical,
       bellstrike: total.bellstrike + breakdown.bellstrike,
@@ -174,6 +176,10 @@ function sumEntries(entries: RotationDamageEntry[]) {
       total: total.total + breakdown.total,
     };
   }, emptyBreakdown());
+}
+
+function sumEntries(entries: RotationDamageEntry[]) {
+  return sumResolvedSequence(calculateRotationDamageSequence(entries));
 }
 
 function priorityRow(label: string, baselineDps: number, variantDps: number, maxRoll?: number): RotationPriority {
@@ -536,7 +542,7 @@ function timelineDamageEntries(
   startAnchor: RotationSimulationBundle["startAnchor"],
   overrides: RotationSimulationVariant = { label: "" },
   updateTimelineState = false,
-): RotationDamageEntry[] {
+): { entries: RotationDamageEntry[]; resolvedSequence?: ResolvedRotationDamageSequence } {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
   const damageListeners = rules.flatMap((rule, index) =>
     rule.listen?.event === "damage" ? [{ key: `${rule.source}:T${rule.tier}:${index}`, rule }] : [],
@@ -731,13 +737,17 @@ function timelineDamageEntries(
               timelineTime: actionTime,
               timelineOrder: actionOrder,
               sourceRowId: row.sourceRowId ?? row.id,
-              damageEvent: {
-                buffs: buffs.map((effect) => ({ ...effect })),
-                debuffs: debuffs.map((effect) => ({ ...effect })),
-                resources: { ...resources },
-                requirementState: { ...requirementState },
-                listeners: damageListeners,
-              },
+              ...(damageListeners.length
+                ? {
+                    damageEvent: {
+                      buffs: buffs.map((effect) => ({ ...effect })),
+                      debuffs: debuffs.map((effect) => ({ ...effect })),
+                      resources: { ...resources },
+                      requirementState: { ...requirementState },
+                      listeners: damageListeners,
+                    },
+                  }
+                : {}),
               updateTargetHPRatio: (ratio: number) => {
                 const currentRequirementState = { ...requirementState, targetHPPercentage: ratio * 100 };
                 context.targetHPRatio = ratio;
@@ -782,6 +792,15 @@ function timelineDamageEntries(
         ),
   );
   const targetMaxHP = input.rotation.targetHP;
+  const usesTargetDamage = typeof targetMaxHP === "number" && targetMaxHP > 0;
+  const stripTargetHPUpdater = (entry: (typeof damageEntries)[number]): RotationDamageEntry => {
+    const { updateTargetHPRatio: _updateTargetHPRatio, ...strippedEntry } = entry;
+    return strippedEntry;
+  };
+  const requiresOrderedDamageResolution = damageListeners.length > 0 || hpEvents.length > 0 || usesTargetDamage;
+  if (!requiresOrderedDamageResolution) {
+    return { entries: damageEntries.map(stripTargetHPUpdater) };
+  }
   let targetHPRatio = 1;
   const targetHPStateSnapshots = updateTimelineState
     ? timeline.flatMap((row) => {
@@ -838,9 +857,21 @@ function timelineDamageEntries(
     })),
   ].sort(compareOrderedItems);
   const resolvedDamage = new Map<string, DamageBreakdown>();
+  const resolvedByEntry = new Map<(typeof damageEntries)[number], DamageBreakdown>();
   const listenerCooldowns = new Map<string, number>();
   let replayInvocation = 0;
   let replayOrder = timeline.reduce((maximum, row) => Math.max(maximum, row.order), 0) + 1;
+  let orderedIndex = 0;
+  const insertOrderedItem = (newItem: OrderedItem) => {
+    let low = orderedIndex;
+    let high = ordered.length;
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2);
+      if (compareOrderedItems(ordered[middle], newItem) <= 0) low = middle + 1;
+      else high = middle;
+    }
+    ordered.splice(low, 0, newItem);
+  };
   const enqueueReplay = (
     sourceEntry: (typeof damageEntries)[number],
     listenerKey: string,
@@ -928,20 +959,19 @@ function timelineDamageEntries(
     if (replayEntries.length === 0) return false;
     if (updateTimelineState) timeline.push(replayRow);
     damageEntries.push(...replayEntries);
-    ordered.push(
-      ...replayEntries.map((entry) => ({
+    replayEntries.forEach((entry) =>
+      insertOrderedItem({
         kind: "damage" as const,
         time: entry.timelineTime,
         order: entry.timelineOrder,
         priority: 1,
         entry,
-      })),
+      }),
     );
-    ordered.sort(compareOrderedItems);
     return true;
   };
-  while (ordered.length > 0) {
-    const item = ordered.shift()!;
+  while (orderedIndex < ordered.length) {
+    const item = ordered[orderedIndex++];
     if (item.kind === "set") {
       targetHPRatio = item.ratio;
       continue;
@@ -952,6 +982,7 @@ function timelineDamageEntries(
     }
     item.entry.updateTargetHPRatio(targetHPRatio);
     const breakdown = calculateRotationDamageEntry(item.entry, resolvedDamage);
+    resolvedByEntry.set(item.entry, breakdown);
     const damageEvent = item.entry.damageEvent;
     if (!item.entry.replay && breakdown.total > 0 && damageEvent) {
       damageEvent.listeners.forEach(({ key, rule }) => {
@@ -979,7 +1010,7 @@ function timelineDamageEntries(
           listenerCooldowns.set(key, item.time + Math.max(0, listener.cooldown));
       });
     }
-    if (typeof targetMaxHP === "number" && targetMaxHP > 0) {
+    if (usesTargetDamage) {
       targetHPRatio = Math.max(0, targetHPRatio - breakdown.total / targetMaxHP);
     }
   }
@@ -988,7 +1019,11 @@ function timelineDamageEntries(
       compareTimelineTime(left.timelineTime, right.timelineTime) ||
       (left.timelineOrder ?? 0) - (right.timelineOrder ?? 0),
   );
-  return damageEntries.map(({ updateTargetHPRatio: _updateTargetHPRatio, ...entry }) => entry);
+  const resolvedSequence = damageEntries.map((entry) => ({
+    entry: stripTargetHPUpdater(entry),
+    breakdown: resolvedByEntry.get(entry) ?? emptyBreakdown(),
+  }));
+  return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence };
 }
 
 function timelineTiming(
@@ -1039,10 +1074,18 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     derivedStats: bundle.derivedStats,
     weapons: bundle.weapons,
   };
-  const baseline = timelineDamageEntries(timeline, bundle.timeline, state, bundle.startAnchor, { label: "" }, true);
+  const baselineResolution = timelineDamageEntries(
+    timeline,
+    bundle.timeline,
+    state,
+    bundle.startAnchor,
+    { label: "" },
+    true,
+  );
+  const baseline = baselineResolution.entries;
   const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
   let baselineDamage = 0;
-  const resolvedSequence = calculateRotationDamageSequence(baseline);
+  const resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
@@ -1099,10 +1142,12 @@ export function calculateRotationComparisons(
   const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
-    const entries = timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+    const resolution = timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+    const entries = resolution.entries;
+    const resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(entries);
     const calculation = {
       entries,
-      damage: sumEntries(entries).total,
+      damage: sumResolvedSequence(resolvedSequence).total,
       duration: variant.timeline
         ? timelineTiming(variantTimeline, bundle.startAnchor, entries).duration
         : baselineResult.duration,

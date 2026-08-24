@@ -612,6 +612,16 @@ against the cached timeline, damage entries, duration, total damage, and
 breakdown. `calculateRotationSimulation()` remains as a combined entry point for
 focused probes and callers that need both phases at once.
 
+Deterministic damage is resolved exactly once per baseline or variant. A
+rotation that tracks target HP or has damage-event listeners uses one ordered
+pass to update target state, dispatch listeners, enqueue replay actions, and
+retain each action's resolved breakdown for the final total. Replay actions are
+inserted into the unprocessed portion of that ordered queue without repeatedly
+sorting or shifting the full event list. A rotation with neither feature skips
+the ordered damage pass and damage-event state snapshots entirely; its final
+aggregation performs the single required damage resolution. Monte Carlo runs
+still resolve the stored entries independently with that run's random samples.
+
 Pure stat and attunement variants reuse the baseline timeline and its effect
 snapshots. Inner Way definitions also declare `altersTimeline`; every current
 Inner Way sets it to true, so removal variants conservatively rebuild the
