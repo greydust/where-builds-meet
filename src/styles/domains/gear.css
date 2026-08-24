@@ -181,16 +181,21 @@
   }
 
   .detail-active-button {
-    min-inline-size: min(100%, 6rem);
+    min-inline-size: 6rem;
   }
 
   .detail-active-actions {
     display: flex;
+    flex: 0 0 auto;
     min-inline-size: 0;
     flex-wrap: wrap;
     align-items: flex-start;
     justify-content: flex-end;
     gap: 10px;
+  }
+
+  .detail-active-actions .button {
+    white-space: nowrap;
   }
 
   .build-name-input {
