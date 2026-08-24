@@ -48,8 +48,8 @@ try {
     "Empirical Edge must apply the Cognition duration, stack-cap, and cooldown tier modifiers.",
   );
   assert(
-    empiricalEdge.effect.EmpiricalEdgeT2.effect[0].effect.minPhysAtk === 22.3 &&
-      empiricalEdge.effect.EmpiricalEdgeT2.effect[0].effect.maxPhysAtk === 44.7 &&
+    empiricalEdge.effect.EmpiricalEdgeT2.effect[0].stat.minPhys === 22.3 &&
+      empiricalEdge.effect.EmpiricalEdgeT2.effect[0].stat.maxPhys === 44.7 &&
       empiricalEdge.effect.EmpiricalEdgeT5.effect[0].effect.physDmgBonus === 0.025,
     "Empirical Edge must define its T2 attack and T5 Physical DMG bonuses as stat effects.",
   );

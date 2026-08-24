@@ -7,7 +7,9 @@
       "effect": [
         {
           "target": "Cognition",
-          "modify": { "maxStack": 3 }
+          "modify": {
+            "maxStack": 3
+          }
         }
       ],
       "trigger": [
@@ -35,18 +37,29 @@
       "effect": [
         {
           "target": "Cognition",
-          "modify": { "duration": 8 }
+          "modify": {
+            "duration": 8
+          }
         }
       ]
     },
     "EmpiricalEdgeT2": {
-      "effect": [{ "target": "stat", "effect": { "minPhysAtk": 22.3, "maxPhysAtk": 44.7 } }]
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 22.3,
+            "maxPhys": 44.7
+          }
+        }
+      ]
     },
     "EmpiricalEdgeT3": {
       "effect": [
         {
           "target": "Cognition",
-          "modify": { "maxStack": 5 }
+          "modify": {
+            "maxStack": 5
+          }
         }
       ]
     },
@@ -54,12 +67,21 @@
       "effect": [
         {
           "target": "Cognition",
-          "modify": { "cooldown": 0 }
+          "modify": {
+            "cooldown": 0
+          }
         }
       ]
     },
     "EmpiricalEdgeT5": {
-      "effect": [{ "target": "stat", "effect": { "physDmgBonus": 0.025 } }]
+      "effect": [
+        {
+          "target": "stat",
+          "effect": {
+            "physDmgBonus": 0.025
+          }
+        }
+      ]
     },
     "EmpiricalEdgeT6": {}
   }
