@@ -223,8 +223,10 @@ try {
       wearEquipsDetailed: {
         1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713006, 40.5)], { suffix: 56 }),
         2: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 72.6)], { suffix: 56 }),
+        9: detail({}, [], { suffix: 45 }),
         10: detail({ MIN_W_ATK: 86 }, [actualRow(9733002, 73.1)], { suffix: 56 }),
         11: detail({ MAX_W_ATK: 129 }, [actualRow(9733002, 57.1)], { suffix: 56 }),
+        21: detail({}, [], { suffix: 45 }),
       },
     },
     ["snowparting", "phalanxbane"],
@@ -237,8 +239,25 @@ try {
         { innerWay: "SoaringHigh", tier: "T6" },
         { innerWay: "SkyGripped", tier: "T6" },
         { innerWay: "EmpiricalEdge", tier: "T6" },
-      ]) && kiteSetup.weaponSets.Etherwrath === 4,
-    "Kite passive slots and four suffix-56 weapon-side pieces must import as T6 Inner Ways and Etherwrath 4-piece.",
+      ]) &&
+      kiteSetup.weaponSets.Etherwrath === 4 &&
+      kiteSetup.bowRingSet === "Critical",
+    "Kite passive slots, weapon set, and matching bow/ring suffixes must import into the build setup.",
+  );
+  const mismatchedBowRingShape = importer.parseOfficialGearExport(
+    {
+      roleName: "Mismatched Bow Ring",
+      wearEquipsDetailed: {
+        1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713001, 73.1)]),
+        9: detail({}, [], { suffix: 44 }),
+        21: detail({}, [], { suffix: 46 }),
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  assert(
+    mismatchedBowRingShape.exportValue.builds[0].setup.bowRingSet === "None",
+    "Different bow and ring suffixes must import as no bow/ring set.",
   );
   const mightDashboardShape = importer.parseOfficialGearExport(
     {

@@ -25,6 +25,7 @@ const officialProfileMap = officialProfileMapJson as {
   martialArts: Record<string, { name: string; weapon?: WeaponId }>;
   innerWays: Record<string, { name: string; innerWay?: string }>;
   weaponSets: Record<string, { weaponSet: string }>;
+  bowRingSets: Record<string, { bowRingSet: string }>;
 };
 const officialImportMap = officialImportMapJson as {
   baseAttributeKeys: Record<string, string>;
@@ -160,6 +161,15 @@ function isRelayed(...records: Array<UnknownRecord | undefined>) {
 
 function createId(prefix: string) {
   return globalThis.crypto?.randomUUID?.() ?? `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function importedBowRingSet(detailed: UnknownRecord) {
+  const suffixForSlot = (slot: string) => numericValue(asRecord(asRecord(detailed[slot])?.exVo)?.suffix);
+  const bowSuffix = suffixForSlot("21");
+  const ringSuffix = suffixForSlot("9");
+  if (bowSuffix === undefined || ringSuffix === undefined) return undefined;
+  if (bowSuffix !== ringSuffix) return "None";
+  return officialProfileMap.bowRingSets[String(bowSuffix)]?.bowRingSet;
 }
 
 function weaponFromImportedAffixes(rows: OfficialAffixRow[], selectedWeapons: [WeaponId, WeaponId]) {
@@ -356,10 +366,12 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
       return [];
     }),
   );
+  const bowRingSet = importedBowRingSet(detailed);
   const setup = normalizeBuildSetup({
     ...defaultBuildSetup,
     ...(completeInnerWays ? { innerWays: completeInnerWays } : {}),
     ...(Object.keys(importedWeaponSets).length ? { weaponSets: importedWeaponSets } : {}),
+    ...(bowRingSet ? { bowRingSet } : {}),
   });
   const buildId = createId("official-build");
   const equipped = Object.fromEntries(parsedPieces.map((piece, index) => [piece.equippedSlot, gearItems[index].id]));

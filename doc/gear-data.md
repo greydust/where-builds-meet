@@ -239,12 +239,14 @@ order even when neither weapon carries a unique damage-boost affix.
 `passiveSlots` contains the four ordered Inner Way IDs. The payload does not
 expose their tiers, so recognized complete four-slot selections import at T6 by
 policy; an incomplete or unknown selection retains the application's default
-Inner Ways. The role object also includes equipped bow/ring records, but the
-importer does not yet translate those set selections. Recognized suffix IDs on
+Inner Ways. Bow slot 21 and ring slot 9 use suffix IDs `44`, `45`, and `46` for
+Precision, Critical, and Affinity respectively. Matching known suffixes select
+that bow/ring set; different suffixes explicitly select `None`. Missing or
+unknown suffix data retains the application's default selection. Recognized suffix IDs on
 Left Weapon, Right Weapon, Disc, and Pendant determine weapon-set piece counts:
 two recognized matching pieces select the two-piece tier and four select the
 four-piece tier. Official suffix `56` maps to Etherwrath. Unknown weapon-set,
-armor-set, bow/ring, and arsenal data continues using the application's default
+armor-set and arsenal data continues using the application's default
 setup values.
 
 Tier 96 Stonesplit Might armor attunements use IDs `280201` through `280205`:

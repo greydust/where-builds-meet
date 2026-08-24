@@ -26,5 +26,10 @@
   },
   "weaponSets": {
     "56": { "weaponSet": "Etherwrath" }
+  },
+  "bowRingSets": {
+    "44": { "bowRingSet": "Precision" },
+    "45": { "bowRingSet": "Critical" },
+    "46": { "bowRingSet": "Affinity" }
   }
 }

@@ -1214,16 +1214,16 @@ triggered refund resolves immediately after the End Hit actions and remains
 subject to the four-point Heaven's Will cap.
 
 Bursting Nine is a 1.3-second Mystic skill whose nine hits currently land at
-cast end. Its first hit uses physical coefficient `2.5471` and `492` flat
-physical bonus. The second hit uses 30% of both values (`0.76413` and `147.6`),
-while hits three through nine each use 10% (`0.25471` and `49.2`). Its
+cast end. Its first hit uses physical coefficient `2.546` and `365` flat
+physical bonus. The second hit uses 30% of both values (`0.7638` and `109.5`),
+while hits three through nine each use 10% (`0.2546` and `36.5`). Its
 Single-Target or Area classification remains unset until that mechanic is
 confirmed.
 
-Bursting Nine 2 Shots retains the same 1.3-second cast and first nine hits,
-then adds a second set of nine cast-end hits. Each second-set hit uses 50% of
-the corresponding first-set hit's physical coefficient and flat physical
-bonus.
+Bursting Nine 2 Shots uses a 1.7-second cast. Its first nine hits retain the
+base skill's values and land at 1.3 seconds, then a second set lands at cast end.
+Each second-set hit uses 50% of the corresponding first-set hit's physical
+coefficient and flat physical bonus.
 
 Etherwrath is available to Bamboocut Kite and Stonesplit Strength. Two pieces
 add `78` minimum physical attack. With four pieces, every damage action adds or
