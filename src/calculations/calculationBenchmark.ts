@@ -14,7 +14,13 @@ export type CalculationBenchmarkPhase =
   | "replayQueueInsertion"
   | "damageCalculation"
   | "damageStatResolution"
+  | "damageStatEffectDetection"
+  | "damageStatPipeline"
   | "damageEffectAggregation"
+  | "damageEffectFieldAggregation"
+  | "damageChannelSnapshot"
+  | "damageAttunementAggregation"
+  | "damageSharedMultiplierResolution"
   | "damageRateResolution"
   | "damageVariantCalculation"
   | "damagePhysicalChannel"
@@ -102,7 +108,13 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
     ["targetStatePropagation", "Target-state propagation"],
     ["damageCalculation", "Real damage formula calculation"],
     ["damageStatResolution", "Per-hit stat/effective-stat resolution"],
+    ["damageStatEffectDetection", "Stat-effect detection"],
+    ["damageStatPipeline", "Stat/effective-stat pipeline execution"],
     ["damageEffectAggregation", "Effect and attunement aggregation"],
+    ["damageEffectFieldAggregation", "Damage-effect field aggregation"],
+    ["damageChannelSnapshot", "Resolved attack-channel snapshot"],
+    ["damageAttunementAggregation", "Matching attunement aggregation"],
+    ["damageSharedMultiplierResolution", "Shared damage-multiplier resolution"],
     ["damageRateResolution", "Outcome-rate and conversion resolution"],
     ["damageVariantCalculation", "Damage variant evaluation (parent)"],
     ["damagePhysicalChannel", "Physical-channel variant math"],
@@ -147,6 +159,22 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
       duration("damageRateResolution") -
       duration("damageVariantCalculation") -
       duration("damageOutcomeAggregation"),
+    "derived",
+  );
+  addRow(
+    "remainder",
+    "Other per-hit stat resolution",
+    duration("damageStatResolution") - duration("damageStatEffectDetection") - duration("damageStatPipeline"),
+    "derived",
+  );
+  addRow(
+    "remainder",
+    "Other effect and attunement aggregation",
+    duration("damageEffectAggregation") -
+      duration("damageEffectFieldAggregation") -
+      duration("damageChannelSnapshot") -
+      duration("damageAttunementAggregation") -
+      duration("damageSharedMultiplierResolution"),
     "derived",
   );
   addRow(

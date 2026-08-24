@@ -1,4 +1,5 @@
 import type { CharacterStats, StatDefinition } from "../types";
+import { DIRECT_CRIT_RATE_CAP } from "../calculations/statCaps";
 
 export const combatStats: StatDefinition[] = [
   { key: "minPhys", label: "Min Physical Attack" },
@@ -8,7 +9,14 @@ export const combatStats: StatDefinition[] = [
   { key: "momentum", label: "Momentum" },
   { key: "precision", label: "Precision Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "crit", label: "Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
-  { key: "directCrit", label: "Direct Critical Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  {
+    key: "directCrit",
+    label: "Direct Critical Rate",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+    maximum: DIRECT_CRIT_RATE_CAP,
+  },
   { key: "affinity", label: "Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "directAffinity", label: "Direct Affinity Rate", unit: "%", showUnitInLabel: false, showUnitInInput: true },
 ];

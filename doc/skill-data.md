@@ -217,6 +217,9 @@ Consumption occurs at the declared action time. The default amount is one;
 }
 ```
 
+Inner-way and setup trigger actions also support direct `consume` actions, so a
+damage trigger can remove a status without spawning a helper skill.
+
 By default, `first` is resolved when the consume action executes. Add
 `"resolveAt": "skillStart"` to remember the first available operand when the
 skill starts and consume only that remembered effect later. If the remembered
@@ -1156,10 +1159,9 @@ variant's first hit at 0.6 seconds and adds a second hit at 1.7 seconds with
 physical coefficient `1.1609`, `321` flat physical bonus, and `175` flat
 attribute bonus.
 
-A `skillCooldown` requirement with comparison `ready` checks whether the named
-skill's cooldown has expired at the current timeline event. This supports
-cooldown-aware component replacement without embedding skill-specific fallback
-logic in the calculator.
+A requirement with `operator: "not"` and exactly one operand negates that
+operand. This allows data-defined component selection to require that a buff or
+debuff is absent without adding mechanic-specific calculator branches.
 
 Righteous Reign 5th Hit (Gauntlet 5LA) is a 0.8-second Light Attack with one
 cast-end damage action. Its physical coefficient is `0.4674`, with `130` flat
@@ -1179,11 +1181,13 @@ coefficient `0.9769`, `270` flat physical bonus, and `147` flat attribute bonus.
 
 Vile Condemned (Gauntlet Charged) contains a one-second
 `VileCondemnedCharge` component followed by a conditional release component.
-At release start, Soaring High T0, three or more Heaven's Will, and a ready End
-Hit cooldown select `VileCondemnedEndHit`; otherwise the component falls back to
-`VileCondemnedHit`. The weaker hit uses physical
+At release start, Soaring High T0, three or more Heaven's Will, and the absence
+of the self status `VileCondemnedEndCooldown` select `VileCondemnedEndHit`;
+otherwise the component falls back to `VileCondemnedHit`. End Hit applies that
+status `0.7375` seconds into its release; the status has no stat effect and
+expires after 18 seconds. The weaker hit uses physical
 coefficient `7.2178`, `1997` flat physical bonus, and `1088` flat attribute
-bonus. End Hit has an 18-second cooldown and uses physical coefficient
+bonus. End Hit uses physical coefficient
 `11.7527`, `3250` flat physical bonus, and `1771` flat attribute bonus. With
 Soaring High T6, exactly four Heaven's Will at release start locks a `0.3`
 base-damage bonus and `0.1` Critical Damage bonus for End Hit. The normal hit
@@ -1227,12 +1231,14 @@ resource and cooldown conditions for End Hit otherwise pass. T0 also grants
 normal and End Hit release components carry the `VileCondemned` tag.
 Soaring High T2 adds `74.4` minimum physical attack through the shared stat
 effect pipeline.
-Soaring High T3 clears `VileCondemnedEndHit` cooldown when a damaging action
+Soaring High T3 consumes `VileCondemnedEndCooldown` when a damaging action
 tagged `Falcon` hits an exhausted target. The reset occurs after the qualifying
 damage action resolves and affects subsequent Vile Condemned releases.
 Soaring High T4 uses the generic `convert` effect for actions tagged
 `VileCondemned`. It converts Final Affinity to Direct Critical at a 1:1 ratio,
-up to `0.12` per action, before the ordinary outcome rates are calculated.
+up to `0.12` per action, before the ordinary outcome rates are calculated. The
+global `0.2` Direct Critical cap limits the amount actually converted; Final
+Affinity that cannot fit below that cap remains Final Affinity.
 Empirical Edge T0 listens to damage tagged `MartialArtEffect` and applies one
 stack of Cognition after the hit. Cognition lasts five seconds, refreshes on an
 accepted application, stacks three times, and has a one-second application

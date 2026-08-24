@@ -9,7 +9,9 @@ const viteServer = await createServer({
 });
 
 try {
-  const { applyStatConversions } = await viteServer.ssrLoadModule("/src/calculations/statEffects.ts");
+  const { applyStatConversions, calculateStatsWithEffects } = await viteServer.ssrLoadModule(
+    "/src/calculations/statEffects.ts",
+  );
   const { calculateDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const soaringHigh = (await viteServer.ssrLoadModule("/data/innerway/soaring-high.json")).default;
@@ -24,6 +26,20 @@ try {
   assertClose(generic.source, 0.1, "Conversion must subtract the capped amount from its named source.");
   assertClose(generic.target, 0.25, "Conversion must add the ratio-adjusted amount to its named target.");
   assertClose(generic.untouched, 3, "Conversion must preserve unrelated stats.");
+
+  const cappedDirectCrit = applyStatConversions({ finalAffinity: 0.2, directCrit: 0.15 }, [
+    { convert: { from: "finalAffinity", to: "directCrit", ratio: 1, max: 0.12 } },
+  ]);
+  assertClose(cappedDirectCrit.finalAffinity, 0.15, "Conversion must leave unconverted Affinity in its source.");
+  assertClose(cappedDirectCrit.directCrit, 0.2, "Conversion must stop at the 20% Direct Critical cap.");
+
+  const cappedCharacter = calculateStatsWithEffects(
+    { ...emptyStats, directCrit: 0.18 },
+    [{ stat: { directCrit: 0.05 } }],
+    enemyProfiles["96"].judgementResistance,
+  );
+  assertClose(cappedCharacter.stats.directCrit, 0.2, "Character Direct Critical must stop at its 20% cap.");
+  assertClose(cappedCharacter.derivedStats.directCrit, 0.2, "Derived Direct Critical must preserve the cap.");
 
   const t4Rule = soaringHigh.effect.SoaringHighT4.effect[0];
   const conversion = t4Rule.effect.convert;
@@ -74,8 +90,12 @@ try {
       effects: [t4Rule.effect],
     },
   );
-  assertClose(breakdown.outcomeRates.affinity, 0.08, "T4 must remove 12% from Final Affinity.");
-  assertClose(breakdown.outcomeRates.critical, 0.62, "T4 must add the converted 12% to Direct Critical.");
+  assertClose(
+    breakdown.outcomeRates.affinity,
+    0.1,
+    "T4 must leave Affinity that cannot fit under the Direct Critical cap.",
+  );
+  assertClose(breakdown.outcomeRates.critical, 0.6, "T4 must stop converted Direct Critical at 20%.");
   assertClose(breakdown.outcomeRates.normal, 0.3, "T4 must preserve the remaining outcome probability.");
 
   console.log("Generic stat conversion and Soaring High T4 checks passed.");

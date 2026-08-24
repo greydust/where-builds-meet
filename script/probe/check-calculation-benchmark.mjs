@@ -40,8 +40,18 @@ try {
     throw new Error("The benchmark must report damage-formula time and call count.");
   if (!rows.some((row) => row.phase === "Per-hit stat/effective-stat resolution"))
     throw new Error("The benchmark must split per-hit stat resolution from the damage formula.");
+  if (!rows.some((row) => row.phase === "Stat-effect detection"))
+    throw new Error("The benchmark must split stat-effect detection from stat resolution.");
+  if (!rows.some((row) => row.phase === "Stat/effective-stat pipeline execution"))
+    throw new Error("The benchmark must split the stat pipeline from stat resolution.");
   if (!rows.some((row) => row.phase === "Effect and attunement aggregation"))
     throw new Error("The benchmark must split effect aggregation from the damage formula.");
+  if (!rows.some((row) => row.phase === "Damage-effect field aggregation"))
+    throw new Error("The benchmark must split damage-effect fields from aggregation.");
+  if (!rows.some((row) => row.phase === "Resolved attack-channel snapshot"))
+    throw new Error("The benchmark must split attack-channel snapshots from aggregation.");
+  if (!rows.some((row) => row.phase === "Matching attunement aggregation"))
+    throw new Error("The benchmark must split attunements from effect aggregation.");
   if (!rows.some((row) => row.phase === "Outcome-rate and conversion resolution"))
     throw new Error("The benchmark must split outcome-rate resolution from the damage formula.");
   if (!rows.some((row) => row.phase === "Damage variant evaluation (parent)"))

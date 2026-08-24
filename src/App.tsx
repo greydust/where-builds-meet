@@ -1597,8 +1597,9 @@ function StatField({
   function commitValue(rawValue: string) {
     const normalized = Number(rawValue);
     const displayedValue = Number.isFinite(normalized) ? normalized : 0;
-    const value = definition.unit === "%" ? displayedValue / 100 : displayedValue;
-    setDraftValue(String(displayedValue));
+    const uncappedValue = definition.unit === "%" ? displayedValue / 100 : displayedValue;
+    const value = Math.min(definition.maximum ?? Number.POSITIVE_INFINITY, uncappedValue);
+    setDraftValue(String(displayValue(value)));
     setEditing(false);
     setDirty(false);
     onChange(definition.key, value);
@@ -1638,7 +1639,13 @@ function StatField({
         <input
           type="number"
           min="0"
-          max={definition.unit === "%" ? 100 : undefined}
+          max={
+            definition.maximum !== undefined
+              ? displayValue(definition.maximum)
+              : definition.unit === "%"
+                ? 100
+                : undefined
+          }
           step={definition.step ?? "0.01"}
           value={draftValue}
           onFocus={() => {

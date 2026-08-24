@@ -1,4 +1,5 @@
 import type { CharacterStats } from "../types";
+import { DIRECT_CRIT_RATE_CAP } from "./statCaps";
 
 // Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
 export const JUDGEMENT_RESISTANCE = 0.65;
@@ -51,10 +52,11 @@ export function calculateRates(
   options: { SteadfastGuaranteedCrit?: boolean } = {},
 ): RateCalculation {
   const clampRate = (value: number) => Math.min(1, Math.max(0, value));
+  const baseDirectCrit = Math.min(DIRECT_CRIT_RATE_CAP, Math.max(0, input.directCrit));
   const finalAffinity = clampRate(input.finalAffinity ?? input.effectiveAffinity + input.directAffinity);
   const baseFinalCrit =
-    finalAffinity + input.directCrit + input.effectiveCrit <= 1
-      ? (input.effectiveCrit + input.directCrit) * input.effectivePrecision
+    finalAffinity + baseDirectCrit + input.effectiveCrit <= 1
+      ? (input.effectiveCrit + baseDirectCrit) * input.effectivePrecision
       : (1 - finalAffinity) * input.effectivePrecision;
   const SteadfastGuaranteedCrit = options.SteadfastGuaranteedCrit === true;
   if (SteadfastGuaranteedCrit && baseFinalCrit >= 0.75) {
@@ -70,7 +72,7 @@ export function calculateRates(
       affinityRate: 0,
     };
   }
-  const directCrit = input.directCrit + (SteadfastGuaranteedCrit ? 0.15 : 0);
+  const directCrit = Math.min(DIRECT_CRIT_RATE_CAP, baseDirectCrit + (SteadfastGuaranteedCrit ? 0.15 : 0));
   const uncappedFinalCrit = SteadfastGuaranteedCrit
     ? finalAffinity + directCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + directCrit) * input.effectivePrecision
@@ -120,7 +122,7 @@ export function calculateDerivedStats(
   const crit = effectiveValue("crit");
   const effectiveCritBonus = effectiveValue("effectiveCritBonus");
   const affinity = effectiveValue("affinity");
-  const directCrit = effectiveValue("directCrit");
+  const directCrit = Math.min(DIRECT_CRIT_RATE_CAP, Math.max(0, effectiveValue("directCrit")));
   const directAffinity = effectiveValue("directAffinity");
   const effectivePrecision = Math.min(
     1,

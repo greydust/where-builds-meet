@@ -1,6 +1,9 @@
 {
   "name": "Dummy 1 Min Infinite Vitality",
-  "martialArts": ["heavenwill", "skygrasp"],
+  "martialArts": [
+    "heavenwill",
+    "skygrasp"
+  ],
   "eventTimeReference": "battleStart",
   "start": {
     "step": 2,
@@ -86,7 +89,7 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.04
+      "duration": 0.18
     },
     {
       "type": "skill",
@@ -153,9 +156,12 @@
       "skill": "Deflect"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.58
+      "type": "skill",
+      "skill": "LeapingToad"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "skill",
@@ -188,7 +194,7 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.15
+      "duration": 0.3
     },
     {
       "type": "skill",
@@ -239,17 +245,16 @@
       "skill": "Deflect"
     },
     {
-      "type": "event",
-      "event": "Qi",
-      "after": {
-        "action": 0
-      },
-      "targetQiRatio": 0
+      "type": "skill",
+      "skill": "SoaringSpin1"
     },
     {
       "type": "event",
-      "event": "Delay",
-      "duration": 0.13
+      "event": "Qi",
+      "after": {
+        "action": 3
+      },
+      "targetQiRatio": 0
     },
     {
       "type": "skill",
@@ -270,16 +275,19 @@
     },
     {
       "type": "skill",
-      "skill": "SoaringSpin2"
-    },
-    {
-      "type": "skill",
       "skill": "BurstingNine2Shots"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.04
+      "type": "skill",
+      "skill": "HeavenwillDeclared"
+    },
+    {
+      "type": "skill",
+      "skill": "CelestialMandate"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
     },
     {
       "type": "skill",
@@ -295,19 +303,11 @@
     },
     {
       "type": "skill",
-      "skill": "HeavenwillDeclared"
-    },
-    {
-      "type": "skill",
       "skill": "SnaringLashCancel"
     },
     {
       "type": "skill",
       "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "CelestialMandate"
     },
     {
       "type": "skill",

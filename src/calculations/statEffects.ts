@@ -1,6 +1,7 @@
 import type { CharacterStats } from "../types";
 import { calculateDerivedStats, type DerivedStats } from "./effectiveStats";
 import { resolveSegmentValue } from "./dynamicValues";
+import { applyCharacterStatCaps, calculationStatMaximum } from "./statCaps";
 
 export type StatFormula = {
   source: string;
@@ -47,9 +48,16 @@ export function applyStatConversions<T extends Record<string, number>>(
       typeof conversion.max === "number" && Number.isFinite(conversion.max)
         ? Math.max(0, conversion.max)
         : Number.POSITIVE_INFINITY;
-    const convertedAmount = Math.min(Math.max(0, source), maximum);
+    const targetMaximum = calculationStatMaximum(conversion.to);
+    const targetCapacity =
+      targetMaximum !== undefined && conversion.ratio > 0
+        ? Math.max(0, targetMaximum - target) / conversion.ratio
+        : Number.POSITIVE_INFINITY;
+    const convertedAmount = Math.min(Math.max(0, source), maximum, targetCapacity);
     convertedStats[conversion.from] = normalizeInternalValue(source - convertedAmount);
-    convertedStats[conversion.to] = normalizeInternalValue(target + convertedAmount * conversion.ratio);
+    convertedStats[conversion.to] = normalizeInternalValue(
+      Math.min(targetMaximum ?? Number.POSITIVE_INFINITY, target + convertedAmount * conversion.ratio),
+    );
   }
 
   return convertedStats as T;
@@ -94,7 +102,7 @@ export function applyStatEffects(baseStats: CharacterStats, effects: StatEffectC
       adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
     }),
   );
-  return adjustedStats;
+  return applyCharacterStatCaps(adjustedStats);
 }
 
 export function applyDerivedStatEffects(
@@ -125,7 +133,7 @@ export function applyDerivedStatEffects(
       adjustedStats[statKey] = normalizeInternalValue(adjustedStats[statKey] + resolved);
     }),
   );
-  return adjustedStats;
+  return applyCharacterStatCaps(adjustedStats);
 }
 
 export function collectEffectiveStatEffects(stats: CharacterStats, effects: EffectiveStatEffectContainer[]) {

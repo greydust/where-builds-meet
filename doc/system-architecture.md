@@ -296,13 +296,18 @@ to the character values used for damage:
 simulation base stats
   -> fixed base-stat effects
   -> base-stat formula effects
+  -> character stat caps
   -> initial effective stats
   -> derived-source formula effects
+  -> character stat caps
   -> effectiveStat effects
   -> final stats + final derived stats
 ```
 
 Equipped gear contributes one data-derived `stat` effect to this same pipeline.
+Direct Critical Rate is capped at `0.2` (20%) in this shared pipeline and again
+when effective per-action values are resolved, so displayed stats, overrides,
+setup effects, and damage calculations cannot bypass the cap.
 With no overrides, the simulation base is the empty character and all displayed
 stats come from the innate character system, character talents, gear, Inner
 Ways, martial-art talents, arsenal, bow/ring set, weapon and armor sets, food, and
@@ -634,6 +639,9 @@ and attunement aggregation, outcome-rate conversion, damage-variant evaluation,
 and final outcome weighting. Variant evaluation reports physical and attribute
 channel math as nested children so repeated attribute-effect scans remain
 visible without being double-counted in the formula remainder.
+Stat resolution separately reports effect detection and shared stat-pipeline
+execution. Effect aggregation reports damage-effect fields, resolved channel
+snapshots, matching attunements, and shared multiplier construction.
 Derived remainder rows reconcile unclassified work without adding nested replay
 measurements twice under their listener parent. Timeline queue ordering,
 effect-trigger evaluation, and active-effect resolution retain their own call

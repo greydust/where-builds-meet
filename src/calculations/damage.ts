@@ -151,11 +151,14 @@ function calculateDamageBreakdownInternal(
 ): DamageBreakdown {
   const { stats: baseStats, attunement, skillTags, weapons, enemy, derivedStats: baseDerivedStats, effects } = context;
   const statResolutionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+  const statEffectDetectionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const hasStatEffects = effects.some(
     (effect) =>
       (effect.stat && typeof effect.stat === "object") ||
       (effect.effectiveStat && typeof effect.effectiveStat === "object"),
   );
+  if (import.meta.env.DEV) finishCalculationPhase("damageStatEffectDetection", statEffectDetectionStartedAt);
+  const statPipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const calculatedStats = hasStatEffects
     ? calculateStatsWithEffects(
         baseStats,
@@ -165,6 +168,7 @@ function calculateDamageBreakdownInternal(
     : undefined;
   const stats = calculatedStats?.stats ?? baseStats;
   const derivedStats = calculatedStats?.derivedStats ?? baseDerivedStats;
+  if (import.meta.env.DEV) finishCalculationPhase("damageStatPipeline", statPipelineStartedAt);
   if (import.meta.env.DEV) finishCalculationPhase("damageStatResolution", statResolutionStartedAt);
   const effectAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const effectValue = (value: unknown) => {
@@ -192,6 +196,7 @@ function calculateDamageBreakdownInternal(
   const physicalBonus = context.isDot ? 0 : numberValue(action.phyBonus);
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
   const path = mainAttribute(weapons);
+  const effectFieldAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const resolvedEffects = {
     attackBonus: {
       physical: 0,
@@ -238,6 +243,8 @@ function calculateDamageBreakdownInternal(
     resolvedEffects.affinityDmgBonus += effectValue(effect.affinityDmgBonus);
     resolvedEffects.attributeDmgBonus += effectValue(effect.attributeDMGBonus);
   }
+  if (import.meta.env.DEV) finishCalculationPhase("damageEffectFieldAggregation", effectFieldAggregationStartedAt);
+  const channelSnapshotStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const physicalAttackMultiplier = 1 + resolvedEffects.attackBonus.physical;
   const minPhysicalAttack = derivedStats.effectiveMinPhys * physicalAttackMultiplier;
   const maxPhysicalAttack = derivedStats.effectiveMaxPhys * physicalAttackMultiplier;
@@ -276,6 +283,8 @@ function calculateDamageBreakdownInternal(
       enemy.bamboocutResistance + resolvedEffects.attributeResistance.bamboocut,
     ],
   ] as Array<[number, number, number, number, AttributeDamageType, number]>;
+  if (import.meta.env.DEV) finishCalculationPhase("damageChannelSnapshot", channelSnapshotStartedAt);
+  const attunementAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   let attunementBonus = 0;
   let attunementPhysicalPenetration = 0;
   let attunementFormlessPenetration = 0;
@@ -294,6 +303,8 @@ function calculateDamageBreakdownInternal(
     attunementPhysicalPenetration += addAttunementStat("physicalPenetration");
     attunementFormlessPenetration += addAttunementStat("formlessPenetration");
   }
+  if (import.meta.env.DEV) finishCalculationPhase("damageAttunementAggregation", attunementAggregationStartedAt);
+  const sharedMultiplierStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const skillWeaponArtBonus = weaponArtBonus(stats, skillTags);
   const mysticSkillBonus = mysticSkillDamageBonus(stats, skillTags);
   const damageBonusCategory1 =
@@ -307,6 +318,7 @@ function calculateDamageBreakdownInternal(
     (1 + resolvedEffects.baseDmgBonus) *
     (1 + damageBonusCategory1 + resolvedEffects.attributeDmgBonus) *
     (1 + attunementBonus);
+  if (import.meta.env.DEV) finishCalculationPhase("damageSharedMultiplierResolution", sharedMultiplierStartedAt);
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectAggregation", effectAggregationStartedAt);
   const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
   const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => {

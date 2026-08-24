@@ -86,4 +86,5 @@ export type StatDefinition = {
   showUnitInLabel?: boolean;
   showUnitInInput?: boolean;
   step?: number;
+  maximum?: number;
 };

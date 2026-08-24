@@ -28,5 +28,14 @@
         }
       }
     ]
+  },
+  "VileCondemnedEndCooldown": {
+    "name": "Vile Condemned End Cooldown",
+    "shortName": "End CD",
+    "description": "Prevents Vile Condemned from selecting End Hit.",
+    "duration": 18,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": []
   }
 }

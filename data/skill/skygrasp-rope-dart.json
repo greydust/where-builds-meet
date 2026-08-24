@@ -2,19 +2,27 @@
   "SkyGrasped": {
     "name": "Sky Grasped",
     "shortName": "RD Special",
-    "castTime": 0.9,
+    "castTime": 0.975,
     "action": [
       {
         "type": "damage",
         "phyCoef": 1.2503,
         "phyBonus": 347,
         "attrBonus": 189,
-        "time": 0.9
+        "time": 0.7125
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "HeavensUnity",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.7125
       },
       {
         "type": "damage",
         "phyCoef": 1.87,
-        "time": 0.9,
+        "time": 1.1,
         "requirement": [
           {
             "target": "self",
@@ -30,7 +38,7 @@
         "type": "addResource",
         "value": "HeavensWill",
         "amount": 0.25,
-        "time": 0.9,
+        "time": 1.1,
         "requirement": [
           {
             "target": "self",
@@ -41,14 +49,6 @@
             "value": "heavenwill"
           }
         ]
-      },
-      {
-        "type": "apply",
-        "target": "self",
-        "value": "HeavensUnity",
-        "stack": 1,
-        "reapply": true,
-        "time": 0.9
       }
     ],
     "modifier": [],
@@ -59,20 +59,20 @@
   "SnaringLashCancel": {
     "name": "Snaring Lash [Cancel]",
     "shortName": "RD Q [Cancel]",
-    "castTime": 0.6,
+    "castTime": 0.425,
     "action": [
       {
         "type": "damage",
         "phyCoef": 0.4975,
         "phyBonus": 137,
         "attrBonus": 75,
-        "time": 0.6
+        "time": 0.425
       },
       {
         "type": "trigger",
         "target": "self",
         "value": "SnaringLashFalcon",
-        "time": 0.6
+        "time": 0.425
       },
       {
         "type": "apply",
@@ -80,7 +80,7 @@
         "value": "HeavensMight",
         "stack": 1,
         "reapply": true,
-        "time": 0.6,
+        "time": 0.425,
         "requirement": [
           {
             "target": "self",
@@ -97,20 +97,20 @@
   "SnaringLash": {
     "name": "Snaring Lash",
     "shortName": "RD Q",
-    "castTime": 1.7,
+    "castTime": 1.4125,
     "action": [
       {
         "type": "damage",
         "phyCoef": 0.4975,
         "phyBonus": 137,
         "attrBonus": 75,
-        "time": 0.6
+        "time": 0.425
       },
       {
         "type": "trigger",
         "target": "self",
         "value": "SnaringLashFalcon",
-        "time": 0.6
+        "time": 0.425
       },
       {
         "type": "apply",
@@ -118,7 +118,7 @@
         "value": "HeavensMight",
         "stack": 1,
         "reapply": true,
-        "time": 0.6,
+        "time": 0.425,
         "requirement": [
           {
             "target": "self",
@@ -128,10 +128,17 @@
       },
       {
         "type": "damage",
-        "phyCoef": 1.1609,
-        "phyBonus": 321,
-        "attrBonus": 175,
-        "time": 1.7
+        "phyCoef": 0.58045,
+        "phyBonus": 160.5,
+        "attrBonus": 87.5,
+        "time": 1.3125
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.58045,
+        "phyBonus": 160.5,
+        "attrBonus": 87.5,
+        "time": 1.375
       }
     ],
     "modifier": [],
@@ -144,43 +151,43 @@
     "castTime": 0,
     "action": [
       {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.2875
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.4125
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.748,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.55
+      },
+      {
         "type": "addResource",
         "value": "HeavensWill",
         "amount": 0.1,
-        "time": 0.6
+        "time": 0.55
       },
       {
         "type": "addResource",
         "value": "HeavensWill",
         "amount": 0.2,
-        "time": 0.6,
+        "time": 0.55,
         "requirement": [
           {
             "target": "self",
             "value": "HeavensUnity"
           }
         ]
-      },
-      {
-        "type": "damage",
-        "phyCoef": 0.748,
-        "phyBonus": 0,
-        "attrBonus": 0,
-        "time": 0.6
-      },
-      {
-        "type": "damage",
-        "phyCoef": 0.748,
-        "phyBonus": 0,
-        "attrBonus": 0,
-        "time": 0.6
-      },
-      {
-        "type": "damage",
-        "phyCoef": 0.748,
-        "phyBonus": 0,
-        "attrBonus": 0,
-        "time": 0.6
       }
     ],
     "modifier": [],

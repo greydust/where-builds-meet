@@ -291,6 +291,8 @@ export function requirementsPass(
     if (!condition || typeof condition !== "object") return false;
     const item = condition as EditableObject;
     if (item.operator === "or" && Array.isArray(item.operand)) return item.operand.some(evaluate);
+    if (item.operator === "not" && Array.isArray(item.operand) && item.operand.length === 1)
+      return !evaluate(item.operand[0]);
     if (item.target === "skillCooldown") {
       if (typeof item.value !== "string" || item.comparison !== "ready") return false;
       return (state.skillCooldowns?.[`skill:${item.value}`] ?? 0) <= (state.currentTime ?? 0);
@@ -1528,6 +1530,30 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         cooldowns[triggerAction.value] = event.time;
         cooldowns[`skill:${triggerAction.value}`] = event.time;
+        return;
+      }
+      if (triggerAction.type === "consume" && typeof triggerAction.value === "string") {
+        const targetEffects = triggerAction.target === "target" ? debuffs : buffs;
+        const next = consumeTrackedEffect(
+          targetEffects,
+          triggerAction.value,
+          triggerAction.stack === "all"
+            ? "all"
+            : typeof triggerAction.stack === "number"
+              ? triggerAction.stack
+              : undefined,
+        );
+        if (triggerAction.target === "target") debuffs = next;
+        else buffs = next;
+        if (!next.some((effect) => effect.name === triggerAction.value)) {
+          const target = triggerAction.target === "target" ? "target" : "self";
+          const key = periodicEffectKey(target, triggerAction.value);
+          const activeEffect = activePeriodicEffects[key];
+          if (activeEffect) {
+            removePendingPeriodicRows(activeEffect, event.time, true);
+            delete activePeriodicEffects[key];
+          }
+        }
         return;
       }
       if (triggerAction.type === "trigger" && typeof triggerAction.value === "string") {

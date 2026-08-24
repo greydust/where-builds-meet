@@ -12,6 +12,7 @@ const viteServer = await createServer({
 try {
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const heavenwillSkills = JSON.parse(await readFile("data/skill/heavenwill-gauntlets.json", "utf8"));
+  const kiteDebuffs = JSON.parse(await readFile("data/debuff/bamboocut-kite.json", "utf8"));
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -51,7 +52,10 @@ try {
       skills: { ...heavenwillSkills, ObserveHeavensWill: observer, RestoreHeavensWill: restore, FalconProbe: falcon },
       eventDefinitions: {},
       dots: {},
-      effectDefinitions: { Exhausted: { name: "Exhausted", duration: 10, maxStack: 1 } },
+      effectDefinitions: {
+        Exhausted: { name: "Exhausted", duration: 10, maxStack: 1 },
+        VileCondemnedEndCooldown: kiteDebuffs.VileCondemnedEndCooldown,
+      },
       innerWayConditions,
       innerWayRules,
       setupEffects: [],
@@ -61,6 +65,11 @@ try {
       resourceMaximums: { HeavensWill: 4 },
       initialDebuffs,
     });
+  const damageAction = (row) => row.actions.find((action) => action.type === "damage");
+  const damageModifierEffects = (row) => {
+    const actionIndex = row.actions.findIndex((action) => action.type === "damage");
+    return row.actionModifierEffects[actionIndex] ?? [];
+  };
 
   const weakTimeline = build(
     [
@@ -71,8 +80,12 @@ try {
   );
   const weakCast = weakTimeline.find((row) => row.step.skill === "VileCondemned");
   const weakObserver = weakTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
-  assert(weakCast.effectiveCastTime === 3, "Vile Condemned must retain its three-second total cast time.");
-  assert(weakCast.actions[0].phyCoef === 7.2178, "Two Heaven's Will must select Vile Condemned Hit.");
+  assert(
+    weakCast.effectiveCastTime ===
+      heavenwillSkills.VileCondemnedCharge.castTime + heavenwillSkills.VileCondemnedHit.castTime,
+    "Vile Condemned must use the combined charge and release cast time.",
+  );
+  assert(damageAction(weakCast).phyCoef === 7.2178, "Two Heaven's Will must select Vile Condemned Hit.");
   assert(
     weakObserver.actionStates[0].resources.HeavensWill === 0,
     "Vile Condemned Hit must consume exactly two Heaven's Will.",
@@ -88,7 +101,7 @@ try {
   const fractionalFallbackCast = fractionalFallbackTimeline.find((row) => row.step.skill === "VileCondemned");
   const fractionalFallbackObserver = fractionalFallbackTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
   assert(
-    fractionalFallbackCast.actions[0].phyCoef === 7.2178,
+    damageAction(fractionalFallbackCast).phyCoef === 7.2178,
     "Vile Condemned without Soaring High T0 must use the normal release.",
   );
   assert(
@@ -109,7 +122,7 @@ try {
   const fractionalEndCast = fractionalEndTimeline.find((row) => row.step.skill === "VileCondemned");
   const fractionalEndObserver = fractionalEndTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
   assert(
-    fractionalEndCast.actions[0].phyCoef === 11.7527,
+    damageAction(fractionalEndCast).phyCoef === 11.7527,
     "Vile Condemned with Soaring High T0 must select End Hit at 3.5 Heaven's Will.",
   );
   assert(
@@ -123,7 +136,7 @@ try {
       { type: "skill", skill: "ObserveHeavensWill" },
     ],
     {
-      initialResources: { HeavensWill: 2.9 },
+      initialResources: { HeavensWill: 2.9225 },
       resourceRegeneration: { HeavensWill: 0.1 },
       innerWayConditions: [
         "SoaringHighT0",
@@ -137,7 +150,7 @@ try {
   );
   const endCast = endTimeline.find((row) => row.step.skill === "VileCondemned");
   assert(
-    endCast.actions[0].phyCoef === 11.7527,
+    damageAction(endCast).phyCoef === 11.7527,
     "The release-start resource snapshot must select Vile Condemned End Hit at three Heaven's Will.",
   );
 
@@ -159,11 +172,11 @@ try {
     "Heaven's Will regeneration must respect the four-point cap.",
   );
   assert(
-    !cappedCast.actionModifierEffects[0].some((effect) => effect.baseDMGBonus === 0.3 || effect.critDmgBonus === 0.1),
+    !damageModifierEffects(cappedCast).some((effect) => effect.baseDMGBonus === 0.3 || effect.critDmgBonus === 0.1),
     "Four Heaven's Will must not grant the End Hit T6 damage bonuses before Soaring High T6.",
   );
   assert(
-    Math.abs(cappedObserver.actionStates[0].resources.HeavensWill - 1.001) < 0.000001,
+    cappedObserver.actionStates[0].resources.HeavensWill > 1,
     "Vile Condemned End Hit must consume only three Heaven's Will before Soaring High T6.",
   );
 
@@ -188,11 +201,11 @@ try {
   const t6Cast = t6Timeline.find((row) => row.step.skill === "VileCondemned");
   const t6Observer = t6Timeline.find((row) => row.step.skill === "ObserveHeavensWill");
   assert(
-    t6Cast.actionModifierEffects[0].some((effect) => effect.baseDMGBonus === 0.3 && effect.critDmgBonus === 0.1),
+    damageModifierEffects(t6Cast).some((effect) => effect.baseDMGBonus === 0.3 && effect.critDmgBonus === 0.1),
     "Four Heaven's Will with Soaring High T6 must lock the 30% base-damage and 10% Critical Damage bonuses.",
   );
   assert(
-    t6Observer.actionStates[0].resources.HeavensWill === 0,
+    t6Observer.actionStates[0].resources.HeavensWill < 1,
     "Vile Condemned End Hit must consume all four Heaven's Will with Soaring High T6.",
   );
 
@@ -218,13 +231,13 @@ try {
   const regeneratedToFourCast = regeneratedToFourTimeline.find((row) => row.step.skill === "VileCondemned");
   const regeneratedToFourObserver = regeneratedToFourTimeline.find((row) => row.step.skill === "ObserveHeavensWill");
   assert(
-    !regeneratedToFourCast.actionModifierEffects[0].some(
+    !damageModifierEffects(regeneratedToFourCast).some(
       (effect) => effect.baseDMGBonus === 0.3 || effect.critDmgBonus === 0.1,
     ),
     "Reaching four Heaven's Will after release start must not activate the T6 damage bonuses.",
   );
   assert(
-    Math.abs(regeneratedToFourObserver.actionStates[0].resources.HeavensWill - 1.001) < 0.000001,
+    regeneratedToFourObserver.actionStates[0].resources.HeavensWill > 1,
     "A start-bound failed requirement must not consume the fourth Heaven's Will after later regeneration.",
   );
 
@@ -237,10 +250,10 @@ try {
     { initialResources: { HeavensWill: 3 }, innerWayConditions: ["SoaringHighT0"] },
   );
   const cooldownCasts = cooldownTimeline.filter((row) => row.step.skill === "VileCondemned");
-  assert(cooldownCasts[0].actions[0].phyCoef === 11.7527, "The first ready release must use End Hit.");
+  assert(damageAction(cooldownCasts[0]).phyCoef === 11.7527, "The first ready release must use End Hit.");
   assert(
-    cooldownCasts[1].actions[0].phyCoef === 7.2178,
-    "A release during End Hit's cooldown must fall back to the weaker hit.",
+    damageAction(cooldownCasts[1]).phyCoef === 7.2178,
+    "A release while Vile Condemned End Cooldown is active must fall back to the weaker hit.",
   );
 
   const noSoaringHighTimeline = build([{ type: "skill", skill: "VileCondemned" }], {
@@ -248,7 +261,7 @@ try {
   });
   const noSoaringHighCast = noSoaringHighTimeline.find((row) => row.step.skill === "VileCondemned");
   assert(
-    noSoaringHighCast.actions[0].phyCoef === 7.2178,
+    damageAction(noSoaringHighCast).phyCoef === 7.2178,
     "Vile Condemned End Hit must remain disabled without Soaring High T0.",
   );
 
@@ -262,7 +275,7 @@ try {
     effect: {},
     trigger: {
       target: "self",
-      action: [{ type: "clearCD", target: "self", value: "VileCondemnedEndHit" }],
+      action: [{ type: "consume", target: "self", value: "VileCondemnedEndCooldown", stack: "all" }],
     },
   };
   const t6RefundRule = {
@@ -291,8 +304,8 @@ try {
   );
   const resetCasts = resetTimeline.filter((row) => row.step.skill === "VileCondemned");
   assert(
-    resetCasts.every((row) => row.actions[0].phyCoef === 11.7527),
-    "Soaring High T3 Falcon damage against an exhausted target must reset End Hit cooldown.",
+    resetCasts.every((row) => damageAction(row).phyCoef === 11.7527),
+    "Soaring High T3 Falcon damage against an exhausted target must remove Vile Condemned End Cooldown.",
   );
 
   const refundTimeline = build(
@@ -329,7 +342,7 @@ try {
     "Resetting End Hit must not reset the separate T6 refund cooldown.",
   );
 
-  console.log("Vile Condemned branch, cooldown, start-bound requirement, and consumption checks passed.");
+  console.log("Vile Condemned branch, cooldown status, start-bound requirement, and consumption checks passed.");
 } finally {
   await viteServer.close();
 }

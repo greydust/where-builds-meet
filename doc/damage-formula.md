@@ -93,11 +93,13 @@ An active effect may convert one named numeric calculation stat into another:
 
 The calculator reads both names from the current per-action stat snapshot. It
 removes `min(max(source, 0), max)` from the source and adds that amount times
-`ratio` to the target. Missing or non-numeric names make the conversion inert.
-Multiple conversions run in data order and therefore read the result of the
-previous conversion. `max` caps the source amount consumed, not the resulting
-target amount. Converted rate fields are passed through the ordinary outcome
-rate formula and its existing caps.
+`ratio` to the target, subject to the target stat's own cap. Only the amount
+that fits under the target cap is removed; the rest remains in the source.
+Missing or non-numeric names make the conversion inert. Multiple conversions
+run in data order and therefore read the result of the previous conversion.
+`max` caps the source amount consumed, while Direct Critical Rate has a global
+target cap of `0.2` (20%). Converted rate fields are passed through the ordinary
+outcome-rate formula and its existing caps.
 
 ### Monte Carlo outcome and attack sampling
 

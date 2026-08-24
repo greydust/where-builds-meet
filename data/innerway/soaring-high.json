@@ -53,9 +53,10 @@
           ],
           "action": [
             {
-              "type": "clearCD",
+              "type": "consume",
               "target": "self",
-              "value": "VileCondemnedEndHit"
+              "value": "VileCondemnedEndCooldown",
+              "stack": "all"
             }
           ]
         }
@@ -81,7 +82,15 @@
         }
       ]
     },
-    "SoaringHighT5": {},
+    "SoaringHighT5": {
+      "effect": [
+        {
+          "stat": {
+            "directCrit": 0.046
+          }
+        }
+      ]
+    },
     "SoaringHighT6": {
       "trigger": [
         {
