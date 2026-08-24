@@ -28,6 +28,7 @@ import {
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
+import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -150,9 +151,11 @@ function calculateRotationDamageEntry(
     const sourceDamage = resolved.get(entry.replay.sourceEntryId)?.total ?? 0;
     breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
   } else {
+    const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     breakdown = random
       ? calculateSimulatedDamageBreakdown(entry.action, entry.context, random)
       : calculateDamageBreakdown(entry.action, entry.context);
+    if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
   }
   if (entry.id) resolved.set(entry.id, breakdown);
   return breakdown;
@@ -562,6 +565,7 @@ function timelineDamageEntries(
     : 0;
   const anchorOrder = anchorRow ? anchorRow.order + (anchorActionIndex === undefined ? 0 : 10 + anchorActionIndex) : 0;
   const battleEnd = battleEndCutoff(timeline);
+  const damageEntryStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const damageEntries = timeline.flatMap((row) =>
     row.skipped
       ? []
@@ -598,6 +602,7 @@ function timelineDamageEntries(
             currentResources: typeof resources,
             currentRequirementState = requirementState,
           ) => {
+            const effectStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
             const activeSetupEffects = setupEffects
               .filter((effect) =>
                 requirementsPass(
@@ -694,12 +699,14 @@ function timelineDamageEntries(
                   ? (effect.effect as EditableObject)
                   : effect,
               );
-            return [
+            const resolvedEffects = [
               ...activeSetupEffects,
               ...activeInnerWayEffects,
               ...activeTrackedEffects,
               ...(row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects),
             ];
+            if (import.meta.env.DEV) finishCalculationPhase("effectResolution", effectStartedAt);
+            return resolvedEffects;
           };
           const context: DamageContext = {
             stats,
@@ -772,6 +779,7 @@ function timelineDamageEntries(
   ) as Array<
     RotationDamageEntry & { timelineTime: number; timelineOrder: number; updateTargetHPRatio: (ratio: number) => void }
   >;
+  if (import.meta.env.DEV) finishCalculationPhase("damageEntryConstruction", damageEntryStartedAt);
   const hpEvents = timeline.flatMap((row) =>
     row.skipped
       ? []
@@ -845,6 +853,7 @@ function timelineDamageEntries(
       };
   const compareOrderedItems = (left: OrderedItem, right: OrderedItem) =>
     compareTimelineTime(left.time, right.time) || left.order - right.order || left.priority - right.priority;
+  const damageEventOrderingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const ordered: OrderedItem[] = [
     ...targetHPStateSnapshots,
     ...hpEvents,
@@ -856,6 +865,7 @@ function timelineDamageEntries(
       entry,
     })),
   ].sort(compareOrderedItems);
+  if (import.meta.env.DEV) finishCalculationPhase("damageEventOrdering", damageEventOrderingStartedAt);
   const resolvedDamage = new Map<string, DamageBreakdown>();
   const resolvedByEntry = new Map<(typeof damageEntries)[number], DamageBreakdown>();
   const listenerCooldowns = new Map<string, number>();
@@ -877,7 +887,14 @@ function timelineDamageEntries(
     listenerKey: string,
     listener: EditableObject,
   ) => {
-    if (!sourceEntry.id || typeof sourceEntry.timelineTime !== "number") return false;
+    const replayConstructionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+    const finishReplayConstruction = () => {
+      if (import.meta.env.DEV) finishCalculationPhase("replayConstruction", replayConstructionStartedAt);
+    };
+    if (!sourceEntry.id || typeof sourceEntry.timelineTime !== "number") {
+      finishReplayConstruction();
+      return false;
+    }
     const triggerAction =
       listener.action && typeof listener.action === "object" && !Array.isArray(listener.action)
         ? (listener.action as EditableObject)
@@ -890,10 +907,15 @@ function timelineDamageEntries(
       triggerAction?.type !== "trigger" ||
       typeof triggerAction.value !== "string" ||
       parameter?.damage !== "event.damage"
-    )
+    ) {
+      finishReplayConstruction();
       return false;
+    }
     const replaySkill = input.skills[triggerAction.value];
-    if (!replaySkill?.tags?.includes("Replayed") || !Array.isArray(replaySkill.action)) return false;
+    if (!replaySkill?.tags?.includes("Replayed") || !Array.isArray(replaySkill.action)) {
+      finishReplayConstruction();
+      return false;
+    }
     const invocationId = `replay-${listenerKey}-${sourceEntry.id}-${replayInvocation++}`;
     const rowOrder = replayOrder++;
     const replayActions = (replaySkill.action as EditableObject[]).map((action) => ({ ...action }));
@@ -956,9 +978,14 @@ function timelineDamageEntries(
       };
       return [entry];
     });
-    if (replayEntries.length === 0) return false;
+    if (replayEntries.length === 0) {
+      finishReplayConstruction();
+      return false;
+    }
     if (updateTimelineState) timeline.push(replayRow);
     damageEntries.push(...replayEntries);
+    finishReplayConstruction();
+    const replayQueueInsertionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     replayEntries.forEach((entry) =>
       insertOrderedItem({
         kind: "damage" as const,
@@ -968,52 +995,67 @@ function timelineDamageEntries(
         entry,
       }),
     );
+    if (import.meta.env.DEV) finishCalculationPhase("replayQueueInsertion", replayQueueInsertionStartedAt);
     return true;
   };
+  const traversalStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   while (orderedIndex < ordered.length) {
     const item = ordered[orderedIndex++];
+    const targetStateStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     if (item.kind === "set") {
       targetHPRatio = item.ratio;
+      if (import.meta.env.DEV) finishCalculationPhase("targetStatePropagation", targetStateStartedAt);
       continue;
     }
     if (item.kind === "rowState" || item.kind === "actionState") {
       item.update(targetHPRatio);
+      if (import.meta.env.DEV) finishCalculationPhase("targetStatePropagation", targetStateStartedAt);
       continue;
     }
     item.entry.updateTargetHPRatio(targetHPRatio);
+    if (import.meta.env.DEV) finishCalculationPhase("targetStatePropagation", targetStateStartedAt);
     const breakdown = calculateRotationDamageEntry(item.entry, resolvedDamage);
     resolvedByEntry.set(item.entry, breakdown);
     const damageEvent = item.entry.damageEvent;
     if (!item.entry.replay && breakdown.total > 0 && damageEvent) {
+      const listenerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       damageEvent.listeners.forEach(({ key, rule }) => {
         const listener = rule.listen;
-        if (!listener || (listenerCooldowns.get(key) ?? Number.NEGATIVE_INFINITY) > item.time) return;
+        const listenerRequirementStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+        if (!listener || (listenerCooldowns.get(key) ?? Number.NEGATIVE_INFINITY) > item.time) {
+          if (import.meta.env.DEV)
+            finishCalculationPhase("listenerRequirementEvaluation", listenerRequirementStartedAt);
+          return;
+        }
         const eventRequirementState = {
           ...damageEvent.requirementState,
           targetHPPercentage: targetHPRatio * 100,
         };
-        if (
-          !requirementsPass(
-            listener.requirement ?? rule.requirement,
-            damageEvent.buffs,
-            damageEvent.debuffs,
-            item.entry.context.skillTags,
-            conditions,
-            state.weapons,
-            damageEvent.resources,
-            eventRequirementState,
-          )
-        )
-          return;
+        const listenerRequirementsPassed = requirementsPass(
+          listener.requirement ?? rule.requirement,
+          damageEvent.buffs,
+          damageEvent.debuffs,
+          item.entry.context.skillTags,
+          conditions,
+          state.weapons,
+          damageEvent.resources,
+          eventRequirementState,
+        );
+        if (import.meta.env.DEV) finishCalculationPhase("listenerRequirementEvaluation", listenerRequirementStartedAt);
+        if (!listenerRequirementsPassed) return;
         const triggered = enqueueReplay(item.entry, key, listener);
         if (triggered && typeof listener.cooldown === "number" && Number.isFinite(listener.cooldown))
           listenerCooldowns.set(key, item.time + Math.max(0, listener.cooldown));
       });
+      if (import.meta.env.DEV) finishCalculationPhase("eventListening", listenerStartedAt);
     }
     if (usesTargetDamage) {
+      const targetHPUpdateStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       targetHPRatio = Math.max(0, targetHPRatio - breakdown.total / targetMaxHP);
+      if (import.meta.env.DEV) finishCalculationPhase("targetHPUpdate", targetHPUpdateStartedAt);
     }
   }
+  if (import.meta.env.DEV) finishCalculationPhase("damageEventTraversal", traversalStartedAt);
   damageEntries.sort(
     (left, right) =>
       compareTimelineTime(left.timelineTime, right.timelineTime) ||
@@ -1065,8 +1107,12 @@ function timelineTiming(
 }
 
 export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
+  const timelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const timeline = buildRotationTimeline(bundle.timeline);
+  if (import.meta.env.DEV) finishCalculationPhase("timelineConstruction", timelineStartedAt);
+  const initialTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const { anchorTime } = timelineTiming(timeline, bundle.startAnchor);
+  if (import.meta.env.DEV) finishCalculationPhase("timingResolution", initialTimingStartedAt);
   const state = {
     stats: bundle.stats,
     attunement: bundle.attunement,
@@ -1074,6 +1120,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     derivedStats: bundle.derivedStats,
     weapons: bundle.weapons,
   };
+  const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const baselineResolution = timelineDamageEntries(
     timeline,
     bundle.timeline,
@@ -1083,9 +1130,13 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     true,
   );
   const baseline = baselineResolution.entries;
-  const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
-  let baselineDamage = 0;
   const resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
+  if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
+  const finalTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+  const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
+  if (import.meta.env.DEV) finishCalculationPhase("timingResolution", finalTimingStartedAt);
+  const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+  let baselineDamage = 0;
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
@@ -1093,10 +1144,12 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
         baselineDamage += breakdown.total;
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
-            .map(({ sourceRowId, context }) => [
-              sourceRowId,
-              breakdown.total - calculateDamageBreakdown(entry.action, context).total,
-            ])
+            .map(({ sourceRowId, context }) => {
+              const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+              const counterfactualDamage = calculateDamageBreakdown(entry.action, context).total;
+              if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
+              return [sourceRowId, breakdown.total - counterfactualDamage];
+            })
             .filter(([, damage]) => Math.abs(damage as number) > 1e-9),
         );
         return [
@@ -1117,6 +1170,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     baselineDamage,
   );
   metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
+  if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
   return { metrics, timeline, anchorTime, duration, actionBreakdowns, baseline };
 }
 
@@ -1141,16 +1195,24 @@ export function calculateRotationComparisons(
   onProgress?.(0, totalVariants);
   const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
+    const timelineStartedAt = import.meta.env.DEV && variant.timeline ? startCalculationPhase() : 0;
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
+    if (import.meta.env.DEV && variant.timeline) finishCalculationPhase("timelineConstruction", timelineStartedAt);
+    const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const resolution = timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
     const entries = resolution.entries;
     const resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(entries);
+    if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
+    let duration = baselineResult.duration;
+    if (variant.timeline) {
+      const timingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+      duration = timelineTiming(variantTimeline, bundle.startAnchor, entries).duration;
+      if (import.meta.env.DEV) finishCalculationPhase("timingResolution", timingStartedAt);
+    }
     const calculation = {
       entries,
       damage: sumResolvedSequence(resolvedSequence).total,
-      duration: variant.timeline
-        ? timelineTiming(variantTimeline, bundle.startAnchor, entries).duration
-        : baselineResult.duration,
+      duration,
     };
     completedVariants += 1;
     onProgress?.(completedVariants, totalVariants);
@@ -1185,8 +1247,10 @@ export function calculateRotationComparisons(
       ]),
     ),
   };
+  const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const metrics = calculateRotationMetrics(entryBundle, baselineResult.metrics.totalDamage);
   metrics.breakdown = baselineResult.metrics.breakdown;
+  if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
   return metrics;
 }
 

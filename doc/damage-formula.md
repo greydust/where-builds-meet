@@ -58,6 +58,15 @@ Every damage action is evaluated as four possible outcomes and then rate weighte
 
 The effective average is `(effective minimum + effective maximum) / 2`.
 
+Before evaluating those outcomes, the calculator resolves the damage entry's
+hit-time effects and matching attunements once into a numeric snapshot. That
+snapshot contains shared bonuses plus the attack bonus, penetration, and
+resistance adjustment for Physical, Bellstrike, Stonesplit, Silkbind, and
+Bamboocut. Physical and attribute components and all four outcome variants read
+the same snapshot; they do not rescan active effects. Separate damage entries
+still resolve independently because their hit-time buffs, debuffs, resources,
+HP/Qi state, tags, or subaction modifiers may differ.
+
 Calculation-time attack-value bonuses multiply the resolved minimum and maximum
 of their named attack type before the attack roll is selected. They do not
 multiply an action's flat physical or attribute bonus. Etherwrath uses separate

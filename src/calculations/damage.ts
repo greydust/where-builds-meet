@@ -12,6 +12,7 @@ import {
   type StatFormula,
 } from "./statEffects";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
+import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
 
 type AttunementDefinition = {
   effect?: { stat?: Record<string, number>; tags?: string[]; excludeTags?: string[] };
@@ -66,6 +67,9 @@ export type DamageBreakdown = {
   outcome?: DamageOutcome;
 };
 type AttackRollMode = "min" | "average" | "max" | "simulate";
+type AttributeDamageType = "bellstrike" | "stonesplit" | "silkbind" | "bamboocut";
+
+const attributeDamageTypes: AttributeDamageType[] = ["bellstrike", "stonesplit", "silkbind", "bamboocut"];
 
 export type DamageContext = {
   stats: CharacterStats;
@@ -146,6 +150,7 @@ function calculateDamageBreakdownInternal(
   random?: () => number,
 ): DamageBreakdown {
   const { stats: baseStats, attunement, skillTags, weapons, enemy, derivedStats: baseDerivedStats, effects } = context;
+  const statResolutionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const hasStatEffects = effects.some(
     (effect) =>
       (effect.stat && typeof effect.stat === "object") ||
@@ -160,6 +165,8 @@ function calculateDamageBreakdownInternal(
     : undefined;
   const stats = calculatedStats?.stats ?? baseStats;
   const derivedStats = calculatedStats?.derivedStats ?? baseDerivedStats;
+  if (import.meta.env.DEV) finishCalculationPhase("damageStatResolution", statResolutionStartedAt);
+  const effectAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const effectValue = (value: unknown) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
     if (!value || typeof value !== "object" || Array.isArray(value)) return 0;
@@ -185,95 +192,108 @@ function calculateDamageBreakdownInternal(
   const physicalBonus = context.isDot ? 0 : numberValue(action.phyBonus);
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
   const path = mainAttribute(weapons);
-  const attackBonus = (type: string) =>
-    effects.reduce((total, effect) => total + effectValue(effect[`${type}AttackBonus`]), 0);
-  const physicalAttackMultiplier = 1 + attackBonus("physical");
+  const resolvedEffects = {
+    attackBonus: {
+      physical: 0,
+      bellstrike: 0,
+      stonesplit: 0,
+      silkbind: 0,
+      bamboocut: 0,
+    },
+    attributePenetration: { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
+    attributeResistance: { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
+    innerWayDmgBonus: 0,
+    baseDmgBonus: 0,
+    globalDmgBonus: 0,
+    globalBellstrikeDmgBonus: 0,
+    dotDamageBonus: 0,
+    physicalPenetration: 0,
+    defenseBonus: 0,
+    physicalResistance: 0,
+    critDmgBonus: 0,
+    affinityDmgBonus: 0,
+    attributeDmgBonus: 0,
+  };
+  for (const effect of effects) {
+    resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus);
+    for (const attribute of attributeDamageTypes) {
+      resolvedEffects.attackBonus[attribute] += effectValue(effect[`${attribute}AttackBonus`]);
+      resolvedEffects.attributePenetration[attribute] += effectValue(effect[`${attribute}Penetration`]);
+      resolvedEffects.attributeResistance[attribute] += effectValue(effect[`${attribute}Resistance`]);
+    }
+    resolvedEffects.innerWayDmgBonus += effectValue(effect.dmgBonus);
+    if (
+      !Array.isArray(effect.hpDMGBonusWeapons) ||
+      effect.hpDMGBonusWeapons.some((weapon) => weapons.includes(weapon as WeaponId))
+    )
+      resolvedEffects.innerWayDmgBonus += effectValue(effect.hpDMGBonus);
+    resolvedEffects.baseDmgBonus += effectValue(effect.baseDMGBonus);
+    resolvedEffects.globalDmgBonus += effectValue(effect.globalDmgBonus) + effectValue(effect.globalHPDMGBonus);
+    resolvedEffects.globalBellstrikeDmgBonus += effectValue(effect.globalBellstrikeDMGBonus);
+    if (context.isDot) resolvedEffects.dotDamageBonus += effectValue(effect.dotDamage);
+    resolvedEffects.physicalPenetration += effectValue(effect.physicalPenetration);
+    resolvedEffects.defenseBonus += effectValue(effect.defenseBonus);
+    resolvedEffects.physicalResistance += effectValue(effect.physicalResistance);
+    resolvedEffects.critDmgBonus += effectValue(effect.critDmgBonus);
+    resolvedEffects.affinityDmgBonus += effectValue(effect.affinityDmgBonus);
+    resolvedEffects.attributeDmgBonus += effectValue(effect.attributeDMGBonus);
+  }
+  const physicalAttackMultiplier = 1 + resolvedEffects.attackBonus.physical;
   const minPhysicalAttack = derivedStats.effectiveMinPhys * physicalAttackMultiplier;
   const maxPhysicalAttack = derivedStats.effectiveMaxPhys * physicalAttackMultiplier;
   const averagePhysicalAttack = (minPhysicalAttack + maxPhysicalAttack) / 2;
   const attributeRanges = [
     [
-      derivedStats.effectiveMinBellstrike * (1 + attackBonus("bellstrike")),
-      derivedStats.effectiveMaxBellstrike * (1 + attackBonus("bellstrike")),
-      stats.bellstrikePenetration,
+      derivedStats.effectiveMinBellstrike * (1 + resolvedEffects.attackBonus.bellstrike),
+      derivedStats.effectiveMaxBellstrike * (1 + resolvedEffects.attackBonus.bellstrike),
+      stats.bellstrikePenetration + resolvedEffects.attributePenetration.bellstrike,
       stats.bellstrikeDmgBonus,
       "bellstrike",
-      enemy.bellstrikeResistance,
+      enemy.bellstrikeResistance + resolvedEffects.attributeResistance.bellstrike,
     ],
     [
-      derivedStats.effectiveMinStonesplit * (1 + attackBonus("stonesplit")),
-      derivedStats.effectiveMaxStonesplit * (1 + attackBonus("stonesplit")),
-      stats.stonesplitPenetration,
+      derivedStats.effectiveMinStonesplit * (1 + resolvedEffects.attackBonus.stonesplit),
+      derivedStats.effectiveMaxStonesplit * (1 + resolvedEffects.attackBonus.stonesplit),
+      stats.stonesplitPenetration + resolvedEffects.attributePenetration.stonesplit,
       stats.stonesplitDmgBonus,
       "stonesplit",
-      enemy.stonesplitResistance,
+      enemy.stonesplitResistance + resolvedEffects.attributeResistance.stonesplit,
     ],
     [
-      derivedStats.effectiveMinSilkbind * (1 + attackBonus("silkbind")),
-      derivedStats.effectiveMaxSilkbind * (1 + attackBonus("silkbind")),
-      stats.silkbindPenetration,
+      derivedStats.effectiveMinSilkbind * (1 + resolvedEffects.attackBonus.silkbind),
+      derivedStats.effectiveMaxSilkbind * (1 + resolvedEffects.attackBonus.silkbind),
+      stats.silkbindPenetration + resolvedEffects.attributePenetration.silkbind,
       stats.silkbindDmgBonus,
       "silkbind",
-      enemy.silkbindResistance,
+      enemy.silkbindResistance + resolvedEffects.attributeResistance.silkbind,
     ],
     [
-      derivedStats.effectiveMinBamboocut * (1 + attackBonus("bamboocut")),
-      derivedStats.effectiveMaxBamboocut * (1 + attackBonus("bamboocut")),
-      stats.bamboocutPenetration,
+      derivedStats.effectiveMinBamboocut * (1 + resolvedEffects.attackBonus.bamboocut),
+      derivedStats.effectiveMaxBamboocut * (1 + resolvedEffects.attackBonus.bamboocut),
+      stats.bamboocutPenetration + resolvedEffects.attributePenetration.bamboocut,
       stats.bamboocutDmgBonus,
       "bamboocut",
-      enemy.bamboocutResistance,
+      enemy.bamboocutResistance + resolvedEffects.attributeResistance.bamboocut,
     ],
-  ] as Array<[number, number, number, number, string, number]>;
-  const innerWayDmgBonus = effects.reduce(
-    (total, effect) =>
-      total +
-      effectValue(effect.dmgBonus) +
-      (!Array.isArray(effect.hpDMGBonusWeapons) ||
-      effect.hpDMGBonusWeapons.some((weapon) => weapons.includes(weapon as WeaponId))
-        ? effectValue(effect.hpDMGBonus)
-        : 0),
-    0,
-  );
-  const baseDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.baseDMGBonus), 0);
-  const globalDmgBonus = effects.reduce(
-    (total, effect) => total + effectValue(effect.globalDmgBonus) + effectValue(effect.globalHPDMGBonus),
-    0,
-  );
-  const globalBellstrikeDmgBonus = effects.reduce(
-    (total, effect) => total + effectValue(effect.globalBellstrikeDMGBonus),
-    0,
-  );
-  const dotDamageBonus = context.isDot
-    ? effects.reduce((total, effect) => total + effectValue(effect.dotDamage), 0)
-    : 0;
-  const effectPhysicalPenetration = effects.reduce(
-    (total, effect) => total + effectValue(effect.physicalPenetration),
-    0,
-  );
-  const defenseBonus = effects.reduce((total, effect) => total + effectValue(effect.defenseBonus), 0);
-  const physicalResistanceAdjustment = effects.reduce(
-    (total, effect) => total + effectValue(effect.physicalResistance),
-    0,
-  );
-  const effectAttributePenetration = (attribute: string) =>
-    effects.reduce((total, effect) => total + effectValue(effect[`${attribute}Penetration`]), 0);
-  const effectCritDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.critDmgBonus), 0);
-  const effectAffinityDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.affinityDmgBonus), 0);
-  const attributeDmgBonus = effects.reduce((total, effect) => total + effectValue(effect.attributeDMGBonus), 0);
-  const attunementStat = (target: string) =>
-    Object.entries(attunement).reduce((total, [key, value]) => {
-      const definition = attunementDefinitions[key];
-      const matchTags = definition?.effect?.tags;
-      if (matchTags && !matchTags.every((tag) => skillTags.includes(tag))) return total;
-      const excludeTags = definition?.effect?.excludeTags;
-      if (excludeTags?.some((tag) => skillTags.includes(tag))) return total;
-      const multiplier = definition.effect?.stat?.[target];
-      return total + (typeof multiplier === "number" && Number.isFinite(multiplier) ? value * multiplier : 0);
-    }, 0);
-  const attunementBonus = attunementStat("attunementDMGBonus");
-  const attunementPhysicalPenetration = attunementStat("physicalPenetration");
-  const attunementFormlessPenetration = attunementStat("formlessPenetration");
+  ] as Array<[number, number, number, number, AttributeDamageType, number]>;
+  let attunementBonus = 0;
+  let attunementPhysicalPenetration = 0;
+  let attunementFormlessPenetration = 0;
+  for (const [key, value] of Object.entries(attunement)) {
+    const definition = attunementDefinitions[key];
+    const matchTags = definition?.effect?.tags;
+    if (matchTags && !matchTags.every((tag) => skillTags.includes(tag))) continue;
+    const excludeTags = definition?.effect?.excludeTags;
+    if (excludeTags?.some((tag) => skillTags.includes(tag))) continue;
+    const effectStats = definition?.effect?.stat;
+    const addAttunementStat = (target: string) => {
+      const multiplier = effectStats?.[target];
+      return typeof multiplier === "number" && Number.isFinite(multiplier) ? value * multiplier : 0;
+    };
+    attunementBonus += addAttunementStat("attunementDMGBonus");
+    attunementPhysicalPenetration += addAttunementStat("physicalPenetration");
+    attunementFormlessPenetration += addAttunementStat("formlessPenetration");
+  }
   const skillWeaponArtBonus = weaponArtBonus(stats, skillTags);
   const mysticSkillBonus = mysticSkillDamageBonus(stats, skillTags);
   const damageBonusCategory1 =
@@ -281,10 +301,13 @@ function calculateDamageBreakdownInternal(
     (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +
     skillWeaponArtBonus +
     mysticSkillBonus +
-    innerWayDmgBonus;
-  const physicalSharedBonus = (1 + baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
+    resolvedEffects.innerWayDmgBonus;
+  const physicalSharedBonus = (1 + resolvedEffects.baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus);
   const attributeSharedBonus =
-    (1 + baseDmgBonus) * (1 + damageBonusCategory1 + attributeDmgBonus) * (1 + attunementBonus);
+    (1 + resolvedEffects.baseDmgBonus) *
+    (1 + damageBonusCategory1 + resolvedEffects.attributeDmgBonus) *
+    (1 + attunementBonus);
+  if (import.meta.env.DEV) finishCalculationPhase("damageEffectAggregation", effectAggregationStartedAt);
   const randomUnit = () => Math.min(1 - Number.EPSILON, Math.max(0, random?.() ?? 0.5));
   const attackValue = (minimum: number, maximum: number, mode: AttackRollMode) => {
     switch (mode) {
@@ -302,18 +325,9 @@ function calculateDamageBreakdownInternal(
     attributeRanges.reduce(
       (total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {
         const attack = attackValue(minAttack, maxAttack, mode);
-        const resistanceAdjustment = effects.reduce(
-          (sum, effect) => sum + effectValue(effect[`${attribute}Resistance`]),
-          0,
-        );
         const damage =
           (coefficient * attack + (attribute === path ? attributeBonus : 0)) *
-          penetrationMultiplier(
-            penetration +
-              effectAttributePenetration(attribute) +
-              (attribute === path ? attunementFormlessPenetration : 0),
-            resistance + resistanceAdjustment,
-          ) *
+          penetrationMultiplier(penetration + (attribute === path ? attunementFormlessPenetration : 0), resistance) *
           (1 + damageBonus) *
           (attribute === path ? 1.5 : 1);
         return { ...total, [attribute]: total[attribute as keyof typeof total] + damage };
@@ -321,28 +335,40 @@ function calculateDamageBreakdownInternal(
       { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
     );
   const calculateVariant = (damageType: AttackRollMode, specialBonus: number) => {
+    const variantStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+    const physicalChannelStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const physicalAttack =
       damageType === "average" ? averagePhysicalAttack : attackValue(minPhysicalAttack, maxPhysicalAttack, damageType);
-    const adjustedEnemyDefense = enemy.defense * (1 + defenseBonus);
+    const adjustedEnemyDefense = enemy.defense * (1 + resolvedEffects.defenseBonus);
     const physicalDamage =
       (coefficient * (physicalAttack - adjustedEnemyDefense) + physicalBonus) *
       penetrationMultiplier(
-        attunementPhysicalPenetration + effectPhysicalPenetration,
-        enemy.physicalResistance + physicalResistanceAdjustment,
+        attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
+        enemy.physicalResistance + resolvedEffects.physicalResistance,
       ) *
       (1 + stats.physDmgBonus);
-    const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
-    const attributeMultiplier = attributeSharedBonus * (1 + specialBonus) * (1 + dotDamageBonus);
-    const globalMultiplier = 1 + globalDmgBonus;
+    const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus);
+    const attributeMultiplier = attributeSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus);
+    const globalMultiplier = 1 + resolvedEffects.globalDmgBonus;
+    const resolvedPhysicalDamage = Math.max(0, physicalDamage * physicalMultiplier * globalMultiplier);
+    if (import.meta.env.DEV) finishCalculationPhase("damagePhysicalChannel", physicalChannelStartedAt);
+    const attributeChannelsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const attributeDamage = calculateAttributeDamage(damageType);
-    return {
-      physical: Math.max(0, physicalDamage * physicalMultiplier * globalMultiplier),
-      bellstrike: attributeDamage.bellstrike * attributeMultiplier * (globalMultiplier + globalBellstrikeDmgBonus),
+    const result = {
+      physical: resolvedPhysicalDamage,
+      bellstrike:
+        attributeDamage.bellstrike *
+        attributeMultiplier *
+        (globalMultiplier + resolvedEffects.globalBellstrikeDmgBonus),
       stonesplit: attributeDamage.stonesplit * attributeMultiplier * globalMultiplier,
       silkbind: attributeDamage.silkbind * attributeMultiplier * globalMultiplier,
       bamboocut: attributeDamage.bamboocut * attributeMultiplier * globalMultiplier,
     };
+    if (import.meta.env.DEV) finishCalculationPhase("damageAttributeChannels", attributeChannelsStartedAt);
+    if (import.meta.env.DEV) finishCalculationPhase("damageVariantCalculation", variantStartedAt);
+    return result;
   };
+  const rateResolutionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const rateStats = {
     effectivePrecision: derivedStats.effectivePrecision,
     effectiveCrit: derivedStats.effectiveCrit,
@@ -358,7 +384,9 @@ function calculateDamageBreakdownInternal(
     effects.some((effect) => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"));
   const rates = calculateRates(convertedRateStats, { SteadfastGuaranteedCrit });
+  if (import.meta.env.DEV) finishCalculationPhase("damageRateResolution", rateResolutionStartedAt);
   if (random) {
+    const outcomeSelectionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const outcomeRoll = randomUnit();
     let outcome: DamageOutcome;
     switch (true) {
@@ -374,22 +402,27 @@ function calculateDamageBreakdownInternal(
       default:
         outcome = "affinity";
     }
+    if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeSelectionStartedAt);
     let selectedDamage: ReturnType<typeof calculateVariant>;
     switch (outcome) {
       case "abrasion":
         selectedDamage = calculateVariant("min", 0);
         break;
       case "affinity":
-        selectedDamage = calculateVariant("max", stats.affinityDmgBonus + effectAffinityDmgBonus);
+        selectedDamage = calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus);
         break;
       case "critical":
-        selectedDamage = calculateVariant("simulate", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
+        selectedDamage = calculateVariant(
+          "simulate",
+          derivedStats.effectiveCritDmgBonus + resolvedEffects.critDmgBonus,
+        );
         break;
       case "normal":
         selectedDamage = calculateVariant("simulate", 0);
         break;
     }
-    return {
+    const outcomeAssemblyStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+    const result = {
       ...selectedDamage,
       total:
         selectedDamage.physical +
@@ -405,11 +438,14 @@ function calculateDamageBreakdownInternal(
         affinity: outcome === "affinity" ? 1 : 0,
       },
     };
+    if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAssemblyStartedAt);
+    return result;
   }
   const abrasionDamage = calculateVariant("min", 0);
   const normalDamage = calculateVariant("average", 0);
-  const critDamage = calculateVariant("average", derivedStats.effectiveCritDmgBonus + effectCritDmgBonus);
-  const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + effectAffinityDmgBonus);
+  const critDamage = calculateVariant("average", derivedStats.effectiveCritDmgBonus + resolvedEffects.critDmgBonus);
+  const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus);
+  const outcomeAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const weighted = (key: keyof typeof abrasionDamage) =>
     abrasionDamage[key] * rates.abrasionRate +
     normalDamage[key] * rates.normalRate +
@@ -420,7 +456,7 @@ function calculateDamageBreakdownInternal(
   const stonesplit = weighted("stonesplit");
   const silkbind = weighted("silkbind");
   const bamboocut = weighted("bamboocut");
-  return {
+  const result = {
     physical,
     bellstrike,
     stonesplit,
@@ -434,6 +470,8 @@ function calculateDamageBreakdownInternal(
       affinity: rates.affinityRate,
     },
   };
+  if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAggregationStartedAt);
+  return result;
 }
 
 export function calculateDamageBreakdown(action: DamageAction, context: DamageContext): DamageBreakdown {

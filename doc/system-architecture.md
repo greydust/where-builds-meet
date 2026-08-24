@@ -622,6 +622,24 @@ the ordered damage pass and damage-event state snapshots entirely; its final
 aggregation performs the single required damage resolution. Monte Carlo runs
 still resolve the stored entries independently with that run's random samples.
 
+Local Vite development builds wrap each deterministic worker request in a
+calculation benchmark and emit a collapsed `[Damage benchmark]` console table.
+The table separates top-level timeline construction, damage-pipeline, timing,
+and metrics/breakdown costs. Its nested damage-event rows retain the complete
+ordered traversal as a parent measurement and split out target-state
+propagation, real damage resolution, listener cooldown and requirement checks,
+replay construction, replay queue insertion, and post-hit target-HP updates.
+The real-damage parent is further divided into per-hit stat resolution, effect
+and attunement aggregation, outcome-rate conversion, damage-variant evaluation,
+and final outcome weighting. Variant evaluation reports physical and attribute
+channel math as nested children so repeated attribute-effect scans remain
+visible without being double-counted in the formula remainder.
+Derived remainder rows reconcile unclassified work without adding nested replay
+measurements twice under their listener parent. Timeline queue ordering,
+effect-trigger evaluation, and active-effect resolution retain their own call
+counts. The collector is gated by `import.meta.env.DEV`; production workers
+bypass collection and do not log benchmark output.
+
 Pure stat and attunement variants reuse the baseline timeline and its effect
 snapshots. Inner Way definitions also declare `altersTimeline`; every current
 Inner Way sets it to true, so removal variants conservatively rebuild the

@@ -1,4 +1,5 @@
 import type { WeaponFamily, WeaponId } from "../types";
+import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
 import { resolveSegmentValue } from "./dynamicValues";
 
 export type EditableObject = Record<string, unknown>;
@@ -1074,10 +1075,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
 
   while (events.length && processedEvents < 2000) {
+    const queueStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     events.sort(
       (left, right) => compareTimelineTime(left.time, right.time) || compareSortOrder(left.sortOrder, right.sortOrder),
     );
     const event = events.shift()!;
+    if (import.meta.env.DEV) finishCalculationPhase("timelineQueueOrdering", queueStartedAt);
     processedEvents += 1;
     currentTimelineTime = event.time;
     regenerateResources(event.time);
@@ -1662,10 +1665,13 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     };
     if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
       setCurrentHP(currentHP - Math.max(0, action.damage));
+      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("takeDamage");
+      if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
       continue;
     }
     if (action.type === "damage") {
+      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("damage");
       innerWayRules
         .filter((rule) => rule.trigger?.event === "damage" || rule.trigger?.target === "self")
@@ -1696,6 +1702,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             )
             .forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
         });
+      if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
     }
     if (action.type === "trigger" && typeof action.value === "string") {
       const triggerOrdinal =
