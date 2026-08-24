@@ -30,7 +30,12 @@ import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
-import { subtractUnconditionalDamageEffects } from "./unconditionalDamageEffects";
+import {
+  addUnconditionalDamageEffects,
+  splitStaticDamageEffect,
+  subtractUnconditionalDamageEffects,
+  type UnconditionalDamageEffects,
+} from "./unconditionalDamageEffects";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -532,6 +537,39 @@ function battleEndCutoff(timeline: TimelineRow[]) {
   return row ? { time: row.startTime, order: row.order } : undefined;
 }
 
+const skillStaticRequirementTargets = new Set(["skillTag", "martialArt", "equippedMartialArt"]);
+
+function requirementNodeIsSkillStatic(node: unknown): boolean {
+  if (Array.isArray(node)) return node.every(requirementNodeIsSkillStatic);
+  if (!node || typeof node !== "object") return false;
+  const condition = node as EditableObject;
+  switch (condition.operator) {
+    case "or":
+      return Array.isArray(condition.operand) && condition.operand.every(requirementNodeIsSkillStatic);
+    case "not":
+      return (
+        Array.isArray(condition.operand) &&
+        condition.operand.length === 1 &&
+        requirementNodeIsSkillStatic(condition.operand[0])
+      );
+    default:
+      return typeof condition.target === "string" && skillStaticRequirementTargets.has(condition.target);
+  }
+}
+
+function requirementIsSkillStatic(requirement: unknown): boolean {
+  if (requirement === undefined) return true;
+  return Array.isArray(requirement)
+    ? requirement.every(requirementNodeIsSkillStatic)
+    : requirementNodeIsSkillStatic(requirement);
+}
+
+function unwrappedEffect(effect: EditableObject): EditableObject {
+  return effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect)
+    ? (effect.effect as EditableObject)
+    : effect;
+}
+
 function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
@@ -546,6 +584,39 @@ function timelineDamageEntries(
   );
   const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
   const setupEffects = overrides.setupEffects ?? input.setupEffects;
+  const staticSetupEffects = setupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
+  const dynamicSetupEffects = setupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
+  const staticInnerWayRules = rules.filter((rule) => requirementIsSkillStatic(rule.requirement));
+  const dynamicInnerWayRules = rules.filter((rule) => !requirementIsSkillStatic(rule.requirement));
+  const skillStaticEffectCache = new Map<
+    string,
+    { aggregated: UnconditionalDamageEffects; remaining: EditableObject[] }
+  >();
+  const skillStaticEffectsFor = (skillTags: string[]) => {
+    const key = [...skillTags].sort().join("\u001f");
+    const cached = skillStaticEffectCache.get(key);
+    if (cached) return cached;
+    const startedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+    const applicableEffects = [
+      ...staticSetupEffects
+        .filter((effect) => requirementsPass(effect.requirement, [], [], skillTags, conditions, state.weapons, {}, {}))
+        .map(unwrappedEffect),
+      ...staticInnerWayRules
+        .filter((rule) => requirementsPass(rule.requirement, [], [], skillTags, conditions, state.weapons, {}, {}))
+        .map((rule) => rule.effect),
+    ];
+    let aggregated: UnconditionalDamageEffects = {};
+    const remaining: EditableObject[] = [];
+    for (const effect of applicableEffects) {
+      const split = splitStaticDamageEffect(effect, state.weapons);
+      aggregated = addUnconditionalDamageEffects(aggregated, split.aggregated);
+      if (split.remaining) remaining.push(split.remaining);
+    }
+    const resolved = { aggregated, remaining };
+    skillStaticEffectCache.set(key, resolved);
+    if (import.meta.env.DEV) finishCalculationPhase("skillStaticEffectAggregation", startedAt);
+    return resolved;
+  };
   const stats = overrides.stats ?? state.stats;
   const attunement = overrides.attunement ?? state.attunement;
   const derivedStats = overrides.stats
@@ -586,6 +657,7 @@ function timelineDamageEntries(
           const debuffs = actionState.debuffs;
           const resources = actionState.resources;
           const skillTags = row.actionSkillTags?.[actionIndex] ?? row.skill?.tags ?? [];
+          const skillStaticEffects = skillStaticEffectsFor(skillTags);
           const requirementState = {
             selfHPPercentage: actionState.currentHPRatio * 100,
             targetHPPercentage: actionState.targetHPRatio * 100,
@@ -598,7 +670,7 @@ function timelineDamageEntries(
             currentRequirementState = requirementState,
           ) => {
             const effectStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-            const activeSetupEffects = setupEffects
+            const activeSetupEffects = dynamicSetupEffects
               .filter((effect) =>
                 requirementsPass(
                   effect.requirement,
@@ -611,12 +683,8 @@ function timelineDamageEntries(
                   currentRequirementState,
                 ),
               )
-              .map((effect) =>
-                effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect)
-                  ? (effect.effect as EditableObject)
-                  : effect,
-              );
-            const activeInnerWayEffects = rules
+              .map(unwrappedEffect);
+            const activeInnerWayEffects = dynamicInnerWayRules
               .filter((rule) =>
                 requirementsPass(
                   rule.requirement,
@@ -696,6 +764,7 @@ function timelineDamageEntries(
                   : effect,
               );
             const resolvedEffects = [
+              ...skillStaticEffects.remaining,
               ...activeSetupEffects,
               ...activeInnerWayEffects,
               ...activeTrackedEffects,
@@ -713,7 +782,10 @@ function timelineDamageEntries(
             enemy: state.enemy,
             derivedStats,
             effects: effectsForState(buffs, debuffs, resources),
-            unconditionalDamageEffects: actionState.unconditionalDamageEffects,
+            unconditionalDamageEffects: addUnconditionalDamageEffects(
+              actionState.unconditionalDamageEffects,
+              skillStaticEffects.aggregated,
+            ),
             distance: actionState.distance,
             currentHPRatio: actionState.currentHPRatio,
             targetHPRatio: actionState.targetHPRatio,

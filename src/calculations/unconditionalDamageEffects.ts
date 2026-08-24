@@ -30,10 +30,39 @@ export const unconditionalDamageEffectFields = [
 export type UnconditionalDamageEffectField = (typeof unconditionalDamageEffectFields)[number];
 export type UnconditionalDamageEffects = Partial<Record<UnconditionalDamageEffectField, number>>;
 
+export type StaticDamageEffectSplit = {
+  aggregated: UnconditionalDamageEffects;
+  remaining?: Record<string, unknown>;
+};
+
 const unconditionalDamageEffectFieldSet = new Set<string>(unconditionalDamageEffectFields);
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+export function splitStaticDamageEffect(
+  effect: Record<string, unknown>,
+  weapons: readonly string[],
+): StaticDamageEffectSplit {
+  const aggregated: UnconditionalDamageEffects = {};
+  const remaining = { ...effect };
+  for (const field of unconditionalDamageEffectFields) {
+    const value = effect[field];
+    if (typeof value !== "number" || !Number.isFinite(value)) continue;
+    if (
+      field !== "hpDMGBonus" ||
+      !Array.isArray(effect.hpDMGBonusWeapons) ||
+      effect.hpDMGBonusWeapons.some((weapon) => typeof weapon === "string" && weapons.includes(weapon))
+    )
+      aggregated[field] = value;
+    delete remaining[field];
+  }
+  if (!Object.hasOwn(remaining, "hpDMGBonus")) delete remaining.hpDMGBonusWeapons;
+  return {
+    aggregated,
+    ...(Object.keys(remaining).length ? { remaining } : {}),
+  };
 }
 
 export function addUnconditionalDamageEffects(
@@ -42,12 +71,13 @@ export function addUnconditionalDamageEffects(
   const result: UnconditionalDamageEffects = {};
   for (const effect of effects) {
     if (!effect) continue;
-    for (const field of unconditionalDamageEffectFields) {
-      const value = effect[field];
+    for (const [field, value] of Object.entries(effect)) {
+      if (!unconditionalDamageEffectFieldSet.has(field)) continue;
       if (typeof value !== "number" || !Number.isFinite(value) || value === 0) continue;
-      const total = (result[field] ?? 0) + value;
-      if (Math.abs(total) < 1e-12) delete result[field];
-      else result[field] = total;
+      const typedField = field as UnconditionalDamageEffectField;
+      const total = (result[typedField] ?? 0) + value;
+      if (Math.abs(total) < 1e-12) delete result[typedField];
+      else result[typedField] = total;
     }
   }
   return result;

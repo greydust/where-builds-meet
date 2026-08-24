@@ -48,6 +48,14 @@ try {
     throw new Error("The benchmark must split effect aggregation from the damage formula.");
   if (!rows.some((row) => row.phase === "Damage-effect field aggregation"))
     throw new Error("The benchmark must split damage-effect fields from aggregation.");
+  if (!rows.some((row) => row.phase === "Skill-static effect aggregation (cache misses)"))
+    throw new Error("The benchmark must report cached skill-static effect aggregation.");
+  if (!rows.some((row) => row.phase === "Aggregated-effect snapshot initialization"))
+    throw new Error("The benchmark must report initialization from cached and lifecycle-aggregated effects.");
+  if (!rows.some((row) => row.phase === "Remaining per-hit effect field scan (parent)"))
+    throw new Error("The benchmark must report the remaining per-hit effect scan.");
+  if (!rows.some((row) => row.phase === "Dynamic damage-effect value resolution"))
+    throw new Error("The benchmark must report dynamic effect-value resolution.");
   if (!rows.some((row) => row.phase === "Resolved attack-channel snapshot"))
     throw new Error("The benchmark must split attack-channel snapshots from aggregation.");
   if (!rows.some((row) => row.phase === "Matching attunement aggregation"))

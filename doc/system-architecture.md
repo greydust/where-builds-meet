@@ -648,11 +648,20 @@ lifecycle transitions. Damage contexts carry the aggregate separately, while
 conditional or dynamic rules remain in the regular effect list. This removes
 stable tracked-effect field probes from each hit without tying the reusable
 timeline to a particular character-stat baseline.
+Setup and Inner Way damage fields with requirements limited to action tags and
+the equipped martial-art pair are additionally cached per effective action-tag
+signature while damage entries are built. Their numeric fields join the
+aggregate; state-dependent rules and non-damage residual fields remain in the
+per-hit list. Multi-action component tags therefore receive independent cache
+entries instead of inheriting the displayed parent skill's tags.
 Derived remainder rows reconcile unclassified work without adding nested replay
 measurements twice under their listener parent. Timeline queue ordering,
 effect-trigger evaluation, and active-effect resolution retain their own call
 counts. The collector is gated by `import.meta.env.DEV`; production workers
 bypass collection and do not log benchmark output.
+The development table reports skill-static cache misses separately, then splits
+the remaining damage-effect aggregation into aggregate initialization, the
+residual per-hit scan, and dynamic-value resolution nested within that scan.
 
 Pure stat and attunement variants reuse the baseline timeline and its effect
 snapshots. Inner Way definitions also declare `altersTimeline`; every current

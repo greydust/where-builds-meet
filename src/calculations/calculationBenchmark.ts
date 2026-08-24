@@ -4,6 +4,7 @@ export type CalculationBenchmarkPhase =
   | "effectTriggering"
   | "damagePipeline"
   | "damageEntryConstruction"
+  | "skillStaticEffectAggregation"
   | "effectResolution"
   | "damageEventOrdering"
   | "damageEventTraversal"
@@ -18,6 +19,9 @@ export type CalculationBenchmarkPhase =
   | "damageStatPipeline"
   | "damageEffectAggregation"
   | "damageEffectFieldAggregation"
+  | "damageEffectAccumulatorInitialization"
+  | "damageEffectRemainingScan"
+  | "damageEffectDynamicValueResolution"
   | "damageChannelSnapshot"
   | "damageAttunementAggregation"
   | "damageSharedMultiplierResolution"
@@ -102,6 +106,7 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
     ["timelineQueueOrdering", "Timeline queue sorting and removal"],
     ["effectTriggering", "Timeline effect-trigger evaluation"],
     ["damageEntryConstruction", "Damage entry/context construction"],
+    ["skillStaticEffectAggregation", "Skill-static effect aggregation (cache misses)"],
     ["effectResolution", "Active effect resolution"],
     ["damageEventOrdering", "Target-state/damage stream ordering"],
     ["damageEventTraversal", "Ordered damage-event traversal (parent)"],
@@ -112,6 +117,9 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
     ["damageStatPipeline", "Stat/effective-stat pipeline execution"],
     ["damageEffectAggregation", "Effect and attunement aggregation"],
     ["damageEffectFieldAggregation", "Damage-effect field aggregation"],
+    ["damageEffectAccumulatorInitialization", "Aggregated-effect snapshot initialization"],
+    ["damageEffectRemainingScan", "Remaining per-hit effect field scan (parent)"],
+    ["damageEffectDynamicValueResolution", "Dynamic damage-effect value resolution"],
     ["damageChannelSnapshot", "Resolved attack-channel snapshot"],
     ["damageAttunementAggregation", "Matching attunement aggregation"],
     ["damageSharedMultiplierResolution", "Shared damage-multiplier resolution"],
@@ -137,7 +145,7 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
   addRow(
     "remainder",
     "Other damage-entry construction",
-    duration("damageEntryConstruction") - duration("effectResolution"),
+    duration("damageEntryConstruction") - duration("skillStaticEffectAggregation") - duration("effectResolution"),
     "derived",
   );
   addRow(
@@ -175,6 +183,20 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
       duration("damageChannelSnapshot") -
       duration("damageAttunementAggregation") -
       duration("damageSharedMultiplierResolution"),
+    "derived",
+  );
+  addRow(
+    "remainder",
+    "Other damage-effect field aggregation",
+    duration("damageEffectFieldAggregation") -
+      duration("damageEffectAccumulatorInitialization") -
+      duration("damageEffectRemainingScan"),
+    "derived",
+  );
+  addRow(
+    "remainder",
+    "Other remaining per-hit effect scan",
+    duration("damageEffectRemainingScan") - duration("damageEffectDynamicValueResolution"),
     "derived",
   );
   addRow(

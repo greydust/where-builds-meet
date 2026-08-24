@@ -176,6 +176,7 @@ function calculateDamageBreakdownInternal(
   const effectValue = (value: unknown) => {
     if (typeof value === "number" && Number.isFinite(value)) return value;
     if (!value || typeof value !== "object" || Array.isArray(value)) return 0;
+    const dynamicValueStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const objectValue = value as Record<string, unknown>;
     const dynamicParameters = {
       distance: context.distance ?? 1,
@@ -186,19 +187,29 @@ function calculateDamageBreakdownInternal(
       missingTargetHPPercentage: (1 - (context.targetHPRatio ?? 1)) * 100,
     };
     const multiplied = resolveMultiplyValue(value, dynamicParameters);
-    if (multiplied !== undefined) return multiplied;
+    if (multiplied !== undefined) {
+      if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt);
+      return multiplied;
+    }
     const segmented = resolveSegmentValue(value, dynamicParameters);
-    if (segmented !== undefined) return segmented;
+    if (segmented !== undefined) {
+      if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt);
+      return segmented;
+    }
     const formula = objectValue.formula;
-    return formula && typeof formula === "object" && !Array.isArray(formula)
-      ? (resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0)
-      : 0;
+    const resolved =
+      formula && typeof formula === "object" && !Array.isArray(formula)
+        ? (resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0)
+        : 0;
+    if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt);
+    return resolved;
   };
   const coefficient = numberValue(action.phyCoef);
   const physicalBonus = context.isDot ? 0 : numberValue(action.phyBonus);
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
   const path = mainAttribute(weapons);
   const effectFieldAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+  const accumulatorStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const unconditional = context.unconditionalDamageEffects ?? {};
   const resolvedEffects = {
     attackBonus: {
@@ -232,6 +243,8 @@ function calculateDamageBreakdownInternal(
     affinityDmgBonus: unconditional.affinityDmgBonus ?? 0,
     attributeDmgBonus: unconditional.attributeDMGBonus ?? 0,
   };
+  if (import.meta.env.DEV) finishCalculationPhase("damageEffectAccumulatorInitialization", accumulatorStartedAt);
+  const remainingScanStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   for (const effect of effects) {
     resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus);
     for (const attribute of attributeDamageTypes) {
@@ -256,6 +269,7 @@ function calculateDamageBreakdownInternal(
     resolvedEffects.affinityDmgBonus += effectValue(effect.affinityDmgBonus);
     resolvedEffects.attributeDmgBonus += effectValue(effect.attributeDMGBonus);
   }
+  if (import.meta.env.DEV) finishCalculationPhase("damageEffectRemainingScan", remainingScanStartedAt);
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectFieldAggregation", effectFieldAggregationStartedAt);
   const channelSnapshotStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const physicalAttackMultiplier = 1 + resolvedEffects.attackBonus.physical;

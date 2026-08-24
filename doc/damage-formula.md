@@ -76,6 +76,16 @@ content that can be modified. Mixed definitions are split rule by rule, so an
 unconditional attack bonus can use the aggregate while a conditional
 penetration rule from the same stack tier is still evaluated on hit.
 
+Setup and Inner Way rules whose complete requirements depend only on skill tags,
+the skill's martial-art tag, or the equipped martial-art pair are resolved once
+per distinct effective action-tag signature. Their finite numeric damage fields
+are cached in the same aggregate shape used by tracked effects. Static non-damage
+fields remain in a cached residual effect list. Rules that inspect buffs,
+debuffs, stacks, resources, HP, Qi, distance, cooldowns, or other hit-time state
+remain on the per-hit path. This preserves state changes between hits and the
+different component tags of multi-action skills while avoiding repeated static
+tag checks and numeric aggregation.
+
 Calculation-time attack-value bonuses multiply the resolved minimum and maximum
 of their named attack type before the attack roll is selected. They do not
 multiply an action's flat physical or attribute bonus. Etherwrath uses separate
