@@ -5,7 +5,6 @@ Combat data is split by responsibility:
 - `data/skill/`: castable and triggered skills
 - `data/dot/`: damage-over-time definitions
 - `data/buff/`: player effects
-- `data/buff/global.json`: always-active conditional effect rules
 - `data/debuff/`: target effects and manual encounter states
 - `data/innerway/`: cumulative tier effects, triggers, and modifications
 - `data/martial-art/`: weapon talent arrays
@@ -584,10 +583,13 @@ Definition fields:
 - `stackEffects`: cumulative effect rules indexed by current stack count
 - `shared`: descriptive game metadata; it does not currently change simulation
   behavior
+- `global`: when `true`, contributes always-active setup rules and stays hidden
+  from manual Buff choices
 
-Rules in `data/buff/global.json` are flattened into the always-active setup
-effects. They are checked for every damage action like Inner Way rules, but are
-not tracked buffs and do not appear in buff plates or the manual Buff selector.
+Effect definitions marked `global: true` are flattened into the always-active
+setup effects. They are checked for every damage action like Inner Way rules,
+but are not tracked buffs and do not appear in buff plates or the manual Buff
+selector.
 
 `TimelineBuildInput.initialBuffs` and `initialDebuffs` may seed permanent
 tracked effects. Seeded effects have no expiration, are not consumed, and merge
@@ -601,6 +603,15 @@ entries must already exist for the larger cap.
 
 An effect entry should canonically use `{ "requirement": [...], "effect": {...} }`.
 Unwrapped effect objects are also accepted by the current evaluator.
+
+A canonical wrapper containing only recognized, finite numeric damage fields is
+eligible for lifecycle aggregation. The timeline updates that aggregate on
+application, stack change, consumption, and expiration, and omits the extracted
+wrapper from per-hit effect evaluation. Any requirement, dynamic value,
+additional wrapper metadata, unsupported effect field, or modifier of the
+definition's `effect`/`stackEffects` content keeps the complete rule on the
+per-hit path. Authors should continue describing the mechanic normally in JSON;
+the optimization does not require a data flag.
 
 Damage effect fields `globalDmgBonus` and `globalHPDMGBonus` contribute to the
 same additive global multiplier for every HP-damage component.
@@ -952,7 +963,7 @@ Damage effects may similarly segment the current `distance` parameter.
 Numeric strings are accepted for the scalar. `missingHPPercentage` converts the
 hit-time HP ratio to percentage points, so 20% missing HP resolves this example
 to `20 × 0.0045 = 0.09`. Dragon Head - Tide receives this always-active rule
-from `data/buff/global.json`.
+from its `global: true` definition in `data/buff/mystic.json`.
 
 The optional start record identifies the default rotation step and action used
 as time zero. In memory, the UI converts this to a timeline row ID and optional

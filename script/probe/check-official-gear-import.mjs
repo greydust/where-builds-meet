@@ -48,7 +48,7 @@ try {
     row("maxStonesplit", 36.2),
     row("phalanxbaneChargedBoost", 5),
   ];
-  const detail = (baseAttrs, baseAffixes) => ({ exVo: { baseAttrs, baseAffixes } });
+  const detail = (baseAttrs, baseAffixes, extra = {}) => ({ exVo: { ...extra, baseAttrs, baseAffixes } });
   const pasted = {
     source: "wwm-dashboard",
     v: 1,
@@ -158,10 +158,13 @@ try {
   );
   assert(
     profileMap.innerWays["601"].name === "Soaring High" &&
+      profileMap.innerWays["601"].innerWay === "SoaringHigh" &&
       profileMap.innerWays["82"].name === "Seasonal Edge" &&
       profileMap.innerWays["603"].name === "Empirical Edge" &&
       profileMap.innerWays["603"].innerWay === "EmpiricalEdge" &&
-      profileMap.innerWays["602"].name === "Sky Gripped",
+      profileMap.innerWays["602"].name === "Sky Gripped" &&
+      profileMap.innerWays["602"].innerWay === "SkyGripped" &&
+      profileMap.weaponSets["56"].weaponSet === "Etherwrath",
     "The second observed Bamboocut - Kite passiveSlots set must retain its Inner Way names.",
   );
   const actualRow = (id, value) => ({ equipmentDetails: [id, value, 0.94, 3, true] });
@@ -210,6 +213,32 @@ try {
   assert(
     JSON.stringify(dashboardShape.weapons) === JSON.stringify(["snowparting", "phalanxbane"]),
     "Importing the same weapon pair must not change the global weapon filter.",
+  );
+  const kiteSetupShape = importer.parseOfficialGearExport(
+    {
+      roleName: "Kite Setup",
+      kongfuMain: 20901,
+      kongfuSub: 20703,
+      passiveSlots: [81, 601, 602, 603],
+      wearEquipsDetailed: {
+        1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713006, 40.5)], { suffix: 56 }),
+        2: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713002, 72.6)], { suffix: 56 }),
+        10: detail({ MIN_W_ATK: 86 }, [actualRow(9733002, 73.1)], { suffix: 56 }),
+        11: detail({ MAX_W_ATK: 129 }, [actualRow(9733002, 57.1)], { suffix: 56 }),
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  const kiteSetup = kiteSetupShape.exportValue.builds[0].setup;
+  assert(
+    JSON.stringify(kiteSetup.innerWays) ===
+      JSON.stringify([
+        { innerWay: "MoraleChant", tier: "T6" },
+        { innerWay: "SoaringHigh", tier: "T6" },
+        { innerWay: "SkyGripped", tier: "T6" },
+        { innerWay: "EmpiricalEdge", tier: "T6" },
+      ]) && kiteSetup.weaponSets.Etherwrath === 4,
+    "Kite passive slots and four suffix-56 weapon-side pieces must import as T6 Inner Ways and Etherwrath 4-piece.",
   );
   const mightDashboardShape = importer.parseOfficialGearExport(
     {

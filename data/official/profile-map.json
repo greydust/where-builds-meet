@@ -19,9 +19,12 @@
     "47": { "name": "Light and Shadow Alike" },
     "5": { "name": "Fivefold Bleed" },
     "41": { "name": "Envigorated Warrior", "innerWay": "EnvigoratedWarrior" },
-    "601": { "name": "Soaring High" },
+    "601": { "name": "Soaring High", "innerWay": "SoaringHigh" },
     "82": { "name": "Seasonal Edge" },
     "603": { "name": "Empirical Edge", "innerWay": "EmpiricalEdge" },
-    "602": { "name": "Sky Gripped" }
+    "602": { "name": "Sky Gripped", "innerWay": "SkyGripped" }
+  },
+  "weaponSets": {
+    "56": { "weaponSet": "Etherwrath" }
   }
 }

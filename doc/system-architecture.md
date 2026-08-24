@@ -449,9 +449,9 @@ state, and share the same unique tracked entry with any matching application
 from the rotation. Floating Grace selects either its base Mixed definition or
 its stronger Deluge definition through `initialBuffs`. Reapplication cannot
 expire or duplicate a permanent seeded effect.
-Always-active rules from `data/buff/global.json` instead enter through setup
-effects. They are evaluated at each damage action without creating a visible or
-expiring tracked buff.
+Effect definitions with `global: true` instead enter through setup effects.
+They are evaluated at each damage action without creating a visible or expiring
+tracked buff and are omitted from manual Buff choices.
 
 At cast start, modifiers are selected, stack-scaled modifier values are resolved
 from that pre-action state, and cast/action times are adjusted. Resolved
@@ -642,6 +642,12 @@ visible without being double-counted in the formula remainder.
 Stat resolution separately reports effect detection and shared stat-pipeline
 execution. Effect aggregation reports damage-effect fields, resolved channel
 snapshots, matching attunements, and shared multiplier construction.
+Unconditional finite numeric fields from tracked buffs and debuffs are split
+from their definitions and maintained as a timeline-state aggregate at effect
+lifecycle transitions. Damage contexts carry the aggregate separately, while
+conditional or dynamic rules remain in the regular effect list. This removes
+stable tracked-effect field probes from each hit without tying the reusable
+timeline to a particular character-stat baseline.
 Derived remainder rows reconcile unclassified work without adding nested replay
 measurements twice under their listener parent. Timeline queue ordering,
 effect-trigger evaluation, and active-effect resolution retain their own call

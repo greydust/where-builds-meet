@@ -15,7 +15,6 @@ try {
   );
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
-  const globalBuffs = (await viteServer.ssrLoadModule("/data/buff/global.json")).default;
   const generalBuffs = (await viteServer.ssrLoadModule("/data/buff/general.json")).default;
   const mysticBuffs = (await viteServer.ssrLoadModule("/data/buff/mystic.json")).default;
   const generalDebuffs = (await viteServer.ssrLoadModule("/data/debuff/general.json")).default;
@@ -23,6 +22,10 @@ try {
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
+  assert(
+    mysticBuffs.DragonHeadTide.global === true,
+    "Dragon Head - Tide must remain an always-active rule from the Mystic buff definitions.",
+  );
   const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9;
   const eventDefinitions = {
     SelfHP: { name: "Self HP", castTime: 0, action: [{ type: "setHP", time: 0 }], tags: ["Event"] },
@@ -109,7 +112,7 @@ try {
       ...baseInput,
       rotation: hpRotation,
       skills: { Hit: hit },
-      setupEffects: globalBuffs.DragonHeadTide.effect,
+      setupEffects: mysticBuffs.DragonHeadTide.effect,
     },
     startAnchor: { rowId: "rotation-1" },
     stats,

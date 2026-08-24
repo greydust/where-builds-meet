@@ -76,7 +76,6 @@ import stonesplitMightBuffs from "../data/buff/stonesplit-might.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
 import bamboocutKiteBuffs from "../data/buff/bamboocut-kite.json";
 import silkbindDelugeBuffs from "../data/buff/silkbind-deluge.json";
-import globalBuffs from "../data/buff/global.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
 import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
@@ -275,10 +274,13 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Mystic: mysticSkills as SkillMap,
   General: generalSkills as SkillMap,
 };
+const manualMysticBuffs = Object.fromEntries(
+  Object.entries(mysticBuffs as Record<string, EffectDefinition>).filter(([, definition]) => !definition.global),
+);
 const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   ...defaultSkillMaps,
   Buff: {
-    ...mysticBuffs,
+    ...manualMysticBuffs,
     ...generalBuffs,
     ...stonesplitStrengthBuffs,
     ...stonesplitMightBuffs,
@@ -483,11 +485,11 @@ const effectDefinitions = {
   ...generalDebuffs,
   ...dotDefinitions,
 } as Record<string, EffectDefinition>;
-const globalEffectRules = Object.values(globalBuffs).flatMap(
-  (definition) => definition.effect ?? [],
+const globalEffectRules = Object.values(effectDefinitions).flatMap((definition) =>
+  definition.global ? (definition.effect ?? []) : [],
 ) as EditableObject[];
 const manualBuffDefinitions = {
-  ...mysticBuffs,
+  ...manualMysticBuffs,
   ...generalBuffs,
   ...stonesplitStrengthBuffs,
   ...stonesplitMightBuffs,

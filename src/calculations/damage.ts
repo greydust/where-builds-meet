@@ -13,6 +13,7 @@ import {
 } from "./statEffects";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
+import type { UnconditionalDamageEffects } from "./unconditionalDamageEffects";
 
 type AttunementDefinition = {
   effect?: { stat?: Record<string, number>; tags?: string[]; excludeTags?: string[] };
@@ -80,6 +81,7 @@ export type DamageContext = {
   enemy: EnemyProfile;
   derivedStats: DerivedStats;
   effects: Record<string, unknown>[];
+  unconditionalDamageEffects?: UnconditionalDamageEffects;
   distance?: number;
   currentHPRatio?: number;
   targetHPRatio?: number;
@@ -197,27 +199,38 @@ function calculateDamageBreakdownInternal(
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
   const path = mainAttribute(weapons);
   const effectFieldAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+  const unconditional = context.unconditionalDamageEffects ?? {};
   const resolvedEffects = {
     attackBonus: {
-      physical: 0,
-      bellstrike: 0,
-      stonesplit: 0,
-      silkbind: 0,
-      bamboocut: 0,
+      physical: unconditional.physicalAttackBonus ?? 0,
+      bellstrike: unconditional.bellstrikeAttackBonus ?? 0,
+      stonesplit: unconditional.stonesplitAttackBonus ?? 0,
+      silkbind: unconditional.silkbindAttackBonus ?? 0,
+      bamboocut: unconditional.bamboocutAttackBonus ?? 0,
     },
-    attributePenetration: { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
-    attributeResistance: { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
-    innerWayDmgBonus: 0,
-    baseDmgBonus: 0,
-    globalDmgBonus: 0,
-    globalBellstrikeDmgBonus: 0,
-    dotDamageBonus: 0,
-    physicalPenetration: 0,
-    defenseBonus: 0,
-    physicalResistance: 0,
-    critDmgBonus: 0,
-    affinityDmgBonus: 0,
-    attributeDmgBonus: 0,
+    attributePenetration: {
+      bellstrike: unconditional.bellstrikePenetration ?? 0,
+      stonesplit: unconditional.stonesplitPenetration ?? 0,
+      silkbind: unconditional.silkbindPenetration ?? 0,
+      bamboocut: unconditional.bamboocutPenetration ?? 0,
+    },
+    attributeResistance: {
+      bellstrike: unconditional.bellstrikeResistance ?? 0,
+      stonesplit: unconditional.stonesplitResistance ?? 0,
+      silkbind: unconditional.silkbindResistance ?? 0,
+      bamboocut: unconditional.bamboocutResistance ?? 0,
+    },
+    innerWayDmgBonus: (unconditional.dmgBonus ?? 0) + (unconditional.hpDMGBonus ?? 0),
+    baseDmgBonus: unconditional.baseDMGBonus ?? 0,
+    globalDmgBonus: (unconditional.globalDmgBonus ?? 0) + (unconditional.globalHPDMGBonus ?? 0),
+    globalBellstrikeDmgBonus: unconditional.globalBellstrikeDMGBonus ?? 0,
+    dotDamageBonus: context.isDot ? (unconditional.dotDamage ?? 0) : 0,
+    physicalPenetration: unconditional.physicalPenetration ?? 0,
+    defenseBonus: unconditional.defenseBonus ?? 0,
+    physicalResistance: unconditional.physicalResistance ?? 0,
+    critDmgBonus: unconditional.critDmgBonus ?? 0,
+    affinityDmgBonus: unconditional.affinityDmgBonus ?? 0,
+    attributeDmgBonus: unconditional.attributeDMGBonus ?? 0,
   };
   for (const effect of effects) {
     resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus);

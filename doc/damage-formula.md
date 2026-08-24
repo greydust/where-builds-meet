@@ -67,6 +67,15 @@ the same snapshot; they do not rescan active effects. Separate damage entries
 still resolve independently because their hit-time buffs, debuffs, resources,
 HP/Qi state, tags, or subaction modifiers may differ.
 
+Tracked buffs and debuffs move unconditional finite numeric damage fields into
+a timeline aggregate when the effect is applied, changes stack, is consumed, or
+expires. Each damage entry reads that aggregate directly instead of scanning
+those rules again. A rule stays on the normal per-hit path when it has a
+requirement, a dynamic value, metadata, an unsupported field, or definition
+content that can be modified. Mixed definitions are split rule by rule, so an
+unconditional attack bonus can use the aggregate while a conditional
+penetration rule from the same stack tier is still evaluated on hit.
+
 Calculation-time attack-value bonuses multiply the resolved minimum and maximum
 of their named attack type before the attack roll is selected. They do not
 multiply an action's flat physical or attribute bonus. Etherwrath uses separate
@@ -189,7 +198,8 @@ beyond 9m retain the 20% value. A Move event changes distance for subsequent
 timeline actions; the initial distance is 1m.
 
 Dragon Head - Tide receives an always-active conditional `dmgBonus` rule from
-`data/buff/global.json`. At each hit it resolves:
+its `global: true` definition in `data/buff/mystic.json`. At each hit it
+resolves:
 
 ```text
 Missing HP percentage points = (1 - current HP ratio) × 100

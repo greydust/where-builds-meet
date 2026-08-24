@@ -236,12 +236,16 @@ and `kongfuSub` provide ordered martial-art IDs and are preferred over affix
 inference when both are supported. The observed Might pair maps `20401` to
 Thundercry Blade and `20103` to Stormbreaker Spear, preserving their left/right
 order even when neither weapon carries a unique damage-boost affix.
-`passiveSlots` contains the four ordered
-Inner Way IDs, but the payload does not expose their tiers, so they are not yet
-applied to the imported build. The role object also includes equipped bow/ring records, but the importer
-does not yet translate those set selections. Gear-set, arsenal, and Inner Way
-tiers are not carried explicitly, so the imported build uses the application's
-default setup values for those fields.
+`passiveSlots` contains the four ordered Inner Way IDs. The payload does not
+expose their tiers, so recognized complete four-slot selections import at T6 by
+policy; an incomplete or unknown selection retains the application's default
+Inner Ways. The role object also includes equipped bow/ring records, but the
+importer does not yet translate those set selections. Recognized suffix IDs on
+Left Weapon, Right Weapon, Disc, and Pendant determine weapon-set piece counts:
+two recognized matching pieces select the two-piece tier and four select the
+four-piece tier. Official suffix `56` maps to Etherwrath. Unknown weapon-set,
+armor-set, bow/ring, and arsenal data continues using the application's default
+setup values.
 
 Tier 96 Stonesplit Might armor attunements use IDs `280201` through `280205`:
 Thundercry Blade Shield, Charged Skill DMG, and Special Skill DMG Boost followed

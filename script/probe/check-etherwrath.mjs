@@ -15,6 +15,9 @@ try {
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
+  const { splitUnconditionalDamageEffectRules } = await viteServer.ssrLoadModule(
+    "/src/calculations/unconditionalDamageEffects.ts",
+  );
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const { normalizeBuildSetup, normalizeBuildSetupOverrides } = await viteServer.ssrLoadModule("/src/gear.ts");
   const assert = (condition, message) => {
@@ -101,6 +104,10 @@ try {
     stackingRow.actionStates[5].buffs.find((effect) => effect.name === "Etherwrath")?.stack === 5,
     "The sixth damage action must see the five stacks granted by the previous five hits.",
   );
+  assert(
+    stackingRow.actionStates[5].unconditionalDamageEffects?.bamboocutAttackBonus === 0.06,
+    "The fifth Etherwrath stack must update the lifecycle damage-effect aggregate to 6% Bamboocut Attack.",
+  );
 
   const dodgeTimeline = buildRotationTimeline(
     timelineInput(
@@ -156,11 +163,17 @@ try {
     effects: [],
   };
   const maxStackEffects = buff.stackEffects[4];
+  const splitMaxStackEffects = splitUnconditionalDamageEffectRules(maxStackEffects);
   const attackEffects = maxStackEffects.filter((effect) => !effect.requirement).map((effect) => effect.effect);
   const penetrationEffects = maxStackEffects.filter((effect) => effect.requirement).map((effect) => effect.effect);
   const action = { phyCoef: 1, phyBonus: 0, attrBonus: 0 };
   const baseline = calculateDamageBreakdown(action, baseContext).total;
   const attackBoosted = calculateDamageBreakdown(action, { ...baseContext, effects: attackEffects }).total;
+  const aggregateBoosted = calculateDamageBreakdown(action, {
+    ...baseContext,
+    effects: [],
+    unconditionalDamageEffects: splitMaxStackEffects.unconditional,
+  }).total;
   const martialEffectBoosted = calculateDamageBreakdown(action, {
     ...baseContext,
     skillTags: ["DirectDamage", "MartialArtEffect"],
@@ -169,6 +182,14 @@ try {
   assert(
     Math.abs(attackBoosted / baseline - 1.06) < 1e-9,
     "Five Etherwrath stacks must multiply every attack value by 1.06.",
+  );
+  assert(
+    Math.abs(aggregateBoosted - attackBoosted) < 1e-9,
+    "Lifecycle-aggregated unconditional damage effects must match the original per-hit effect result.",
+  );
+  assert(
+    splitMaxStackEffects.remaining.length === 5,
+    "Etherwrath's five conditional Martial Art Effect penetration rules must remain on the per-hit path.",
   );
   assert(
     Math.abs(martialEffectBoosted / attackBoosted - 1.03) < 1e-9,

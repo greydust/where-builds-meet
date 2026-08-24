@@ -72,7 +72,6 @@ try {
   ];
   const effectPaths = [
     "/data/buff/general.json",
-    "/data/buff/global.json",
     "/data/buff/mystic.json",
     "/data/buff/stonesplit-might.json",
     "/data/buff/stonesplit-strength.json",
@@ -194,7 +193,8 @@ try {
       (row) => row.kind === "rotation" && row.step.type === "event" && row.step.event === "Qi",
     );
     const zeroRows = qiRows.filter((row) => row.step.targetQiRatio === 0);
-    const rampRatios = [0.59, 0.4];
+    const rampRatios = [0.59, 0.3999];
+    const ratioLabel = (ratio) => `${Number((ratio * 100).toFixed(2))}%`;
     if (process.argv.includes("--suggest")) {
       const candidates = timeline.flatMap((row) =>
         row.kind !== "rotation" || row.step.type !== "skill" || row.skipped
@@ -216,7 +216,7 @@ try {
             Math.abs(candidate.time - targetTime) < Math.abs(best.time - targetTime) ? candidate : best,
           );
           console.log(
-            `${rotation.name}: Qi ${(ratio * 100).toFixed(0)}% target ${targetTime.toFixed(3)}s; ` +
+            `${rotation.name}: Qi ${ratioLabel(ratio)} target ${targetTime.toFixed(3)}s; ` +
               `attach before step ${nearest.row.rotationIndex} ${nearest.row.step.skill} action ${nearest.actionIndex} ` +
               `at ${nearest.time.toFixed(3)}s (Qi 0 at ${zeroTime.toFixed(3)}s).`,
           );
@@ -227,7 +227,7 @@ try {
       const rampRows = qiRows.filter((row) => row.step.targetQiRatio === ratio);
       assert(
         rampRows.length === zeroRows.length,
-        `${rotation.name} must have one ${(ratio * 100).toFixed(0)}% Qi event per 0% Qi event.`,
+        `${rotation.name} must have one ${ratioLabel(ratio)} Qi event per 0% Qi event.`,
       );
       for (let index = 0; index < zeroRows.length; index += 1) {
         const zeroTime = zeroRows[index].startTime - battleStart;
@@ -237,7 +237,7 @@ try {
         assert(rampTime < zeroTime, `${rotation.name} Qi ramp ${index + 1} must precede depletion.`);
         assert(
           Math.abs(rampTime - expectedRampTime) <= 0.75,
-          `${rotation.name} ${(ratio * 100).toFixed(0)}% Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; ` +
+          `${rotation.name} ${ratioLabel(ratio)} Qi ramp ${index + 1} is ${rampTime.toFixed(3)}s; ` +
             `expected roughly ${expectedRampTime.toFixed(3)}s.`,
         );
       }

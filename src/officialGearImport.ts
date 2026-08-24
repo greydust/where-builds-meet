@@ -9,6 +9,7 @@ import {
   defaultBuildSetup,
   gearData,
   gearDefinitionForSlot,
+  normalizeBuildSetup,
   type GearItem,
   type GearLevel,
   type GearRarity,
@@ -23,6 +24,7 @@ const officialAffixMap = officialAffixMapJson as Record<string, string>;
 const officialProfileMap = officialProfileMapJson as {
   martialArts: Record<string, { name: string; weapon?: WeaponId }>;
   innerWays: Record<string, { name: string; innerWay?: string }>;
+  weaponSets: Record<string, { weaponSet: string }>;
 };
 const officialImportMap = officialImportMapJson as {
   baseAttributeKeys: Record<string, string>;
@@ -39,6 +41,7 @@ const officialSlotMap: Record<string, GearSlot> = {
   "10": "disc",
   "11": "pendant",
 };
+const weaponSetSlots = new Set<GearSlot>(["leftWeapon", "rightWeapon", "disc", "pendant"]);
 
 const asRecord = (value: unknown): UnknownRecord | undefined =>
   value && typeof value === "object" && !Array.isArray(value) ? (value as UnknownRecord) : undefined;
@@ -327,6 +330,37 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
 
   const roleName =
     typeof role.roleName === "string" && role.roleName.trim() ? role.roleName.trim() : "Official Dashboard";
+  const passiveSlotIds = Array.isArray(role.passiveSlots)
+    ? role.passiveSlots.map((value) => (typeof value === "number" || typeof value === "string" ? String(value) : ""))
+    : [];
+  const importedInnerWays = passiveSlotIds.flatMap((id) => {
+    const innerWay = officialProfileMap.innerWays[id]?.innerWay;
+    return innerWay ? [{ innerWay, tier: "T6" }] : [];
+  });
+  const completeInnerWays =
+    importedInnerWays.length === defaultBuildSetup.innerWays.length &&
+    new Set(importedInnerWays.map((selection) => selection.innerWay)).size === importedInnerWays.length
+      ? importedInnerWays
+      : undefined;
+  const weaponSetPieceCounts = new Map<string, number>();
+  for (const piece of rawPieces) {
+    if (!weaponSetSlots.has(piece.slot)) continue;
+    const suffix = numericValue(piece.exVo.suffix);
+    const weaponSet = suffix === undefined ? undefined : officialProfileMap.weaponSets[String(suffix)]?.weaponSet;
+    if (weaponSet) weaponSetPieceCounts.set(weaponSet, (weaponSetPieceCounts.get(weaponSet) ?? 0) + 1);
+  }
+  const importedWeaponSets = Object.fromEntries(
+    [...weaponSetPieceCounts].flatMap(([weaponSet, count]) => {
+      if (count >= 4) return [[weaponSet, 4]];
+      if (count >= 2) return [[weaponSet, 2]];
+      return [];
+    }),
+  );
+  const setup = normalizeBuildSetup({
+    ...defaultBuildSetup,
+    ...(completeInnerWays ? { innerWays: completeInnerWays } : {}),
+    ...(Object.keys(importedWeaponSets).length ? { weaponSets: importedWeaponSets } : {}),
+  });
   const buildId = createId("official-build");
   const equipped = Object.fromEntries(parsedPieces.map((piece, index) => [piece.equippedSlot, gearItems[index].id]));
   return {
@@ -344,7 +378,7 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
           name: `${roleName} Import`,
           martialArts: [...buildWeapons],
           equipped,
-          setup: defaultBuildSetup,
+          setup,
         },
       ],
     },

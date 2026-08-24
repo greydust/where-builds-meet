@@ -15,6 +15,7 @@ import { calculateDerivedStats } from "./effectiveStats";
 import {
   buildRotationTimeline,
   compareTimelineTime,
+  effectsForTrackedEffect,
   mergeEffectDefinition,
   requirementsPass,
   type EditableObject,
@@ -29,6 +30,7 @@ import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
+import { subtractUnconditionalDamageEffects } from "./unconditionalDamageEffects";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -517,14 +519,6 @@ function calculateBreakdown(
   };
 }
 
-function effectsForTrackedEffect(stack: number | undefined, definition: EffectDefinition | undefined) {
-  if (Array.isArray(definition?.stackEffects)) {
-    const stackEffects = definition.stackEffects[Math.max(0, (stack ?? 1) - 1)];
-    return Array.isArray(stackEffects) ? stackEffects : [];
-  }
-  return definition?.effect ?? [];
-}
-
 function battleEndCutoff(timeline: TimelineRow[]) {
   const row = timeline
     .filter(
@@ -586,6 +580,7 @@ function timelineDamageEntries(
             targetHPRatio: row.targetHPRatio,
             targetQiRatio: row.targetQiRatio,
             resources: row.resources,
+            unconditionalDamageEffects: row.unconditionalDamageEffects,
           };
           const buffs = actionState.buffs;
           const debuffs = actionState.debuffs;
@@ -637,6 +632,7 @@ function timelineDamageEntries(
               .map((rule) => rule.effect);
             const activeTrackedEffects = [...currentBuffs, ...currentDebuffs]
               .flatMap((tracked) => {
+                if (tracked.perHitEffectRules) return tracked.perHitEffectRules;
                 const setupModifiers = setupEffects
                   .filter(
                     (effect) =>
@@ -717,6 +713,7 @@ function timelineDamageEntries(
             enemy: state.enemy,
             derivedStats,
             effects: effectsForState(buffs, debuffs, resources),
+            unconditionalDamageEffects: actionState.unconditionalDamageEffects,
             distance: actionState.distance,
             currentHPRatio: actionState.currentHPRatio,
             targetHPRatio: actionState.targetHPRatio,
@@ -732,6 +729,10 @@ function timelineDamageEntries(
                   ...context,
                   buffs: counterfactualBuffs.map((effect) => effect.name),
                   effects: effectsForState(counterfactualBuffs, debuffs, resources),
+                  unconditionalDamageEffects: subtractUnconditionalDamageEffects(
+                    context.unconditionalDamageEffects,
+                    tracked.unconditionalDamageEffects,
+                  ),
                 },
               },
             ];

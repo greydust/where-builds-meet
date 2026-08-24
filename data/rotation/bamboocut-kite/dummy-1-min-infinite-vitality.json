@@ -142,7 +142,7 @@
       "before": {
         "action": 0
       },
-      "targetQiRatio": 0.4
+      "targetQiRatio": 0.3999
     },
     {
       "type": "skill",
