@@ -13,6 +13,7 @@
 - Reuse a baseline timeline only for variants that cannot change combat events; rebuild it when timing, triggers, effects, stacks, cooldowns, or DOTs can change.
 - Preserve stored user data and add migrations when renaming persisted fields.
 - Update the relevant document when changing formulas, data semantics, or architecture.
+- Tests and probes must verify observable behavior, calculations, migrations, or durable cross-file invariants. Do not add tests that merely restate literal source code or JSON values; such tests duplicate the implementation without validating its function or intent.
 - Write each commit message with a one-sentence title summarizing the overall change, followed by a blank line and a brief description of why the change is being made.
 - Do not use the commit body as a verbose inventory of updates. Put durable explanations in the relevant documentation or make the code and data self-explanatory.
 - Run `npm run format` after editing supported source, data, or documentation files. Treat `npm run format:check` as the repository formatting gate.

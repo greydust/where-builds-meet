@@ -55,7 +55,7 @@
     "name": "Mystery",
     "shortName": "Mys",
     "description": "From Ghostly Steps",
-    "duration": 20,
+    "duration": 30,
     "maxStack": 1,
     "effect": [],
     "refresh": true
@@ -64,7 +64,7 @@
     "name": "Mystery - Umbra",
     "shortName": "MyM",
     "description": "From Ghostly Steps - Umbra",
-    "duration": 20,
+    "duration": 30,
     "maxStack": 1,
     "effect": [],
     "refresh": true
