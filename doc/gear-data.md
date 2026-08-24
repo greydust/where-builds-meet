@@ -192,9 +192,10 @@ missing from the older reference map live as explicit generator overrides in
 that script.
 
 The Tier 96 Kite armor-attunement family uses IDs `279751` through `279755` in
-martial/charged/third-type order for Heavenwill Gauntlets, followed by Heavy and
+charged/martial/third-type order for Heavenwill Gauntlets, followed by Heavy and
 Special for Skygrasp Rope Dart. Dashboard Body and Defense IDs are mapped as
 ordinary universal additional affixes rather than discarded as non-offensive data.
+The Tier 96 Art of Gauntlet additional affix uses ID `9793031`.
 
 The import creates a new `{character name} Import` build, adds its gear
 to the shared inventory, and equips it without replacing existing data. Before

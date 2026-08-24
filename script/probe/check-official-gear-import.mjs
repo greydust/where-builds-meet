@@ -331,6 +331,7 @@ try {
           actualRow(9713004, 40.6),
           actualRow(9793003, 49.4),
           actualRow(9793004, 46.436),
+          actualRow(9793031, 0.06),
           actualRow(280703, 10.2),
         ]),
       },
@@ -339,8 +340,11 @@ try {
   );
   assert(
     defensiveAdditionalAffix.exportValue.gearItems[0].additionalAffixes.some((affix) => affix.key === "defense") &&
+      defensiveAdditionalAffix.exportValue.gearItems[0].additionalAffixes.some(
+        (affix) => affix.key === "gauntletDmgBoost" && affix.value === 0.06,
+      ) &&
       defensiveAdditionalAffix.warnings.length === 0,
-    "Official weapon Defense rolls must import as universal additional affixes.",
+    "Official weapon Defense and Art of Gauntlet rolls must import as canonical additional affixes.",
   );
   const kiteArmor = importer.parseOfficialGearExport(
     {
@@ -366,6 +370,11 @@ try {
             actualRow(9793103, 46.2),
             actualRow(279753, 0.039),
           ]),
+          8: detail({ W_DEF: 22, HP_MAX: 5774 }, [
+            actualRow(9753003, 0.08),
+            actualRow(9793104, 49.3),
+            actualRow(279752, 0.054),
+          ]),
         },
       },
     },
@@ -375,9 +384,10 @@ try {
   assert(
     kiteArmor.warnings.length === 0 &&
       kiteItems.get("helmet")?.attunement?.key === "skygraspSpecialBoost" &&
-      kiteItems.get("chestpiece")?.attunement?.key === "heavenwillMartialBoost" &&
+      kiteItems.get("chestpiece")?.attunement?.key === "heavenwillChargedBoost" &&
       kiteItems.get("greaves")?.additionalAffixes.some((affix) => affix.key === "body") &&
-      kiteItems.get("greaves")?.attunement?.key === "heavenwillLightVariedComboBoost",
+      kiteItems.get("greaves")?.attunement?.key === "heavenwillLightVariedComboBoost" &&
+      kiteItems.get("bracer")?.attunement?.key === "heavenwillMartialBoost",
     "Observed Kite armor IDs must import as Body and the matching Kite attunements.",
   );
   let unsupportedMartialArtError = "";
