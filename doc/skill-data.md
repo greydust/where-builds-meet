@@ -1026,10 +1026,10 @@ attachments migrate to `after`. The snapshot includes each custom rotation's `ma
 eligibility and the current in-memory editor value, even before the Save button
 is pressed. Bundled default rotations are discovered from
 `data/rotation/**/*.json` and reconstructed from their JSON sources rather than
-saved in session storage or exports. They are read-only in the editor; Duplicate
+saved in browser storage or exports. They are read-only in the editor; Duplicate
 creates an editable custom copy.
 
-Import validates every step and appends custom rotations to the current session
+Import validates every step and appends custom rotations to the saved rotation list
 without replacing existing rotations or changing the active rotation. ID
 collisions are remapped, and bundled default rotations are skipped to prevent
 duplication. The first imported rotation is opened for review but is not made
@@ -1149,7 +1149,7 @@ timing fields plus structured effect-rule editors. Each effect rule supports
 requirements, direct or wrapped effect fields, numeric and boolean values, and
 parameter-based object values such as Flute distance scaling. Cumulative
 `stackEffects` remain grouped by stack tier and each tier contains the same
-structured effect-rule editor. Editor overrides last for the browser session
+structured effect-rule editor. Editor overrides persist in browser storage
 and replace their matching records in the skill, buff, debuff, and DOT maps
 used by rotation calculations and simulations. The resolved maps are part of
 the calculation fingerprint, so saving or resetting an override schedules a

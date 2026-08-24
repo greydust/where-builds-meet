@@ -209,6 +209,7 @@ import {
   selectLocale,
   t,
 } from "./i18n";
+import { getPersistentItem, removePersistentItem, setPersistentItem } from "./persistentStorage";
 
 const storageKey = "wwm-character-stats-v3";
 const legacyStorageKey = "wwm-character-stats-v2";
@@ -422,6 +423,7 @@ function rotationEventDisplayName(eventId: string) {
 
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
+const activeRotationStorageKey = "wwm-active-rotation-session-v1";
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
 const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
   Snowparting: "snowpartingBlade",
@@ -526,12 +528,12 @@ function compactLayoutSnapshot() {
 }
 
 function loadLayoutPreview(compact: boolean): LayoutMode {
-  const saved = sessionStorage.getItem(layoutPreviewStorageKey);
+  const saved = getPersistentItem(layoutPreviewStorageKey);
   return saved === "pc" || saved === "mobile" ? saved : compact ? "mobile" : "pc";
 }
 
 function loadSelectedPath(devMode = loadDevMode()): PathId {
-  const saved = sessionStorage.getItem(pathStorageKey);
+  const saved = getPersistentItem(pathStorageKey);
   const definition = saved ? typedPathDefinitions[saved as PathId] : undefined;
   return definition && (!pathRequiresDev(definition) || devMode) ? (saved as PathId) : "stonesplitStrength";
 }
@@ -1141,7 +1143,7 @@ function bowRingSetEffectFor(value: string) {
 }
 
 function loadFood() {
-  const saved = sessionStorage.getItem(foodStorageKey);
+  const saved = getPersistentItem(foodStorageKey);
   return saved && typedFoodDefinitions[saved] ? saved : typedDefaultSetup.food;
 }
 
@@ -1150,7 +1152,7 @@ function selectedFoodEffect() {
 }
 
 function loadDivinecraft() {
-  const saved = sessionStorage.getItem(divinecraftStorageKey);
+  const saved = getPersistentItem(divinecraftStorageKey);
   return saved && typedDivinecraftDefinitions[saved]?.available !== false ? saved : typedDefaultSetup.divinecraft;
 }
 
@@ -1159,7 +1161,7 @@ function divinecraftEffectFor(value: string) {
 }
 
 function loadScript() {
-  const saved = sessionStorage.getItem(scriptStorageKey);
+  const saved = getPersistentItem(scriptStorageKey);
   return saved && typedScriptDefinitions[saved] ? saved : "None";
 }
 
@@ -1256,13 +1258,13 @@ function sameBuildSetupValue(
 
 export function loadBuildSetupOverrides(baseline: BuildSetup): BuildSetupOverrides {
   try {
-    const saved = sessionStorage.getItem(buildSetupOverrideStorageKey);
+    const saved = getPersistentItem(buildSetupOverrideStorageKey);
     if (saved !== null) return normalizeBuildSetupOverrides(JSON.parse(saved));
     const legacy: Record<string, unknown> = {};
-    const legacyInnerWays = sessionStorage.getItem(legacyInnerWayStorageKey);
-    const legacyGearSets = sessionStorage.getItem(gearSetStorageKey);
-    const legacyBowRingSet = sessionStorage.getItem(bowRingSetStorageKey);
-    const legacyArsenal = sessionStorage.getItem(arsenalStorageKey);
+    const legacyInnerWays = getPersistentItem(legacyInnerWayStorageKey);
+    const legacyGearSets = getPersistentItem(gearSetStorageKey);
+    const legacyBowRingSet = getPersistentItem(bowRingSetStorageKey);
+    const legacyArsenal = getPersistentItem(arsenalStorageKey);
     if (legacyInnerWays !== null) legacy.innerWays = JSON.parse(legacyInnerWays);
     if (legacyGearSets !== null) legacy.weaponSets = JSON.parse(legacyGearSets);
     if (legacyBowRingSet !== null) legacy.bowRingSet = legacyBowRingSet;
@@ -1371,9 +1373,7 @@ function loadStatOverrides(): CharacterStatOverrides {
 
 function loadSettings(): CalculatorSettings {
   try {
-    const saved = JSON.parse(
-      sessionStorage.getItem(settingsStorageKey) ?? "null",
-    ) as Partial<CalculatorSettings> | null;
+    const saved = JSON.parse(getPersistentItem(settingsStorageKey) ?? "null") as Partial<CalculatorSettings> | null;
     const savedWeapons = Array.isArray(saved?.weapons) ? saved.weapons.filter(isWeaponId) : [];
     const legacyWeapon = saved && "weapon" in saved && saved.weapon === "phalanxbane" ? "phalanxbane" : "snowparting";
     const weapons: [WeaponId, WeaponId] =
@@ -1392,7 +1392,7 @@ function loadSettings(): CalculatorSettings {
 
 function loadSkillOverrides(): SkillOverrides {
   try {
-    return JSON.parse(sessionStorage.getItem(skillStorageKey) ?? "{}") as SkillOverrides;
+    return JSON.parse(getPersistentItem(skillStorageKey) ?? "{}") as SkillOverrides;
   } catch {
     return {};
   }
@@ -1426,9 +1426,9 @@ type CharacterState = {
 
 function loadAttunementStats() {
   try {
-    const currentSaved = sessionStorage.getItem(attunementStorageKey);
+    const currentSaved = getPersistentItem(attunementStorageKey);
     const isLegacy = currentSaved === null;
-    const saved = JSON.parse(currentSaved ?? sessionStorage.getItem(legacyAttunementStorageKey) ?? "null") as unknown;
+    const saved = JSON.parse(currentSaved ?? getPersistentItem(legacyAttunementStorageKey) ?? "null") as unknown;
     if (!saved || typeof saved !== "object") return { ...defaultAttunementStats };
     const values = saved as Record<string, unknown>;
     return Object.fromEntries(
@@ -1447,7 +1447,7 @@ type AttunementOverrides = Partial<AttunementStats>;
 
 function loadAttunementOverrides(): AttunementOverrides {
   try {
-    const currentSaved = sessionStorage.getItem(attunementOverrideStorageKey);
+    const currentSaved = getPersistentItem(attunementOverrideStorageKey);
     if (currentSaved !== null) {
       const values = JSON.parse(currentSaved) as Record<string, unknown>;
       return Object.fromEntries(
@@ -1473,7 +1473,7 @@ function loadRotationEntries(): RotationEntry[] {
       rotation: JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord,
     }));
   try {
-    const saved = JSON.parse(sessionStorage.getItem(rotationListStorageKey) ?? "null") as RotationEntry[] | null;
+    const saved = JSON.parse(getPersistentItem(rotationListStorageKey) ?? "null") as RotationEntry[] | null;
     const customEntries: RotationEntry[] = [];
     const bundledDefaultIds = new Set(defaultRotationEntries.map((entry) => entry.id));
     const usedIds = new Set(bundledDefaultIds);
@@ -1499,13 +1499,17 @@ function loadRotationEntries(): RotationEntry[] {
           !Array.isArray(entry.rotation.steps)
         )
           return;
-        if (entry.isDefault === true || bundledDefaultIds.has(entry.id) || formerDefaultRotationIds.has(entry.id))
-          preserveFormerDefault(entry.rotation);
-        else addCustom(entry.id, migrateRotation(entry.rotation), entry.martialArts);
+        try {
+          if (entry.isDefault === true || bundledDefaultIds.has(entry.id) || formerDefaultRotationIds.has(entry.id))
+            preserveFormerDefault(entry.rotation);
+          else addCustom(entry.id, migrateRotation(entry.rotation), entry.martialArts);
+        } catch (error) {
+          console.error(`[Rotation storage] Could not migrate saved rotation ${entry.id}.`, error);
+        }
       });
       return [...bundledDefaults(), ...customEntries];
     }
-    const legacy = JSON.parse(sessionStorage.getItem(rotationStorageKey) ?? "null") as RotationRecord | null;
+    const legacy = JSON.parse(getPersistentItem(rotationStorageKey) ?? "null") as RotationRecord | null;
     if (legacy && Array.isArray(legacy.steps)) preserveFormerDefault(legacy);
     return [...bundledDefaults(), ...customEntries];
   } catch {
@@ -1514,7 +1518,7 @@ function loadRotationEntries(): RotationEntry[] {
 }
 
 function initialRotationId(entries: RotationEntry[]) {
-  const savedId = sessionStorage.getItem("wwm-active-rotation-session-v1");
+  const savedId = getPersistentItem(activeRotationStorageKey);
   return savedId && entries.some((entry) => entry.id === savedId) ? savedId : (entries[0]?.id ?? defaultRotationId);
 }
 
@@ -2009,10 +2013,10 @@ function StatsTab({
   const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => sessionStorage.setItem(foodStorageKey, food), [food]);
-  useEffect(() => sessionStorage.setItem(scriptStorageKey, script), [script]);
-  useEffect(() => sessionStorage.setItem(divinecraftStorageKey, divinecraft), [divinecraft]);
-  useEffect(() => sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
+  useEffect(() => setPersistentItem(foodStorageKey, food), [food]);
+  useEffect(() => setPersistentItem(scriptStorageKey, script), [script]);
+  useEffect(() => setPersistentItem(divinecraftStorageKey, divinecraft), [divinecraft]);
+  useEffect(() => setPersistentItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
   const { arsenal, bowRingSet, weaponSets, armorSets, innerWays } = buildSetup;
   const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup };
@@ -2160,7 +2164,7 @@ function StatsTab({
 
   function updateGlobalDebuff<K extends keyof GlobalDebuffState>(key: K, value: GlobalDebuffState[K]) {
     const next = { ...globalDebuffs, [key]: value };
-    sessionStorage.setItem(globalDebuffStorageKey, JSON.stringify(next));
+    setPersistentItem(globalDebuffStorageKey, JSON.stringify(next));
     setGlobalDebuffs(next);
     onInnerWayChange();
   }
@@ -2784,7 +2788,7 @@ function StatsTab({
                   key={value}
                   onClick={() => {
                     setFood(value);
-                    sessionStorage.setItem(foodStorageKey, value);
+                    setPersistentItem(foodStorageKey, value);
                     onInnerWayChange();
                   }}
                 >
@@ -2813,7 +2817,7 @@ function StatsTab({
                     title={`${gameText(definition.name)}: ${gameText(definition.description)}`}
                     onClick={() => {
                       setScript(value);
-                      sessionStorage.setItem(scriptStorageKey, value);
+                      setPersistentItem(scriptStorageKey, value);
                       onInnerWayChange();
                     }}
                   >
@@ -2854,7 +2858,7 @@ function StatsTab({
                     title={`${gameText(definition.name)}: ${gameText(definition.description)}${available ? "" : t("ui.app.notAvailableYet")}`}
                     onClick={() => {
                       setDivinecraft(value);
-                      sessionStorage.setItem(divinecraftStorageKey, value);
+                      setPersistentItem(divinecraftStorageKey, value);
                       onInnerWayChange();
                     }}
                   >
@@ -4863,13 +4867,12 @@ function RotationEditorTab({
   rotationResultsRef.current = rotationResults;
 
   function persistRotationEntries(entries: RotationEntry[]) {
-    sessionStorage.setItem(rotationListStorageKey, serializeRotationEntries(entries));
+    setPersistentItem(rotationListStorageKey, serializeRotationEntries(entries));
   }
 
   useEffect(() => {
     const migrated = migrateRotation(rotation);
     setRotation(migrated);
-    persistRotationEntries(rotationEntries);
   }, []);
 
   useEffect(() => {
@@ -4878,7 +4881,7 @@ function RotationEditorTab({
     if (!fallback) return;
     if (!compatibleRotationEntries.some((entry) => entry.id === activeRotationId)) {
       setActiveRotationId(fallback.id);
-      sessionStorage.setItem("wwm-active-rotation-session-v1", fallback.id);
+      setPersistentItem(activeRotationStorageKey, fallback.id);
     }
     if (!listedRotationEntries.some((entry) => entry.id === editingRotationId)) {
       setEditingRotationId(fallback.id);
@@ -5265,7 +5268,7 @@ function RotationEditorTab({
     setRotation(normalized);
     savedRotationSnapshotsRef.current?.set(editingRotationId, JSON.parse(JSON.stringify(normalized)) as RotationRecord);
     persistRotationEntries(nextEntries);
-    sessionStorage.setItem("wwm-active-rotation-session-v1", activeRotationId);
+    setPersistentItem(activeRotationStorageKey, activeRotationId);
     setError("");
     setStatus(t("ui.app.savedForThisSession"));
     if (editingRotationId === activeRotationId) void calculateDiffsForRotation(editingRotationId, normalized);
@@ -5308,7 +5311,7 @@ function RotationEditorTab({
     );
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
-    sessionStorage.setItem("wwm-active-rotation-session-v1", id);
+    setPersistentItem(activeRotationStorageKey, id);
   }
   function editRotation(id: string) {
     if (id === editingRotationId) return;
@@ -5413,10 +5416,7 @@ function RotationEditorTab({
     }
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
-    sessionStorage.setItem(
-      "wwm-active-rotation-session-v1",
-      id === activeRotationId ? nextActive.id : activeRotationId,
-    );
+    setPersistentItem(activeRotationStorageKey, id === activeRotationId ? nextActive.id : activeRotationId);
   }
 
   function currentRotationEntries() {
@@ -6303,9 +6303,6 @@ function RotationEditorTab({
                   >
                     {t("ui.app.readableFormat")}
                   </button>
-                  <button className="button button-secondary button-small" type="button" onClick={duplicateRotation}>
-                    {t("ui.app.duplicate")}
-                  </button>
                   {!rotationLocked && (
                     <>
                       <button className="button button-secondary button-small" type="button" onClick={resetRotation}>
@@ -6316,14 +6313,19 @@ function RotationEditorTab({
                       </button>
                     </>
                   )}
-                  <button
-                    className="button button-small detail-active-button"
-                    type="button"
-                    disabled={editingRotationId === activeRotationId}
-                    onClick={() => activateRotation(editingRotationId)}
-                  >
-                    {editingRotationId === activeRotationId ? t("ui.app.active") : t("ui.app.makeActive")}
-                  </button>
+                  <span className="rotation-activation-actions">
+                    <button className="button button-secondary button-small" type="button" onClick={duplicateRotation}>
+                      {t("ui.app.duplicate")}
+                    </button>
+                    <button
+                      className="button button-small detail-active-button"
+                      type="button"
+                      disabled={editingRotationId === activeRotationId}
+                      onClick={() => activateRotation(editingRotationId)}
+                    >
+                      {editingRotationId === activeRotationId ? t("ui.app.active") : t("ui.app.makeActive")}
+                    </button>
+                  </span>
                 </span>
               </div>
             </div>
@@ -7365,7 +7367,7 @@ export default function App() {
     : "—";
   const selectPath = (nextPathId: PathId) => {
     if (pathRequiresDev(typedPathDefinitions[nextPathId]) && !devMode) return;
-    sessionStorage.setItem(pathStorageKey, nextPathId);
+    setPersistentItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) => settingsForPath(current, nextPathId));
     setInnerWayRevision((current) => current + 1);
@@ -7380,7 +7382,7 @@ export default function App() {
     );
     const nextPathId = matchingPath?.[0] ?? (devMode ? "mixed" : undefined);
     if (!nextPathId) return false;
-    sessionStorage.setItem(pathStorageKey, nextPathId);
+    setPersistentItem(pathStorageKey, nextPathId);
     setPathId(nextPathId);
     setSettings((current) =>
       nextPathId === "mixed"
@@ -7401,13 +7403,13 @@ export default function App() {
     if (await selectLocale(nextLocale)) setLocale(getLocale());
   };
   const changeLayoutPreview = (nextLayout: LayoutMode) => {
-    sessionStorage.setItem(layoutPreviewStorageKey, nextLayout);
+    setPersistentItem(layoutPreviewStorageKey, nextLayout);
     setLayoutPreview(nextLayout);
   };
   const updateSkillOverrides = (nextOverrides: SkillOverrides) => {
     setSkillOverrides(nextOverrides);
-    if (hasSkillOverrides(nextOverrides)) sessionStorage.setItem(skillStorageKey, JSON.stringify(nextOverrides));
-    else sessionStorage.removeItem(skillStorageKey);
+    if (hasSkillOverrides(nextOverrides)) setPersistentItem(skillStorageKey, JSON.stringify(nextOverrides));
+    else removePersistentItem(skillStorageKey);
   };
 
   useEffect(() => localStorage.setItem(statOverrideStorageKey, JSON.stringify(statOverrides)), [statOverrides]);
@@ -7422,15 +7424,15 @@ export default function App() {
   useEffect(() => localStorage.setItem(buildListStorageKey, serializeBuildState(buildState)), [buildState]);
   useEffect(() => localStorage.setItem(activeBuildStorageKey, buildState.activeBuildId), [buildState.activeBuildId]);
   useEffect(
-    () => sessionStorage.setItem(attunementOverrideStorageKey, JSON.stringify(attunementOverrides)),
+    () => setPersistentItem(attunementOverrideStorageKey, JSON.stringify(attunementOverrides)),
     [attunementOverrides],
   );
   useEffect(
-    () => sessionStorage.setItem(buildSetupOverrideStorageKey, JSON.stringify(buildSetupOverrides)),
+    () => setPersistentItem(buildSetupOverrideStorageKey, JSON.stringify(buildSetupOverrides)),
     [buildSetupOverrides],
   );
-  useEffect(() => sessionStorage.setItem(settingsStorageKey, JSON.stringify(settings)), [settings]);
-  useEffect(() => sessionStorage.setItem(pathStorageKey, pathId), [pathId]);
+  useEffect(() => setPersistentItem(settingsStorageKey, JSON.stringify(settings)), [settings]);
+  useEffect(() => setPersistentItem(pathStorageKey, pathId), [pathId]);
 
   return (
     <main

@@ -7,6 +7,7 @@ import gearSetJson from "../data/gear-set.json";
 import armorSetJson from "../data/armor-set.json";
 import statJson from "../data/stat.json";
 import type { AttunementStats } from "./calculations/damage";
+import { getPersistentItem } from "./persistentStorage";
 import { weaponIds, type CharacterStats, type WeaponId } from "./types";
 
 export const legacyGearStorageKey = "wwm-gear-inventory-v1";
@@ -344,24 +345,23 @@ export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverride
 }
 
 function loadLegacyBuildSetup() {
-  if (typeof sessionStorage === "undefined") return cloneBuildSetup(defaultBuildSetup);
   let gearSets: unknown;
   let innerWays: unknown;
   try {
-    gearSets = JSON.parse(sessionStorage.getItem(legacyGearSetStorageKey) ?? "null");
+    gearSets = JSON.parse(getPersistentItem(legacyGearSetStorageKey) ?? "null");
   } catch {
     gearSets = undefined;
   }
   try {
-    innerWays = JSON.parse(sessionStorage.getItem(legacyInnerWayStorageKey) ?? "null");
+    innerWays = JSON.parse(getPersistentItem(legacyInnerWayStorageKey) ?? "null");
   } catch {
     innerWays = undefined;
   }
   return normalizeBuildSetup({
     innerWays,
     weaponSets: gearSets,
-    bowRingSet: sessionStorage.getItem(legacyBowRingSetStorageKey),
-    arsenal: sessionStorage.getItem(legacyArsenalStorageKey),
+    bowRingSet: getPersistentItem(legacyBowRingSetStorageKey),
+    arsenal: getPersistentItem(legacyArsenalStorageKey),
   });
 }
 const buildPresetModules = import.meta.glob("../data/build/**/*.json", { eager: true, import: "default" }) as Record<

@@ -8,6 +8,7 @@
 - Read `doc/system-architecture.md`, `doc/damage-formula.md`, and `doc/skill-data.md` before changing calculation or combat-data behavior.
 - Represent game mechanics in `data/*.json` when the existing schema can express them; avoid skill-specific hard-coding.
 - When implementing a feature, prefer mechanisms in this order: use an existing mechanism unchanged; extend an existing mechanism so it also covers the new case; replace an existing mechanism with a broader mechanism that covers both the old and new cases, then remove the superseded mechanism; introduce a completely independent mechanism only when none of those options can fit. Avoid parallel mechanisms with overlapping responsibilities.
+- Do not overengineer for hypothetical future problems. Implement the smallest explicit solution that satisfies the current observed requirement; add abstractions, fallback paths, generalization, or defensive complexity only when a concrete present use case requires them.
 - Store percentages internally as decimal ratios (`0.1` = 10%); convert only at the UI boundary.
 - Use the shared character/derived-stat pipeline and the centralized worker calculation result. Do not duplicate effective-stat, rate, or DPS calculations in UI components.
 - Reuse a baseline timeline only for variants that cannot change combat events; rebuild it when timing, triggers, effects, stacks, cooldowns, or DOTs can change.

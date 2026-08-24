@@ -6,6 +6,7 @@ import vulnerableDefinitions from "../data/debuff/stonesplit-might.json";
 import fearfulBladeDefinitions from "../data/debuff/stonesplit-strength.json";
 import floatingGraceDefinitions from "../data/buff/silkbind-deluge.json";
 import type { TrackedEffect } from "./calculations/rotationTimeline";
+import { getPersistentItem } from "./persistentStorage";
 
 export const globalDebuffStorageKey = "wwm-global-debuffs-session-v1";
 
@@ -55,9 +56,8 @@ export function normalizeGlobalDebuffs(value: unknown): GlobalDebuffState {
 }
 
 export function loadGlobalDebuffs(): GlobalDebuffState {
-  if (typeof sessionStorage === "undefined") return { ...defaultGlobalDebuffs };
   try {
-    return normalizeGlobalDebuffs(JSON.parse(sessionStorage.getItem(globalDebuffStorageKey) ?? "null"));
+    return normalizeGlobalDebuffs(JSON.parse(getPersistentItem(globalDebuffStorageKey) ?? "null"));
   } catch {
     return { ...defaultGlobalDebuffs };
   }

@@ -94,7 +94,7 @@ shared gear equipped by an active custom build named `My Build`, without
 changing or deleting the old value. Loading older slot-bound Heng Blade and Mo
 Blade records removes their `slot` field while preserving their definition,
 values, IDs, and build references. Builds from older schemas receive the former
-session-wide setup selections when available, then persist those choices with
+standalone setup selections when available, then persist those choices with
 the build. Records using the former `weapons` eligibility field are normalized
 to `martialArts`; new persistence never writes the legacy field.
 

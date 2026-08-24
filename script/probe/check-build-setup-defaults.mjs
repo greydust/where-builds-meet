@@ -1,12 +1,24 @@
 import { createServer } from "vite";
 
-const storage = new Map();
-globalThis.sessionStorage = {
-  getItem: (key) => storage.get(key) ?? null,
-  setItem: (key, value) => storage.set(key, String(value)),
-  removeItem: (key) => storage.delete(key),
-  clear: () => storage.clear(),
+const createStorage = () => {
+  const values = new Map();
+  return {
+    values,
+    get length() {
+      return values.size;
+    },
+    getItem: (key) => values.get(key) ?? null,
+    key: (index) => [...values.keys()][index] ?? null,
+    setItem: (key, value) => values.set(key, String(value)),
+    removeItem: (key) => values.delete(key),
+    clear: () => values.clear(),
+  };
 };
+const localStorage = createStorage();
+const sessionStorage = createStorage();
+globalThis.window = { localStorage, sessionStorage };
+globalThis.localStorage = localStorage;
+globalThis.sessionStorage = sessionStorage;
 
 const viteServer = await createServer({
   root: process.cwd(),
@@ -29,15 +41,15 @@ try {
     { innerWay: "ThroatPiercingArt", tier: "T6" },
   ];
 
-  storage.set("wwm-build-setup-overrides-v1", "{}");
-  storage.set("wwm-inner-way-session-v1", JSON.stringify(legacyInnerWays));
+  sessionStorage.setItem("wwm-build-setup-overrides-v1", "{}");
+  sessionStorage.setItem("wwm-inner-way-session-v1", JSON.stringify(legacyInnerWays));
   const current = loadBuildSetupOverrides(defaultBuildSetup);
   assert(
     Object.keys(current).length === 0,
     "An explicitly saved empty override must use every setup value from the active build.",
   );
 
-  storage.delete("wwm-build-setup-overrides-v1");
+  localStorage.removeItem("wwm-build-setup-overrides-v1");
   const migrated = loadBuildSetupOverrides(defaultBuildSetup);
   assert(
     migrated.innerWays?.[0]?.innerWay === "BreakingPoint",
@@ -47,4 +59,7 @@ try {
   console.log("Build-sourced setup defaults and one-time legacy migration checks passed.");
 } finally {
   await viteServer.close();
+  delete globalThis.window;
+  delete globalThis.localStorage;
+  delete globalThis.sessionStorage;
 }

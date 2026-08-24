@@ -34,7 +34,7 @@ single-column panels, horizontal item choosers, and card-style rotation rows.
 The production mode follows a `48em` viewport query. Settings always shows the
 currently resolved PC/Mobile layout below Enemy. The selector remains disabled
 and dimmed until Dev mode is enabled, at which point it overrides the viewport
-query for the current session without changing calculation or stored game data.
+query until the user changes it again, without changing calculation or stored game data.
 
 The long-term product direction is to accept complete character and gear data,
 simulate rotations, compare alternatives, and recommend builds or rotations.
@@ -214,30 +214,33 @@ Ghostly Step - Umbra Dodge can dispatch weapon-specific damage definitions.
 
 ## Browser persistence
 
-Character stat overrides use `localStorage`, so they persist across browser sessions.
-Most editor and setup state uses `sessionStorage`, so it lasts for the current
-tab session.
+All user settings and editable records use `localStorage`, so they persist across
+reloads, tabs, and browser sessions. `getPersistentItem()` migrates a value from
+the former same-named `sessionStorage` key when no durable value exists, then
+removes the session copy. Existing durable data takes precedence over a stale
+session copy. App startup eagerly applies this migration to every remaining
+same-origin session key before React state is initialized.
 
-| State                                           | Storage                                            |
-| ----------------------------------------------- | -------------------------------------------------- |
-| Character stat overrides                        | `localStorage`, `wwm-stat-overrides-v1`            |
-| Explicitly selected locale                      | `localStorage`, `wwm-locale`                       |
-| Custom character profiles                       | `localStorage`, `wwm-character-profiles-v1`        |
-| Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1`                |
-| Active build ID                                 | `localStorage`, `wwm-active-build-v1`              |
-| Skill editor overrides                          | `sessionStorage`, `wwm-skill-editor-session-v1`    |
-| Combat path                                     | `sessionStorage`, `wwm-path-session-v1`            |
-| Dev layout preview                              | `sessionStorage`, `wwm-layout-preview-session-v1`  |
-| Attunement overrides                            | `sessionStorage`, `wwm-attunement-overrides-v1`    |
-| Weapons and enemy                               | `sessionStorage`, `wwm-settings-session-v1`        |
-| Build setup overrides                           | `sessionStorage`, `wwm-build-setup-overrides-v1`   |
-| Food                                            | `sessionStorage`, `wwm-food-session-v1`            |
-| Divinecraft                                     | `sessionStorage`, `wwm-divinecraft-session-v1`     |
-| Script                                          | `sessionStorage`, `wwm-script-session-v1`          |
-| Global buff/debuff controls                     | `sessionStorage`, `wwm-global-debuffs-session-v1`  |
-| Rotation list                                   | `sessionStorage`, `wwm-rotation-list-session-v1`   |
-| Active rotation ID                              | `sessionStorage`, `wwm-active-rotation-session-v1` |
-| Custom simulation percentiles                   | `sessionStorage`, `wwm-simulation-percentiles-v1`  |
+| State                                           | Storage                                          |
+| ----------------------------------------------- | ------------------------------------------------ |
+| Character stat overrides                        | `localStorage`, `wwm-stat-overrides-v1`          |
+| Explicitly selected locale                      | `localStorage`, `wwm-locale`                     |
+| Custom character profiles                       | `localStorage`, `wwm-character-profiles-v1`      |
+| Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1`              |
+| Active build ID                                 | `localStorage`, `wwm-active-build-v1`            |
+| Skill editor overrides                          | `localStorage`, `wwm-skill-editor-session-v1`    |
+| Combat path                                     | `localStorage`, `wwm-path-session-v1`            |
+| Dev layout preview                              | `localStorage`, `wwm-layout-preview-session-v1`  |
+| Attunement overrides                            | `localStorage`, `wwm-attunement-overrides-v1`    |
+| Weapons and enemy                               | `localStorage`, `wwm-settings-session-v1`        |
+| Build setup overrides                           | `localStorage`, `wwm-build-setup-overrides-v1`   |
+| Food                                            | `localStorage`, `wwm-food-session-v1`            |
+| Divinecraft                                     | `localStorage`, `wwm-divinecraft-session-v1`     |
+| Script                                          | `localStorage`, `wwm-script-session-v1`          |
+| Global buff/debuff controls                     | `localStorage`, `wwm-global-debuffs-session-v1`  |
+| Rotation list                                   | `localStorage`, `wwm-rotation-list-session-v1`   |
+| Active rotation ID                              | `localStorage`, `wwm-active-rotation-session-v1` |
+| Custom simulation percentiles                   | `localStorage`, `wwm-simulation-percentiles-v1`  |
 
 Loaders validate enough shape to fall back to defaults and include migrations
 for older percentage, penetration, attunement, rotation, per-build inventory,
@@ -245,11 +248,13 @@ single-inventory gear, and session-wide build setup formats. Non-zero values fro
 storage keys migrate to overrides, preserving existing manual inputs. Calculated
 metrics and timelines are not persisted. Bundled default builds and rotations
 are reconstructed from repository data and omitted from browser persistence;
-formerly edited default rotations migrate to custom copies.
-Standalone Inner Way, legacy gear-set, bow/ring, and arsenal session selections migrate
+formerly edited default rotations migrate to custom copies. A malformed custom
+rotation is skipped independently so it cannot discard other saved rotations,
+and initial load never replaces unreadable storage with an empty list.
+Standalone Inner Way, legacy gear-set, bow/ring, and arsenal selections migrate
 only when the unified build-setup override has never been saved. Once that
 override exists—even as an empty object—the active build supplies every
-non-overridden setup default and legacy session keys are ignored.
+non-overridden setup default and legacy keys are ignored.
 
 Build export produces a versioned JSON snapshot of shared gear and custom build
 loadouts, including each build's Inner Ways, weapon and armor sets, bow/ring set, and arsenal.
@@ -568,7 +573,7 @@ Users can add custom percentiles in `[0, 100)`, including decimal values, except
 for the locked preset rows P99, P95, P90, P75, and P50/Median. The completed
 worker result retains its DPS-sorted runs, so adding or removing a display row
 updates every retained result immediately without changing fingerprint status.
-Custom row choices persist for the browser session; simulation history itself
+Custom row choices persist in browser storage; simulation history itself
 remains component memory and is not stored.
 
 ## Baseline and variant calculation

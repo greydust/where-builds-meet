@@ -255,6 +255,13 @@
     white-space: nowrap;
   }
 
+  .rotation-activation-actions {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
   .rotation-results {
     display: flex;
     flex-wrap: wrap;

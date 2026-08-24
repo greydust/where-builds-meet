@@ -8,6 +8,7 @@ import {
 } from "./calculations/simulationCalculator";
 import { startSimulation, type SimulationTask } from "./calculations/simulationWorkerClient";
 import { t } from "./i18n";
+import { getPersistentItem, setPersistentItem } from "./persistentStorage";
 
 type SimulationTabProps = {
   bundle?: RotationSimulationBundle;
@@ -29,7 +30,7 @@ const presetPercentiles = new Set([99, 95, 90, 75, 50]);
 
 function loadCustomPercentiles() {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(customPercentileStorageKey) ?? "[]") as unknown;
+    const saved = JSON.parse(getPersistentItem(customPercentileStorageKey) ?? "[]") as unknown;
     if (!Array.isArray(saved)) return [];
     return [
       ...new Set(
@@ -153,7 +154,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
 
   useEffect(() => () => taskRef.current?.cancel(), []);
   useEffect(
-    () => sessionStorage.setItem(customPercentileStorageKey, JSON.stringify(customPercentiles)),
+    () => setPersistentItem(customPercentileStorageKey, JSON.stringify(customPercentiles)),
     [customPercentiles],
   );
 
