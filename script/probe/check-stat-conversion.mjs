@@ -15,7 +15,7 @@ try {
   const { calculateDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const soaringHigh = (await viteServer.ssrLoadModule("/data/innerway/soaring-high.json")).default;
-  const enemyProfiles = (await viteServer.ssrLoadModule("/data/enemy.json")).default;
+  const breakthroughProfiles = (await viteServer.ssrLoadModule("/data/breakthrough.json")).default;
   const assertClose = (actual, expected, message) => {
     if (Math.abs(actual - expected) > 1e-9) throw new Error(`${message} Expected ${expected}, received ${actual}.`);
   };
@@ -36,7 +36,7 @@ try {
   const cappedCharacter = calculateStatsWithEffects(
     { ...emptyStats, directCrit: 0.18 },
     [{ stat: { directCrit: 0.05 } }],
-    enemyProfiles["96"].judgementResistance,
+    breakthroughProfiles["16"].judgementResistance,
   );
   assertClose(cappedCharacter.stats.directCrit, 0.2, "Character Direct Critical must stop at its 20% cap.");
   assertClose(cappedCharacter.derivedStats.directCrit, 0.2, "Derived Direct Critical must preserve the cap.");
@@ -85,7 +85,7 @@ try {
       skillTags: ["VileCondemned"],
       weapons: ["heavenwill", "skygrasp"],
       buffs: [],
-      enemy: enemyProfiles["96"],
+      enemy: breakthroughProfiles["16"],
       derivedStats,
       effects: [t4Rule.effect],
     },

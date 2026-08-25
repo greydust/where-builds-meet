@@ -103,10 +103,22 @@ function mainAttribute(weapons: WeaponId[]) {
       case "thundercry":
       case "stormbreaker":
         return "stonesplit" as const;
+      case "namelessSword":
+      case "namelessSpear":
+      case "strategicSword":
+      case "heavenquakerSpear":
+        return "bellstrike" as const;
+      case "vernalUmbrella":
+      case "inkwellFan":
+      case "panaceaFan":
+      case "soulshadeUmbrella":
+        return "silkbind" as const;
       case "everspring":
       case "unfettered":
       case "heavenwill":
       case "skygrasp":
+      case "infernalTwinblades":
+      case "mortalRopeDart":
         hasBamboocutWeapon = true;
         break;
     }
@@ -129,6 +141,12 @@ function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
         return stats.ropeDartDmgBoost;
       case "Umbrella":
         return stats.umbrellaDmgBoost;
+      case "Sword":
+        return stats.swordDmgBoost;
+      case "Fan":
+        return stats.fanDmgBoost;
+      case "DualBlades":
+        return stats.dualBladesDmgBoost;
     }
   }
   return 0;

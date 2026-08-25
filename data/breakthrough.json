@@ -1,0 +1,44 @@
+{
+  "16": {
+    "name": "16",
+    "level": 96,
+    "defense": 408,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 0.65,
+    "levelBonusStats": {
+      "stat": {
+        "precision": 0.153,
+        "agility": 138,
+        "power": 138,
+        "momentum": 138,
+        "body": 138,
+        "defense": 138
+      }
+    }
+  },
+  "17": {
+    "name": "17",
+    "level": 96,
+    "defense": 408,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 0.65,
+    "levelBonusStats": {
+      "stat": {
+        "precision": 0.165,
+        "agility": 150,
+        "power": 150,
+        "momentum": 150,
+        "body": 150,
+        "defense": 150
+      }
+    }
+  }
+}

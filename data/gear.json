@@ -37,6 +37,9 @@
     "ropeDartDmgBoost": { "name": "Art of Rope Dart", "percentage": true },
     "gauntletDmgBoost": { "name": "Art of Gauntlet", "percentage": true },
     "spearDmgBoost": { "name": "Art of Spear", "percentage": true },
+    "swordDmgBoost": { "name": "Art of Sword", "percentage": true },
+    "fanDmgBoost": { "name": "Art of Fan", "percentage": true },
+    "dualBladesDmgBoost": { "name": "Art of Dual Blades", "percentage": true },
     "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
@@ -420,6 +423,168 @@
           "crit",
           "affinity",
           "spearDmgBoost"
+        ]
+      },
+      "attunements": ["Weapon"]
+    },
+    "sword": {
+      "name": "Sword",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "namelessSword",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "swordDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "swordDmgBoost"
+        ]
+      },
+      "attunements": ["Weapon"]
+    },
+    "fan": {
+      "name": "Fan",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "inkwellFan",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "fanDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "fanDmgBoost"
+        ]
+      },
+      "attunements": ["Weapon"]
+    },
+    "dualBlades": {
+      "name": "Dual Blades",
+      "slots": ["leftWeapon", "rightWeapon"],
+      "weapon": "infernalTwinblades",
+      "baseStats": {
+        "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
+        "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } }
+      },
+      "baseAffixes": {
+        "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+      },
+      "additionalAffixes": {
+        "96": [
+          "minPhys",
+          "maxPhys",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "minStonesplit",
+          "maxStonesplit",
+          "agility",
+          "momentum",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "dualBladesDmgBoost"
+        ],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "91": [
+          "minPhys",
+          "maxPhys",
+          "agility",
+          "momentum",
+          "minStonesplit",
+          "maxStonesplit",
+          "power",
+          "precision",
+          "crit",
+          "affinity",
+          "dualBladesDmgBoost"
         ]
       },
       "attunements": ["Weapon"]

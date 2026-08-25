@@ -59,11 +59,15 @@ All weapon definitions share the same fixed base-stat and base-affix tables.
 Their additional-affix pools also share the ordinary weapon affixes, with each
 definition including only its own weapon-family damage boost. Both Rope Dart
 definitions use `ropeDartDmgBoost`.
-Snowparting Blade settings select Heng Blade gear, while Phalanxbane Blade
-settings select Mo Blade gear. The first configured weapon maps to Left Weapon
-and the second maps to Right Weapon. Weapon items are identified by this
-definition ID and do not store a left/right slot, so the same saved weapon can
-move between the two positions when the martial-art order changes.
+Martial arts that share a physical weapon family resolve to the same gear
+definition. Snowparting Blade selects Heng Blade; Phalanxbane and Thundercry
+select Mo Blade; Nameless and Strategic select Sword; Nameless and HeavenQuaker
+select Spear; Vernal, Soulshade, and Everspring select Umbrella; Inkwell and
+Panacea select Fan; Mortal and Unfettered select Rope Dart; Heavenwill selects
+Gauntlet; and Infernal selects Dual Blades. The first configured martial art maps
+to Left Weapon and the second maps to Right Weapon. Weapon items are identified
+by this definition ID and do not store a left/right slot, so the same saved
+weapon can move between the two positions when the martial-art order changes.
 
 ## Builds and persisted inventory
 

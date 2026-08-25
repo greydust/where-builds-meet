@@ -2,22 +2,27 @@ import type { AttunementStats } from "./calculations/damage";
 import type { CharacterStatOverrides } from "./calculations/statEffects";
 import { allStatDefinitions } from "./data/statDefinitions";
 import { attunementData, defaultBuildSetup, normalizeBuildSetup, type BuildSetup } from "./gear";
+import breakthroughJson from "../data/breakthrough.json";
 import defaultSetupJson from "../data/default-setup.json";
 
 export const characterProfileStorageKey = "wwm-character-profiles-v1";
 export const characterProfileExportFormat = "where-builds-meet-character-profiles";
+export const defaultBreakthrough = "16";
 
 export type CharacterProfile = {
   id: string;
   name: string;
   statOverrides: CharacterStatOverrides;
   attunementOverrides: Partial<AttunementStats>;
+  breakthrough: string;
   innerWays: Array<{ innerWay: string; tier: string }>;
   buildSetup: BuildSetup;
 };
 
 const characterStatKeys = new Set(allStatDefinitions.map(({ key }) => key as string));
 const attunementKeys = new Set(Object.keys(attunementData));
+const breakthroughIds = new Set(Object.keys(breakthroughJson));
+const supportedProfileVersions = new Set([1, 2, 3, 4, 5]);
 const defaultSetup = defaultSetupJson as { innerWays: Array<{ innerWay: string; tier: string }> };
 
 const cloneDefaultInnerWays = () => defaultSetup.innerWays.map((row) => ({ ...row }));
@@ -53,6 +58,10 @@ function parseProfile(value: unknown): CharacterProfile | undefined {
     name: source.name.trim(),
     statOverrides: finiteValues(source.statOverrides, characterStatKeys) as CharacterStatOverrides,
     attunementOverrides: finiteValues(source.attunementOverrides, attunementKeys) as Partial<AttunementStats>,
+    breakthrough:
+      typeof source.breakthrough === "string" && breakthroughIds.has(source.breakthrough)
+        ? source.breakthrough
+        : defaultBreakthrough,
     innerWays,
     buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })) },
   };
@@ -86,7 +95,7 @@ export function exportCharacterProfiles(profiles: CharacterProfile[]) {
   return JSON.stringify(
     {
       format: characterProfileExportFormat,
-      version: 4,
+      version: 5,
       exportedAt: new Date().toISOString(),
       profiles: parseCharacterProfiles(profiles),
     },
@@ -108,10 +117,7 @@ export function mergeImportedCharacterProfiles(current: CharacterProfile[], valu
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new Error("This is not a Where Builds Meet character profile file.");
   const source = value as Record<string, unknown>;
-  if (
-    source.format !== characterProfileExportFormat ||
-    (source.version !== 1 && source.version !== 2 && source.version !== 3 && source.version !== 4)
-  )
+  if (source.format !== characterProfileExportFormat || !supportedProfileVersions.has(source.version as number))
     throw new Error("This file uses an unsupported character profile format.");
   if (!Array.isArray(source.profiles)) throw new Error("The character profile file does not contain a profile list.");
   const parsed = parseCharacterProfiles(source.profiles);
@@ -134,6 +140,7 @@ export function characterProfileMatches(profile: CharacterProfile, current: Omit
   return (
     sameValues(profile.statOverrides, current.statOverrides) &&
     sameValues(profile.attunementOverrides, current.attunementOverrides) &&
+    profile.breakthrough === current.breakthrough &&
     JSON.stringify(profile.innerWays) === JSON.stringify(current.innerWays) &&
     JSON.stringify(profile.buildSetup) === JSON.stringify(current.buildSetup)
   );

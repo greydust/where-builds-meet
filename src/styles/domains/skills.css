@@ -179,10 +179,6 @@
     cursor: not-allowed;
   }
 
-  .settings-enemy-row {
-    max-inline-size: calc(50% - 7px);
-  }
-
   .settings-layout-row {
     max-inline-size: calc(50% - 7px);
 
@@ -193,16 +189,6 @@
     select:disabled {
       cursor: not-allowed;
     }
-  }
-
-  .settings-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    margin-block-start: 18px;
-    padding-block-start: 14px;
-    border-block-start: 1px solid var(--border);
-    color: var(--text-muted);
   }
 
   /* JSON & Structured Editors */

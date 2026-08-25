@@ -27,7 +27,7 @@ const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts")
 const statEffects = await loadBundledModule("./src/calculations/statEffects.ts");
 const { createBaseAttributeEffects } = await loadBundledModule("./src/data/baseAttributeEffects.ts");
 const systemStats = (await import("../../data/system.json", { with: { type: "json" } })).default;
-const enemies = (await import("../../data/enemy.json", { with: { type: "json" } })).default;
+const breakthroughProfiles = (await import("../../data/breakthrough.json", { with: { type: "json" } })).default;
 const statRolls = (await import("../../data/stat.json", { with: { type: "json" } })).default;
 const defaultSetup = (await import("../../data/default-setup.json", { with: { type: "json" } })).default;
 const gearSetDefinitions = (await import("../../data/gear-set.json", { with: { type: "json" } })).default;
@@ -76,9 +76,12 @@ assert(
     gear.gearData.gear.bracer.baseStats["91"].Purple.maxHp === 4153,
   "Armor base HP and Physical Defense must match the official gear signatures.",
 );
-assert(enemies["96"].level === 96, "The level 96 enemy must use the numeric level key consumed by stat priorities.");
 assert(
-  gear.statRollsForLevel(enemies["96"].level) === gear.statRollsForLevel(96),
+  breakthroughProfiles["16"].level === 96,
+  "Breakthrough 16 must expose the enemy level consumed by stat priorities.",
+);
+assert(
+  gear.statRollsForLevel(breakthroughProfiles["16"].level) === gear.statRollsForLevel(96),
   "Enemy levels must select the matching stat roll table.",
 );
 const expectedLevel91Affixes = {
@@ -872,7 +875,7 @@ assert(Math.abs(comparison.stats.minPhys - 159) < 1e-9, "Comparison variants mus
 const baseAttributeEffects = createBaseAttributeEffects(systemStats.baseAttributes);
 const systemEffects = [
   systemStats.baseStats,
-  systemStats.levelBonusStats,
+  breakthroughProfiles["16"].levelBonusStats,
   ...systemStats.enhancementStats,
   ...systemStats.talentStats,
   ...systemStats.qingheOddityStats,
@@ -883,6 +886,13 @@ const systemEffects = [
   ...baseAttributeEffects,
 ];
 const systemCharacter = statEffects.calculateStatsWithEffects(statDefinitions.emptyStats, systemEffects, 0).stats;
+const breakthrough17Character = statEffects.calculateStatsWithEffects(
+  statDefinitions.emptyStats,
+  systemEffects.map((effect) =>
+    effect === breakthroughProfiles["16"].levelBonusStats ? breakthroughProfiles["17"].levelBonusStats : effect,
+  ),
+  0,
+).stats;
 assert(systemStats.baseAttributes.body.maxHp === 60, "Body must grant 60 Max HP per point.");
 assert(
   systemStats.baseAttributes.power.minPhys === 0.22 && systemStats.baseAttributes.power.maxPhys === 1.36,
@@ -942,16 +952,13 @@ assert(
   "Unexpected base attribute totals.",
 );
 assert(
-  systemStats.baseStats.stat.precision === 0.65 && systemStats.levelBonusStats.stat.precision === 0.153,
-  "Innate and level Precision must remain separate.",
-);
-assert(
-  systemStats.levelBonusStats.stat.agility === 138 &&
-    systemStats.levelBonusStats.stat.power === 138 &&
-    systemStats.levelBonusStats.stat.momentum === 138 &&
-    systemStats.levelBonusStats.stat.body === 138 &&
-    systemStats.levelBonusStats.stat.defense === 138,
-  "Level attribute bonuses must remain separate from innate stats.",
+  Math.abs(breakthrough17Character.precision - systemCharacter.precision - 0.012) < 1e-9 &&
+    breakthrough17Character.agility - systemCharacter.agility === 12 &&
+    breakthrough17Character.power - systemCharacter.power === 12 &&
+    breakthrough17Character.momentum - systemCharacter.momentum === 12 &&
+    breakthrough17Character.body - systemCharacter.body === 12 &&
+    breakthrough17Character.defense - systemCharacter.defense === 12,
+  "Changing breakthrough must replace both Precision and all five base-attribute bonuses.",
 );
 assert(Math.abs(systemCharacter.precision - 0.968) < 1e-9, "Unexpected system Precision total.");
 assert(Math.abs(systemCharacter.crit - 0.35628) < 1e-9, "Unexpected system Critical total.");

@@ -1,5 +1,5 @@
 import type { RotationRecord, RotationStep } from "./calculations/rotationTimeline";
-import { weaponIds, type WeaponId } from "./types";
+import { normalizeStoredWeaponIds, weaponIds, type WeaponId } from "./types";
 
 export const rotationExportFormat = "where-builds-meet-rotations";
 
@@ -13,13 +13,7 @@ export type RotationEntry = {
 
 const weaponIdSet = new Set<WeaponId>(weaponIds);
 const parseMartialArts = (value: unknown) => {
-  const parsed = Array.isArray(value)
-    ? [
-        ...new Set(
-          value.filter((item): item is WeaponId => typeof item === "string" && weaponIdSet.has(item as WeaponId)),
-        ),
-      ]
-    : [];
+  const parsed = normalizeStoredWeaponIds(value);
   return parsed.length ? parsed : [...weaponIds];
 };
 

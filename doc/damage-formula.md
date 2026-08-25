@@ -2,11 +2,16 @@
 
 This document describes the formula currently implemented by the rotation simulator. Unless stated otherwise, percentage values are stored internally as decimal ratios: `0.11` means `11%`. The UI converts between ratios and percentage points.
 
-Enemy defense, path resistances, and Judgement Resistance come from the selected profile in `data/enemy.json`. The only profile currently shipped is Level 96: 405 defense, zero base resistance, and 65% Judgement Resistance.
+Enemy defense, level, path resistances, Judgement Resistance, and level-derived
+character bonuses come from the selected entry in `data/breakthrough.json`.
+Breakthroughs 16 and 17 currently share a Level 96 enemy with 408 defense, zero
+base resistance, and 65% Judgement Resistance. Breakthrough 16 grants 15.3%
+Precision and 138 of each base attribute; Breakthrough 17 grants 16.5% Precision
+and 150 of each base attribute.
 
 ## Stat resolution
 
-The simulation input starts from zero, then the calculator applies innate character stats, level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
+The simulation input starts from zero, then the calculator applies innate character stats, the selected breakthrough's level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
 
 1. Add fixed `stat` values.
 2. Resolve `stat` formulas whose source is another base stat.
@@ -39,11 +44,14 @@ Effective Max Stonesplit = max(
 ```
 
 Snowparting Blade, Phalanxbane Blade, Thundercry Blade, and Stormbreaker Spear
-use Stonesplit as their primary attribute. Everspring Umbrella, Unfettered Rope
-Dart, Heavenwill Gauntlets, and Skygrasp Rope Dart use Bamboocut. The primary
-attribute receives the action's attribute bonus, the 1.5 path multiplier, and
-Formless Penetration. Void/Formless Attack folding remains Stonesplit-only
-until its Bamboocut behavior is defined.
+use Stonesplit as their primary attribute. Nameless Sword, Nameless Spear,
+Strategic Sword, and HeavenQuaker Spear use Bellstrike. Vernal Umbrella, Inkwell
+Fan, Panacea Fan, and Soulshade Umbrella use Silkbind. Everspring Umbrella,
+Unfettered Rope Dart, Heavenwill Gauntlets, Skygrasp Rope Dart, Infernal
+Twinblades, and Mortal Rope Dart use Bamboocut. The primary attribute receives
+the action's attribute bonus, the 1.5 path multiplier, and Formless Penetration.
+Void/Formless Attack folding remains Stonesplit-only until its behavior for the
+other attributes is defined.
 
 ## Damage outcomes
 
@@ -424,7 +432,7 @@ simulation replay copies that run's randomized source hit.
 
 ## Stat-priority conversion
 
-Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the active enemy profile's numeric level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
+Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the selected breakthrough profile's enemy level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
 
 ```text
 1 Power    = 0.22 Min Physical Attack + 1.36 Max Physical Attack

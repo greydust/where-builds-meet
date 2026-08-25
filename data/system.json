@@ -18,16 +18,6 @@
       "maxVitality": 40
     }
   },
-  "levelBonusStats": {
-    "stat": {
-      "precision": 0.153,
-      "agility": 138,
-      "power": 138,
-      "momentum": 138,
-      "body": 138,
-      "defense": 138
-    }
-  },
   "enhancementStats": [
     { "id": "enhancement-01", "stat": { "minPhys": 108, "maxPhys": 72 } },
     { "id": "enhancement-02", "stat": { "minPhys": 108, "maxPhys": 72 } },

@@ -28,6 +28,9 @@
       "ropeDartDmgBoost": 0.062,
       "gauntletDmgBoost": 0.062,
       "spearDmgBoost": 0.062,
+      "swordDmgBoost": 0.062,
+      "fanDmgBoost": 0.062,
+      "dualBladesDmgBoost": 0.062,
       "vsBossDmg": 0.032,
       "singleTargetMysticDmgBoost": 0.098,
       "areaMysticDmgBoost": 0.098
@@ -68,6 +71,9 @@
       "ropeDartDmgBoost": 0.052,
       "gauntletDmgBoost": 0.052,
       "spearDmgBoost": 0.052,
+      "swordDmgBoost": 0.052,
+      "fanDmgBoost": 0.052,
+      "dualBladesDmgBoost": 0.052,
       "vsBossDmg": 0.026,
       "singleTargetMysticDmgBoost": 0.08,
       "areaMysticDmgBoost": 0.08

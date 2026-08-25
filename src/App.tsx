@@ -53,6 +53,7 @@ import {
   type SetSelections,
 } from "./gear";
 import {
+  normalizeStoredWeaponIds,
   weaponIds as allWeaponIds,
   type CharacterStats,
   type EnemyProfile,
@@ -85,7 +86,7 @@ import bamboocutDustDebuffs from "../data/debuff/bamboocut-dust.json";
 import bamboocutKiteDebuffs from "../data/debuff/bamboocut-kite.json";
 import stonesplitMightDebuffs from "../data/debuff/stonesplit-might.json";
 import mysticDots from "../data/dot/mystic.json";
-import enemyProfiles from "../data/enemy.json";
+import breakthroughProfiles from "../data/breakthrough.json";
 import systemStats from "../data/system.json";
 import { createBaseAttributeEffects, type BaseAttributeData } from "./data/baseAttributeEffects";
 import { innerWayAvailableForTag, innerWayDefinitions, innerWayEntriesForTag } from "./data/innerWayDefinitions";
@@ -121,6 +122,16 @@ import heavenwillMartialArt from "../data/martial-art/heavenwill-gauntlets.json"
 import skygraspMartialArt from "../data/martial-art/skygrasp-rope-dart.json";
 import thundercryMartialArt from "../data/martial-art/thundercry-blade.json";
 import stormbreakerMartialArt from "../data/martial-art/stormbreaker-spear.json";
+import namelessSwordMartialArt from "../data/martial-art/nameless-sword.json";
+import namelessSpearMartialArt from "../data/martial-art/nameless-spear.json";
+import strategicSwordMartialArt from "../data/martial-art/strategic-sword.json";
+import heavenquakerSpearMartialArt from "../data/martial-art/heavenquaker-spear.json";
+import vernalUmbrellaMartialArt from "../data/martial-art/vernal-umbrella.json";
+import inkwellFanMartialArt from "../data/martial-art/inkwell-fan.json";
+import panaceaFanMartialArt from "../data/martial-art/panacea-fan.json";
+import soulshadeUmbrellaMartialArt from "../data/martial-art/soulshade-umbrella.json";
+import infernalTwinbladesMartialArt from "../data/martial-art/infernal-twinblades.json";
+import mortalRopeDartMartialArt from "../data/martial-art/mortal-rope-dart.json";
 import {
   sortAttunementPriorityRows,
   sortRotationPriorityRows,
@@ -185,6 +196,7 @@ import {
   characterProfileMatches,
   characterProfileStorageKey,
   exportCharacterProfiles,
+  defaultBreakthrough,
   loadCharacterProfiles,
   mergeImportedCharacterProfiles,
   serializeCharacterProfiles,
@@ -233,15 +245,26 @@ const percentageStatKeys = new Set<keyof CharacterStats>(
   allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key),
 );
 
-type CalculatorSettings = { weapons: [WeaponId, WeaponId]; enemy: string };
+type CalculatorSettings = { weapons: [WeaponId, WeaponId]; breakthrough: string };
 type LayoutMode = "pc" | "mobile";
-type PathId = "mixed" | "stonesplitStrength" | "stonesplitMight" | "bamboocutKite" | "bamboocutWind" | "bamboocutDust";
+type PathId =
+  | "mixed"
+  | "bellstrikeSplendor"
+  | "bellstrikeUmbra"
+  | "stonesplitStrength"
+  | "stonesplitMight"
+  | "silkbindJade"
+  | "silkbindDeluge"
+  | "bamboocutWind"
+  | "bamboocutKite"
+  | "bamboocutDust";
 type PathDefinition = {
   name: string;
   icon?: string;
   tag?: string;
   wip?: boolean;
   devOnly?: boolean;
+  plannerOnly?: boolean;
   lockedWeapons?: [WeaponId, WeaponId];
 };
 type DefaultSetup = {
@@ -257,12 +280,27 @@ const typedDefaultSetup = defaultSetup as DefaultSetup;
 const typedPathDefinitions = pathDefinitions as Record<PathId, PathDefinition>;
 const productionWeaponIds = new Set<WeaponId>(
   (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).flatMap(([id, definition]) =>
-    id !== "mixed" && !definition.wip && !definition.devOnly ? (definition.lockedWeapons ?? []) : [],
+    id !== "mixed" && !definition.wip && !definition.devOnly && !definition.plannerOnly
+      ? (definition.lockedWeapons ?? [])
+      : [],
   ),
 );
 
 function pathRequiresDev(definition: PathDefinition) {
-  return definition.wip === true || definition.devOnly === true;
+  return definition.wip === true || definition.devOnly === true || definition.plannerOnly === true;
+}
+
+function pathStatusLabel(definition: PathDefinition) {
+  switch (true) {
+    case definition.plannerOnly === true:
+      return t("ui.app.plannerOnly");
+    case definition.devOnly === true:
+      return t("ui.app.dev");
+    case definition.wip === true:
+      return t("ui.app.wip");
+    default:
+      return "";
+  }
 }
 
 const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
@@ -867,15 +905,7 @@ const rotationPresetModules = import.meta.glob("../data/rotation/**/*.json", {
   import: "default",
 }) as Record<string, RotationPresetRecord>;
 function rotationMartialArts(rotation: RotationRecord, explicit?: unknown) {
-  const configured = Array.isArray(explicit)
-    ? [
-        ...new Set(
-          explicit.filter(
-            (item): item is WeaponId => typeof item === "string" && allWeaponIds.includes(item as WeaponId),
-          ),
-        ),
-      ]
-    : [];
+  const configured = normalizeStoredWeaponIds(explicit);
   if (configured.length) return configured;
   const inferred = [
     ...new Set(
@@ -912,9 +942,6 @@ const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "Default 
 const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
 const formerDefaultRotationIds = new Set(["dummy-1-min"]);
 
-const typedEnemyProfiles = enemyProfiles as Record<string, EnemyProfile>;
-const defaultSettings: CalculatorSettings = { weapons: ["snowparting", "phalanxbane"], enemy: "96" };
-
 type SetupEffect = StatEffectContainer &
   EffectiveStatEffectContainer & {
     condition?: string;
@@ -923,9 +950,30 @@ type SetupEffect = StatEffectContainer &
     target?: string;
     modify?: EditableObject;
   };
+type BreakthroughProfile = EnemyProfile & {
+  levelBonusStats: SetupEffect & {
+    stat: {
+      precision: number;
+      agility: number;
+      power: number;
+      momentum: number;
+      body: number;
+      defense: number;
+    };
+  };
+};
+const typedBreakthroughProfiles = breakthroughProfiles as Record<string, BreakthroughProfile>;
+const defaultSettings: CalculatorSettings = {
+  weapons: ["snowparting", "phalanxbane"],
+  breakthrough: defaultBreakthrough,
+};
+
+function breakthroughProfile(settings: CalculatorSettings) {
+  return typedBreakthroughProfiles[settings.breakthrough] ?? typedBreakthroughProfiles[defaultSettings.breakthrough];
+}
+
 type SystemStatsDefinition = {
   baseStats: SetupEffect;
-  levelBonusStats: SetupEffect;
   enhancementStats: Array<SetupEffect & { id: string }>;
   talentStats: Array<SetupEffect & { id: string }>;
   qingheOddityStats: Array<SetupEffect & { id: string }>;
@@ -939,7 +987,6 @@ const typedSystemStats = systemStats as SystemStatsDefinition;
 const baseAttributeEffects = createBaseAttributeEffects(typedSystemStats.baseAttributes);
 const systemStatEffects: SetupEffect[] = [
   typedSystemStats.baseStats,
-  typedSystemStats.levelBonusStats,
   ...typedSystemStats.enhancementStats,
   ...typedSystemStats.talentStats,
   ...typedSystemStats.qingheOddityStats,
@@ -1105,6 +1152,16 @@ const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
   unfettered: unfetteredMartialArt as MartialArtDefinition,
   heavenwill: heavenwillMartialArt as MartialArtDefinition,
   skygrasp: skygraspMartialArt as MartialArtDefinition,
+  namelessSword: namelessSwordMartialArt as MartialArtDefinition,
+  namelessSpear: namelessSpearMartialArt as MartialArtDefinition,
+  strategicSword: strategicSwordMartialArt as MartialArtDefinition,
+  heavenquakerSpear: heavenquakerSpearMartialArt as MartialArtDefinition,
+  vernalUmbrella: vernalUmbrellaMartialArt as MartialArtDefinition,
+  inkwellFan: inkwellFanMartialArt as MartialArtDefinition,
+  panaceaFan: panaceaFanMartialArt as MartialArtDefinition,
+  soulshadeUmbrella: soulshadeUmbrellaMartialArt as MartialArtDefinition,
+  infernalTwinblades: infernalTwinbladesMartialArt as MartialArtDefinition,
+  mortalRopeDart: mortalRopeDartMartialArt as MartialArtDefinition,
 };
 const weaponFamilyNames: Record<WeaponFamily, string> = {
   HengBlade: "Heng Blade",
@@ -1113,6 +1170,9 @@ const weaponFamilyNames: Record<WeaponFamily, string> = {
   Umbrella: "Umbrella",
   RopeDart: "Rope Dart",
   Gauntlet: "Gauntlet",
+  Sword: "Sword",
+  Fan: "Fan",
+  DualBlades: "Dual Blades",
 };
 const weaponIdSet = new Set<WeaponId>(allWeaponIds);
 const isWeaponId = (value: unknown): value is WeaponId =>
@@ -1125,6 +1185,9 @@ const artStatByWeaponFamily: Record<WeaponFamily, keyof CharacterStats> = {
   Umbrella: "umbrellaDmgBoost",
   RopeDart: "ropeDartDmgBoost",
   Gauntlet: "gauntletDmgBoost",
+  Sword: "swordDmgBoost",
+  Fan: "fanDmgBoost",
+  DualBlades: "dualBladesDmgBoost",
 };
 
 function characterStatAvailableForSettings(key: keyof CharacterStats, settings: CalculatorSettings) {
@@ -1193,6 +1256,7 @@ function selectedSetupEffects(
   return [
     ...globalEffectRules,
     ...systemStatEffects,
+    breakthroughProfile(settings).levelBonusStats,
     ...selectedMartialArtEffects(settings),
     arsenalEffectFor(selectedBuildSetup.arsenal),
     bowRingSetEffectFor(selectedBuildSetup.bowRingSet),
@@ -1373,17 +1437,23 @@ function loadStatOverrides(): CharacterStatOverrides {
 
 function loadSettings(): CalculatorSettings {
   try {
-    const saved = JSON.parse(getPersistentItem(settingsStorageKey) ?? "null") as Partial<CalculatorSettings> | null;
+    const saved = JSON.parse(getPersistentItem(settingsStorageKey) ?? "null") as
+      (Partial<CalculatorSettings> & { enemy?: unknown; weapon?: unknown }) | null;
     const savedWeapons = Array.isArray(saved?.weapons) ? saved.weapons.filter(isWeaponId) : [];
     const legacyWeapon = saved && "weapon" in saved && saved.weapon === "phalanxbane" ? "phalanxbane" : "snowparting";
     const weapons: [WeaponId, WeaponId] =
       savedWeapons.length === 2
         ? [savedWeapons[0], savedWeapons[1]]
         : [legacyWeapon, legacyWeapon === "snowparting" ? "phalanxbane" : "snowparting"];
-    const savedEnemy = saved?.enemy === "level100" || saved?.enemy === "level96" ? "96" : saved?.enemy;
+    const legacyBreakthrough =
+      saved?.enemy === "level100" || saved?.enemy === "level96" || saved?.enemy === "96" ? "16" : undefined;
+    const savedBreakthrough = saved?.breakthrough ?? legacyBreakthrough;
     return {
       weapons,
-      enemy: typeof savedEnemy === "string" && typedEnemyProfiles[savedEnemy] ? savedEnemy : defaultSettings.enemy,
+      breakthrough:
+        typeof savedBreakthrough === "string" && typedBreakthroughProfiles[savedBreakthrough]
+          ? savedBreakthrough
+          : defaultSettings.breakthrough,
     };
   } catch {
     return { ...defaultSettings };
@@ -1561,7 +1631,8 @@ function calculateGlobalStatState(
   gearStatEffect: StatEffectContainer,
   buildSetup: BuildSetup,
 ) {
-  const enemy = typedEnemyProfiles[settings.enemy] ?? typedEnemyProfiles[defaultSettings.enemy];
+  const breakthrough = breakthroughProfile(settings);
+  const enemy: EnemyProfile = breakthrough;
   return calculateStatsWithOverrides(
     emptyStats,
     globalStatEffects(settings, gearStatEffect, buildSetup),
@@ -1977,6 +2048,7 @@ function StatsTab({
   onAttunementReset,
   onApplyCharacterProfile,
   onCharacterProfilesChange,
+  onBreakthroughChange,
   onBuildSetupChange,
   onBuildSetupReset,
   rotationMetrics,
@@ -1996,6 +2068,7 @@ function StatsTab({
   onAttunementReset: (key: keyof AttunementStats) => void;
   onApplyCharacterProfile: (profile?: CharacterProfile) => void;
   onCharacterProfilesChange: (profiles: CharacterProfile[]) => void;
+  onBreakthroughChange: (breakthrough: string) => void;
   onBuildSetupChange: <K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) => void;
   onBuildSetupReset: (key: keyof BuildSetup) => void;
   rotationMetrics?: RotationMetrics;
@@ -2004,6 +2077,7 @@ function StatsTab({
   onInnerWayChange: () => void;
 }) {
   const { stats, derivedStats, attunementStats, buildSetup, settings } = character;
+  const breakthrough = breakthroughProfile(settings);
   const [food, setFood] = useState(loadFood);
   const [script, setScript] = useState(loadScript);
   const [divinecraft, setDivinecraft] = useState(loadDivinecraft);
@@ -2019,12 +2093,19 @@ function StatsTab({
   useEffect(() => setPersistentItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs)), [globalDebuffs]);
 
   const { arsenal, bowRingSet, weaponSets, armorSets, innerWays } = buildSetup;
-  const currentProfileData = { statOverrides, attunementOverrides, innerWays, buildSetup };
+  const currentProfileData = {
+    statOverrides,
+    attunementOverrides,
+    breakthrough: settings.breakthrough,
+    innerWays,
+    buildSetup,
+  };
   const matchingProfile = characterProfiles.find((profile) => characterProfileMatches(profile, currentProfileData));
   const isCalculated =
     Object.keys(statOverrides).length === 0 &&
     Object.keys(attunementOverrides).length === 0 &&
-    Object.keys(buildSetupOverrides).length === 0;
+    Object.keys(buildSetupOverrides).length === 0 &&
+    settings.breakthrough === defaultBreakthrough;
   const [selectedProfileId, setSelectedProfileId] = useState(() =>
     isCalculated ? "__calculated" : (matchingProfile?.id ?? "__modified"),
   );
@@ -2048,6 +2129,7 @@ function StatsTab({
               ...profile,
               statOverrides: { ...statOverrides },
               attunementOverrides: { ...attunementOverrides },
+              breakthrough: settings.breakthrough,
               innerWays: innerWays.map((row) => ({ ...row })),
               buildSetup: {
                 ...buildSetup,
@@ -2067,6 +2149,7 @@ function StatsTab({
     isCalculated,
     onCharacterProfilesChange,
     selectedProfileId,
+    settings.breakthrough,
     statOverrides,
   ]);
 
@@ -2096,6 +2179,7 @@ function StatsTab({
         name,
         statOverrides: { ...statOverrides },
         attunementOverrides: { ...attunementOverrides },
+        breakthrough: settings.breakthrough,
         innerWays: innerWays.map((row) => ({ ...row })),
         buildSetup: {
           ...buildSetup,
@@ -2643,6 +2727,44 @@ function StatsTab({
           </div>
         </div>
         <section className="middle-stats-column">
+          <section className="panel breakthrough-panel">
+            <div className="panel-heading">
+              <h2>{t("ui.app.breakthrough")}</h2>
+            </div>
+            <label className="editor-field breakthrough-control">
+              <span className="visually-hidden">{t("ui.app.breakthrough")}</span>
+              <select value={settings.breakthrough} onChange={(event) => onBreakthroughChange(event.target.value)}>
+                {Object.keys(typedBreakthroughProfiles).map((key) => (
+                  <option key={key} value={key}>
+                    {key}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="breakthrough-summary">
+              <span>
+                {t("ui.app.precision")} {formatNumber(breakthrough.levelBonusStats.stat.precision * 100)}%
+              </span>
+              <span>
+                {t("ui.app.baseAttributes")} {breakthrough.levelBonusStats.stat.agility}
+              </span>
+              <span>
+                {t("ui.app.gearTier")} {breakthrough.level}
+              </span>
+              <span>
+                {t("ui.app.defense")} {breakthrough.defense}
+              </span>
+              <span>
+                {t("ui.app.physicalResistance")} {breakthrough.physicalResistance}
+              </span>
+              <span>
+                {t("ui.app.attributeResistance")} {breakthrough.bellstrikeResistance}
+              </span>
+              <span>
+                {t("ui.app.judgementResistance")} {formatNumber(breakthrough.judgementResistance * 100)}%
+              </span>
+            </div>
+          </section>
           <section className="panel inner-way-panel">
             <div className="panel-heading">
               <div>
@@ -4627,7 +4749,6 @@ function SkillEditorTab({
 
 function SettingsTab({
   settings,
-  enemy,
   pathId,
   devMode,
   layoutMode,
@@ -4635,7 +4756,6 @@ function SettingsTab({
   onLayoutChange,
 }: {
   settings: CalculatorSettings;
-  enemy: EnemyProfile;
   pathId: PathId;
   devMode: boolean;
   layoutMode: LayoutMode;
@@ -4680,21 +4800,6 @@ function SettingsTab({
             </label>
           ))}
         </div>
-        <div className="settings-enemy-row">
-          <label className="editor-field">
-            <span>{t("ui.app.enemy")}</span>
-            <select
-              value={settings.enemy}
-              onChange={(event) => onSettingsChange((current) => ({ ...current, enemy: event.target.value }))}
-            >
-              {Object.entries(typedEnemyProfiles).map(([key, profile]) => (
-                <option key={key} value={key}>
-                  {gameText(profile.name)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
         <div className="settings-layout-row">
           <label className="editor-field">
             <span>{t("ui.app.layout")}</span>
@@ -4708,20 +4813,6 @@ function SettingsTab({
             </select>
           </label>
         </div>
-      </div>
-      <div className="settings-summary">
-        <span>
-          {t("ui.app.defense")} {enemy.defense}
-        </span>
-        <span>
-          {t("ui.app.physicalResistance")} {enemy.physicalResistance}
-        </span>
-        <span>
-          {t("ui.app.attributeResistance")} {enemy.bellstrikeResistance}
-        </span>
-        <span>
-          {t("ui.app.judgementResistance")} {formatNumber(enemy.judgementResistance * 100)}%
-        </span>
       </div>
     </section>
   );
@@ -7231,7 +7322,8 @@ export default function App() {
   const [pathId, setPathId] = useState<PathId>(() => loadSelectedPath(devMode));
   const [settings, setSettings] = useState<CalculatorSettings>(() => settingsForPath(loadSettings(), pathId));
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
-  const enemy = typedEnemyProfiles[settings.enemy] ?? typedEnemyProfiles[defaultSettings.enemy];
+  const breakthrough = breakthroughProfile(settings);
+  const enemy: EnemyProfile = breakthrough;
   const availableBuildEntries = buildState.entries.filter(
     (entry) =>
       (devMode || !buildEntryIsTestPreset(entry)) && buildEntryAvailableForMartialArts(entry, settings.weapons),
@@ -7350,6 +7442,10 @@ export default function App() {
   const applyCharacterProfile = (profile?: CharacterProfile) => {
     setStatOverrides(profile ? { ...profile.statOverrides } : {});
     setAttunementOverrides(profile ? { ...profile.attunementOverrides } : {});
+    setSettings((current) => ({
+      ...current,
+      breakthrough: profile?.breakthrough ?? defaultBreakthrough,
+    }));
     if (!profile) {
       setBuildSetupOverrides({});
       return;
@@ -7492,8 +7588,8 @@ export default function App() {
             >
               {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
               <span>{gameText(definition.name)}</span>
-              {(definition.wip || definition.devOnly) && (
-                <small className="path-status-badge">{definition.devOnly ? t("ui.app.dev") : t("ui.app.wip")}</small>
+              {(definition.wip || definition.devOnly || definition.plannerOnly) && (
+                <small className="path-status-badge">{pathStatusLabel(definition)}</small>
               )}
             </button>
           ))}
@@ -7559,6 +7655,7 @@ export default function App() {
           onAttunementReset={resetAttunementOverride}
           onApplyCharacterProfile={applyCharacterProfile}
           onCharacterProfilesChange={setCharacterProfiles}
+          onBreakthroughChange={(breakthrough) => setSettings((current) => ({ ...current, breakthrough }))}
           onBuildSetupChange={updateBuildSetupOverride}
           onBuildSetupReset={resetBuildSetupOverride}
           rotationMetrics={rotationMetrics}
@@ -7591,7 +7688,6 @@ export default function App() {
       ) : activeTab === "settings" ? (
         <SettingsTab
           settings={settings}
-          enemy={enemy}
           pathId={pathId}
           devMode={devMode}
           layoutMode={layoutMode}

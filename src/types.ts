@@ -48,6 +48,9 @@ export type CharacterStats = {
   ropeDartDmgBoost: number;
   gauntletDmgBoost: number;
   spearDmgBoost: number;
+  swordDmgBoost: number;
+  fanDmgBoost: number;
+  dualBladesDmgBoost: number;
   singleTargetMysticDmgBoost: number;
   areaMysticDmgBoost: number;
 };
@@ -73,9 +76,44 @@ export const weaponIds = [
   "unfettered",
   "heavenwill",
   "skygrasp",
+  "namelessSword",
+  "namelessSpear",
+  "strategicSword",
+  "heavenquakerSpear",
+  "vernalUmbrella",
+  "inkwellFan",
+  "panaceaFan",
+  "soulshadeUmbrella",
+  "infernalTwinblades",
+  "mortalRopeDart",
 ] as const;
 export type WeaponId = (typeof weaponIds)[number];
-export type WeaponFamily = "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet";
+const legacyUniversalWeaponIds: readonly WeaponId[] = [
+  "snowparting",
+  "phalanxbane",
+  "thundercry",
+  "stormbreaker",
+  "everspring",
+  "unfettered",
+  "heavenwill",
+  "skygrasp",
+];
+
+export function normalizeStoredWeaponIds(value: unknown): WeaponId[] {
+  const parsed = Array.isArray(value)
+    ? [
+        ...new Set(
+          value.filter((item): item is WeaponId => typeof item === "string" && weaponIds.includes(item as WeaponId)),
+        ),
+      ]
+    : [];
+  const isLegacyUniversal =
+    parsed.length === legacyUniversalWeaponIds.length &&
+    legacyUniversalWeaponIds.every((weapon) => parsed.includes(weapon));
+  return isLegacyUniversal ? [...weaponIds] : parsed;
+}
+export type WeaponFamily =
+  "HengBlade" | "MoBlade" | "Spear" | "Umbrella" | "RopeDart" | "Gauntlet" | "Sword" | "Fan" | "DualBlades";
 
 export type StatKey = keyof CharacterStats;
 

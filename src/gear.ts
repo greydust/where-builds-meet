@@ -8,7 +8,7 @@ import armorSetJson from "../data/armor-set.json";
 import statJson from "../data/stat.json";
 import type { AttunementStats } from "./calculations/damage";
 import { getPersistentItem } from "./persistentStorage";
-import { weaponIds, type CharacterStats, type WeaponId } from "./types";
+import { normalizeStoredWeaponIds, weaponIds, type CharacterStats, type WeaponId } from "./types";
 
 export const legacyGearStorageKey = "wwm-gear-inventory-v1";
 export const buildListStorageKey = "wwm-build-list-v1";
@@ -377,16 +377,12 @@ export const defaultBuildPresets = Object.values(buildPresetModules).sort(
 export function buildEntryIsTestPreset(entry: BuildEntry) {
   return entry.isDefault === true && defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.test === true;
 }
-const weaponIdSet = new Set<WeaponId>(weaponIds);
-
 function normalizedMartialArts(
   value: unknown,
   equipped: Partial<Record<GearSlot, string>> = {},
   items: GearItem[] = [],
 ) {
-  const explicit = Array.isArray(value)
-    ? value.filter((item): item is WeaponId => typeof item === "string" && weaponIdSet.has(item as WeaponId))
-    : [];
+  const explicit = normalizeStoredWeaponIds(value);
   if (explicit.length) return explicit;
   const inferred = ["leftWeapon", "rightWeapon"].flatMap((slot) => {
     const itemId = equipped[slot as GearSlot];
@@ -423,6 +419,16 @@ const weaponDefinitionIds: Record<WeaponId, string> = {
   unfettered: "unfetteredRopeDart",
   heavenwill: "gauntlet",
   skygrasp: "skygraspRopeDart",
+  namelessSword: "sword",
+  namelessSpear: "spear",
+  strategicSword: "sword",
+  heavenquakerSpear: "spear",
+  vernalUmbrella: "umbrella",
+  inkwellFan: "fan",
+  panaceaFan: "fan",
+  soulshadeUmbrella: "umbrella",
+  infernalTwinblades: "dualBlades",
+  mortalRopeDart: "unfetteredRopeDart",
 };
 
 export function gearDefinitionForSlot(slot: GearSlot, weapons: [WeaponId, WeaponId]) {

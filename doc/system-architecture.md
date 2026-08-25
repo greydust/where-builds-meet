@@ -32,7 +32,7 @@ calculation components. PC retains the established wide grids and viewport-bound
 Build and Rotation workspaces. Mobile uses normal document scrolling, compact
 single-column panels, horizontal item choosers, and card-style rotation rows.
 The production mode follows a `48em` viewport query. Settings always shows the
-currently resolved PC/Mobile layout below Enemy. The selector remains disabled
+currently resolved PC/Mobile layout below the weapon selectors. The selector remains disabled
 and dimmed until Dev mode is enabled, at which point it overrides the viewport
 query until the user changes it again, without changing calculation or stored game data.
 
@@ -81,10 +81,10 @@ data/
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and attunement source tags
-  system.json     innate stats, progression rewards, and base-attribute conversions
+  system.json     innate stats, non-level progression rewards, resources, and base-attribute conversions
   attunement.json attunement names, source tags, stat targets, and skill-match tags
   default-setup.json  first-load Inner Ways/food/Divinecraft and legacy build-setup fallback
-  enemy.json      enemy profiles
+  breakthrough.json  breakthrough-indexed level bonuses and enemy profiles
   arsenal.json
   bow-ring-set.json
   gear-set.json   weapon-set definitions and tier effects
@@ -147,11 +147,11 @@ catalog workflow and validation rules.
 
 - final-value character stat overrides
 - final-value attunement overrides
-- reusable character profiles containing those override maps and Main-tab setup
+- reusable character profiles containing those override maps, the selected breakthrough, and Main-tab setup
 - two equipped weapons
 - selected combat path and its optional weapon lock
 - build list, shared gear inventory, and active build ID
-- selected enemy
+- selected breakthrough profile
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
 
@@ -232,7 +232,7 @@ same-origin session key before React state is initialized.
 | Combat path                                     | `localStorage`, `wwm-path-session-v1`            |
 | Dev layout preview                              | `localStorage`, `wwm-layout-preview-session-v1`  |
 | Attunement overrides                            | `localStorage`, `wwm-attunement-overrides-v1`    |
-| Weapons and enemy                               | `localStorage`, `wwm-settings-session-v1`        |
+| Weapons and breakthrough                        | `localStorage`, `wwm-settings-session-v1`        |
 | Build setup overrides                           | `localStorage`, `wwm-build-setup-overrides-v1`   |
 | Food                                            | `localStorage`, `wwm-food-session-v1`            |
 | Divinecraft                                     | `localStorage`, `wwm-divinecraft-session-v1`     |
@@ -280,7 +280,7 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
+the selected breakthrough, Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
 global buff/debuff controls, and Script controls remain independent
 session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
@@ -318,8 +318,8 @@ stats come from the innate character system, character talents, gear, Inner
 Ways, martial-art talents, arsenal, bow/ring set, weapon and armor sets, food, and
 Divinecraft.
 
-`data/system.json` keeps innate `baseStats`, level-derived `levelBonusStats`,
-ordered `enhancementStats`, ordered `talentStats`, regional
+`data/system.json` keeps innate `baseStats`, ordered `enhancementStats`,
+ordered `talentStats`, regional
 Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
 `imperialPalaceOddityStats`, `hexiOddityStats`,
 and `hiddenMountainOddityStats` separate. Its `baseAttributes` field stores a
@@ -330,6 +330,10 @@ effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
 shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
+`data/breakthrough.json` groups the selected enemy profile and its
+`levelBonusStats` under the breakthrough number. Changing breakthrough therefore
+updates enemy inputs and replaces the level-derived Precision and five base
+attributes through the same shared effect pipeline.
 The hidden base stat `heavensWillRegen` is also resolved through this pipeline.
 It is passed into the timeline as the per-second regeneration rate for the
 numeric `HeavensWill` resource rather than exposed as an editable combat stat.
@@ -760,7 +764,7 @@ Presets with `test: true` remain bundled but are hidden until the persisted
 header-level Dev toggle is enabled. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Thundercry, Stormbreaker, Heavenwill, Mystic, General, Buff, Debuff, and DOT editor categories
-- eight martial-art IDs across Heng Blade, Mo Blade, Umbrella, Rope Dart, Gauntlet, and Spear weapon families
+- eighteen martial-art IDs across Heng Blade, Mo Blade, Sword, Spear, Umbrella, Fan, Rope Dart, Gauntlet, and Dual Blades weapon families
 - six Inner Ways
 - eight available Divinecraft definitions, including a no-effect choice
 - seven Script definitions plus a no-effect choice
@@ -798,10 +802,12 @@ value means its removal can reuse baseline event state. Add path eligibility str
 `tags` array. Selection automatically activates all tiers through the selected
 tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
 
-### Enemy
+### Breakthrough
 
-Add a complete `EnemyProfile` entry to `data/enemy.json`. The settings UI reads
-the imported map.
+Add a complete breakthrough entry to `data/breakthrough.json`. Each entry combines
+an `EnemyProfile` with a `levelBonusStats` effect. The Main-tab selector reads the
+entry keys, while its detail block above Inner Ways shows the level bonus and enemy
+properties. Breakthrough is profile-owned and is intentionally not part of build data.
 
 ### Gear definition
 
@@ -823,8 +829,7 @@ setup conditions to the same requirement context used by Inner Ways.
 
 ### Character system stats
 
-Update `data/system.json`. Keep innate values under `baseStats`, level-derived
-values under `levelBonusStats`, every Enhancement bonus under its own ordered
+Update `data/system.json`. Keep innate values under `baseStats`, every Enhancement bonus under its own ordered
 `enhancementStats` entry, every talent grant as its own ordered
 `talentStats` entry, and every regional Oddity reward
 under its own ordered collection such as `qingheOddityStats` or
@@ -847,10 +852,20 @@ the same in local and deployed builds. A path can instead declare `devOnly: true
 when its mechanics are supported but the path itself is intended only for
 development and unrestricted test combinations. Dev-only paths remain visible,
 carry a Dev badge, and use the same runtime gate without being described as WIP.
-Mixed is the final selector option and is Dev-only. Kite is available without
-Dev mode. Wind and Dust remain WIP shells; Wind has no weapon lock until its
-martial arts are registered, while Dust retains its existing registered weapon
-pair.
+A path can declare `plannerOnly: true` when its martial-art pair and build-planner
+surfaces are registered but its combat mechanics are not implemented. Planner-only
+paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
+is enabled. Bellstrike Splendor and Umbra, Silkbind Jade and Deluge, and Bamboocut
+Dust currently use this state. Their fixed martial-art pairs and physical weapon
+families are available to Settings and Build, but they intentionally have no
+path-specific skill, talent, set, or attunement definitions yet. Mixed is the final
+selector option and is Dev-only. Kite is available without Dev mode, while Wind
+remains a WIP path.
+
+Stored universal build and rotation records created before the planner-only
+martial arts were registered contain the previous eight martial-art IDs. Shared
+weapon-ID normalization recognizes that exact legacy universe and expands it to
+the current list, preserving those records as universal across upgrades.
 
 ### Manual event
 
@@ -890,7 +905,7 @@ timeline, expected damage, DPS, and action breakdowns. Saving requests
 comparisons only when the edited rotation is active. Making an inactive rotation
 active reuses its valid baseline cache and requests comparisons.
 
-When character stats, attunements, Inner Ways, food, Divinecraft, build, enemy,
+When character stats, attunements, Inner Ways, food, Divinecraft, build, breakthrough,
 or settings change, the refresh order is: active baseline; stat priority;
 attunement priority; weapon sets; armor sets; bow/ring; arsenal; global
 buffs/debuffs; Inner Ways; Script; Divinecraft; food; then every inactive

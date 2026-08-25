@@ -1,9 +1,17 @@
 {
-  "stonesplitStrength": {
-    "name": "Strength",
-    "icon": "strength.png",
-    "tag": "StonesplitStrength",
-    "lockedWeapons": ["snowparting", "phalanxbane"]
+  "bellstrikeSplendor": {
+    "name": "Splendor",
+    "icon": "splendor.png",
+    "tag": "BellstrikeSplendor",
+    "plannerOnly": true,
+    "lockedWeapons": ["namelessSword", "namelessSpear"]
+  },
+  "bellstrikeUmbra": {
+    "name": "Umbra",
+    "icon": "umbra.png",
+    "tag": "BellstrikeUmbra",
+    "plannerOnly": true,
+    "lockedWeapons": ["strategicSword", "heavenquakerSpear"]
   },
   "stonesplitMight": {
     "name": "Might",
@@ -11,24 +19,45 @@
     "tag": "StonesplitMight",
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
-  "bamboocutKite": {
-    "name": "Kite",
-    "icon": "kite.png",
-    "tag": "BamboocutKite",
-    "lockedWeapons": ["heavenwill", "skygrasp"]
+  "stonesplitStrength": {
+    "name": "Strength",
+    "icon": "strength.png",
+    "tag": "StonesplitStrength",
+    "lockedWeapons": ["snowparting", "phalanxbane"]
+  },
+  "silkbindJade": {
+    "name": "Jade",
+    "icon": "jade.png",
+    "tag": "SilkbindJade",
+    "plannerOnly": true,
+    "lockedWeapons": ["vernalUmbrella", "inkwellFan"]
+  },
+  "silkbindDeluge": {
+    "name": "Deluge",
+    "icon": "deluge.png",
+    "tag": "SilkbindDeluge",
+    "plannerOnly": true,
+    "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"]
   },
   "bamboocutWind": {
     "name": "Wind",
     "icon": "wind.png",
     "tag": "BamboocutWind",
-    "wip": true
+    "wip": true,
+    "lockedWeapons": ["infernalTwinblades", "mortalRopeDart"]
   },
   "bamboocutDust": {
     "name": "Dust",
     "icon": "dust.png",
     "tag": "BamboocutDust",
-    "wip": true,
+    "plannerOnly": true,
     "lockedWeapons": ["everspring", "unfettered"]
+  },
+  "bamboocutKite": {
+    "name": "Kite",
+    "icon": "kite.png",
+    "tag": "BamboocutKite",
+    "lockedWeapons": ["heavenwill", "skygrasp"]
   },
   "mixed": {
     "name": "Mixed",
