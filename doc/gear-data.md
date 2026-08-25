@@ -269,6 +269,11 @@ is directly observed in a dashboard export; the remaining ordering follows the
 confirmed category sequence. Stonesplit Might has no Stormbreaker Spear Martial
 Art Skill DMG Boost attunement.
 
+For Tier 91 armor, dashboard ID `9293029` is Area Mystic Skill DMG Boost and
+attunement ID `270204` is Stormbreaker Spear Charged Skill DMG Boost. These IDs
+are confirmed independently from the Tier 96 sequence and must not be inferred
+by merely replacing the tier prefix.
+
 Tier 96 Bamboocut Dust armor attunement ID `280601` maps to Everspring Umbrella
 Martial Art Skill DMG Boost. Together with the previously observed IDs `280602`
 through `280605`, this completes the Dust category mapping.
