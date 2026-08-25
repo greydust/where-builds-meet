@@ -286,6 +286,31 @@ try {
       mightItems.get(mightBuild.equipped.helmet)?.attunement?.key === "thundercryChargedBoost",
     "Official Might IDs must import as left Thundercry Blade, right Stormbreaker Spear, and Thundercry Charged armor.",
   );
+  const reversedMightDashboardShape = importer.parseOfficialGearExport(
+    {
+      source: "wwm-dashboard",
+      v: 2,
+      roleInfo: {
+        roleName: "Reversed Might Dashboard Shape",
+        kongfuMain: 20103,
+        kongfuSub: 20401,
+        wearEquipsDetailed: {
+          1: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713006, 32.6)]),
+          2: detail({ MIN_W_ATK: 65, MAX_W_ATK: 151 }, [actualRow(9713006, 33)]),
+        },
+      },
+    },
+    ["thundercry", "stormbreaker"],
+  );
+  const reversedMightBuild = reversedMightDashboardShape.exportValue.builds[0];
+  const reversedMightItems = new Map(reversedMightDashboardShape.exportValue.gearItems.map((item) => [item.id, item]));
+  assert(
+    JSON.stringify(reversedMightDashboardShape.weapons) === JSON.stringify(["thundercry", "stormbreaker"]) &&
+      JSON.stringify(reversedMightBuild.martialArts) === JSON.stringify(["thundercry", "stormbreaker"]) &&
+      reversedMightItems.get(reversedMightBuild.equipped.leftWeapon)?.definitionId === "moBlade" &&
+      reversedMightItems.get(reversedMightBuild.equipped.rightWeapon)?.definitionId === "spear",
+    "Official Might imports must classify the path before assigning reversed main/sub weapons to canonical slots.",
+  );
   for (const [statId, expectedKey] of [
     [280201, "thundercryShieldBoost"],
     [280202, "thundercryChargedBoost"],

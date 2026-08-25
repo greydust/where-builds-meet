@@ -2728,41 +2728,53 @@ function StatsTab({
         </div>
         <section className="middle-stats-column">
           <section className="panel breakthrough-panel">
-            <div className="panel-heading">
-              <h2>{t("ui.app.breakthrough")}</h2>
-            </div>
-            <label className="editor-field breakthrough-control">
-              <span className="visually-hidden">{t("ui.app.breakthrough")}</span>
-              <select value={settings.breakthrough} onChange={(event) => onBreakthroughChange(event.target.value)}>
-                {Object.keys(typedBreakthroughProfiles).map((key) => (
-                  <option key={key} value={key}>
-                    {key}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="breakthrough-summary">
-              <span>
-                {t("ui.app.precision")} {formatNumber(breakthrough.levelBonusStats.stat.precision * 100)}%
-              </span>
-              <span>
-                {t("ui.app.baseAttributes")} {breakthrough.levelBonusStats.stat.agility}
-              </span>
-              <span>
-                {t("ui.app.gearTier")} {breakthrough.level}
-              </span>
-              <span>
-                {t("ui.app.defense")} {breakthrough.defense}
-              </span>
-              <span>
-                {t("ui.app.physicalResistance")} {breakthrough.physicalResistance}
-              </span>
-              <span>
-                {t("ui.app.attributeResistance")} {breakthrough.bellstrikeResistance}
-              </span>
-              <span>
-                {t("ui.app.judgementResistance")} {formatNumber(breakthrough.judgementResistance * 100)}%
-              </span>
+            <div className="panel-heading breakthrough-heading">
+              <div className="breakthrough-title">
+                <h2>{t("ui.app.breakthrough")}</h2>
+                <span className="breakthrough-detail-trigger">
+                  <button
+                    className="breakthrough-detail-mark"
+                    type="button"
+                    aria-label={t("ui.app.breakthroughDetails")}
+                    aria-describedby="breakthrough-details"
+                  >
+                    !
+                  </button>
+                  <span className="breakthrough-detail-tooltip" id="breakthrough-details" role="tooltip">
+                    <span>
+                      {t("ui.app.precision")} {formatNumber(breakthrough.levelBonusStats.stat.precision * 100)}%
+                    </span>
+                    <span>
+                      {t("ui.app.baseAttributes")} {breakthrough.levelBonusStats.stat.agility}
+                    </span>
+                    <span>
+                      {t("ui.app.gearTier")} {breakthrough.level}
+                    </span>
+                    <span>
+                      {t("ui.app.defense")} {breakthrough.defense}
+                    </span>
+                    <span>
+                      {t("ui.app.physicalResistance")} {breakthrough.physicalResistance}
+                    </span>
+                    <span>
+                      {t("ui.app.attributeResistance")} {breakthrough.bellstrikeResistance}
+                    </span>
+                    <span>
+                      {t("ui.app.judgementResistance")} {formatNumber(breakthrough.judgementResistance * 100)}%
+                    </span>
+                  </span>
+                </span>
+              </div>
+              <label className="editor-field breakthrough-control">
+                <span className="visually-hidden">{t("ui.app.breakthrough")}</span>
+                <select value={settings.breakthrough} onChange={(event) => onBreakthroughChange(event.target.value)}>
+                  {Object.keys(typedBreakthroughProfiles).map((key) => (
+                    <option key={key} value={key}>
+                      {key}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
           </section>
           <section className="panel inner-way-panel">

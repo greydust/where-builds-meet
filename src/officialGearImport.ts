@@ -1,6 +1,7 @@
 import officialAffixMapJson from "../data/official/affix-map.json";
 import officialImportMapJson from "../data/official/import-map.json";
 import officialProfileMapJson from "../data/official/profile-map.json";
+import pathDefinitionsJson from "../data/path.json";
 import {
   attunementData,
   attunementsForGearDefinition,
@@ -10,6 +11,7 @@ import {
   gearData,
   gearDefinitionForSlot,
   normalizeBuildSetup,
+  sameWeaponPair,
   type GearItem,
   type GearLevel,
   type GearRarity,
@@ -31,6 +33,12 @@ const officialImportMap = officialImportMapJson as {
   baseAttributeKeys: Record<string, string>;
   baseStats: Record<string, Partial<Record<string, Partial<Record<"legendary" | "epic", Record<string, number>>>>>>;
 };
+const pathDefinitions = pathDefinitionsJson as unknown as Record<
+  string,
+  {
+    lockedWeapons?: [WeaponId, WeaponId];
+  }
+>;
 
 const officialSlotMap: Record<string, GearSlot> = {
   "1": "leftWeapon",
@@ -183,6 +191,12 @@ function weaponFromImportedAffixes(rows: OfficialAffixRow[], selectedWeapons: [W
   return undefined;
 }
 
+function canonicalPathWeapons(importedWeapons: [WeaponId, WeaponId]) {
+  return Object.values(pathDefinitions).find(
+    (definition) => definition.lockedWeapons && sameWeaponPair(definition.lockedWeapons, importedWeapons),
+  )?.lockedWeapons;
+}
+
 export type OfficialGearImport = {
   exportValue: unknown;
   roleName: string;
@@ -238,18 +252,22 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   const importedWeapons = importedWeaponHints.map(
     (hint, index) => hint ?? remainingSelectedWeapons.shift() ?? weapons[index],
   ) as [WeaponId, WeaponId];
-  const sameWeaponPair = [...importedWeapons].sort().every((weapon, index) => weapon === [...weapons].sort()[index]);
-  const buildWeapons: [WeaponId, WeaponId] = sameWeaponPair ? [...weapons] : importedWeapons;
+  const categorizedPathWeapons = mappedWeaponPair ? canonicalPathWeapons(mappedWeaponPair) : undefined;
+  const selectedPathWeapons = sameWeaponPair(importedWeapons, weapons) ? weapons : undefined;
+  const buildWeapons: [WeaponId, WeaponId] = [...(categorizedPathWeapons ?? selectedPathWeapons ?? importedWeapons)];
   const assignedWeaponSlots = new Set<GearSlot>();
   const parsedPieces = rawPieces.map((piece) => {
     const { definitionId } = gearDefinitionForSlot(piece.slot, importedWeapons);
     const definition = gearData.gear[definitionId];
     let equippedSlot = piece.slot;
     if (definition?.weapon) {
-      const matchingIndex = buildWeapons.findIndex(
-        (weapon, index) =>
-          weapon === definition.weapon && !assignedWeaponSlots.has(index === 0 ? "leftWeapon" : "rightWeapon"),
-      );
+      const matchingIndex = buildWeapons.findIndex((_, index) => {
+        const candidateSlot = index === 0 ? "leftWeapon" : "rightWeapon";
+        return (
+          !assignedWeaponSlots.has(candidateSlot) &&
+          gearDefinitionForSlot(candidateSlot, buildWeapons).definitionId === definitionId
+        );
+      });
       if (matchingIndex >= 0) equippedSlot = matchingIndex === 0 ? "leftWeapon" : "rightWeapon";
       assignedWeaponSlots.add(equippedSlot);
     }

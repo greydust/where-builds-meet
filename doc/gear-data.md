@@ -243,10 +243,12 @@ not derive these meanings from numeric adjacency alone.
 Version 2 of the bookmarklet envelope carries the complete dashboard `roleInfo`
 object for inspecting additional profile fields. Known official martial-art and
 Inner Way IDs are recorded in `data/official/profile-map.json`. `kongfuMain`
-and `kongfuSub` provide ordered martial-art IDs and are preferred over affix
-inference when both are supported. The observed Might pair maps `20401` to
-Thundercry Blade and `20103` to Stormbreaker Spear, preserving their left/right
-order even when neither weapon carries a unique damage-boost affix.
+and `kongfuSub` identify the equipped martial-art pair and are preferred over
+affix inference when both are supported. Import first matches that unordered
+pair to a path in `data/path.json`, then uses the path's canonical left/right
+order and each imported item's physical gear definition to assign weapon slots.
+This supports dashboard exports whose main/sub order differs from the path order
+and martial arts such as Thundercry Blade that share a Mo Blade gear definition.
 `passiveSlots` contains the four ordered Inner Way IDs. The payload does not
 expose their tiers, so recognized complete four-slot selections import at T6 by
 policy; an incomplete or unknown selection retains the application's default

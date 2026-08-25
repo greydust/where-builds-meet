@@ -297,25 +297,103 @@
   }
 
   .breakthrough-panel {
-    display: grid;
-    gap: 0.75rem;
+    padding-block: 0.75rem;
   }
 
-  .breakthrough-panel .panel-heading {
+  .breakthrough-heading {
+    position: relative;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
     margin-block-end: 0;
   }
 
-  .breakthrough-control {
-    inline-size: min(100%, 12rem);
+  .breakthrough-title {
+    display: flex;
+    min-inline-size: 0;
+    align-items: center;
+    gap: 0.2rem;
   }
 
-  .breakthrough-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.125rem;
-    padding-block-start: 0.75rem;
-    border-block-start: 1px solid var(--border);
-    color: var(--text-muted);
+  .breakthrough-control {
+    inline-size: min(100%, 6rem);
+  }
+
+  .breakthrough-detail-trigger {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+  }
+
+  .breakthrough-detail-mark {
+    position: relative;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    border: 1px solid var(--primary);
+    border-radius: 50%;
+    padding: 0;
+    background: var(--primary-soft);
+    color: var(--primary);
+    cursor: help;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .breakthrough-detail-mark::before {
+    position: absolute;
+    inset: -0.75rem;
+    content: "";
+  }
+
+  .breakthrough-detail-mark:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  .breakthrough-detail-tooltip {
+    position: absolute;
+    z-index: 20;
+    inset-block-start: calc(100% + 0.65rem);
+    inset-inline-start: 0;
+    display: grid;
+    inline-size: min(24rem, 100%);
+    gap: 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.75rem;
+    background: var(--surface);
+    box-shadow: 0 0.75rem 1.75rem var(--shadow-color);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.35;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-0.25rem);
+    visibility: hidden;
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease,
+      visibility 120ms;
+  }
+
+  .breakthrough-detail-tooltip > span {
+    white-space: nowrap;
+  }
+
+  .breakthrough-detail-trigger:hover .breakthrough-detail-tooltip,
+  .breakthrough-detail-trigger:focus-within .breakthrough-detail-tooltip {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .breakthrough-detail-tooltip {
+      transition-duration: 0.01ms;
+    }
   }
 
   .priority-header span:nth-child(n + 2),

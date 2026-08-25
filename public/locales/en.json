@@ -542,6 +542,7 @@
   "ui.app.baseAttributes": "Base Attributes:",
   "ui.app.bowRingSet": "Bow/Ring Set",
   "ui.app.breakthrough": "Breakthrough",
+  "ui.app.breakthroughDetails": "Breakthrough details",
   "ui.app.buff": "Buff",
   "ui.app.buffStacks": "Buff stacks",
   "ui.app.buffToApply": "Buff to apply",
