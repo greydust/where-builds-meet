@@ -14,6 +14,7 @@ import {
   type SetStateAction,
 } from "react";
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
+import { resolveSwitchValue } from "./calculations/dynamicValues";
 import { UiIcon } from "./UiIcon";
 const BuildTab = lazy(() => import("./BuildTab"));
 const SimulationTab = lazy(() => import("./SimulationTab"));
@@ -705,6 +706,12 @@ function eventDefaultDuration(event: "Exhausted" | "Controlled") {
   return effectDefinitions[event]?.duration ?? 0;
 }
 
+function baseSkillCastTime(skill: SkillRecord | undefined) {
+  if (typeof skill?.castTime === "number" && Number.isFinite(skill.castTime)) return skill.castTime;
+  const fallback = resolveSwitchValue(skill?.castTime, {});
+  return typeof fallback === "number" && Number.isFinite(fallback) ? fallback : 0;
+}
+
 function baseRotationAnchorTime(rotation: RotationRecord) {
   if (!rotation.start) return 0;
   let time = 0;
@@ -719,11 +726,7 @@ function baseRotationAnchorTime(rotation: RotationRecord) {
           : Number((skill.action[rotation.start.action] as EditableObject | undefined)?.time ?? 0))
       );
     }
-    if (step.type === "skill")
-      time +=
-        typeof allSkillDefinitions[step.skill ?? ""]?.castTime === "number"
-          ? allSkillDefinitions[step.skill ?? ""].castTime!
-          : 0;
+    if (step.type === "skill") time += baseSkillCastTime(allSkillDefinitions[step.skill ?? ""]);
     else if (step.event === "Delay") time += Math.max(0, step.duration);
   }
   return 0;
@@ -746,7 +749,7 @@ function baseAttachedEventTime(rotation: RotationRecord, eventStepIndex: number,
           : [];
         return elapsed + Number(triggerAction.time ?? 0) + Number(triggeredActions[target.action]?.time ?? 0);
       }
-      elapsed += Number(skill?.castTime ?? 0);
+      elapsed += baseSkillCastTime(skill);
     } else if (step.event === "Delay") {
       elapsed += Math.max(0, step.duration);
     }
@@ -840,7 +843,7 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
       if (step.type !== "skill") return [];
       const skill = allSkillDefinitions[step.skill ?? ""];
       const castStart = elapsed;
-      elapsed += Number(skill?.castTime ?? 0);
+      elapsed += baseSkillCastTime(skill);
       const actions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : [];
       return [
         { index, time: castStart - anchor, before: { action: "start" } as AttachedEventTarget },
@@ -3229,7 +3232,8 @@ function skillToDraft(skill: SkillRecord) {
     shortName,
     description: asString(skill.description),
     refresh: skill.refresh !== false,
-    castTime: String(castTime),
+    castTime: String(baseSkillCastTime(skill)),
+    originalCastTime: castTime,
     cooldown: typeof skill.cooldown === "number" ? String(skill.cooldown) : "",
     duration: typeof skill.duration === "number" ? String(skill.duration) : "",
     maxStack: typeof skill.maxStack === "number" ? String(skill.maxStack) : "",
@@ -4432,8 +4436,14 @@ function SkillEditorTab({
             `Actions are out of order: action ${firstOutOfOrder + 1} occurs before action ${firstOutOfOrder}.`,
           );
         }
-        const castTime = category === "DOT" ? undefined : Number(draft.castTime);
-        if (castTime !== undefined && !Number.isFinite(castTime)) throw new Error("Cast time must be a number.");
+        const parsedCastTime = category === "DOT" ? undefined : Number(draft.castTime);
+        if (parsedCastTime !== undefined && !Number.isFinite(parsedCastTime))
+          throw new Error("Cast time must be a number.");
+        const originalFallback = baseSkillCastTime({ castTime: draft.originalCastTime });
+        const castTime =
+          parsedCastTime !== undefined && draft.castTime === String(originalFallback)
+            ? draft.originalCastTime
+            : parsedCastTime;
         updatedSkill = {
           ...skills[selectedSkill],
           name: draft.name,

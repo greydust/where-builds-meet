@@ -112,6 +112,56 @@ try {
       timeline.find((row) => row.id === "rotation-4")?.currentMartialArt === "snowparting",
     "Timeline rows must snapshot the current martial art.",
   );
+  assert(
+    timeline
+      .filter((row) => row.step.type === "skill" && row.step.skill === "PerfectDodge")
+      .every((row) => row.effectiveCastTime === 0.5),
+    "Perfect Dodge must resolve its weapon-switched cast time when each cast starts.",
+  );
+
+  const switchedTimingTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Weapon timing switch probe",
+      steps: [
+        { type: "skill", skill: "WeaponTimedAction" },
+        { type: "skill", skill: "MartialArtCast" },
+        { type: "skill", skill: "WeaponTimedAction" },
+      ],
+    },
+    skills: {
+      ...skills,
+      WeaponTimedAction: {
+        name: "Weapon-timed action",
+        castTime: {
+          function: "switch",
+          param1: "currentWeapon",
+          param2: { HengBlade: 0.25, MoBlade: 0.75 },
+          fallback: 0.5,
+        },
+        action: [],
+        modifier: [],
+        tags: ["General"],
+      },
+    },
+    eventDefinitions,
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["snowparting", "phalanxbane"],
+    martialArtState: {
+      snowparting: { weapon: "HengBlade" },
+      phalanxbane: { weapon: "MoBlade" },
+    },
+  });
+  assert(
+    switchedTimingTimeline.find((row) => row.id === "rotation-0")?.effectiveCastTime === 0.25 &&
+      switchedTimingTimeline.find((row) => row.id === "rotation-1")?.startTime === 0.25 &&
+      switchedTimingTimeline.find((row) => row.id === "rotation-2")?.startTime === 0.25 &&
+      switchedTimingTimeline.find((row) => row.id === "rotation-2")?.effectiveCastTime === 0.75,
+    "A switched cast time must use the current weapon and shift subsequent casts at each skill start.",
+  );
 
   console.log("Current martial-art and weapon state checks passed.");
 } finally {

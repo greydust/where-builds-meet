@@ -2,5 +2,95 @@
   "name": "Nameless Spear",
   "weapon": "Spear",
   "tag": "NamelessSpear",
-  "talent": []
+  "talent": [
+    {
+      "name": "Affinity Rate Up",
+      "effect": [
+        {
+          "stat": {
+            "affinity": {
+              "formula": {
+                "source": "momentum",
+                "multiplier": 0.0001535714285714286,
+                "max": 0.043
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Max Endurance Up",
+      "effect": [
+        {
+          "stat": {
+            "maxEndurance": 10
+          }
+        },
+        {
+          "stat": {
+            "maxEndurance": {
+              "function": "segment",
+              "param1": "affinity",
+              "param2": [
+                0.119999999, 0.139999999, 0.159999999, 0.179999999, 0.199999999, 0.219999999, 0.239999999, 0.259999999,
+                0.279999999, 0.299999999
+              ],
+              "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Affinity DMG Up",
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "self",
+                  "value": "EndlessGale"
+                },
+                {
+                  "target": "endurancePercentage",
+                  "comparison": "<",
+                  "amount": 60
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "affinityDmgBonus": {
+              "formula": {
+                "source": "affinity",
+                "multiplier": 0.6,
+                "max": 0.18
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bellstrike Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minBellstrike": 98,
+            "maxBellstrike": 196,
+            "bellstrikeDmgBonus": {
+              "formula": {
+                "source": "effectiveMaxBellstrike",
+                "multiplier": 0.0001679389312977099,
+                "max": 0.11
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

@@ -969,6 +969,30 @@ original action time before timing modifiers are applied. Thus a segmented
 `castTimeModifier` may adjust early and late actions by different amounts.
 Damage effects may similarly segment the current `distance` parameter.
 
+`switch` selects a value from an explicit keyed table. `param1` names the
+timeline-state value to inspect, `param2` maps possible values to results, and
+the optional `fallback` is used while the structural timeline is built or when
+no case matches:
+
+```json
+{
+  "function": "switch",
+  "param1": "currentWeapon",
+  "param2": {
+    "HengBlade": 0.5,
+    "Gauntlet": 0.5
+  },
+  "fallback": 0.5
+}
+```
+
+A switched `castTime` is resolved from `currentWeapon` when the cast starts and
+is then locked for that cast. The fallback supplies the initial structural
+estimate before timeline events have established the weapon state. Actions may
+also use a switched `value` with `"resolveAt": "skillStart"`; Perfect Dodge
+uses this to select one weapon-tagged Ghostly Step - Umbra Dodge definition
+without repeating one trigger action per weapon.
+
 `multiply` multiplies a dynamic parameter by a scalar:
 
 ```json
@@ -1046,6 +1070,32 @@ copy of its custom rotations.
 - Use `duration` for lifetimes and extension amounts; do not use `extension`.
 - Prefer explicit requirements over hard-coded skill-ID checks.
 - Give every direct skill `DirectDamage` and every DOT definition `DOT`.
+
+### Bellstrike Splendor definition status
+
+Nameless Sword's Qi Struggle Enhancement records `0.1` Qi DMG Bonus, which remains
+inactive until Qi damage is simulated. Sword Energy attacks gain `0.02` HP damage
+per 100 Max Physical Attack, capped at `0.2`. Physical Attack Up converts Momentum
+to Max Physical Attack at `0.2639285714285714` per point, capped at `73.9`.
+
+Sword Qi Affinity Enhancement applies only to `SwordEnergy` attacks when target Qi
+is below 40% or Qi Imbalance is active. It grants `0.00012` Affinity DMG Bonus per
+Max Physical Attack, capped at `0.18` at 1500. Bellstrike Attribute Up grants 98
+Min and 196 Max Bellstrike Attack, then grants Bellstrike Penetration from resolved
+Max Bellstrike Attack at `22 / 655` per point, capped at 22.
+
+Nameless Spear's Affinity Rate Up converts Momentum to Affinity at
+`0.043 / 280` per point, capped at `0.043`. Max Endurance Up grants 10 Endurance,
+then one more for every complete two percentage points of Affinity above 10%, up
+to another 10 at 30%. The Affinity formula is evaluated before this dependent
+Endurance segment.
+
+Affinity DMG Up grants `0.6` Affinity DMG Bonus per point of Affinity, capped at
+`0.18` at 30%, while Endless Gale is active or Endurance is below 60%. The
+`endurancePercentage` requirement is stored for the latter condition but remains
+inert until Endurance state is simulated. Bellstrike Attribute Up grants 98 Min
+and 196 Max Bellstrike Attack, then grants Bellstrike DMG Bonus from resolved Max
+Bellstrike Attack at `0.11 / 655` per point, capped at `0.11`.
 
 ### Stonesplit Might definition status
 
@@ -1193,16 +1243,37 @@ A requirement with `operator: "not"` and exactly one operand negates that
 operand. This allows data-defined component selection to require that a buff or
 debuff is absent without adding mechanic-specific calculator branches.
 
-Righteous Reign 5th Hit (Gauntlet 5LA) is a 0.8-second Light Attack with one
-cast-end damage action. Its physical coefficient is `0.4674`, with `130` flat
-physical bonus and `71` flat attribute bonus.
+Virtuous Enthroned's three Heavy Attack stages use cast times of `0.4125`,
+`0.4375`, and `0.9625` seconds. The first two stages each deal one hit at cast
+end. Stage three divides its total `0.6363` Physical coefficient, `177` Physical
+bonus, and `96` attribute bonus by 30%, 30%, and 40% across hits at `0.275`,
+`0.55`, and `0.7375` seconds.
 
-Righteous Reign 6th Hit [Cancel] (Gauntlet 6LA) is a 0.36-second Light Attack.
-Its cast-end hit uses physical coefficient `0.8202`, `228` flat physical bonus,
-and `124` flat attribute bonus, then triggers Light Attack Falcon at the same
+Wicked Defiance (Gauntlet VC) is a `1.4375`-second Varied Combo. Its single hit
+lands at `0.725` seconds with `1.209` Physical coefficient, `335` Physical
+bonus, and `183` attribute bonus. A following action at the same timestamp adds
+`0.1` Heaven's Will, so the damage resolves before the resource gain.
+
+Righteous Reign 1st Hit is a `0.3375`-second Light Attack whose single hit lands
+at cast end with `0.3564` Physical coefficient, `100` Physical bonus, and `54`
+attribute bonus. Righteous Reign 2nd Hit is a `0.6`-second Light Attack. Its
+total `0.3921` Physical coefficient, `110` Physical bonus, and `59` attribute
+bonus are divided 40% at `0.4125` seconds and 60% at `0.6` seconds.
+
+Righteous Reign 3rd Hit is a `0.425`-second Light Attack whose single hit lands
+at cast end. Righteous Reign 4th Hit has a `0.4625`-second cast and lands its
+single hit at `0.325` seconds.
+
+Righteous Reign 5th Hit (Gauntlet A5) is a `0.6125`-second Light Attack. Its
+total `0.4674` Physical coefficient, `130` Physical bonus, and `71` attribute
+bonus are split one-third at `0.275` seconds and two-thirds at `0.5` seconds.
+
+Righteous Reign 6th Hit [Cancel] (Gauntlet A6) is a `0.2875`-second Light
+Attack. Its cast-end hit uses Physical coefficient `0.8202`, `228` Physical
+bonus, and `124` attribute bonus, then triggers Light Attack Falcon at the same
 timestamp. Light Attack Falcon is a zero-cast-time `Triggered` skill tagged
-`Falcon`; its `0.748` physical-coefficient hit lands 0.6 seconds after it is
-triggered without extending the rotation's sequential cast time.
+`Falcon`; its three `0.748` Physical-coefficient hits land at `0.3`, `0.45`, and
+`0.5875` seconds without extending the rotation's sequential cast time.
 
 All Under Justice (Gauntlet Special) is a 1-second Special skill with four
 cast-end hits. The first three each use physical coefficient `0.4884`, `135`

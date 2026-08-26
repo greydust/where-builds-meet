@@ -2,5 +2,103 @@
   "name": "Nameless Sword",
   "weapon": "Sword",
   "tag": "NamelessSword",
-  "talent": []
+  "talent": [
+    {
+      "name": "Qi Struggle Enhancement",
+      "effect": [
+        {
+          "effect": {
+            "qiDMGBonus": 0.1
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "SwordEnergy"
+            }
+          ],
+          "effect": {
+            "hpDMGBonus": {
+              "formula": {
+                "source": "maxPhys",
+                "multiplier": 0.0002,
+                "max": 0.2
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Physical Attack Up",
+      "effect": [
+        {
+          "stat": {
+            "maxPhys": {
+              "formula": {
+                "source": "momentum",
+                "multiplier": 0.2639285714285714,
+                "max": 73.9
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sword Qi Affinity Enhancement",
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "SwordEnergy"
+            },
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "targetQiPercentage",
+                  "comparison": "<",
+                  "amount": 40
+                },
+                {
+                  "target": "target",
+                  "value": "QiImbalance"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "affinityDmgBonus": {
+              "formula": {
+                "source": "maxPhys",
+                "multiplier": 0.00012,
+                "max": 0.18
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bellstrike Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minBellstrike": 98,
+            "maxBellstrike": 196,
+            "bellstrikePenetration": {
+              "formula": {
+                "source": "effectiveMaxBellstrike",
+                "multiplier": 0.033587786259542,
+                "max": 22
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

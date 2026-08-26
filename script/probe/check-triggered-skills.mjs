@@ -25,7 +25,16 @@ const triggeredIds = new Set();
 
 jsonFiles("data").forEach((file) =>
   walk(JSON.parse(fs.readFileSync(file, "utf8")), (value) => {
-    if (value.type === "trigger" && typeof value.value === "string") triggeredIds.add(value.value);
+    if (value.type !== "trigger") return;
+    if (typeof value.value === "string") {
+      triggeredIds.add(value.value);
+      return;
+    }
+    if (value.value?.function !== "switch" || !value.value.param2 || typeof value.value.param2 !== "object") return;
+    Object.values(value.value.param2).forEach((skillId) => {
+      if (typeof skillId === "string") triggeredIds.add(skillId);
+    });
+    if (typeof value.value.fallback === "string") triggeredIds.add(value.value.fallback);
   }),
 );
 

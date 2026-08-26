@@ -1,6 +1,6 @@
 import type { WeaponFamily, WeaponId } from "../types";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
-import { resolveSegmentValue } from "./dynamicValues";
+import { resolveSegmentValue, resolveSwitchValue, type SwitchValue } from "./dynamicValues";
 import {
   addUnconditionalDamageEffects,
   splitUnconditionalDamageEffectRules,
@@ -23,7 +23,7 @@ export type SkillRecord = {
   [key: string]: unknown;
   name?: string;
   shortName?: string;
-  castTime?: number;
+  castTime?: number | SwitchValue;
   cooldown?: number;
   duration?: number;
   collectBoostDamage?: string;
@@ -242,6 +242,13 @@ export type RequirementState = {
   currentMartialArt?: WeaponId;
   currentWeapon?: WeaponFamily;
 };
+
+function resolveSkillCastTime(skill: SkillRecord | undefined, state: RequirementState = {}): number {
+  const castTime = skill?.castTime;
+  if (typeof castTime === "number" && Number.isFinite(castTime)) return castTime;
+  const resolved = resolveSwitchValue(castTime, state);
+  return typeof resolved === "number" && Number.isFinite(resolved) ? resolved : 0;
+}
 
 export const TIMELINE_TIME_EPSILON = 1e-4;
 
@@ -478,7 +485,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const skill = currentSkillId ? skills[currentSkillId] : undefined;
       const fallbackSkill = reference?.fallback ? skills[reference.fallback] : undefined;
       if (!skill && !fallbackSkill) return;
-      const baseCastTime = typeof skill?.castTime === "number" ? skill.castTime : 0;
+      const baseCastTime = resolveSkillCastTime(skill);
       const baseActions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : [];
       const fallbackActions = Array.isArray(fallbackSkill?.action) ? (fallbackSkill.action as EditableObject[]) : [];
       const actionSlotCount = Math.max(baseActions.length, fallbackActions.length);
@@ -1122,6 +1129,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         action?.value && typeof action.value === "object" && !Array.isArray(action.value)
           ? (action.value as EditableObject)
           : undefined;
+      if (valueObject?.function === "switch" && valueObject.resolveAt === "skillStart") {
+        const resolvedValue = resolveSwitchValue(valueObject, requirementState());
+        startResolvedActionValues.set(actionResolutionKey(row, actionIndex), resolvedValue);
+        row.actions[actionIndex] = { ...action, value: resolvedValue };
+        return;
+      }
       if (valueObject?.operator !== "first" || valueObject.resolveAt !== "skillStart") return;
       const targetEffects = action.target === "target" ? debuffs : buffs;
       const resolvedValue = Array.isArray(valueObject.operand)
@@ -1251,7 +1264,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const segmentStartOffset = event.time - event.row.startTime;
       segment.skillId = selectedId ?? segment.skillId;
       segment.skill = selectedSkill ?? { name: "Inactive sub-action", castTime: 0, action: [], tags: ["SubAction"] };
-      segment.baseCastTime = typeof selectedSkill?.castTime === "number" ? selectedSkill.castTime : 0;
+      segment.baseCastTime = resolveSkillCastTime(selectedSkill, requirementState());
       segment.localActionTimes = segment.actionIndexes.map((_, localIndex) => {
         const action = selectedActions[localIndex];
         return action && typeof action.time === "number" ? action.time : segment.baseCastTime;
@@ -1421,9 +1434,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const baseCastTime =
         event.row.step.type === "event" && event.row.step.event === "Delay"
           ? Math.max(0, event.row.step.duration)
-          : typeof event.row.skill?.castTime === "number"
-            ? event.row.skill.castTime
-            : 0;
+          : resolveSkillCastTime(event.row.skill, requirementState());
       const adjustedCastTime = applyCastTimingModifiers(event.row, baseCastTime);
       if (event.row.kind === "rotation" && event.row.step.type === "skill") {
         const shift = adjustedCastTime - previousCastTime;
@@ -1601,7 +1612,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         resources: { ...resources },
         currentMartialArt,
         currentWeapon,
-        effectiveCastTime: typeof triggeredSkill.castTime === "number" ? triggeredSkill.castTime : 0,
+        effectiveCastTime: resolveSkillCastTime(triggeredSkill, requirementState()),
         skill: triggeredSkill,
         actions: actions.map((item) => ({ ...item })),
         buffs: [...buffs],

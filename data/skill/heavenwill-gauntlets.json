@@ -97,6 +97,177 @@
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
   },
+  "VirtuousEnthroned1stHit": {
+    "name": "Virtuous Enthroned 1st Hit",
+    "shortName": "Gauntlet H1",
+    "castTime": 0.4125,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.4349,
+        "phyBonus": 121,
+        "attrBonus": 66,
+        "time": 0.4125
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Gauntlet", "HeavenwillGauntlets", "VirtuousEnthroned"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VirtuousEnthroned2ndHit": {
+    "name": "Virtuous Enthroned 2nd Hit",
+    "shortName": "Gauntlet H2",
+    "castTime": 0.4375,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.3237,
+        "phyBonus": 91,
+        "attrBonus": 49,
+        "time": 0.4375
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Gauntlet", "HeavenwillGauntlets", "VirtuousEnthroned"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VirtuousEnthroned3rdHit": {
+    "name": "Virtuous Enthroned 3rd Hit",
+    "shortName": "Gauntlet H3",
+    "castTime": 0.9625,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.19089,
+        "phyBonus": 53.1,
+        "attrBonus": 28.8,
+        "time": 0.275
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.19089,
+        "phyBonus": 53.1,
+        "attrBonus": 28.8,
+        "time": 0.55
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.25452,
+        "phyBonus": 70.8,
+        "attrBonus": 38.4,
+        "time": 0.7375
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Gauntlet", "HeavenwillGauntlets", "VirtuousEnthroned"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "WickedDefiance": {
+    "name": "Wicked Defiance",
+    "shortName": "Gauntlet VC",
+    "castTime": 1.4375,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.209,
+        "phyBonus": 335,
+        "attrBonus": 183,
+        "time": 0.725
+      },
+      {
+        "type": "addResource",
+        "value": "HeavensWill",
+        "amount": 0.1,
+        "time": 0.725
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "VariedCombo", "Gauntlet", "HeavenwillGauntlets", "WickedDefiance"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign1stHit": {
+    "name": "Righteous Reign 1st Hit",
+    "shortName": "Gauntlet A1",
+    "castTime": 0.3375,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.3564,
+        "phyBonus": 100,
+        "attrBonus": 54,
+        "time": 0.3375
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign2ndHit": {
+    "name": "Righteous Reign 2nd Hit",
+    "shortName": "Gauntlet A2",
+    "castTime": 0.6,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.15684,
+        "phyBonus": 44,
+        "attrBonus": 23.6,
+        "time": 0.4125
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.23526,
+        "phyBonus": 66,
+        "attrBonus": 35.4,
+        "time": 0.6
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign3rdHit": {
+    "name": "Righteous Reign 3rd Hit",
+    "shortName": "Gauntlet A3",
+    "castTime": 0.425,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2529,
+        "phyBonus": 71,
+        "attrBonus": 39,
+        "time": 0.425
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign4thHit": {
+    "name": "Righteous Reign 4th Hit",
+    "shortName": "Gauntlet A4",
+    "castTime": 0.4625,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.3183,
+        "phyBonus": 89,
+        "attrBonus": 48,
+        "time": 0.325
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
   "RighteousReign5thHit": {
     "name": "Righteous Reign 5th Hit",
     "shortName": "Gauntlet A5",
