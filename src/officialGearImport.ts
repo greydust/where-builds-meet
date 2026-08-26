@@ -17,16 +17,24 @@ import {
   type GearRarity,
   type GearSlot,
 } from "./gear";
+import { innerWayAvailableForTag } from "./data/innerWayDefinitions";
 import type { WeaponId } from "./types";
 
 type UnknownRecord = Record<string, unknown>;
 type OfficialAffixRow = { statId: string; value: number };
+type OfficialGearPiece = {
+  slot: GearSlot;
+  detail: UnknownRecord;
+  exVo: UnknownRecord;
+  rows: OfficialAffixRow[];
+};
 
 const officialAffixMap = officialAffixMapJson as Record<string, string>;
 const officialProfileMap = officialProfileMapJson as {
   martialArts: Record<string, { name: string; weapon?: WeaponId }>;
   innerWays: Record<string, { name: string; innerWay?: string }>;
   weaponSets: Record<string, { weaponSet: string }>;
+  armorSets: Record<string, { armorSet: string }>;
   bowRingSets: Record<string, { bowRingSet: string }>;
 };
 const officialImportMap = officialImportMapJson as {
@@ -36,6 +44,7 @@ const officialImportMap = officialImportMapJson as {
 const pathDefinitions = pathDefinitionsJson as unknown as Record<
   string,
   {
+    tag?: string;
     lockedWeapons?: [WeaponId, WeaponId];
   }
 >;
@@ -51,6 +60,7 @@ const officialSlotMap: Record<string, GearSlot> = {
   "11": "pendant",
 };
 const weaponSetSlots = new Set<GearSlot>(["leftWeapon", "rightWeapon", "disc", "pendant"]);
+const armorSetSlots = new Set<GearSlot>(["helmet", "chestpiece", "greaves", "bracer"]);
 
 const asRecord = (value: unknown): UnknownRecord | undefined =>
   value && typeof value === "object" && !Array.isArray(value) ? (value as UnknownRecord) : undefined;
@@ -180,6 +190,27 @@ function importedBowRingSet(detailed: UnknownRecord) {
   return officialProfileMap.bowRingSets[String(bowSuffix)]?.bowRingSet;
 }
 
+function importedSetTiers(
+  pieces: OfficialGearPiece[],
+  slots: Set<GearSlot>,
+  setForSuffix: (suffix: string) => string | undefined,
+) {
+  const pieceCounts = new Map<string, number>();
+  for (const piece of pieces) {
+    if (!slots.has(piece.slot)) continue;
+    const suffix = numericValue(piece.exVo.suffix);
+    const setName = suffix === undefined ? undefined : setForSuffix(String(suffix));
+    if (setName) pieceCounts.set(setName, (pieceCounts.get(setName) ?? 0) + 1);
+  }
+  return Object.fromEntries(
+    [...pieceCounts].flatMap(([setName, count]) => {
+      if (count >= 4) return [[setName, 4]];
+      if (count >= 2) return [[setName, 2]];
+      return [];
+    }),
+  );
+}
+
 function weaponFromImportedAffixes(rows: OfficialAffixRow[], selectedWeapons: [WeaponId, WeaponId]) {
   const keys = new Set(rows.map((row) => officialAffixMap[row.statId]));
   if (keys.has("hengBladeDmgBoost")) return "snowparting" as const;
@@ -191,10 +222,10 @@ function weaponFromImportedAffixes(rows: OfficialAffixRow[], selectedWeapons: [W
   return undefined;
 }
 
-function canonicalPathWeapons(importedWeapons: [WeaponId, WeaponId]) {
+function canonicalPathDefinition(importedWeapons: [WeaponId, WeaponId]) {
   return Object.values(pathDefinitions).find(
     (definition) => definition.lockedWeapons && sameWeaponPair(definition.lockedWeapons, importedWeapons),
-  )?.lockedWeapons;
+  );
 }
 
 export type OfficialGearImport = {
@@ -213,7 +244,7 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   const detailed = asRecord(role.wearEquipsDetailed);
   if (!detailed) throw new Error("The pasted data does not contain wearEquipsDetailed gear data.");
 
-  const rawPieces: Array<{ slot: GearSlot; detail: UnknownRecord; exVo: UnknownRecord; rows: OfficialAffixRow[] }> = [];
+  const rawPieces: OfficialGearPiece[] = [];
   for (const [officialSlot, rawDetail] of Object.entries(detailed)) {
     const slot = officialSlotMap[officialSlot];
     if (!slot) continue;
@@ -252,7 +283,8 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   const importedWeapons = importedWeaponHints.map(
     (hint, index) => hint ?? remainingSelectedWeapons.shift() ?? weapons[index],
   ) as [WeaponId, WeaponId];
-  const categorizedPathWeapons = mappedWeaponPair ? canonicalPathWeapons(mappedWeaponPair) : undefined;
+  const categorizedPath = mappedWeaponPair ? canonicalPathDefinition(mappedWeaponPair) : undefined;
+  const categorizedPathWeapons = categorizedPath?.lockedWeapons;
   const selectedPathWeapons = sameWeaponPair(importedWeapons, weapons) ? weapons : undefined;
   const buildWeapons: [WeaponId, WeaponId] = [...(categorizedPathWeapons ?? selectedPathWeapons ?? importedWeapons)];
   const assignedWeaponSlots = new Set<GearSlot>();
@@ -361,34 +393,31 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   const passiveSlotIds = Array.isArray(role.passiveSlots)
     ? role.passiveSlots.map((value) => (typeof value === "number" || typeof value === "string" ? String(value) : ""))
     : [];
-  const importedInnerWays = passiveSlotIds.flatMap((id) => {
+  const importedInnerWays = passiveSlotIds.map((id) => {
+    if (id === "0") return { innerWay: "", tier: "T6" };
     const innerWay = officialProfileMap.innerWays[id]?.innerWay;
-    return innerWay ? [{ innerWay, tier: "T6" }] : [];
+    return innerWay && innerWayAvailableForTag(innerWay, categorizedPath?.tag)
+      ? { innerWay, tier: "T6" }
+      : { innerWay: "", tier: "T6" };
   });
   const completeInnerWays =
-    importedInnerWays.length === defaultBuildSetup.innerWays.length &&
-    new Set(importedInnerWays.map((selection) => selection.innerWay)).size === importedInnerWays.length
-      ? importedInnerWays
-      : undefined;
-  const weaponSetPieceCounts = new Map<string, number>();
-  for (const piece of rawPieces) {
-    if (!weaponSetSlots.has(piece.slot)) continue;
-    const suffix = numericValue(piece.exVo.suffix);
-    const weaponSet = suffix === undefined ? undefined : officialProfileMap.weaponSets[String(suffix)]?.weaponSet;
-    if (weaponSet) weaponSetPieceCounts.set(weaponSet, (weaponSetPieceCounts.get(weaponSet) ?? 0) + 1);
-  }
-  const importedWeaponSets = Object.fromEntries(
-    [...weaponSetPieceCounts].flatMap(([weaponSet, count]) => {
-      if (count >= 4) return [[weaponSet, 4]];
-      if (count >= 2) return [[weaponSet, 2]];
-      return [];
-    }),
+    importedInnerWays.length === defaultBuildSetup.innerWays.length ? importedInnerWays : undefined;
+  const importedWeaponSets = importedSetTiers(
+    rawPieces,
+    weaponSetSlots,
+    (suffix) => officialProfileMap.weaponSets[suffix]?.weaponSet,
+  );
+  const importedArmorSets = importedSetTiers(
+    rawPieces,
+    armorSetSlots,
+    (suffix) => officialProfileMap.armorSets[suffix]?.armorSet,
   );
   const bowRingSet = importedBowRingSet(detailed);
   const setup = normalizeBuildSetup({
     ...defaultBuildSetup,
     ...(completeInnerWays ? { innerWays: completeInnerWays } : {}),
     ...(Object.keys(importedWeaponSets).length ? { weaponSets: importedWeaponSets } : {}),
+    ...(Object.keys(importedArmorSets).length ? { armorSets: importedArmorSets } : {}),
     ...(bowRingSet ? { bowRingSet } : {}),
   });
   const buildId = createId("official-build");

@@ -243,5 +243,25 @@
       },
       "tags": ["SkygraspRopeDart", "Special"]
     }
+  },
+  "panaceaMartialHealingBoost": {
+    "name": "Panacea Fan - Martial Art Skill Healing Boost",
+    "percentage": true,
+    "implemented": false,
+    "tags": ["Armor", "SilkbindDeluge", "PanaceaFan"],
+    "effect": {
+      "stat": {},
+      "tags": ["PanaceaFan", "MartialArt"]
+    }
+  },
+  "soulshadeMartialHealingBoost": {
+    "name": "Soulshade Umbrella - Martial Art Skill Healing Boost",
+    "percentage": true,
+    "implemented": false,
+    "tags": ["Armor", "SilkbindDeluge", "SoulshadeUmbrella"],
+    "effect": {
+      "stat": {},
+      "tags": ["SoulshadeUmbrella", "MartialArt"]
+    }
   }
 }

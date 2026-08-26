@@ -143,8 +143,8 @@ try {
   assert(
     profileMap.innerWays["551"].innerWay === "FrostCladNight" &&
       profileMap.innerWays["81"].innerWay === "MoraleChant" &&
-      profileMap.innerWays["553"].innerWay === "SteadfastDevotion" &&
-      profileMap.innerWays["552"].innerWay === "ThroatPiercingArt" &&
+      profileMap.innerWays["553"].innerWay === "ThroatPiercingArt" &&
+      profileMap.innerWays["552"].innerWay === "SteadfastDevotion" &&
       profileMap.innerWays["4"].name === "Shadow Assault" &&
       profileMap.innerWays["6"].name === "Sandswirl Tail",
     "Observed passiveSlots IDs must retain their Inner Way names.",
@@ -243,6 +243,34 @@ try {
       kiteSetup.weaponSets.Etherwrath === 4 &&
       kiteSetup.bowRingSet === "Critical",
     "Kite passive slots, weapon set, and matching bow/ring suffixes must import into the build setup.",
+  );
+  const delugeTestingSetupShape = importer.parseOfficialGearExport(
+    {
+      roleName: "Deluge Testing Setup",
+      kongfuMain: 20602,
+      kongfuSub: 10301,
+      passiveSlots: [401, 553, 351, 0],
+      wearEquipsDetailed: {
+        1: detail({ MIN_W_ATK: 53, MAX_W_ATK: 124 }, [actualRow(9223002, 50.5)], { suffix: 7 }),
+        2: detail({ MIN_W_ATK: 53, MAX_W_ATK: 124 }, [actualRow(9213012, 33.1)], { suffix: 7 }),
+        3: detail({ W_DEF: 18, HP_MAX: 4614 }, [actualRow(9243005, 0.029)], { suffix: 2 }),
+        4: detail({ W_DEF: 16, HP_MAX: 8305 }, [actualRow(9242004, 0.074)], { suffix: 2 }),
+        5: detail({ W_DEF: 32, HP_MAX: 4153 }, [actualRow(9252003, 0.061)], { suffix: 2 }),
+        8: detail({ W_DEF: 18, HP_MAX: 4614 }, [actualRow(9751005, 0.031)], { suffix: 2 }),
+      },
+    },
+    ["snowparting", "phalanxbane"],
+  );
+  const delugeTestingSetup = delugeTestingSetupShape.exportValue.builds[0].setup;
+  assert(
+    JSON.stringify(delugeTestingSetup.innerWays) ===
+      JSON.stringify([
+        { innerWay: "", tier: "T6" },
+        { innerWay: "", tier: "T6" },
+        { innerWay: "RoyalRemedy", tier: "T6" },
+        { innerWay: "", tier: "T6" },
+      ]) && delugeTestingSetup.armorSets.Formbend === 4,
+    "Official imports must preserve empty passive slots, clear path-ineligible Inner Ways, and derive armor sets.",
   );
   const mismatchedBowRingShape = importer.parseOfficialGearExport(
     {
@@ -462,28 +490,6 @@ try {
       kiteItems.get("greaves")?.attunement?.key === "heavenwillLightVariedComboBoost" &&
       kiteItems.get("bracer")?.attunement?.key === "heavenwillMartialBoost",
     "Observed Kite armor IDs must import as Body and the matching Kite attunements.",
-  );
-  let unsupportedMartialArtError = "";
-  try {
-    importer.parseOfficialGearExport(
-      {
-        source: "wwm-dashboard",
-        v: 2,
-        roleInfo: {
-          roleName: "Unsupported Probe",
-          kongfuMain: 20801,
-          kongfuSub: 10301,
-          wearEquipsDetailed: { 1: detail({ MIN_W_ATK: 53, MAX_W_ATK: 124 }, weaponRows("hengBladeDmgBoost")) },
-        },
-      },
-      ["snowparting", "phalanxbane"],
-    );
-  } catch (error) {
-    unsupportedMartialArtError = error instanceof Error ? error.message : String(error);
-  }
-  assert(
-    unsupportedMartialArtError.includes("Panacea Fan") && unsupportedMartialArtError.includes("not supported"),
-    "A known unsupported official martial art must produce a clear import error.",
   );
   const firstOfficialMerge = gear.mergeImportedBuildState(
     { entries: [], activeBuildId: "", gearItems: [] },

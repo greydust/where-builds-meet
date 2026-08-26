@@ -1,0 +1,14 @@
+{
+  "name": "Royal Remedy",
+  "altersTimeline": false,
+  "tags": ["SilkbindDeluge"],
+  "effect": {
+    "RoyalRemedyT0": {},
+    "RoyalRemedyT1": {},
+    "RoyalRemedyT2": {},
+    "RoyalRemedyT3": {},
+    "RoyalRemedyT4": {},
+    "RoyalRemedyT5": {},
+    "RoyalRemedyT6": {}
+  }
+}

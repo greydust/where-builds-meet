@@ -44,6 +44,8 @@ export type AttunementStats = {
   heavenwillLightVariedComboBoost: number;
   skygraspHeavyBoost: number;
   skygraspSpecialBoost: number;
+  panaceaMartialHealingBoost: number;
+  soulshadeMartialHealingBoost: number;
 };
 
 // Current level-96 test target. Move this to user-configurable encounter data later.

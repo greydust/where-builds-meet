@@ -6,13 +6,16 @@
     "20801": { "name": "Snowparting Blade", "weapon": "snowparting" },
     "20901": { "name": "Heavenwill Gauntlets", "weapon": "heavenwill" },
     "20703": { "name": "Skygrasp Rope Dart", "weapon": "skygrasp" },
-    "10301": { "name": "Panacea Fan" }
+    "10301": { "name": "Panacea Fan", "weapon": "panaceaFan" },
+    "20602": { "name": "Soulshade Umbrella", "weapon": "soulshadeUmbrella" }
   },
   "innerWays": {
     "551": { "name": "Frost-Clad Night", "innerWay": "FrostCladNight" },
     "81": { "name": "Morale Chant", "innerWay": "MoraleChant" },
-    "553": { "name": "Steadfast Devotion", "innerWay": "SteadfastDevotion" },
-    "552": { "name": "Throat-Piercing Art", "innerWay": "ThroatPiercingArt" },
+    "553": { "name": "Throat-Piercing Art", "innerWay": "ThroatPiercingArt" },
+    "552": { "name": "Steadfast Devotion", "innerWay": "SteadfastDevotion" },
+    "401": { "name": "Exquisite Scenery", "innerWay": "ExquisiteScenery" },
+    "403": { "name": "Art of Resistance", "innerWay": "ArtOfResistance" },
     "4": { "name": "Shadow Assault" },
     "6": { "name": "Sandswirl Tail" },
     "42": { "name": "Bitter Seasons" },
@@ -20,12 +23,20 @@
     "5": { "name": "Fivefold Bleed" },
     "41": { "name": "Envigorated Warrior", "innerWay": "EnvigoratedWarrior" },
     "601": { "name": "Soaring High", "innerWay": "SoaringHigh" },
-    "82": { "name": "Seasonal Edge" },
+    "82": { "name": "Seasonal Edge", "innerWay": "SeasonalEdge" },
     "603": { "name": "Empirical Edge", "innerWay": "EmpiricalEdge" },
-    "602": { "name": "Sky Gripped", "innerWay": "SkyGripped" }
+    "602": { "name": "Sky Gripped", "innerWay": "SkyGripped" },
+    "351": { "name": "Royal Remedy", "innerWay": "RoyalRemedy" },
+    "44": { "name": "Fury Harvest", "innerWay": "FuryHarvest" }
   },
   "weaponSets": {
+    "7": { "weaponSet": "RainWhisper" },
+    "50": { "weaponSet": "Cleftpeak" },
     "56": { "weaponSet": "Etherwrath" }
+  },
+  "armorSets": {
+    "2": { "armorSet": "Formbend" },
+    "24": { "armorSet": "Calmwaters" }
   },
   "bowRingSets": {
     "44": { "bowRingSet": "Precision" },

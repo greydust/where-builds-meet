@@ -1,0 +1,14 @@
+{
+  "name": "Fury Harvest",
+  "altersTimeline": false,
+  "tags": ["SilkbindDeluge"],
+  "effect": {
+    "FuryHarvestT0": {},
+    "FuryHarvestT1": {},
+    "FuryHarvestT2": {},
+    "FuryHarvestT3": {},
+    "FuryHarvestT4": {},
+    "FuryHarvestT5": {},
+    "FuryHarvestT6": {}
+  }
+}

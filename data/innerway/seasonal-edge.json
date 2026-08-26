@@ -1,0 +1,14 @@
+{
+  "name": "Seasonal Edge",
+  "altersTimeline": false,
+  "tags": ["BamboocutKite", "SilkbindDeluge"],
+  "effect": {
+    "SeasonalEdgeT0": {},
+    "SeasonalEdgeT1": {},
+    "SeasonalEdgeT2": {},
+    "SeasonalEdgeT3": {},
+    "SeasonalEdgeT4": {},
+    "SeasonalEdgeT5": {},
+    "SeasonalEdgeT6": {}
+  }
+}

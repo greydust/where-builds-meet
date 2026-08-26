@@ -258,9 +258,10 @@ that bow/ring set; different suffixes explicitly select `None`. Missing or
 unknown suffix data retains the application's default selection. Recognized suffix IDs on
 Left Weapon, Right Weapon, Disc, and Pendant determine weapon-set piece counts:
 two recognized matching pieces select the two-piece tier and four select the
-four-piece tier. Official suffix `56` maps to Etherwrath. Unknown weapon-set,
-armor-set and arsenal data continues using the application's default
-setup values.
+four-piece tier. Official suffix `7` maps to Rainwhisper, suffix `50` maps to
+Cleftpeak, and suffix `56` maps to Etherwrath. Armor slots use the same piece-count
+rule through the armor-set map; suffix `24` maps to Calmwaters. Unknown weapon-set,
+armor-set and arsenal data continues using the application's default setup values.
 
 Tier 96 Stonesplit Might armor attunements use IDs `280201` through `280205`:
 Thundercry Blade Shield, Charged Skill DMG, and Special Skill DMG Boost followed
@@ -273,6 +274,14 @@ For Tier 91 armor, dashboard ID `9293029` is Area Mystic Skill DMG Boost and
 attunement ID `270204` is Stormbreaker Spear Charged Skill DMG Boost. These IDs
 are confirmed independently from the Tier 96 sequence and must not be inferred
 by merely replacing the tier prefix.
+
+The observed Silkbind - Deluge profile maps martial-art IDs `10301` and `20602`
+to Panacea Fan and Soulshade Umbrella. Inner Way IDs `351`, `44`, and `82` map to
+Royal Remedy, Fury Harvest, and Seasonal Edge. Their definitions are intentionally
+effectless until their mechanics are recorded. Tier 91 affix ID `9293032` maps to Single-Target
+Mystic Skill DMG Boost. Attunement IDs `270401` and `270404` are the Panacea Fan
+and Soulshade Umbrella Martial Art Skill Healing Boosts; their values are retained
+on imported gear, but healing is not simulated.
 
 Tier 96 Bamboocut Dust armor attunement ID `280601` maps to Everspring Umbrella
 Martial Art Skill DMG Boost. Together with the previously observed IDs `280602`
