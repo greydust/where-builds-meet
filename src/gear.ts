@@ -96,6 +96,7 @@ export type BuildPreset = {
   martialArts: WeaponId[];
   setup?: BuildSetup;
   gear: Partial<Record<GearSlot, BuildPresetGear>>;
+  buildGroup?: string;
 };
 
 export type BuildEntry = {
@@ -368,11 +369,17 @@ const buildPresetModules = import.meta.glob("../data/build/**/*.json", { eager: 
   string,
   BuildPreset
 >;
-export const defaultBuildPresets = Object.values(buildPresetModules).sort(
-  (left, right) =>
-    (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
-    left.name.localeCompare(right.name),
-);
+function buildGroupFromModulePath(modulePath: string) {
+  return /\/build\/([^/]+)\//.exec(modulePath)?.[1];
+}
+
+export const defaultBuildPresets = Object.entries(buildPresetModules)
+  .map(([modulePath, preset]) => ({ ...preset, buildGroup: buildGroupFromModulePath(modulePath) }))
+  .sort(
+    (left, right) =>
+      (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+      left.name.localeCompare(right.name),
+  );
 
 export function buildEntryIsTestPreset(entry: BuildEntry) {
   return entry.isDefault === true && defaultBuildPresets.find((preset) => preset.id === entry.presetId)?.test === true;
@@ -408,6 +415,16 @@ export function buildEntryAvailableForMartialArts(entry: BuildEntry, selectedMar
   const tags = buildEntryMartialArts(entry);
   if (weaponIds.every((weapon) => tags.includes(weapon))) return true;
   return sameWeaponPair(tags, selectedMartialArts);
+}
+
+export function buildEntryAvailableForPath(
+  entry: BuildEntry,
+  buildGroup: string,
+  selectedMartialArts: [WeaponId, WeaponId],
+) {
+  if (!entry.isDefault) return buildEntryAvailableForMartialArts(entry, selectedMartialArts);
+  const preset = defaultBuildPresets.find((candidate) => candidate.id === entry.presetId);
+  return preset?.buildGroup === undefined || preset.buildGroup === buildGroup;
 }
 
 const weaponDefinitionIds: Record<WeaponId, string> = {

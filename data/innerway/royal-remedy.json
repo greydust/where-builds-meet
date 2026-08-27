@@ -5,10 +5,26 @@
   "effect": {
     "RoyalRemedyT0": {},
     "RoyalRemedyT1": {},
-    "RoyalRemedyT2": {},
+    "RoyalRemedyT2": {
+      "effect": [
+        {
+          "stat": {
+            "crit": 0.086
+          }
+        }
+      ]
+    },
     "RoyalRemedyT3": {},
     "RoyalRemedyT4": {},
-    "RoyalRemedyT5": {},
+    "RoyalRemedyT5": {
+      "effect": [
+        {
+          "stat": {
+            "directCrit": 0.046
+          }
+        }
+      ]
+    },
     "RoyalRemedyT6": {}
   }
 }

@@ -128,6 +128,33 @@ expiry action and schedules it for the refreshed expiration time.
 `phyCoef` drives physical and all four attribute paths. `attrBonus` is used only
 by the equipped weapons' primary attribute. See `damage-formula.md`.
 
+### Heal data
+
+A healing action uses the same coefficient fields and timing as a damage action,
+but declares `"type": "heal"`. Healing calculation is not implemented yet, so
+these actions currently preserve source data and timeline ordering without
+contributing to damage, DPS, or healing totals.
+
+Healing-over-time skills carry the `HOT` tag. Their later heal actions may
+resolve after the skill's cast time so the next sequential cast can begin while
+the stored healing sequence continues.
+
+Panacea Fan's Fourfold Inquiry light-attack chain is stored as four independently
+castable stages. Each stage carries the shared `FourfoldInquiry` and `Light`
+tags plus its own timing and damage values.
+Panacea Fan's Jump Heavy carries the `Heavy` tag, lands at `0.975` seconds, and
+retains its full `1.3125`-second cast time.
+
+```json
+{
+  "type": "heal",
+  "phyCoef": 4.912,
+  "phyBonus": 1363,
+  "attrBonus": 743,
+  "time": 0.975
+}
+```
+
 ### Replay
 
 Only a skill tagged `Replayed` may be spawned by a damage-event listener. Its
@@ -1066,6 +1093,29 @@ copy of its custom rotations.
 
 ## Data conventions
 
+Weapon-set effects may listen to a resolved damage outcome without applying an
+ordinary timeline buff:
+
+```json
+{
+  "trigger": {
+    "event": "damageOutcome",
+    "outcome": "affinity",
+    "action": {
+      "type": "apply",
+      "target": "self",
+      "value": "Hawkwing",
+      "stack": 1,
+      "reapply": true
+    }
+  }
+}
+```
+
+The referenced buff definition supplies its duration, maximum stack, and per-stack
+effect. This trigger is resolved by the damage-sequence outcome tracker rather than
+the ordinary action-time `damage` trigger pipeline.
+
 - Use decimal ratios for percentages.
 - Keep IDs stable and put display text in `name`/`description`.
 - Use `action` for timeline changes and `modifier` only for cast-start changes.
@@ -1190,6 +1240,25 @@ baseline timeline.
 
 Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
 for data completeness; healing is not currently simulated.
+
+Royal Remedy T2 adds `0.086` Effective Critical Rate and T5 adds `0.046`
+Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical Attack and
+`49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus. These are
+unconditional stat effects resolved by the shared character-stat pipeline.
+
+Panacea Fan converts Agility to Critical Rate at `0.085 / 280`, capped at
+`0.085`. Heavy-tagged healing stores a `0.05` base Healing Bonus plus up to
+`0.25` from Min Physical Attack at `750`. Its Silkbind Attribute talent adds
+`98` Min and `196` Max Silkbind Attack, then derives both Silkbind DMG Bonus and
+the recorded `silkbindHealingBonus` stat at `0.11 / 328`, capped at `0.11`.
+
+Soulshade Umbrella grants Mystic-tagged actions `0.2` DMG Bonus while Panacea
+Fan is equipped. It converts Agility to Min Physical Attack at `73.9 / 280`,
+capped at `73.9`. Special-tagged healing stores a `0.05` Critical Healing Bonus
+plus up to `0.25` from Min Physical Attack at `750`. Its Silkbind Attribute
+talent adds `98` Min and `196` Max Silkbind Attack and derives Silkbind
+Penetration at `22 / 328`, capped at `22`. Healing and Critical Healing effects
+remain data-only until healing calculation is implemented.
 
 ## Skill Editor categories
 

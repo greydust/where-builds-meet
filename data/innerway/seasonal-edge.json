@@ -5,10 +5,27 @@
   "effect": {
     "SeasonalEdgeT0": {},
     "SeasonalEdgeT1": {},
-    "SeasonalEdgeT2": {},
+    "SeasonalEdgeT2": {
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 24.8,
+            "maxPhys": 49.6
+          }
+        }
+      ]
+    },
     "SeasonalEdgeT3": {},
     "SeasonalEdgeT4": {},
-    "SeasonalEdgeT5": {},
+    "SeasonalEdgeT5": {
+      "effect": [
+        {
+          "stat": {
+            "physDmgBonus": 0.028
+          }
+        }
+      ]
+    },
     "SeasonalEdgeT6": {}
   }
 }

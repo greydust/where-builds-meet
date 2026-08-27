@@ -27,10 +27,29 @@
       }
     }
   },
+  "Moonflare": {
+    "name": "Moonflare",
+    "altersTimeline": false,
+    "tags": ["SilkbindDeluge", "PanaceaFan", "SoulshadeUmbrella"],
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {}
+      },
+      "2": {
+        "name": "2",
+        "effect": {}
+      },
+      "4": {
+        "name": "4",
+        "effect": {}
+      }
+    }
+  },
   "Calmwaters": {
     "name": "Calmwaters",
     "altersTimeline": false,
-    "tags": ["SilkbindDeluge", "PanaceaFan", "SoulshadeUmbrella"],
+    "tags": [],
     "options": {
       "0": {
         "name": "0",

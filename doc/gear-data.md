@@ -260,8 +260,11 @@ Left Weapon, Right Weapon, Disc, and Pendant determine weapon-set piece counts:
 two recognized matching pieces select the two-piece tier and four select the
 four-piece tier. Official suffix `7` maps to Rainwhisper, suffix `50` maps to
 Cleftpeak, and suffix `56` maps to Etherwrath. Armor slots use the same piece-count
-rule through the armor-set map; suffix `24` maps to Calmwaters. Unknown weapon-set,
-armor-set and arsenal data continues using the application's default setup values.
+rule through the armor-set map: suffix `2` maps to Formbend and suffix `24` maps to
+Calmwaters. Calmwaters remains importable but has no path eligibility; Moonflare is
+Deluge's only selectable armor set and has no confirmed official suffix mapping yet.
+Unknown weapon-set, armor-set, and arsenal data continues using the application's
+default setup values.
 
 Tier 96 Stonesplit Might armor attunements use IDs `280201` through `280205`:
 Thundercry Blade Shield, Charged Skill DMG, and Special Skill DMG Boost followed
@@ -298,6 +301,9 @@ Default builds live in path-grouped `data/build/**/*.json` files. Vite eagerly d
 file beneath that root, so adding a preset does not require a TypeScript import. Presets
 are grouped by path (for example, `stonesplit-strength/` and `stonesplit-might/`), while the
 Empty Build remains at the root because it is eligible for every martial-art pair.
+Each path's `buildGroup` in `data/path.json` selects the matching directory.
+The source module path is retained as preset metadata at build time, so preset
+visibility does not depend on duplicating the path ID inside every build file.
 The optional numeric `order` field controls display order. Presets marked with
 `"test": true` are bundled in every environment and shown only while the persisted
 header-level Dev toggle is enabled. A preset contains
@@ -319,7 +325,7 @@ pair. When the selected martial arts use the same pair in the opposite order,
 the equipped weapon records are aligned to the matching left and right weapon
 definitions before calculation.
 
-Default presets for other weapon pairs remain hidden in the Build tab. Custom
+Default presets from other path build groups remain hidden in the Build tab. Custom
 builds remain listed in a dimmed state when they do not match the current pair.
 Selecting one changes to the enabled locked path for that pair, or to Mixed with
 the build's saved weapon pair when no enabled locked path is available.

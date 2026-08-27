@@ -1,0 +1,107 @@
+{
+  "CloudburstHealing": {
+    "name": "Cloudburst Healing",
+    "shortName": "Fan Q",
+    "castTime": 0.9125,
+    "action": [
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 0.125 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 1.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 2.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 3.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 4.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 5.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 6.9 }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "HOT", "MartialArts", "Fan", "PanaceaFan", "CloudburstHealing"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "CloudburstHealingCancel": {
+    "name": "Cloudburst Healing [Cancel]",
+    "shortName": "Fan Q [Cancel]",
+    "castTime": 0,
+    "action": [
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 0.125 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 1.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 2.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 3.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 4.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 5.9 },
+      { "type": "heal", "phyCoef": 2.1705, "phyBonus": 600, "attrBonus": 327, "time": 6.9 }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "HOT", "MartialArts", "Fan", "PanaceaFan", "CloudburstHealing"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EndlessCloud": {
+    "name": "Endless Cloud",
+    "shortName": "Fan QQ",
+    "castTime": 0.9375,
+    "action": [{ "type": "heal", "phyCoef": 11.7766, "phyBonus": 3259, "attrBonus": 1776, "time": 0.3125 }],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Fan", "PanaceaFan", "EndlessCloud"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EndlessCloudCancel": {
+    "name": "Endless Cloud [Cancel]",
+    "shortName": "Fan QQ [Cancel]",
+    "castTime": 0.3125,
+    "action": [{ "type": "heal", "phyCoef": 11.7766, "phyBonus": 3259, "attrBonus": 1776, "time": 0.3125 }],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Fan", "PanaceaFan", "EndlessCloud"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "FourfoldInquiry1": {
+    "name": "Fourfold Inquiry 1st Hit",
+    "shortName": "Fan A1",
+    "castTime": 0.5625,
+    "action": [{ "type": "damage", "phyCoef": 0.3955, "phyBonus": 109, "attrBonus": 59, "time": 0.5625 }],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Fan", "PanaceaFan", "FourfoldInquiry"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "FourfoldInquiry2": {
+    "name": "Fourfold Inquiry 2nd Hit",
+    "shortName": "Fan A2",
+    "castTime": 0.45,
+    "action": [{ "type": "damage", "phyCoef": 0.2967, "phyBonus": 82, "attrBonus": 44, "time": 0.45 }],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Fan", "PanaceaFan", "FourfoldInquiry"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "FourfoldInquiry3": {
+    "name": "Fourfold Inquiry 3rd Hit",
+    "shortName": "Fan A3",
+    "castTime": 0.4875,
+    "action": [{ "type": "damage", "phyCoef": 0.3955, "phyBonus": 109, "attrBonus": 59, "time": 0.4875 }],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Fan", "PanaceaFan", "FourfoldInquiry"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "FourfoldInquiry4": {
+    "name": "Fourfold Inquiry 4th Hit",
+    "shortName": "Fan A4",
+    "castTime": 0.4625,
+    "action": [{ "type": "damage", "phyCoef": 0.89, "phyBonus": 246, "attrBonus": 134, "time": 0.4625 }],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Fan", "PanaceaFan", "FourfoldInquiry"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "JumpHeavy": {
+    "name": "Jump Heavy",
+    "castTime": 1.3125,
+    "action": [{ "type": "damage", "phyCoef": 1.841, "phyBonus": 510, "attrBonus": 278, "time": 0.975 }],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Heavy", "Fan", "PanaceaFan", "JumpHeavy"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  }
+}

@@ -77,7 +77,7 @@ data/
   debuff/         target effect and encounter-state definitions
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
-  path.json       selectable combat paths, icons, shared eligibility tags, and optional weapon locks
+  path.json       combat-path status, preset build group, icons, eligibility tags, and optional weapon locks
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and attunement source tags
@@ -290,7 +290,10 @@ colliding IDs without changing the currently applied profile.
 
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define Inner Ways and setup choices
-in their own path-grouped `data/build/**/*.json` records.
+in their own path-grouped `data/build/**/*.json` records. Each path declares one
+`buildGroup` and one explicit `status` in `data/path.json`; default-build
+visibility follows that folder mapping rather than being inferred from the
+preset's martial-art pair.
 
 ## Character stat pipeline
 
@@ -636,6 +639,13 @@ the ordered damage pass and damage-event state snapshots entirely; its final
 aggregation performs the single required damage resolution. Monte Carlo runs
 still resolve the stored entries independently with that run's random samples.
 
+Outcome-triggered buff schedules are built with the baseline damage stream and
+stored by damage-entry ID. Comparison variants reuse that schedule only when the
+timeline, Affinity dependencies, and outcome trigger definitions are unchanged;
+otherwise they rebuild it. The baseline result also exposes the arithmetic mean
+of Hawkwing's expected pre-hit stack values for the DPS summary. Simulation runs
+do not use this probability schedule and maintain their own sampled stack state.
+
 Local Vite development builds wrap each deterministic worker request in a
 calculation benchmark and emit a collapsed `[Damage benchmark]` console table.
 The table separates top-level timeline construction, damage-pipeline, timing,
@@ -839,21 +849,21 @@ source base attribute, for example `"power": { "minPhys": 0.22 }`.
 
 ### Weapon or primary path
 
-Add the path metadata to `data/path.json`. A path can declare a shared `tag`
-and a fixed `[left, right]` `lockedWeapons` pair; paths without a weapon lock
+Add the path metadata to `data/path.json`. Every path declares an explicit
+`status` and `buildGroup`; the latter names its directory under `data/build/`.
+A path can also declare a shared `tag` and a fixed `[left, right]`
+`lockedWeapons` pair; paths without a weapon lock
 allow either martial art in either slot. New weapons still require changes to
 `WeaponId`, settings validation, martial-art imports, attunement matching, and
 `mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares its
 physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and set eligibility use the tag.
-Paths may also declare `wip: true`; they remain visible with a WIP badge but are
-disabled until the header-level Dev toggle is enabled. This runtime gate behaves
-the same in local and deployed builds. A path can instead declare `devOnly: true`
-when its mechanics are supported but the path itself is intended only for
-development and unrestricted test combinations. Dev-only paths remain visible,
-carry a Dev badge, and use the same runtime gate without being described as WIP.
-A path can declare `plannerOnly: true` when its martial-art pair and build-planner
-surfaces are registered but its combat mechanics are not implemented. Planner-only
+The `status` value is one of `available`, `wip`, `devOnly`, or `plannerOnly`.
+Only `available` paths are enabled without the header-level Dev toggle. WIP paths
+remain visible with a WIP badge. Dev-only paths carry a Dev badge and support
+unrestricted test combinations. Planner-only paths indicate that their
+martial-art pair and build-planner surfaces are registered but their combat mechanics
+are not implemented. Planner-only
 paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
 is enabled. Bellstrike Splendor and Umbra, Silkbind Jade and Deluge, and Bamboocut
 Dust currently use this state. Their fixed martial-art pairs and physical weapon

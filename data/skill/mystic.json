@@ -933,6 +933,21 @@
     "modifier": [],
     "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "HP", "DragonHead", "DragonHeadTide"]
   },
+  "SereneBreeze": {
+    "name": "Serene Breeze",
+    "castTime": 0.4375,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.9539,
+        "phyBonus": 467,
+        "attrBonus": 0,
+        "time": 0.4375
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SereneBreeze"]
+  },
   "BurstingNine": {
     "name": "Bursting Nine",
     "castTime": 1.45,

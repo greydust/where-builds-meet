@@ -53,6 +53,19 @@ try {
       .join(",") === "Formbend",
     "The shared set filter must return the Might armor-set list.",
   );
+  const delugeTags = ["PanaceaFan", "SoulshadeUmbrella"];
+  assert(
+    availableSetEntriesForTags(weaponSetDefinitions, delugeTags, "SilkbindDeluge")
+      .map(([setName]) => setName)
+      .join(",") === "RainWhisper,Hawkwing,Etherwrath",
+    "The shared set filter must expose only Rain Whisper, Hawkwing, and Etherwrath to Deluge.",
+  );
+  assert(
+    availableSetEntriesForTags(armorSetDefinitions, delugeTags, "SilkbindDeluge")
+      .map(([setName]) => setName)
+      .join(",") === "Moonflare",
+    "The shared set filter must expose Moonflare as Deluge's only armor set.",
+  );
   const migrated = normalizeBuildSetup(
     { gearSets: { Cleftpeak: 2, RainWhisper: 2 }, bowRingSet: "Precision", arsenal: "Stonesplit" },
     defaultBuildSetup,

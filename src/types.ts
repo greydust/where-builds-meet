@@ -37,6 +37,8 @@ export type CharacterStats = {
   bellstrikeDmgBonus: number;
   stonesplitDmgBonus: number;
   silkbindDmgBonus: number;
+  /** Silkbind healing multiplier bonus; recorded for the future healing calculator. */
+  silkbindHealingBonus: number;
   bamboocutDmgBonus: number;
   critDmgBonus: number;
   affinityDmgBonus: number;

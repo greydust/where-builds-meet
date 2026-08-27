@@ -2,5 +2,65 @@
   "name": "Panacea Fan",
   "weapon": "Fan",
   "tag": "PanaceaFan",
-  "talent": []
+  "talent": [
+    {
+      "name": "Critical Rate Up",
+      "effect": [
+        {
+          "stat": {
+            "crit": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.0003035714285714286,
+                "max": 0.085
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Heavy Attack Healing Boost",
+      "effect": [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Heavy" }],
+          "effect": {
+            "healingBonus": {
+              "formula": {
+                "source": "minPhys",
+                "multiplier": 0.0003333333333333333,
+                "offset": 0.05,
+                "max": 0.3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Silkbind Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minSilkbind": 98,
+            "maxSilkbind": 196,
+            "silkbindDmgBonus": {
+              "formula": {
+                "source": "minSilkbind",
+                "multiplier": 0.0003353658536585366,
+                "max": 0.11
+              }
+            },
+            "silkbindHealingBonus": {
+              "formula": {
+                "source": "minSilkbind",
+                "multiplier": 0.0003353658536585366,
+                "max": 0.11
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

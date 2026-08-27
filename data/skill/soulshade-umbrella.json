@@ -1,0 +1,45 @@
+{
+  "FloatingGrace": {
+    "name": "Floating Grace",
+    "shortName": "Umbrella Q",
+    "castTime": 1.15,
+    "action": [
+      {
+        "type": "heal",
+        "phyCoef": 4.912,
+        "phyBonus": 1363,
+        "attrBonus": 743,
+        "time": 0.975
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "FloatingGraceDeluge",
+        "duration": 12,
+        "stack": 1,
+        "reapply": true,
+        "requirement": [{ "target": "equippedMartialArt", "value": "panaceaFan" }],
+        "time": 0.975
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "FloatingGrace",
+        "duration": 12,
+        "stack": 1,
+        "reapply": true,
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [{ "target": "equippedMartialArt", "value": "panaceaFan" }]
+          }
+        ],
+        "time": 0.975
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Umbrella", "SoulshadeUmbrella", "FloatingGrace"],
+    "martialArt": "soulshadeUmbrella",
+    "weapon": "Umbrella"
+  }
+}

@@ -44,6 +44,7 @@ export const emptyRotationBreakdown = (): RotationBreakdown => ({
 export type RotationMetrics = {
   totalDamage: number;
   dps: number;
+  expectedHawkwingStacks?: number;
   breakdown: RotationBreakdown;
   statPriority: RotationPriority[];
   attunementPriority: RotationPriority[];

@@ -3,64 +3,77 @@
     "name": "Splendor",
     "icon": "splendor.png",
     "tag": "BellstrikeSplendor",
-    "plannerOnly": true,
+    "status": "plannerOnly",
+    "buildGroup": "bellstrike-splendor",
     "lockedWeapons": ["namelessSword", "namelessSpear"]
   },
   "bellstrikeUmbra": {
     "name": "Umbra",
     "icon": "umbra.png",
     "tag": "BellstrikeUmbra",
-    "plannerOnly": true,
+    "status": "plannerOnly",
+    "buildGroup": "bellstrike-umbra",
     "lockedWeapons": ["strategicSword", "heavenquakerSpear"]
   },
   "stonesplitMight": {
     "name": "Might",
     "icon": "might.png",
     "tag": "StonesplitMight",
+    "status": "available",
+    "buildGroup": "stonesplit-might",
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
   "stonesplitStrength": {
     "name": "Strength",
     "icon": "strength.png",
     "tag": "StonesplitStrength",
+    "status": "available",
+    "buildGroup": "stonesplit-strength",
     "lockedWeapons": ["snowparting", "phalanxbane"]
   },
   "silkbindJade": {
     "name": "Jade",
     "icon": "jade.png",
     "tag": "SilkbindJade",
-    "plannerOnly": true,
+    "status": "plannerOnly",
+    "buildGroup": "silkbind-jade",
     "lockedWeapons": ["vernalUmbrella", "inkwellFan"]
   },
   "silkbindDeluge": {
     "name": "Deluge",
     "icon": "deluge.png",
     "tag": "SilkbindDeluge",
-    "plannerOnly": true,
+    "status": "wip",
+    "buildGroup": "silkbind-deluge",
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"]
   },
   "bamboocutWind": {
     "name": "Wind",
     "icon": "wind.png",
     "tag": "BamboocutWind",
-    "wip": true,
+    "status": "wip",
+    "buildGroup": "bamboocut-wind",
     "lockedWeapons": ["infernalTwinblades", "mortalRopeDart"]
   },
   "bamboocutDust": {
     "name": "Dust",
     "icon": "dust.png",
     "tag": "BamboocutDust",
-    "plannerOnly": true,
+    "status": "plannerOnly",
+    "buildGroup": "bamboocut-dust",
     "lockedWeapons": ["everspring", "unfettered"]
   },
   "bamboocutKite": {
     "name": "Kite",
     "icon": "kite.png",
     "tag": "BamboocutKite",
+    "status": "available",
+    "buildGroup": "bamboocut-kite",
     "lockedWeapons": ["heavenwill", "skygrasp"]
   },
   "mixed": {
     "name": "Mixed",
-    "devOnly": true
+    "status": "devOnly",
+    "buildGroup": "mixed"
   }
 }

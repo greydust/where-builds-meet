@@ -36,6 +36,13 @@ import {
   subtractUnconditionalDamageEffects,
   type UnconditionalDamageEffects,
 } from "./unconditionalDamageEffects";
+import {
+  ExpectedOutcomeBuffTracker,
+  SimulatedOutcomeBuffTracker,
+  outcomeBuffTick,
+  type ExpectedOutcomeBuffSchedule,
+  type OutcomeTriggeredBuff,
+} from "./outcomeTriggeredBuffs";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -46,6 +53,7 @@ export type RotationDamageEntry = {
   timelineOrder?: number;
   sourceRowId?: string;
   replay?: { sourceEntryId: string; coef: number };
+  outcomeTriggeredBuffs?: OutcomeTriggeredBuff[];
   damageEvent?: {
     buffs: TrackedEffect[];
     debuffs: TrackedEffect[];
@@ -132,6 +140,7 @@ export type RotationSimulationResult = {
 
 export type RotationSimulationBaseline = RotationSimulationResult & {
   baseline: RotationDamageEntry[];
+  expectedOutcomeBuffSchedule: ExpectedOutcomeBuffSchedule;
 };
 
 const emptyBreakdown = (): DamageBreakdown => ({
@@ -151,6 +160,7 @@ function replayBreakdown(damage: number): DamageBreakdown {
 function calculateRotationDamageEntry(
   entry: RotationDamageEntry,
   resolved: Map<string, DamageBreakdown>,
+  physicalAttackBonus = 0,
   random?: () => number,
 ): DamageBreakdown {
   let breakdown: DamageBreakdown;
@@ -159,21 +169,101 @@ function calculateRotationDamageEntry(
     breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
   } else {
     const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+    const context = physicalAttackBonus
+      ? {
+          ...entry.context,
+          unconditionalDamageEffects: addUnconditionalDamageEffects(entry.context.unconditionalDamageEffects, {
+            physicalAttackBonus,
+          }),
+        }
+      : entry.context;
     breakdown = random
-      ? calculateSimulatedDamageBreakdown(entry.action, entry.context, random)
-      : calculateDamageBreakdown(entry.action, entry.context);
+      ? calculateSimulatedDamageBreakdown(entry.action, context, random)
+      : calculateDamageBreakdown(entry.action, context);
     if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
   }
   if (entry.id) resolved.set(entry.id, breakdown);
   return breakdown;
 }
 
-export function calculateRotationDamageSequence(entries: RotationDamageEntry[], random?: () => number) {
+export type ResolvedRotationDamage = {
+  entry: RotationDamageEntry;
+  breakdown: DamageBreakdown;
+  expectedBuffStacks?: Record<string, number>;
+  outcomePhysicalAttackBonus?: number;
+};
+
+function createRotationDamageResolver(random?: () => number, schedule?: ExpectedOutcomeBuffSchedule) {
   const resolved = new Map<string, DamageBreakdown>();
-  return entries.map((entry) => ({ entry, breakdown: calculateRotationDamageEntry(entry, resolved, random) }));
+  const expectedTracker = random ? undefined : new ExpectedOutcomeBuffTracker();
+  const simulatedTracker = random ? new SimulatedOutcomeBuffTracker() : undefined;
+  const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
+    const tick = outcomeBuffTick(entry.timelineTime);
+    const expectedBuffStacks: Record<string, number> = {};
+    let physicalAttackBonus = 0;
+    for (const buff of entry.outcomeTriggeredBuffs ?? []) {
+      const stack = random
+        ? simulatedTracker!.stack(buff, tick)
+        : (schedule?.[entry.id ?? ""]?.[buff.name] ?? expectedTracker!.expectedStack(buff, tick));
+      expectedBuffStacks[buff.name] = stack;
+      physicalAttackBonus += stack * buff.physicalAttackBonusPerStack;
+    }
+    const breakdown = calculateRotationDamageEntry(entry, resolved, physicalAttackBonus, random);
+    if (!entry.replay && breakdown.total > 0) {
+      for (const buff of entry.outcomeTriggeredBuffs ?? []) {
+        if (random) {
+          if (breakdown.outcome === buff.outcome) simulatedTracker!.resolveOutcome(buff, tick);
+        } else if (!schedule) {
+          expectedTracker!.resolveOutcome(buff, tick, breakdown.outcomeRates?.[buff.outcome] ?? 0);
+        }
+      }
+    }
+    return {
+      entry,
+      breakdown,
+      ...(Object.keys(expectedBuffStacks).length
+        ? { expectedBuffStacks, outcomePhysicalAttackBonus: physicalAttackBonus }
+        : {}),
+    };
+  };
+  return { resolve };
+}
+
+export function calculateRotationDamageSequence(
+  entries: RotationDamageEntry[],
+  random?: () => number,
+  schedule?: ExpectedOutcomeBuffSchedule,
+) {
+  const resolver = createRotationDamageResolver(random, schedule);
+  return entries.map(resolver.resolve);
 }
 
 type ResolvedRotationDamageSequence = ReturnType<typeof calculateRotationDamageSequence>;
+
+function expectedOutcomeBuffSchedule(sequence: ResolvedRotationDamageSequence): ExpectedOutcomeBuffSchedule {
+  return Object.fromEntries(
+    sequence.flatMap(({ entry, expectedBuffStacks }) =>
+      entry.id && expectedBuffStacks ? [[entry.id, { ...expectedBuffStacks }] as const] : [],
+    ),
+  );
+}
+
+function averageExpectedBuffStack(sequence: ResolvedRotationDamageSequence, buffName: string) {
+  const stacks = sequence.flatMap(({ entry, expectedBuffStacks }) =>
+    !entry.replay && expectedBuffStacks?.[buffName] !== undefined ? [expectedBuffStacks[buffName]] : [],
+  );
+  return stacks.length ? stacks.reduce((total, stack) => total + stack, 0) / stacks.length : undefined;
+}
+
+function contextWithOutcomePhysicalAttackBonus(context: DamageContext, bonus: number | undefined): DamageContext {
+  if (!bonus) return context;
+  return {
+    ...context,
+    unconditionalDamageEffects: addUnconditionalDamageEffects(context.unconditionalDamageEffects, {
+      physicalAttackBonus: bonus,
+    }),
+  };
+}
 
 function sumResolvedSequence(sequence: ResolvedRotationDamageSequence) {
   return sequence.reduce((total, { breakdown }) => {
@@ -570,6 +660,58 @@ function unwrappedEffect(effect: EditableObject): EditableObject {
     : effect;
 }
 
+function outcomeTriggeredBuffsFor(
+  setupEffects: EditableObject[],
+  effectDefinitions: Record<string, EffectDefinition>,
+): OutcomeTriggeredBuff[] {
+  const buffs = new Map<string, OutcomeTriggeredBuff>();
+  for (const setupEffect of setupEffects) {
+    const trigger =
+      setupEffect.trigger && typeof setupEffect.trigger === "object" && !Array.isArray(setupEffect.trigger)
+        ? (setupEffect.trigger as EditableObject)
+        : undefined;
+    const action =
+      trigger?.action && typeof trigger.action === "object" && !Array.isArray(trigger.action)
+        ? (trigger.action as EditableObject)
+        : undefined;
+    if (
+      trigger?.event !== "damageOutcome" ||
+      trigger.outcome !== "affinity" ||
+      action?.type !== "apply" ||
+      action.target !== "self" ||
+      typeof action.value !== "string"
+    )
+      continue;
+    const definition = effectDefinitions[action.value];
+    if (
+      typeof definition?.duration !== "number" ||
+      !Number.isFinite(definition.duration) ||
+      typeof definition.maxStack !== "number" ||
+      !Number.isFinite(definition.maxStack)
+    )
+      continue;
+    const firstStackEffects = effectsForTrackedEffect(1, definition);
+    const physicalAttackBonusPerStack = firstStackEffects.reduce<number>((total, effect) => {
+      if (!effect || typeof effect !== "object" || Array.isArray(effect)) return total;
+      const unwrapped = unwrappedEffect(effect as EditableObject);
+      return (
+        total +
+        (typeof unwrapped.physicalAttackBonus === "number" && Number.isFinite(unwrapped.physicalAttackBonus)
+          ? unwrapped.physicalAttackBonus
+          : 0)
+      );
+    }, 0);
+    buffs.set(action.value, {
+      name: action.value,
+      outcome: "affinity",
+      durationTicks: outcomeBuffTick(definition.duration),
+      maxStack: Math.max(1, Math.floor(definition.maxStack)),
+      physicalAttackBonusPerStack,
+    });
+  }
+  return [...buffs.values()];
+}
+
 function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
@@ -577,6 +719,7 @@ function timelineDamageEntries(
   startAnchor: RotationSimulationBundle["startAnchor"],
   overrides: RotationSimulationVariant = { label: "" },
   updateTimelineState = false,
+  expectedBuffSchedule?: ExpectedOutcomeBuffSchedule,
 ): { entries: RotationDamageEntry[]; resolvedSequence?: ResolvedRotationDamageSequence } {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
   const damageListeners = rules.flatMap((rule, index) =>
@@ -584,6 +727,7 @@ function timelineDamageEntries(
   );
   const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
   const setupEffects = overrides.setupEffects ?? input.setupEffects;
+  const outcomeTriggeredBuffs = outcomeTriggeredBuffsFor(setupEffects, input.effectDefinitions);
   const staticSetupEffects = setupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
   const dynamicSetupEffects = setupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
   const staticInnerWayRules = rules.filter((rule) => requirementIsSkillStatic(rule.requirement));
@@ -817,6 +961,7 @@ function timelineDamageEntries(
               timelineTime: actionTime,
               timelineOrder: actionOrder,
               sourceRowId: row.sourceRowId ?? row.id,
+              ...(outcomeTriggeredBuffs.length ? { outcomeTriggeredBuffs } : {}),
               ...(damageListeners.length
                 ? {
                     damageEvent: {
@@ -939,8 +1084,8 @@ function timelineDamageEntries(
     })),
   ].sort(compareOrderedItems);
   if (import.meta.env.DEV) finishCalculationPhase("damageEventOrdering", damageEventOrderingStartedAt);
-  const resolvedDamage = new Map<string, DamageBreakdown>();
-  const resolvedByEntry = new Map<(typeof damageEntries)[number], DamageBreakdown>();
+  const damageResolver = createRotationDamageResolver(undefined, expectedBuffSchedule);
+  const resolvedByEntry = new Map<(typeof damageEntries)[number], ResolvedRotationDamage>();
   const listenerCooldowns = new Map<string, number>();
   let replayInvocation = 0;
   let replayOrder = timeline.reduce((maximum, row) => Math.max(maximum, row.order), 0) + 1;
@@ -1087,8 +1232,9 @@ function timelineDamageEntries(
     }
     item.entry.updateTargetHPRatio(targetHPRatio);
     if (import.meta.env.DEV) finishCalculationPhase("targetStatePropagation", targetStateStartedAt);
-    const breakdown = calculateRotationDamageEntry(item.entry, resolvedDamage);
-    resolvedByEntry.set(item.entry, breakdown);
+    const resolvedRow = damageResolver.resolve(item.entry);
+    const breakdown = resolvedRow.breakdown;
+    resolvedByEntry.set(item.entry, resolvedRow);
     const damageEvent = item.entry.damageEvent;
     if (!item.entry.replay && breakdown.total > 0 && damageEvent) {
       const listenerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
@@ -1134,10 +1280,17 @@ function timelineDamageEntries(
       compareTimelineTime(left.timelineTime, right.timelineTime) ||
       (left.timelineOrder ?? 0) - (right.timelineOrder ?? 0),
   );
-  const resolvedSequence = damageEntries.map((entry) => ({
-    entry: stripTargetHPUpdater(entry),
-    breakdown: resolvedByEntry.get(entry) ?? emptyBreakdown(),
-  }));
+  const resolvedSequence = damageEntries.map((entry) => {
+    const resolvedRow = resolvedByEntry.get(entry);
+    return {
+      entry: stripTargetHPUpdater(entry),
+      breakdown: resolvedRow?.breakdown ?? emptyBreakdown(),
+      ...(resolvedRow?.expectedBuffStacks ? { expectedBuffStacks: resolvedRow.expectedBuffStacks } : {}),
+      ...(resolvedRow?.outcomePhysicalAttackBonus !== undefined
+        ? { outcomePhysicalAttackBonus: resolvedRow.outcomePhysicalAttackBonus }
+        : {}),
+    };
+  });
   return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence };
 }
 
@@ -1213,13 +1366,16 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
-      .map(({ entry, breakdown }) => {
+      .map(({ entry, breakdown, outcomePhysicalAttackBonus }) => {
         baselineDamage += breakdown.total;
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
             .map(({ sourceRowId, context }) => {
               const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-              const counterfactualDamage = calculateDamageBreakdown(entry.action, context).total;
+              const counterfactualDamage = calculateDamageBreakdown(
+                entry.action,
+                contextWithOutcomePhysicalAttackBonus(context, outcomePhysicalAttackBonus),
+              ).total;
               if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
               return [sourceRowId, breakdown.total - counterfactualDamage];
             })
@@ -1243,8 +1399,57 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     baselineDamage,
   );
   metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
+  metrics.expectedHawkwingStacks = averageExpectedBuffStack(resolvedSequence, "Hawkwing");
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
-  return { metrics, timeline, anchorTime, duration, actionBreakdowns, baseline };
+  return {
+    metrics,
+    timeline,
+    anchorTime,
+    duration,
+    actionBreakdowns,
+    baseline,
+    expectedOutcomeBuffSchedule: expectedOutcomeBuffSchedule(resolvedSequence),
+  };
+}
+
+const affinityRateDependencyFields = new Set(["affinity", "directaffinity", "effectiveaffinity", "finalaffinity"]);
+
+function affinityDependencySnapshot(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    const items = value.map(affinityDependencySnapshot).filter((item) => item !== undefined);
+    return items.length ? items : undefined;
+  }
+  if (!value || typeof value !== "object") return undefined;
+  const entries = Object.entries(value as Record<string, unknown>).flatMap(([key, child]) => {
+    const lowerKey = key.toLowerCase();
+    if (
+      affinityRateDependencyFields.has(lowerKey) ||
+      (key === "outcome" && child === "affinity") ||
+      ((key === "from" || key === "to") &&
+        typeof child === "string" &&
+        affinityRateDependencyFields.has(child.toLowerCase()))
+    )
+      return [[key, child] as const];
+    const nested = affinityDependencySnapshot(child);
+    return nested === undefined ? [] : [[key, nested] as const];
+  });
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
+function canReuseExpectedOutcomeBuffSchedule(bundle: RotationSimulationBundle, variant: RotationSimulationVariant) {
+  if (variant.timeline) return false;
+  if (variant.stats) {
+    const variantDerivedStats = calculateDerivedStats(variant.stats, bundle.enemy.judgementResistance);
+    if (Math.abs(variantDerivedStats.finalAffinity - bundle.derivedStats.finalAffinity) > 1e-12) return false;
+  }
+  const baselineSetup = JSON.stringify(affinityDependencySnapshot(bundle.timeline.setupEffects));
+  const variantSetup = JSON.stringify(affinityDependencySnapshot(variant.setupEffects ?? bundle.timeline.setupEffects));
+  if (baselineSetup !== variantSetup) return false;
+  const baselineInnerWays = JSON.stringify(affinityDependencySnapshot(bundle.timeline.innerWayRules));
+  const variantInnerWays = JSON.stringify(
+    affinityDependencySnapshot(variant.innerWayRules ?? bundle.timeline.innerWayRules),
+  );
+  return baselineInnerWays === variantInnerWays;
 }
 
 export function calculateRotationComparisons(
@@ -1272,9 +1477,21 @@ export function calculateRotationComparisons(
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
     if (import.meta.env.DEV && variant.timeline) finishCalculationPhase("timelineConstruction", timelineStartedAt);
     const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-    const resolution = timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant);
+    const reusableExpectedBuffSchedule = canReuseExpectedOutcomeBuffSchedule(bundle, variant)
+      ? baselineResult.expectedOutcomeBuffSchedule
+      : undefined;
+    const resolution = timelineDamageEntries(
+      variantTimeline,
+      timelineInput,
+      state,
+      bundle.startAnchor,
+      variant,
+      false,
+      reusableExpectedBuffSchedule,
+    );
     const entries = resolution.entries;
-    const resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(entries);
+    const resolvedSequence =
+      resolution.resolvedSequence ?? calculateRotationDamageSequence(entries, undefined, reusableExpectedBuffSchedule);
     if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
     let duration = baselineResult.duration;
     if (variant.timeline) {
@@ -1323,6 +1540,7 @@ export function calculateRotationComparisons(
   const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const metrics = calculateRotationMetrics(entryBundle, baselineResult.metrics.totalDamage);
   metrics.breakdown = baselineResult.metrics.breakdown;
+  metrics.expectedHawkwingStacks = baselineResult.metrics.expectedHawkwingStacks;
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
   return metrics;
 }
@@ -1330,6 +1548,10 @@ export function calculateRotationComparisons(
 export function calculateRotationSimulation(bundle: RotationSimulationBundle): RotationSimulationResult {
   const baselineResult = calculateRotationBaseline(bundle);
   const metrics = calculateRotationComparisons(bundle, baselineResult);
-  const { baseline: _baseline, ...publicResult } = baselineResult;
+  const {
+    baseline: _baseline,
+    expectedOutcomeBuffSchedule: _expectedOutcomeBuffSchedule,
+    ...publicResult
+  } = baselineResult;
   return { ...publicResult, metrics };
 }

@@ -5,13 +5,10 @@
     "tags": [
       "StonesplitStrength",
       "BamboocutKite",
-      "SilkbindDeluge",
       "SnowpartingBlade",
       "PhalanxbaneBlade",
       "HeavenwillGauntlets",
-      "SkygraspRopeDart",
-      "PanaceaFan",
-      "SoulshadeUmbrella"
+      "SkygraspRopeDart"
     ],
     "options": {
       "0": {
@@ -101,16 +98,69 @@
       }
     }
   },
+  "Hawkwing": {
+    "name": "Hawkwing",
+    "altersTimeline": false,
+    "tags": [
+      "BellstrikeSplendor",
+      "BellstrikeUmbra",
+      "SilkbindDeluge",
+      "NamelessSword",
+      "NamelessSpear",
+      "StrategicSword",
+      "HeavenQuakerSpear",
+      "PanaceaFan",
+      "SoulshadeUmbrella"
+    ],
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {
+          "stat": {}
+        }
+      },
+      "2": {
+        "name": "2",
+        "effect": {
+          "stat": {
+            "affinity": 0.045
+          }
+        }
+      },
+      "4": {
+        "name": "4",
+        "effect": {
+          "stat": {
+            "affinity": 0.045
+          },
+          "trigger": {
+            "event": "damageOutcome",
+            "outcome": "affinity",
+            "action": {
+              "type": "apply",
+              "target": "self",
+              "value": "Hawkwing",
+              "stack": 1,
+              "reapply": true
+            }
+          }
+        }
+      }
+    }
+  },
   "Etherwrath": {
     "name": "Etherwrath",
     "altersTimeline": true,
     "tags": [
       "BamboocutKite",
       "StonesplitStrength",
+      "SilkbindDeluge",
       "HeavenwillGauntlets",
       "SkygraspRopeDart",
       "SnowpartingBlade",
-      "PhalanxbaneBlade"
+      "PhalanxbaneBlade",
+      "PanaceaFan",
+      "SoulshadeUmbrella"
     ],
     "options": {
       "0": {

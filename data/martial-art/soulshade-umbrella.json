@@ -2,5 +2,72 @@
   "name": "Soulshade Umbrella",
   "weapon": "Umbrella",
   "tag": "SoulshadeUmbrella",
-  "talent": []
+  "talent": [
+    {
+      "name": "Buff Enhancement",
+      "effect": [
+        {
+          "requirement": [
+            { "target": "equippedMartialArt", "value": "panaceaFan" },
+            { "target": "skillTag", "value": "Mystic" }
+          ],
+          "effect": {
+            "dmgBonus": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "Physical Attack Up",
+      "effect": [
+        {
+          "stat": {
+            "minPhys": {
+              "formula": {
+                "source": "agility",
+                "multiplier": 0.2639285714285714,
+                "max": 73.9
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical Heal Enhancement",
+      "effect": [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Special" }],
+          "effect": {
+            "criticalHealingBonus": {
+              "formula": {
+                "source": "minPhys",
+                "multiplier": 0.0003333333333333333,
+                "offset": 0.05,
+                "max": 0.3
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Silkbind Attribute Up",
+      "effect": [
+        {
+          "stat": {
+            "minSilkbind": 98,
+            "maxSilkbind": 196,
+            "silkbindPenetration": {
+              "formula": {
+                "source": "minSilkbind",
+                "multiplier": 0.06707317073170732,
+                "max": 22
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

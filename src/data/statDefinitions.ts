@@ -64,6 +64,13 @@ export const defenseStats: StatDefinition[] = [
     showUnitInInput: true,
   },
   { key: "silkbindDmgBonus", label: "Silkbind DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
+  {
+    key: "silkbindHealingBonus",
+    label: "Silkbind Healing Bonus",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
   { key: "bamboocutDmgBonus", label: "Bamboocut DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "allMartialArts", label: "All Martial Arts", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "vsBossDmg", label: "vs Boss DMG", unit: "%", showUnitInLabel: false, showUnitInInput: true },

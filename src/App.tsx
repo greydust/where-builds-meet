@@ -18,20 +18,13 @@ import { resolveSwitchValue } from "./calculations/dynamicValues";
 import { UiIcon } from "./UiIcon";
 const BuildTab = lazy(() => import("./BuildTab"));
 const SimulationTab = lazy(() => import("./SimulationTab"));
-import {
-  allStatDefinitions,
-  combatStats,
-  defenseStats,
-  emptyStats,
-  martialArtsStats,
-  survivalStats,
-} from "./data/statDefinitions";
+import { allStatDefinitions, emptyStats } from "./data/statDefinitions";
 import {
   activeBuildStorageKey,
   armorSetDefinitions,
   attunementData,
   availableSetEntriesForTags,
-  buildEntryAvailableForMartialArts,
+  buildEntryAvailableForPath,
   buildEntryIsTestPreset,
   buildListStorageKey,
   calculateEquippedGearEffects,
@@ -69,6 +62,8 @@ import thundercrySkills from "../data/skill/thundercry-blade.json";
 import stormbreakerSkills from "../data/skill/stormbreaker-spear.json";
 import heavenwillSkills from "../data/skill/heavenwill-gauntlets.json";
 import skygraspSkills from "../data/skill/skygrasp-rope-dart.json";
+import panaceaSkills from "../data/skill/panacea-fan.json";
+import soulshadeSkills from "../data/skill/soulshade-umbrella.json";
 import mysticSkills from "../data/skill/mystic.json";
 import generalSkills from "../data/skill/general.json";
 import mysticBuffs from "../data/buff/mystic.json";
@@ -245,6 +240,15 @@ const buildSetupOverrideStorageKey = "wwm-build-setup-overrides-v1";
 const percentageStatKeys = new Set<keyof CharacterStats>(
   allStatDefinitions.filter(({ unit }) => unit === "%").map(({ key }) => key),
 );
+const statDefinitionByKey = new Map<keyof CharacterStats, StatDefinition>(
+  allStatDefinitions.map((definition) => [definition.key, definition]),
+);
+
+function statDefinition(key: keyof CharacterStats) {
+  const definition = statDefinitionByKey.get(key);
+  if (!definition) throw new Error(`Missing stat definition for ${key}.`);
+  return definition;
+}
 
 type CalculatorSettings = { weapons: [WeaponId, WeaponId]; breakthrough: string };
 type LayoutMode = "pc" | "mobile";
@@ -263,9 +267,8 @@ type PathDefinition = {
   name: string;
   icon?: string;
   tag?: string;
-  wip?: boolean;
-  devOnly?: boolean;
-  plannerOnly?: boolean;
+  status: "available" | "wip" | "devOnly" | "plannerOnly";
+  buildGroup: string;
   lockedWeapons?: [WeaponId, WeaponId];
 };
 type DefaultSetup = {
@@ -281,25 +284,23 @@ const typedDefaultSetup = defaultSetup as DefaultSetup;
 const typedPathDefinitions = pathDefinitions as Record<PathId, PathDefinition>;
 const productionWeaponIds = new Set<WeaponId>(
   (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).flatMap(([id, definition]) =>
-    id !== "mixed" && !definition.wip && !definition.devOnly && !definition.plannerOnly
-      ? (definition.lockedWeapons ?? [])
-      : [],
+    id !== "mixed" && definition.status === "available" ? (definition.lockedWeapons ?? []) : [],
   ),
 );
 
 function pathRequiresDev(definition: PathDefinition) {
-  return definition.wip === true || definition.devOnly === true || definition.plannerOnly === true;
+  return definition.status !== "available";
 }
 
 function pathStatusLabel(definition: PathDefinition) {
-  switch (true) {
-    case definition.plannerOnly === true:
+  switch (definition.status) {
+    case "plannerOnly":
       return t("ui.app.plannerOnly");
-    case definition.devOnly === true:
+    case "devOnly":
       return t("ui.app.dev");
-    case definition.wip === true:
+    case "wip":
       return t("ui.app.wip");
-    default:
+    case "available":
       return "";
   }
 }
@@ -311,6 +312,8 @@ const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Stormbreaker: stormbreakerSkills as SkillMap,
   Heavenwill: heavenwillSkills as SkillMap,
   Skygrasp: skygraspSkills as SkillMap,
+  Panacea: panaceaSkills as SkillMap,
+  Soulshade: soulshadeSkills as SkillMap,
   Mystic: mysticSkills as SkillMap,
   General: generalSkills as SkillMap,
 };
@@ -347,6 +350,8 @@ const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
   stormbreaker: "Stormbreaker",
   heavenwill: "Heavenwill",
   skygrasp: "Skygrasp",
+  panaceaFan: "Panacea",
+  soulshadeUmbrella: "Soulshade",
 };
 const rotationEventDefinitions: Record<string, SkillRecord> = {
   Controlled: {
@@ -471,6 +476,8 @@ const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
   Stormbreaker: "stormbreakerSpear",
   Heavenwill: "heavenwillGauntlets",
   Skygrasp: "skygraspRopeDart",
+  Panacea: "panaceaFan",
+  Soulshade: "soulshadeUmbrella",
   Mystic: "mystic",
   General: "general",
 };
@@ -490,6 +497,8 @@ const martialArtBySkillId = new Map<string, WeaponId>([
   ...Object.keys(stormbreakerSkills).map((id) => [id, "stormbreaker"] as const),
   ...Object.keys(heavenwillSkills).map((id) => [id, "heavenwill"] as const),
   ...Object.keys(skygraspSkills).map((id) => [id, "skygrasp"] as const),
+  ...Object.keys(panaceaSkills).map((id) => [id, "panaceaFan"] as const),
+  ...Object.keys(soulshadeSkills).map((id) => [id, "soulshadeUmbrella"] as const),
 ]);
 const rotationEventOptionIds = [
   "__event:Delay",
@@ -2285,23 +2294,28 @@ function StatsTab({
   }
 
   const physicalRows = [
-    [combatStats[0], combatStats[1]],
-    [combatStats[2], combatStats[3]],
-    [combatStats[4], combatStats[5]],
-    [combatStats[6], combatStats[7]],
-    [combatStats[8], combatStats[9]],
+    [statDefinition("minPhys"), statDefinition("maxPhys")],
+    [statDefinition("power"), statDefinition("agility")],
+    [statDefinition("momentum"), statDefinition("precision")],
+    [statDefinition("crit"), statDefinition("directCrit")],
+    [statDefinition("affinity"), statDefinition("directAffinity")],
   ];
-  const [bodyStat, defenseStat, maxHpStat, physicalDefenseStat] = survivalStats;
-  const martialRows = [0, 1, 2, 3].map((index) => [martialArtsStats[index * 2], martialArtsStats[index * 2 + 1]]);
+  const bodyStat = statDefinition("body");
+  const defenseStat = statDefinition("defense");
+  const maxHpStat = statDefinition("maxHp");
+  const physicalDefenseStat = statDefinition("physicalDefense");
+  const martialRows = [
+    [statDefinition("minBellstrike"), statDefinition("maxBellstrike")],
+    [statDefinition("minStonesplit"), statDefinition("maxStonesplit")],
+    [statDefinition("minSilkbind"), statDefinition("maxSilkbind")],
+    [statDefinition("minBamboocut"), statDefinition("maxBamboocut")],
+  ];
   const selectedArtStats = Array.from(
     new Set(settings.weapons.map((weapon) => artStatByWeaponFamily[martialArtDefinitions[weapon].weapon])),
-  ).flatMap((key) => {
-    const definition = allStatDefinitions.find((candidate) => candidate.key === key);
-    return definition ? [definition] : [];
-  });
+  ).map(statDefinition);
   const penetrationRows = [
-    [defenseStats[0], defenseStats[1]],
-    [defenseStats[2], defenseStats[3]],
+    [statDefinition("bellstrikePenetration"), statDefinition("silkbindPenetration")],
+    [statDefinition("stonesplitPenetration"), statDefinition("bamboocutPenetration")],
   ];
   const innerWayOptions = [
     ["", t("ui.app.none")],
@@ -2556,8 +2570,8 @@ function StatsTab({
                 </div>
               ))}
               <div className="stat-row">
-                <CalculatedStatField definition={martialArtsStats[8]} compact />
-                <CalculatedStatField definition={martialArtsStats[9]} compact />
+                <CalculatedStatField definition={statDefinition("minVoidAttack")} compact />
+                <CalculatedStatField definition={statDefinition("maxVoidAttack")} compact />
               </div>
               {penetrationRows.map(([left, right]) => (
                 <div className="stat-row" key={left.key}>
@@ -2567,29 +2581,31 @@ function StatsTab({
               ))}
               <div className="stat-row">
                 <CalculatedStatField
-                  definition={defenseStats[13]}
-                  derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(defenseStats[13].label) })}
+                  definition={statDefinition("critDmgBonus")}
+                  derivedLabel={t("ui.app.effectiveNamedStat", {
+                    name: gameText(statDefinition("critDmgBonus").label),
+                  })}
                   derivedValue={derivedStats.effectiveCritDmgBonus * 100}
                   derivedUnit="%"
                   compact
                 />
-                <CalculatedStatField definition={defenseStats[14]} compact />
+                <CalculatedStatField definition={statDefinition("affinityDmgBonus")} compact />
               </div>
               <div className="stat-row">
-                <CalculatedStatField definition={defenseStats[4]} compact />
-                <CalculatedStatField definition={defenseStats[5]} compact />
+                <CalculatedStatField definition={statDefinition("physDmgBonus")} compact />
+                <CalculatedStatField definition={statDefinition("bellstrikeDmgBonus")} compact />
               </div>
               <div className="stat-row">
-                <CalculatedStatField definition={defenseStats[6]} compact />
-                <CalculatedStatField definition={defenseStats[7]} compact />
+                <CalculatedStatField definition={statDefinition("stonesplitDmgBonus")} compact />
+                <CalculatedStatField definition={statDefinition("bamboocutDmgBonus")} compact />
               </div>
               <div className="stat-row">
-                <CalculatedStatField definition={defenseStats[8]} compact />
-                <span />
+                <CalculatedStatField definition={statDefinition("silkbindDmgBonus")} compact />
+                <CalculatedStatField definition={statDefinition("silkbindHealingBonus")} compact />
               </div>
               <div className="stat-row">
-                <CalculatedStatField definition={defenseStats[9]} compact />
-                <CalculatedStatField definition={defenseStats[10]} compact />
+                <CalculatedStatField definition={statDefinition("allMartialArts")} compact />
+                <CalculatedStatField definition={statDefinition("vsBossDmg")} compact />
               </div>
               <div className="stat-row">
                 {selectedArtStats.map((definition) => (
@@ -2598,8 +2614,8 @@ function StatsTab({
                 {selectedArtStats.length === 1 && <span />}
               </div>
               <div className="stat-row">
-                <CalculatedStatField definition={defenseStats[15]} compact />
-                <CalculatedStatField definition={defenseStats[16]} compact />
+                <CalculatedStatField definition={statDefinition("singleTargetMysticDmgBoost")} compact />
+                <CalculatedStatField definition={statDefinition("areaMysticDmgBoost")} compact />
               </div>
               <div className="stat-row">
                 <CalculatedStatField definition={maxHpStat} compact />
@@ -3028,6 +3044,12 @@ function StatsTab({
               </div>
             </div>
             <div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div>
+            {rotationMetrics?.expectedHawkwingStacks !== undefined ? (
+              <div className="dps-secondary-metric">
+                <span>{t("ui.app.expectedHawkwingStacks")}</span>
+                <strong>{formatNumber(rotationMetrics.expectedHawkwingStacks)}</strong>
+              </div>
+            ) : null}
             <CalculationStatus category="baseline" className="dps-calculation-status" />
             <div className="dps-context">
               <div>
@@ -4510,8 +4532,20 @@ function SkillEditorTab({
   }
 
   const isDefinitionCategory = category === "Buff" || category === "Debuff";
-  const categoryLabel = (item: EditorCategory) =>
-    item === "Snowparting" ? "Snowparting Blade" : item === "Phalanxbane" ? "Phalanxbane Blade" : item;
+  const categoryLabel = (item: EditorCategory) => {
+    switch (item) {
+      case "Snowparting":
+        return "Snowparting Blade";
+      case "Phalanxbane":
+        return "Phalanxbane Blade";
+      case "Soulshade":
+        return "Soulshade Umbrella";
+      case "Panacea":
+        return "Panacea Fan";
+      default:
+        return item;
+    }
+  };
 
   return (
     <>
@@ -7348,7 +7382,8 @@ export default function App() {
   const enemy: EnemyProfile = breakthrough;
   const availableBuildEntries = buildState.entries.filter(
     (entry) =>
-      (devMode || !buildEntryIsTestPreset(entry)) && buildEntryAvailableForMartialArts(entry, settings.weapons),
+      (devMode || !buildEntryIsTestPreset(entry)) &&
+      buildEntryAvailableForPath(entry, typedPathDefinitions[pathId].buildGroup, settings.weapons),
   );
   const activeBuild =
     availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ?? availableBuildEntries[0];
@@ -7610,7 +7645,7 @@ export default function App() {
             >
               {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
               <span>{gameText(definition.name)}</span>
-              {(definition.wip || definition.devOnly || definition.plannerOnly) && (
+              {definition.status !== "available" && (
                 <small className="path-status-badge">{pathStatusLabel(definition)}</small>
               )}
             </button>
@@ -7692,6 +7727,7 @@ export default function App() {
               weapons={settings.weapons}
               martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)}
               pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag}
+              buildGroup={typedPathDefinitions[pathId].buildGroup}
               devMode={devMode}
               buildState={buildState}
               onBuildStateChange={setBuildState}

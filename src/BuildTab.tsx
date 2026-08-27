@@ -22,6 +22,7 @@ import {
   availableSetEntriesForTags,
   affixOptionsForGearDefinition,
   buildEntryAvailableForMartialArts,
+  buildEntryAvailableForPath,
   buildEntryIsTestPreset,
   buildEntryMartialArts,
   clampGearRoll,
@@ -97,6 +98,7 @@ type BuildTabProps = {
   weapons: [WeaponId, WeaponId];
   martialArtTags: string[];
   pathTag?: string;
+  buildGroup: string;
   devMode: boolean;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
@@ -407,6 +409,7 @@ export default function BuildTab({
   weapons,
   martialArtTags,
   pathTag,
+  buildGroup,
   devMode,
   buildState,
   onBuildStateChange,
@@ -432,7 +435,7 @@ export default function BuildTab({
   const listedEntries = buildState.entries.filter(
     (entry) =>
       (devMode || !buildEntryIsTestPreset(entry)) &&
-      (!entry.isDefault || buildEntryAvailableForMartialArts(entry, weapons)),
+      (!entry.isDefault || buildEntryAvailableForPath(entry, buildGroup, weapons)),
   );
   const editingEntry = listedEntries.find((entry) => entry.id === editingBuildId) ?? listedEntries[0];
   useEffect(() => {
@@ -512,7 +515,9 @@ export default function BuildTab({
   function renameBuild(name: string) {
     onBuildStateChange((current) => ({
       ...current,
-      entries: current.entries.map((entry) => (entry.id === editingEntry.id ? { ...entry, name } : entry)),
+      entries: current.entries.map((entry) =>
+        entry.id === editingEntry.id && !entry.isDefault ? { ...entry, name } : entry,
+      ),
     }));
   }
 
@@ -697,7 +702,7 @@ export default function BuildTab({
         <div className="build-editor-content">
           <div className="build-detail-heading">
             <div>
-              {editingName ? (
+              {editingName && !editingEntry.isDefault ? (
                 <input
                   className="build-name-input"
                   autoFocus
@@ -711,14 +716,16 @@ export default function BuildTab({
               ) : (
                 <h3>
                   {buildEntryDisplayName(editingEntry)}
-                  <button
-                    className="icon-button"
-                    type="button"
-                    aria-label={t("ui.buildTab.editBuildName")}
-                    onClick={() => setEditingName(true)}
-                  >
-                    <UiIcon name="edit" />
-                  </button>
+                  {!editingEntry.isDefault ? (
+                    <button
+                      className="icon-button"
+                      type="button"
+                      aria-label={t("ui.buildTab.editBuildName")}
+                      onClick={() => setEditingName(true)}
+                    >
+                      <UiIcon name="edit" />
+                    </button>
+                  ) : null}
                 </h3>
               )}
             </div>

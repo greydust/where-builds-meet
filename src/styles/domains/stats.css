@@ -172,6 +172,18 @@
     letter-spacing: -0.04em;
   }
 
+  .dps-secondary-metric {
+    display: flex;
+    justify-content: center;
+    gap: 0.45em;
+    color: var(--text-muted);
+    line-height: 1.3;
+
+    strong {
+      color: var(--text);
+    }
+  }
+
   .calculation-status {
     --calculation-progress: 0%;
 
