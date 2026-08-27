@@ -1,0 +1,336 @@
+{
+  "name": "Dummy 1 Min IV BP",
+  "martialArts": ["heavenwill", "skygrasp"],
+  "eventTimeReference": "battleStart",
+  "start": {
+    "step": 2,
+    "action": 0
+  },
+  "steps": [
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SkyGrasped"
+    },
+    {
+      "type": "skill",
+      "skill": "SnaringLashCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "GhostlyStepsUmbra"
+    },
+    {
+      "type": "skill",
+      "skill": "VirtuousEnthroned1stHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign3rdHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign4thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHit"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.3
+    },
+    {
+      "type": "skill",
+      "skill": "PerfectDodge"
+    },
+    {
+      "type": "skill",
+      "skill": "WickedDefiance"
+    },
+    {
+      "type": "skill",
+      "skill": "VileCondemned"
+    },
+    {
+      "type": "skill",
+      "skill": "HeavenwillDeclared"
+    },
+    {
+      "type": "skill",
+      "skill": "LeapingToad"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 4
+      },
+      "targetQiRatio": 0.5999
+    },
+    {
+      "type": "skill",
+      "skill": "CelestialMandate"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "PerfectDodgeCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "skill",
+      "skill": "SkyGrasped"
+    },
+    {
+      "type": "skill",
+      "skill": "SnaringLashCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.07
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0.3999
+    },
+    {
+      "type": "skill",
+      "skill": "PerfectDodge"
+    },
+    {
+      "type": "skill",
+      "skill": "LeapingToad"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.57
+    },
+    {
+      "type": "skill",
+      "skill": "VileCondemned"
+    },
+    {
+      "type": "skill",
+      "skill": "PerfectDodgeCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "skill",
+      "skill": "HeavenwillDeclared"
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "CelestialMandate"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "FluteOfTheTidesCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SkyGrasped"
+    },
+    {
+      "type": "skill",
+      "skill": "SnaringLashCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "skill",
+      "skill": "LeapingToad"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.4
+    },
+    {
+      "type": "skill",
+      "skill": "VileCondemned"
+    },
+    {
+      "type": "skill",
+      "skill": "HeavenwillDeclared"
+    },
+    {
+      "type": "skill",
+      "skill": "CelestialMandate"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "AllUnderJustice"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign5thHit"
+    },
+    {
+      "type": "skill",
+      "skill": "RighteousReign6thHitCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SnaringLashCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "VileCondemned"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin1"
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
+    }
+  ]
+}

@@ -993,6 +993,10 @@ also use a switched `value` with `"resolveAt": "skillStart"`; Perfect Dodge
 uses this to select one weapon-tagged Ghostly Step - Umbra Dodge definition
 without repeating one trigger action per weapon.
 
+General Deflect uses this weapon-time switch. Gauntlet Deflect is measured at
+`0.3` seconds; the other weapon cases retain the shared `0.338`-second
+placeholder until their individual timings are measured.
+
 `multiply` multiplies a dynamic parameter by a scalar:
 
 ```json
@@ -1274,6 +1278,8 @@ bonus, and `124` attribute bonus, then triggers Light Attack Falcon at the same
 timestamp. Light Attack Falcon is a zero-cast-time `Triggered` skill tagged
 `Falcon`; its three `0.748` Physical-coefficient hits land at `0.3`, `0.45`, and
 `0.5875` seconds without extending the rotation's sequential cast time.
+The uncancelled Righteous Reign 6th Hit retains that hit and trigger at
+`0.2875` seconds but has a total cast time of `0.75` seconds.
 
 All Under Justice (Gauntlet Special) is a 1-second Special skill with four
 cast-end hits. The first three each use physical coefficient `0.4884`, `135`

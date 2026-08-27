@@ -59,6 +59,7 @@ try {
     "/data/rotation/stonesplit-strength/pure-horse-tamer-standard-27s.json",
     "/data/rotation/stonesplit-might/dummy-1-min.json",
     "/data/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json",
+    "/data/rotation/bamboocut-kite/dummy-1-min-iv-bp.json",
   ];
   const skillPaths = [
     "/data/skill/general.json",
@@ -193,7 +194,8 @@ try {
       (row) => row.kind === "rotation" && row.step.type === "event" && row.step.event === "Qi",
     );
     const zeroRows = qiRows.filter((row) => row.step.targetQiRatio === 0);
-    const rampRatios = [0.59, 0.3999];
+    const highQiRatio = qiRows.some((row) => row.step.targetQiRatio === 0.5999) ? 0.5999 : 0.59;
+    const rampRatios = [highQiRatio, 0.3999];
     const ratioLabel = (ratio) => `${Number((ratio * 100).toFixed(2))}%`;
     if (process.argv.includes("--suggest")) {
       const candidates = timeline.flatMap((row) =>

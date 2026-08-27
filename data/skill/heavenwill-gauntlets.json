@@ -168,7 +168,7 @@
   "WickedDefiance": {
     "name": "Wicked Defiance",
     "shortName": "Gauntlet VC",
-    "castTime": 1.4375,
+    "castTime": 1.375,
     "action": [
       {
         "type": "damage",
@@ -181,7 +181,7 @@
         "type": "addResource",
         "value": "HeavensWill",
         "amount": 0.1,
-        "time": 0.725
+        "time": 1.1125
       }
     ],
     "modifier": [],
@@ -286,6 +286,30 @@
         "phyBonus": 86.666666667,
         "attrBonus": 47.333333,
         "time": 0.5
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "Gauntlet", "HeavenwillGauntlets", "RighteousReign"],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "RighteousReign6thHit": {
+    "name": "Righteous Reign 6th Hit",
+    "shortName": "Gauntlet A6",
+    "castTime": 0.75,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.8202,
+        "phyBonus": 228,
+        "attrBonus": 124,
+        "time": 0.2875
+      },
+      {
+        "type": "trigger",
+        "target": "self",
+        "value": "LightAttackFalcon",
+        "time": 0.2875
       }
     ],
     "modifier": [],

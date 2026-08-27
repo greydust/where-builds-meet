@@ -5,15 +5,15 @@ should be treated as confirmed weapon-specific values.
 
 ## Deflect
 
-Measure Deflect duration for every weapon family. The simulator currently uses
-the previous shared value of `0.338s` for all weapons:
+Gauntlet Deflect is measured at `0.3s`. Measure Deflect duration for every
+other weapon family; the simulator currently uses the previous shared value of
+`0.338s` as their placeholder:
 
 - Heng Blade
 - Mo Blade
 - Spear
 - Umbrella
 - Rope Dart
-- Gauntlet
 - Sword
 - Fan
 - Dual Blades
