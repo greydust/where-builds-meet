@@ -15,11 +15,11 @@
         "tier": "T6"
       },
       {
-        "innerWay": "MoraleChant",
+        "innerWay": "BreakingPoint",
         "tier": "T6"
       },
       {
-        "innerWay": "BreakingPoint",
+        "innerWay": "EnvigoratedWarrior",
         "tier": "T6"
       }
     ],
@@ -53,8 +53,8 @@
           "value": 0.05828
         },
         {
-          "key": "maxBamboocut",
-          "value": 41.548
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
