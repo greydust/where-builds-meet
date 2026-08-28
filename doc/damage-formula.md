@@ -216,7 +216,10 @@ Silkbind Healing =
 
 Calculation-time Physical and Silkbind Attack Bonus effects multiply their
 respective average attack before the coefficient. Matching Martial Art Skill
-Healing Boost attunements contribute General Healing Bonus.
+Healing Boost attunements contribute General Healing Bonus. Physical
+Penetration combines its Weapon attunement value with matching calculation-time
+effects. Silkbind Penetration combines its resolved character-stat value with
+matching calculation-time effects.
 
 Healing has only Normal and Critical outcomes:
 

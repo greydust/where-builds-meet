@@ -246,7 +246,7 @@
         }
       ],
       "attunement": {
-        "key": "soulshadeMartialHealingBoost",
+        "key": "panaceaMartialHealingBoost",
         "value": 0.06
       }
     },
@@ -277,7 +277,7 @@
         }
       ],
       "attunement": {
-        "key": "soulshadeMartialHealingBoost",
+        "key": "panaceaMartialHealingBoost",
         "value": 0.06
       }
     }

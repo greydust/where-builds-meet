@@ -49,11 +49,11 @@ try {
     weapons: ["panaceaFan", "soulshadeUmbrella"],
     skillTags: ["Heal", "Heavy", "MartialArts", "Fan", "PanaceaFan"],
     buffs: [],
-    effects: [{ healingBonus: 0.1 }, { criticalHealingBonus: 0.2 }],
+    effects: [{ physicalPenetration: 10 }, { healingBonus: 0.1 }, { criticalHealingBonus: 0.2 }],
     attunement: { physicalPenetration: 20, panaceaMartialHealingBoost: 0.1 },
   };
   const healing = calculateHealingBreakdown(action, context);
-  const physical = 110 * 1.1;
+  const physical = 110 * 1.15;
   const silkbind = 70 * 1.05 * 1.1;
   const criticalRate = 0.3;
   const expected = (physical + silkbind) * (1 + criticalRate * 0.7) * 1.2;
