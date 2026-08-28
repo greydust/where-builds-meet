@@ -54,7 +54,9 @@ level list also contains it, which keeps existing preset data compatible while
 making the relay list authoritative for selection and validation. Tier 96
 weapons use `96Relayed` for min/max Bellstrike, Stonesplit, Silkbind, and
 Bamboocut Attack. These stats share the Tier 96 min/max Void Attack roll in
-`data/stat.json`.
+`data/stat.json`. Tier 91 weapons expose min/max Bellstrike, Stonesplit,
+Silkbind, and Bamboocut Attack as ordinary additional affixes without requiring
+relay.
 All weapon definitions share the same fixed base-stat and base-affix tables.
 Their additional-affix pools also share the ordinary weapon affixes, with each
 definition including only its own weapon-family damage boost. Both Rope Dart

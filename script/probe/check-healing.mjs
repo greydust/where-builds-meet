@@ -13,6 +13,7 @@ try {
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
+  const royalRemedy = (await viteServer.ssrLoadModule("/data/innerway/royal-remedy.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -66,39 +67,40 @@ try {
     "Healing must resolve only Normal and Critical outcomes using Critical Rate times Effective Precision.",
   );
 
-  const result = calculateRotationBaseline({
-    timeline: {
-      rotation: {
-        name: "Healing timeline probe",
-        steps: [
-          { type: "skill", skill: "SmallerHeal" },
-          { type: "skill", skill: "LargerHeal" },
-        ],
-      },
-      skills: {
-        SmallerHeal: {
-          name: "Smaller Heal",
-          castTime: 1,
-          action: [{ type: "heal", phyCoef: 1, time: 1 }],
-          modifier: [],
-          tags: ["Heal", "MartialArts", "PanaceaFan"],
-        },
-        LargerHeal: {
-          name: "Larger Heal",
-          castTime: 1,
-          action: [{ type: "heal", phyCoef: 2, time: 1 }],
-          modifier: [],
-          tags: ["Heal", "MartialArts", "PanaceaFan"],
-        },
-      },
-      eventDefinitions: {},
-      dots: {},
-      effectDefinitions: {},
-      innerWayConditions: [],
-      innerWayRules: [],
-      setupEffects: [],
-      weapons: ["panaceaFan", "soulshadeUmbrella"],
+  const healingTimeline = {
+    rotation: {
+      name: "Healing timeline probe",
+      steps: [
+        { type: "skill", skill: "SmallerHeal" },
+        { type: "skill", skill: "LargerHeal" },
+      ],
     },
+    skills: {
+      SmallerHeal: {
+        name: "Smaller Heal",
+        castTime: 1,
+        action: [{ type: "heal", phyCoef: 1, time: 1 }],
+        modifier: [],
+        tags: ["Heal", "MartialArts", "PanaceaFan", "CloudburstHealing"],
+      },
+      LargerHeal: {
+        name: "Larger Heal",
+        castTime: 1,
+        action: [{ type: "heal", phyCoef: 2, time: 1 }],
+        modifier: [],
+        tags: ["Heal", "MartialArts", "PanaceaFan"],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  };
+  const baselineInput = {
+    timeline: healingTimeline,
     startAnchor: { rowId: "rotation-0" },
     stats,
     attunement: {},
@@ -109,6 +111,21 @@ try {
     attunementPriority: [],
     innerWayPriority: [],
     setupComparisons: {},
+  };
+  const result = calculateRotationBaseline(baselineInput);
+  const royalRemedyResult = calculateRotationBaseline({
+    ...baselineInput,
+    timeline: {
+      ...healingTimeline,
+      innerWayConditions: ["RoyalRemedyT0"],
+      innerWayRules: [
+        {
+          ...royalRemedy.effect.RoyalRemedyT0.effect[0],
+          source: "RoyalRemedy",
+          tier: 0,
+        },
+      ],
+    },
   });
   const summedHealing = Object.values(result.actionBreakdowns).reduce(
     (total, breakdown) => total + (breakdown.healing?.total ?? 0),
@@ -134,6 +151,13 @@ try {
   assert(
     result.metrics.breakdown.healingCasts.map((row) => row.skillId).join(",") === "LargerHeal,SmallerHeal",
     "Healing casts must be grouped and sorted independently by average HPS.",
+  );
+  const healingBySkill = (calculation, skillId) =>
+    calculation.metrics.breakdown.healingSkills.find((row) => row.id === skillId)?.healing ?? 0;
+  assert(
+    closeTo(healingBySkill(royalRemedyResult, "SmallerHeal"), healingBySkill(result, "SmallerHeal") * 1.1) &&
+      closeTo(healingBySkill(royalRemedyResult, "LargerHeal"), healingBySkill(result, "LargerHeal")),
+    "Royal Remedy T0 must increase Cloudburst Healing by 10% without affecting other healing skills.",
   );
 
   console.log("Healing formula, outcomes, timeline totals, HPS, and breakdown sorting verified.");

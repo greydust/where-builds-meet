@@ -5980,7 +5980,7 @@ function RotationEditorTab({
             row.step.type !== "skill" ||
             actionsExpanded(row.id) ||
             isStartingAction;
-          if ((action.type === "damage" || action.type === "replay") && actionsVisible)
+          if ((action.type === "damage" || action.type === "replay" || action.type === "heal") && actionsVisible)
             entries.push({
               row,
               kind: "action",

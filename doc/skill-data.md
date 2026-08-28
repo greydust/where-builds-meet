@@ -1247,10 +1247,12 @@ baseline timeline.
 Envigorated Warrior's `healingBonus` increases the final combined healing of
 matching actions alongside its separate active `dmgBonus` effect.
 
-Royal Remedy T2 adds `0.086` Effective Critical Rate and T5 adds `0.046`
-Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical Attack and
-`49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus. These are
-unconditional stat effects resolved by the shared character-stat pipeline.
+Royal Remedy T0 grants Cloudburst Healing, including its cancel variant, `0.1`
+general Healing Bonus. T2 adds `0.086` Effective Critical Rate and T5 adds
+`0.046` Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical Attack
+and `49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus. The
+T2 and T5 bonuses are unconditional stat effects resolved by the shared
+character-stat pipeline.
 
 Panacea Fan converts Agility to Critical Rate at `0.085 / 280`, capped at
 `0.085`. Heavy-tagged healing stores a `0.05` base Healing Bonus plus up to

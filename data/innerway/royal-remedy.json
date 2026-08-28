@@ -3,7 +3,21 @@
   "altersTimeline": false,
   "tags": ["SilkbindDeluge"],
   "effect": {
-    "RoyalRemedyT0": {},
+    "RoyalRemedyT0": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "CloudburstHealing"
+            }
+          ],
+          "effect": {
+            "healingBonus": 0.1
+          }
+        }
+      ]
+    },
     "RoyalRemedyT1": {},
     "RoyalRemedyT2": {
       "effect": [
