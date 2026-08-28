@@ -1,6 +1,6 @@
 {
-  "id": "deluge-fully-relayed-max-hw",
-  "name": "Fully Relayed Max Build Hawkwing",
+  "id": "deluge-fully-relayed-max-affinity",
+  "name": "Fully Relayed Max Build Affinity",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,
@@ -47,7 +47,7 @@
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "momentum",
           "value": 46.436
         },
         {
@@ -55,8 +55,8 @@
           "value": 0.0752
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "affinity",
+          "value": 0.04136
         }
       ],
       "attunement": {
@@ -78,7 +78,7 @@
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "momentum",
           "value": 46.436
         },
         {
@@ -86,8 +86,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "affinity",
+          "value": 0.04136
         }
       ],
       "attunement": {
@@ -109,7 +109,7 @@
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "momentum",
           "value": 46.436
         },
         {
@@ -148,8 +148,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "affinity",
+          "value": 0.04136
         }
       ],
       "attunement": {
@@ -233,7 +233,7 @@
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "momentum",
           "value": 46.436
         },
         {
@@ -241,8 +241,8 @@
           "value": 0.03008
         },
         {
-          "key": "momentum",
-          "value": 46.436
+          "key": "affinity",
+          "value": 0.04136
         }
       ],
       "attunement": {
@@ -264,7 +264,7 @@
           "value": 73.132
         },
         {
-          "key": "power",
+          "key": "momentum",
           "value": 46.436
         },
         {
@@ -272,8 +272,8 @@
           "value": 0.03008
         },
         {
-          "key": "momentum",
-          "value": 46.436
+          "key": "affinity",
+          "value": 0.04136
         }
       ],
       "attunement": {

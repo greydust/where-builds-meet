@@ -85,6 +85,51 @@ try {
   closeTo(scheduledStacks[1], 0.2, "The second hit must use the first hit's Affinity probability");
   closeTo(scheduledStacks[2], 0.4, "Probability branches must merge into the third hit's expected stack");
   closeTo(result.metrics.expectedHawkwingStacks, 0.2, "The displayed stack metric must average the per-hit values");
+  result.baseline.forEach((entry, index) =>
+    closeTo(
+      result.actionBreakdowns[entry.id]?.expectedBuffStacks?.Hawkwing,
+      scheduledStacks[index],
+      `Action ${index + 1} must expose its expected Hawkwing stack for the timeline buff plate`,
+    ),
+  );
+
+  const resultWithNonDamageEntries = calculateRotationBaseline({
+    timeline: {
+      ...timeline,
+      rotation: {
+        name: "Hawkwing non-damage exclusion probe",
+        steps: [
+          { type: "event", event: "Delay", duration: 1 },
+          { type: "skill", skill: "Heal" },
+          { type: "skill", skill: "Probe" },
+        ],
+      },
+      skills: {
+        ...timeline.skills,
+        Heal: {
+          name: "Heal",
+          castTime: 0,
+          tags: ["Heal"],
+          action: [{ type: "heal", phyCoef: 1, time: 0 }],
+        },
+      },
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats: calculateDerivedStats(stats, 0),
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  closeTo(
+    resultWithNonDamageEntries.metrics.expectedHawkwingStacks,
+    0.2,
+    "The displayed stack metric must exclude delays and healing actions from its per-damage average",
+  );
 
   const tracker = new ExpectedOutcomeBuffTracker();
   const buff = {

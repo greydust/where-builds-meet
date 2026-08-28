@@ -131,9 +131,9 @@ by the equipped weapons' primary attribute. See `damage-formula.md`.
 ### Heal data
 
 A healing action uses the same coefficient fields and timing as a damage action,
-but declares `"type": "heal"`. Healing calculation is not implemented yet, so
-these actions currently preserve source data and timeline ordering without
-contributing to damage, DPS, or healing totals.
+but declares `"type": "heal"`. It resolves Physical and Silkbind healing at
+the action time and contributes to total healing and HPS without contributing
+to damage or DPS. See `damage-formula.md` for the formula and outcome rules.
 
 Healing-over-time skills carry the `HOT` tag. Their later heal actions may
 resolve after the skill's cast time so the next sequential cast can begin while
@@ -144,6 +144,10 @@ castable stages. Each stage carries the shared `FourfoldInquiry` and `Light`
 tags plus its own timing and damage values.
 Panacea Fan's Jump Heavy carries the `Heavy` tag, lands at `0.975` seconds, and
 retains its full `1.3125`-second cast time.
+
+Intoxicated lasts 30 seconds. Drunken Poet and Dragon's Breath applications use
+`reapply: false`, so casts made while the buff is active do not refresh that
+expiry; a cast after expiry can apply a new 30-second instance.
 
 ```json
 {
@@ -583,6 +587,8 @@ defaults to `self`. The resolved number is frozen for the cast, so a later
 `consume` action does not remove the cast's bonus. Drunken Poet 5 uses this to
 gain 20% direct damage per Enhanced Drunken Poet stack before consuming all of
 those stacks. Its separately triggered explosions do not inherit the modifier.
+Enhanced Drunken Poet is a Mystic buff displayed as `EDP`; its existing
+internal ID remains `EnhanceDrunkenPoet` for stored-data compatibility.
 
 ## Buff and debuff definitions
 
@@ -1238,8 +1244,8 @@ Script comparisons rebuild when either the selected baseline Script or the
 candidate Script has that flag. Damage-only Script comparisons reuse the
 baseline timeline.
 
-Envigorated Warrior's `healingBonus` is stored alongside its active `dmgBonus`
-for data completeness; healing is not currently simulated.
+Envigorated Warrior's `healingBonus` increases the final combined healing of
+matching actions alongside its separate active `dmgBonus` effect.
 
 Royal Remedy T2 adds `0.086` Effective Critical Rate and T5 adds `0.046`
 Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical Attack and
@@ -1258,7 +1264,7 @@ capped at `73.9`. Special-tagged healing stores a `0.05` Critical Healing Bonus
 plus up to `0.25` from Min Physical Attack at `750`. Its Silkbind Attribute
 talent adds `98` Min and `196` Max Silkbind Attack and derives Silkbind
 Penetration at `22 / 328`, capped at `22`. Healing and Critical Healing effects
-remain data-only until healing calculation is implemented.
+are resolved at each heal action's timestamp.
 
 ## Skill Editor categories
 

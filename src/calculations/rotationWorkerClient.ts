@@ -4,9 +4,9 @@ import type {
   RotationSimulationBaseline,
   RotationSimulationBundle,
   RotationSimulationResult,
+  RotationActionBreakdown,
 } from "./rotationCalculator";
 import type { TimelineRow } from "./rotationTimeline";
-import type { DamageBreakdown } from "./damage";
 
 type WorkerResult = RotationSimulationBaseline | RotationSimulationResult | { metrics: RotationMetrics };
 type RequestMode = "calculation" | "simulation" | "baseline" | "comparisons";
@@ -62,7 +62,7 @@ function getWorker() {
         timeline?: TimelineRow[];
         anchorTime?: number;
         duration?: number;
-        actionBreakdowns?: Record<string, DamageBreakdown>;
+        actionBreakdowns?: Record<string, RotationActionBreakdown>;
         baseline?: RotationSimulationBaseline["baseline"];
         progress?: number;
         error?: string;

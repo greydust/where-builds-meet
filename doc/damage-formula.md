@@ -193,6 +193,53 @@ Attribute i =
 
 The action's `attrBonus` is added only to the primary path. The same action `phyCoef` is used by physical damage and all four attribute paths.
 
+## Healing
+
+Healing actions share the hit-time stat and effect snapshot used by damage
+actions, but resolve only Physical and Silkbind components. Enemy defense,
+resistance, other attribute attacks, damage bonuses, abrasion, and affinity do
+not affect healing.
+
+```text
+Average Physical Attack = (Effective Min Physical + Effective Max Physical) / 2
+Average Silkbind Attack = (Effective Min Silkbind + Effective Max Silkbind) / 2
+
+Physical Healing =
+  (Average Physical Attack × Physical Coefficient + Physical Bonus)
+  × (1 + Physical Penetration / 200)
+
+Silkbind Healing =
+  (Average Silkbind Attack × Physical Coefficient + Attribute Bonus)
+  × (1 + Silkbind Penetration / 200)
+  × (1 + Silkbind Healing Bonus)
+```
+
+Calculation-time Physical and Silkbind Attack Bonus effects multiply their
+respective average attack before the coefficient. Matching Martial Art Skill
+Healing Boost attunements contribute General Healing Bonus.
+
+Healing has only Normal and Critical outcomes:
+
+```text
+Healing Critical Rate =
+  clamp((Effective Critical Rate + Direct Critical Rate) × Effective Precision, 0, 1)
+
+Expected Critical Multiplier =
+  1 + Healing Critical Rate × (0.5 + Critical Healing Bonus)
+
+Final Healing =
+  (Physical Healing + Silkbind Healing)
+  × Expected Critical Multiplier
+  × (1 + General Healing Bonus)
+```
+
+The base Critical Healing Bonus is 50%. Critical Healing Bonus effects add to
+that bonus, while General Healing Bonus multiplies the expected combined heal.
+Healing totals use the same fight duration as damage, producing HPS alongside
+DPS. Per-skill healing breakdowns report the average Normal and Critical
+outcome rates across that skill's healing actions; abrasion and affinity are
+always absent.
+
 ### Shared multiplier
 
 ```text

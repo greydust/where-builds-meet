@@ -29,6 +29,7 @@ import {
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
+import { calculateHealingBreakdown, type HealingBreakdown } from "./healing";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
 import {
   addUnconditionalDamageEffects,
@@ -67,7 +68,11 @@ export type RotationDamageEntry = {
   };
 };
 
-export type RotationActionBreakdown = DamageBreakdown & { buffedDamageBySource?: Record<string, number> };
+export type RotationActionBreakdown = DamageBreakdown & {
+  healing?: HealingBreakdown;
+  buffedDamageBySource?: Record<string, number>;
+  expectedBuffStacks?: Record<string, number>;
+};
 
 export type RotationCalculationVariant = {
   key: string;
@@ -159,14 +164,16 @@ function replayBreakdown(damage: number): DamageBreakdown {
 
 function calculateRotationDamageEntry(
   entry: RotationDamageEntry,
-  resolved: Map<string, DamageBreakdown>,
+  resolved: Map<string, RotationActionBreakdown>,
   physicalAttackBonus = 0,
   random?: () => number,
-): DamageBreakdown {
-  let breakdown: DamageBreakdown;
+): RotationActionBreakdown {
+  let breakdown: RotationActionBreakdown;
   if (entry.replay) {
     const sourceDamage = resolved.get(entry.replay.sourceEntryId)?.total ?? 0;
     breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
+  } else if (entry.action.type === "heal") {
+    breakdown = { ...emptyBreakdown(), healing: calculateHealingBreakdown(entry.action, entry.context) };
   } else {
     const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const context = physicalAttackBonus
@@ -188,13 +195,13 @@ function calculateRotationDamageEntry(
 
 export type ResolvedRotationDamage = {
   entry: RotationDamageEntry;
-  breakdown: DamageBreakdown;
+  breakdown: RotationActionBreakdown;
   expectedBuffStacks?: Record<string, number>;
   outcomePhysicalAttackBonus?: number;
 };
 
 function createRotationDamageResolver(random?: () => number, schedule?: ExpectedOutcomeBuffSchedule) {
-  const resolved = new Map<string, DamageBreakdown>();
+  const resolved = new Map<string, RotationActionBreakdown>();
   const expectedTracker = random ? undefined : new ExpectedOutcomeBuffTracker();
   const simulatedTracker = random ? new SimulatedOutcomeBuffTracker() : undefined;
   const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
@@ -250,7 +257,9 @@ function expectedOutcomeBuffSchedule(sequence: ResolvedRotationDamageSequence): 
 
 function averageExpectedBuffStack(sequence: ResolvedRotationDamageSequence, buffName: string) {
   const stacks = sequence.flatMap(({ entry, expectedBuffStacks }) =>
-    !entry.replay && expectedBuffStacks?.[buffName] !== undefined ? [expectedBuffStacks[buffName]] : [],
+    entry.action.type === "damage" && !entry.replay && expectedBuffStacks?.[buffName] !== undefined
+      ? [expectedBuffStacks[buffName]]
+      : [],
   );
   return stacks.length ? stacks.reduce((total, stack) => total + stack, 0) / stacks.length : undefined;
 }
@@ -266,16 +275,20 @@ function contextWithOutcomePhysicalAttackBonus(context: DamageContext, bonus: nu
 }
 
 function sumResolvedSequence(sequence: ResolvedRotationDamageSequence) {
-  return sequence.reduce((total, { breakdown }) => {
-    return {
-      physical: total.physical + breakdown.physical,
-      bellstrike: total.bellstrike + breakdown.bellstrike,
-      stonesplit: total.stonesplit + breakdown.stonesplit,
-      silkbind: total.silkbind + breakdown.silkbind,
-      bamboocut: total.bamboocut + breakdown.bamboocut,
-      total: total.total + breakdown.total,
-    };
-  }, emptyBreakdown());
+  return sequence.reduce(
+    (total, { breakdown }) => {
+      return {
+        physical: total.physical + breakdown.physical,
+        bellstrike: total.bellstrike + breakdown.bellstrike,
+        stonesplit: total.stonesplit + breakdown.stonesplit,
+        silkbind: total.silkbind + breakdown.silkbind,
+        bamboocut: total.bamboocut + breakdown.bamboocut,
+        total: total.total + breakdown.total,
+        healing: total.healing + (breakdown.healing?.total ?? 0),
+      };
+    },
+    { ...emptyBreakdown(), healing: 0 },
+  );
 }
 
 function sumEntries(entries: RotationDamageEntry[]) {
@@ -345,10 +358,17 @@ export function sortAttunementPriorityRows(rows: RotationPriority[]) {
 export function calculateRotationMetrics(
   bundle: RotationCalculationBundle,
   baselineDamageOverride?: number,
+  baselineHealingOverride?: number,
 ): RotationMetrics {
   const duration = Math.max(0, bundle.duration);
-  const baselineDamage = baselineDamageOverride ?? sumEntries(bundle.baseline).total;
+  const baselineTotals =
+    baselineDamageOverride === undefined || baselineHealingOverride === undefined
+      ? sumEntries(bundle.baseline)
+      : undefined;
+  const baselineDamage = baselineDamageOverride ?? baselineTotals?.total ?? 0;
+  const baselineHealing = baselineHealingOverride ?? baselineTotals?.healing ?? 0;
   const baselineDps = duration > 0 ? baselineDamage / duration : 0;
+  const baselineHps = duration > 0 ? baselineHealing / duration : 0;
   const setupComparisons = Object.fromEntries(
     Object.entries(bundle.setupComparisons).map(([group, variants]) => [
       group,
@@ -360,6 +380,8 @@ export function calculateRotationMetrics(
   return {
     totalDamage: baselineDamage,
     dps: baselineDps,
+    totalHealing: baselineHealing,
+    hps: baselineHps,
     breakdown: emptyRotationBreakdown(),
     statPriority: calculatePriorityRows(baselineDps, duration, bundle.statPriority),
     attunementPriority: sortAttunementPriorityRows(attunementRows),
@@ -372,8 +394,10 @@ function calculateBreakdown(
   timeline: TimelineRow[],
   actionBreakdowns: Record<string, RotationActionBreakdown>,
   totalDamage: number,
+  totalHealing: number,
 ): RotationBreakdown {
   const percentage = (damage: number) => (totalDamage > 0 ? (damage / totalDamage) * 100 : 0);
+  const healingPercentage = (healing: number) => (totalHealing > 0 ? (healing / totalHealing) * 100 : 0);
   const skills = new Map<
     string,
     {
@@ -387,6 +411,20 @@ function calculateBreakdown(
       criticalTotal: number;
       affinityTotal: number;
       damage: number;
+      tags: string[];
+    }
+  >();
+  const healingSkills = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      casts: number;
+      triggers: number;
+      heals: number;
+      healing: number;
+      normalTotal: number;
+      criticalTotal: number;
       tags: string[];
     }
   >();
@@ -406,6 +444,7 @@ function calculateBreakdown(
         name: row.skill?.name ?? (row.step.type === "skill" ? (row.step.skill ?? "") : ""),
         castTime: row.effectiveCastTime,
         damage: 0,
+        healing: 0,
         buffedDamage: 0,
         time: row.startTime,
         order: row.order,
@@ -453,8 +492,21 @@ function calculateBreakdown(
       damage: 0,
       tags: row.skill?.tags ?? [],
     };
+    const currentHealing = healingSkills.get(id) ?? {
+      id,
+      name: row.skill?.name ?? id,
+      casts: 0,
+      triggers: 0,
+      heals: 0,
+      healing: 0,
+      normalTotal: 0,
+      criticalTotal: 0,
+      tags: row.skill?.tags ?? [],
+    };
     if (row.kind === "rotation") current.casts += 1;
     else current.triggers += 1;
+    if (row.kind === "rotation") currentHealing.casts += 1;
+    else currentHealing.triggers += 1;
     row.actions.forEach((action, actionIndex) => {
       if (action.type === "damage" || action.type === "replay") {
         const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
@@ -472,9 +524,20 @@ function calculateBreakdown(
         current.normalTotal += breakdown.outcomeRates?.normal ?? 0;
         current.criticalTotal += breakdown.outcomeRates?.critical ?? 0;
         current.affinityTotal += breakdown.outcomeRates?.affinity ?? 0;
+      } else if (action.type === "heal") {
+        const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
+        if (!breakdown?.healing) return;
+        const castId = owningCastId(row);
+        const cast = castId ? casts.get(castId) : undefined;
+        if (cast) cast.healing += breakdown.healing.total;
+        currentHealing.heals += 1;
+        currentHealing.healing += breakdown.healing.total;
+        currentHealing.normalTotal += breakdown.healing.normalRate ?? 0;
+        currentHealing.criticalTotal += breakdown.healing.criticalRate ?? 0;
       }
     });
     skills.set(id, current);
+    healingSkills.set(id, currentHealing);
   });
 
   const categoryTotals = { martialArts: 0, mystic: 0, other: 0 };
@@ -482,6 +545,12 @@ function calculateBreakdown(
     if (skill.tags.includes("MartialArts")) categoryTotals.martialArts += skill.damage;
     else if (skill.tags.includes("Mystic")) categoryTotals.mystic += skill.damage;
     else categoryTotals.other += skill.damage;
+  });
+  const healingCategoryTotals = { martialArts: 0, mystic: 0, other: 0 };
+  healingSkills.forEach((skill) => {
+    if (skill.tags.includes("MartialArts")) healingCategoryTotals.martialArts += skill.healing;
+    else if (skill.tags.includes("Mystic")) healingCategoryTotals.mystic += skill.healing;
+    else healingCategoryTotals.other += skill.healing;
   });
 
   const damageTotals = Object.values(actionBreakdowns).reduce(
@@ -494,9 +563,17 @@ function calculateBreakdown(
     }),
     { physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
   );
+  const healingTotals = Object.values(actionBreakdowns).reduce(
+    (total, breakdown) => ({
+      physical: total.physical + (breakdown.healing?.physical ?? 0),
+      silkbind: total.silkbind + (breakdown.healing?.silkbind ?? 0),
+    }),
+    { physical: 0, silkbind: 0 },
+  );
 
   return {
     skills: [...skills.values()]
+      .filter((skill) => skill.damage > 0)
       .map(({ tags: _tags, abrasionTotal, normalTotal, criticalTotal, affinityTotal, ...skill }) => ({
         ...skill,
         abrasionRate: skill.hits > 0 ? (abrasionTotal / skill.hits) * 100 : 0,
@@ -506,6 +583,15 @@ function calculateBreakdown(
         percentage: percentage(skill.damage),
       }))
       .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
+    healingSkills: [...healingSkills.values()]
+      .filter((skill) => skill.healing > 0)
+      .map(({ tags: _tags, normalTotal, criticalTotal, ...skill }) => ({
+        ...skill,
+        normalRate: skill.heals > 0 ? (normalTotal / skill.heals) * 100 : 0,
+        criticalRate: skill.heals > 0 ? (criticalTotal / skill.heals) * 100 : 0,
+        percentage: healingPercentage(skill.healing),
+      }))
+      .sort((left, right) => right.healing - left.healing || left.name.localeCompare(right.name)),
     casts: [...casts.values()]
       .filter((cast) => cast.damage > 0 || cast.buffedDamage > 0)
       .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
@@ -569,6 +655,55 @@ function calculateBreakdown(
           (right.damageWithBuff ?? right.damage) - (left.damageWithBuff ?? left.damage) ||
           left.name.localeCompare(right.name),
       ),
+    healingCasts: [...casts.values()]
+      .filter((cast) => cast.healing > 0)
+      .sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
+      .reduce<
+        Array<{
+          id: string;
+          skillId: string;
+          name: string;
+          casts: number;
+          totalCastTime: number;
+          hpsTotal: number;
+          hpsSamples: number;
+          healing: number;
+        }>
+      >((groups, cast) => {
+        const existing = groups.find((group) => group.skillId === cast.skillId);
+        const group = existing ?? {
+          id: cast.skillId,
+          skillId: cast.skillId,
+          name: cast.name,
+          casts: 0,
+          totalCastTime: 0,
+          hpsTotal: 0,
+          hpsSamples: 0,
+          healing: 0,
+        };
+        if (!existing) groups.push(group);
+        group.casts += 1;
+        group.totalCastTime += cast.castTime;
+        group.healing += cast.healing;
+        if (cast.castTime > 0) {
+          group.hpsTotal += cast.healing / cast.castTime;
+          group.hpsSamples += 1;
+        }
+        return groups;
+      }, [])
+      .map(({ totalCastTime, hpsTotal, hpsSamples, ...group }) => ({
+        ...group,
+        averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+        averageHealing: group.casts > 0 ? group.healing / group.casts : 0,
+        ...(hpsSamples > 0 ? { averageHps: hpsTotal / hpsSamples } : {}),
+        percentage: healingPercentage(group.healing),
+      }))
+      .sort(
+        (left, right) =>
+          (right.averageHps ?? Number.NEGATIVE_INFINITY) - (left.averageHps ?? Number.NEGATIVE_INFINITY) ||
+          right.healing - left.healing ||
+          left.name.localeCompare(right.name),
+      ),
     categories: [
       {
         id: "martialArts",
@@ -578,6 +713,26 @@ function calculateBreakdown(
       },
       { id: "mystic", name: "Mystic", damage: categoryTotals.mystic, percentage: percentage(categoryTotals.mystic) },
       { id: "other", name: "Other", damage: categoryTotals.other, percentage: percentage(categoryTotals.other) },
+    ],
+    healingCategories: [
+      {
+        id: "martialArts",
+        name: "Martial Arts",
+        healing: healingCategoryTotals.martialArts,
+        percentage: healingPercentage(healingCategoryTotals.martialArts),
+      },
+      {
+        id: "mystic",
+        name: "Mystic",
+        healing: healingCategoryTotals.mystic,
+        percentage: healingPercentage(healingCategoryTotals.mystic),
+      },
+      {
+        id: "other",
+        name: "Other",
+        healing: healingCategoryTotals.other,
+        percentage: healingPercentage(healingCategoryTotals.other),
+      },
     ],
     damageTypes: [
       {
@@ -609,6 +764,20 @@ function calculateBreakdown(
         name: "Bamboocut",
         damage: damageTotals.bamboocut,
         percentage: percentage(damageTotals.bamboocut),
+      },
+    ],
+    healingTypes: [
+      {
+        id: "physical",
+        name: "Physical",
+        healing: healingTotals.physical,
+        percentage: healingPercentage(healingTotals.physical),
+      },
+      {
+        id: "silkbind",
+        name: "Silkbind",
+        healing: healingTotals.silkbind,
+        percentage: healingPercentage(healingTotals.silkbind),
       },
     ],
   };
@@ -779,7 +948,7 @@ function timelineDamageEntries(
     row.skipped
       ? []
       : row.actions.flatMap((action, actionIndex) => {
-          if (action.type !== "damage") return [];
+          if (action.type !== "damage" && action.type !== "heal") return [];
           const actionTime = row.startTime + Number(action.time ?? 0);
           const actionOrder = row.order + 10 + actionIndex;
           const anchorTimeOrder = compareTimelineTime(actionTime, anchorTime);
@@ -935,24 +1104,27 @@ function timelineDamageEntries(
             targetHPRatio: actionState.targetHPRatio,
             isDot: row.kind === "dot",
           };
-          const attributionContexts = buffs.flatMap((tracked) => {
-            if (tracked.collectBoostDamage !== tracked.name || !tracked.sourceRowId) return [];
-            const counterfactualBuffs = buffs.filter((candidate) => candidate !== tracked);
-            return [
-              {
-                sourceRowId: tracked.sourceRowId,
-                context: {
-                  ...context,
-                  buffs: counterfactualBuffs.map((effect) => effect.name),
-                  effects: effectsForState(counterfactualBuffs, debuffs, resources),
-                  unconditionalDamageEffects: subtractUnconditionalDamageEffects(
-                    context.unconditionalDamageEffects,
-                    tracked.unconditionalDamageEffects,
-                  ),
-                },
-              },
-            ];
-          });
+          const attributionContexts =
+            action.type === "damage"
+              ? buffs.flatMap((tracked) => {
+                  if (tracked.collectBoostDamage !== tracked.name || !tracked.sourceRowId) return [];
+                  const counterfactualBuffs = buffs.filter((candidate) => candidate !== tracked);
+                  return [
+                    {
+                      sourceRowId: tracked.sourceRowId,
+                      context: {
+                        ...context,
+                        buffs: counterfactualBuffs.map((effect) => effect.name),
+                        effects: effectsForState(counterfactualBuffs, debuffs, resources),
+                        unconditionalDamageEffects: subtractUnconditionalDamageEffects(
+                          context.unconditionalDamageEffects,
+                          tracked.unconditionalDamageEffects,
+                        ),
+                      },
+                    },
+                  ];
+                })
+              : [];
           return [
             {
               id: `${row.id}:${actionIndex}`,
@@ -962,7 +1134,7 @@ function timelineDamageEntries(
               timelineOrder: actionOrder,
               sourceRowId: row.sourceRowId ?? row.id,
               ...(outcomeTriggeredBuffs.length ? { outcomeTriggeredBuffs } : {}),
-              ...(damageListeners.length
+              ...(action.type === "damage" && damageListeners.length
                 ? {
                     damageEvent: {
                       buffs: buffs.map((effect) => ({ ...effect })),
@@ -1363,11 +1535,13 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   if (import.meta.env.DEV) finishCalculationPhase("timingResolution", finalTimingStartedAt);
   const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   let baselineDamage = 0;
+  let baselineHealing = 0;
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
-      .map(({ entry, breakdown, outcomePhysicalAttackBonus }) => {
+      .map(({ entry, breakdown, expectedBuffStacks, outcomePhysicalAttackBonus }) => {
         baselineDamage += breakdown.total;
+        baselineHealing += breakdown.healing?.total ?? 0;
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
             .map(({ sourceRowId, context }) => {
@@ -1383,7 +1557,11 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
         );
         return [
           entry.id!,
-          { ...breakdown, ...(Object.keys(buffedDamageBySource).length ? { buffedDamageBySource } : {}) },
+          {
+            ...breakdown,
+            ...(Object.keys(buffedDamageBySource).length ? { buffedDamageBySource } : {}),
+            ...(expectedBuffStacks ? { expectedBuffStacks } : {}),
+          },
         ];
       }),
   );
@@ -1397,8 +1575,9 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
       setupComparisons: {},
     },
     baselineDamage,
+    baselineHealing,
   );
-  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage);
+  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage, baselineHealing);
   metrics.expectedHawkwingStacks = averageExpectedBuffStack(resolvedSequence, "Hawkwing");
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
   return {
@@ -1538,7 +1717,11 @@ export function calculateRotationComparisons(
     ),
   };
   const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-  const metrics = calculateRotationMetrics(entryBundle, baselineResult.metrics.totalDamage);
+  const metrics = calculateRotationMetrics(
+    entryBundle,
+    baselineResult.metrics.totalDamage,
+    baselineResult.metrics.totalHealing,
+  );
   metrics.breakdown = baselineResult.metrics.breakdown;
   metrics.expectedHawkwingStacks = baselineResult.metrics.expectedHawkwingStacks;
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);

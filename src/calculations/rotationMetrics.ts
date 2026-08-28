@@ -12,6 +12,17 @@ export type RotationSkillBreakdown = {
   damage: number;
   percentage: number;
 };
+export type RotationHealingSkillBreakdown = {
+  id: string;
+  name: string;
+  casts: number;
+  triggers: number;
+  heals: number;
+  normalRate: number;
+  criticalRate: number;
+  healing: number;
+  percentage: number;
+};
 export type RotationCastBreakdown = {
   id: string;
   skillId: string;
@@ -26,24 +37,46 @@ export type RotationCastBreakdown = {
   damageWithBuff?: number;
   percentage: number;
 };
+export type RotationHealingCastBreakdown = {
+  id: string;
+  skillId: string;
+  name: string;
+  casts: number;
+  averageCastTime: number;
+  averageHps?: number;
+  averageHealing: number;
+  healing: number;
+  percentage: number;
+};
 export type RotationGroupBreakdown = { id: string; name: string; damage: number; percentage: number };
+export type RotationHealingGroupBreakdown = { id: string; name: string; healing: number; percentage: number };
 export type RotationBreakdown = {
   skills: RotationSkillBreakdown[];
+  healingSkills: RotationHealingSkillBreakdown[];
   casts: RotationCastBreakdown[];
+  healingCasts: RotationHealingCastBreakdown[];
   categories: RotationGroupBreakdown[];
+  healingCategories: RotationHealingGroupBreakdown[];
   damageTypes: RotationGroupBreakdown[];
+  healingTypes: RotationHealingGroupBreakdown[];
 };
 
 export const emptyRotationBreakdown = (): RotationBreakdown => ({
   skills: [],
+  healingSkills: [],
   casts: [],
+  healingCasts: [],
   categories: [],
+  healingCategories: [],
   damageTypes: [],
+  healingTypes: [],
 });
 
 export type RotationMetrics = {
   totalDamage: number;
   dps: number;
+  totalHealing: number;
+  hps: number;
   expectedHawkwingStacks?: number;
   breakdown: RotationBreakdown;
   statPriority: RotationPriority[];

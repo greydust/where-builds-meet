@@ -247,21 +247,25 @@
   "panaceaMartialHealingBoost": {
     "name": "Panacea Fan - Martial Art Skill Healing Boost",
     "percentage": true,
-    "implemented": false,
+    "implemented": true,
     "tags": ["Armor", "SilkbindDeluge", "PanaceaFan"],
     "effect": {
-      "stat": {},
-      "tags": ["PanaceaFan", "MartialArt"]
+      "stat": {
+        "healingBonus": 1
+      },
+      "tags": ["PanaceaFan", "MartialArts"]
     }
   },
   "soulshadeMartialHealingBoost": {
     "name": "Soulshade Umbrella - Martial Art Skill Healing Boost",
     "percentage": true,
-    "implemented": false,
+    "implemented": true,
     "tags": ["Armor", "SilkbindDeluge", "SoulshadeUmbrella"],
     "effect": {
-      "stat": {},
-      "tags": ["SoulshadeUmbrella", "MartialArt"]
+      "stat": {
+        "healingBonus": 1
+      },
+      "tags": ["SoulshadeUmbrella", "MartialArts"]
     }
   }
 }

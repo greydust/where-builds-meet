@@ -28,6 +28,15 @@
     "shortName": "Int",
     "description": "Allow using Drunken Poet or Dragon's Breath.",
     "maxStack": 1,
+    "duration": 30,
+    "effect": [],
+    "refresh": true
+  },
+  "EnhanceDrunkenPoet": {
+    "name": "Enhanced Drunken Poet",
+    "shortName": "EDP",
+    "description": "Each stack increases Drunken Poet's fifth hit damage by 20%.",
+    "maxStack": 4,
     "effect": [],
     "refresh": true
   },

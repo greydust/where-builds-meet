@@ -505,6 +505,13 @@ are applied only to that returned component.
 attack-roll mode set to `simulate`. It selects one outcome and samples the
 normal/critical attack ranges instead of rate-weighting expected variants.
 
+`calculateHealingBreakdown()` is the parallel pure action calculator for
+`type: "heal"`. It consumes the same resolved stats, tags, attunements, and
+hit-time effects, but returns only Physical, Silkbind, and total healing.
+Healing has Normal and Critical outcomes only. The worker aggregates healing
+beside damage and publishes total healing, HPS, and independently sorted
+healing breakdown rows through the same baseline result.
+
 After an ordinary hit resolves, the centralized damage sequence emits a typed,
 synchronous damage event containing its final damage, action-specific tags, and
 the immutable combat-state snapshot for that action. Active Inner Way listeners
@@ -643,8 +650,13 @@ Outcome-triggered buff schedules are built with the baseline damage stream and
 stored by damage-entry ID. Comparison variants reuse that schedule only when the
 timeline, Affinity dependencies, and outcome trigger definitions are unchanged;
 otherwise they rebuild it. The baseline result also exposes the arithmetic mean
-of Hawkwing's expected pre-hit stack values for the DPS summary. Simulation runs
-do not use this probability schedule and maintain their own sampled stack state.
+of Hawkwing's expected pre-hit stack values across ordinary damage actions for
+the DPS summary. Delays, healing, and replay damage do not enter that display
+average. Each ordinary damage action also exposes its expected pre-hit stack to
+the timeline as a synthetic Hawkwing buff plate. Because that plate represents a
+probability-weighted state rather than a concrete timed buff, it displays no
+remaining duration. Simulation runs do not use this probability schedule and
+maintain their own sampled stack state.
 
 Local Vite development builds wrap each deterministic worker request in a
 calculation benchmark and emit a collapsed `[Damage benchmark]` console table.
@@ -717,7 +729,7 @@ Each public baseline result contains:
 - `RotationMetrics`
 - baseline timeline
 - anchor time and duration
-- per-action `DamageBreakdown` map
+- per-action breakdown map containing damage and, for heal actions, healing
 
 The Rotation Editor rebuilds its draft timeline immediately with the shared
 timeline builder whenever structural rotation content or the combat context

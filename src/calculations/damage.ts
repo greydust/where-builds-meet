@@ -52,6 +52,7 @@ export type AttunementStats = {
 export const ENEMY_DEFENSE = 405;
 
 export type DamageAction = {
+  type?: unknown;
   phyCoef?: unknown;
   phyBonus?: unknown;
   attrBonus?: unknown;

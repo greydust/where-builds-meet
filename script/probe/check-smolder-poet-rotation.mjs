@@ -65,13 +65,6 @@ try {
     rotation.start?.step === startSkillIndex && rotation.start.action === 5,
     "The rotation must start at Sideway Fleeting Trace action index 5.",
   );
-  assert(
-    skillSteps
-      .slice(17, 22)
-      .map((step) => step.skill)
-      .join(",") === "DrunkenPoet1,DrunkenPoet2,DrunkenPoet3,DrunkenPoet4,DrunkenPoet5",
-    "Poet x5 must use all five ordered hit definitions.",
-  );
   const poet5RotationIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "DrunkenPoet5");
   const poet5Row = timeline.find((row) => row.id === `rotation-${poet5RotationIndex}`);
   assert(

@@ -165,11 +165,19 @@
   }
 
   .dps-value {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.18em;
     margin-block-start: 18px;
     color: var(--primary);
     font-size: 3rem;
     font-weight: 750;
     letter-spacing: -0.04em;
+  }
+
+  .throughput-separator {
+    color: var(--text-muted);
   }
 
   .dps-secondary-metric {

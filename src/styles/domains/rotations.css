@@ -383,6 +383,18 @@
     cursor: help;
   }
 
+  .rotation-action-result {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.45em;
+  }
+
+  .healing-value,
+  .healing-physical,
+  .healing-silkbind {
+    color: var(--success);
+  }
+
   .damage-breakdown-tooltip {
     position: absolute;
     inset-block-end: calc(100% + 8px);

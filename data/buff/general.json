@@ -25,16 +25,46 @@
   },
   "Hawkwing": {
     "name": "Hawkwing",
-    "shortName": "Hawkwing",
+    "shortName": "Hawk",
     "description": "Increases physical attack by 2% per stack.",
     "duration": 5,
     "maxStack": 5,
     "stackEffects": [
-      [{ "effect": { "physicalAttackBonus": 0.02 } }],
-      [{ "effect": { "physicalAttackBonus": 0.04 } }],
-      [{ "effect": { "physicalAttackBonus": 0.06 } }],
-      [{ "effect": { "physicalAttackBonus": 0.08 } }],
-      [{ "effect": { "physicalAttackBonus": 0.1 } }]
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.02
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.04
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.06
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.08
+          }
+        }
+      ],
+      [
+        {
+          "effect": {
+            "physicalAttackBonus": 0.1
+          }
+        }
+      ]
     ],
     "refresh": true
   },

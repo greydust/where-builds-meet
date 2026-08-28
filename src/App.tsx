@@ -101,6 +101,7 @@ import {
   subscribeToRotationMetrics,
   type RotationCalculationCategory,
   type RotationGroupBreakdown,
+  type RotationHealingGroupBreakdown,
   type RotationMetrics,
   type RotationPriority,
 } from "./calculations/rotationMetrics";
@@ -131,6 +132,7 @@ import mortalRopeDartMartialArt from "../data/martial-art/mortal-rope-dart.json"
 import {
   sortAttunementPriorityRows,
   sortRotationPriorityRows,
+  type RotationActionBreakdown,
   type RotationSimulationBundle,
   type RotationSimulationResult,
   type RotationSimulationVariant,
@@ -1825,12 +1827,15 @@ function PriorityPanel({
 function BreakdownGroupTable({
   title,
   rows,
+  healingRows = [],
   colored = false,
 }: {
   title: string;
   rows: RotationGroupBreakdown[];
+  healingRows?: RotationHealingGroupBreakdown[];
   colored?: boolean;
 }) {
+  const hasHealing = healingRows.some((row) => row.healing > 0);
   return (
     <section className="panel breakdown-panel">
       <div className="panel-heading">
@@ -1838,6 +1843,7 @@ function BreakdownGroupTable({
           <h2>{title}</h2>
         </div>
       </div>
+      {hasHealing ? <h3 className="breakdown-channel-heading">{t("ui.app.damage")}</h3> : null}
       <div className="breakdown-table breakdown-group-table">
         <div className="breakdown-table-header">
           <span>{t("ui.app.category")}</span>
@@ -1852,6 +1858,27 @@ function BreakdownGroupTable({
           </div>
         ))}
       </div>
+      {hasHealing ? (
+        <>
+          <h3 className="breakdown-channel-heading healing-value">{t("ui.app.healing")}</h3>
+          <div className="breakdown-table breakdown-group-table breakdown-healing-table">
+            <div className="breakdown-table-header">
+              <span>{t("ui.app.category")}</span>
+              <span>{t("ui.app.healing")}</span>
+              <span>{t("ui.app.total")}</span>
+            </div>
+            {healingRows
+              .filter((row) => row.healing > 0)
+              .map((row) => (
+                <div className="breakdown-table-row" key={row.id}>
+                  <span className={colored ? `healing-${row.id}` : ""}>{gameText(row.name)}</span>
+                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong>{formatNumber(row.percentage)}%</strong>
+                </div>
+              ))}
+          </div>
+        </>
+      ) : null}
     </section>
   );
 }
@@ -1886,6 +1913,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
       </section>
     );
   const { breakdown } = metrics;
+  const hasHealing = metrics.totalHealing > 0;
   return (
     <div className="breakdown-page">
       <section className="panel breakdown-panel">
@@ -1900,8 +1928,20 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
             <span>
               {t("system.dps")} <strong>{formatNumber(metrics.dps)}</strong>
             </span>
+            {hasHealing ? (
+              <>
+                <span>
+                  {t("system.totalHealing")}{" "}
+                  <strong className="healing-value">+{formatNumber(metrics.totalHealing)}</strong>
+                </span>
+                <span>
+                  {t("system.hps")} <strong className="healing-value">{formatNumber(metrics.hps)}</strong>
+                </span>
+              </>
+            ) : null}
           </div>
         </div>
+        {hasHealing ? <h3 className="breakdown-channel-heading">{t("ui.app.damage")}</h3> : null}
         <div className="breakdown-table breakdown-skill-table">
           <div className="breakdown-table-header">
             <span>{t("ui.app.skill")}</span>
@@ -1930,6 +1970,35 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
             </div>
           ))}
         </div>
+        {hasHealing ? (
+          <>
+            <h3 className="breakdown-channel-heading healing-value">{t("ui.app.healing")}</h3>
+            <div className="breakdown-table breakdown-healing-skill-table breakdown-healing-table">
+              <div className="breakdown-table-header">
+                <span>{t("ui.app.skill")}</span>
+                <span>{t("ui.app.casts")}</span>
+                <span>{t("ui.app.triggers")}</span>
+                <span>{t("ui.app.heals")}</span>
+                <span>{t("system.normal")}</span>
+                <span>{t("system.critical")}</span>
+                <span>{t("ui.app.healing")}</span>
+                <span>{t("ui.app.total")}</span>
+              </div>
+              {breakdown.healingSkills.map((row) => (
+                <div className="breakdown-table-row" key={row.id}>
+                  <span>{skillDisplayName(allSkillDefinitions[row.id], row.name, row.id)}</span>
+                  <strong>{row.casts || ""}</strong>
+                  <strong>{row.triggers || ""}</strong>
+                  <strong>{row.heals || ""}</strong>
+                  <strong>{formatNumber(row.normalRate)}%</strong>
+                  <strong>{formatNumber(row.criticalRate)}%</strong>
+                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong>{formatNumber(row.percentage)}%</strong>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
       <section className="panel breakdown-panel">
         <div className="panel-heading">
@@ -1937,6 +2006,7 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
             <h2>{t("ui.app.perCastBreakdown")}</h2>
           </div>
         </div>
+        {hasHealing ? <h3 className="breakdown-channel-heading">{t("ui.app.damage")}</h3> : null}
         <div className="breakdown-table breakdown-cast-table">
           <div className="breakdown-table-header breakdown-cast-table-header">
             <span>{t("ui.app.skill")}</span>
@@ -1987,9 +2057,50 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
             );
           })}
         </div>
+        {hasHealing ? (
+          <>
+            <h3 className="breakdown-channel-heading healing-value">{t("ui.app.healing")}</h3>
+            <div className="breakdown-table breakdown-healing-cast-table breakdown-healing-table">
+              <div className="breakdown-table-header">
+                <span>{t("ui.app.skill")}</span>
+                <span>{t("ui.app.casts")}</span>
+                <span>{t("ui.app.avgCastTime")}</span>
+                <span>{t("ui.app.averageHps")}</span>
+                <span>{t("ui.app.perCast")}</span>
+                <span>{t("ui.app.total")}</span>
+                <span>{t("ui.app.percentage")}</span>
+              </div>
+              {breakdown.healingCasts.map((row) => (
+                <div className="breakdown-table-row" key={row.id}>
+                  <span>{skillDisplayName(allSkillDefinitions[row.skillId], row.name, row.skillId)}</span>
+                  <strong>{row.casts}</strong>
+                  <strong>
+                    {formatNumber(row.averageCastTime)}
+                    {t("ui.app.s")}
+                  </strong>
+                  <strong className="healing-value">
+                    {row.averageHps === undefined ? "—" : formatNumber(row.averageHps)}
+                  </strong>
+                  <strong className="healing-value">+{formatNumber(row.averageHealing)}</strong>
+                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong>{formatNumber(row.percentage)}%</strong>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
-      <BreakdownGroupTable title={t("ui.app.skillTypeBreakdown")} rows={breakdown.categories} />
-      <BreakdownGroupTable title={t("ui.app.physicalAndAttributeBreakdown")} rows={breakdown.damageTypes} colored />
+      <BreakdownGroupTable
+        title={t("ui.app.skillTypeBreakdown")}
+        rows={breakdown.categories}
+        healingRows={breakdown.healingCategories}
+      />
+      <BreakdownGroupTable
+        title={t("ui.app.physicalAndAttributeBreakdown")}
+        rows={breakdown.damageTypes}
+        healingRows={breakdown.healingTypes}
+        colored
+      />
     </div>
   );
 }
@@ -2013,6 +2124,41 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
           </span>
         ))}
       </span>
+    </span>
+  );
+}
+
+function HealingBreakdownValue({
+  breakdown,
+  className = "",
+}: {
+  breakdown: NonNullable<RotationActionBreakdown["healing"]>;
+  className?: string;
+}) {
+  return (
+    <span className={`damage-breakdown-wrap healing-value ${className}`}>
+      <span>+{formatNumber(breakdown.total)}</span>
+      <span className="damage-breakdown-tooltip">
+        <span className="damage-breakdown-part healing-physical">
+          <i>{gameText("Physical")}</i>
+          {formatNumber(breakdown.physical)}
+        </span>
+        <span className="damage-breakdown-part healing-silkbind">
+          <i>{gameText("Silkbind")}</i>
+          {formatNumber(breakdown.silkbind)}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function RotationActionBreakdownValue({ breakdown }: { breakdown: RotationActionBreakdown }) {
+  return (
+    <span className="rotation-action-result">
+      {breakdown.total > 0 ? <DamageBreakdownValue breakdown={breakdown} /> : null}
+      {breakdown.healing && breakdown.healing.total > 0 ? (
+        <HealingBreakdownValue breakdown={breakdown.healing} />
+      ) : null}
     </span>
   );
 }
@@ -3040,10 +3186,32 @@ function StatsTab({
           <section className="panel dps-panel">
             <div className="panel-heading">
               <div>
-                <h2>{t("system.dps")}</h2>
+                <h2>
+                  {t("system.dps")}
+                  {rotationMetrics && rotationMetrics.hps > 0 ? (
+                    <>
+                      {" / "}
+                      <span className="healing-value">{t("system.hps")}</span>
+                    </>
+                  ) : null}
+                </h2>
               </div>
             </div>
-            <div className="dps-value">{rotationMetrics ? formatNumber(rotationMetrics.dps) : "—"}</div>
+            <div className="dps-value">
+              {rotationMetrics ? (
+                <>
+                  <span>{formatNumber(rotationMetrics.dps)}</span>
+                  {rotationMetrics.hps > 0 ? (
+                    <>
+                      <span className="throughput-separator">/</span>
+                      <span className="healing-value">{formatNumber(rotationMetrics.hps)}</span>
+                    </>
+                  ) : null}
+                </>
+              ) : (
+                "—"
+              )}
+            </div>
             {rotationMetrics?.expectedHawkwingStacks !== undefined ? (
               <div className="dps-secondary-metric">
                 <span>{t("ui.app.expectedHawkwingStacks")}</span>
@@ -5677,7 +5845,7 @@ function RotationEditorTab({
   }, [timeline]);
   const workerActionBreakdowns = currentCachedResult?.actionBreakdowns ?? {};
   const displayTime = (time: number) => time - anchorTime;
-  const calculateTimelineActionBreakdown = (row: TimelineRow, actionIndex: number): DamageBreakdown =>
+  const calculateTimelineActionBreakdown = (row: TimelineRow, actionIndex: number): RotationActionBreakdown =>
     workerActionBreakdowns[`${row.id}:${actionIndex}`] ?? {
       physical: 0,
       bellstrike: 0,
@@ -5838,6 +6006,8 @@ function RotationEditorTab({
   );
   const totalRotationDamage = currentCachedResult?.metrics.totalDamage ?? 0;
   const rotationDps = currentCachedResult?.metrics.dps ?? 0;
+  const totalRotationHealing = currentCachedResult?.metrics.totalHealing ?? 0;
+  const rotationHps = currentCachedResult?.metrics.hps ?? 0;
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
     return { ...characterStats, [key]: characterStats[key] + amount };
   };
@@ -6269,6 +6439,8 @@ function RotationEditorTab({
   const localRotationCalculation: RotationMetrics = {
     totalDamage: totalRotationDamage,
     dps: rotationDps,
+    totalHealing: totalRotationHealing,
+    hps: rotationHps,
     breakdown: currentCachedResult?.metrics.breakdown ?? emptyRotationBreakdown(),
     statPriority: priorityStats,
     attunementPriority: priorityAttunementRows,
@@ -6496,8 +6668,19 @@ function RotationEditorTab({
                 <span>
                   {t("system.totalDamage")}: {formatNumber(rotationCalculation.totalDamage)}
                 </span>
+                {rotationCalculation.totalHealing > 0 ? (
+                  <span className="healing-value">
+                    {t("system.totalHealing")}: +{formatNumber(rotationCalculation.totalHealing)}
+                  </span>
+                ) : null}
                 <span>
                   {t("system.dps")}: {formatNumber(rotationCalculation.dps)}
+                  {rotationCalculation.hps > 0 ? (
+                    <span className="healing-value">
+                      {" / "}
+                      {t("system.hps")}: {formatNumber(rotationCalculation.hps)}
+                    </span>
+                  ) : null}
                 </span>
               </span>
             </div>
@@ -6542,7 +6725,13 @@ function RotationEditorTab({
                     const { step, startTime, skill, actions } = row;
                     const castTime = row.effectiveCastTime;
                     const effectNames = (
-                      effects: Array<{ name: string; stack?: number; maxStack?: number; expiresAt?: number }>,
+                      effects: Array<{
+                        name: string;
+                        stack?: number;
+                        maxStack?: number;
+                        expiresAt?: number;
+                        hideRemainingTime?: boolean;
+                      }>,
                       atTime: number,
                     ) =>
                       effects.length === 0 ? (
@@ -6553,7 +6742,7 @@ function RotationEditorTab({
                             const definition = calculationDefinitions.effectDefinitions[effect.name];
                             const description = gameText(definition?.description?.trim());
                             const name = gameText(definition?.name ?? effect.name);
-                            const label = `${gameText(definition?.shortName) || name}${effect.stack && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${effect.stack}` : ""}`;
+                            const label = `${gameText(definition?.shortName) || name}${effect.stack !== undefined && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${formatNumber(effect.stack)}` : ""}`;
                             const timeLeft =
                               effect.expiresAt === undefined ? "∞" : Math.max(0, effect.expiresAt - atTime).toFixed(2);
                             const plateKind = dotEffectIds.has(effect.name)
@@ -6566,7 +6755,9 @@ function RotationEditorTab({
                                 {label}
                                 <span className="effect-plate-tooltip" role="tooltip">
                                   <strong>
-                                    {name} - {t("ui.app.sLeft", { number: timeLeft })}
+                                    {effect.hideRemainingTime
+                                      ? name
+                                      : `${name} - ${t("ui.app.sLeft", { number: timeLeft })}`}
                                   </strong>
                                   {description && <span>{description}</span>}
                                 </span>
@@ -6653,11 +6844,15 @@ function RotationEditorTab({
                             ),
                           ]
                         : [row];
-                    const skillBreakdown = skillDamageRows.reduce<DamageBreakdown>(
+                    const skillBreakdown = skillDamageRows.reduce<RotationActionBreakdown>(
                       (skillTotal, damageRow) =>
-                        damageRow.actions.reduce<DamageBreakdown>((total, action, damageIndex) => {
-                          if (action.type !== "damage" && action.type !== "replay") return total;
+                        damageRow.actions.reduce<RotationActionBreakdown>((total, action, damageIndex) => {
+                          if (action.type !== "damage" && action.type !== "replay" && action.type !== "heal")
+                            return total;
                           const breakdown = calculateTimelineActionBreakdown(damageRow, damageIndex);
+                          const physicalHealing = (total.healing?.physical ?? 0) + (breakdown.healing?.physical ?? 0);
+                          const silkbindHealing = (total.healing?.silkbind ?? 0) + (breakdown.healing?.silkbind ?? 0);
+                          const totalHealing = (total.healing?.total ?? 0) + (breakdown.healing?.total ?? 0);
                           return {
                             physical: total.physical + breakdown.physical,
                             bellstrike: total.bellstrike + breakdown.bellstrike,
@@ -6665,6 +6860,15 @@ function RotationEditorTab({
                             silkbind: total.silkbind + breakdown.silkbind,
                             bamboocut: total.bamboocut + breakdown.bamboocut,
                             total: total.total + breakdown.total,
+                            ...(totalHealing > 0
+                              ? {
+                                  healing: {
+                                    physical: physicalHealing,
+                                    silkbind: silkbindHealing,
+                                    total: totalHealing,
+                                  },
+                                }
+                              : {}),
                           };
                         }, skillTotal),
                       {
@@ -6674,7 +6878,7 @@ function RotationEditorTab({
                         silkbind: 0,
                         bamboocut: 0,
                         total: 0,
-                      } as DamageBreakdown,
+                      } as RotationActionBreakdown,
                     );
                     return (
                       <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
@@ -7000,8 +7204,9 @@ function RotationEditorTab({
                                 ) : (
                                   ""
                                 )
-                              ) : step.type === "skill" && skillBreakdown.total > 0 ? (
-                                <DamageBreakdownValue breakdown={skillBreakdown} />
+                              ) : step.type === "skill" &&
+                                (skillBreakdown.total > 0 || (skillBreakdown.healing?.total ?? 0) > 0) ? (
+                                <RotationActionBreakdownValue breakdown={skillBreakdown} />
                               ) : (
                                 ""
                               )}
@@ -7232,6 +7437,20 @@ function RotationEditorTab({
                               workerActionBreakdowns,
                               actionKey,
                             );
+                            const actionBreakdown = workerActionBreakdowns[actionKey];
+                            const expectedHawkwingStack = actionBreakdown?.expectedBuffStacks?.Hawkwing;
+                            const displayedActionBuffs =
+                              expectedHawkwingStack === undefined
+                                ? actionBuffs
+                                : [
+                                    ...actionBuffs.filter((effect) => effect.name !== "Hawkwing"),
+                                    {
+                                      name: "Hawkwing",
+                                      stack: expectedHawkwingStack,
+                                      maxStack: 5,
+                                      hideRemainingTime: true,
+                                    },
+                                  ];
                             return (
                               <div
                                 className={`rotation-action-row ${row.kind === "trigger" ? "rotation-action-trigger" : row.kind === "dot" ? "rotation-action-dot" : ""}`}
@@ -7286,12 +7505,14 @@ function RotationEditorTab({
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>
                                   {actionCalculated ? (
-                                    <DamageBreakdownValue
+                                    <RotationActionBreakdownValue
                                       breakdown={calculateTimelineActionBreakdown(row, actionIndex ?? 0)}
                                     />
                                   ) : null}
                                 </span>
-                                <span data-mobile-label={t("ui.app.buff")}>{effectNames(actionBuffs, actionTime)}</span>
+                                <span data-mobile-label={t("ui.app.buff")}>
+                                  {effectNames(displayedActionBuffs, actionTime)}
+                                </span>
                                 <span data-mobile-label={t("ui.app.debuff")}>
                                   {effectNames(actionDebuffs, actionTime)}
                                 </span>
@@ -7664,7 +7885,10 @@ export default function App() {
           type="button"
           onClick={() => setActiveTab("breakdown")}
         >
-          {t("ui.app.dpsBreakdown", { dps: t("system.dps") })}
+          {t("ui.app.dpsBreakdown", {
+            dps:
+              rotationMetrics && rotationMetrics.hps > 0 ? `${t("system.dps")} / ${t("system.hps")}` : t("system.dps"),
+          })}
         </button>
         <button
           className={activeTab === "rotations" ? "active" : ""}

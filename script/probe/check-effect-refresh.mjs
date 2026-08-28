@@ -114,6 +114,39 @@ try {
     "A refresh-enabled buff must reset its expiration when gaining a stack.",
   );
 
+  const intoxicatedTimeline = buildRotationTimeline({
+    rotation: { name: "Intoxicated duration probe", steps: [{ type: "skill", skill: "Probe" }] },
+    skills: {
+      Probe: {
+        name: "Intoxicated duration probe",
+        castTime: 30.1,
+        action: [
+          { type: "apply", target: "self", value: "Intoxicated", reapply: false, time: 0 },
+          { type: "apply", target: "self", value: "Intoxicated", reapply: false, time: 10 },
+          { type: "damage", phyCoef: 1, time: 29.9 },
+          { type: "damage", phyCoef: 1, time: 30.1 },
+        ],
+        modifier: [],
+        tags: [],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: mysticBuffs,
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: [],
+  });
+  assert(
+    intoxicatedTimeline[0].actionStates[2].buffs.some((effect) => effect.name === "Intoxicated"),
+    "Intoxicated must remain active immediately before 30 seconds.",
+  );
+  assert(
+    !intoxicatedTimeline[0].actionStates[3].buffs.some((effect) => effect.name === "Intoxicated"),
+    "Intoxicated must expire after 30 seconds, and reapply:false must not refresh it.",
+  );
+
   const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1 };
   const enemy = {
     name: "Probe",
