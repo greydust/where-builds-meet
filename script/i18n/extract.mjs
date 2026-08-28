@@ -192,12 +192,15 @@ const localeFiles = Object.fromEntries(
       `${JSON.stringify(Object.fromEntries(records.filter((record) => record[locale]).map((record) => [record.key, record[locale]])), null, 2)}\n`,
     ]),
 );
-const manifestLocales = `[${headers
-  .slice(1)
-  .filter((locale) => publishedLocales.has(locale))
-  .map((locale) => JSON.stringify(locale))
-  .join(", ")}]`;
-const manifest = `{\n  "default": "en",\n  "locales": ${manifestLocales}\n}\n`;
+const manifestLocales = headers.slice(1).filter((locale) => publishedLocales.has(locale));
+const completion = Object.fromEntries(
+  manifestLocales
+    .filter((locale) => locale !== "en")
+    .map((locale) => [locale, Math.round((records.filter((record) => record[locale]).length / records.length) * 100)]),
+);
+const manifestLocaleList = `[${manifestLocales.map((locale) => JSON.stringify(locale)).join(", ")}]`;
+const manifestCompletion = JSON.stringify(completion, null, 2).replaceAll("\n", "\n  ");
+const manifest = `{\n  "default": "en",\n  "locales": ${manifestLocaleList},\n  "completion": ${manifestCompletion}\n}\n`;
 
 if (checkOnly) {
   const currentCsv = await readFile(catalogFile, "utf8");

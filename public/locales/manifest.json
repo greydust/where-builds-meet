@@ -1,4 +1,8 @@
 {
   "default": "en",
-  "locales": ["en", "zh-Hant", "ko"]
+  "locales": ["en", "zh-Hant", "ko"],
+  "completion": {
+    "zh-Hant": 89,
+    "ko": 73
+  }
 }

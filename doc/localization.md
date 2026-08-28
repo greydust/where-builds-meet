@@ -23,9 +23,11 @@ English display name.
 `npm run i18n:extract` updates the catalog and generates runtime assets under
 `public/locales/`:
 
-- `manifest.json` lists the locales currently published in the selector and
-  the English fallback. Translation columns may remain in the CSV while their
-  locale is unpublished.
+- `manifest.json` lists the locales currently published in the selector, the
+  English fallback, and each non-English locale's whole-number completion
+  percentage. Completion is generated from its non-empty catalog rows, so it
+  must not be maintained by hand. Translation columns may remain in the CSV
+  while their locale is unpublished.
 - `<locale>.json` contains the non-empty messages for one locale.
 
 Generated locale JSON must not be edited directly. Add a locale by adding its
@@ -43,12 +45,11 @@ Browser detection is not written to storage. Only a user selection is saved.
 The selected locale and English fallback JSON are loaded together, and missing
 messages fall back per key. The `<html lang>` attribute is updated after load.
 
-Traditional Chinese (`zh-Hant`) is a published locale available without development mode.
-It is shown in the selector but disabled until Dev mode is enabled. Locale
-resolution applies the same gate to saved and browser-detected locales so the
-selector cannot be bypassed through storage or browser preferences. Locale
-selector names are fixed autonyms in `src/i18n.ts` rather than translated
-messages, so every language is always named in its own language.
+Traditional Chinese (`zh-Hant`) and Korean (`ko`) are published locales
+available without development mode. Locale selector names are fixed autonyms
+in `src/i18n.ts` rather than translated messages, so every language is always
+named in its own language. Every non-English name is followed by the generated
+catalog completion percentage; English remains unadorned.
 
 Locale state belongs to the UI. Calculation bundles, worker messages, cache
 keys, IDs, formulas, and persisted game data remain language-neutral.

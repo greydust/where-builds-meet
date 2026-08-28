@@ -1,6 +1,7 @@
 export type LocaleManifest = {
   default: string;
   locales: string[];
+  completion?: Record<string, number>;
 };
 
 type Messages = Record<string, string>;
@@ -130,7 +131,10 @@ export function getSupportedLocales() {
 }
 
 export function getLocaleDisplayName(locale: string) {
-  return localeDisplayNames[locale] ?? locale;
+  const displayName = localeDisplayNames[locale] ?? locale;
+  if (locale === manifest.default) return displayName;
+  const completion = manifest.completion?.[locale];
+  return completion === undefined ? displayName : `${displayName} (${completion}%)`;
 }
 
 export function t(key: string, parameters: Record<string, string | number> = {}) {
