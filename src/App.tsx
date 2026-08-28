@@ -271,6 +271,8 @@ type PathDefinition = {
   tag?: string;
   status: "available" | "wip" | "devOnly" | "plannerOnly";
   buildGroup: string;
+  defaultBuild: string;
+  defaultRotation: string;
   lockedWeapons?: [WeaponId, WeaponId];
 };
 type DefaultSetup = {
@@ -284,6 +286,14 @@ type DefaultSetup = {
 };
 const typedDefaultSetup = defaultSetup as DefaultSetup;
 const typedPathDefinitions = pathDefinitions as Record<PathId, PathDefinition>;
+
+function defaultBuildIdForPath(pathId: PathId) {
+  return typedPathDefinitions[pathId].defaultBuild;
+}
+
+function defaultRotationIdForPath(pathId: PathId) {
+  return typedPathDefinitions[pathId].defaultRotation;
+}
 const productionWeaponIds = new Set<WeaponId>(
   (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).flatMap(([id, definition]) =>
     id !== "mixed" && definition.status === "available" ? (definition.lockedWeapons ?? []) : [],
@@ -1601,15 +1611,21 @@ function loadRotationEntries(): RotationEntry[] {
   }
 }
 
-function initialRotationId(entries: RotationEntry[]) {
+function initialRotationId(entries: RotationEntry[], preferredId: string, weapons: [WeaponId, WeaponId]) {
   const savedId = getPersistentItem(activeRotationStorageKey);
-  return savedId && entries.some((entry) => entry.id === savedId) ? savedId : (entries[0]?.id ?? defaultRotationId);
+  if (savedId && entries.some((entry) => entry.id === savedId && rotationAvailableForWeapons(entry, weapons)))
+    return savedId;
+  return (
+    entries.find((entry) => entry.id === preferredId && rotationAvailableForWeapons(entry, weapons))?.id ??
+    entries.find((entry) => rotationAvailableForWeapons(entry, weapons))?.id ??
+    defaultRotationId
+  );
 }
 
-function initialRotationEditorState(devMode: boolean) {
+function initialRotationEditorState(devMode: boolean, preferredRotationId: string, weapons: [WeaponId, WeaponId]) {
   const entries = loadRotationEntries();
   const selectableEntries = entries.filter((entry) => devMode || !entry.test);
-  const activeId = initialRotationId(selectableEntries);
+  const activeId = initialRotationId(selectableEntries, preferredRotationId, weapons);
   const activeRotation =
     selectableEntries.find((entry) => entry.id === activeId)?.rotation ??
     selectableEntries[0]?.rotation ??
@@ -5045,6 +5061,7 @@ function SettingsTab({
 function RotationEditorTab({
   character,
   devMode,
+  defaultRotationId,
   skillOverrides,
   onSelectRotationWeapons,
   onMetricsChange,
@@ -5052,6 +5069,7 @@ function RotationEditorTab({
 }: {
   character: CharacterState;
   devMode: boolean;
+  defaultRotationId: string;
   skillOverrides: SkillOverrides;
   onSelectRotationWeapons: (weapons: [WeaponId, WeaponId]) => boolean;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
@@ -5080,7 +5098,7 @@ function RotationEditorTab({
     () => resolveSkillCalculationDefinitions(defaultSkillMaps, effectDefinitions, dotDefinitions, skillOverrides),
     [skillOverrides],
   );
-  const [initialState] = useState(() => initialRotationEditorState(devMode));
+  const [initialState] = useState(() => initialRotationEditorState(devMode, defaultRotationId, settings.weapons));
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(initialState.entries);
   const savedRotationSnapshotsRef = useRef<Map<string, RotationRecord> | null>(null);
   if (savedRotationSnapshotsRef.current === null)
@@ -5132,7 +5150,9 @@ function RotationEditorTab({
   const editingEntry =
     listedRotationEntries.find((entry) => entry.id === editingRotationId) ?? compatibleRotationEntries[0];
   const resolvedActiveRotationId =
-    compatibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ?? compatibleRotationEntries[0]?.id;
+    compatibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ??
+    compatibleRotationEntries.find((entry) => entry.id === defaultRotationId)?.id ??
+    compatibleRotationEntries[0]?.id;
   const resolvedActiveRotationIdRef = useRef(resolvedActiveRotationId);
   resolvedActiveRotationIdRef.current = resolvedActiveRotationId;
   const rotationLocked = editingEntry?.isDefault === true;
@@ -5192,7 +5212,9 @@ function RotationEditorTab({
 
   useEffect(() => {
     const fallback =
-      compatibleRotationEntries.find((entry) => entry.id === activeRotationId) ?? compatibleRotationEntries[0];
+      compatibleRotationEntries.find((entry) => entry.id === activeRotationId) ??
+      compatibleRotationEntries.find((entry) => entry.id === defaultRotationId) ??
+      compatibleRotationEntries[0];
     if (!fallback) return;
     if (!compatibleRotationEntries.some((entry) => entry.id === activeRotationId)) {
       setActiveRotationId(fallback.id);
@@ -5208,7 +5230,7 @@ function RotationEditorTab({
       );
       setEventTimeDrafts({});
     }
-  }, [activeRotationId, compatibleRotationEntries, editingRotationId, listedRotationEntries]);
+  }, [activeRotationId, compatibleRotationEntries, defaultRotationId, editingRotationId, listedRotationEntries]);
 
   useEffect(() => {
     if (startAnchor.actionIndex === undefined) return;
@@ -6466,7 +6488,10 @@ function RotationEditorTab({
 
   useEffect(() => {
     const entries = rotationEntries.filter((entry) => rotationAvailableForWeapons(entry, settings.weapons));
-    const activeEntry = entries.find((entry) => entry.id === activeRotationId) ?? entries[0];
+    const activeEntry =
+      entries.find((entry) => entry.id === activeRotationId) ??
+      entries.find((entry) => entry.id === defaultRotationId) ??
+      entries[0];
     if (!activeEntry) return;
     const prepared = prepareBaselineCalculation(activeEntry.rotation);
     const refreshTarget = `${activeEntry.id}:${prepared.fingerprint}`;
@@ -6488,7 +6513,7 @@ function RotationEditorTab({
         }
       }
     })();
-  }, [activeRotationId, calculationContextKey, refreshRetryRevision, rotationEntries]);
+  }, [activeRotationId, calculationContextKey, defaultRotationId, refreshRetryRevision, rotationEntries]);
   return (
     <section className="panel rotation-editor-panel">
       <div className="rotation-editor-layout">
@@ -7607,7 +7632,9 @@ export default function App() {
       buildEntryAvailableForPath(entry, typedPathDefinitions[pathId].buildGroup, settings.weapons),
   );
   const activeBuild =
-    availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ?? availableBuildEntries[0];
+    availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ??
+    availableBuildEntries.find((entry) => entry.id === defaultBuildIdForPath(pathId)) ??
+    availableBuildEntries[0];
   const activeBuildDisplayName = activeBuild
     ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || "Unnamed Build"
     : "Unnamed Build";
@@ -7981,6 +8008,7 @@ export default function App() {
         <RotationEditorTab
           character={character}
           devMode={devMode}
+          defaultRotationId={defaultRotationIdForPath(pathId)}
           skillOverrides={skillOverrides}
           onSelectRotationWeapons={selectBuildWeapons}
           onMetricsChange={handleRotationMetrics}

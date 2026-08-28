@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run i18n:check && tsc -b && vite build",
+    "build": "npm run validate:presets && npm run i18n:check && tsc -b && vite build",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "i18n:extract": "node script/i18n/extract.mjs",
     "i18n:check": "node script/i18n/extract.mjs --check",
+    "validate:presets": "node script/probe/check-preset-eligibility.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

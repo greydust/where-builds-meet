@@ -5,6 +5,8 @@
     "tag": "BellstrikeSplendor",
     "status": "plannerOnly",
     "buildGroup": "bellstrike-splendor",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty",
     "lockedWeapons": ["namelessSword", "namelessSpear"]
   },
   "bellstrikeUmbra": {
@@ -13,6 +15,8 @@
     "tag": "BellstrikeUmbra",
     "status": "plannerOnly",
     "buildGroup": "bellstrike-umbra",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty",
     "lockedWeapons": ["strategicSword", "heavenquakerSpear"]
   },
   "stonesplitMight": {
@@ -21,6 +25,8 @@
     "tag": "StonesplitMight",
     "status": "available",
     "buildGroup": "stonesplit-might",
+    "defaultBuild": "might-fully-relayed-max",
+    "defaultRotation": "dummy-1-min",
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
   "stonesplitStrength": {
@@ -29,6 +35,8 @@
     "tag": "StonesplitStrength",
     "status": "available",
     "buildGroup": "stonesplit-strength",
+    "defaultBuild": "mixed-fully-relayed-min",
+    "defaultRotation": "mixed-dummy-infinite-vitality-1-min",
     "lockedWeapons": ["snowparting", "phalanxbane"]
   },
   "silkbindJade": {
@@ -37,6 +45,8 @@
     "tag": "SilkbindJade",
     "status": "plannerOnly",
     "buildGroup": "silkbind-jade",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty",
     "lockedWeapons": ["vernalUmbrella", "inkwellFan"]
   },
   "silkbindDeluge": {
@@ -45,6 +55,8 @@
     "tag": "SilkbindDeluge",
     "status": "wip",
     "buildGroup": "silkbind-deluge",
+    "defaultBuild": "deluge-fully-relayed-min-ew",
+    "defaultRotation": "dummy-1-min-smolder",
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"]
   },
   "bamboocutWind": {
@@ -53,6 +65,8 @@
     "tag": "BamboocutWind",
     "status": "wip",
     "buildGroup": "bamboocut-wind",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty",
     "lockedWeapons": ["infernalTwinblades", "mortalRopeDart"]
   },
   "bamboocutDust": {
@@ -61,6 +75,8 @@
     "tag": "BamboocutDust",
     "status": "plannerOnly",
     "buildGroup": "bamboocut-dust",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty",
     "lockedWeapons": ["everspring", "unfettered"]
   },
   "bamboocutKite": {
@@ -69,11 +85,15 @@
     "tag": "BamboocutKite",
     "status": "available",
     "buildGroup": "bamboocut-kite",
+    "defaultBuild": "kite-fully-relayed-min-bp",
+    "defaultRotation": "dummy-1-min-iv-bp",
     "lockedWeapons": ["heavenwill", "skygrasp"]
   },
   "mixed": {
     "name": "Mixed",
     "status": "devOnly",
-    "buildGroup": "mixed"
+    "buildGroup": "mixed",
+    "defaultBuild": "empty",
+    "defaultRotation": "empty"
   }
 }

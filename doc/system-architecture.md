@@ -291,9 +291,15 @@ colliding IDs without changing the currently applied profile.
 `data/default-setup.json` supplies first-load Inner Ways, food, and Divinecraft
 plus fallback build setup values for older build records. Bundled builds define Inner Ways and setup choices
 in their own path-grouped `data/build/**/*.json` records. Each path declares one
-`buildGroup` and one explicit `status` in `data/path.json`; default-build
-visibility follows that folder mapping rather than being inferred from the
-preset's martial-art pair.
+`buildGroup`, one explicit `status`, and `defaultBuild` and `defaultRotation`
+preset IDs in `data/path.json`. Paths without presets explicitly reference the
+development-only empty build and rotation. A compatible persisted selection
+takes precedence; otherwise changing or loading a path selects its declared
+default before considering other eligible presets. The preset-validation gate
+requires every available path to declare existing, non-test defaults belonging
+to that path before a production build can complete. Default-build visibility
+follows the folder mapping rather than being inferred from the preset's
+martial-art pair.
 
 ## Character stat pipeline
 
