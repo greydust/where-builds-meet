@@ -5,6 +5,20 @@
   "resourceMaximums": {
     "HeavensWill": 4
   },
+  "resourceEvents": [
+    {
+      "event": "damage",
+      "resource": "Vitality",
+      "amount": 2,
+      "cooldown": 2
+    },
+    {
+      "event": "takeDamage",
+      "resource": "Vitality",
+      "amount": 4,
+      "perMaxHPRatio": 0.1
+    }
+  ],
   "baseStats": {
     "stat": {
       "precision": 0.65,

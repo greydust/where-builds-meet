@@ -1034,6 +1034,9 @@ function breakthroughProfile(settings: CalculatorSettings) {
 }
 
 type SystemStatsDefinition = {
+  initialResources: Record<string, number>;
+  resourceMaximums: Record<string, number>;
+  resourceEvents: import("./calculations/rotationTimeline").ResourceEventRule[];
   baseStats: SetupEffect;
   enhancementStats: Array<SetupEffect & { id: string }>;
   talentStats: Array<SetupEffect & { id: string }>;
@@ -6058,6 +6061,15 @@ function RotationEditorTab({
     [rotation.steps],
   );
   const showHeavensWillColumn = settings.weapons.includes("heavenwill") && settings.weapons.includes("skygrasp");
+  const showVitalityColumn = useMemo(
+    () =>
+      rotation.steps.some((step) => {
+        if (step.type !== "skill") return false;
+        const skill = findSkill(step.skill ?? "");
+        return skill?.tags?.includes("Mystic") === true && skill.tags.includes("Triggered") === false;
+      }),
+    [rotation.steps],
+  );
   const totalRotationTime = currentCachedResult?.duration ?? 0;
   const readableRotation = useMemo(
     () => (readableDialogOpen ? readableRotationText(timeline, startAnchor, anchorTime) : ""),
@@ -6130,9 +6142,16 @@ function RotationEditorTab({
       ),
       initialBuffs: globalBuffTimelineEffects(globalDebuffs),
       initialDebuffs: globalDebuffTimelineEffects(globalDebuffs),
-      initialResources: systemStats.initialResources,
+      initialResources: {
+        ...typedSystemStats.initialResources,
+        Vitality: displayedCharacterStats.maxVitality,
+      },
       resourceRegeneration: { HeavensWill: displayedCharacterStats.heavensWillRegen },
-      resourceMaximums: systemStats.resourceMaximums,
+      resourceMaximums: {
+        ...typedSystemStats.resourceMaximums,
+        Vitality: displayedCharacterStats.maxVitality,
+      },
+      resourceEvents: typedSystemStats.resourceEvents,
       maxHP: displayedCharacterStats.maxHp,
     };
   }
@@ -6757,10 +6776,11 @@ function RotationEditorTab({
                       showTargetHPColumn ? "8ch" : "",
                       showQiColumn ? "8ch" : "",
                       showHeavensWillColumn ? "13ch" : "",
+                      showVitalityColumn ? "10ch" : "",
                     ]
                       .filter(Boolean)
                       .join(" "),
-                    minInlineSize: `${67.5 + (Number(showDistanceColumn) + Number(showSelfHPColumn) + Number(showTargetHPColumn) + Number(showQiColumn)) * 5.3125 + Number(showHeavensWillColumn) * 6.875}rem`,
+                    minInlineSize: `${67.5 + (Number(showDistanceColumn) + Number(showSelfHPColumn) + Number(showTargetHPColumn) + Number(showQiColumn)) * 5.3125 + Number(showHeavensWillColumn) * 6.875 + Number(showVitalityColumn) * 5.3125}rem`,
                   } as CSSProperties
                 }
               >
@@ -6775,6 +6795,7 @@ function RotationEditorTab({
                   {showTargetHPColumn && <span>{t("ui.app.hp")}</span>}
                   {showQiColumn && <span>{t("ui.app.qi")}</span>}
                   {showHeavensWillColumn && <span>{t("system.resource.heavensWill")}</span>}
+                  {showVitalityColumn && <span>{t("system.resource.vitality")}</span>}
                   <span className="rotation-damage-heading">{t("ui.app.damage")}</span>
                   <span>{t("ui.app.buff")}</span>
                   <span>{t("ui.app.debuff")}</span>
@@ -7261,6 +7282,11 @@ function RotationEditorTab({
                                 {formatNumber(row.resources.HeavensWill ?? 0)}
                               </span>
                             )}
+                            {showVitalityColumn && (
+                              <span data-mobile-label={t("system.resource.vitality")}>
+                                {formatNumber(row.resources.Vitality ?? 0)}
+                              </span>
+                            )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
                                 step.event === "MartialArt" ? (
@@ -7579,6 +7605,11 @@ function RotationEditorTab({
                                 {showHeavensWillColumn && (
                                   <span data-mobile-label={t("system.resource.heavensWill")}>
                                     {formatNumber(actionState?.resources.HeavensWill ?? row.resources.HeavensWill ?? 0)}
+                                  </span>
+                                )}
+                                {showVitalityColumn && (
+                                  <span data-mobile-label={t("system.resource.vitality")}>
+                                    {formatNumber(actionState?.resources.Vitality ?? row.resources.Vitality ?? 0)}
                                   </span>
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>

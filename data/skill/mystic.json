@@ -5,6 +5,12 @@
     "castTime": 1.26,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 15,
+        "time": 0
+      },
+      {
         "type": "damage",
         "phyCoef": 3.1956,
         "phyBonus": 459,
@@ -20,6 +26,12 @@
     "shortName": "Soaring",
     "castTime": 2.1,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 15,
+        "time": 0
+      },
       {
         "type": "damage",
         "phyCoef": 3.1956,
@@ -43,6 +55,12 @@
     "shortName": "Toad",
     "castTime": 1.25,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 25,
+        "time": 0
+      },
       {
         "type": "damage",
         "phyCoef": 0.5406,
@@ -73,6 +91,12 @@
     "castTime": 0,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -88,6 +112,12 @@
     "shortName": "Poet",
     "castTime": 1.325,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0
+      },
       {
         "type": "apply",
         "target": "self",
@@ -153,6 +183,12 @@
     "castTime": 1.1875,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -216,6 +252,12 @@
     "shortName": "Poet",
     "castTime": 1.3125,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0
+      },
       {
         "type": "apply",
         "target": "self",
@@ -281,6 +323,12 @@
     "castTime": 1.3375,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -344,6 +392,12 @@
     "shortName": "Poet",
     "castTime": 1.275,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0
+      },
       {
         "type": "consume",
         "target": "self",
@@ -475,6 +529,12 @@
     "castTime": 1.3375,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 20,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -525,6 +585,12 @@
     "castTime": 1.3375,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 20,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -574,6 +640,12 @@
     "shortName": "Breath Full",
     "castTime": 2.7375,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 20,
+        "time": 0
+      },
       {
         "type": "apply",
         "target": "self",
@@ -650,6 +722,12 @@
     "shortName": "Smolder Full",
     "castTime": 2.7375,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 20,
+        "time": 0
+      },
       {
         "type": "apply",
         "target": "self",
@@ -728,6 +806,12 @@
     "castTime": 0.8,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 50,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Flute",
@@ -749,6 +833,12 @@
     "collectBoostDamage": "Flute",
     "castTime": 3.275,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 50,
+        "time": 0
+      },
       {
         "type": "damage",
         "phyCoef": 1.4696,
@@ -828,6 +918,12 @@
     "castTime": 0,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 40,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Mystery",
@@ -844,6 +940,12 @@
     "castTime": 0,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 40,
+        "time": 0
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "MysteryUmbra",
@@ -858,6 +960,12 @@
     "name": "Dragon Head - Tide",
     "castTime": 5.85,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 80,
+        "time": 0
+      },
       {
         "type": "apply",
         "target": "self",
@@ -953,6 +1061,12 @@
     "castTime": 1.45,
     "action": [
       {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 20,
+        "time": 0
+      },
+      {
         "type": "damage",
         "phyCoef": 2.546,
         "phyBonus": 365,
@@ -1023,6 +1137,12 @@
     "name": "Bursting Nine 2 Shots",
     "castTime": 1.925,
     "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 30,
+        "time": 0
+      },
       {
         "type": "damage",
         "phyCoef": 2.546,

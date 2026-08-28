@@ -231,7 +231,16 @@ export type TimelineBuildInput = {
   initialResources?: ResourceState;
   resourceRegeneration?: ResourceState;
   resourceMaximums?: ResourceState;
+  resourceEvents?: ResourceEventRule[];
   maxHP?: number;
+};
+
+export type ResourceEventRule = {
+  event: "damage" | "takeDamage";
+  resource: string;
+  amount: number;
+  cooldown?: number;
+  perMaxHPRatio?: number;
 };
 
 export type RequirementState = {
@@ -880,6 +889,31 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       ([, rate]) => typeof rate === "number" && Number.isFinite(rate) && rate > 0,
     ),
   );
+  const resourceEventRules = (input.resourceEvents ?? []).filter(
+    (rule) =>
+      typeof rule.resource === "string" &&
+      typeof rule.amount === "number" &&
+      Number.isFinite(rule.amount) &&
+      rule.amount >= 0,
+  );
+  const resourceEventCooldowns = new Map<number, number>();
+  const applyResourceEvent = (eventName: ResourceEventRule["event"], time: number, hpLost = 0) => {
+    resourceEventRules.forEach((rule, ruleIndex) => {
+      if (rule.event !== eventName || (resourceEventCooldowns.get(ruleIndex) ?? 0) > time) return;
+      let amount = rule.amount;
+      if (eventName === "takeDamage") {
+        if (!(typeof rule.perMaxHPRatio === "number" && rule.perMaxHPRatio > 0) || maxHP <= 0) return;
+        amount *= hpLost / maxHP / rule.perMaxHPRatio;
+      }
+      if (amount <= 0) return;
+      resources = {
+        ...resources,
+        [rule.resource]: clampResource(rule.resource, (resources[rule.resource] ?? 0) + amount),
+      };
+      if (typeof rule.cooldown === "number" && rule.cooldown > 0)
+        resourceEventCooldowns.set(ruleIndex, time + rule.cooldown);
+    });
+  };
   // Pre-fight actions can change resources, but passive regeneration begins only
   // when combat starts. The converged pass supplies the exact resolved anchor.
   let lastResourceRegenerationTime = resolvedAnchorTime ?? initialAnchorTime;
@@ -1831,7 +1865,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       });
     };
     if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
+      const previousHP = currentHP;
       setCurrentHP(currentHP - Math.max(0, action.damage));
+      applyResourceEvent("takeDamage", event.time, previousHP - currentHP);
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("takeDamage");
       if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
@@ -1874,6 +1910,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             .forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
         });
       if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
+      applyResourceEvent("damage", event.time);
     }
     if (action.type === "trigger" && typeof action.value === "string") {
       const triggerOrdinal =

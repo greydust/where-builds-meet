@@ -489,6 +489,14 @@ Heaven's Will every 10 seconds after the fight starts. Explicit resource actions
 operate on the regenerated value, and equal-time actions retain their declared
 causal order.
 
+`system.json.resourceEvents` defines universal gains caused by timeline
+events. A damage rule may declare a cooldown; a take-damage rule may declare
+`perMaxHPRatio`, in which case Max HP actually lost grants `amount`
+proportionally to that ratio. Vitality starts at and is capped by the character's
+`maxVitality`. Direct Mystic definitions consume Vitality with an explicit
+time-zero `consumeResource` action. Triggered Mystic definitions omit that
+action, so follow-up damage does not pay the parent cast's cost again.
+
 ## Requirements
 
 A requirement array is an implicit AND group:

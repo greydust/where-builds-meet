@@ -417,6 +417,9 @@ numeric resources. Resource actions update that map in event order, and each
 action snapshot carries the resource values used by action and setup-effect
 requirements. Optional resource-regeneration rates accrue from elapsed timeline
 time before each ordered event is processed.
+System-defined resource-event rules are evaluated by the same ordered queue.
+They cover universal gains such as Vitality from attacks and actual Max-HP
+loss, while ordinary skill actions handle explicit costs and gains.
 Actions may wrap their requirement operands with `resolveAt: "skillStart"`.
 The timeline evaluates and stores that boolean when the owning skill component
 begins, then uses the stored result when the action executes. This keeps delayed

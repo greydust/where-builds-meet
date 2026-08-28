@@ -17,6 +17,7 @@ try {
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const system = JSON.parse(await readFile("data/system.json", "utf8"));
   const heavenwillSkills = JSON.parse(await readFile("data/skill/heavenwill-gauntlets.json", "utf8"));
+  const mysticSkills = JSON.parse(await readFile("data/skill/mystic.json", "utf8"));
   const kiteBuffs = JSON.parse(await readFile("data/buff/bamboocut-kite.json", "utf8"));
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
@@ -206,6 +207,90 @@ try {
   const withUnity = unityTimeline.at(-1).actionStates[0].resources.HeavensWill;
   assert(withoutUnity === 0.1, "Celestial Mandate must generate 0.1 Heaven's Will without Heaven's Unity.");
   assert(withUnity === 0.3, "Celestial Mandate must generate 0.3 Heaven's Will with Heaven's Unity.");
+
+  const vitalityTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Vitality event probe",
+      steps: [
+        { type: "skill", skill: "VitalitySequence" },
+        { type: "skill", skill: "ObserveVitality" },
+      ],
+    },
+    skills: {
+      VitalitySequence: {
+        name: "Vitality Sequence",
+        castTime: 2.1,
+        action: [
+          { type: "damage", phyCoef: 1, time: 0 },
+          { type: "damage", phyCoef: 1, time: 1 },
+          { type: "damage", phyCoef: 1, time: 2.1 },
+          { type: "takeDamage", damage: 250, time: 2.1 },
+        ],
+        modifier: [],
+        tags: ["General"],
+      },
+      ObserveVitality: {
+        name: "Observe Vitality",
+        castTime: 0.1,
+        action: [{ type: "damage", phyCoef: 0, time: 0.1 }],
+        modifier: [],
+        tags: ["General"],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["heavenwill", "skygrasp"],
+    initialResources: { Vitality: 0 },
+    resourceMaximums: { Vitality: 100 },
+    resourceEvents: system.resourceEvents,
+    maxHP: 1000,
+  });
+  const vitalityStates = vitalityTimeline[0].actionStates;
+  assert(
+    vitalityStates[0].resources.Vitality === 0 &&
+      vitalityStates[1].resources.Vitality === 2 &&
+      vitalityStates[2].resources.Vitality === 2 &&
+      vitalityTimeline[1].actionStates[0].resources.Vitality === 14,
+    "Attack Vitality must respect its cooldown, while actual Max-HP loss grants stepped Vitality.",
+  );
+
+  const mysticVitalityTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Mystic Vitality probe",
+      steps: [
+        { type: "skill", skill: "SoaringSpin1" },
+        { type: "skill", skill: "ObserveVitality" },
+      ],
+    },
+    skills: {
+      ...mysticSkills,
+      ObserveVitality: {
+        name: "Observe Vitality",
+        castTime: 0,
+        action: [{ type: "setResource", value: "ObservedVitality", amount: 1, time: 0 }],
+        modifier: [],
+        tags: ["General"],
+      },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["heavenwill", "skygrasp"],
+    initialResources: { Vitality: 40 },
+    resourceMaximums: { Vitality: 40 },
+    resourceEvents: system.resourceEvents,
+  });
+  assert(
+    mysticVitalityTimeline[1].resources.Vitality === 27,
+    "A direct Mystic cast must consume its Vitality once and may regain Vitality from its attack.",
+  );
 
   console.log("Numeric resource action and requirement checks passed.");
 } finally {
