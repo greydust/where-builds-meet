@@ -14,9 +14,8 @@ try {
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { calculateStatsWithEffects } = await viteServer.ssrLoadModule("/src/calculations/statEffects.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
-  const { ExpectedOutcomeBuffTracker, outcomeBuffTick } = await viteServer.ssrLoadModule(
-    "/src/calculations/outcomeTriggeredBuffs.ts",
-  );
+  const { ExpectedHawkwingTracker } = await viteServer.ssrLoadModule("/src/calculations/hawkwing.ts");
+  const { outcomeBuffTick } = await viteServer.ssrLoadModule("/src/calculations/outcomeTriggeredBuffs.ts");
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -131,7 +130,7 @@ try {
     "The displayed stack metric must exclude delays and healing actions from its per-damage average",
   );
 
-  const tracker = new ExpectedOutcomeBuffTracker();
+  const tracker = new ExpectedHawkwingTracker();
   const buff = {
     name: "Hawkwing",
     outcome: "affinity",
@@ -139,7 +138,7 @@ try {
     maxStack: 5,
     physicalAttackBonusPerStack: 0.02,
   };
-  tracker.resolveOutcome(buff, outcomeBuffTick(0), 1);
+  tracker.resolveAffinity(buff, outcomeBuffTick(0), 1);
   closeTo(tracker.expectedStack(buff, outcomeBuffTick(4.9999)), 1, "A stack must remain active before expiry");
   closeTo(tracker.expectedStack(buff, outcomeBuffTick(5)), 0, "A stack must expire exactly at its 0.1 ms tick");
   assert(result.metrics.totalDamage > 300, "Expected Hawkwing stacks must increase later physical hits.");

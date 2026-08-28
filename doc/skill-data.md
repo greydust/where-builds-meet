@@ -1122,6 +1122,64 @@ The referenced buff definition supplies its duration, maximum stack, and per-sta
 effect. This trigger is resolved by the damage-sequence outcome tracker rather than
 the ordinary action-time `damage` trigger pipeline.
 
+An outcome-triggered Inner Way may accumulate a decaying resource before
+applying a regular buff:
+
+```json
+{
+  "event": "damageOutcome",
+  "outcome": "affinity",
+  "target": "self",
+  "resource": {
+    "name": "Focus",
+    "gain": 1,
+    "decayRate": -0.25,
+    "threshold": 4,
+    "resetTo": 0
+  },
+  "action": [
+    {
+      "type": "apply",
+      "target": "self",
+      "value": "Concentration",
+      "stack": 1,
+      "reapply": true
+    }
+  ]
+}
+```
+
+Focus decay begins from the previous damage timestamp. The Affinity outcome is
+resolved after the current hit; reaching the threshold therefore affects only
+subsequent hits. `resetTo: 0` is required and makes conversion consume all
+Focus. The referenced buff supplies the duration and Affinity DMG Bonus.
+Concentration is defined in `data/buff/bellstrike-umbra.json`; its expected
+pre-hit activation probability is exposed as a fractional average stack and
+rendered through the same synthetic buff-plate path as Hawkwing.
+
+Insightful Strike T1 grants `0.015` Damage Bonus while self HP is above 75%.
+At or below 75%, it instead exposes `leech: 0.015`, meaning intended recovery
+equal to 1.5% of damage dealt. `leech` is currently retained as data only and
+does not recover HP until damage-based healing is implemented.
+Insightful Strike T2 adds 22.3 Min Physical Attack and 44.7 Max Physical
+Attack through the shared stat-effect pipeline.
+Insightful Strike T3 modifies Concentration to add `0.015` Direct Affinity and
+another `0.015` while self HP percentage is strictly greater than target HP
+percentage. The second rule uses the generic `compareTo` requirement operand,
+so both percentages are read at the current hit. A rotation without preset
+target maximum HP supplies the stable implicit target state of 99%.
+Insightful Strike T4 modifies the Focus outcome resource's gain from `1` to
+`1.5` per Affinity outcome. The modifier is resolved before both deterministic
+probability tracking and concrete simulation tracking.
+Insightful Strike T5 adds 5.1 Physical Penetration through the ordinary
+calculation-time penetration effect.
+Insightful Strike T6 grants 10% Damage Bonus to skills tagged `DOT` or
+`DOTEmpowered` through an explicit OR tag requirement.
+
+A numeric requirement normally compares its resolved target with `amount`. It
+may instead use `compareTo` with another numeric runtime state such as
+`targetHPPercentage`; both operands are resolved at the requirement timestamp.
+
 - Use decimal ratios for percentages.
 - Keep IDs stable and put display text in `name`/`description`.
 - Use `action` for timeline changes and `modifier` only for cast-start changes.

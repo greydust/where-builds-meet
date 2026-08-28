@@ -19,7 +19,6 @@ import {
   mergeEffectDefinition,
   requirementsPass,
   type EditableObject,
-  type EffectDefinition,
   type InnerWayEffectRule,
   type ResourceState,
   type TimelineBuildInput,
@@ -31,19 +30,22 @@ import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
 import { calculateHealingBreakdown, type HealingBreakdown } from "./healing";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
+import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 import {
   addUnconditionalDamageEffects,
   splitStaticDamageEffect,
   subtractUnconditionalDamageEffects,
   type UnconditionalDamageEffects,
 } from "./unconditionalDamageEffects";
+import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTriggeredBuffs";
+import { ExpectedHawkwingTracker, SimulatedHawkwingTracker, hawkwingEffectFor, type HawkwingEffect } from "./hawkwing";
 import {
-  ExpectedOutcomeBuffTracker,
-  SimulatedOutcomeBuffTracker,
-  outcomeBuffTick,
-  type ExpectedOutcomeBuffSchedule,
-  type OutcomeTriggeredBuff,
-} from "./outcomeTriggeredBuffs";
+  ExpectedInsightfulStrikeTracker,
+  SimulatedInsightfulStrikeTracker,
+  insightfulStrikeDirectAffinityBonus,
+  insightfulStrikeEffectFor,
+  type InsightfulStrikeEffect,
+} from "./insightfulStrike";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -54,7 +56,8 @@ export type RotationDamageEntry = {
   timelineOrder?: number;
   sourceRowId?: string;
   replay?: { sourceEntryId: string; coef: number };
-  outcomeTriggeredBuffs?: OutcomeTriggeredBuff[];
+  hawkwing?: HawkwingEffect;
+  insightfulStrike?: InsightfulStrikeEffect;
   damageEvent?: {
     buffs: TrackedEffect[];
     debuffs: TrackedEffect[];
@@ -165,8 +168,10 @@ function replayBreakdown(damage: number): DamageBreakdown {
 function calculateRotationDamageEntry(
   entry: RotationDamageEntry,
   resolved: Map<string, RotationActionBreakdown>,
-  physicalAttackBonus = 0,
+  outcomeEffects?: UnconditionalDamageEffects,
+  directAffinityBonus = 0,
   random?: () => number,
+  record = true,
 ): RotationActionBreakdown {
   let breakdown: RotationActionBreakdown;
   if (entry.replay) {
@@ -176,60 +181,179 @@ function calculateRotationDamageEntry(
     breakdown = { ...emptyBreakdown(), healing: calculateHealingBreakdown(entry.action, entry.context) };
   } else {
     const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-    const context = physicalAttackBonus
+    const contextWithDamageEffects =
+      outcomeEffects && Object.keys(outcomeEffects).length
+        ? {
+            ...entry.context,
+            unconditionalDamageEffects: addUnconditionalDamageEffects(
+              entry.context.unconditionalDamageEffects,
+              outcomeEffects,
+            ),
+          }
+        : entry.context;
+    const context = directAffinityBonus
       ? {
-          ...entry.context,
-          unconditionalDamageEffects: addUnconditionalDamageEffects(entry.context.unconditionalDamageEffects, {
-            physicalAttackBonus,
-          }),
+          ...contextWithDamageEffects,
+          effects: [...contextWithDamageEffects.effects, { stat: { directAffinity: directAffinityBonus } }],
         }
-      : entry.context;
+      : contextWithDamageEffects;
     breakdown = random
       ? calculateSimulatedDamageBreakdown(entry.action, context, random)
       : calculateDamageBreakdown(entry.action, context);
     if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
   }
-  if (entry.id) resolved.set(entry.id, breakdown);
+  if (record && entry.id) resolved.set(entry.id, breakdown);
   return breakdown;
+}
+
+function blendDamageBreakdowns(
+  inactive: RotationActionBreakdown,
+  active: RotationActionBreakdown,
+  activeProbability: number,
+): RotationActionBreakdown {
+  const inactiveProbability = 1 - activeProbability;
+  const weighted = (field: keyof DamageBreakdown) =>
+    Number(inactive[field] ?? 0) * inactiveProbability + Number(active[field] ?? 0) * activeProbability;
+  const outcomeRates =
+    inactive.outcomeRates && active.outcomeRates
+      ? {
+          abrasion:
+            inactive.outcomeRates.abrasion * inactiveProbability + active.outcomeRates.abrasion * activeProbability,
+          normal: inactive.outcomeRates.normal * inactiveProbability + active.outcomeRates.normal * activeProbability,
+          critical:
+            inactive.outcomeRates.critical * inactiveProbability + active.outcomeRates.critical * activeProbability,
+          affinity:
+            inactive.outcomeRates.affinity * inactiveProbability + active.outcomeRates.affinity * activeProbability,
+        }
+      : undefined;
+  return {
+    physical: weighted("physical"),
+    bellstrike: weighted("bellstrike"),
+    stonesplit: weighted("stonesplit"),
+    silkbind: weighted("silkbind"),
+    bamboocut: weighted("bamboocut"),
+    total: weighted("total"),
+    ...(outcomeRates ? { outcomeRates } : {}),
+  };
 }
 
 export type ResolvedRotationDamage = {
   entry: RotationDamageEntry;
   breakdown: RotationActionBreakdown;
   expectedBuffStacks?: Record<string, number>;
-  outcomePhysicalAttackBonus?: number;
+  outcomeEffects?: UnconditionalDamageEffects;
+  expectedConcentration?: {
+    probability: number;
+    activeEffects: UnconditionalDamageEffects;
+    directAffinityBonus: number;
+  };
 };
 
 function createRotationDamageResolver(random?: () => number, schedule?: ExpectedOutcomeBuffSchedule) {
   const resolved = new Map<string, RotationActionBreakdown>();
-  const expectedTracker = random ? undefined : new ExpectedOutcomeBuffTracker();
-  const simulatedTracker = random ? new SimulatedOutcomeBuffTracker() : undefined;
+  const expectedHawkwing = random ? undefined : new ExpectedHawkwingTracker();
+  const simulatedHawkwing = random ? new SimulatedHawkwingTracker() : undefined;
+  const expectedInsightfulStrike = random ? undefined : new ExpectedInsightfulStrikeTracker();
+  const simulatedInsightfulStrike = random ? new SimulatedInsightfulStrikeTracker() : undefined;
   const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
     const tick = outcomeBuffTick(entry.timelineTime);
     const expectedBuffStacks: Record<string, number> = {};
-    let physicalAttackBonus = 0;
-    for (const buff of entry.outcomeTriggeredBuffs ?? []) {
+    let outcomeEffects: UnconditionalDamageEffects = {};
+    if (entry.hawkwing) {
       const stack = random
-        ? simulatedTracker!.stack(buff, tick)
-        : (schedule?.[entry.id ?? ""]?.[buff.name] ?? expectedTracker!.expectedStack(buff, tick));
-      expectedBuffStacks[buff.name] = stack;
-      physicalAttackBonus += stack * buff.physicalAttackBonusPerStack;
+        ? simulatedHawkwing!.stack(tick)
+        : (schedule?.[entry.id ?? ""]?.Hawkwing ?? expectedHawkwing!.expectedStack(entry.hawkwing, tick));
+      expectedBuffStacks.Hawkwing = stack;
+      outcomeEffects = addUnconditionalDamageEffects(outcomeEffects, {
+        physicalAttackBonus: stack * entry.hawkwing.physicalAttackBonusPerStack,
+      });
     }
-    const breakdown = calculateRotationDamageEntry(entry, resolved, physicalAttackBonus, random);
+    let concentrationProbability: number | undefined;
+    let concentrationEffects: UnconditionalDamageEffects = {};
+    let concentrationDirectAffinity = 0;
+    if (entry.insightfulStrike) {
+      concentrationProbability = random
+        ? Number(simulatedInsightfulStrike!.concentrationActive(entry.insightfulStrike, tick))
+        : (schedule?.[entry.id ?? ""]?.Concentration ??
+          expectedInsightfulStrike!.expectedConcentration(entry.insightfulStrike, tick));
+      expectedBuffStacks.Concentration = concentrationProbability;
+      concentrationEffects = {
+        affinityDmgBonus: entry.insightfulStrike.affinityDamageBonus,
+      };
+      concentrationDirectAffinity = insightfulStrikeDirectAffinityBonus(entry.insightfulStrike, {
+        selfHPPercentage: (entry.context.currentHPRatio ?? 1) * 100,
+        targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+      });
+    }
+    let inactiveBreakdown: RotationActionBreakdown | undefined;
+    let activeBreakdown: RotationActionBreakdown | undefined;
+    let breakdown: RotationActionBreakdown;
+    if (concentrationProbability !== undefined && entry.action.type === "damage" && !entry.replay && !random) {
+      if (concentrationProbability < 1)
+        inactiveBreakdown = calculateRotationDamageEntry(entry, resolved, outcomeEffects, 0, undefined, false);
+      if (concentrationProbability > 0)
+        activeBreakdown = calculateRotationDamageEntry(
+          entry,
+          resolved,
+          addUnconditionalDamageEffects(outcomeEffects, concentrationEffects),
+          concentrationDirectAffinity,
+          undefined,
+          false,
+        );
+      breakdown =
+        inactiveBreakdown && activeBreakdown
+          ? blendDamageBreakdowns(inactiveBreakdown, activeBreakdown, concentrationProbability)
+          : (activeBreakdown ?? inactiveBreakdown)!;
+      if (entry.id) resolved.set(entry.id, breakdown);
+    } else {
+      const concentrationActive = concentrationProbability === 1;
+      breakdown = calculateRotationDamageEntry(
+        entry,
+        resolved,
+        concentrationActive ? addUnconditionalDamageEffects(outcomeEffects, concentrationEffects) : outcomeEffects,
+        concentrationActive ? concentrationDirectAffinity : 0,
+        random,
+      );
+      if (!random) {
+        if (concentrationActive) activeBreakdown = breakdown;
+        else inactiveBreakdown = breakdown;
+      }
+    }
     if (!entry.replay && breakdown.total > 0) {
-      for (const buff of entry.outcomeTriggeredBuffs ?? []) {
-        if (random) {
-          if (breakdown.outcome === buff.outcome) simulatedTracker!.resolveOutcome(buff, tick);
-        } else if (!schedule) {
-          expectedTracker!.resolveOutcome(buff, tick, breakdown.outcomeRates?.[buff.outcome] ?? 0);
-        }
+      if (entry.hawkwing) {
+        if (random && breakdown.outcome === entry.hawkwing.outcome)
+          simulatedHawkwing!.resolveAffinity(entry.hawkwing, tick);
+        else if (!random && !schedule)
+          expectedHawkwing!.resolveAffinity(
+            entry.hawkwing,
+            tick,
+            breakdown.outcomeRates?.[entry.hawkwing.outcome] ?? 0,
+          );
+      }
+      if (entry.insightfulStrike) {
+        if (random && breakdown.outcome === entry.insightfulStrike.outcome)
+          simulatedInsightfulStrike!.resolveAffinity(entry.insightfulStrike, tick);
+        else if (!random && !schedule)
+          expectedInsightfulStrike!.resolveAffinity(
+            entry.insightfulStrike,
+            tick,
+            (inactiveBreakdown ?? breakdown).outcomeRates?.[entry.insightfulStrike.outcome] ?? 0,
+            (activeBreakdown ?? breakdown).outcomeRates?.[entry.insightfulStrike.outcome] ?? 0,
+          );
       }
     }
     return {
       entry,
       breakdown,
-      ...(Object.keys(expectedBuffStacks).length
-        ? { expectedBuffStacks, outcomePhysicalAttackBonus: physicalAttackBonus }
+      ...(Object.keys(expectedBuffStacks).length ? { expectedBuffStacks, outcomeEffects } : {}),
+      ...(!random && concentrationProbability !== undefined
+        ? {
+            expectedConcentration: {
+              probability: concentrationProbability,
+              activeEffects: concentrationEffects,
+              directAffinityBonus: concentrationDirectAffinity,
+            },
+          }
         : {}),
     };
   };
@@ -264,14 +388,43 @@ function averageExpectedBuffStack(sequence: ResolvedRotationDamageSequence, buff
   return stacks.length ? stacks.reduce((total, stack) => total + stack, 0) / stacks.length : undefined;
 }
 
-function contextWithOutcomePhysicalAttackBonus(context: DamageContext, bonus: number | undefined): DamageContext {
-  if (!bonus) return context;
-  return {
-    ...context,
-    unconditionalDamageEffects: addUnconditionalDamageEffects(context.unconditionalDamageEffects, {
-      physicalAttackBonus: bonus,
-    }),
-  };
+function contextWithOutcomeEffects(
+  context: DamageContext,
+  outcomeEffects: UnconditionalDamageEffects | undefined,
+  directAffinityBonus = 0,
+) {
+  const withDamageEffects =
+    outcomeEffects && Object.keys(outcomeEffects).length
+      ? {
+          ...context,
+          unconditionalDamageEffects: addUnconditionalDamageEffects(context.unconditionalDamageEffects, outcomeEffects),
+        }
+      : context;
+  return directAffinityBonus
+    ? {
+        ...withDamageEffects,
+        effects: [...withDamageEffects.effects, { stat: { directAffinity: directAffinityBonus } }],
+      }
+    : withDamageEffects;
+}
+
+function calculateExpectedOutcomeDamage(
+  action: DamageAction,
+  context: DamageContext,
+  outcomeEffects: UnconditionalDamageEffects | undefined,
+  concentration: ResolvedRotationDamage["expectedConcentration"],
+) {
+  const inactive = calculateDamageBreakdown(action, contextWithOutcomeEffects(context, outcomeEffects));
+  if (!concentration || concentration.probability <= 0) return inactive;
+  const active = calculateDamageBreakdown(
+    action,
+    contextWithOutcomeEffects(
+      context,
+      addUnconditionalDamageEffects(outcomeEffects, concentration.activeEffects),
+      concentration.directAffinityBonus,
+    ),
+  );
+  return concentration.probability >= 1 ? active : blendDamageBreakdowns(inactive, active, concentration.probability);
 }
 
 function sumResolvedSequence(sequence: ResolvedRotationDamageSequence) {
@@ -829,58 +982,6 @@ function unwrappedEffect(effect: EditableObject): EditableObject {
     : effect;
 }
 
-function outcomeTriggeredBuffsFor(
-  setupEffects: EditableObject[],
-  effectDefinitions: Record<string, EffectDefinition>,
-): OutcomeTriggeredBuff[] {
-  const buffs = new Map<string, OutcomeTriggeredBuff>();
-  for (const setupEffect of setupEffects) {
-    const trigger =
-      setupEffect.trigger && typeof setupEffect.trigger === "object" && !Array.isArray(setupEffect.trigger)
-        ? (setupEffect.trigger as EditableObject)
-        : undefined;
-    const action =
-      trigger?.action && typeof trigger.action === "object" && !Array.isArray(trigger.action)
-        ? (trigger.action as EditableObject)
-        : undefined;
-    if (
-      trigger?.event !== "damageOutcome" ||
-      trigger.outcome !== "affinity" ||
-      action?.type !== "apply" ||
-      action.target !== "self" ||
-      typeof action.value !== "string"
-    )
-      continue;
-    const definition = effectDefinitions[action.value];
-    if (
-      typeof definition?.duration !== "number" ||
-      !Number.isFinite(definition.duration) ||
-      typeof definition.maxStack !== "number" ||
-      !Number.isFinite(definition.maxStack)
-    )
-      continue;
-    const firstStackEffects = effectsForTrackedEffect(1, definition);
-    const physicalAttackBonusPerStack = firstStackEffects.reduce<number>((total, effect) => {
-      if (!effect || typeof effect !== "object" || Array.isArray(effect)) return total;
-      const unwrapped = unwrappedEffect(effect as EditableObject);
-      return (
-        total +
-        (typeof unwrapped.physicalAttackBonus === "number" && Number.isFinite(unwrapped.physicalAttackBonus)
-          ? unwrapped.physicalAttackBonus
-          : 0)
-      );
-    }, 0);
-    buffs.set(action.value, {
-      name: action.value,
-      outcome: "affinity",
-      durationTicks: outcomeBuffTick(definition.duration),
-      maxStack: Math.max(1, Math.floor(definition.maxStack)),
-      physicalAttackBonusPerStack,
-    });
-  }
-  return [...buffs.values()];
-}
-
 function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
@@ -896,7 +997,8 @@ function timelineDamageEntries(
   );
   const conditions = new Set(overrides.innerWayConditions ?? input.innerWayConditions);
   const setupEffects = overrides.setupEffects ?? input.setupEffects;
-  const outcomeTriggeredBuffs = outcomeTriggeredBuffsFor(setupEffects, input.effectDefinitions);
+  const hawkwing = hawkwingEffectFor(setupEffects, input.effectDefinitions);
+  const insightfulStrike = insightfulStrikeEffectFor(rules, input.effectDefinitions);
   const staticSetupEffects = setupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
   const dynamicSetupEffects = setupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
   const staticInnerWayRules = rules.filter((rule) => requirementIsSkillStatic(rule.requirement));
@@ -1133,7 +1235,8 @@ function timelineDamageEntries(
               timelineTime: actionTime,
               timelineOrder: actionOrder,
               sourceRowId: row.sourceRowId ?? row.id,
-              ...(outcomeTriggeredBuffs.length ? { outcomeTriggeredBuffs } : {}),
+              ...(hawkwing ? { hawkwing } : {}),
+              ...(insightfulStrike ? { insightfulStrike } : {}),
               ...(action.type === "damage" && damageListeners.length
                 ? {
                     damageEvent: {
@@ -1199,7 +1302,7 @@ function timelineDamageEntries(
   if (!requiresOrderedDamageResolution) {
     return { entries: damageEntries.map(stripTargetHPUpdater) };
   }
-  let targetHPRatio = 1;
+  let targetHPRatio = usesTargetDamage ? 1 : DEFAULT_TARGET_HP_RATIO;
   const targetHPStateSnapshots = updateTimelineState
     ? timeline.flatMap((row) => {
         if (row.skipped) return [];
@@ -1458,9 +1561,7 @@ function timelineDamageEntries(
       entry: stripTargetHPUpdater(entry),
       breakdown: resolvedRow?.breakdown ?? emptyBreakdown(),
       ...(resolvedRow?.expectedBuffStacks ? { expectedBuffStacks: resolvedRow.expectedBuffStacks } : {}),
-      ...(resolvedRow?.outcomePhysicalAttackBonus !== undefined
-        ? { outcomePhysicalAttackBonus: resolvedRow.outcomePhysicalAttackBonus }
-        : {}),
+      ...(resolvedRow?.outcomeEffects ? { outcomeEffects: resolvedRow.outcomeEffects } : {}),
     };
   });
   return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence };
@@ -1539,16 +1640,18 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
-      .map(({ entry, breakdown, expectedBuffStacks, outcomePhysicalAttackBonus }) => {
+      .map(({ entry, breakdown, expectedBuffStacks, outcomeEffects, expectedConcentration }) => {
         baselineDamage += breakdown.total;
         baselineHealing += breakdown.healing?.total ?? 0;
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
             .map(({ sourceRowId, context }) => {
               const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-              const counterfactualDamage = calculateDamageBreakdown(
+              const counterfactualDamage = calculateExpectedOutcomeDamage(
                 entry.action,
-                contextWithOutcomePhysicalAttackBonus(context, outcomePhysicalAttackBonus),
+                context,
+                outcomeEffects,
+                expectedConcentration,
               ).total;
               if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
               return [sourceRowId, breakdown.total - counterfactualDamage];

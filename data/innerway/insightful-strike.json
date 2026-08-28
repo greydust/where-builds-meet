@@ -1,0 +1,141 @@
+{
+  "name": "Insightful Strike",
+  "altersTimeline": true,
+  "tags": ["BellstrikeSplendor", "BellstrikeUmbra", "SilkbindDeluge"],
+  "effect": {
+    "InsightfulStrikeT0": {
+      "trigger": [
+        {
+          "event": "damageOutcome",
+          "outcome": "affinity",
+          "target": "self",
+          "resource": {
+            "name": "Focus",
+            "gain": 1,
+            "decayRate": -0.25,
+            "threshold": 4,
+            "resetTo": 0
+          },
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "Concentration",
+              "stack": 1,
+              "reapply": true
+            }
+          ]
+        }
+      ]
+    },
+    "InsightfulStrikeT1": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "target": "selfHPPercentage",
+              "comparison": ">",
+              "amount": 75
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.015
+          }
+        },
+        {
+          "requirement": [
+            {
+              "target": "selfHPPercentage",
+              "comparison": "<=",
+              "amount": 75
+            }
+          ],
+          "effect": {
+            "leech": 0.015
+          }
+        }
+      ]
+    },
+    "InsightfulStrikeT2": {
+      "effect": [
+        {
+          "stat": {
+            "minPhys": 22.3,
+            "maxPhys": 44.7
+          }
+        }
+      ]
+    },
+    "InsightfulStrikeT3": {
+      "effect": [
+        {
+          "target": "Concentration",
+          "modify": {
+            "effect": [
+              {
+                "stat": {
+                  "directAffinity": 0.015
+                }
+              },
+              {
+                "requirement": [
+                  {
+                    "target": "selfHPPercentage",
+                    "comparison": ">",
+                    "compareTo": "targetHPPercentage"
+                  }
+                ],
+                "stat": {
+                  "directAffinity": 0.015
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "InsightfulStrikeT4": {
+      "effect": [
+        {
+          "target": "Focus",
+          "modify": {
+            "gain": 1.5
+          }
+        }
+      ]
+    },
+    "InsightfulStrikeT5": {
+      "effect": [
+        {
+          "effect": {
+            "physicalPenetration": 5.1
+          }
+        }
+      ]
+    },
+    "InsightfulStrikeT6": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                {
+                  "target": "skillTag",
+                  "value": "DOT"
+                },
+                {
+                  "target": "skillTag",
+                  "value": "DOTEmpowered"
+                }
+              ]
+            }
+          ],
+          "effect": {
+            "dmgBonus": 0.1
+          }
+        }
+      ]
+    }
+  }
+}

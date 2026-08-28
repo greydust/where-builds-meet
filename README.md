@@ -96,3 +96,4 @@ The bundled Noto Sans font is licensed under the [SIL Open Font License 1.1](pub
 - **Xia**, for Stonesplit Might skill data and mechanical explanations
 - **Royal**, for help with the Stonesplit Might rotation
 - **Yu Seol-ha**, for translating the Chinese spreadsheet and providing insights
+- **Sasha**, for data mining and providing insights into system data

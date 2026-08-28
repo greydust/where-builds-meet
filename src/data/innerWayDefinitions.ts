@@ -7,6 +7,7 @@ import empiricalEdge from "../../data/innerway/empirical-edge.json";
 import exquisiteScenery from "../../data/innerway/exquisite-scenery.json";
 import frostCladNight from "../../data/innerway/frost-clad-night.json";
 import furyHarvest from "../../data/innerway/fury-harvest.json";
+import insightfulStrike from "../../data/innerway/insightful-strike.json";
 import moraleChant from "../../data/innerway/morale-chant.json";
 import royalRemedy from "../../data/innerway/royal-remedy.json";
 import seasonalEdge from "../../data/innerway/seasonal-edge.json";
@@ -38,6 +39,7 @@ export const innerWayDefinitions = {
   SkyGripped: skyGripped,
   RoyalRemedy: royalRemedy,
   FuryHarvest: furyHarvest,
+  InsightfulStrike: insightfulStrike,
   SeasonalEdge: seasonalEdge,
 } satisfies Record<string, InnerWayDefinition>;
 

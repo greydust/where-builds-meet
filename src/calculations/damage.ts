@@ -13,6 +13,7 @@ import {
 } from "./statEffects";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
+import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 import type { UnconditionalDamageEffects } from "./unconditionalDamageEffects";
 
 type AttunementDefinition = {
@@ -204,8 +205,8 @@ function calculateDamageBreakdownInternal(
       maxHp: stats.maxHp,
       currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
       missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
-      targetHPPercentage: (context.targetHPRatio ?? 1) * 100,
-      missingTargetHPPercentage: (1 - (context.targetHPRatio ?? 1)) * 100,
+      targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+      missingTargetHPPercentage: (1 - (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO)) * 100,
     };
     const multiplied = resolveMultiplyValue(value, dynamicParameters);
     if (multiplied !== undefined) {

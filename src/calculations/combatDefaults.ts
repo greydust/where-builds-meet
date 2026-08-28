@@ -1,0 +1,1 @@
+export const DEFAULT_TARGET_HP_RATIO = 0.99;

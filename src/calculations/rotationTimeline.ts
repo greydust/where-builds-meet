@@ -1,5 +1,6 @@
 import type { WeaponFamily, WeaponId } from "../types";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
+import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 import { resolveSegmentValue, resolveSwitchValue, type SwitchValue } from "./dynamicValues";
 import {
   addUnconditionalDamageEffects,
@@ -337,26 +338,41 @@ export function requirementsPass(
           current = state.selfHPPercentage ?? 100;
           break;
         case "targetHPPercentage":
-          current = state.targetHPPercentage ?? 100;
+          current = state.targetHPPercentage ?? DEFAULT_TARGET_HP_RATIO * 100;
           break;
         case "targetQiPercentage":
           current = state.targetQiPercentage ?? 100;
           break;
       }
-      if (typeof item.amount !== "number" || !Number.isFinite(item.amount)) return false;
+      let comparedValue: number | undefined;
+      if (typeof item.amount === "number" && Number.isFinite(item.amount)) comparedValue = item.amount;
+      else if (typeof item.compareTo === "string") {
+        switch (item.compareTo) {
+          case "selfHPPercentage":
+            comparedValue = state.selfHPPercentage ?? 100;
+            break;
+          case "targetHPPercentage":
+            comparedValue = state.targetHPPercentage ?? DEFAULT_TARGET_HP_RATIO * 100;
+            break;
+          case "targetQiPercentage":
+            comparedValue = state.targetQiPercentage ?? 100;
+            break;
+        }
+      }
+      if (comparedValue === undefined) return false;
       switch (item.comparison) {
         case ">=":
-          return current >= item.amount;
+          return current >= comparedValue;
         case ">":
-          return current > item.amount;
+          return current > comparedValue;
         case "<=":
-          return current <= item.amount;
+          return current <= comparedValue;
         case "<":
-          return current < item.amount;
+          return current < comparedValue;
         case "==":
-          return current === item.amount;
+          return current === comparedValue;
         case "!=":
-          return current !== item.amount;
+          return current !== comparedValue;
         default:
           return false;
       }
@@ -842,7 +858,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     currentHP = Math.min(maxHP, Math.max(0, value));
     currentHPRatio = maxHP > 0 ? currentHP / maxHP : 0;
   };
-  let targetHPRatio = 1;
+  let targetHPRatio = input.rotation.targetHP ? 1 : DEFAULT_TARGET_HP_RATIO;
   let targetQiRatio = 1;
   let currentMartialArt = weapons[0];
   let currentWeapon = currentMartialArt ? input.martialArtState?.[currentMartialArt]?.weapon : undefined;
@@ -1825,7 +1841,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("damage");
       innerWayRules
-        .filter((rule) => rule.trigger?.event === "damage" || rule.trigger?.target === "self")
+        .filter(
+          (rule) =>
+            rule.trigger?.event !== "damageOutcome" &&
+            (rule.trigger?.event === "damage" || rule.trigger?.target === "self"),
+        )
         .forEach((rule) => {
           const requirement = rule.requirement ?? rule.trigger?.requirement;
           if (

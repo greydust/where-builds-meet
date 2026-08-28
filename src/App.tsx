@@ -73,6 +73,7 @@ import stonesplitMightBuffs from "../data/buff/stonesplit-might.json";
 import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
 import bamboocutKiteBuffs from "../data/buff/bamboocut-kite.json";
 import silkbindDelugeBuffs from "../data/buff/silkbind-deluge.json";
+import bellstrikeUmbraBuffs from "../data/buff/bellstrike-umbra.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
 import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
@@ -342,6 +343,7 @@ const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
     ...bamboocutWindBuffs,
     ...bamboocutKiteBuffs,
     ...silkbindDelugeBuffs,
+    ...bellstrikeUmbraBuffs,
   } as SkillMap,
   Debuff: {
     ...stonesplitStrengthDebuffs,
@@ -537,6 +539,7 @@ const effectDefinitions = {
   ...bamboocutWindBuffs,
   ...bamboocutKiteBuffs,
   ...silkbindDelugeBuffs,
+  ...bellstrikeUmbraBuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,
   ...bellstrikeSplendorDebuffs,
@@ -547,6 +550,38 @@ const effectDefinitions = {
   ...generalDebuffs,
   ...dotDefinitions,
 } as Record<string, EffectDefinition>;
+const expectedOutcomeBuffPlateDefinitions = [
+  { name: "Hawkwing", maxStack: 5 },
+  { name: "Concentration", maxStack: 1 },
+] as const;
+const expectedOutcomeBuffPlateNames = new Set<string>(expectedOutcomeBuffPlateDefinitions.map(({ name }) => name));
+type DisplayedTimelineEffect = TimelineRow["buffs"][number] & {
+  hideRemainingTime?: boolean;
+  averageStackOnly?: boolean;
+};
+function withExpectedOutcomeBuffPlates(
+  buffs: TimelineRow["buffs"],
+  expectedBuffStacks: Record<string, number> | undefined,
+): DisplayedTimelineEffect[] {
+  if (!expectedBuffStacks) return buffs;
+  return [
+    ...buffs.filter((effect) => !expectedOutcomeBuffPlateNames.has(effect.name)),
+    ...expectedOutcomeBuffPlateDefinitions.flatMap(({ name, maxStack }) => {
+      const stack = expectedBuffStacks[name];
+      return stack !== undefined && stack > 0
+        ? [
+            {
+              name,
+              stack,
+              maxStack,
+              hideRemainingTime: true,
+              averageStackOnly: true,
+            },
+          ]
+        : [];
+    }),
+  ];
+}
 const globalEffectRules = Object.values(effectDefinitions).flatMap((definition) =>
   definition.global ? (definition.effect ?? []) : [],
 ) as EditableObject[];
@@ -558,6 +593,7 @@ const manualBuffDefinitions = {
   ...bamboocutWindBuffs,
   ...bamboocutKiteBuffs,
   ...silkbindDelugeBuffs,
+  ...bellstrikeUmbraBuffs,
 } as Record<string, { name?: string }>;
 const manualGeneralDebuffs = Object.fromEntries(Object.entries(generalDebuffs).filter(([id]) => id !== "Exhausted"));
 const manualDebuffDefinitions = {
@@ -681,6 +717,7 @@ function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): Inn
         .map((item) => ({
           requirement: item.requirement,
           trigger: {
+            ...item,
             target: typeof item.target === "string" ? item.target : "self",
             action: Array.isArray(item.action) ? item.action : [],
           },
@@ -6768,7 +6805,7 @@ function RotationEditorTab({
                             const definition = calculationDefinitions.effectDefinitions[effect.name];
                             const description = gameText(definition?.description?.trim());
                             const name = gameText(definition?.name ?? effect.name);
-                            const label = `${gameText(definition?.shortName) || name}${effect.stack !== undefined && (effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${formatNumber(effect.stack)}` : ""}`;
+                            const label = `${gameText(definition?.shortName) || name}${effect.stack !== undefined && (effect.averageStackOnly || effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${formatNumber(effect.stack)}` : ""}`;
                             const timeLeft =
                               effect.expiresAt === undefined ? "∞" : Math.max(0, effect.expiresAt - atTime).toFixed(2);
                             const plateKind = dotEffectIds.has(effect.name)
@@ -6782,7 +6819,7 @@ function RotationEditorTab({
                                 <span className="effect-plate-tooltip" role="tooltip">
                                   {effect.averageStackOnly ? (
                                     <span>
-                                      {t("ui.app.expectedHawkwingStacks")}: {formatNumber(effect.stack ?? 0)}
+                                      {t("ui.app.averageStack")}: {formatNumber(effect.stack ?? 0)}
                                     </span>
                                   ) : (
                                     <>
@@ -6878,6 +6915,24 @@ function RotationEditorTab({
                             ),
                           ]
                         : [row];
+                    const skillExpectedBuffStacks = skillDamageRows.reduce<
+                      { time: number; stacks: Record<string, number> } | undefined
+                    >((earliest, damageRow) => {
+                      let next = earliest;
+                      damageRow.actions.forEach((action, damageIndex) => {
+                        if (action.type !== "damage") return;
+                        const expectedBuffStacks =
+                          workerActionBreakdowns[`${damageRow.id}:${damageIndex}`]?.expectedBuffStacks;
+                        if (!expectedBuffStacks) return;
+                        const time = damageRow.startTime + Number(action.time ?? 0);
+                        if (!next || time < next.time) next = { time, stacks: expectedBuffStacks };
+                      });
+                      return next;
+                    }, undefined);
+                    const displayedSkillBuffs = withExpectedOutcomeBuffPlates(
+                      row.buffs,
+                      skillExpectedBuffStacks?.stacks,
+                    );
                     const skillBreakdown = skillDamageRows.reduce<RotationActionBreakdown>(
                       (skillTotal, damageRow) =>
                         damageRow.actions.reduce<RotationActionBreakdown>((total, action, damageIndex) => {
@@ -7306,7 +7361,7 @@ function RotationEditorTab({
                               ) : isManualEvent ? (
                                 ""
                               ) : (
-                                effectNames(row.buffs, startTime)
+                                effectNames(displayedSkillBuffs, startTime)
                               )}
                             </span>
                             <span data-mobile-label={t("ui.app.debuff")}>
@@ -7472,24 +7527,8 @@ function RotationEditorTab({
                               actionKey,
                             );
                             const actionBreakdown = workerActionBreakdowns[actionKey];
-                            const expectedHawkwingStack = actionBreakdown?.expectedBuffStacks?.Hawkwing;
-                            const displayedActionBuffs =
-                              expectedHawkwingStack === undefined
-                                ? actionBuffs
-                                : [
-                                    ...actionBuffs.filter((effect) => effect.name !== "Hawkwing"),
-                                    ...(expectedHawkwingStack > 0
-                                      ? [
-                                          {
-                                            name: "Hawkwing",
-                                            stack: expectedHawkwingStack,
-                                            maxStack: 5,
-                                            hideRemainingTime: true,
-                                            averageStackOnly: true,
-                                          },
-                                        ]
-                                      : []),
-                                  ];
+                            const expectedBuffStacks = actionBreakdown?.expectedBuffStacks;
+                            const displayedActionBuffs = withExpectedOutcomeBuffPlates(actionBuffs, expectedBuffStacks);
                             return (
                               <div
                                 className={`rotation-action-row ${row.kind === "trigger" ? "rotation-action-trigger" : row.kind === "dot" ? "rotation-action-dot" : ""}`}

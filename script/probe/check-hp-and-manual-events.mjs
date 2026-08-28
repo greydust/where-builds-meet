@@ -189,6 +189,16 @@ try {
       closeTo(displayedNoDamageRow.targetHPRatio, finalTargetHPRatio),
     "The editor's structural timeline must display target-HP snapshots from its completed calculation.",
   );
+  const implicitTargetHPTimeline = buildRotationTimeline({
+    ...baseInput,
+    rotation: { name: "Implicit target HP probe", steps: [{ type: "skill", skill: "Hit" }] },
+    skills: { Hit: hit },
+  });
+  assert(
+    implicitTargetHPTimeline[0].targetHPRatio === 0.99 &&
+      Object.values(implicitTargetHPTimeline[0].actionStates).every((state) => state.targetHPRatio === 0.99),
+    "A rotation without preset target HP must expose the implicit 99% target state to every hit.",
+  );
   const hpHitRow = hpResult.timeline.find((row) => row.id === "rotation-1");
   assert(
     hpHitRow.actionStates[0].currentHPRatio === 1 && hpHitRow.actionStates[1].currentHPRatio === 0.8,

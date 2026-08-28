@@ -112,6 +112,24 @@ states are merged. Simulation runs instead use the sampled outcome: an Affinity
 hit adds and refreshes one concrete stack, while other outcomes leave the concrete
 state unchanged.
 
+Insightful Strike uses a separate outcome tracker with the same integer 0.1 ms
+clock. Focus is stored as decay units rather than a floating-point resource:
+one Focus equals 40,000 units, and one unit expires per tick, which is exactly a
+decay rate of `0.25` Focus per second. Every Affinity outcome adds 40,000 units.
+Reaching 160,000 units applies or refreshes Concentration for 10 seconds and
+resets Focus to zero. The conversion happens after the triggering hit, so that
+hit does not receive Concentration's 10% Affinity DMG Bonus. Deterministic
+calculation carries the exact probability distribution keyed by Focus units and
+Concentration expiry; simulations update one concrete state from sampled
+outcomes.
+Insightful Strike T3 makes the Affinity probability itself depend on whether
+Concentration is active. Deterministic calculation therefore resolves each hit
+once for the inactive branch and once for the active branch, weights their
+damage and outcome rates by the exact pre-hit Concentration probability, and
+uses each branch's own Affinity rate for the next Focus transition. Simulation
+runs use only their concrete active or inactive state. This avoids feeding an
+average Direct Affinity value back into the Focus distribution.
+
 ### Per-action stat conversion
 
 An active effect may convert one named numeric calculation stat into another:

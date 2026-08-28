@@ -2,6 +2,7 @@ import attunementJson from "../../data/attunement.json";
 import type { DamageAction, DamageContext } from "./damage";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 import { calculateStatsWithEffects, resolveFormulaValue, type StatFormula } from "./statEffects";
+import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 
 type AttunementDefinition = {
   effect?: { stat?: Record<string, number>; tags?: string[]; excludeTags?: string[] };
@@ -34,8 +35,8 @@ function effectValue(
     maxHp: stats.maxHp,
     currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
     missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
-    targetHPPercentage: (context.targetHPRatio ?? 1) * 100,
-    missingTargetHPPercentage: (1 - (context.targetHPRatio ?? 1)) * 100,
+    targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+    missingTargetHPPercentage: (1 - (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO)) * 100,
   };
   const multiplied = resolveMultiplyValue(value, parameters);
   if (multiplied !== undefined) return multiplied;

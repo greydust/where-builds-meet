@@ -1,0 +1,17 @@
+{
+  "Concentration": {
+    "name": "Concentration",
+    "shortName": "Conc",
+    "description": "Increases Affinity DMG by 10%. Insightful Strike T3 also increases Direct Affinity Rate while active.",
+    "duration": 10,
+    "maxStack": 1,
+    "effect": [
+      {
+        "effect": {
+          "affinityDmgBonus": 0.1
+        }
+      }
+    ],
+    "refresh": true
+  }
+}

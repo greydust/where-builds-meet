@@ -191,7 +191,8 @@ fingerprint may replace the editor preview. The previous completed preview stays
 visible while newer work runs. Editor previews never request comparison variants;
 active-rotation comparisons remain tied to save, activation, or setup changes.
 
-Rotations may optionally store a target maximum HP. The centralized baseline
+Rotations may optionally store a target maximum HP. Without one, the target HP
+state defaults to 99% but damage does not deplete it. The centralized baseline
 calculation then walks damage actions in timeline order, subtracts each resolved
 damage result, and publishes target-HP snapshots with the worker timeline. Rows
 and actions without damage inherit the most recent target-HP ratio instead of
@@ -667,6 +668,15 @@ probability-weighted state rather than a concrete timed buff, it appears only
 when the expected stack is above zero and its tooltip displays only the average
 stack, without a remaining duration. Simulation runs do not use this probability
 schedule and maintain their own sampled stack state.
+
+Outcome mechanics are separated by responsibility. `hawkwing.ts` owns
+Hawkwing's stack/expiry distribution and setup-effect parsing;
+`insightfulStrike.ts` owns Focus decay, Concentration conversion, and its Inner
+Way trigger parsing. `outcomeTriggeredBuffs.ts` contains only the shared 0.1 ms
+clock and schedule primitives. The rotation calculator coordinates the two
+mechanics and adds their resolved pre-hit effects to the ordinary unconditional
+damage-effect snapshot. This keeps the probability transitions reviewable
+without placing game-specific state machines inside the damage formula.
 
 Local Vite development builds wrap each deterministic worker request in a
 calculation benchmark and emit a collapsed `[Damage benchmark]` console table.
