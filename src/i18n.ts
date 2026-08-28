@@ -12,6 +12,7 @@ const wipLocales = new Set<string>();
 const localeDisplayNames: Record<string, string> = {
   en: "English",
   "zh-Hant": "繁體中文",
+  ko: "한국어",
 };
 
 let manifest = fallbackManifest;
