@@ -7,7 +7,7 @@ const root = process.cwd();
 const catalogFile = path.join(root, "locales", "translations.csv");
 const generatedDirectory = path.join(root, "public", "locales");
 const checkOnly = process.argv.includes("--check");
-const publishedLocales = new Set(["en", "zh-Hant"]);
+const publishedLocales = new Set(["en", "zh-Hant", "ko"]);
 const translatableDataFields = new Set(["name", "shortName", "description"]);
 const translatableJsxAttributes = new Set(["aria-label", "title", "placeholder", "alt", "label"]);
 
