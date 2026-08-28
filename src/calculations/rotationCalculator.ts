@@ -1591,44 +1591,17 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   };
 }
 
-const affinityRateDependencyFields = new Set(["affinity", "directaffinity", "effectiveaffinity", "finalaffinity"]);
-
-function affinityDependencySnapshot(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    const items = value.map(affinityDependencySnapshot).filter((item) => item !== undefined);
-    return items.length ? items : undefined;
-  }
-  if (!value || typeof value !== "object") return undefined;
-  const entries = Object.entries(value as Record<string, unknown>).flatMap(([key, child]) => {
-    const lowerKey = key.toLowerCase();
-    if (
-      affinityRateDependencyFields.has(lowerKey) ||
-      (key === "outcome" && child === "affinity") ||
-      ((key === "from" || key === "to") &&
-        typeof child === "string" &&
-        affinityRateDependencyFields.has(child.toLowerCase()))
-    )
-      return [[key, child] as const];
-    const nested = affinityDependencySnapshot(child);
-    return nested === undefined ? [] : [[key, nested] as const];
-  });
-  return entries.length ? Object.fromEntries(entries) : undefined;
-}
-
-function canReuseExpectedOutcomeBuffSchedule(bundle: RotationSimulationBundle, variant: RotationSimulationVariant) {
-  if (variant.timeline) return false;
-  if (variant.stats) {
-    const variantDerivedStats = calculateDerivedStats(variant.stats, bundle.enemy.judgementResistance);
-    if (Math.abs(variantDerivedStats.finalAffinity - bundle.derivedStats.finalAffinity) > 1e-12) return false;
-  }
-  const baselineSetup = JSON.stringify(affinityDependencySnapshot(bundle.timeline.setupEffects));
-  const variantSetup = JSON.stringify(affinityDependencySnapshot(variant.setupEffects ?? bundle.timeline.setupEffects));
-  if (baselineSetup !== variantSetup) return false;
-  const baselineInnerWays = JSON.stringify(affinityDependencySnapshot(bundle.timeline.innerWayRules));
-  const variantInnerWays = JSON.stringify(
-    affinityDependencySnapshot(variant.innerWayRules ?? bundle.timeline.innerWayRules),
+function canReuseExpectedOutcomeBuffSchedule(variant: RotationSimulationVariant) {
+  // Affinity can change indirectly through formula effects such as Momentum,
+  // conditions, conversions, or tracked effects. Reuse is safe only when the
+  // variant cannot alter any input involved in per-hit outcome resolution.
+  return !(
+    variant.timeline ||
+    variant.stats ||
+    variant.setupEffects ||
+    variant.innerWayRules ||
+    variant.innerWayConditions
   );
-  return baselineInnerWays === variantInnerWays;
 }
 
 export function calculateRotationComparisons(
@@ -1656,7 +1629,7 @@ export function calculateRotationComparisons(
     const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
     if (import.meta.env.DEV && variant.timeline) finishCalculationPhase("timelineConstruction", timelineStartedAt);
     const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-    const reusableExpectedBuffSchedule = canReuseExpectedOutcomeBuffSchedule(bundle, variant)
+    const reusableExpectedBuffSchedule = canReuseExpectedOutcomeBuffSchedule(variant)
       ? baselineResult.expectedOutcomeBuffSchedule
       : undefined;
     const resolution = timelineDamageEntries(

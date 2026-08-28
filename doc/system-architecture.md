@@ -653,16 +653,20 @@ aggregation performs the single required damage resolution. Monte Carlo runs
 still resolve the stored entries independently with that run's random samples.
 
 Outcome-triggered buff schedules are built with the baseline damage stream and
-stored by damage-entry ID. Comparison variants reuse that schedule only when the
-timeline, Affinity dependencies, and outcome trigger definitions are unchanged;
-otherwise they rebuild it. The baseline result also exposes the arithmetic mean
+stored by damage-entry ID. A comparison variant that changes stats, setup
+effects, Inner Way rules or conditions, or the timeline rebuilds the schedule.
+This deliberately includes indirect Affinity changes such as Momentum formulas
+instead of trying to infer dependencies from field names. Only variants that
+cannot alter per-hit outcomes, such as current attunement-only variants, reuse
+the baseline schedule. The baseline result also exposes the arithmetic mean
 of Hawkwing's expected pre-hit stack values across ordinary damage actions for
 the DPS summary. Delays, healing, and replay damage do not enter that display
 average. Each ordinary damage action also exposes its expected pre-hit stack to
 the timeline as a synthetic Hawkwing buff plate. Because that plate represents a
-probability-weighted state rather than a concrete timed buff, it displays no
-remaining duration. Simulation runs do not use this probability schedule and
-maintain their own sampled stack state.
+probability-weighted state rather than a concrete timed buff, it appears only
+when the expected stack is above zero and its tooltip displays only the average
+stack, without a remaining duration. Simulation runs do not use this probability
+schedule and maintain their own sampled stack state.
 
 Local Vite development builds wrap each deterministic worker request in a
 calculation benchmark and emit a collapsed `[Damage benchmark]` console table.

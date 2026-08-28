@@ -5082,7 +5082,7 @@ function RotationEditorTab({
 }) {
   const {
     stats: displayedCharacterStats,
-    rawStats: characterStats,
+    rawStats: rawCharacterStats,
     attunementStats,
     settings,
     enemy,
@@ -5165,7 +5165,7 @@ function RotationEditorTab({
   const calculationContextKey = useMemo(
     () =>
       calculationFingerprint({
-        characterStats,
+        characterStats: rawCharacterStats,
         attunementStats,
         settings,
         enemy,
@@ -5181,7 +5181,7 @@ function RotationEditorTab({
         skillOverrides,
       }),
     [
-      characterStats,
+      rawCharacterStats,
       attunementStats,
       settings,
       enemy,
@@ -6031,7 +6031,7 @@ function RotationEditorTab({
   const totalRotationHealing = currentCachedResult?.metrics.totalHealing ?? 0;
   const rotationHps = currentCachedResult?.metrics.hps ?? 0;
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
-    return { ...characterStats, [key]: characterStats[key] + amount };
+    return { ...rawCharacterStats, [key]: rawCharacterStats[key] + amount };
   };
   const priorityLevelData = statRollsForLevel(enemy.level);
   const priorityCharacter = Object.fromEntries(
@@ -6149,7 +6149,7 @@ function RotationEditorTab({
     return {
       timeline: makeTimelineInput(rotationRecord, innerWayConditions, innerWayEffectRules, baselineSetupEffects),
       startAnchor: rotationAnchor,
-      stats: characterStats,
+      stats: rawCharacterStats,
       attunement: attunementStats,
       enemy,
       derivedStats,
@@ -6756,6 +6756,7 @@ function RotationEditorTab({
                         maxStack?: number;
                         expiresAt?: number;
                         hideRemainingTime?: boolean;
+                        averageStackOnly?: boolean;
                       }>,
                       atTime: number,
                     ) =>
@@ -6779,12 +6780,20 @@ function RotationEditorTab({
                               <span className={`effect-plate${plateKind}`} key={`${effect.name}-${effect.stack ?? 1}`}>
                                 {label}
                                 <span className="effect-plate-tooltip" role="tooltip">
-                                  <strong>
-                                    {effect.hideRemainingTime
-                                      ? name
-                                      : `${name} - ${t("ui.app.sLeft", { number: timeLeft })}`}
-                                  </strong>
-                                  {description && <span>{description}</span>}
+                                  {effect.averageStackOnly ? (
+                                    <span>
+                                      {t("ui.app.expectedHawkwingStacks")}: {formatNumber(effect.stack ?? 0)}
+                                    </span>
+                                  ) : (
+                                    <>
+                                      <strong>
+                                        {effect.hideRemainingTime
+                                          ? name
+                                          : `${name} - ${t("ui.app.sLeft", { number: timeLeft })}`}
+                                      </strong>
+                                      {description ? <span>{description}</span> : null}
+                                    </>
+                                  )}
                                 </span>
                               </span>
                             );
@@ -7469,12 +7478,17 @@ function RotationEditorTab({
                                 ? actionBuffs
                                 : [
                                     ...actionBuffs.filter((effect) => effect.name !== "Hawkwing"),
-                                    {
-                                      name: "Hawkwing",
-                                      stack: expectedHawkwingStack,
-                                      maxStack: 5,
-                                      hideRemainingTime: true,
-                                    },
+                                    ...(expectedHawkwingStack > 0
+                                      ? [
+                                          {
+                                            name: "Hawkwing",
+                                            stack: expectedHawkwingStack,
+                                            maxStack: 5,
+                                            hideRemainingTime: true,
+                                            averageStackOnly: true,
+                                          },
+                                        ]
+                                      : []),
                                   ];
                             return (
                               <div

@@ -36,6 +36,7 @@
     "name": "Enhanced Drunken Poet",
     "shortName": "EDP",
     "description": "Each stack increases Drunken Poet's fifth hit damage by 20%.",
+    "duration": 1,
     "maxStack": 4,
     "effect": [],
     "refresh": true

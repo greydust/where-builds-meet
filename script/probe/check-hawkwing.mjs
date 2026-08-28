@@ -9,10 +9,10 @@ const viteServer = await createServer({
 });
 
 try {
-  const { calculateRotationBaseline, calculateRotationDamageSequence } = await viteServer.ssrLoadModule(
-    "/src/calculations/rotationCalculator.ts",
-  );
+  const { calculateRotationBaseline, calculateRotationComparisons, calculateRotationDamageSequence } =
+    await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
+  const { calculateStatsWithEffects } = await viteServer.ssrLoadModule("/src/calculations/statEffects.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const { ExpectedOutcomeBuffTracker, outcomeBuffTick } = await viteServer.ssrLoadModule(
     "/src/calculations/outcomeTriggeredBuffs.ts",
@@ -164,6 +164,49 @@ try {
   assert(
     JSON.stringify(simulatedStacks) === JSON.stringify([0, 1, 2]),
     `Simulation must advance concrete Hawkwing stacks after sampled Affinity hits; received ${simulatedStacks}.`,
+  );
+
+  const momentumAffinityEffect = {
+    stat: { affinity: { formula: { source: "momentum", multiplier: 0.001 } } },
+  };
+  const rawFormulaStats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
+  const formulaSetupEffects = [momentumAffinityEffect, timeline.setupEffects[0]];
+  const formulaTimeline = { ...timeline, setupEffects: formulaSetupEffects };
+  const formulaState = calculateStatsWithEffects(rawFormulaStats, formulaSetupEffects, 0);
+  const formulaBundle = {
+    timeline: formulaTimeline,
+    startAnchor: { rowId: "rotation-0" },
+    stats: rawFormulaStats,
+    attunement: {},
+    enemy,
+    derivedStats: formulaState.derivedStats,
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  };
+  const formulaBaseline = calculateRotationBaseline(formulaBundle);
+  const momentumSetupEffects = [...formulaSetupEffects, { stat: { momentum: 200 } }];
+  const comparisonMetrics = calculateRotationComparisons(
+    {
+      ...formulaBundle,
+      setupComparisons: {
+        momentum: [{ label: "Momentum setup", setupEffects: momentumSetupEffects }],
+      },
+    },
+    formulaBaseline,
+  );
+  const momentumState = calculateStatsWithEffects(rawFormulaStats, momentumSetupEffects, 0);
+  const independentlyRebuilt = calculateRotationBaseline({
+    ...formulaBundle,
+    timeline: { ...formulaTimeline, setupEffects: momentumSetupEffects },
+    derivedStats: momentumState.derivedStats,
+  });
+  closeTo(
+    comparisonMetrics.setupComparisons.momentum[0].dpsDifference,
+    independentlyRebuilt.metrics.dps - formulaBaseline.metrics.dps,
+    "A setup variant that changes Affinity indirectly through Momentum must rebuild its Hawkwing schedule",
   );
 
   console.log("Hawkwing probability, expiry, damage, and display-metric checks passed.");
