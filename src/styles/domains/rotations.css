@@ -220,12 +220,25 @@
     font-size: 1.3rem;
   }
 
-  .rotation-target-hp {
+  .rotation-target-controls {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.65rem;
     margin-block-start: 0.45rem;
     color: var(--text-muted);
+  }
+
+  .rotation-target-hp,
+  .rotation-option-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    white-space: nowrap;
+  }
+
+  .rotation-option-toggle input {
+    margin: 0;
   }
 
   .rotation-target-hp input {

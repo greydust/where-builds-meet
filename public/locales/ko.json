@@ -653,6 +653,7 @@
   "ui.buildTab.exportWwmGear": "연운 장비 내보내기",
   "ui.buildTab.fromImage": "이미지 에서",
   "ui.buildTab.gear": "장비",
+  "ui.buildTab.graduatePreset": "졸업 프리셋",
   "ui.buildTab.imageImportError": "이미지를 가져올 수 없습니다.",
   "ui.buildTab.imageTooLargeError": "이미지 크기가 15MB를 초과합니다. 이미지를 잘라내거나 크기를 조정한 후 다시 시도해 주세요.",
   "ui.buildTab.import": "불러오기",

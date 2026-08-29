@@ -85,17 +85,26 @@ for (const file of [...buildFiles, ...rotationFiles]) {
 
 for (const [pathId, definition] of Object.entries(paths)) {
   assert(typeof definition.defaultBuild === "string", `Path ${pathId} must declare a default build.`);
+  assert(typeof definition.graduated === "string", `Path ${pathId} must declare a graduate build.`);
   assert(typeof definition.defaultRotation === "string", `Path ${pathId} must declare a default rotation.`);
   const defaultBuildId = definition.defaultBuild;
+  const graduateBuildId = definition.graduated;
   const defaultRotationId = definition.defaultRotation;
   const build = buildsById.get(defaultBuildId);
+  const graduateBuild = buildsById.get(graduateBuildId);
   const rotation = rotationsById.get(defaultRotationId);
   assert(build, `Path ${pathId} references missing default build ${defaultBuildId}.`);
+  assert(graduateBuild, `Path ${pathId} references missing graduate build ${graduateBuildId}.`);
   assert(rotation, `Path ${pathId} references missing default rotation ${defaultRotationId}.`);
   if (definition.defaultBuild !== "empty")
     assert(
       build.buildGroup === definition.buildGroup,
       `Path ${pathId}'s default build must belong to its build group.`,
+    );
+  if (definition.graduated !== "empty")
+    assert(
+      graduateBuild.buildGroup === definition.buildGroup,
+      `Path ${pathId}'s graduate build must belong to its build group.`,
     );
   if (definition.lockedWeapons && definition.defaultRotation !== "empty")
     assert(
@@ -104,6 +113,7 @@ for (const [pathId, definition] of Object.entries(paths)) {
     );
   if (definition.status === "available") {
     assert(build.definition.test !== true, `Available path ${pathId} cannot use a test-only default build.`);
+    assert(graduateBuild.definition.test !== true, `Available path ${pathId} cannot use a test-only graduate build.`);
     assert(rotation.definition.test !== true, `Available path ${pathId} cannot use a test-only default rotation.`);
   }
 }

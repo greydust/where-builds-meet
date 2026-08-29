@@ -1,5 +1,6 @@
 {
   "name": "Mixed Dummy Infinite Vitality 1 Min",
+  "infiniteVitality": true,
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "start": {

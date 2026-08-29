@@ -1,5 +1,6 @@
 {
   "name": "Dummy 1 Min IV BP",
+  "infiniteVitality": true,
   "martialArts": ["heavenwill", "skygrasp"],
   "eventTimeReference": "battleStart",
   "start": {

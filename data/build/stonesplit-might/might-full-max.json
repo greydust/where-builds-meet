@@ -1,0 +1,289 @@
+{
+  "id": "might-full-max",
+  "name": "Full Max Build",
+  "order": 2,
+  "martialArts": ["thundercry", "stormbreaker"],
+  "setup": {
+    "innerWays": [
+      {
+        "innerWay": "ExquisiteScenery",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "MoraleChant",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ArtOfResistance",
+        "tier": "T6"
+      },
+      {
+        "innerWay": "ThroatPiercingArt",
+        "tier": "T6"
+      }
+    ],
+    "weaponSets": {
+      "Cleftpeak": 0,
+      "RainWhisper": 4,
+      "Hawkwing": 0,
+      "Etherwrath": 0
+    },
+    "armorSets": {
+      "Formbend": 4,
+      "Moonflare": 0,
+      "Calmwaters": 0
+    },
+    "bowRingSet": "Precision",
+    "arsenal": "Stonesplit"
+  },
+  "gear": {
+    "leftWeapon": {
+      "definitionId": "moBlade",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 77.8
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "momentum",
+          "value": 44.2
+        },
+        {
+          "key": "moBladeDmgBoost",
+          "value": 0.062
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "rightWeapon": {
+      "definitionId": "spear",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 77.8
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "momentum",
+          "value": 49.4
+        },
+        {
+          "key": "crit",
+          "value": 0.09
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "disc": {
+      "definitionId": "disc",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 77.8
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "momentum",
+          "value": 49.4
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.032
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "pendant": {
+      "definitionId": "pendant",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "maxPhys",
+        "value": 77.8
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "momentum",
+          "value": 49.4
+        },
+        {
+          "key": "allMartialArts",
+          "value": 0.032
+        }
+      ],
+      "attunement": {
+        "key": "physicalPenetration",
+        "value": 11
+      }
+    },
+    "helmet": {
+      "definitionId": "helmet",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.09
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "momentum",
+          "value": 49.4
+        },
+        {
+          "key": "precision",
+          "value": 0.08
+        }
+      ],
+      "attunement": {
+        "key": "thundercryChargedBoost",
+        "value": 0.06
+      }
+    },
+    "chestpiece": {
+      "definitionId": "chestpiece",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "crit",
+        "value": 0.09
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "maxStonesplit",
+          "value": 44.2
+        },
+        {
+          "key": "precision",
+          "value": 0.08
+        }
+      ],
+      "attunement": {
+        "key": "thundercryChargedBoost",
+        "value": 0.06
+      }
+    },
+    "greaves": {
+      "definitionId": "greaves",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "power",
+        "value": 49.4
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "crit",
+          "value": 0.09
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.032
+        }
+      ],
+      "attunement": {
+        "key": "thundercryChargedBoost",
+        "value": 0.06
+      }
+    },
+    "bracer": {
+      "definitionId": "bracer",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": {
+        "key": "power",
+        "value": 49.4
+      },
+      "additionalAffixes": [
+        {
+          "key": "maxPhys",
+          "value": 77.8
+        },
+        {
+          "key": "power",
+          "value": 49.4
+        },
+        {
+          "key": "crit",
+          "value": 0.09
+        },
+        {
+          "key": "vsBossDmg",
+          "value": 0.032
+        }
+      ],
+      "attunement": {
+        "key": "thundercryChargedBoost",
+        "value": 0.06
+      }
+    }
+  }
+}

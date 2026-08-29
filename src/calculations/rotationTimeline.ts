@@ -48,6 +48,7 @@ export type RotationStep =
   // Accepted only at persistence/import boundaries and migrated to startTime.
   | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
   | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
+  | { type: "event"; event: "HP"; startTime: number; targetHPRatio: number; automatic: true }
   | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number }
   | { type: "event"; event: "Qi"; after: AttachedEventTarget; targetQiRatio: number }
   | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number }
@@ -78,6 +79,8 @@ export type RotationRecord = {
   name: string;
   steps: RotationStep[];
   targetHP?: number;
+  autoHP?: boolean;
+  infiniteVitality?: boolean;
   start?: { step: number; action?: number };
   eventTimeReference?: "battleStart";
 };
@@ -231,6 +234,7 @@ export type TimelineBuildInput = {
   initialResources?: ResourceState;
   resourceRegeneration?: ResourceState;
   resourceMaximums?: ResourceState;
+  infiniteResources?: string[];
   resourceEvents?: ResourceEventRule[];
   maxHP?: number;
 };
@@ -876,6 +880,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       ([, maximum]) => typeof maximum === "number" && Number.isFinite(maximum) && maximum >= 0,
     ),
   );
+  const infiniteResources = new Set([
+    ...(input.infiniteResources ?? []),
+    ...(rotation.infiniteVitality ? ["Vitality"] : []),
+  ]);
   const clampResource = (name: string, value: number) =>
     Math.min(resourceMaximums[name] ?? Number.POSITIVE_INFINITY, Math.max(0, Math.round(value * 1e9) / 1e9));
   let resources: ResourceState = Object.fromEntries(
@@ -884,6 +892,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       clampResource(name, value),
     ]),
   );
+  infiniteResources.forEach((name) => {
+    resources[name] = resourceMaximums[name] ?? resources[name] ?? Number.MAX_SAFE_INTEGER;
+  });
   const resourceRegeneration = Object.fromEntries(
     Object.entries(input.resourceRegeneration ?? {}).filter(
       ([, rate]) => typeof rate === "number" && Number.isFinite(rate) && rate > 0,
@@ -899,7 +910,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   const resourceEventCooldowns = new Map<number, number>();
   const applyResourceEvent = (eventName: ResourceEventRule["event"], time: number, hpLost = 0) => {
     resourceEventRules.forEach((rule, ruleIndex) => {
-      if (rule.event !== eventName || (resourceEventCooldowns.get(ruleIndex) ?? 0) > time) return;
+      if (
+        rule.event !== eventName ||
+        infiniteResources.has(rule.resource) ||
+        (resourceEventCooldowns.get(ruleIndex) ?? 0) > time
+      )
+        return;
       let amount = rule.amount;
       if (eventName === "takeDamage") {
         if (!(typeof rule.perMaxHPRatio === "number" && rule.perMaxHPRatio > 0) || maxHP <= 0) return;
@@ -923,7 +939,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       resources = Object.entries(resourceRegeneration).reduce(
         (next, [name, rate]) => ({
           ...next,
-          [name]: clampResource(name, (next[name] ?? 0) + rate * elapsed),
+          [name]: infiniteResources.has(name) ? next[name] : clampResource(name, (next[name] ?? 0) + rate * elapsed),
         }),
         resources,
       );
@@ -1580,6 +1596,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       ((typeof action.amount === "number" && Number.isFinite(action.amount) && action.amount >= 0) ||
         (action.type === "consumeResource" && action.amount === "all"))
     ) {
+      if (infiniteResources.has(action.value)) continue;
       const current = resources[action.value] ?? 0;
       const resourceAmount = typeof action.amount === "number" ? action.amount : 0;
       let next = current;
@@ -2038,7 +2055,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   );
 }
 
-export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
+function buildRotationTimelineResolved(input: TimelineBuildInput): TimelineRow[] {
   if (input.rotation.eventTimeReference !== "battleStart") return buildRotationTimelinePass(input);
   let anchorTime: number | undefined;
   let rows: TimelineRow[] = [];
@@ -2053,4 +2070,56 @@ export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] 
     anchorTime = nextAnchorTime;
   }
   return buildRotationTimelinePass(input, anchorTime);
+}
+
+function automaticTargetHPRotation(input: TimelineBuildInput, rows: TimelineRow[]): RotationRecord {
+  const anchorRow = rows.find((row) => row.id === `rotation-${input.rotation.start?.step ?? 0}`) ?? rows[0];
+  const anchorTime = anchorRow
+    ? anchorRow.startTime +
+      (input.rotation.start?.action === undefined
+        ? 0
+        : Number(anchorRow.actions[input.rotation.start.action]?.time ?? 0))
+    : 0;
+  const battleEnd = rows.find((row) => row.step.type === "event" && row.step.event === "BattleEnd" && !row.skipped);
+  const lastTimelineTime = battleEnd
+    ? battleEnd.startTime
+    : rows.reduce(
+        (latest, row) =>
+          row.skipped
+            ? latest
+            : Math.max(
+                latest,
+                row.step.type === "event" && row.step.event === "Delay"
+                  ? row.startTime + row.effectiveCastTime
+                  : row.startTime,
+                ...row.actions.flatMap((action) =>
+                  typeof action.time === "number" ? [row.startTime + action.time] : [],
+                ),
+              ),
+        anchorTime,
+      );
+  const duration = Math.max(0, lastTimelineTime - anchorTime);
+  const automaticSteps: RotationStep[] = Array.from({ length: duration > 0 ? 10 : 1 }, (_, index) => ({
+    type: "event",
+    event: "HP",
+    startTime:
+      input.rotation.eventTimeReference === "battleStart"
+        ? duration * index * 0.1
+        : anchorTime + duration * index * 0.1,
+    targetHPRatio: Math.max(0, 0.9999 - index * 0.1),
+    automatic: true,
+  }));
+  return { ...input.rotation, steps: [...input.rotation.steps, ...automaticSteps] };
+}
+
+export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
+  if (!input.rotation.autoHP) return buildRotationTimelineResolved(input);
+  const baseRows = buildRotationTimelineResolved({
+    ...input,
+    rotation: { ...input.rotation, autoHP: false },
+  });
+  return buildRotationTimelineResolved({
+    ...input,
+    rotation: automaticTargetHPRotation(input, baseRows),
+  });
 }

@@ -276,6 +276,7 @@ type PathDefinition = {
   status: "available" | "wip" | "devOnly" | "plannerOnly";
   buildGroup: string;
   defaultBuild: string;
+  graduated: string;
   defaultRotation: string;
   lockedWeapons?: [WeaponId, WeaponId];
 };
@@ -748,7 +749,8 @@ function innerWayEffectRulesFor(
 }
 
 function normalizeRotation(rotation: RotationRecord): RotationRecord {
-  const steps: RotationStep[] = (rotation.steps as Array<RotationStep & { repeat?: number }>).flatMap(
+  const autoHP = rotation.autoHP === true;
+  const expandedSteps: RotationStep[] = (rotation.steps as Array<RotationStep & { repeat?: number }>).flatMap(
     (step): RotationStep[] => {
       if (step.type === "event") return [step];
       const repeat = Math.max(1, step.repeat ?? 1);
@@ -759,11 +761,31 @@ function normalizeRotation(rotation: RotationRecord): RotationRecord {
       })) as RotationStep[];
     },
   );
+  const steps = autoHP ? expandedSteps.filter((step) => step.type !== "event" || step.event !== "HP") : expandedSteps;
+  const start = rotation.start
+    ? {
+        ...rotation.start,
+        step: Math.max(
+          0,
+          rotation.start.step -
+            (autoHP
+              ? expandedSteps
+                  .slice(0, rotation.start.step)
+                  .filter((step) => step.type === "event" && step.event === "HP").length
+              : 0),
+        ),
+      }
+    : undefined;
   return {
     name: rotation.name,
     steps,
     ...(typeof rotation.targetHP === "number" && rotation.targetHP > 0 ? { targetHP: rotation.targetHP } : {}),
-    start: rotation.start,
+    ...(autoHP ? { autoHP: true } : {}),
+    infiniteVitality:
+      typeof rotation.infiniteVitality === "boolean"
+        ? rotation.infiniteVitality
+        : /\bIV\b|infinite vitality/i.test(rotation.name),
+    start,
     ...(rotation.eventTimeReference === "battleStart" ? { eventTimeReference: "battleStart" as const } : {}),
   };
 }
@@ -1749,8 +1771,8 @@ function graduationEnvironmentFingerprint(environment: GraduationEnvironment) {
 function buildGraduationBundle(environment: GraduationEnvironment): RotationSimulationBundle | undefined {
   const { pathId } = environment;
   const path = typedPathDefinitions[pathId];
-  if (!path || path.defaultBuild === "empty") return undefined;
-  const build = defaultBuildPresets.find((candidate) => candidate.id === path.defaultBuild);
+  if (!path || path.graduated === "empty") return undefined;
+  const build = defaultBuildPresets.find((candidate) => candidate.id === path.graduated);
   const configuredWeapons = path.lockedWeapons ?? build?.martialArts;
   if (!build || configuredWeapons?.length !== 2) return undefined;
 
@@ -5446,8 +5468,31 @@ function RotationEditorTab({
       ),
     }));
   }
+  function toggleAutoHP(checked: boolean) {
+    if (rotationLocked) return;
+    const removedBeforeStart = checked
+      ? rotation.steps
+          .slice(0, rotation.start?.step ?? 0)
+          .filter((step) => step.type === "event" && step.event === "HP").length
+      : 0;
+    const nextStart = rotation.start
+      ? { ...rotation.start, step: Math.max(0, rotation.start.step - removedBeforeStart) }
+      : undefined;
+    setRotation({
+      ...rotation,
+      ...(checked ? { autoHP: true } : { autoHP: undefined }),
+      steps: checked ? rotation.steps.filter((step) => step.type !== "event" || step.event !== "HP") : rotation.steps,
+      ...(nextStart ? { start: nextStart } : {}),
+    });
+    if (nextStart)
+      setStartAnchor({
+        rowId: `rotation-${nextStart.step}`,
+        ...(nextStart.action === undefined ? {} : { actionIndex: nextStart.action }),
+      });
+  }
   function selectRotationItem(index: number, value: string, control: HTMLSelectElement) {
     if (rotationLocked) return;
+    if (rotation.autoHP && value === "__event:HP") return;
     if (
       [
         "__event:Move",
@@ -6020,7 +6065,15 @@ function RotationEditorTab({
   const currentCachedResult = rotationResults[editingRotationId]?.result;
   const structuralTimeline = useMemo(
     () => buildRotationTimeline(makeTimelineInput(rotation)),
-    [calculationContextKey, rotation.eventTimeReference, rotation.start, rotation.steps, rotation.targetHP],
+    [
+      calculationContextKey,
+      rotation.autoHP,
+      rotation.eventTimeReference,
+      rotation.infiniteVitality,
+      rotation.start,
+      rotation.steps,
+      rotation.targetHP,
+    ],
   );
   const timeline = useMemo(
     () => mergeCalculatedTargetHPState(structuralTimeline, currentCachedResult?.timeline),
@@ -6148,6 +6201,7 @@ function RotationEditorTab({
 
     return timeline
       .flatMap((row) => {
+        if (row.step.type === "event" && row.step.event === "HP" && "automatic" in row.step) return [];
         if (row.skipped) return [];
         const entries: Array<{
           row: TimelineRow;
@@ -6198,8 +6252,10 @@ function RotationEditorTab({
   );
   const showTargetHPColumn = useMemo(
     () =>
-      rotation.targetHP !== undefined || rotation.steps.some((step) => step.type === "event" && step.event === "HP"),
-    [rotation.steps, rotation.targetHP],
+      rotation.autoHP === true ||
+      rotation.targetHP !== undefined ||
+      rotation.steps.some((step) => step.type === "event" && step.event === "HP"),
+    [rotation.autoHP, rotation.steps, rotation.targetHP],
   );
   const showQiColumn = useMemo(
     () => rotation.steps.some((step) => step.type === "event" && step.event === "Qi"),
@@ -6877,26 +6933,48 @@ function RotationEditorTab({
                 {rotationLocked && (
                   <p className="rotation-default-note">{t("ui.app.thisIsAPrebuiltDefaultRotationAndCannot")}</p>
                 )}
-                <label className="rotation-target-hp">
-                  <span>{t("ui.app.targetHp")}</span>
-                  <input
-                    type="number"
-                    min="1"
-                    step="1"
-                    disabled={rotationLocked}
-                    placeholder={t("ui.app.notSpecified")}
-                    value={rotation.targetHP ?? ""}
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      const parsed = Number(value);
-                      if (value !== "" && !Number.isFinite(parsed)) return;
-                      setRotation((current) => ({
-                        ...current,
-                        ...(value === "" ? { targetHP: undefined } : { targetHP: Math.max(1, parsed) }),
-                      }));
-                    }}
-                  />
-                </label>
+                <div className="rotation-target-controls">
+                  <label className="rotation-option-toggle">
+                    <input
+                      type="checkbox"
+                      disabled={rotationLocked}
+                      checked={rotation.autoHP === true}
+                      onChange={(event) => toggleAutoHP(event.target.checked)}
+                    />
+                    <span>{t("ui.app.autoHp")}</span>
+                  </label>
+                  <label className="rotation-target-hp">
+                    <span>{t("ui.app.targetHp")}</span>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      disabled={rotationLocked}
+                      placeholder={t("ui.app.notSpecified")}
+                      value={rotation.targetHP ?? ""}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        const parsed = Number(value);
+                        if (value !== "" && !Number.isFinite(parsed)) return;
+                        setRotation((current) => ({
+                          ...current,
+                          ...(value === "" ? { targetHP: undefined } : { targetHP: Math.max(1, parsed) }),
+                        }));
+                      }}
+                    />
+                  </label>
+                  <label className="rotation-option-toggle">
+                    <input
+                      type="checkbox"
+                      disabled={rotationLocked}
+                      checked={rotation.infiniteVitality === true}
+                      onChange={(event) =>
+                        setRotation((current) => ({ ...current, infiniteVitality: event.target.checked }))
+                      }
+                    />
+                    <span>{t("ui.app.infiniteVitality")}</span>
+                  </label>
+                </div>
               </div>
               <div className="detail-active-actions">
                 {status && <span className="editor-status">{status}</span>}
@@ -7306,11 +7384,13 @@ function RotationEditorTab({
                                         {skillDisplayName(findSkill(id), id)}
                                       </option>
                                     ))}
-                                    {rotationEventOptionIds.map((id) => (
-                                      <option key={id} value={id}>
-                                        {rotationEventDisplayName(id.slice(8))}
-                                      </option>
-                                    ))}
+                                    {rotationEventOptionIds
+                                      .filter((id) => !rotation.autoHP || id !== "__event:HP")
+                                      .map((id) => (
+                                        <option key={id} value={id}>
+                                          {rotationEventDisplayName(id.slice(8))}
+                                        </option>
+                                      ))}
                                   </select>
                                 </span>
                               )
@@ -7480,7 +7560,7 @@ function RotationEditorTab({
                             )}
                             {showVitalityColumn && (
                               <span data-mobile-label={t("system.resource.vitality")}>
-                                {formatNumber(row.resources.Vitality ?? 0)}
+                                {rotation.infiniteVitality ? "∞" : formatNumber(row.resources.Vitality ?? 0)}
                               </span>
                             )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
@@ -7805,7 +7885,9 @@ function RotationEditorTab({
                                 )}
                                 {showVitalityColumn && (
                                   <span data-mobile-label={t("system.resource.vitality")}>
-                                    {formatNumber(actionState?.resources.Vitality ?? row.resources.Vitality ?? 0)}
+                                    {rotation.infiniteVitality
+                                      ? "∞"
+                                      : formatNumber(actionState?.resources.Vitality ?? row.resources.Vitality ?? 0)}
                                   </span>
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>
@@ -8280,6 +8362,7 @@ export default function App() {
               martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)}
               pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag}
               buildGroup={typedPathDefinitions[pathId].buildGroup}
+              graduatedBuildId={typedPathDefinitions[pathId].graduated}
               devMode={devMode}
               buildState={buildState}
               onBuildStateChange={setBuildState}

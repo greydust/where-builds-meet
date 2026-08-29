@@ -6,6 +6,7 @@
     "status": "plannerOnly",
     "buildGroup": "bellstrike-splendor",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty",
     "lockedWeapons": ["namelessSword", "namelessSpear"]
   },
@@ -16,6 +17,7 @@
     "status": "plannerOnly",
     "buildGroup": "bellstrike-umbra",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty",
     "lockedWeapons": ["strategicSword", "heavenquakerSpear"]
   },
@@ -26,6 +28,7 @@
     "status": "available",
     "buildGroup": "stonesplit-might",
     "defaultBuild": "might-fully-relayed-max",
+    "graduated": "might-full-max",
     "defaultRotation": "dummy-1-min",
     "lockedWeapons": ["thundercry", "stormbreaker"]
   },
@@ -36,6 +39,7 @@
     "status": "available",
     "buildGroup": "stonesplit-strength",
     "defaultBuild": "mixed-fully-relayed-min",
+    "graduated": "mixed-full-min",
     "defaultRotation": "mixed-dummy-infinite-vitality-1-min",
     "lockedWeapons": ["snowparting", "phalanxbane"]
   },
@@ -46,6 +50,7 @@
     "status": "plannerOnly",
     "buildGroup": "silkbind-jade",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty",
     "lockedWeapons": ["vernalUmbrella", "inkwellFan"]
   },
@@ -56,6 +61,7 @@
     "status": "wip",
     "buildGroup": "silkbind-deluge",
     "defaultBuild": "deluge-fully-relayed-min-ew",
+    "graduated": "deluge-full-min-ew",
     "defaultRotation": "dummy-1-min-smolder",
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"]
   },
@@ -66,6 +72,7 @@
     "status": "wip",
     "buildGroup": "bamboocut-wind",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty",
     "lockedWeapons": ["infernalTwinblades", "mortalRopeDart"]
   },
@@ -76,6 +83,7 @@
     "status": "plannerOnly",
     "buildGroup": "bamboocut-dust",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty",
     "lockedWeapons": ["everspring", "unfettered"]
   },
@@ -86,6 +94,7 @@
     "status": "available",
     "buildGroup": "bamboocut-kite",
     "defaultBuild": "kite-fully-relayed-min-bp",
+    "graduated": "kite-full-min-bp",
     "defaultRotation": "dummy-1-min-iv-bp",
     "lockedWeapons": ["heavenwill", "skygrasp"]
   },
@@ -94,6 +103,7 @@
     "status": "devOnly",
     "buildGroup": "mixed",
     "defaultBuild": "empty",
+    "graduated": "empty",
     "defaultRotation": "empty"
   }
 }

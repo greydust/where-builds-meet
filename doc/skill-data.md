@@ -419,6 +419,12 @@ An attached target HP event can set the percentage explicitly:
 }
 ```
 
+A rotation may instead set `"autoHP": true`. The timeline derives the rotation
+duration, starts target HP at 99.99% at the fight-start anchor, and applies a
+hidden ten-percentage-point reduction at every 10% duration boundary through
+90%. Enabling Auto HP removes stored manual HP events, and the editor does not
+offer the HP event while the option remains enabled.
+
 Qi also starts at 100%. A Qi event emits `setQi`; setting Qi to zero immediately
 applies Exhausted. Exhausted declares a generic expiry action which restores Qi
 to 100% when its data-defined duration ends:
@@ -495,7 +501,11 @@ events. A damage rule may declare a cooldown; a take-damage rule may declare
 proportionally to that ratio. Vitality starts at and is capped by the character's
 `maxVitality`. Direct Mystic definitions consume Vitality with an explicit
 time-zero `consumeResource` action. Triggered Mystic definitions omit that
-action, so follow-up damage does not pay the parent cast's cost again.
+action, so follow-up damage does not pay the parent cast's cost again. A
+rotation with `"infiniteVitality": true` marks Vitality through the generic
+`TimelineBuildInput.infiniteResources` handling; its value remains at the
+resource maximum while resource gains, regeneration, and consumption are
+ignored.
 
 ## Requirements
 

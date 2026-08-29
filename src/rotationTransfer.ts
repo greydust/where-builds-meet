@@ -214,13 +214,17 @@ function parseRotation(value: unknown): RotationRecord | undefined {
     name?: unknown;
     steps?: unknown;
     targetHP?: unknown;
+    autoHP?: unknown;
+    infiniteVitality?: unknown;
     start?: unknown;
     eventTimeReference?: unknown;
   };
   if (typeof candidate.name !== "string" || !candidate.name.trim() || !Array.isArray(candidate.steps)) return undefined;
   const steps = candidate.steps.map(parseRotationStep);
   if (steps.some((step) => !step)) return undefined;
-  const parsedSteps = steps.filter((step): step is RotationStep => Boolean(step));
+  const autoHP = candidate.autoHP === true;
+  const allParsedSteps = steps.filter((step): step is RotationStep => Boolean(step));
+  const parsedSteps = allParsedSteps.filter((step) => !autoHP || step.type !== "event" || step.event !== "HP");
   const startValue =
     candidate.start && typeof candidate.start === "object" && !Array.isArray(candidate.start)
       ? (candidate.start as { step?: unknown; action?: unknown })
@@ -230,14 +234,22 @@ function parseRotation(value: unknown): RotationRecord | undefined {
     typeof startValue.step === "number" &&
     Number.isInteger(startValue.step) &&
     startValue.step >= 0 &&
-    startValue.step < parsedSteps.length;
+    startValue.step < allParsedSteps.length;
   const validStartAction =
     startValue?.action === undefined ||
     (typeof startValue.action === "number" && Number.isInteger(startValue.action) && startValue.action >= 0);
   const start =
     validStartStep && validStartAction
       ? {
-          step: startValue.step as number,
+          step: Math.max(
+            0,
+            (startValue.step as number) -
+              (autoHP
+                ? allParsedSteps
+                    .slice(0, startValue.step as number)
+                    .filter((step) => step.type === "event" && step.event === "HP").length
+                : 0),
+          ),
           ...(typeof startValue.action === "number" ? { action: startValue.action } : {}),
         }
       : undefined;
@@ -247,6 +259,12 @@ function parseRotation(value: unknown): RotationRecord | undefined {
     ...(typeof candidate.targetHP === "number" && Number.isFinite(candidate.targetHP) && candidate.targetHP > 0
       ? { targetHP: candidate.targetHP }
       : {}),
+    ...(autoHP ? { autoHP: true } : {}),
+    ...(typeof candidate.infiniteVitality === "boolean"
+      ? { infiniteVitality: candidate.infiniteVitality }
+      : /\bIV\b|infinite vitality/i.test(candidate.name)
+        ? { infiniteVitality: true }
+        : {}),
     ...(start ? { start } : {}),
     ...(candidate.eventTimeReference === "battleStart" ? { eventTimeReference: "battleStart" as const } : {}),
   };

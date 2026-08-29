@@ -25,6 +25,7 @@ const customEntry = {
   rotation: {
     name: "Custom",
     targetHP: 123456,
+    infiniteVitality: true,
     steps: [
       { type: "event", event: "Move", before: { trigger: 0, action: 1 }, distance: 6 },
       { type: "event", event: "SelfHP", before: { action: 0 }, currentHPRatio: 0.555 },
@@ -69,6 +70,7 @@ const imported = merged.entries.find((entry) => entry.id === merged.importedIds[
 assert(
   imported?.rotation.steps.length === 10 &&
     imported.rotation.targetHP === 123456 &&
+    imported.rotation.infiniteVitality === true &&
     imported.rotation.start.step === 8 &&
     imported.rotation.start.action === 1,
   "Rotation steps and start anchor must survive export and import.",
@@ -134,6 +136,33 @@ const skillStartRotation = skillStartImport.entries.find(
 assert(
   skillStartRotation?.start?.step === 0 && skillStartRotation.start.action === undefined,
   "A skill-level start anchor must survive import without becoming hit 1.",
+);
+
+const automaticHPImport = transfer.mergeImportedRotationEntries(current, {
+  ...exported,
+  rotations: [
+    {
+      id: "automatic-hp",
+      rotation: {
+        name: "Automatic HP",
+        autoHP: true,
+        steps: [
+          { type: "event", event: "HP", before: { action: 0 }, targetHPRatio: 0.5 },
+          { type: "skill", skill: "SnowpartingQStab" },
+        ],
+        start: { step: 1 },
+      },
+    },
+  ],
+});
+const automaticHPRotation = automaticHPImport.entries.find(
+  (entry) => entry.id === automaticHPImport.importedIds[0],
+)?.rotation;
+assert(
+  automaticHPRotation?.autoHP === true &&
+    automaticHPRotation.steps.length === 1 &&
+    automaticHPRotation.start?.step === 0,
+  "Auto HP import must discard manual HP events while preserving the anchored skill.",
 );
 
 const legacyExhaustedImport = transfer.mergeImportedRotationEntries(current, {

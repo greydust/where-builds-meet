@@ -174,14 +174,14 @@
     font-size: 0.9rem;
     font-weight: 650;
     white-space: nowrap;
+  }
 
-    strong {
-      color: var(--primary);
-    }
+  .graduation-rate strong {
+    color: var(--primary);
+  }
 
-    .breakthrough-detail-trigger {
-      position: relative;
-    }
+  .graduation-rate .breakthrough-detail-trigger {
+    position: relative;
   }
 
   .graduation-rate .graduation-rate-tooltip {

@@ -1,5 +1,6 @@
 {
   "name": "Dummy 1 Min Infinite Vitality",
+  "infiniteVitality": true,
   "martialArts": ["heavenwill", "skygrasp"],
   "eventTimeReference": "battleStart",
   "start": {

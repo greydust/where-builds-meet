@@ -205,6 +205,14 @@ Damage action. The editor keeps the attached event immediately before its
 anchor in stored rotation order, while timeline sort order determines whether
 its effect resolves before or after the selected action at the shared timestamp.
 
+The optional `autoHP` rotation flag removes manual target-HP events and compiles
+ten hidden fixed-time HP events from the resolved rotation duration. Target HP is
+99.99% at fight start and loses ten percentage points at each subsequent 10%
+duration boundary through 90%. The optional `infiniteVitality` flag marks
+Vitality as an infinite timeline resource: its displayed value is `∞`, and its
+normal gains, regeneration, and consumption are skipped while ordinary resource
+requirements continue to use the character's capped maximum.
+
 Current martial art and physical weapon are timeline state as well. They start
 from the left equipped martial art, change automatically at the start of each
 castable `MartialArts` skill from that skill's data fields, and remain unchanged
@@ -755,12 +763,14 @@ Each public baseline result contains:
 - per-action breakdown map containing damage and, for heal actions, healing
 
 The Main-tab DPS panel derives Graduation Rate from the current DPS divided by
-the path's default-build DPS under the same rotation, breakthrough, food,
+the path's `graduated` build DPS under the same rotation, breakthrough, food,
 Divinecraft, Script, and global buff/debuff state. A fingerprint of that
 environment, the path, and active skill overrides keys the existing bounded
 baseline cache. A new environment schedules one ordinary deterministic
 baseline calculation; build-only changes reuse the cached denominator. No
-Monte Carlo simulation is involved.
+Monte Carlo simulation is involved. `data/path.json` declares `defaultBuild`
+and `graduated` separately so the build loaded by default does not have to be
+the build used as the graduation denominator.
 
 The Rotation Editor rebuilds its draft timeline immediately with the shared
 timeline builder whenever structural rotation content or the combat context
