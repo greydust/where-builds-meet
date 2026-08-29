@@ -30,6 +30,8 @@ const assertUniqueMartialArts = (definition, file) => {
 };
 
 const paths = await readJson("data/path.json");
+const statCaps = await readJson("data/stat.json");
+const gearData = await readJson("data/gear.json");
 const lockedMartialArts = new Set();
 const allowedStatuses = new Set(["available", "wip", "devOnly", "plannerOnly"]);
 const pathByBuildGroup = new Map();
@@ -106,6 +108,49 @@ for (const [pathId, definition] of Object.entries(paths)) {
       graduateBuild.buildGroup === definition.buildGroup,
       `Path ${pathId}'s graduate build must belong to its build group.`,
     );
+  if (definition.graduated !== "empty") {
+    assert(graduateBuild.definition.relayed !== true, `Path ${pathId}'s graduate build cannot be relayed.`);
+    for (const [slot, gear] of Object.entries(graduateBuild.definition.gear ?? {})) {
+      assert(gear.relayed !== true, `Path ${pathId}'s graduate ${slot} cannot be relayed.`);
+      const affixCaps = statCaps[String(gear.level)]?.affix;
+      assert(affixCaps, `Path ${pathId}'s graduate ${slot} has unsupported gear level ${gear.level}.`);
+      const gearDefinition = gearData.gear[gear.definitionId];
+      assert(
+        gearDefinition?.slots.includes(slot),
+        `Path ${pathId}'s graduate ${slot} uses an invalid gear definition.`,
+      );
+      const allowedAffixes = (category) => {
+        const options = gearDefinition[category];
+        const relayOnly = new Set(options[`${gear.level}Relayed`] ?? []);
+        const standard = (options[String(gear.level)] ?? []).filter((key) => !relayOnly.has(key));
+        const universal =
+          category === "additionalAffixes" ? (gearData.universalAdditionalAffixes[String(gear.level)] ?? []) : [];
+        return new Set([...standard, ...universal]);
+      };
+      assert(
+        allowedAffixes("baseAffixes").has(gear.baseAffix.key),
+        `Path ${pathId}'s graduate ${slot} uses an invalid base affix ${gear.baseAffix.key}.`,
+      );
+      const additionalKeys = gear.additionalAffixes?.map((affix) => affix.key) ?? [];
+      assert(
+        additionalKeys.length === 4 && new Set(additionalKeys).size === 4,
+        `Path ${pathId}'s graduate ${slot} must use four distinct additional affixes.`,
+      );
+      for (const key of additionalKeys)
+        assert(
+          allowedAffixes("additionalAffixes").has(key),
+          `Path ${pathId}'s graduate ${slot} uses invalid additional affix ${key}.`,
+        );
+      for (const affix of [gear.baseAffix, ...(gear.additionalAffixes ?? [])]) {
+        const maximum = affixCaps[affix.key];
+        assert(maximum !== undefined, `Path ${pathId}'s graduate ${slot} uses unsupported affix ${affix.key}.`);
+        assert(
+          affix.value === maximum,
+          `Path ${pathId}'s graduate ${slot} affix ${affix.key} must use its maximum roll.`,
+        );
+      }
+    }
+  }
   if (definition.lockedWeapons && definition.defaultRotation !== "empty")
     assert(
       [...rotation.definition.martialArts].sort().join("|") === [...definition.lockedWeapons].sort().join("|"),

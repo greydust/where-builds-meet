@@ -3,7 +3,6 @@
   "name": "Mixed Full Min Build",
   "order": 2,
   "martialArts": ["snowparting", "phalanxbane"],
-  "relayed": true,
   "setup": {
     "innerWays": [
       {
@@ -40,24 +39,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "hengBladeDmgBoost",
+          "value": 0.062
         }
       ],
       "attunement": {
@@ -71,24 +70,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "moBladeDmgBoost",
-          "value": 0.05828
+          "value": 0.062
         },
         {
-          "key": "maxStonesplit",
-          "value": 41.548
+          "key": "precision",
+          "value": 0.08
         }
       ],
       "attunement": {
@@ -102,24 +101,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "allMartialArts",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -133,24 +132,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "allMartialArts",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -164,24 +163,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -195,24 +194,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "minBellstrike",
-          "value": 41.548
+          "value": 44.2
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -226,24 +225,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -257,24 +256,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxStonesplit",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {

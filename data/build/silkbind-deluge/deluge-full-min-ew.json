@@ -3,7 +3,6 @@
   "name": "Full Min Build Etherwrath",
   "order": 2,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
-  "relayed": true,
   "setup": {
     "innerWays": [
       {
@@ -39,24 +38,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "crit",
-          "value": 0.0846
+          "value": 0.09
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         }
       ],
       "attunement": {
@@ -70,24 +69,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "crit",
-          "value": 0.0846
+          "value": 0.09
         },
         {
-          "key": "maxSilkbind",
-          "value": 41.548
+          "key": "umbrellaDmgBoost",
+          "value": 0.062
         }
       ],
       "attunement": {
@@ -101,24 +100,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -132,24 +131,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -163,24 +162,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "singleTargetMysticDmgBoost",
-          "value": 0.09212
+          "value": 0.098
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -194,24 +193,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "singleTargetMysticDmgBoost",
-          "value": 0.09212
+          "value": 0.098
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -225,24 +224,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -256,24 +255,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxSilkbind",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {

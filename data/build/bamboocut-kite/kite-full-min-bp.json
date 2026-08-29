@@ -3,7 +3,6 @@
   "name": "Full Min Build BP",
   "order": 2,
   "martialArts": ["heavenwill", "skygrasp"],
-  "relayed": true,
   "setup": {
     "innerWays": [
       {
@@ -37,24 +36,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "gauntletDmgBoost",
-          "value": 0.05828
+          "value": 0.062
         },
         {
           "key": "crit",
-          "value": 0.0846
+          "value": 0.09
         }
       ],
       "attunement": {
@@ -68,24 +67,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "crit",
-          "value": 0.0846
+          "value": 0.09
         },
         {
-          "key": "maxBamboocut",
-          "value": 41.548
+          "key": "ropeDartDmgBoost",
+          "value": 0.062
         }
       ],
       "attunement": {
@@ -99,24 +98,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "allMartialArts",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -130,24 +129,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "minPhys",
-        "value": 73.132
+        "value": 77.8
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "allMartialArts",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -161,24 +160,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -192,24 +191,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "precision",
-          "value": 0.0752
+          "value": 0.08
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -223,24 +222,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -254,24 +253,24 @@
       "rarity": "Gold",
       "baseAffix": {
         "key": "crit",
-        "value": 0.0846
+        "value": 0.09
       },
       "additionalAffixes": [
         {
           "key": "minPhys",
-          "value": 73.132
+          "value": 77.8
         },
         {
           "key": "agility",
-          "value": 46.436
+          "value": 49.4
         },
         {
           "key": "vsBossDmg",
-          "value": 0.03008
+          "value": 0.032
         },
         {
           "key": "maxBamboocut",
-          "value": 41.548
+          "value": 44.2
         }
       ],
       "attunement": {
