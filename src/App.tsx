@@ -24,12 +24,15 @@ import {
   armorSetDefinitions,
   attunementData,
   availableSetEntriesForTags,
+  buildPresetInventory,
   buildEntryAvailableForPath,
   buildEntryIsTestPreset,
   buildListStorageKey,
   calculateEquippedGearEffects,
+  defaultBuildPresets,
   loadBuildState,
   maxGearRoll,
+  normalizeBuildSetup,
   normalizeBuildSetupOverrides,
   resolveBuildInventory,
   resolveBuildSetup,
@@ -665,9 +668,12 @@ function selectableRotationSkillIds(weapons: [WeaponId, WeaponId]) {
     );
 }
 
-function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], excludedInnerWay?: string) {
+function innerWayConditionsFor(
+  selectedInnerWays: BuildSetup["innerWays"],
+  excludedInnerWay?: string,
+  pathId = loadSelectedPath(),
+) {
   const conditions = new Set<string>();
-  const pathId = loadSelectedPath();
   for (const row of selectedInnerWays) {
     if (!row.innerWay || row.innerWay === excludedInnerWay || !innerWayAvailableForPath(row.innerWay, pathId)) continue;
     const tierNumber = Number(row.tier.slice(1));
@@ -676,8 +682,10 @@ function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], exclu
   return conditions;
 }
 
-function innerWayEffectRulesFor(selectedInnerWays: BuildSetup["innerWays"]): InnerWayEffectRule[] {
-  const pathId = loadSelectedPath();
+function innerWayEffectRulesFor(
+  selectedInnerWays: BuildSetup["innerWays"],
+  pathId = loadSelectedPath(),
+): InnerWayEffectRule[] {
   const selected = selectedInnerWays.filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId));
   return selected.flatMap(({ innerWay, tier }) => {
     if (!innerWay || !innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions]) return [];
@@ -1307,6 +1315,7 @@ function selectedSetupEffects(
   gearStatEffect: StatEffectContainer,
   buildSetup: BuildSetup,
   overrides: Partial<BuildSetup> & { food?: string; divinecraft?: string; script?: string } = {},
+  pathId = loadSelectedPath(),
 ) {
   const selectedBuildSetup = {
     ...buildSetup,
@@ -1324,8 +1333,8 @@ function selectedSetupEffects(
     ...selectedMartialArtEffects(settings),
     arsenalEffectFor(selectedBuildSetup.arsenal),
     bowRingSetEffectFor(selectedBuildSetup.bowRingSet),
-    ...setEffectsFor(selectedBuildSetup.weaponSets, typedWeaponSetDefinitions, settings),
-    ...setEffectsFor(selectedBuildSetup.armorSets, typedArmorSetDefinitions, settings),
+    ...setEffectsFor(selectedBuildSetup.weaponSets, typedWeaponSetDefinitions, settings, pathId),
+    ...setEffectsFor(selectedBuildSetup.armorSets, typedArmorSetDefinitions, settings, pathId),
     foodEffect,
     scriptEffect,
     divinecraftEffect,
@@ -1361,9 +1370,10 @@ function setEffectsFor(
   selected: SetSelections,
   definitions: Record<string, GearSetDefinition>,
   settings: CalculatorSettings,
+  pathId = loadSelectedPath(),
 ) {
   return Object.entries(selected)
-    .filter(([setName]) => definitions[setName] && setAvailableForSettings(definitions[setName], settings))
+    .filter(([setName]) => definitions[setName] && setAvailableForSettings(definitions[setName], settings, pathId))
     .flatMap(([setName, tier]) => {
       const effect = definitions[setName]?.options[String(tier)]?.effect;
       return Array.isArray(effect) ? effect : [effect ?? {}];
@@ -1709,6 +1719,110 @@ function calculateGlobalStatState(
     enemy.judgementResistance,
     overrides,
   );
+}
+
+type GraduationEnvironment = {
+  pathId: PathId;
+  rotation: RotationRecord;
+  breakthrough: string;
+  globalDebuffs: GlobalDebuffState;
+  food: string;
+  script: string;
+  divinecraft: string;
+  skillOverrides: SkillOverrides;
+};
+
+function graduationEnvironmentFingerprint(environment: GraduationEnvironment) {
+  const { name: _displayName, ...rotation } = environment.rotation;
+  return calculationFingerprint({
+    pathId: environment.pathId,
+    rotation,
+    breakthrough: environment.breakthrough,
+    globalDebuffs: environment.globalDebuffs,
+    food: environment.food,
+    script: environment.script,
+    divinecraft: environment.divinecraft,
+    skillOverrides: environment.skillOverrides,
+  });
+}
+
+function buildGraduationBundle(environment: GraduationEnvironment): RotationSimulationBundle | undefined {
+  const { pathId } = environment;
+  const path = typedPathDefinitions[pathId];
+  if (!path || path.defaultBuild === "empty") return undefined;
+  const build = defaultBuildPresets.find((candidate) => candidate.id === path.defaultBuild);
+  const configuredWeapons = path.lockedWeapons ?? build?.martialArts;
+  if (!build || configuredWeapons?.length !== 2) return undefined;
+
+  const weapons = [...configuredWeapons] as [WeaponId, WeaponId];
+  const settings: CalculatorSettings = { weapons, breakthrough: environment.breakthrough };
+  const buildSetup = normalizeBuildSetup(build.setup);
+  const equippedGear = calculateEquippedGearEffects(buildPresetInventory(build), weapons, false);
+  const gearStatEffect: StatEffectContainer = { stat: equippedGear.stats };
+  const setupEffects = selectedSetupEffects(
+    settings,
+    gearStatEffect,
+    buildSetup,
+    { food: environment.food, divinecraft: environment.divinecraft, script: environment.script },
+    pathId,
+  );
+  const innerWayRules = innerWayEffectRulesFor(buildSetup.innerWays, pathId);
+  const innerWayConditions = innerWayConditionsFor(buildSetup.innerWays, undefined, pathId);
+  const innerWayStatEffects = innerWayRules
+    .filter((rule) => !rule.requirement && rule.effect.stat)
+    .map((rule) => rule.effect as StatEffectContainer);
+  const unconditionalSetupEffects = setupEffects.filter((effect) => !("requirement" in effect) || !effect.requirement);
+  const enemy = breakthroughProfile(settings);
+  const statState = calculateStatsWithOverrides(
+    emptyStats,
+    [...unconditionalSetupEffects, ...innerWayStatEffects],
+    enemy.judgementResistance,
+    {},
+  );
+  const definitions = resolveSkillCalculationDefinitions(
+    defaultSkillMaps,
+    effectDefinitions,
+    dotDefinitions,
+    environment.skillOverrides,
+  );
+  const rotation = environment.rotation;
+  const rotationAnchor = rotation.start
+    ? { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action }
+    : { rowId: "rotation-0" };
+
+  return {
+    timeline: {
+      rotation,
+      skills: definitions.skills,
+      eventDefinitions: rotationEventDefinitions,
+      dots: definitions.dots,
+      effectDefinitions: definitions.effectDefinitions,
+      innerWayConditions: [...innerWayConditions, ...setupConditionsFor(setupEffects)],
+      innerWayRules,
+      setupEffects,
+      weapons,
+      martialArtState: Object.fromEntries(
+        weapons.map((martialArt) => [martialArt, { weapon: martialArtDefinitions[martialArt].weapon }]),
+      ),
+      initialBuffs: globalBuffTimelineEffects(environment.globalDebuffs),
+      initialDebuffs: globalDebuffTimelineEffects(environment.globalDebuffs),
+      initialResources: { ...typedSystemStats.initialResources, Vitality: statState.stats.maxVitality },
+      resourceRegeneration: { HeavensWill: statState.stats.heavensWillRegen },
+      resourceMaximums: { ...typedSystemStats.resourceMaximums, Vitality: statState.stats.maxVitality },
+      resourceEvents: typedSystemStats.resourceEvents,
+      maxHP: statState.stats.maxHp,
+    },
+    startAnchor: rotationAnchor,
+    stats: statState.baseStats,
+    attunement: { ...defaultAttunementStats, ...equippedGear.attunement },
+    enemy,
+    derivedStats: statState.derivedStats,
+    weapons,
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  };
 }
 
 function StatField({
@@ -2266,6 +2380,7 @@ function StatsTab({
   onBuildSetupChange,
   onBuildSetupReset,
   rotationMetrics,
+  graduationDps,
   activeBuildName,
   activeRotationName,
   onInnerWayChange,
@@ -2286,6 +2401,7 @@ function StatsTab({
   onBuildSetupChange: <K extends keyof BuildSetup>(key: K, value: BuildSetup[K]) => void;
   onBuildSetupReset: (key: keyof BuildSetup) => void;
   rotationMetrics?: RotationMetrics;
+  graduationDps?: number;
   activeBuildName: string;
   activeRotationName: string;
   onInnerWayChange: () => void;
@@ -2300,6 +2416,8 @@ function StatsTab({
   const [newProfileName, setNewProfileName] = useState("");
   const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
+  const graduationRate =
+    rotationMetrics && graduationDps && graduationDps > 0 ? (rotationMetrics.dps / graduationDps) * 100 : undefined;
 
   useEffect(() => setPersistentItem(foodStorageKey, food), [food]);
   useEffect(() => setPersistentItem(scriptStorageKey, script), [script]);
@@ -3251,6 +3369,27 @@ function StatsTab({
                     </>
                   ) : null}
                 </h2>
+              </div>
+              <div className="graduation-rate">
+                <span>{t("ui.app.graduationRate")}</span>
+                <strong>{graduationRate === undefined ? "—" : `${formatNumber(graduationRate)}%`}</strong>
+                <span className="breakthrough-detail-trigger">
+                  <button
+                    className="breakthrough-detail-mark"
+                    type="button"
+                    aria-label={t("ui.app.graduationRateDetails")}
+                    aria-describedby="graduation-rate-details"
+                  >
+                    !
+                  </button>
+                  <span
+                    className="breakthrough-detail-tooltip graduation-rate-tooltip"
+                    id="graduation-rate-details"
+                    role="tooltip"
+                  >
+                    {t("ui.app.graduationRateDescription")}
+                  </span>
+                </span>
               </div>
             </div>
             <div className="dps-value">
@@ -5100,14 +5239,17 @@ function SettingsTab({
 
 function RotationEditorTab({
   character,
+  pathId,
   devMode,
   defaultRotationId,
   skillOverrides,
   onSelectRotationWeapons,
   onMetricsChange,
   onActiveSimulationBundleChange,
+  onGraduationDpsChange,
 }: {
   character: CharacterState;
+  pathId: PathId;
   devMode: boolean;
   defaultRotationId: string;
   skillOverrides: SkillOverrides;
@@ -5118,7 +5260,9 @@ function RotationEditorTab({
     rotationName: string,
     bundleKey: string,
     isDefault: boolean,
+    graduation?: { fingerprint: string; dps?: number },
   ) => void;
+  onGraduationDpsChange: (fingerprint: string, dps: number) => void;
 }) {
   const {
     stats: displayedCharacterStats,
@@ -5167,6 +5311,7 @@ function RotationEditorTab({
   const diffRequestSequenceRef = useRef(0);
   const scheduledRefreshTargetRef = useRef<string | null>(null);
   const runningRefreshTargetRef = useRef<string | null>(null);
+  const graduationFingerprintRef = useRef<string | null>(null);
   const [refreshRetryRevision, setRefreshRetryRevision] = useState(0);
   const [readableDialogOpen, setReadableDialogOpen] = useState(false);
   const [readableCopyStatus, setReadableCopyStatus] = useState("");
@@ -6358,25 +6503,53 @@ function RotationEditorTab({
         ? rotation
         : rotationEntries.find((entry) => entry.id === activeRotationId)?.rotation;
     const activeEntry = rotationEntries.find((entry) => entry.id === activeRotationId);
-    if (activeRotation)
+    if (activeRotation) {
+      const graduation = prepareGraduationCalculation(activeRotation);
+      graduationFingerprintRef.current = graduation?.fingerprint ?? null;
+      const cachedGraduation = graduation
+        ? calculationCacheRef.current.baseline(graduation.fingerprint)?.metrics.dps
+        : undefined;
       onActiveSimulationBundleChange(
         calculationBundleFor(activeRotation, false),
         activeRotation.name || "Active rotation",
         `${activeRotationId}:${calculationContextKey}:${JSON.stringify(activeRotation)}`,
         activeEntry?.isDefault === true,
+        graduation ? { fingerprint: graduation.fingerprint, dps: cachedGraduation } : undefined,
       );
+    }
   }, [
     activeRotationId,
     editingRotationId,
     rotation,
     rotationEntries,
     calculationContextKey,
+    pathId,
+    defaultRotationId,
     onActiveSimulationBundleChange,
   ]);
 
   const prepareBaselineCalculation = (rotationRecord: RotationRecord) => {
     const bundle = calculationBundleFor(rotationRecord, false);
     return { bundle, fingerprint: rotationBundleFingerprint(bundle) };
+  };
+  const prepareGraduationCalculation = (rotationRecord: RotationRecord) => {
+    const environment: GraduationEnvironment = {
+      pathId,
+      rotation: rotationRecord,
+      breakthrough: settings.breakthrough,
+      globalDebuffs: currentGlobalDebuffs,
+      food: currentFood,
+      script: currentScript,
+      divinecraft: currentDivinecraft,
+      skillOverrides,
+    };
+    const bundle = buildGraduationBundle(environment);
+    return bundle
+      ? {
+          bundle,
+          fingerprint: `graduation:${graduationEnvironmentFingerprint(environment)}`,
+        }
+      : undefined;
   };
   const workerCacheKeyFor = (fingerprint: string) => `rotation:${fingerprint}`;
 
@@ -6431,6 +6604,21 @@ function RotationEditorTab({
     if (editorPreviewRequestSequenceRef.current === requestSequence) storeBaselineResult(id, resultKey, result);
   }
 
+  async function calculateGraduationDps(rotationRecord: RotationRecord) {
+    const prepared = prepareGraduationCalculation(rotationRecord);
+    if (!prepared) return;
+    let baseline = calculationCacheRef.current.baseline(prepared.fingerprint);
+    if (!baseline) {
+      baseline = await requestRotationBaseline(prepared.bundle, workerCacheKeyFor(prepared.fingerprint), {
+        key: "graduation",
+        priority: 390,
+      });
+      calculationCacheRef.current.storeBaseline(prepared.fingerprint, baseline);
+    }
+    if (graduationFingerprintRef.current === prepared.fingerprint)
+      onGraduationDpsChange(prepared.fingerprint, baseline.metrics.dps);
+  }
+
   async function calculateDiffsForRotation(
     id: string,
     rotationRecord: RotationRecord,
@@ -6460,6 +6648,14 @@ function RotationEditorTab({
       let metrics = baselineMetricsWithPreviousComparisons(baseline.metrics, getRotationMetrics());
       onMetricsChange(metrics, true);
       completeRotationCalculationCategory("baseline");
+
+      try {
+        await calculateGraduationDps(rotationRecord);
+      } catch (graduationError) {
+        if (diffRequestSequenceRef.current === requestSequence)
+          console.error("Graduation baseline calculation failed", graduationError);
+      }
+      if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
 
       const comparisonBundle = calculationBundleFor(rotationRecord, true);
       for (const category of comparisonCategoryOrder) {
@@ -7696,6 +7892,8 @@ export default function App() {
     rotationName: string;
     bundleKey: string;
     rotationIsDefault: boolean;
+    graduationFingerprint?: string;
+    graduationDps?: number;
   }>();
   const rotationMetrics = useSyncExternalStore(subscribeToRotationMetrics, getRotationMetrics, getRotationMetrics);
   const [innerWayRevision, setInnerWayRevision] = useState(0);
@@ -7851,10 +8049,28 @@ export default function App() {
     if (isActive) publishRotationMetrics(metrics);
   };
   const handleActiveSimulationBundle = useCallback(
-    (bundle: RotationSimulationBundle, rotationName: string, bundleKey: string, rotationIsDefault: boolean) =>
-      setActiveSimulation({ bundle, rotationName, bundleKey, rotationIsDefault }),
+    (
+      bundle: RotationSimulationBundle,
+      rotationName: string,
+      bundleKey: string,
+      rotationIsDefault: boolean,
+      graduation?: { fingerprint: string; dps?: number },
+    ) =>
+      setActiveSimulation({
+        bundle,
+        rotationName,
+        bundleKey,
+        rotationIsDefault,
+        graduationFingerprint: graduation?.fingerprint,
+        graduationDps: graduation?.dps,
+      }),
     [],
   );
+  const handleGraduationDps = useCallback((fingerprint: string, dps: number) => {
+    setActiveSimulation((current) =>
+      current?.graduationFingerprint === fingerprint ? { ...current, graduationDps: dps } : current,
+    );
+  }, []);
   const activeRotationDisplayName = activeSimulation
     ? activeSimulation.rotationIsDefault
       ? gameText(activeSimulation.rotationName)
@@ -8051,6 +8267,7 @@ export default function App() {
           onBuildSetupChange={updateBuildSetupOverride}
           onBuildSetupReset={resetBuildSetupOverride}
           rotationMetrics={rotationMetrics}
+          graduationDps={activeSimulation?.graduationDps}
           activeBuildName={activeBuildDisplayName}
           activeRotationName={activeRotationDisplayName}
           onInnerWayChange={() => setInnerWayRevision((current) => current + 1)}
@@ -8091,12 +8308,14 @@ export default function App() {
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}>
         <RotationEditorTab
           character={character}
+          pathId={pathId}
           devMode={devMode}
           defaultRotationId={defaultRotationIdForPath(pathId)}
           skillOverrides={skillOverrides}
           onSelectRotationWeapons={selectBuildWeapons}
           onMetricsChange={handleRotationMetrics}
           onActiveSimulationBundleChange={handleActiveSimulationBundle}
+          onGraduationDpsChange={handleGraduationDps}
         />
       </div>
       {simulationMounted && (

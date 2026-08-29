@@ -164,6 +164,33 @@
     text-align: start;
   }
 
+  .graduation-rate {
+    display: flex;
+    min-inline-size: 0;
+    align-items: center;
+    gap: 0.3rem;
+    margin-inline-start: auto;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 650;
+    white-space: nowrap;
+
+    strong {
+      color: var(--primary);
+    }
+
+    .breakthrough-detail-trigger {
+      position: relative;
+    }
+  }
+
+  .graduation-rate .graduation-rate-tooltip {
+    inset-inline: auto 0;
+    inline-size: min(42rem, calc(100vw - 2rem));
+    text-align: start;
+    white-space: normal;
+  }
+
   .dps-value {
     display: flex;
     flex-wrap: wrap;

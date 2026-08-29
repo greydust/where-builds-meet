@@ -754,6 +754,14 @@ Each public baseline result contains:
 - anchor time and duration
 - per-action breakdown map containing damage and, for heal actions, healing
 
+The Main-tab DPS panel derives Graduation Rate from the current DPS divided by
+the path's default-build DPS under the same rotation, breakthrough, food,
+Divinecraft, Script, and global buff/debuff state. A fingerprint of that
+environment, the path, and active skill overrides keys the existing bounded
+baseline cache. A new environment schedules one ordinary deterministic
+baseline calculation; build-only changes reuse the cached denominator. No
+Monte Carlo simulation is involved.
+
 The Rotation Editor rebuilds its draft timeline immediately with the shared
 timeline builder whenever structural rotation content or the combat context
 changes. This main-thread pass is memoized and does not calculate damage, DPS,
