@@ -26,6 +26,7 @@ export type SkillRecord = {
   shortName?: string;
   castTime?: number | SwitchValue;
   cooldown?: number;
+  cooldownUses?: number;
   duration?: number;
   collectBoostDamage?: string;
   subAction?: Array<string | SubActionReference>;
@@ -59,7 +60,7 @@ export type RotationStep =
       before: AttachedEventTarget & { action: "start"; trigger?: undefined };
       martialArt: WeaponId;
     }
-  | { type: "event"; event: "Delay"; duration: number }
+  | { type: "event"; event: "Delay"; duration: number; automatic?: "cooldown" }
   | { type: "event"; event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
   | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
   | { type: "event"; event: "Move"; startTime: number; distance: number };
@@ -86,6 +87,7 @@ export type RotationRecord = {
 };
 export type TrackedEffect = {
   name: string;
+  appliedAt?: number;
   expiresAt?: number;
   stack?: number;
   maxStack?: number;
@@ -150,6 +152,7 @@ export type TimelineRow = {
     }
   >;
   skipped?: boolean;
+  cooldownWait?: number;
 };
 
 function timelineRowsRepresentSameStep(left: TimelineRow, right: TimelineRow) {
@@ -183,6 +186,8 @@ export type EffectDefinition = {
   shortName?: string;
   description?: string;
   global?: boolean;
+  shared?: boolean;
+  showCoverage?: boolean;
   refresh?: boolean;
   duration?: number;
   cooldown?: number;
@@ -237,6 +242,7 @@ export type TimelineBuildInput = {
   infiniteResources?: string[];
   resourceEvents?: ResourceEventRule[];
   maxHP?: number;
+  cooldownPolicy?: "skip" | "wait";
 };
 
 export type ResourceEventRule = {
@@ -413,6 +419,7 @@ function applyTrackedEffect(
     persistent || duration === undefined ? undefined : existing && !refresh ? existing.expiresAt : time + duration;
   const nextEffect: TrackedEffect = {
     name,
+    appliedAt: existing && !refresh ? existing.appliedAt : time,
     stack: nextStack,
     maxStack: maxStackOverride,
     expiresAt,
@@ -947,6 +954,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     lastResourceRegenerationTime = Math.max(lastResourceRegenerationTime, time);
   };
   const cooldowns: Record<string, number> = {};
+  const skillCooldownWindows: Record<string, { expiresAt: number; uses: number }> = {};
   let currentTimelineTime = 0;
   const requirementState = (): RequirementState => ({
     selfHPPercentage: currentHPRatio * 100,
@@ -957,6 +965,29 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     currentMartialArt,
     currentWeapon,
   });
+  const skillCooldownKey = (skillId: string) => `skill:${skillId}`;
+  const skillCooldownDuration = (skill: SkillRecord, modifierEffects: EditableObject[]) => {
+    for (let index = modifierEffects.length - 1; index >= 0; index -= 1) {
+      const override = modifierEffects[index]?.cooldown;
+      if (typeof override === "number") return override;
+    }
+    return skill.cooldown;
+  };
+  const skillCooldownReadyAt = (key: string, time: number, uses: number) => {
+    const window = skillCooldownWindows[key];
+    if (!window || compareTimelineTime(time, window.expiresAt) >= 0 || window.uses < uses) return time;
+    return window.expiresAt;
+  };
+  const recordSkillCooldownCast = (key: string, time: number, duration: number, uses: number) => {
+    const window = skillCooldownWindows[key];
+    if (!window || compareTimelineTime(time, window.expiresAt) >= 0) {
+      skillCooldownWindows[key] = { expiresAt: time + duration, uses: 1 };
+      cooldowns[key] = uses === 1 ? time + duration : time;
+      return;
+    }
+    window.uses = Math.min(uses, window.uses + 1);
+    cooldowns[key] = window.uses >= uses ? window.expiresAt : time;
+  };
   const prune = (effects: TrackedEffect[], time: number) =>
     effects.some((effect) => effect.expiresAt !== undefined && effect.expiresAt <= time)
       ? effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time)
@@ -1418,12 +1449,54 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     }
     if (event.kind === "start") {
       const skillId = event.row.step.type === "skill" ? (event.row.step.skill ?? "") : "";
+      const skillModifiers =
+        event.row.step.type === "skill" && Array.isArray(event.row.skill?.modifier)
+          ? (event.row.skill.modifier as EditableObject[])
+              .filter((item) =>
+                requirementsPass(
+                  item.requirement,
+                  buffs,
+                  debuffs,
+                  event.row.skill?.tags ?? [],
+                  innerWayConditions,
+                  weapons,
+                  resources,
+                  requirementState(),
+                ),
+              )
+              .map((item) =>
+                item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
+                  ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs)
+                  : {},
+              )
+          : [];
+      const cooldownDuration = event.row.skill ? skillCooldownDuration(event.row.skill, skillModifiers) : undefined;
+      const cooldownUses = Math.max(1, Math.floor(event.row.skill?.cooldownUses ?? 1));
+      const cooldownKey = skillCooldownKey(skillId);
+      const cooldownReadyAt =
+        typeof cooldownDuration === "number" ? skillCooldownReadyAt(cooldownKey, event.time, cooldownUses) : event.time;
       if (
         event.row.kind === "rotation" &&
         event.row.step.type === "skill" &&
-        typeof event.row.skill?.cooldown === "number" &&
-        (cooldowns[`skill:${skillId}`] ?? 0) > event.time
+        typeof cooldownDuration === "number" &&
+        compareTimelineTime(cooldownReadyAt, event.time) > 0
       ) {
+        if (input.cooldownPolicy !== "skip") {
+          const wait = cooldownReadyAt - event.time;
+          event.row.cooldownWait = (event.row.cooldownWait ?? 0) + wait;
+          shiftRotationRowAndAttachments(event.row, wait);
+          rows.forEach((row) => {
+            if (
+              row.kind !== "rotation" ||
+              (row.rotationIndex ?? -1) <= (event.row.rotationIndex ?? -1) ||
+              !isSequentialStep(row.step)
+            )
+              return;
+            shiftRotationRowAndAttachments(row, wait);
+          });
+          events.push({ ...event, time: event.time + wait });
+          continue;
+        }
         const skippedCastTime = event.row.effectiveCastTime;
         event.row.skipped = true;
         event.row.actions = [];
@@ -1446,12 +1519,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         });
         continue;
       }
-      if (
-        event.row.kind === "rotation" &&
-        event.row.step.type === "skill" &&
-        typeof event.row.skill?.cooldown === "number"
-      )
-        cooldowns[`skill:${skillId}`] = event.time + event.row.skill.cooldown;
+      if (event.row.kind === "rotation" && event.row.step.type === "skill" && typeof cooldownDuration === "number")
+        recordSkillCooldownCast(cooldownKey, event.time, cooldownDuration, cooldownUses);
       if (
         event.row.step.type === "skill" &&
         event.row.skill?.tags?.includes("MartialArts") &&
@@ -1477,25 +1546,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         event.row,
         event.row.actions.map((_action, actionIndex) => actionIndex),
       );
-      const modifiers = Array.isArray(event.row.skill?.modifier) ? (event.row.skill.modifier as EditableObject[]) : [];
-      event.row.modifierEffects = modifiers
-        .filter((item) =>
-          requirementsPass(
-            item.requirement,
-            buffs,
-            debuffs,
-            event.row.skill?.tags ?? [],
-            innerWayConditions,
-            weapons,
-            resources,
-            requirementState(),
-          ),
-        )
-        .map((item) =>
-          item.effect && typeof item.effect === "object" && !Array.isArray(item.effect)
-            ? resolveCastModifierEffect(item.effect as EditableObject, buffs, debuffs)
-            : {},
-        );
+      event.row.modifierEffects = skillModifiers;
       const previousCastTime = event.row.effectiveCastTime;
       const baseCastTime =
         event.row.step.type === "event" && event.row.step.event === "Delay"
@@ -1556,6 +1607,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     if (action.type === "clearCD" && typeof action.value === "string") {
       cooldowns[action.value] = event.time;
       cooldowns[`skill:${action.value}`] = event.time;
+      delete skillCooldownWindows[`skill:${action.value}`];
       continue;
     }
     if (action.type === "move" && typeof action.distance === "number" && Number.isFinite(action.distance)) {
@@ -1722,6 +1774,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         cooldowns[triggerAction.value] = event.time;
         cooldowns[`skill:${triggerAction.value}`] = event.time;
+        delete skillCooldownWindows[`skill:${triggerAction.value}`];
         return;
       }
       if (triggerAction.type === "consume" && typeof triggerAction.value === "string") {

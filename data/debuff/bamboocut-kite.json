@@ -2,6 +2,7 @@
   "HeavensMight": {
     "name": "Heaven's Might",
     "shortName": "Might",
+    "showCoverage": true,
     "description": "Increases HP damage from Falcon and Vile Condemned skills by 10%.",
     "duration": 15,
     "maxStack": 1,

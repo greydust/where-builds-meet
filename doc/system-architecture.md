@@ -182,6 +182,11 @@ arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
 
+Changing combat paths immediately activates that path's configured default
+rotation before calculation and simulation bundles are published. This keeps a
+preset that was active on the previous path from leaking into the new path's
+state while the ordinary compatibility reconciliation runs.
+
 Rotation editing uses a separate baseline-preview schedule. Input changes render
 immediately while a short debounce coalesces rapid edits before constructing and
 fingerprinting the worker bundle. A matching main-thread baseline cache entry is
@@ -472,6 +477,12 @@ The timeline owns mutable simulation state while it is being built:
 - skill, action, and effect cooldowns
 - action-time state snapshots
 
+The editor and calculator share the timeline's skill-cooldown state. An
+unavailable explicit cast shifts to its ready time. Editor reconciliation
+persists that wait as a protected automatic Delay, so editor timing and
+calculation timing cannot diverge. Unavailable triggered skills are rejected
+because they do not consume rotation time.
+
 Main-tab global-effect controls seed permanent tracked player buffs or target
 debuffs into this initial state at their configured stack count. They therefore
 use ordinary effect-definition and requirement resolution, appear in timeline
@@ -761,6 +772,16 @@ Each public baseline result contains:
 - baseline timeline
 - anchor time and duration
 - per-action breakdown map containing damage and, for heal actions, healing
+
+The centralized rotation breakdown also reports Buff Coverage and Debuff
+Coverage for effect definitions marked `showCoverage`. Average stacks are
+action-weighted: their denominator contains only resolved, non-replay damage and
+healing actions with non-zero output. Delays, movement, resource changes,
+applications, replay damage, and other actions that cannot be affected by
+tracked effects do not affect that average. A debuff additionally reports
+elapsed-time coverage when its definition has `shared: true`; tracked
+application and expiration timestamps are clipped to the resolved fight window
+and overlapping refresh intervals are counted once.
 
 The Main-tab DPS panel derives Graduation Rate from the current DPS divided by
 the path's `graduated` build DPS under the same rotation, breakthrough, food,

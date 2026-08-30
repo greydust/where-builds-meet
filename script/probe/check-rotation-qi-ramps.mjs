@@ -52,6 +52,7 @@ try {
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json",
+    "/data/rotation/stonesplit-strength/mixed-dummy-1-min-dual-stab.json",
     "/data/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s.json",
     "/data/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s-no-fcn.json",
     "/data/rotation/stonesplit-strength/pure-dummy-1-min.json",

@@ -77,6 +77,7 @@
   "Smolder": {
     "name": "Smolder",
     "shortName": "Smo",
+    "showCoverage": true,
     "maxStack": 1,
     "periodic": {
       "interval": 0.5,

@@ -44,6 +44,7 @@ type SkillDefinition = {
   shortName?: string;
   castTime: number;
   cooldown?: number;
+  cooldownUses?: number;
   action: SkillAction[];
   subAction?: Array<{
     value: string | string[];
@@ -272,8 +273,16 @@ scheduled just after the preceding component's cast time.
 
 The referenced skill is inserted at the action timestamp. Triggered skills do
 not consume rotation cast time. A skill-level `cooldown` prevents both casts and
-triggers while active; a prevented cast is removed and later ordered casts shift
-earlier by its cast time.
+triggers while active. An unavailable explicit cast waits until its cooldown is
+ready; triggered skills remain rejected while unavailable. Cooldowns are keyed
+by skill ID, so separate skill definitions always maintain independent windows.
+`cooldownUses` permits that many casts of the same skill during its window,
+which starts with the first cast. A matching skill modifier may override
+`cooldown` while its requirements pass.
+
+The rotation editor materializes each cooldown wait as a protected Delay step with
+`automatic: "cooldown"`; these generated steps cannot be edited, moved, or
+removed directly and are regenerated whenever the rotation changes.
 
 Timeline rows record whether a trigger came from a skill, setup effect, or Inner
 Way. Per-cast breakdowns attribute normal triggered-skill and DOT damage to the
@@ -651,8 +660,10 @@ Definition fields:
   reapplication; a rejected application does not schedule them
 - `effect`: action-time effect rules
 - `stackEffects`: cumulative effect rules indexed by current stack count
-- `shared`: descriptive game metadata; it does not currently change simulation
-  behavior
+- `shared`: marks a debuff as shared with the party; a displayed shared debuff
+  includes elapsed-time coverage in the DPS breakdown
+- `showCoverage`: includes the effect in Buff Coverage or Debuff Coverage when
+  it has a non-zero output-action average stack count or shared time coverage
 - `global`: when `true`, contributes always-active setup rules and stays hidden
   from manual Buff choices
 

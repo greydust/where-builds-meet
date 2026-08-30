@@ -44,6 +44,7 @@
   "Flute": {
     "name": "Flute",
     "shortName": "Flu",
+    "showCoverage": true,
     "description": "Buff damage by the distance to the target.",
     "duration": 12.5,
     "maxStack": 1,
@@ -82,6 +83,7 @@
   "MysteryDMGBoost": {
     "name": "Mystery DMG Boost",
     "shortName": "MDMG",
+    "showCoverage": true,
     "description": "From Ghostly Steps",
     "duration": 8,
     "maxStack": 1,

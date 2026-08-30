@@ -165,6 +165,7 @@
     "name": "Fleeting Trace",
     "shortName": "Heng Special",
     "castTime": 2.177,
+    "cooldown": 20,
     "action": [
       {
         "type": "damage",
@@ -268,6 +269,8 @@
     "name": "General's Bane - Slide",
     "shortName": "Heng Q",
     "castTime": 0.711,
+    "cooldown": 12,
+    "cooldownUses": 2,
     "action": [],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"],
@@ -278,6 +281,8 @@
     "name": "General's Bane",
     "shortName": "Heng Q",
     "castTime": 0.711,
+    "cooldown": 12,
+    "cooldownUses": 2,
     "action": [
       {
         "type": "damage",
@@ -296,6 +301,8 @@
     "name": "General's Bane: Slash",
     "shortName": "Heng Q",
     "castTime": 1.383,
+    "cooldown": 12,
+    "cooldownUses": 2,
     "action": [
       {
         "type": "damage",
@@ -329,6 +336,8 @@
     "name": "General's Bane: Stab",
     "shortName": "Heng Q Stab",
     "castTime": 1.166,
+    "cooldown": 12,
+    "cooldownUses": 2,
     "action": [
       {
         "type": "damage",

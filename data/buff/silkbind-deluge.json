@@ -16,6 +16,7 @@
   "FloatingGraceDeluge": {
     "name": "Floating Grace - Deluge",
     "shortName": "FGD",
+    "showCoverage": true,
     "description": "Increases damage dealt by 24%.",
     "maxStack": 1,
     "refresh": true,

@@ -55,6 +55,8 @@ export type RotationDamageEntry = {
   timelineTime?: number;
   timelineOrder?: number;
   sourceRowId?: string;
+  activeBuffStacks?: Record<string, number>;
+  activeDebuffStacks?: Record<string, number>;
   replay?: { sourceEntryId: string; coef: number };
   hawkwing?: HawkwingEffect;
   insightfulStrike?: InsightfulStrikeEffect;
@@ -546,11 +548,81 @@ export function calculateRotationMetrics(
 function calculateBreakdown(
   timeline: TimelineRow[],
   actionBreakdowns: Record<string, RotationActionBreakdown>,
+  entries: RotationDamageEntry[],
+  effectDefinitions: TimelineBuildInput["effectDefinitions"],
+  anchorTime: number,
+  duration: number,
   totalDamage: number,
   totalHealing: number,
 ): RotationBreakdown {
   const percentage = (damage: number) => (totalDamage > 0 ? (damage / totalDamage) * 100 : 0);
   const healingPercentage = (healing: number) => (totalHealing > 0 ? (healing / totalHealing) * 100 : 0);
+  const outputEntries = entries.filter((entry) => {
+    if (!entry.id || entry.replay) return false;
+    const breakdown = actionBreakdowns[entry.id];
+    return Boolean(breakdown && (breakdown.total > 0 || (breakdown.healing?.total ?? 0) > 0));
+  });
+  const debuffTimeCoverage = (id: string) => {
+    if (duration <= 0) return 0;
+    const windowEnd = anchorTime + duration;
+    const intervals: Array<[number, number]> = [];
+    const collect = (effects: TrackedEffect[]) => {
+      const effect = effects.find((candidate) => candidate.name === id);
+      if (!effect) return;
+      const start = Math.max(anchorTime, effect.appliedAt ?? anchorTime);
+      const end = Math.min(windowEnd, effect.expiresAt ?? windowEnd);
+      if (end > start) intervals.push([start, end]);
+    };
+    for (const row of timeline) {
+      collect(row.debuffs);
+      Object.values(row.actionStates).forEach((state) => collect(state.debuffs));
+    }
+    intervals.sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+    let covered = 0;
+    let currentStart = 0;
+    let currentEnd = 0;
+    intervals.forEach(([start, end], index) => {
+      if (index === 0) {
+        currentStart = start;
+        currentEnd = end;
+        return;
+      }
+      if (start <= currentEnd) currentEnd = Math.max(currentEnd, end);
+      else {
+        covered += currentEnd - currentStart;
+        currentStart = start;
+        currentEnd = end;
+      }
+    });
+    if (intervals.length) covered += currentEnd - currentStart;
+    return (covered / duration) * 100;
+  };
+  const effectCoverage = (field: "activeBuffStacks" | "activeDebuffStacks") => {
+    const isDebuff = field === "activeDebuffStacks";
+    return Object.entries(effectDefinitions)
+      .filter(([, definition]) => definition.showCoverage === true)
+      .map(([id, definition]) => {
+        const totalStacks = outputEntries.reduce((total, entry) => {
+          const expectedStacks =
+            !isDebuff && entry.id ? actionBreakdowns[entry.id]?.expectedBuffStacks?.[id] : undefined;
+          const trackedStacks = entry[field]?.[id] ?? 0;
+          return total + (expectedStacks ?? trackedStacks);
+        }, 0);
+        const averageStacks = outputEntries.length > 0 ? totalStacks / outputEntries.length : 0;
+        return {
+          id,
+          averageStacks,
+          ...(isDebuff && definition.shared === true ? { timeCoverage: debuffTimeCoverage(id) } : {}),
+        };
+      })
+      .filter((row) => row.averageStacks > 0 || (row.timeCoverage ?? 0) > 0)
+      .sort(
+        (left, right) =>
+          right.averageStacks - left.averageStacks ||
+          (right.timeCoverage ?? 0) - (left.timeCoverage ?? 0) ||
+          left.id.localeCompare(right.id),
+      );
+  };
   const skills = new Map<
     string,
     {
@@ -933,6 +1005,8 @@ function calculateBreakdown(
         percentage: healingPercentage(healingTotals.silkbind),
       },
     ],
+    buffCoverage: effectCoverage("activeBuffStacks"),
+    debuffCoverage: effectCoverage("activeDebuffStacks"),
   };
 }
 
@@ -1235,6 +1309,8 @@ function timelineDamageEntries(
               timelineTime: actionTime,
               timelineOrder: actionOrder,
               sourceRowId: row.sourceRowId ?? row.id,
+              activeBuffStacks: Object.fromEntries(buffs.map((effect) => [effect.name, effect.stack ?? 1])),
+              activeDebuffStacks: Object.fromEntries(debuffs.map((effect) => [effect.name, effect.stack ?? 1])),
               ...(hawkwing ? { hawkwing } : {}),
               ...(insightfulStrike ? { insightfulStrike } : {}),
               ...(action.type === "damage" && damageListeners.length
@@ -1462,6 +1538,8 @@ function timelineDamageEntries(
         timelineTime: actionTime,
         timelineOrder: actionOrder,
         sourceRowId: sourceEntry.sourceRowId,
+        activeBuffStacks: { ...(sourceEntry.activeBuffStacks ?? {}) },
+        activeDebuffStacks: { ...(sourceEntry.activeDebuffStacks ?? {}) },
         replay: { sourceEntryId: sourceEntry.id!, coef: action.coef },
         updateTargetHPRatio: (ratio: number) => {
           context.targetHPRatio = ratio;
@@ -1680,7 +1758,16 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     baselineDamage,
     baselineHealing,
   );
-  metrics.breakdown = calculateBreakdown(timeline, actionBreakdowns, baselineDamage, baselineHealing);
+  metrics.breakdown = calculateBreakdown(
+    timeline,
+    actionBreakdowns,
+    resolvedSequence.map(({ entry }) => entry),
+    bundle.timeline.effectDefinitions,
+    anchorTime,
+    duration,
+    baselineDamage,
+    baselineHealing,
+  );
   metrics.expectedHawkwingStacks = averageExpectedBuffStack(resolvedSequence, "Hawkwing");
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt);
   return {

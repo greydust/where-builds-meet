@@ -158,7 +158,12 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
     typeof step.duration === "number" &&
     Number.isFinite(step.duration)
   ) {
-    return { type: "event", event: "Delay", duration: Math.max(0, step.duration) };
+    return {
+      type: "event",
+      event: "Delay",
+      duration: Math.max(0, step.duration),
+      ...(step.automatic === "cooldown" ? { automatic: "cooldown" as const } : {}),
+    };
   }
   if (
     step.type === "event" &&

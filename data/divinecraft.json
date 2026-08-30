@@ -15,7 +15,7 @@
   "FireWater": {
     "name": "Fire-Water",
     "description": "HP DMG +1.5%. Healing grants 0.8 Vitality with a 3s cooldown.",
-    "image": "firepoison.png",
+    "image": "firewater.png",
     "effect": {
       "hpDMGBonus": 0.015,
       "trigger": {
@@ -30,7 +30,7 @@
   "FirePoison": {
     "name": "Fire-Poison",
     "description": "HP DMG +1.5% and Qi DMG +4%.",
-    "image": "firewater.png",
+    "image": "firepoison.png",
     "effect": {
       "hpDMGBonus": 0.015,
       "qiDMGBonus": 0.04

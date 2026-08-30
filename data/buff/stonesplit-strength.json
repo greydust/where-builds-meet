@@ -70,6 +70,7 @@
   "ThroatPierced": {
     "name": "Throat-Pierced",
     "shortName": "TP",
+    "showCoverage": true,
     "description": "Gain 2 Physical Penetration and 2% Critical Damage per stack. From T3, Light/Heavy Varied Combos gain an additional 1 Penetration and 1% Critical Damage per stack. From T6, Anxi Soldier and its triggering skill gain the same additional bonus.",
     "duration": 8,
     "maxStack": 3,
@@ -449,6 +450,7 @@
   "Cleftpeak": {
     "name": "Cleftpeak",
     "shortName": "Cp",
+    "showCoverage": true,
     "description": "Increase HP damage by 1% per stack. Additional 8% to Light VC, Heavy VC, Anxi Soldier, and its triggering skill at max stack.",
     "duration": 5,
     "maxStack": 5,
@@ -539,6 +541,7 @@
   "IronGuard": {
     "name": "Iron Guard",
     "shortName": "IG",
+    "showCoverage": true,
     "description": "Increases HP damage by 8%.",
     "duration": 30,
     "maxStack": 1,

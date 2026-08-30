@@ -2,8 +2,90 @@ import {
   canAnchorAttachedEvent,
   isAttachmentAnchorStep,
   type AttachedEventTarget,
+  type RotationRecord,
   type RotationStep,
+  type TimelineRow,
 } from "./calculations/rotationTimeline";
+
+export function resolveRotationSelection(args: {
+  pathChanged: boolean;
+  requestedRotationId: string | null;
+  activeRotationId: string;
+  editingRotationId: string;
+  defaultRotationId: string;
+  compatibleRotationIds: string[];
+  listedRotationIds: string[];
+}) {
+  const compatibleIds = new Set(args.compatibleRotationIds);
+  const defaultRotationId = compatibleIds.has(args.defaultRotationId)
+    ? args.defaultRotationId
+    : args.compatibleRotationIds[0];
+  if (!defaultRotationId) return undefined;
+
+  let activeRotationId = defaultRotationId;
+  if (!args.pathChanged && compatibleIds.has(args.activeRotationId)) activeRotationId = args.activeRotationId;
+
+  let editingRotationId = activeRotationId;
+  let preserveRequestedRotation = false;
+  if (args.pathChanged && args.requestedRotationId && compatibleIds.has(args.requestedRotationId)) {
+    editingRotationId = args.requestedRotationId;
+    preserveRequestedRotation = true;
+  } else if (!args.pathChanged && args.listedRotationIds.includes(args.editingRotationId)) {
+    editingRotationId = args.editingRotationId;
+  }
+
+  return {
+    activeRotationId,
+    editingRotationId,
+    resetEditingRotation:
+      editingRotationId !== args.editingRotationId || (args.pathChanged && !preserveRequestedRotation),
+  };
+}
+
+export function isAutomaticCooldownDelay(step: RotationStep | undefined): boolean {
+  return step?.type === "event" && step.event === "Delay" && step.automatic === "cooldown";
+}
+
+export function withoutAutomaticCooldownDelays(rotation: RotationRecord): RotationRecord {
+  const retainedIndexes = new Map<number, number>();
+  const steps = rotation.steps.filter((step, index) => {
+    if (isAutomaticCooldownDelay(step)) return false;
+    retainedIndexes.set(index, retainedIndexes.size);
+    return true;
+  });
+  const startIndex = rotation.start ? retainedIndexes.get(rotation.start.step) : undefined;
+  return {
+    ...rotation,
+    steps,
+    ...(rotation.start && startIndex !== undefined ? { start: { ...rotation.start, step: startIndex } } : {}),
+  };
+}
+
+export function withAutomaticCooldownDelays(rotation: RotationRecord, timeline: TimelineRow[]): RotationRecord {
+  const waits = new Map(
+    timeline.flatMap((row) =>
+      row.kind === "rotation" && row.rotationIndex !== undefined && (row.cooldownWait ?? 0) > 0
+        ? [[row.rotationIndex, row.cooldownWait!] as const]
+        : [],
+    ),
+  );
+  if (!waits.size) return rotation;
+  const steps: RotationStep[] = [];
+  let insertedBeforeStart = 0;
+  rotation.steps.forEach((step, index) => {
+    const wait = waits.get(index);
+    if (wait !== undefined) {
+      steps.push({ type: "event", event: "Delay", duration: wait, automatic: "cooldown" });
+      if (rotation.start && index <= rotation.start.step) insertedBeforeStart += 1;
+    }
+    steps.push(step);
+  });
+  return {
+    ...rotation,
+    steps,
+    ...(rotation.start ? { start: { ...rotation.start, step: rotation.start.step + insertedBeforeStart } } : {}),
+  };
+}
 
 export type AttachedEventPhase = "before" | "after";
 

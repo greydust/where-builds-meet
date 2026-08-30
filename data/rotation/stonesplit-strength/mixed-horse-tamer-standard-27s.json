@@ -1,5 +1,6 @@
 {
   "name": "Mixed Horse Tamer Standard 27s",
+  "autoHP": true,
   "steps": [
     {
       "type": "event",

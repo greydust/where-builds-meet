@@ -2,6 +2,7 @@
   "HeavensUnity": {
     "name": "Heaven's Unity",
     "shortName": "Unity",
+    "showCoverage": true,
     "description": "Increases Celestial Mandate's Heaven's Will generation from 0.1 to 0.3.",
     "duration": 24,
     "maxStack": 1,
@@ -10,6 +11,7 @@
   "Etherwrath": {
     "name": "Etherwrath",
     "shortName": "Etherwrath",
+    "showCoverage": true,
     "description": "Increases all attack values by 1.2% per stack. At five stacks, Martial Art Effects gain 6 of every penetration type.",
     "duration": 8,
     "maxStack": 5,

@@ -804,6 +804,7 @@
     "shortName": "Flute Cancel",
     "collectBoostDamage": "Flute",
     "castTime": 0.8,
+    "cooldown": 25,
     "action": [
       {
         "type": "consumeResource",
@@ -832,6 +833,7 @@
     "shortName": "Flute Full",
     "collectBoostDamage": "Flute",
     "castTime": 3.275,
+    "cooldown": 25,
     "action": [
       {
         "type": "consumeResource",

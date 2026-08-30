@@ -23,6 +23,7 @@
   "Breakthrough": {
     "name": "Breakthrough",
     "shortName": "Breakthrough",
+    "showCoverage": true,
     "description": "Increases Charged Skill damage by 42%.",
     "duration": 12,
     "maxStack": 1,

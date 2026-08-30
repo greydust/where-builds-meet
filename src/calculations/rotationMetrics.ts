@@ -50,6 +50,11 @@ export type RotationHealingCastBreakdown = {
 };
 export type RotationGroupBreakdown = { id: string; name: string; damage: number; percentage: number };
 export type RotationHealingGroupBreakdown = { id: string; name: string; healing: number; percentage: number };
+export type RotationEffectCoverage = {
+  id: string;
+  averageStacks: number;
+  timeCoverage?: number;
+};
 export type RotationBreakdown = {
   skills: RotationSkillBreakdown[];
   healingSkills: RotationHealingSkillBreakdown[];
@@ -59,6 +64,8 @@ export type RotationBreakdown = {
   healingCategories: RotationHealingGroupBreakdown[];
   damageTypes: RotationGroupBreakdown[];
   healingTypes: RotationHealingGroupBreakdown[];
+  buffCoverage: RotationEffectCoverage[];
+  debuffCoverage: RotationEffectCoverage[];
 };
 
 export const emptyRotationBreakdown = (): RotationBreakdown => ({
@@ -70,6 +77,8 @@ export const emptyRotationBreakdown = (): RotationBreakdown => ({
   healingCategories: [],
   damageTypes: [],
   healingTypes: [],
+  buffCoverage: [],
+  debuffCoverage: [],
 });
 
 export type RotationMetrics = {

@@ -1,20 +1,12 @@
 {
-  "name": "Mixed Dummy 1 Min",
+  "name": "Mixed Dummy 1 Min Dual Stab",
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "start": {
-    "step": 7,
+    "step": 5,
     "action": 5
   },
   "steps": [
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 19
-    },
     {
       "type": "skill",
       "skill": "PhalanxbaneSpecial"
@@ -36,24 +28,8 @@
       "skill": "Deflect"
     },
     {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 3
-    },
-    {
       "type": "skill",
       "skill": "SnowpartingSpecial"
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 1
     },
     {
       "type": "skill",
@@ -150,6 +126,10 @@
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
       "type": "event",
       "event": "Move",
       "before": {
@@ -176,24 +156,24 @@
       "distance": 2
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 5
+      },
+      "targetQiRatio": 0.5999
+    },
+    {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 1
+      "type": "skill",
+      "skill": "SnowpartingQStab"
     },
     {
-      "type": "event",
-      "event": "Qi",
-      "before": {
-        "action": 0
-      },
-      "targetQiRatio": 0.5999
+      "type": "skill",
+      "skill": "PhalanxbaneQ"
     },
     {
       "type": "skill",
@@ -212,18 +192,6 @@
       "skill": "SnowpartingHeavyVC"
     },
     {
-      "type": "skill",
-      "skill": "PhalanxbaneQ"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingConversion"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingHeavyVC"
-    },
-    {
       "type": "event",
       "event": "Qi",
       "before": {
@@ -233,19 +201,11 @@
     },
     {
       "type": "skill",
-      "skill": "SnowpartingQ"
-    },
-    {
-      "type": "skill",
       "skill": "PhalanxbaneSpecial"
     },
     {
       "type": "skill",
       "skill": "SnowpartingSpecial"
-    },
-    {
-      "type": "skill",
-      "skill": "SnowpartingQStab"
     },
     {
       "type": "event",
@@ -284,6 +244,14 @@
     {
       "type": "skill",
       "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQ"
+    },
+    {
+      "type": "skill",
+      "skill": "SnowpartingQStab"
     },
     {
       "type": "event",
@@ -474,14 +442,6 @@
       "skill": "PhalanxbaneHeavyCharged3"
     },
     {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 1
-    },
-    {
       "type": "skill",
       "skill": "SnowpartingQ"
     },
@@ -612,18 +572,6 @@
     {
       "type": "skill",
       "skill": "PhalanxbaneHeavyCharged3"
-    },
-    {
-      "type": "event",
-      "event": "Move",
-      "before": {
-        "action": "start"
-      },
-      "distance": 1
-    },
-    {
-      "type": "skill",
-      "skill": "PhalanxbaneQ"
     },
     {
       "type": "skill",
