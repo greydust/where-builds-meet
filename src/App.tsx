@@ -77,6 +77,7 @@ import bamboocutWindBuffs from "../data/buff/bamboocut-wind.json";
 import bamboocutKiteBuffs from "../data/buff/bamboocut-kite.json";
 import silkbindDelugeBuffs from "../data/buff/silkbind-deluge.json";
 import bellstrikeUmbraBuffs from "../data/buff/bellstrike-umbra.json";
+import mysticDebuffs from "../data/debuff/mystic.json";
 import stonesplitStrengthDebuffs from "../data/debuff/stonesplit-strength.json";
 import generalDebuffs from "../data/debuff/general.json";
 import bellstrikeSplendorDebuffs from "../data/debuff/bellstrike-splendor.json";
@@ -549,6 +550,7 @@ const effectDefinitions = {
   ...bamboocutKiteBuffs,
   ...silkbindDelugeBuffs,
   ...bellstrikeUmbraBuffs,
+  ...mysticDebuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,
   ...bellstrikeSplendorDebuffs,
@@ -606,6 +608,7 @@ const manualBuffDefinitions = {
 } as Record<string, { name?: string }>;
 const manualGeneralDebuffs = Object.fromEntries(Object.entries(generalDebuffs).filter(([id]) => id !== "Exhausted"));
 const manualDebuffDefinitions = {
+  ...mysticDebuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,
   ...bellstrikeSplendorDebuffs,

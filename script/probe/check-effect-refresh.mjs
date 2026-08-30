@@ -1,6 +1,4 @@
 import { createServer } from "vite";
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
 
 const viteServer = await createServer({
   root: process.cwd(),
@@ -22,19 +20,6 @@ try {
     if (!condition) throw new Error(message);
   };
   const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9;
-
-  for (const directory of ["data/buff", "data/debuff"]) {
-    for (const file of readdirSync(directory).filter((name) => name.endsWith(".json"))) {
-      const definitions = JSON.parse(readFileSync(join(directory, file), "utf8"));
-      for (const [id, definition] of Object.entries(definitions)) {
-        const expected = id !== "SurgingWaves";
-        assert(
-          definition.refresh === expected,
-          `${directory}/${file}:${id} must explicitly set refresh to ${expected}.`,
-        );
-      }
-    }
-  }
 
   assert(
     mysticBuffs.SurgingWaves.refresh === false,

@@ -478,7 +478,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     row: TimelineRow;
     actionIndex?: number;
     subActionIndex?: number;
-    expiresEffect?: { target: "self" | "target"; name: string; expiresAt: number };
+    expiresEffect?: { target: "self" | "target"; name: string; expiresAt: number; scheduleId: number };
   };
   const compareSortOrder = (left: number[], right: number[]) => {
     const sharedLength = Math.min(left.length, right.length);
@@ -1177,7 +1177,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       currentWeapon,
       effectiveCastTime: 0,
       skill: definition,
-      actions: actions.map((action) => ({ ...action })),
+      actions: actions.map((action) => ({
+        ...action,
+        ...(action.time === "expire" && expiresAt !== undefined ? { time: expiresAt - eventTime } : {}),
+      })),
       buffs: [],
       debuffs: [],
       modifierEffects: [],
@@ -1186,18 +1189,25 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     rows.push(row);
     events.push({ time: eventTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row });
     row.actions.forEach((action, actionIndex) => {
-      if (action.time === "expire" && expiresAt === undefined) return;
+      const definitionAction = actions[actionIndex];
+      if (definitionAction.time === "expire" && expiresAt === undefined) return;
       events.push({
-        time: action.time === "expire" ? expiresAt! : eventTime + (typeof action.time === "number" ? action.time : 0),
+        time:
+          definitionAction.time === "expire"
+            ? expiresAt!
+            : eventTime + (typeof action.time === "number" ? action.time : 0),
         sortOrder: [...derivedSortOrder, 1, actionIndex],
         kind: "action",
         row,
         actionIndex,
-        ...(action.time === "expire" ? { expiresEffect: { target, name, expiresAt: expiresAt! } } : {}),
+        ...(definitionAction.time === "expire"
+          ? { expiresEffect: { target, name, expiresAt: expiresAt!, scheduleId: derivedId } }
+          : {}),
       });
     });
   };
   let processedEvents = 0;
+  const validatedExpirationSchedules = new Set<number>();
   const startResolvedActionValues = new Map<string, unknown>();
   const startResolvedActionRequirements = new Map<string, boolean>();
   const actionResolutionKey = (row: TimelineRow, actionIndex: number) => `${row.id}:${actionIndex}`;
@@ -1301,10 +1311,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     processedEvents += 1;
     currentTimelineTime = event.time;
     regenerateResources(event.time);
-    if (event.expiresEffect) {
+    if (event.expiresEffect && !validatedExpirationSchedules.has(event.expiresEffect.scheduleId)) {
       const targetEffects = event.expiresEffect.target === "target" ? debuffs : buffs;
       const current = targetEffects.find((effect) => effect.name === event.expiresEffect!.name);
       if (current?.expiresAt !== event.expiresEffect.expiresAt) continue;
+      validatedExpirationSchedules.add(event.expiresEffect.scheduleId);
     }
     const activeBuffs = prune(buffs, event.time);
     const activeDebuffs = prune(debuffs, event.time);

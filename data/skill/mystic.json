@@ -79,6 +79,7 @@
         "type": "apply",
         "target": "target",
         "value": "ToadVenom",
+        "reapply": false,
         "time": 1.15
       }
     ],

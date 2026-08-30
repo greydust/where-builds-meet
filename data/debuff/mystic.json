@@ -1,0 +1,45 @@
+{
+  "ToadVenom": {
+    "name": "Toad Venom",
+    "shortName": "TV",
+    "duration": 5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.6218,
+        "phyBonus": 232,
+        "attrBonus": 0,
+        "time": "expire"
+      },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "LesserToadVenom",
+        "reapply": false,
+        "time": "expire"
+      }
+    ],
+    "modifier": [],
+    "tags": ["Mystic", "AreaMystic", "LeapingToad"],
+    "refresh": false
+  },
+  "LesserToadVenom": {
+    "name": "Lesser Toad Venom",
+    "shortName": "LTV",
+    "duration": 5,
+    "maxStack": 1,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.6218,
+        "phyBonus": 232,
+        "attrBonus": 0,
+        "time": "expire"
+      }
+    ],
+    "modifier": [],
+    "tags": ["Mystic", "AreaMystic", "LeapingToad"],
+    "refresh": false
+  }
+}

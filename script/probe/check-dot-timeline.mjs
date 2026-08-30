@@ -14,6 +14,7 @@ try {
   const phalanxbane = (await viteServer.ssrLoadModule("/data/skill/phalanxbane-blade.json")).default;
   const general = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
   const dots = (await viteServer.ssrLoadModule("/data/dot/mystic.json")).default;
+  const mysticDebuffs = (await viteServer.ssrLoadModule("/data/debuff/mystic.json")).default;
   const smolderPoetRotation = (
     await viteServer.ssrLoadModule("/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json")
   ).default;
@@ -27,7 +28,7 @@ try {
       skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
       eventDefinitions: {},
       dots,
-      effectDefinitions: dots,
+      effectDefinitions: { ...dots, ...mysticDebuffs },
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
@@ -61,13 +62,28 @@ try {
   );
 
   const toadTimeline = build(["LeapingToad"]);
-  const venomTicks = toadTimeline.filter(
-    (row) => row.kind === "dot" && (row.step.skill === "ToadVenom" || row.step.skill === "LesserToadVenom"),
+  const venomAttacks = toadTimeline.filter(
+    (row) => row.kind === "periodic" && (row.step.skill === "ToadVenom" || row.step.skill === "LesserToadVenom"),
   );
-  assert(venomTicks.length === 2, `Expected Toad Venom and Lesser Toad Venom ticks, received ${venomTicks.length}.`);
   assert(
-    venomTicks.every((row) => row.sourceRowId === "rotation-0"),
-    "Both venom DOTs must belong to the Leaping Toad cast.",
+    venomAttacks.length === 2 &&
+      venomAttacks[0].step.skill === "ToadVenom" &&
+      Math.abs(venomAttacks[0].startTime + Number(venomAttacks[0].actions[0].time) - 6.15) < 0.0001 &&
+      venomAttacks[1].step.skill === "LesserToadVenom" &&
+      Math.abs(venomAttacks[1].startTime + Number(venomAttacks[1].actions[0].time) - 11.15) < 0.0001,
+    "Toad Venom and Lesser Toad Venom must attack five seconds after their respective applications.",
+  );
+  assert(
+    venomAttacks.every((row) => row.sourceRowId === "rotation-0" && !row.skill.tags.includes("DOT")),
+    "Both venom attacks must belong to Leaping Toad and must not be DOTs.",
+  );
+  const repeatedToadTimeline = build(["LeapingToad", "LeapingToad"]);
+  const repeatedVenomAttacks = repeatedToadTimeline.filter(
+    (row) => row.kind === "periodic" && (row.step.skill === "ToadVenom" || row.step.skill === "LesserToadVenom"),
+  );
+  assert(
+    repeatedVenomAttacks.length === 2,
+    `Reapplying Toad Venom before expiration must not schedule duplicate attacks; received ${repeatedVenomAttacks.length}.`,
   );
 
   const fullTimeline = buildRotationTimeline({
@@ -75,7 +91,7 @@ try {
     skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
     eventDefinitions: { Exhausted: { name: "Event: Exhausted", castTime: 0, action: [], tags: ["Event"] } },
     dots,
-    effectDefinitions: dots,
+    effectDefinitions: { ...dots, ...mysticDebuffs },
     innerWayConditions: [],
     innerWayRules: [],
     setupEffects: [],
@@ -109,7 +125,7 @@ try {
   );
 
   console.log(
-    `DOT lifetime, extension ownership, and nested ownership checks passed. Full rotation's final Smolder tick is ${latestSmolderTime.toFixed(4)}s.`,
+    `DOT lifetime and delayed venom attack checks passed. Full rotation's final Smolder tick is ${latestSmolderTime.toFixed(4)}s.`,
   );
 } finally {
   await viteServer.close();

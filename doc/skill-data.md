@@ -836,15 +836,14 @@ object keeps cadence separate from lifetime and stack behavior:
 
 ```json
 {
-  "ToadVenom": {
-    "name": "Toad Venom",
-    "duration": 5,
+  "Smolder": {
+    "name": "Smolder",
     "maxStack": 1,
     "periodic": {
-      "interval": 5,
-      "firstTick": 5,
+      "interval": 0.5,
+      "firstTick": 0.5,
       "resetOnRefresh": false,
-      "action": [{ "type": "damage", "phyCoef": 1.6218, "phyBonus": 232, "attrBonus": 0, "time": 0 }]
+      "action": [{ "type": "damage", "phyCoef": 0.2787, "phyBonus": 40, "attrBonus": 0, "time": 0 }]
     },
     "modifier": [],
     "tags": ["DOT", "Mystic"]
@@ -871,6 +870,14 @@ does not reset their expiration or tick cadence. `extend` explicitly adds to the
 current expiration and transfers future ticks to the extending cast. Ordinary
 buff and debuff definitions use `refresh: true`. Surging Waves is the exception:
 later stacks increase its stack count but all expire on the first stack's timer.
+
+Delayed one-shot attacks use ordinary effect actions rather than `periodic`.
+`"time": "expire"` resolves to the active effect's expiration and is exposed to
+damage calculation as a numeric offset from the effect row. Toad Venom and
+Lesser Toad Venom use this mechanism as five-second target debuffs without the
+`DOT` tag. Toad Venom attacks at expiration and applies Lesser Toad Venom, which
+attacks five seconds later. Reapplication before expiration is ignored, so it
+neither refreshes the timer nor schedules another attack.
 
 ## Rotation records and events
 
