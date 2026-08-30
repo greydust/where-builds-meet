@@ -13,9 +13,9 @@ export type GearOcrResult = {
   level: GearLevel;
   rarity: GearRarity;
   relayed: boolean;
-  baseAffix: GearValue;
+  baseAffix?: GearValue;
   additionalAffixes: GearValue[];
-  attunement: GearValue;
+  attunement?: GearValue;
   rawText: string;
 };
 
@@ -50,7 +50,7 @@ function parseWords(tsv: string): OcrWord[] {
   });
 }
 
-function definitionFromText(text: string) {
+function definitionFromText(text: string, fallbackDefinitionId?: string) {
   const normalized = text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
@@ -67,7 +67,10 @@ function definitionFromText(text: string) {
     pendant: ["pendant"],
   };
   const matches = Object.entries(aliases).filter(([, values]) => values.some((value) => normalized.includes(value)));
-  if (matches.length !== 1) throw new Error("Could not identify exactly one supported gear type from the image.");
+  if (matches.length !== 1) {
+    if (fallbackDefinitionId && gearData.gear[fallbackDefinitionId]) return fallbackDefinitionId;
+    throw new Error("Could not identify exactly one supported gear type from the image.");
+  }
   return matches[0][0];
 }
 
@@ -101,22 +104,53 @@ function storedValue(key: string, value: number, definitions: Record<string, { p
   return { key, value: definitions[key]?.percentage ? value / 100 : value };
 }
 
+function numericTokens(text: string) {
+  return (text.match(/\d+(?:[.,]\d+)?/g) ?? []).map((value) => Number(value.replace(",", ".")));
+}
+
+function containsNumber(values: number[], expected: number) {
+  return values.some((value) => Math.abs(value - expected) < 0.011);
+}
+
+export function inferGearLevelAndRarity(definitionId: string, rawText: string) {
+  const definition = gearData.gear[definitionId];
+  const normalizedText = normalize(rawText);
+  const levelMatch = normalizedText.match(/tier\s*(91|96)/);
+  const level = (levelMatch ? Number(levelMatch[1]) : 96) as GearLevel;
+  const values = numericTokens(rawText);
+  const rarities = (["Gold", "Purple"] as const).filter((rarity) => {
+    const signature = definition?.baseStats[String(level)]?.[rarity];
+    const signatureValues = Object.values(signature ?? {}).filter(
+      (value): value is number => typeof value === "number",
+    );
+    return signatureValues.length > 0 && signatureValues.every((value) => containsNumber(values, value));
+  });
+  return { level, rarity: rarities.length === 1 ? rarities[0] : ("Gold" as const) };
+}
+
+function optionalValueForLabel(label: string, allowedKeys: string[], definitions: Record<string, { name?: string }>) {
+  if (!label.trim()) return undefined;
+  try {
+    return valueForLabel(label, allowedKeys, definitions);
+  } catch {
+    return undefined;
+  }
+}
+
 export function parseGearOcrTsv(
   tsv: string,
   rawText: string,
   imageWidth: number,
   imageHeight: number,
-  rarity: GearRarity,
+  fallbackDefinitionId?: string,
 ): GearOcrResult {
   const words = parseWords(tsv);
   if (words.length === 0) throw new Error("No readable text was found in the image.");
-  const definitionId = definitionFromText(rawText);
+  const definitionId = definitionFromText(rawText, fallbackDefinitionId);
   const definition = gearData.gear[definitionId];
   if (!definition) throw new Error("The recognized gear type is not supported.");
   const normalizedText = normalize(rawText);
-  const levelMatch = normalizedText.match(/tier\s*(91|96)/);
-  if (!levelMatch) throw new Error("Could not read Gear Tier 91 or Tier 96.");
-  const level = Number(levelMatch[1]) as GearLevel;
+  const { level, rarity } = inferGearLevelAndRarity(definitionId, rawText);
   const relayed = /\brelay(?:ing|ed)?\b/.test(normalizedText);
 
   // The gear's built-in attack value is displayed above the affix rows, and
@@ -130,105 +164,106 @@ export function parseGearOcrTsv(
         word.left > imageWidth * 0.7 && isStandaloneNumericValue(word.text) && numericValue(word.text) !== undefined,
     )
     .sort((left, right) => left.top - right.top);
-  if (valueCandidates.length < 6)
-    throw new Error(`Expected five affix values and one attunement value, but found ${valueCandidates.length}.`);
   const numberWords = valueCandidates.slice(-6);
 
-  const rows = numberWords.map((numberWord, index) => {
-    const center = numberWord.top + numberWord.height / 2;
-    const previousCenter = index === 0 ? undefined : numberWords[index - 1].top + numberWords[index - 1].height / 2;
-    const nextCenter =
-      index === numberWords.length - 1 ? undefined : numberWords[index + 1].top + numberWords[index + 1].height / 2;
-    const top =
-      previousCenter === undefined
-        ? center - ((nextCenter ?? center + numberWord.height * 2) - center) / 2
-        : (previousCenter + center) / 2;
-    // Armor attunement names can wrap onto a line below their value, so the
-    // final row must retain the remainder of the cropped card.
-    const bottom = nextCenter === undefined ? imageHeight : (center + nextCenter) / 2;
-    const label = words
-      .filter(
-        (word) =>
-          word.left < imageWidth * 0.7 &&
-          word.top + word.height / 2 >= top &&
-          word.top + word.height / 2 < bottom &&
-          word.confidence >= 20,
-      )
-      .sort((left, right) => (Math.abs(left.top - right.top) <= 12 ? left.left - right.left : left.top - right.top))
-      .map((word) => word.text)
-      .join(" ");
-    const value = numericValue(numberWord.text);
-    if (!label || value === undefined) throw new Error("An affix row was not clear enough to import.");
-    return { label, value };
-  });
+  const rows = numberWords
+    .map((numberWord, index) => {
+      const center = numberWord.top + numberWord.height / 2;
+      const previousCenter = index === 0 ? undefined : numberWords[index - 1].top + numberWords[index - 1].height / 2;
+      const nextCenter =
+        index === numberWords.length - 1 ? undefined : numberWords[index + 1].top + numberWords[index + 1].height / 2;
+      const top =
+        previousCenter === undefined
+          ? center - ((nextCenter ?? center + numberWord.height * 2) - center) / 2
+          : (previousCenter + center) / 2;
+      // Armor attunement names can wrap onto a line below their value, so the
+      // final row must retain the remainder of the cropped card.
+      const bottom = nextCenter === undefined ? imageHeight : (center + nextCenter) / 2;
+      const label = words
+        .filter(
+          (word) =>
+            word.left < imageWidth * 0.7 &&
+            word.top + word.height / 2 >= top &&
+            word.top + word.height / 2 < bottom &&
+            word.confidence >= 20,
+        )
+        .sort((left, right) => (Math.abs(left.top - right.top) <= 12 ? left.left - right.left : left.top - right.top))
+        .map((word) => word.text)
+        .join(" ");
+      const value = numericValue(numberWord.text);
+      if (value === undefined) return undefined;
+      return { label, value };
+    })
+    .filter((row): row is { label: string; value: number } => Boolean(row));
 
-  const baseKey = valueForLabel(
-    rows[0].label,
-    affixOptionsForGearDefinition(definition, "baseAffixes", level, relayed),
-    gearData.affixes,
-  );
-  const additionalAffixes = rows
-    .slice(1, 5)
-    .map((row) =>
-      storedValue(
-        valueForLabel(
-          row.label,
-          affixOptionsForGearDefinition(definition, "additionalAffixes", level, relayed),
-          gearData.affixes,
-        ),
-        row.value,
-        gearData.affixes,
-      ),
-    );
-  if (new Set(additionalAffixes.map((affix) => affix.key)).size !== 4)
-    throw new Error("The image contains duplicate or unclear additional affixes.");
-  const attunementKey = valueForLabel(rows[5].label, attunementsForGearDefinition(definition), attunementData);
+  const baseKeys = affixOptionsForGearDefinition(definition, "baseAffixes", level, relayed);
+  const additionalKeys = affixOptionsForGearDefinition(definition, "additionalAffixes", level, relayed);
+  const attunementKeys = attunementsForGearDefinition(definition);
+  let baseAffix: GearValue | undefined;
+  let attunement: GearValue | undefined;
+  const additionalAffixes: GearValue[] = [];
+
+  if (rows.length === 6) {
+    const baseKey = optionalValueForLabel(rows[0].label, baseKeys, gearData.affixes);
+    if (baseKey) baseAffix = storedValue(baseKey, rows[0].value, gearData.affixes);
+    for (const row of rows.slice(1, 5)) {
+      const key = optionalValueForLabel(row.label, additionalKeys, gearData.affixes);
+      if (key && !additionalAffixes.some((affix) => affix.key === key))
+        additionalAffixes.push(storedValue(key, row.value, gearData.affixes));
+    }
+    const attunementKey = optionalValueForLabel(rows[5].label, attunementKeys, attunementData);
+    if (attunementKey) attunement = storedValue(attunementKey, rows[5].value, attunementData);
+  } else {
+    for (const row of rows) {
+      const baseKey = optionalValueForLabel(row.label, baseKeys, gearData.affixes);
+      const additionalKey = optionalValueForLabel(row.label, additionalKeys, gearData.affixes);
+      const attunementKey = optionalValueForLabel(row.label, attunementKeys, attunementData);
+      const categories = [baseKey && "base", additionalKey && "additional", attunementKey && "attunement"].filter(
+        Boolean,
+      );
+      if (categories.length !== 1) continue;
+      switch (categories[0]) {
+        case "base":
+          if (!baseAffix && baseKey) baseAffix = storedValue(baseKey, row.value, gearData.affixes);
+          break;
+        case "additional":
+          if (additionalKey && !additionalAffixes.some((affix) => affix.key === additionalKey))
+            additionalAffixes.push(storedValue(additionalKey, row.value, gearData.affixes));
+          break;
+        case "attunement":
+          if (!attunement && attunementKey) attunement = storedValue(attunementKey, row.value, attunementData);
+          break;
+      }
+    }
+  }
   return {
     definitionId,
     level,
     rarity,
     relayed,
-    baseAffix: storedValue(baseKey, rows[0].value, gearData.affixes),
+    ...(baseAffix ? { baseAffix } : {}),
     additionalAffixes,
-    attunement: storedValue(attunementKey, rows[5].value, attunementData),
+    ...(attunement ? { attunement } : {}),
     rawText,
   };
 }
 
-async function imageDimensionsAndRarity(file: File) {
+async function imageDimensions(file: File) {
   const bitmap = await createImageBitmap(file);
   try {
-    const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    if (!context) throw new Error("This browser cannot inspect the image.");
-    context.drawImage(bitmap, 0, 0);
-    const sampleWidth = Math.max(1, Math.ceil(bitmap.width * 0.045));
-    const sampleHeight = Math.max(1, Math.ceil(bitmap.height * 0.12));
-    const pixels = context.getImageData(0, 0, sampleWidth, sampleHeight).data;
-    let gold = 0;
-    let purple = 0;
-    for (let index = 0; index < pixels.length; index += 4) {
-      const red = pixels[index];
-      const green = pixels[index + 1];
-      const blue = pixels[index + 2];
-      if (red > 125 && green > 80 && red > blue * 1.12 && green > blue * 0.9) gold += 1;
-      if (blue > 110 && red > 70 && blue > red * 1.08 && blue > green * 1.08) purple += 1;
-    }
-    const threshold = Math.max(6, sampleHeight * 0.08);
-    if (gold < threshold && purple < threshold)
-      throw new Error("Could not determine Gold or Purple rarity from the color beside the gear name.");
-    if (Math.min(gold, purple) > Math.max(gold, purple) * 0.75) throw new Error("The rarity color is ambiguous.");
-    return { width: bitmap.width, height: bitmap.height, rarity: (gold > purple ? "Gold" : "Purple") as GearRarity };
+    return { width: bitmap.width, height: bitmap.height };
   } finally {
     bitmap.close();
   }
 }
 
-export async function recognizeGearImage(file: File, onProgress?: (progress: number, status: string) => void) {
+export async function recognizeGearImage(
+  file: File,
+  onProgress?: (progress: number, status: string) => void,
+  fallbackDefinitionId?: string,
+) {
   if (!file.type.startsWith("image/")) throw new Error("Choose a PNG, JPEG, or WebP image file.");
-  const dimensions = await imageDimensionsAndRarity(file);
+  const dimensions = await imageDimensions(file);
   const { createWorker, OEM, PSM } = await import("tesseract.js");
   const assetRoot = `${import.meta.env.BASE_URL}ocr`;
   let recognitionPass = 0;
@@ -255,7 +290,7 @@ export async function recognizeGearImage(file: File, onProgress?: (progress: num
         rawText,
         dimensions.width,
         dimensions.height,
-        dimensions.rarity,
+        fallbackDefinitionId,
       );
     } catch (sparseError) {
       if (!metadataResult.data.tsv) throw sparseError;
@@ -265,7 +300,7 @@ export async function recognizeGearImage(file: File, onProgress?: (progress: num
           rawText,
           dimensions.width,
           dimensions.height,
-          dimensions.rarity,
+          fallbackDefinitionId,
         );
       } catch {
         throw sparseError;

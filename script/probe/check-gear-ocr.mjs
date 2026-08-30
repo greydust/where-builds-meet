@@ -12,25 +12,19 @@ const viteServer = await createServer({
 const worker = await createWorker("eng", OEM.LSTM_ONLY, { langPath: "public/ocr" });
 
 try {
-  const { parseGearOcrTsv } = await viteServer.ssrLoadModule("/src/gearOcr.ts");
+  const { inferGearLevelAndRarity, parseGearOcrTsv } = await viteServer.ssrLoadModule("/src/gearOcr.ts");
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
-  const recognize = async (path, width, height, rarity) => {
+  const recognize = async (path, width, height) => {
     await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK, preserve_interword_spaces: "1" });
     const metadata = await worker.recognize(path, {}, { text: true, tsv: true });
     await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT, preserve_interword_spaces: "1" });
     const positioned = await worker.recognize(path, {}, { text: true, tsv: true });
-    return parseGearOcrTsv(
-      positioned.data.tsv,
-      `${metadata.data.text}\n${positioned.data.text}`,
-      width,
-      height,
-      rarity,
-    );
+    return parseGearOcrTsv(positioned.data.tsv, `${metadata.data.text}\n${positioned.data.text}`, width, height);
   };
 
-  const moBlade = await recognize("local/OCR/mo blade.png", 583, 797, "Gold");
+  const moBlade = await recognize("local/OCR/mo blade.png", 583, 797);
   assert(
     moBlade.definitionId === "moBlade" && moBlade.level === 96 && moBlade.rarity === "Gold" && !moBlade.relayed,
     "Mo Blade metadata was not recognized.",
@@ -55,19 +49,19 @@ try {
 
   await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK, preserve_interword_spaces: "1" });
   const moBladeBlock = await worker.recognize("local/OCR/mo blade.png", {}, { text: true, tsv: true });
-  const moBladeFallback = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 797, "Gold");
+  const moBladeFallback = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 797);
   assert(
     moBladeFallback.additionalAffixes.length === 4 && moBladeFallback.attunement.key === "physicalPenetration",
     "The block-layout fallback must recognize all six Mo Blade rows.",
   );
-  const moBladeDifferentCrop = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 2000, "Gold");
+  const moBladeDifferentCrop = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 2000);
   assert(
     moBladeDifferentCrop.additionalAffixes.map((affix) => affix.key).join(",") ===
       "moBladeDmgBoost,maxPhys,crit,maxVoidAttack" && moBladeDifferentCrop.attunement.key === "physicalPenetration",
     "Affix row recognition must not depend on the screenshot height.",
   );
 
-  const helmet = await recognize("local/OCR/helmet.png", 564, 811, "Purple");
+  const helmet = await recognize("local/OCR/helmet.png", 564, 811);
   assert(
     helmet.definitionId === "helmet" && helmet.level === 96 && helmet.rarity === "Purple" && helmet.relayed,
     "Helmet metadata was not recognized.",
@@ -88,7 +82,30 @@ try {
     helmet.attunement.key === "phalanxbaneChargedBoost" && Math.abs(helmet.attunement.value - 0.054) < 1e-9,
     "Helmet attunement was not recognized.",
   );
-  console.log("Gear OCR recognition and strict parsing checks passed for both supplied images.");
+  const inferredPurple = inferGearLevelAndRarity("helmet", "Gear Tier 96 Max HP 5196 Physical Defense 20");
+  assert(inferredPurple.level === 96 && inferredPurple.rarity === "Purple", "Fixed base stats must determine rarity.");
+  const defaultMetadata = inferGearLevelAndRarity("helmet", "unreadable metadata");
+  assert(
+    defaultMetadata.level === 96 && defaultMetadata.rarity === "Gold",
+    "Unclear metadata must default to 96 Gold.",
+  );
+  const partial = parseGearOcrTsv(
+    "5\t1\t1\t1\t1\t1\t10\t10\t100\t20\t90\tUnreadable",
+    "Unreadable",
+    500,
+    500,
+    "moBlade",
+  );
+  assert(
+    partial.definitionId === "moBlade" &&
+      partial.level === 96 &&
+      partial.rarity === "Gold" &&
+      !partial.baseAffix &&
+      partial.additionalAffixes.length === 0 &&
+      !partial.attunement,
+    "Unclear OCR fields must use the editor gear type and leave attribute rows empty.",
+  );
+  console.log("Gear OCR base-stat rarity inference and non-blocking fallback checks passed.");
 } finally {
   await worker.terminate();
   await viteServer.close();

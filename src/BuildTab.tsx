@@ -1473,25 +1473,35 @@ function GearEditor({
     });
     try {
       const { recognizeGearImage } = await loadGearOcrModule();
-      const result = await recognizeGearImage(file, (progress, status) => {
-        setOcrProgress(Math.max(0, Math.min(1, progress)));
-        setOcrStatus(status);
-      });
+      const result = await recognizeGearImage(
+        file,
+        (progress, status) => {
+          setOcrProgress(Math.max(0, Math.min(1, progress)));
+          setOcrStatus(status);
+        },
+        definitionId,
+      );
       if (result.definitionId !== definitionId) {
         const recognizedName = gearData.gear[result.definitionId]?.name ?? result.definitionId;
         throw new Error(
           `This image contains ${recognizedName}, but the current editor expects ${definitionName}. Open the matching gear slot and try again.`,
         );
       }
+      const importedAdditional = result.additionalAffixes
+        .slice(0, 4)
+        .map((affix) => savedValueToDraft(affix, gearData.affixes));
       onDraftChange((current) =>
         capGearDraft({
           ...current,
           level: result.level,
           rarity: result.rarity,
           relayed: result.relayed,
-          baseAffix: savedValueToDraft(result.baseAffix, gearData.affixes),
-          additionalAffixes: result.additionalAffixes.map((affix) => savedValueToDraft(affix, gearData.affixes)),
-          attunement: savedValueToDraft(result.attunement, attunementData),
+          baseAffix: result.baseAffix ? savedValueToDraft(result.baseAffix, gearData.affixes) : blankValue(),
+          additionalAffixes: [
+            ...importedAdditional,
+            ...Array.from({ length: 4 - importedAdditional.length }, blankValue),
+          ],
+          attunement: result.attunement ? savedValueToDraft(result.attunement, attunementData) : blankValue(),
         }),
       );
       setOcrOpen(false);

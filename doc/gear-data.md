@@ -149,18 +149,18 @@ model, and WebAssembly core are served from `public/ocr`, so the static GitHub
 Pages build does not depend on an OCR service or upload user images. The bundled
 Mo Blade screenshot is displayed only as a composition example.
 
-Recognition is deliberately strict. The importer reads rarity from the Gold or
-Purple color bar beside the item name, while OCR supplies the definition, tier,
-relaying marker, five affix rows, attunement, and their displayed values. Labels
+OCR supplies the definition, tier, fixed base stats, relaying marker, affix rows,
+attunement, and their displayed values. Rarity is inferred by matching the fixed
+base stats against the selected gear tier; image color is not inspected. Labels
 are normalized to the existing IDs in `data/gear.json` and
 `data/attunement.json`; percentage points are converted to decimal ratios at
 this UI boundary. Sparse-layout recognition is preferred; if it misses a row,
-the importer validates the block-layout result already produced during the same
-scan before rejecting the image. An import is rejected instead of partially applied when the
-gear definition does not match the editor, rarity or tier is unclear, a row is
-missing, an affix is duplicated or unavailable for that definition, or the
-attunement is invalid. A successful import fills the ordinary gear draft and
-still requires the user to press Save.
+the importer also checks the block-layout result already produced during the same
+scan. Unclear metadata defaults to Tier 96 Gold. Unclear, duplicate, unavailable,
+or missing affix and attunement rows remain empty for manual correction instead
+of rejecting the entire image. The current editor slot supplies the gear type
+when its label is unreadable. A successful import fills the ordinary gear draft
+and still requires the user to review it and press Save.
 
 ## Export and import
 
