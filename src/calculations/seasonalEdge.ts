@@ -34,7 +34,6 @@ export type SeasonalEdgeWindow = {
 export type SeasonalEdgeEntryState = {
   windowId?: string;
   outcomes?: SeasonalEdgeEffect["outcomes"];
-  cooldownActive: boolean;
 };
 
 function finitePositive(value: unknown): value is number {
@@ -173,10 +172,40 @@ export function seasonalEdgeStateAt(
   const branchActive =
     compareTimelineTime(time, cooldownWindow.expiresAt) < 0 &&
     (compareTimelineTime(time, cooldownWindow.startsAt) > 0 || sourceRowId !== cooldownWindow.sourceRowId);
-  return {
-    ...(branchActive ? { windowId: cooldownWindow.id, outcomes: effect.outcomes } : {}),
-    cooldownActive: true,
+  return branchActive ? { windowId: cooldownWindow.id, outcomes: effect.outcomes } : undefined;
+}
+
+function seasonalEdgeCooldownAt(time: number, sourceRowId: string, windows: SeasonalEdgeWindow[]) {
+  return windows.find(
+    (window) =>
+      compareTimelineTime(time, window.cooldownExpiresAt) < 0 &&
+      (compareTimelineTime(time, window.startsAt) > 0 || sourceRowId !== window.sourceRowId),
+  );
+}
+
+export function applySeasonalEdgeCooldownToTimeline(timeline: TimelineRow[], windows: SeasonalEdgeWindow[]) {
+  const withCooldown = (buffs: TimelineRow["buffs"], time: number, sourceRowId: string) => {
+    const retained = buffs.filter((buff) => buff.name !== "SeasonalEdgeCooldown");
+    const window = seasonalEdgeCooldownAt(time, sourceRowId, windows);
+    return window
+      ? [
+          ...retained,
+          {
+            name: "SeasonalEdgeCooldown",
+            stack: 1,
+            maxStack: 1,
+            expiresAt: window.cooldownExpiresAt,
+          },
+        ]
+      : retained;
   };
+  for (const row of timeline) {
+    row.buffs = withCooldown(row.buffs, row.startTime, row.id);
+    for (const [actionIndex, state] of Object.entries(row.actionStates)) {
+      const actionTime = row.startTime + Number(row.actions[Number(actionIndex)]?.time ?? 0);
+      state.buffs = withCooldown(state.buffs, actionTime, row.id);
+    }
+  }
 }
 
 function overlapDuration(start: number, end: number, windows: SeasonalEdgeWindow[], expected = false) {

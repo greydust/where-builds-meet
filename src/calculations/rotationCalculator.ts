@@ -47,6 +47,7 @@ import {
   type InsightfulStrikeEffect,
 } from "./insightfulStrike";
 import {
+  applySeasonalEdgeCooldownToTimeline,
   applySeasonalVitalityRanges,
   seasonalEdgeEffectFor,
   seasonalEdgeStateAt,
@@ -331,7 +332,6 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
         targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
       });
     }
-    if (entry.seasonalEdge?.cooldownActive) expectedBuffStacks.SeasonalEdgeCooldown = 1;
     const seasonalOutcomes = entry.seasonalEdge?.outcomes;
     let selectedSeasonalOutcome: SeasonalEdgeOutcomeDefinition | undefined;
     if (random && seasonalOutcomes?.length) {
@@ -1240,6 +1240,7 @@ function timelineDamageEntries(
   const insightfulStrike = insightfulStrikeEffectFor(rules, input.effectDefinitions);
   const seasonalEdge = seasonalEdgeEffectFor(rules, input.effectDefinitions);
   const seasonalWindows = seasonalEdge ? seasonalEdgeWindows(timeline, seasonalEdge) : [];
+  if (seasonalEdge && updateTimelineState) applySeasonalEdgeCooldownToTimeline(timeline, seasonalWindows);
   const expectedEndingVitality =
     seasonalEdge && !input.rotation.infiniteVitality
       ? applySeasonalVitalityRanges(timeline, seasonalWindows, input.resourceMaximums?.Vitality, updateTimelineState)

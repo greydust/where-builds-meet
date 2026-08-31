@@ -10,7 +10,7 @@
   },
   "Etherwrath": {
     "name": "Etherwrath",
-    "shortName": "Etherwrath",
+    "shortName": "EW",
     "showCoverage": true,
     "description": "Increases all attack values by 1.2% per stack. At five stacks, Martial Art Effects gain 6 of every penetration type.",
     "duration": 8,
@@ -211,7 +211,7 @@
   },
   "Cognition": {
     "name": "Cognition",
-    "shortName": "Cognition",
+    "shortName": "Cog",
     "description": "Each stack grants Martial Art Effects 2 of every attribute penetration. Heavenwill Gauntlets Falcon effects and Vile Condemned effects gain another 2 per stack. At Empirical Edge T6, Physical Penetration increases by the same amount.",
     "duration": 5,
     "cooldown": 1,

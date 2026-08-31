@@ -601,7 +601,6 @@ const expectedOutcomeBuffPlateDefinitions = [
   { name: "Flare", maxStack: 1 },
   { name: "Yield", maxStack: 1 },
   { name: "Frost", maxStack: 1 },
-  { name: "SeasonalEdgeCooldown", maxStack: 1 },
 ] as const;
 const expectedOutcomeBuffPlateNames = new Set<string>(expectedOutcomeBuffPlateDefinitions.map(({ name }) => name));
 type DisplayedTimelineEffect = TimelineRow["buffs"][number] & {
@@ -7282,7 +7281,12 @@ function RotationEditorTab({
                             const definition = calculationDefinitions.effectDefinitions[effect.name];
                             const description = gameText(definition?.description?.trim());
                             const name = gameText(definition?.name ?? effect.name);
-                            const label = `${gameText(definition?.shortName) || name}${effect.stack !== undefined && (effect.averageStackOnly || effect.maxStack === undefined || effect.maxStack > 1) ? ` ×${formatNumber(effect.stack)}` : ""}`;
+                            const showStack =
+                              effect.stack !== undefined &&
+                              (effect.maxStack === undefined ||
+                                effect.maxStack > 1 ||
+                                (effect.averageStackOnly && Math.abs(effect.stack - 1) > 1e-9));
+                            const label = `${gameText(definition?.shortName) || name}${showStack ? ` ×${formatNumber(effect.stack ?? 0)}` : ""}`;
                             const timeLeft =
                               effect.expiresAt === undefined ? "∞" : Math.max(0, effect.expiresAt - atTime).toFixed(2);
                             const plateKind = dotEffectIds.has(effect.name)

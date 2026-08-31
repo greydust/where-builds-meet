@@ -561,6 +561,9 @@ weighted buff combinations; simulations roll one concrete combination and
 retain it for the whole window. Bloom and Frost currently have no numerical
 effect. Flare adds 10% All Martial Arts and another 10% while self HP is above
 75%. Yield adds 10% Mystic Skill Damage and may restore two Vitality per second.
+The Seasonal Edge Cooldown itself is deterministic: every accepted trigger
+adds a normal one-stack, 30-second timeline buff with an ordinary expiration
+time. It is not included in the probability-weighted outcome plates.
 
 Because any multi-buff result may include Yield, the timeline displays Vitality
 as a lower and upper bound. The lower bound follows the ordinary resource

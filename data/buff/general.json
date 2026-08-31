@@ -93,11 +93,21 @@
     "maxStack": 1,
     "effect": [
       {
-        "stat": { "allMartialArts": 0.1 }
+        "stat": {
+          "allMartialArts": 0.1
+        }
       },
       {
-        "requirement": [{ "target": "selfHPPercentage", "comparison": ">", "amount": 75 }],
-        "stat": { "allMartialArts": 0.1 }
+        "requirement": [
+          {
+            "target": "selfHPPercentage",
+            "comparison": ">",
+            "amount": 75
+          }
+        ],
+        "stat": {
+          "allMartialArts": 0.1
+        }
       }
     ],
     "refresh": true
@@ -110,8 +120,15 @@
     "maxStack": 1,
     "effect": [
       {
-        "requirement": [{ "target": "skillTag", "value": "Mystic" }],
-        "effect": { "dmgBonus": 0.1 }
+        "requirement": [
+          {
+            "target": "skillTag",
+            "value": "Mystic"
+          }
+        ],
+        "effect": {
+          "dmgBonus": 0.1
+        }
       }
     ],
     "refresh": true
@@ -126,7 +143,7 @@
   },
   "SeasonalEdgeCooldown": {
     "name": "Seasonal Edge Cooldown",
-    "shortName": "Seasonal CD",
+    "shortName": "SE CD",
     "description": "Seasonal Edge cannot trigger while this effect is active.",
     "duration": 30,
     "maxStack": 1,

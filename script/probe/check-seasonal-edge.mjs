@@ -160,6 +160,15 @@ try {
     100,
     "A Conversion used during the 30-second cooldown must not open a new season window",
   );
+  const cooldownPlate = result.timeline[1].buffs.find((buff) => buff.name === "SeasonalEdgeCooldown");
+  if (!cooldownPlate) throw new Error("Seasonal Edge must expose its deterministic cooldown as a timeline buff.");
+  closeTo(cooldownPlate.expiresAt, 31, "Seasonal Edge cooldown must expire 30 seconds after the trigger");
+  if (
+    Object.values(result.actionBreakdowns).some(
+      (breakdown) => breakdown.expectedBuffStacks?.SeasonalEdgeCooldown !== undefined,
+    )
+  )
+    throw new Error("Seasonal Edge cooldown must not be represented as a probability-weighted buff plate.");
   const mysticState = result.timeline[3].actionStates[1];
   closeTo(mysticState.resources.Vitality, -10, "Vitality consumption must be allowed below zero");
   closeTo(mysticState.resourceRanges.Vitality.minimum, -10, "The Vitality lower bound must exclude Yield");
