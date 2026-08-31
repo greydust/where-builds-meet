@@ -62,13 +62,16 @@ export function simulateRotation(
     let totalDamage = 0;
     const outcomes: Record<DamageOutcome, number> = { abrasion: 0, normal: 0, critical: 0, affinity: 0 };
     let hitCount = 0;
-    calculateRotationDamageSequence(baseline.baseline, random).forEach(({ breakdown }) => {
+    let mysticDamage = 0;
+    calculateRotationDamageSequence(baseline.baseline, random).forEach(({ entry, breakdown }) => {
       totalDamage += breakdown.total;
+      if (entry.context.skillTags.includes("Mystic")) mysticDamage += breakdown.total;
       if (breakdown.outcome) {
         outcomes[breakdown.outcome] += 1;
         hitCount += 1;
       }
     });
+    totalDamage -= mysticDamage * (1 - baseline.mysticVitalityDamageScale);
     const percentage = (outcome: DamageOutcome) => (hitCount > 0 ? (outcomes[outcome] / hitCount) * 100 : 0);
     runs.push({
       totalDamage,

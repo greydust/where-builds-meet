@@ -103,6 +103,7 @@ type BuildTabProps = {
   devMode: boolean;
   buildState: BuildState;
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>;
+  onActiveBuildChange: (id: string) => void;
   onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => boolean;
 };
 
@@ -415,6 +416,7 @@ export default function BuildTab({
   devMode,
   buildState,
   onBuildStateChange,
+  onActiveBuildChange,
   onSelectBuildWeapons,
 }: BuildTabProps) {
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
@@ -524,7 +526,7 @@ export default function BuildTab({
   }
 
   function activateBuild() {
-    onBuildStateChange((current) => ({ ...current, activeBuildId: editingEntry.id }));
+    onActiveBuildChange(editingEntry.id);
   }
 
   function duplicateBuild() {
@@ -558,8 +560,8 @@ export default function BuildTab({
     onBuildStateChange((current) => ({
       ...current,
       entries: current.entries.filter((candidate) => candidate.id !== id),
-      activeBuildId: current.activeBuildId === id ? (fallback?.id ?? "") : current.activeBuildId,
     }));
+    if (buildState.activeBuildId === id && fallback) onActiveBuildChange(fallback.id);
     if (editingBuildId === id) setEditingBuildId(fallback?.id ?? "");
   }
 

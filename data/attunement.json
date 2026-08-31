@@ -19,9 +19,11 @@
   },
   "physicalResistance": {
     "name": "Physical Resistance",
-    "tags": ["Weapon"],
+    "tags": ["Defensive"],
     "effect": {
-      "stat": {}
+      "stat": {
+        "physicalResistance": 1
+      }
     }
   },
   "phalanxbaneChargedBoost": {

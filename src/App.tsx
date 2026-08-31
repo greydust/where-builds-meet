@@ -158,6 +158,7 @@ import {
   buildRotationTimeline,
   compareTimelineTime,
   isAttachmentAnchorStep,
+  mergeEffectDefinition,
   mergeCalculatedTargetHPState,
   type AttachedEventTarget,
   type EditableObject,
@@ -176,7 +177,7 @@ import {
   type SkillMap,
   type SkillOverrides,
 } from "./skillOverrides";
-import { scriptSelectionChangesTimeline } from "./data/scriptDefinitions";
+import { setupSelectionChangesTimeline } from "./data/scriptDefinitions";
 import {
   calculateStatsWithOverrides,
   type CharacterStatOverrides,
@@ -190,13 +191,13 @@ import {
   type RotationEntry,
 } from "./rotationTransfer";
 import { readableRotationText } from "./readableRotation";
+import { resolvePathWorkspaceSelection } from "./pathWorkspace";
 import {
   attachedEventPhase,
   attachedEventSiblingIndex,
   attachedTargetForStep,
   isAutomaticCooldownDelay,
   reorderAttachedEventWithinTarget,
-  resolveRotationSelection,
   withAutomaticCooldownDelays,
   withoutAutomaticCooldownDelays,
 } from "./rotationEditing";
@@ -492,6 +493,38 @@ function rotationEventDisplayName(eventId: string) {
 const rotationStorageKey = "wwm-rotation-editor-session-v2";
 const rotationListStorageKey = "wwm-rotation-list-session-v1";
 const activeRotationStorageKey = "wwm-active-rotation-session-v1";
+const activeRotationByPathStorageKey = "wwm-active-rotation-by-path-v1";
+const activeBuildByPathStorageKey = "wwm-active-build-by-path-v1";
+
+type PathSelectionIds = Partial<Record<PathId, string>>;
+
+function loadPathSelectionIds(storageKey: string, legacyStorageKey: string, currentPathId: PathId) {
+  let selections: PathSelectionIds = {};
+  try {
+    const saved = JSON.parse(getPersistentItem(storageKey) ?? "null") as unknown;
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+      selections = Object.fromEntries(
+        Object.entries(saved).filter(
+          ([path, id]) => path in typedPathDefinitions && typeof id === "string" && id.length > 0,
+        ),
+      ) as PathSelectionIds;
+    }
+  } catch {
+    selections = {};
+  }
+  if (!selections[currentPathId]) {
+    const legacyId = getPersistentItem(legacyStorageKey);
+    if (legacyId) {
+      selections = { ...selections, [currentPathId]: legacyId };
+      setPersistentItem(storageKey, JSON.stringify(selections));
+    }
+  }
+  return selections;
+}
+
+function withPathSelection(selections: PathSelectionIds, pathId: PathId, id: string) {
+  return selections[pathId] === id ? selections : { ...selections, [pathId]: id };
+}
 const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap;
 const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
   Snowparting: "snowpartingBlade",
@@ -564,6 +597,11 @@ const effectDefinitions = {
 const expectedOutcomeBuffPlateDefinitions = [
   { name: "Hawkwing", maxStack: 5 },
   { name: "Concentration", maxStack: 1 },
+  { name: "Bloom", maxStack: 1 },
+  { name: "Flare", maxStack: 1 },
+  { name: "Yield", maxStack: 1 },
+  { name: "Frost", maxStack: 1 },
+  { name: "SeasonalEdgeCooldown", maxStack: 1 },
 ] as const;
 const expectedOutcomeBuffPlateNames = new Set<string>(expectedOutcomeBuffPlateDefinitions.map(({ name }) => name));
 type DisplayedTimelineEffect = TimelineRow["buffs"][number] & {
@@ -592,6 +630,11 @@ function withExpectedOutcomeBuffPlates(
         : [];
     }),
   ];
+}
+
+function formatResourceRange(value: number, range: { minimum: number; maximum: number } | undefined) {
+  if (!range || Math.abs(range.maximum - range.minimum) < 1e-9) return formatNumber(value);
+  return `${formatNumber(range.minimum)} ~ ${formatNumber(range.maximum)}`;
 }
 const globalEffectRules = Object.values(effectDefinitions).flatMap((definition) =>
   definition.global ? (definition.effect ?? []) : [],
@@ -916,8 +959,6 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
       };
     return step;
   });
-  if (migrated.steps[6]?.type === "skill" && migrated.steps[6].skill === "SnowpartingQ")
-    migrated.steps[6] = { ...migrated.steps[6], skill: "SnowpartingQStab" };
   if (migrated.eventTimeReference !== "battleStart") {
     const previousAnchorTime = baseRotationAnchorTime(migrated);
     migrated.steps = migrated.steps.map((step) =>
@@ -1041,6 +1082,11 @@ const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "Default 
 const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation";
 const formerDefaultRotationIds = new Set(["dummy-1-min"]);
 
+function rotationRecordForEntry(entry: RotationEntry) {
+  if (!entry.isDefault) return entry.rotation;
+  return defaultRotationEntries.find((preset) => preset.id === entry.id)?.rotation ?? entry.rotation;
+}
+
 type SetupEffect = StatEffectContainer &
   EffectiveStatEffectContainer & {
     condition?: string;
@@ -1106,7 +1152,12 @@ type GearSetDefinition = Omit<SetDefinition, "options"> & { options: Record<stri
 const typedWeaponSetDefinitions = weaponSetDefinitions as Record<string, GearSetDefinition>;
 const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDefinition>;
 const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>;
-type DivinecraftDefinition = ArsenalDefinition & { description: string; image?: string; available?: boolean };
+type DivinecraftDefinition = ArsenalDefinition & {
+  description: string;
+  image?: string;
+  available?: boolean;
+  altersTimeline?: boolean;
+};
 const typedDivinecraftDefinitions = divinecraftDefinitions as Record<string, DivinecraftDefinition>;
 type ScriptDefinition = ArsenalDefinition & { description: string; image?: string; altersTimeline?: boolean };
 const typedScriptDefinitions = scriptDefinitions as Record<string, ScriptDefinition>;
@@ -1692,9 +1743,6 @@ function loadRotationEntries(): RotationEntry[] {
 }
 
 function initialRotationId(entries: RotationEntry[], preferredId: string, weapons: [WeaponId, WeaponId]) {
-  const savedId = getPersistentItem(activeRotationStorageKey);
-  if (savedId && entries.some((entry) => entry.id === savedId && rotationAvailableForWeapons(entry, weapons)))
-    return savedId;
   return (
     entries.find((entry) => entry.id === preferredId && rotationAvailableForWeapons(entry, weapons))?.id ??
     entries.find((entry) => rotationAvailableForWeapons(entry, weapons))?.id ??
@@ -1753,6 +1801,7 @@ function calculateGlobalStatState(
 
 type GraduationEnvironment = {
   pathId: PathId;
+  martialArts: [WeaponId, WeaponId];
   rotation: RotationRecord;
   breakthrough: string;
   globalDebuffs: GlobalDebuffState;
@@ -1766,6 +1815,7 @@ function graduationEnvironmentFingerprint(environment: GraduationEnvironment) {
   const { name: _displayName, ...rotation } = environment.rotation;
   return calculationFingerprint({
     pathId: environment.pathId,
+    martialArts: environment.martialArts,
     rotation,
     breakthrough: environment.breakthrough,
     globalDebuffs: environment.globalDebuffs,
@@ -5312,8 +5362,11 @@ function RotationEditorTab({
   pathId,
   devMode,
   defaultRotationId,
+  selectedRotationId,
+  calculationCache,
   skillOverrides,
   onSelectRotationWeapons,
+  onActiveRotationChange,
   onMetricsChange,
   onActiveSimulationBundleChange,
   onGraduationDpsChange,
@@ -5322,8 +5375,11 @@ function RotationEditorTab({
   pathId: PathId;
   devMode: boolean;
   defaultRotationId: string;
+  selectedRotationId: string;
+  calculationCache: RotationCalculationCache;
   skillOverrides: SkillOverrides;
-  onSelectRotationWeapons: (weapons: [WeaponId, WeaponId]) => boolean;
+  onSelectRotationWeapons: (weapons: [WeaponId, WeaponId], rotationId: string) => boolean;
+  onActiveRotationChange: (id: string) => void;
   onMetricsChange: (metrics: RotationMetrics, isActive: boolean) => void;
   onActiveSimulationBundleChange: (
     bundle: RotationSimulationBundle,
@@ -5352,14 +5408,26 @@ function RotationEditorTab({
     () => resolveSkillCalculationDefinitions(defaultSkillMaps, effectDefinitions, dotDefinitions, skillOverrides),
     [skillOverrides],
   );
-  const [initialState] = useState(() => initialRotationEditorState(devMode, defaultRotationId, settings.weapons));
+  const manualEffectMaxStacks = useMemo(() => {
+    const maxStacks = new Map<string, number>();
+    for (const [id, definition] of Object.entries(calculationDefinitions.effectDefinitions)) {
+      const modifiedDefinition = innerWayEffectRules.reduce((current, rule) => {
+        if (rule.target !== id || !rule.modify || rule.requirement !== undefined) return current;
+        return mergeEffectDefinition(current, rule.modify);
+      }, definition);
+      maxStacks.set(id, modifiedDefinition.maxStack ?? 1);
+    }
+    return maxStacks;
+  }, [calculationDefinitions.effectDefinitions, innerWayEffectRules]);
+  const [initialState] = useState(() =>
+    initialRotationEditorState(devMode, selectedRotationId || defaultRotationId, settings.weapons),
+  );
   const [rotationEntries, setRotationEntries] = useState<RotationEntry[]>(initialState.entries);
   const savedRotationSnapshotsRef = useRef<Map<string, RotationRecord> | null>(null);
   if (savedRotationSnapshotsRef.current === null)
     savedRotationSnapshotsRef.current = new Map(
       initialState.entries.map((entry) => [entry.id, JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord]),
     );
-  const [activeRotationId, setActiveRotationId] = useState(initialState.activeId);
   const [editingRotationId, setEditingRotationId] = useState(initialState.activeId);
   const [rotation, setRotation] = useState<RotationRecord>(initialState.rotation);
   const [startAnchor, setStartAnchor] = useState<{ rowId: string; actionIndex?: number }>(initialState.startAnchor);
@@ -5376,7 +5444,7 @@ function RotationEditorTab({
     Record<string, { key: string; result: RotationSimulationResult }>
   >({});
   const rotationResultsRef = useRef(rotationResults);
-  const calculationCacheRef = useRef(new RotationCalculationCache());
+  const calculationCacheRef = useRef(calculationCache);
   const editorPreviewRequestSequenceRef = useRef(0);
   const diffRequestSequenceRef = useRef(0);
   const scheduledRefreshTargetRef = useRef<string | null>(null);
@@ -5390,6 +5458,15 @@ function RotationEditorTab({
   const rotationScrollRef = useRef<HTMLDivElement>(null);
   const pendingEventScrollRef = useRef<{ stepIndex: number; top: number } | null>(null);
   const pendingSkillFocusRef = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      editorPreviewRequestSequenceRef.current += 1;
+      diffRequestSequenceRef.current += 1;
+      scheduledRefreshTargetRef.current = null;
+      runningRefreshTargetRef.current = null;
+    },
+    [],
+  );
   const listedRotationEntries = useMemo(
     () =>
       rotationEntries.filter(
@@ -5404,14 +5481,12 @@ function RotationEditorTab({
   );
   const editingEntry =
     listedRotationEntries.find((entry) => entry.id === editingRotationId) ?? compatibleRotationEntries[0];
-  const resolvedActiveRotationId =
-    compatibleRotationEntries.find((entry) => entry.id === activeRotationId)?.id ??
+  const activeRotationId =
+    compatibleRotationEntries.find((entry) => entry.id === selectedRotationId)?.id ??
     compatibleRotationEntries.find((entry) => entry.id === defaultRotationId)?.id ??
     compatibleRotationEntries[0]?.id;
-  const resolvedActiveRotationIdRef = useRef(resolvedActiveRotationId);
-  resolvedActiveRotationIdRef.current = resolvedActiveRotationId;
-  const previousRotationPathRef = useRef(pathId);
-  const pendingCrossPathRotationIdRef = useRef<string | null>(null);
+  const resolvedActiveRotationIdRef = useRef(activeRotationId);
+  resolvedActiveRotationIdRef.current = activeRotationId;
   const rotationLocked = editingEntry?.isDefault === true;
   const editingRotationDisplayName = (rotationLocked ? gameText(rotation.name) : rotation.name) || "Unnamed Rotation";
   const currentGlobalDebuffs = loadGlobalDebuffs();
@@ -5467,50 +5542,9 @@ function RotationEditorTab({
     setRotation(migrated);
   }, []);
 
-  useLayoutEffect(() => {
-    const pathChanged = previousRotationPathRef.current !== pathId;
-    previousRotationPathRef.current = pathId;
-    const requestedRotationId = pendingCrossPathRotationIdRef.current;
-    pendingCrossPathRotationIdRef.current = null;
-    const selection = resolveRotationSelection({
-      pathChanged,
-      requestedRotationId,
-      activeRotationId,
-      editingRotationId,
-      defaultRotationId,
-      compatibleRotationIds: compatibleRotationEntries.map((entry) => entry.id),
-      listedRotationIds: listedRotationEntries.map((entry) => entry.id),
-    });
-    if (!selection) return;
-    const nextEditingEntry = rotationEntries.find((entry) => entry.id === selection.editingRotationId);
-    if (!nextEditingEntry) return;
-    if (activeRotationId !== selection.activeRotationId) {
-      setActiveRotationId(selection.activeRotationId);
-      setPersistentItem(activeRotationStorageKey, selection.activeRotationId);
-    }
-    if (selection.resetEditingRotation) {
-      const nextRotation = JSON.parse(JSON.stringify(nextEditingEntry.rotation)) as RotationRecord;
-      setEditingRotationId(selection.editingRotationId);
-      setRotation(nextRotation);
-      setStartAnchor(
-        nextRotation.start
-          ? { rowId: `rotation-${nextRotation.start.step}`, actionIndex: nextRotation.start.action }
-          : { rowId: "rotation-0" },
-      );
-      setEventTimeDrafts({});
-      setEventDurationDrafts({});
-      setEventDistanceDrafts({});
-      setEventHPDrafts({});
-    }
-  }, [
-    activeRotationId,
-    compatibleRotationEntries,
-    defaultRotationId,
-    editingRotationId,
-    listedRotationEntries,
-    pathId,
-    rotationEntries,
-  ]);
+  useEffect(() => {
+    if (activeRotationId && selectedRotationId !== activeRotationId) onActiveRotationChange(activeRotationId);
+  }, [activeRotationId, onActiveRotationChange, selectedRotationId]);
 
   useEffect(() => {
     if (startAnchor.actionIndex === undefined) return;
@@ -5598,6 +5632,12 @@ function RotationEditorTab({
     );
     const previousSkill = previousSkills[previousSkills.length - 1];
     setRotation((current) => {
+      if (
+        value.startsWith("__event:") &&
+        current.steps[index]?.type === "skill" &&
+        current.steps.filter((step) => step.type === "skill").length <= 1
+      )
+        return current;
       let steps = current.steps.map((step, stepIndex) => {
         if (stepIndex !== index) return step;
         if (value === "__event:Delay") return { type: "event", event: "Delay", duration: 1 };
@@ -5886,6 +5926,7 @@ function RotationEditorTab({
       if (isAutomaticCooldownDelay(current.steps[index])) return current;
       if (current.steps[index]?.type !== "skill")
         return { ...current, steps: current.steps.filter((_, stepIndex) => stepIndex !== index) };
+      if (current.steps.filter((step) => step.type === "skill").length <= 1) return current;
       let start = index;
       while (start > 0 && attachedTargetForStep(current.steps[start - 1])) start -= 1;
       return { ...current, steps: current.steps.filter((_, stepIndex) => stepIndex < start || stepIndex > index) };
@@ -5905,13 +5946,12 @@ function RotationEditorTab({
     }
     const normalized = migrateRotation(rotation);
     const nextEntries = rotationEntries.map((entry) =>
-      entry.id === editingRotationId ? { ...entry, rotation: normalized } : entry,
+      entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: normalized } : entry,
     );
     setRotationEntries(nextEntries);
     setRotation(normalized);
     savedRotationSnapshotsRef.current?.set(editingRotationId, JSON.parse(JSON.stringify(normalized)) as RotationRecord);
     persistRotationEntries(nextEntries);
-    setPersistentItem(activeRotationStorageKey, activeRotationId);
     setError("");
     setStatus(t("ui.app.savedForThisSession"));
     if (editingRotationId === activeRotationId) void calculateDiffsForRotation(editingRotationId, normalized);
@@ -5939,12 +5979,13 @@ function RotationEditorTab({
     if (id === activeRotationId) return;
     const current = migrateRotation(rotation);
     const nextEntries = rotationEntries.map((entry) =>
-      entry.id === editingRotationId ? { ...entry, rotation: current } : entry,
+      entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: current } : entry,
     );
-    const nextRotation = nextEntries.find((entry) => entry.id === id)?.rotation;
-    if (!nextRotation) return;
+    const nextEntry = nextEntries.find((entry) => entry.id === id);
+    if (!nextEntry) return;
+    const nextRotation = rotationRecordForEntry(nextEntry);
     setRotationEntries(nextEntries);
-    setActiveRotationId(id);
+    onActiveRotationChange(id);
     setEditingRotationId(id);
     setRotation(JSON.parse(JSON.stringify(nextRotation)) as RotationRecord);
     setStartAnchor(
@@ -5954,16 +5995,16 @@ function RotationEditorTab({
     );
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
-    setPersistentItem(activeRotationStorageKey, id);
   }
   function editRotation(id: string) {
     if (id === editingRotationId) return;
     const current = migrateRotation(rotation);
     const nextEntries = rotationEntries.map((entry) =>
-      entry.id === editingRotationId ? { ...entry, rotation: current } : entry,
+      entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: current } : entry,
     );
-    const nextRotation = nextEntries.find((entry) => entry.id === id)?.rotation;
-    if (!nextRotation) return;
+    const nextEntry = nextEntries.find((entry) => entry.id === id);
+    if (!nextEntry) return;
+    const nextRotation = rotationRecordForEntry(nextEntry);
     setRotationEntries(nextEntries);
     setEditingRotationId(id);
     setRotation(JSON.parse(JSON.stringify(nextRotation)) as RotationRecord);
@@ -5979,11 +6020,9 @@ function RotationEditorTab({
     if (!rotationAvailableForWeapons(entry, settings.weapons)) {
       const entryMartialArts = [...new Set(entry.martialArts)];
       if (entryMartialArts.length !== 2) return;
-      pendingCrossPathRotationIdRef.current = entry.id;
-      if (!onSelectRotationWeapons([entryMartialArts[0], entryMartialArts[1]])) {
-        pendingCrossPathRotationIdRef.current = null;
-        return;
-      }
+      persistRotationEntries(currentRotationEntries());
+      onSelectRotationWeapons([entryMartialArts[0], entryMartialArts[1]], entry.id);
+      return;
     }
     editRotation(entry.id);
   }
@@ -5996,7 +6035,9 @@ function RotationEditorTab({
       eventTimeReference: "battleStart",
     };
     const nextEntries = [
-      ...rotationEntries.map((entry) => (entry.id === editingRotationId ? { ...entry, rotation: current } : entry)),
+      ...rotationEntries.map((entry) =>
+        entry.id === editingRotationId && !entry.isDefault ? { ...entry, rotation: current } : entry,
+      ),
       { id, rotation: nextRotation, martialArts: [...new Set(settings.weapons)] },
     ];
     setRotationEntries(nextEntries);
@@ -6061,7 +6102,7 @@ function RotationEditorTab({
     if (!nextActive) return;
     setRotationEntries(nextEntries);
     if (id === activeRotationId) {
-      setActiveRotationId(nextActive.id);
+      onActiveRotationChange(nextActive.id);
     }
     if (id === editingRotationId) {
       setEditingRotationId(nextActive.id);
@@ -6074,7 +6115,6 @@ function RotationEditorTab({
     }
     setEventTimeDrafts({});
     persistRotationEntries(nextEntries);
-    setPersistentItem(activeRotationStorageKey, id === activeRotationId ? nextActive.id : activeRotationId);
   }
 
   function currentRotationEntries() {
@@ -6157,7 +6197,11 @@ function RotationEditorTab({
     () => withAutomaticCooldownDelays(cooldownSourceRotation, cooldownTimeline),
     [cooldownSourceRotation, cooldownTimeline],
   );
+  const cooldownAdjustmentKey = `${pathId}:${editingRotationId}:${calculationContextKey}`;
+  const cooldownAdjustmentKeyRef = useRef(cooldownAdjustmentKey);
+  cooldownAdjustmentKeyRef.current = cooldownAdjustmentKey;
   useEffect(() => {
+    if (cooldownAdjustmentKeyRef.current !== cooldownAdjustmentKey) return;
     if (JSON.stringify(rotation) === JSON.stringify(cooldownAdjustedRotation)) return;
     setRotation(cooldownAdjustedRotation);
     if (cooldownAdjustedRotation.start)
@@ -6167,7 +6211,7 @@ function RotationEditorTab({
           ? {}
           : { actionIndex: cooldownAdjustedRotation.start.action }),
       });
-  }, [cooldownAdjustedRotation, rotation]);
+  }, [cooldownAdjustedRotation, cooldownAdjustmentKey, rotation]);
   const structuralTimeline = useMemo(
     () => buildRotationTimeline(makeTimelineInput(rotation)),
     [
@@ -6179,6 +6223,10 @@ function RotationEditorTab({
       rotation.steps,
       rotation.targetHP,
     ],
+  );
+  const rotationSkillCount = useMemo(
+    () => rotation.steps.filter((step) => step.type === "skill").length,
+    [rotation.steps],
   );
   const timeline = useMemo(
     () => mergeCalculatedTargetHPState(structuralTimeline, currentCachedResult?.timeline),
@@ -6580,7 +6628,7 @@ function RotationEditorTab({
               .filter(([value]) => value !== selectedScript)
               .map(([value]) => {
                 const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { script: value });
-                const rebuildTimeline = scriptSelectionChangesTimeline(selectedScript, value, typedScriptDefinitions);
+                const rebuildTimeline = setupSelectionChangesTimeline(selectedScript, value, typedScriptDefinitions);
                 return {
                   label: value,
                   setupEffects,
@@ -6598,10 +6646,30 @@ function RotationEditorTab({
               }),
             divinecraft: Object.entries(typedDivinecraftDefinitions)
               .filter(([value, definition]) => definition.available !== false && value !== selectedDivinecraft)
-              .map(([value]) => ({
-                label: value,
-                setupEffects: selectedSetupEffects(settings, gearStatEffect, buildSetup, { divinecraft: value }),
-              })),
+              .map(([value]) => {
+                const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, {
+                  divinecraft: value,
+                });
+                const rebuildTimeline = setupSelectionChangesTimeline(
+                  selectedDivinecraft,
+                  value,
+                  typedDivinecraftDefinitions,
+                );
+                return {
+                  label: value,
+                  setupEffects,
+                  ...(rebuildTimeline
+                    ? {
+                        timeline: makeTimelineInput(
+                          rotationRecord,
+                          innerWayConditions,
+                          innerWayEffectRules,
+                          setupEffects,
+                        ),
+                      }
+                    : {}),
+                };
+              }),
             ...Object.fromEntries(
               globalDebuffRows.map(({ key }) => [
                 `debuff:${key}`,
@@ -6659,12 +6727,10 @@ function RotationEditorTab({
   }
 
   useEffect(() => {
-    if (!resolvedActiveRotationId) return;
+    if (!activeRotationId) return;
+    const activeEntry = rotationEntries.find((entry) => entry.id === activeRotationId);
     const activeRotation =
-      resolvedActiveRotationId === editingRotationId
-        ? rotation
-        : rotationEntries.find((entry) => entry.id === resolvedActiveRotationId)?.rotation;
-    const activeEntry = rotationEntries.find((entry) => entry.id === resolvedActiveRotationId);
+      activeRotationId === editingRotationId ? rotation : activeEntry ? rotationRecordForEntry(activeEntry) : undefined;
     if (activeRotation) {
       const graduation = prepareGraduationCalculation(activeRotation);
       graduationFingerprintRef.current = graduation?.fingerprint ?? null;
@@ -6674,7 +6740,7 @@ function RotationEditorTab({
       onActiveSimulationBundleChange(
         calculationBundleFor(activeRotation, false),
         activeRotation.name || "Active rotation",
-        `${resolvedActiveRotationId}:${calculationContextKey}:${JSON.stringify(activeRotation)}`,
+        `${activeRotationId}:${calculationContextKey}:${JSON.stringify(activeRotation)}`,
         activeEntry?.isDefault === true,
         graduation ? { fingerprint: graduation.fingerprint, dps: cachedGraduation } : undefined,
       );
@@ -6686,7 +6752,7 @@ function RotationEditorTab({
     calculationContextKey,
     pathId,
     defaultRotationId,
-    resolvedActiveRotationId,
+    activeRotationId,
     onActiveSimulationBundleChange,
   ]);
 
@@ -6697,6 +6763,7 @@ function RotationEditorTab({
   const prepareGraduationCalculation = (rotationRecord: RotationRecord) => {
     const environment: GraduationEnvironment = {
       pathId,
+      martialArts: [...settings.weapons],
       rotation: rotationRecord,
       breakthrough: settings.breakthrough,
       globalDebuffs: currentGlobalDebuffs,
@@ -6907,7 +6974,7 @@ function RotationEditorTab({
       entries.find((entry) => entry.id === defaultRotationId) ??
       entries[0];
     if (!activeEntry) return;
-    const activeRotation = activeEntry.id === editingRotationId ? rotation : activeEntry.rotation;
+    const activeRotation = activeEntry.id === editingRotationId ? rotation : rotationRecordForEntry(activeEntry);
     const prepared = prepareBaselineCalculation(activeRotation);
     const refreshTarget = `${activeEntry.id}:${prepared.fingerprint}`;
     if (scheduledRefreshTargetRef.current === refreshTarget) return;
@@ -6922,7 +6989,7 @@ function RotationEditorTab({
       for (const entry of entries) {
         if (entry.id === activeEntry.id) continue;
         try {
-          await calculateBaselineForRotation(entry.id, entry.rotation, 100);
+          await calculateBaselineForRotation(entry.id, rotationRecordForEntry(entry), 100);
         } catch {
           /* Superseded by newer work. */
         }
@@ -7676,7 +7743,9 @@ function RotationEditorTab({
                             )}
                             {showVitalityColumn && (
                               <span data-mobile-label={t("system.resource.vitality")}>
-                                {rotation.infiniteVitality ? "∞" : formatNumber(row.resources.Vitality ?? 0)}
+                                {rotation.infiniteVitality
+                                  ? "∞"
+                                  : formatResourceRange(row.resources.Vitality ?? 0, row.resourceRanges?.Vitality)}
                               </span>
                             )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
@@ -7727,7 +7796,7 @@ function RotationEditorTab({
                                   </span>
                                 ) : (
                                   <span
-                                    className={`rotation-effect-event-control ${(calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
+                                    className={`rotation-effect-event-control ${(manualEffectMaxStacks.get(step.buff) ?? 1) <= 1 ? "single" : ""}`}
                                   >
                                     <select
                                       className="rotation-effect-select"
@@ -7737,10 +7806,7 @@ function RotationEditorTab({
                                         const buff = event.target.value;
                                         updateStep(row.rotationIndex ?? 0, {
                                           buff,
-                                          stack: Math.min(
-                                            step.stack ?? 1,
-                                            calculationDefinitions.effectDefinitions[buff]?.maxStack ?? 1,
-                                          ),
+                                          stack: Math.min(step.stack ?? 1, manualEffectMaxStacks.get(buff) ?? 1),
                                         });
                                       }}
                                     >
@@ -7750,13 +7816,13 @@ function RotationEditorTab({
                                         </option>
                                       ))}
                                     </select>
-                                    {(calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1) > 1 && (
+                                    {(manualEffectMaxStacks.get(step.buff) ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
                                         aria-label={t("ui.app.buffStacks")}
                                         type="number"
                                         min="1"
-                                        max={calculationDefinitions.effectDefinitions[step.buff]?.maxStack}
+                                        max={manualEffectMaxStacks.get(step.buff) ?? 1}
                                         step="1"
                                         value={step.stack ?? 1}
                                         onChange={(event) => {
@@ -7765,10 +7831,7 @@ function RotationEditorTab({
                                             updateStep(row.rotationIndex ?? 0, {
                                               stack: Math.max(
                                                 1,
-                                                Math.min(
-                                                  calculationDefinitions.effectDefinitions[step.buff]?.maxStack ?? 1,
-                                                  Math.floor(stack),
-                                                ),
+                                                Math.min(manualEffectMaxStacks.get(step.buff) ?? 1, Math.floor(stack)),
                                               ),
                                             });
                                         }}
@@ -7791,7 +7854,7 @@ function RotationEditorTab({
                                   </span>
                                 ) : (
                                   <span
-                                    className={`rotation-effect-event-control ${(calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1) <= 1 ? "single" : ""}`}
+                                    className={`rotation-effect-event-control ${(manualEffectMaxStacks.get(step.debuff) ?? 1) <= 1 ? "single" : ""}`}
                                   >
                                     <select
                                       className="rotation-effect-select"
@@ -7801,10 +7864,7 @@ function RotationEditorTab({
                                         const debuff = event.target.value;
                                         updateStep(row.rotationIndex ?? 0, {
                                           debuff,
-                                          stack: Math.min(
-                                            step.stack ?? 1,
-                                            calculationDefinitions.effectDefinitions[debuff]?.maxStack ?? 1,
-                                          ),
+                                          stack: Math.min(step.stack ?? 1, manualEffectMaxStacks.get(debuff) ?? 1),
                                         });
                                       }}
                                     >
@@ -7814,13 +7874,13 @@ function RotationEditorTab({
                                         </option>
                                       ))}
                                     </select>
-                                    {(calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1) > 1 && (
+                                    {(manualEffectMaxStacks.get(step.debuff) ?? 1) > 1 && (
                                       <input
                                         className="rotation-effect-stack"
                                         aria-label={t("ui.app.debuffStacks")}
                                         type="number"
                                         min="1"
-                                        max={calculationDefinitions.effectDefinitions[step.debuff]?.maxStack}
+                                        max={manualEffectMaxStacks.get(step.debuff) ?? 1}
                                         step="1"
                                         value={step.stack ?? 1}
                                         onChange={(event) => {
@@ -7830,7 +7890,7 @@ function RotationEditorTab({
                                               stack: Math.max(
                                                 1,
                                                 Math.min(
-                                                  calculationDefinitions.effectDefinitions[step.debuff]?.maxStack ?? 1,
+                                                  manualEffectMaxStacks.get(step.debuff) ?? 1,
                                                   Math.floor(stack),
                                                 ),
                                               ),
@@ -7916,7 +7976,7 @@ function RotationEditorTab({
                                   <button
                                     type="button"
                                     aria-label={t("ui.app.deleteStep")}
-                                    disabled={rotationLocked}
+                                    disabled={rotationLocked || (!isManualEvent && rotationSkillCount <= 1)}
                                     onClick={() => removeStep(row.rotationIndex ?? 0)}
                                   >
                                     <UiIcon name="close" />
@@ -8003,7 +8063,10 @@ function RotationEditorTab({
                                   <span data-mobile-label={t("system.resource.vitality")}>
                                     {rotation.infiniteVitality
                                       ? "∞"
-                                      : formatNumber(actionState?.resources.Vitality ?? row.resources.Vitality ?? 0)}
+                                      : formatResourceRange(
+                                          actionState?.resources.Vitality ?? row.resources.Vitality ?? 0,
+                                          actionState?.resourceRanges?.Vitality ?? row.resourceRanges?.Vitality,
+                                        )}
                                   </span>
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>
@@ -8104,6 +8167,13 @@ export default function App() {
   const [pathId, setPathId] = useState<PathId>(() => loadSelectedPath(devMode));
   const [settings, setSettings] = useState<CalculatorSettings>(() => settingsForPath(loadSettings(), pathId));
   const [buildState, setBuildState] = useState<BuildState>(loadBuildState);
+  const [activeBuildIdsByPath, setActiveBuildIdsByPath] = useState<PathSelectionIds>(() =>
+    loadPathSelectionIds(activeBuildByPathStorageKey, activeBuildStorageKey, pathId),
+  );
+  const [activeRotationIdsByPath, setActiveRotationIdsByPath] = useState<PathSelectionIds>(() =>
+    loadPathSelectionIds(activeRotationByPathStorageKey, activeRotationStorageKey, pathId),
+  );
+  const rotationCalculationCacheRef = useRef(new RotationCalculationCache());
   const breakthrough = breakthroughProfile(settings);
   const enemy: EnemyProfile = breakthrough;
   const availableBuildEntries = buildState.entries.filter(
@@ -8112,9 +8182,14 @@ export default function App() {
       buildEntryAvailableForPath(entry, typedPathDefinitions[pathId].buildGroup, settings.weapons),
   );
   const activeBuild =
-    availableBuildEntries.find((entry) => entry.id === buildState.activeBuildId) ??
+    availableBuildEntries.find((entry) => entry.id === activeBuildIdsByPath[pathId]) ??
     availableBuildEntries.find((entry) => entry.id === defaultBuildIdForPath(pathId)) ??
     availableBuildEntries[0];
+  const effectiveBuildState = useMemo(
+    () => ({ ...buildState, activeBuildId: activeBuild?.id ?? "" }),
+    [activeBuild?.id, buildState],
+  );
+  const selectedRotationId = activeRotationIdsByPath[pathId] ?? defaultRotationIdForPath(pathId);
   const activeBuildDisplayName = activeBuild
     ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || "Unnamed Build"
     : "Unnamed Build";
@@ -8274,14 +8349,75 @@ export default function App() {
       ? gameText(activeSimulation.rotationName)
       : activeSimulation.rotationName
     : "—";
-  const selectPath = (nextPathId: PathId) => {
+  const activateBuildForPath = useCallback(
+    (id: string, targetPathId = pathId) => {
+      setActiveBuildIdsByPath((current) => {
+        const next = withPathSelection(current, targetPathId, id);
+        if (next !== current) setPersistentItem(activeBuildByPathStorageKey, JSON.stringify(next));
+        return next;
+      });
+      setBuildState((current) => (current.activeBuildId === id ? current : { ...current, activeBuildId: id }));
+    },
+    [pathId],
+  );
+  const activateRotationForPath = useCallback(
+    (id: string, targetPathId = pathId) => {
+      setActiveRotationIdsByPath((current) => {
+        const next = withPathSelection(current, targetPathId, id);
+        if (next !== current) setPersistentItem(activeRotationByPathStorageKey, JSON.stringify(next));
+        return next;
+      });
+    },
+    [pathId],
+  );
+  const transitionPath = (
+    nextPathId: PathId,
+    options: { weapons?: [WeaponId, WeaponId]; rotationId?: string } = {},
+  ) => {
     if (pathRequiresDev(typedPathDefinitions[nextPathId]) && !devMode) return;
+    const nextSettings =
+      nextPathId === "mixed" && options.weapons
+        ? { ...settingsForPath(settings, nextPathId), weapons: [...options.weapons] as [WeaponId, WeaponId] }
+        : settingsForPath(settings, nextPathId);
+    const nextBuildEntries = buildState.entries.filter(
+      (entry) =>
+        (devMode || !buildEntryIsTestPreset(entry)) &&
+        buildEntryAvailableForPath(entry, typedPathDefinitions[nextPathId].buildGroup, nextSettings.weapons),
+    );
+    const nextRotationEntries = loadRotationEntries().filter(
+      (entry) => (devMode || !entry.test) && rotationAvailableForWeapons(entry, nextSettings.weapons),
+    );
+    const selection = resolvePathWorkspaceSelection({
+      buildIds: nextBuildEntries.map((entry) => entry.id),
+      rotationIds: nextRotationEntries.map((entry) => entry.id),
+      savedBuildId: activeBuildIdsByPath[nextPathId],
+      savedRotationId: activeRotationIdsByPath[nextPathId],
+      requestedRotationId: options.rotationId,
+      defaultBuildId: defaultBuildIdForPath(nextPathId),
+      defaultRotationId: defaultRotationIdForPath(nextPathId),
+    });
+    if (!selection) return;
+
+    supersedeRotationCalculationRequests();
+    endRotationCalculation();
+    setActiveSimulation(undefined);
+
+    const nextBuildIds = withPathSelection(activeBuildIdsByPath, nextPathId, selection.buildId);
+    const nextRotationIds = withPathSelection(activeRotationIdsByPath, nextPathId, selection.rotationId);
+    if (nextBuildIds !== activeBuildIdsByPath)
+      setPersistentItem(activeBuildByPathStorageKey, JSON.stringify(nextBuildIds));
+    if (nextRotationIds !== activeRotationIdsByPath)
+      setPersistentItem(activeRotationByPathStorageKey, JSON.stringify(nextRotationIds));
     setPersistentItem(pathStorageKey, nextPathId);
+    setActiveBuildIdsByPath(nextBuildIds);
+    setActiveRotationIdsByPath(nextRotationIds);
+    setBuildState((current) => ({ ...current, activeBuildId: selection.buildId }));
     setPathId(nextPathId);
-    setSettings((current) => settingsForPath(current, nextPathId));
+    setSettings(nextSettings);
     setInnerWayRevision((current) => current + 1);
   };
-  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId]) => {
+  const selectPath = (nextPathId: PathId) => transitionPath(nextPathId);
+  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId], rotationId?: string) => {
     const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(
       ([candidateId, definition]) =>
         candidateId !== "mixed" &&
@@ -8291,14 +8427,7 @@ export default function App() {
     );
     const nextPathId = matchingPath?.[0] ?? (devMode ? "mixed" : undefined);
     if (!nextPathId) return false;
-    setPersistentItem(pathStorageKey, nextPathId);
-    setPathId(nextPathId);
-    setSettings((current) =>
-      nextPathId === "mixed"
-        ? { ...settingsForPath(current, nextPathId), weapons: [...nextWeapons] }
-        : settingsForPath(current, nextPathId),
-    );
-    setInnerWayRevision((current) => current + 1);
+    transitionPath(nextPathId, { weapons: nextWeapons, rotationId });
     return true;
   };
   const toggleDevMode = () => {
@@ -8327,11 +8456,12 @@ export default function App() {
     [characterProfiles],
   );
   useEffect(() => {
-    if (activeBuild && activeBuild.id !== buildState.activeBuildId)
+    if (!activeBuild) return;
+    if (activeBuildIdsByPath[pathId] !== activeBuild.id) activateBuildForPath(activeBuild.id);
+    else if (activeBuild.id !== buildState.activeBuildId)
       setBuildState((current) => ({ ...current, activeBuildId: activeBuild.id }));
-  }, [activeBuild, buildState.activeBuildId]);
+  }, [activateBuildForPath, activeBuild, activeBuildIdsByPath, buildState.activeBuildId, pathId]);
   useEffect(() => localStorage.setItem(buildListStorageKey, serializeBuildState(buildState)), [buildState]);
-  useEffect(() => localStorage.setItem(activeBuildStorageKey, buildState.activeBuildId), [buildState.activeBuildId]);
   useEffect(
     () => setPersistentItem(attunementOverrideStorageKey, JSON.stringify(attunementOverrides)),
     [attunementOverrides],
@@ -8480,8 +8610,9 @@ export default function App() {
               buildGroup={typedPathDefinitions[pathId].buildGroup}
               graduatedBuildId={typedPathDefinitions[pathId].graduated}
               devMode={devMode}
-              buildState={buildState}
+              buildState={effectiveBuildState}
               onBuildStateChange={setBuildState}
+              onActiveBuildChange={activateBuildForPath}
               onSelectBuildWeapons={selectBuildWeapons}
             />
           </div>
@@ -8506,12 +8637,16 @@ export default function App() {
       ) : null}
       <div className={`viewport-tab-content ${activeTab === "rotations" ? "" : "tab-hidden"}`}>
         <RotationEditorTab
+          key={pathId}
           character={character}
           pathId={pathId}
           devMode={devMode}
           defaultRotationId={defaultRotationIdForPath(pathId)}
+          selectedRotationId={selectedRotationId}
+          calculationCache={rotationCalculationCacheRef.current}
           skillOverrides={skillOverrides}
           onSelectRotationWeapons={selectBuildWeapons}
+          onActiveRotationChange={activateRotationForPath}
           onMetricsChange={handleRotationMetrics}
           onActiveSimulationBundleChange={handleActiveSimulationBundle}
           onGraduationDpsChange={handleGraduationDps}

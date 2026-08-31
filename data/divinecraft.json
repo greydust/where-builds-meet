@@ -16,13 +16,16 @@
     "name": "Fire-Water",
     "description": "HP DMG +1.5%. Healing grants 0.8 Vitality with a 3s cooldown.",
     "image": "firewater.png",
+    "altersTimeline": true,
     "effect": {
       "hpDMGBonus": 0.015,
       "trigger": {
-        "event": "healing",
+        "event": "heal",
         "cooldown": 3,
-        "effect": {
-          "vitalityGain": 0.8
+        "action": {
+          "type": "addResource",
+          "value": "Vitality",
+          "amount": 0.8
         }
       }
     }
@@ -40,13 +43,16 @@
     "name": "Water-Fire",
     "description": "HP DMG +1.4%. Healing grants 1 Vitality with a 3s cooldown.",
     "image": "waterfire.png",
+    "altersTimeline": true,
     "effect": {
       "hpDMGBonus": 0.014,
       "trigger": {
-        "event": "healing",
+        "event": "heal",
         "cooldown": 3,
-        "effect": {
-          "vitalityGain": 1
+        "action": {
+          "type": "addResource",
+          "value": "Vitality",
+          "amount": 1
         }
       }
     }
@@ -55,14 +61,17 @@
     "name": "Water-Poison",
     "description": "HP DMG +1%, Qi DMG +4%, and healing grants 1 Vitality with a 3s cooldown.",
     "image": "waterpoison.png",
+    "altersTimeline": true,
     "effect": {
       "hpDMGBonus": 0.01,
       "qiDMGBonus": 0.04,
       "trigger": {
-        "event": "healing",
+        "event": "heal",
         "cooldown": 3,
-        "effect": {
-          "vitalityGain": 1
+        "action": {
+          "type": "addResource",
+          "value": "Vitality",
+          "amount": 1
         }
       }
     }
@@ -80,14 +89,17 @@
     "name": "Poison-Water",
     "description": "HP DMG +1%, Qi DMG +5%, and healing grants 0.8 Vitality with a 3s cooldown.",
     "image": "poisonwater.png",
+    "altersTimeline": true,
     "effect": {
       "hpDMGBonus": 0.01,
       "qiDMGBonus": 0.05,
       "trigger": {
-        "event": "healing",
+        "event": "heal",
         "cooldown": 3,
-        "effect": {
-          "vitalityGain": 0.8
+        "action": {
+          "type": "addResource",
+          "value": "Vitality",
+          "amount": 0.8
         }
       }
     }

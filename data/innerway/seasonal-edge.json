@@ -1,10 +1,32 @@
 {
   "name": "Seasonal Edge",
-  "altersTimeline": false,
+  "altersTimeline": true,
   "tags": ["BamboocutKite", "SilkbindDeluge"],
   "effect": {
-    "SeasonalEdgeT0": {},
-    "SeasonalEdgeT1": {},
+    "SeasonalEdgeT0": {
+      "trigger": [
+        {
+          "event": "skillEndRandomBuff",
+          "requirement": [{ "target": "skillTag", "value": "Conversion" }],
+          "duration": 8,
+          "cooldown": 30,
+          "outcome": [
+            { "value": "Bloom", "weight": 0.25 },
+            { "value": "Flare", "weight": 0.25 },
+            { "value": "Yield", "weight": 0.25 },
+            { "value": "Frost", "weight": 0.25 }
+          ]
+        }
+      ]
+    },
+    "SeasonalEdgeT1": {
+      "effect": [
+        {
+          "target": "SeasonalEdgeRandomBuff",
+          "modify": { "duration": 12 }
+        }
+      ]
+    },
     "SeasonalEdgeT2": {
       "effect": [
         {
@@ -15,8 +37,35 @@
         }
       ]
     },
-    "SeasonalEdgeT3": {},
-    "SeasonalEdgeT4": {},
+    "SeasonalEdgeT3": {
+      "effect": [
+        {
+          "target": "SeasonalEdgeRandomBuff",
+          "modify": {
+            "count": [
+              { "value": 1, "weight": 0.7 },
+              { "value": 2, "weight": 0.3 }
+            ]
+          }
+        }
+      ]
+    },
+    "SeasonalEdgeT4": {
+      "effect": [
+        {
+          "target": "SeasonalEdgeRandomBuff",
+          "modify": {
+            "outcome": [
+              { "value": "Bloom", "weight": 0.1 },
+              { "value": "Flare", "weight": 0.4 },
+              { "value": "Yield", "weight": 0.4 },
+              { "value": "Frost", "weight": 0.1 }
+            ],
+            "additionalSkills": ["SereneBreeze"]
+          }
+        }
+      ]
+    },
     "SeasonalEdgeT5": {
       "effect": [
         {
@@ -26,6 +75,24 @@
         }
       ]
     },
-    "SeasonalEdgeT6": {}
+    "SeasonalEdgeT6": {
+      "effect": [
+        {
+          "target": "SeasonalEdgeRandomBuff",
+          "modify": {
+            "count": [
+              { "value": 1, "weight": 0.5 },
+              { "value": 2, "weight": 0.3 },
+              { "value": 3, "weight": 0.2 }
+            ],
+            "outcome": [
+              { "value": "Bloom", "weight": 0.1 },
+              { "value": "Flare", "weight": 0.4 },
+              { "value": "Yield", "weight": 0.4 }
+            ]
+          }
+        }
+      ]
+    }
   }
 }

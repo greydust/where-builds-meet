@@ -11,9 +11,11 @@ const viteServer = await createServer({
 try {
   const { calculateHealingBreakdown } = await viteServer.ssrLoadModule("/src/calculations/healing.ts");
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const royalRemedy = (await viteServer.ssrLoadModule("/data/innerway/royal-remedy.json")).default;
+  const panaceaFanSkills = (await viteServer.ssrLoadModule("/data/skill/panacea-fan.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -160,7 +162,50 @@ try {
     "Royal Remedy T0 must increase Cloudburst Healing by 10% without affecting other healing skills.",
   );
 
-  console.log("Healing formula, outcomes, timeline totals, HPS, and breakdown sorting verified.");
+  const royalRemedyT1 = royalRemedy.effect.RoyalRemedyT1.trigger[0];
+  const fanQVitality = (skillId) => {
+    const timeline = buildRotationTimeline({
+      rotation: {
+        name: `${skillId} Royal Remedy T1 probe`,
+        steps: [
+          { type: "skill", skill: skillId },
+          { type: "skill", skill: "Wait" },
+          { type: "skill", skill: "Observe" },
+        ],
+      },
+      skills: {
+        [skillId]: panaceaFanSkills[skillId],
+        Wait: { name: "Wait", castTime: 7, action: [] },
+        Observe: { name: "Observe", castTime: 0, action: [] },
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: {},
+      innerWayConditions: ["RoyalRemedyT0", "RoyalRemedyT1"],
+      innerWayRules: [
+        {
+          requirement: royalRemedyT1.requirement,
+          trigger: royalRemedyT1,
+          effect: {},
+          source: "RoyalRemedy",
+          tier: 1,
+        },
+      ],
+      setupEffects: [],
+      weapons: ["panaceaFan", "soulshadeUmbrella"],
+      initialResources: { Vitality: 0 },
+      resourceMaximums: { Vitality: 100 },
+    });
+    return timeline.find((row) => row.step.type === "skill" && row.step.skill === "Observe")?.resources.Vitality;
+  };
+  assert(
+    fanQVitality("CloudburstHealing") === 14 && fanQVitality("CloudburstHealingCancel") === 14,
+    "Royal Remedy T1 must restore two Vitality for each of all seven Fan Q healing ticks.",
+  );
+
+  console.log(
+    "Healing formula, outcomes, Royal Remedy triggers, timeline totals, HPS, and breakdown sorting verified.",
+  );
 } finally {
   await viteServer.close();
 }

@@ -1,4 +1,13 @@
 {
+  "Turnaround": {
+    "name": "Turnaround",
+    "shortName": "Turn",
+    "description": "Refunds 30% of a Mystic skill's Vitality cost, up to 10 Vitality.",
+    "duration": 5,
+    "maxStack": 1,
+    "effect": [],
+    "refresh": true
+  },
   "Shield": {
     "name": "Shield",
     "shortName": "Shield",
@@ -67,6 +76,61 @@
       ]
     ],
     "refresh": true
+  },
+  "Bloom": {
+    "name": "Bloom",
+    "shortName": "Bloom",
+    "description": "The spring outcome of Seasonal Edge.",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true
+  },
+  "Flare": {
+    "name": "Flare",
+    "shortName": "Flare",
+    "description": "Increases All Martial Arts by 10%, plus another 10% above 75% HP.",
+    "duration": 8,
+    "maxStack": 1,
+    "effect": [
+      {
+        "stat": { "allMartialArts": 0.1 }
+      },
+      {
+        "requirement": [{ "target": "selfHPPercentage", "comparison": ">", "amount": 75 }],
+        "stat": { "allMartialArts": 0.1 }
+      }
+    ],
+    "refresh": true
+  },
+  "Yield": {
+    "name": "Yield",
+    "shortName": "Yield",
+    "description": "Increases Mystic Skill damage by 10% and restores 2 Vitality per second.",
+    "duration": 8,
+    "maxStack": 1,
+    "effect": [
+      {
+        "requirement": [{ "target": "skillTag", "value": "Mystic" }],
+        "effect": { "dmgBonus": 0.1 }
+      }
+    ],
+    "refresh": true
+  },
+  "Frost": {
+    "name": "Frost",
+    "shortName": "Frost",
+    "description": "The winter outcome of Seasonal Edge.",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true
+  },
+  "SeasonalEdgeCooldown": {
+    "name": "Seasonal Edge Cooldown",
+    "shortName": "Seasonal CD",
+    "description": "Seasonal Edge cannot trigger while this effect is active.",
+    "duration": 30,
+    "maxStack": 1,
+    "refresh": false
   },
   "YiRiver": {
     "name": "Yi River",

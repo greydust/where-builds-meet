@@ -26,6 +26,7 @@ export type SkillRecord = {
   shortName?: string;
   castTime?: number | SwitchValue;
   cooldown?: number;
+  cooldownGroup?: string;
   cooldownUses?: number;
   duration?: number;
   collectBoostDamage?: string;
@@ -98,6 +99,11 @@ export type TrackedEffect = {
   perHitEffectRules?: unknown[];
 };
 export type ResourceState = Record<string, number>;
+export type ResourceRangeState = Record<string, { minimum: number; maximum: number; expected?: number }>;
+export type TimelineResourceSummary = Record<
+  string,
+  { initial: number; consumed: number; regenerated: number; final: number }
+>;
 export type InnerWayEffectRule = {
   requirement?: unknown;
   effect: EditableObject;
@@ -124,6 +130,7 @@ export type TimelineRow = {
   targetHPRatio: number;
   targetQiRatio: number;
   resources: ResourceState;
+  resourceRanges?: ResourceRangeState;
   currentMartialArt?: WeaponId;
   currentWeapon?: WeaponFamily;
   effectiveCastTime: number;
@@ -146,11 +153,14 @@ export type TimelineRow = {
       targetHPRatio: number;
       targetQiRatio: number;
       resources: ResourceState;
+      resourceRanges?: ResourceRangeState;
       currentMartialArt?: WeaponId;
       currentWeapon?: WeaponFamily;
       unconditionalDamageEffects?: UnconditionalDamageEffects;
     }
   >;
+  /** Final ledger for the whole timeline. Present only on the first sorted row. */
+  timelineResourceSummary?: TimelineResourceSummary;
   skipped?: boolean;
   cooldownWait?: number;
 };
@@ -174,10 +184,24 @@ export function mergeCalculatedTargetHPState(structuralTimeline: TimelineRow[], 
     const actionStates = Object.fromEntries(
       Object.entries(row.actionStates).map(([actionIndex, state]) => {
         const calculatedState = calculatedRow.actionStates[Number(actionIndex)];
-        return [actionIndex, calculatedState ? { ...state, targetHPRatio: calculatedState.targetHPRatio } : state];
+        return [
+          actionIndex,
+          calculatedState
+            ? {
+                ...state,
+                targetHPRatio: calculatedState.targetHPRatio,
+                resourceRanges: calculatedState.resourceRanges,
+              }
+            : state,
+        ];
       }),
     );
-    return { ...row, targetHPRatio: calculatedRow.targetHPRatio, actionStates };
+    return {
+      ...row,
+      targetHPRatio: calculatedRow.targetHPRatio,
+      resourceRanges: calculatedRow.resourceRanges,
+      actionStates,
+    };
   });
 }
 
@@ -258,6 +282,7 @@ export type RequirementState = {
   targetHPPercentage?: number;
   targetQiPercentage?: number;
   skillCooldowns?: Record<string, number>;
+  skillCooldownGroups?: Record<string, string>;
   currentTime?: number;
   currentMartialArt?: WeaponId;
   currentWeapon?: WeaponFamily;
@@ -340,7 +365,8 @@ export function requirementsPass(
       return !evaluate(item.operand[0]);
     if (item.target === "skillCooldown") {
       if (typeof item.value !== "string" || item.comparison !== "ready") return false;
-      return (state.skillCooldowns?.[`skill:${item.value}`] ?? 0) <= (state.currentTime ?? 0);
+      const cooldownIdentity = state.skillCooldownGroups?.[item.value] ?? item.value;
+      return (state.skillCooldowns?.[`skill:${cooldownIdentity}`] ?? 0) <= (state.currentTime ?? 0);
     }
     if (
       item.target === "resource" ||
@@ -891,8 +917,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     ...(input.infiniteResources ?? []),
     ...(rotation.infiniteVitality ? ["Vitality"] : []),
   ]);
-  const clampResource = (name: string, value: number) =>
-    Math.min(resourceMaximums[name] ?? Number.POSITIVE_INFINITY, Math.max(0, Math.round(value * 1e9) / 1e9));
+  const clampResource = (name: string, value: number) => {
+    const rounded = Math.round(value * 1e9) / 1e9;
+    const lowerBound = name === "Vitality" ? Number.NEGATIVE_INFINITY : 0;
+    return Math.min(resourceMaximums[name] ?? Number.POSITIVE_INFINITY, Math.max(lowerBound, rounded));
+  };
   let resources: ResourceState = Object.fromEntries(
     Object.entries({ Qi: 100, ...(input.initialResources ?? {}) }).map(([name, value]) => [
       name,
@@ -902,6 +931,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   infiniteResources.forEach((name) => {
     resources[name] = resourceMaximums[name] ?? resources[name] ?? Number.MAX_SAFE_INTEGER;
   });
+  const initialResources = { ...resources };
+  const resourceTotals = new Map<string, { consumed: number; regenerated: number }>();
+  const recordResourceChange = (name: string, before: number, after: number, kind: "consume" | "regenerate") => {
+    const current = resourceTotals.get(name) ?? { consumed: 0, regenerated: 0 };
+    const difference = after - before;
+    if (kind === "consume" && difference < 0) current.consumed -= difference;
+    if (kind === "regenerate" && difference > 0) current.regenerated += difference;
+    resourceTotals.set(name, current);
+  };
   const resourceRegeneration = Object.fromEntries(
     Object.entries(input.resourceRegeneration ?? {}).filter(
       ([, rate]) => typeof rate === "number" && Number.isFinite(rate) && rate > 0,
@@ -929,13 +967,50 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         amount *= hpLost / maxHP / rule.perMaxHPRatio;
       }
       if (amount <= 0) return;
+      const before = resources[rule.resource] ?? 0;
+      const after = clampResource(rule.resource, before + amount);
       resources = {
         ...resources,
-        [rule.resource]: clampResource(rule.resource, (resources[rule.resource] ?? 0) + amount),
+        [rule.resource]: after,
       };
+      recordResourceChange(rule.resource, before, after, "regenerate");
       if (typeof rule.cooldown === "number" && rule.cooldown > 0)
         resourceEventCooldowns.set(ruleIndex, time + rule.cooldown);
     });
+  };
+  const applyResourceAction = (action: EditableObject) => {
+    if (
+      (action.type !== "setResource" && action.type !== "addResource" && action.type !== "consumeResource") ||
+      typeof action.value !== "string" ||
+      !(
+        (typeof action.amount === "number" && Number.isFinite(action.amount) && action.amount >= 0) ||
+        (action.type === "consumeResource" && action.amount === "all")
+      )
+    )
+      return false;
+    if (infiniteResources.has(action.value)) return true;
+    const current = resources[action.value] ?? 0;
+    const amount = typeof action.amount === "number" ? action.amount : 0;
+    let next = current;
+    switch (action.type) {
+      case "setResource":
+        next = amount;
+        break;
+      case "addResource":
+        next = current + amount;
+        break;
+      case "consumeResource":
+        next = action.amount === "all" ? 0 : current - amount;
+        break;
+    }
+    resources = { ...resources, [action.value]: clampResource(action.value, next) };
+    recordResourceChange(
+      action.value,
+      current,
+      resources[action.value],
+      action.type === "consumeResource" ? "consume" : "regenerate",
+    );
+    return true;
   };
   // Pre-fight actions can change resources, but passive regeneration begins only
   // when combat starts. The converged pass supplies the exact resolved anchor.
@@ -943,29 +1018,36 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   const regenerateResources = (time: number) => {
     const elapsed = Math.max(0, time - lastResourceRegenerationTime);
     if (elapsed > 0) {
-      resources = Object.entries(resourceRegeneration).reduce(
-        (next, [name, rate]) => ({
-          ...next,
-          [name]: infiniteResources.has(name) ? next[name] : clampResource(name, (next[name] ?? 0) + rate * elapsed),
-        }),
-        resources,
-      );
+      resources = Object.entries(resourceRegeneration).reduce((next, [name, rate]) => {
+        if (infiniteResources.has(name)) return next;
+        const before = next[name] ?? 0;
+        const after = clampResource(name, before + rate * elapsed);
+        recordResourceChange(name, before, after, "regenerate");
+        return { ...next, [name]: after };
+      }, resources);
     }
     lastResourceRegenerationTime = Math.max(lastResourceRegenerationTime, time);
   };
   const cooldowns: Record<string, number> = {};
   const skillCooldownWindows: Record<string, { expiresAt: number; uses: number }> = {};
+  const setupTriggerCooldowns = new Map<number, number>();
+  const skillCooldownGroups = Object.fromEntries(
+    Object.entries(skills)
+      .filter((entry): entry is [string, SkillRecord & { cooldownGroup: string }] => Boolean(entry[1]?.cooldownGroup))
+      .map(([skillId, skill]) => [skillId, skill.cooldownGroup]),
+  );
   let currentTimelineTime = 0;
   const requirementState = (): RequirementState => ({
     selfHPPercentage: currentHPRatio * 100,
     targetHPPercentage: targetHPRatio * 100,
     targetQiPercentage: targetQiRatio * 100,
     skillCooldowns: cooldowns,
+    skillCooldownGroups,
     currentTime: currentTimelineTime,
     currentMartialArt,
     currentWeapon,
   });
-  const skillCooldownKey = (skillId: string) => `skill:${skillId}`;
+  const skillCooldownKey = (skillId: string, skill = skills[skillId]) => `skill:${skill?.cooldownGroup ?? skillId}`;
   const skillCooldownDuration = (skill: SkillRecord, modifierEffects: EditableObject[]) => {
     for (let index = modifierEffects.length - 1; index >= 0; index -= 1) {
       const override = modifierEffects[index]?.cooldown;
@@ -987,6 +1069,11 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     }
     window.uses = Math.min(uses, window.uses + 1);
     cooldowns[key] = window.uses >= uses ? window.expiresAt : time;
+  };
+  const clearSkillCooldown = (skillId: string, time: number) => {
+    const key = skillCooldownKey(skillId);
+    cooldowns[key] = time;
+    delete skillCooldownWindows[key];
   };
   const prune = (effects: TrackedEffect[], time: number) =>
     effects.some((effect) => effect.expiresAt !== undefined && effect.expiresAt <= time)
@@ -1483,7 +1570,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : [];
       const cooldownDuration = event.row.skill ? skillCooldownDuration(event.row.skill, skillModifiers) : undefined;
       const cooldownUses = Math.max(1, Math.floor(event.row.skill?.cooldownUses ?? 1));
-      const cooldownKey = skillCooldownKey(skillId);
+      const cooldownKey = skillCooldownKey(skillId, event.row.skill);
       const cooldownReadyAt =
         typeof cooldownDuration === "number" ? skillCooldownReadyAt(cooldownKey, event.time, cooldownUses) : event.time;
       if (
@@ -1617,8 +1704,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       continue;
     if (action.type === "clearCD" && typeof action.value === "string") {
       cooldowns[action.value] = event.time;
-      cooldowns[`skill:${action.value}`] = event.time;
-      delete skillCooldownWindows[`skill:${action.value}`];
+      clearSkillCooldown(action.value, event.time);
       continue;
     }
     if (action.type === "move" && typeof action.distance === "number" && Number.isFinite(action.distance)) {
@@ -1653,30 +1739,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       currentWeapon = input.martialArtState?.[currentMartialArt]?.weapon;
       continue;
     }
-    if (
-      (action.type === "setResource" || action.type === "addResource" || action.type === "consumeResource") &&
-      typeof action.value === "string" &&
-      ((typeof action.amount === "number" && Number.isFinite(action.amount) && action.amount >= 0) ||
-        (action.type === "consumeResource" && action.amount === "all"))
-    ) {
-      if (infiniteResources.has(action.value)) continue;
-      const current = resources[action.value] ?? 0;
-      const resourceAmount = typeof action.amount === "number" ? action.amount : 0;
-      let next = current;
-      switch (action.type) {
-        case "setResource":
-          next = resourceAmount;
-          break;
-        case "addResource":
-          next = current + resourceAmount;
-          break;
-        case "consumeResource":
-          next = action.amount === "all" ? 0 : current - resourceAmount;
-          break;
-      }
-      resources = { ...resources, [action.value]: clampResource(action.value, next) };
-      continue;
-    }
+    if (applyResourceAction(action)) continue;
     if (action.type === "consume") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
       const valueObject =
@@ -1720,7 +1783,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       triggerSource: "skill" | "setup" | "innerWay" = "skill",
     ) => {
       const triggeredSkill = skills[skillId];
-      const key = `skill:${skillId}`;
+      const key = skillCooldownKey(skillId, triggeredSkill);
       if (!triggeredSkill || (cooldowns[key] ?? 0) > event.time) return;
       const actions = Array.isArray(triggeredSkill.action) ? (triggeredSkill.action as EditableObject[]) : [];
       const derivedId = nextDerivedOrder++;
@@ -1782,10 +1845,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       if (typeof triggeredSkill.cooldown === "number") cooldowns[key] = event.time + triggeredSkill.cooldown;
     };
     const applyTriggerAction = (triggerAction: EditableObject, triggerSource: "setup" | "innerWay") => {
+      if (applyResourceAction(triggerAction)) return;
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         cooldowns[triggerAction.value] = event.time;
-        cooldowns[`skill:${triggerAction.value}`] = event.time;
-        delete skillCooldownWindows[`skill:${triggerAction.value}`];
+        clearSkillCooldown(triggerAction.value, event.time);
         return;
       }
       if (triggerAction.type === "consume" && typeof triggerAction.value === "string") {
@@ -1922,13 +1985,14 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       }
     };
     const runSetupTriggers = (triggerEvent: string) => {
-      setupEffects.forEach((setup) => {
+      setupEffects.forEach((setup, setupIndex) => {
         const trigger =
           setup.trigger && typeof setup.trigger === "object" && !Array.isArray(setup.trigger)
             ? (setup.trigger as EditableObject)
             : undefined;
         if (
           trigger?.event !== triggerEvent ||
+          (setupTriggerCooldowns.get(setupIndex) ?? 0) > event.time ||
           !requirementsPass(
             trigger.requirement,
             buffs,
@@ -1941,28 +2005,16 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           )
         )
           return;
-        if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action))
+        if (trigger.action && typeof trigger.action === "object" && !Array.isArray(trigger.action)) {
           applyTriggerAction(trigger.action as EditableObject, "setup");
+          if (typeof trigger.cooldown === "number" && trigger.cooldown > 0)
+            setupTriggerCooldowns.set(setupIndex, event.time + trigger.cooldown);
+        }
       });
     };
-    if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
-      const previousHP = currentHP;
-      setCurrentHP(currentHP - Math.max(0, action.damage));
-      applyResourceEvent("takeDamage", event.time, previousHP - currentHP);
-      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-      runSetupTriggers("takeDamage");
-      if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
-      continue;
-    }
-    if (action.type === "damage") {
-      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-      runSetupTriggers("damage");
+    const runInnerWayTriggers = (triggerEvent: "damage" | "heal" | "takeDamage") => {
       innerWayRules
-        .filter(
-          (rule) =>
-            rule.trigger?.event !== "damageOutcome" &&
-            (rule.trigger?.event === "damage" || rule.trigger?.target === "self"),
-        )
+        .filter((rule) => rule.trigger?.event !== "damageOutcome" && (rule.trigger?.event ?? "damage") === triggerEvent)
         .forEach((rule) => {
           const requirement = rule.requirement ?? rule.trigger?.requirement;
           if (
@@ -1990,8 +2042,29 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             )
             .forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
         });
+    };
+    if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
+      const previousHP = currentHP;
+      setCurrentHP(currentHP - Math.max(0, action.damage));
+      applyResourceEvent("takeDamage", event.time, previousHP - currentHP);
+      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+      runSetupTriggers("takeDamage");
+      runInnerWayTriggers("takeDamage");
+      if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
+      continue;
+    }
+    if (action.type === "damage") {
+      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+      runSetupTriggers("damage");
+      runInnerWayTriggers("damage");
       if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
       applyResourceEvent("damage", event.time);
+    }
+    if (action.type === "heal") {
+      const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
+      runSetupTriggers("heal");
+      runInnerWayTriggers("heal");
+      if (import.meta.env.DEV) finishCalculationPhase("effectTriggering", triggerStartedAt);
     }
     if (action.type === "trigger" && typeof action.value === "string") {
       const triggerOrdinal =
@@ -2111,12 +2184,34 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     }
     if (typeof action.cooldown === "number") cooldowns[actionCooldownKey] = event.time + action.cooldown;
   }
-  return rows.sort(
+  const sortedRows = rows.sort(
     (left, right) =>
       compareTimelineTime(left.startTime, right.startTime) ||
       left.order - right.order ||
       (left.kind === "rotation" ? -1 : right.kind === "rotation" ? 1 : 0),
   );
+  if (sortedRows[0]) {
+    const resourceNames = new Set([
+      ...Object.keys(initialResources),
+      ...Object.keys(resources),
+      ...resourceTotals.keys(),
+    ]);
+    sortedRows[0].timelineResourceSummary = Object.fromEntries(
+      [...resourceNames].map((name) => {
+        const totals = resourceTotals.get(name) ?? { consumed: 0, regenerated: 0 };
+        return [
+          name,
+          {
+            initial: initialResources[name] ?? 0,
+            consumed: totals.consumed,
+            regenerated: totals.regenerated,
+            final: resources[name] ?? 0,
+          },
+        ];
+      }),
+    );
+  }
+  return sortedRows;
 }
 
 function buildRotationTimelineResolved(input: TimelineBuildInput): TimelineRow[] {

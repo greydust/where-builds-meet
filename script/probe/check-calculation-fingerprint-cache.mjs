@@ -33,15 +33,21 @@ try {
   if (new Set([setupA, setupB, setupC]).size !== 3)
     throw new Error("Distinct setup inputs produced duplicate fingerprints.");
 
-  const namedRotationBundle = (name, skill) => ({
+  const namedRotationBundle = (name, skill, weapons = ["snowparting", "phalanxbane"]) => ({
     timeline: { rotation: { name, steps: [{ type: "skill", skill }] } },
+    weapons,
   });
   const rotationA = rotationBundleFingerprint(namedRotationBundle("First name", "SkillA"));
   const renamedRotationA = rotationBundleFingerprint(namedRotationBundle("Renamed", "SkillA"));
   const rotationB = rotationBundleFingerprint(namedRotationBundle("First name", "SkillB"));
+  const reversedMartialArts = rotationBundleFingerprint(
+    namedRotationBundle("First name", "SkillA", ["phalanxbane", "snowparting"]),
+  );
   if (rotationA !== renamedRotationA)
     throw new Error("Display-only rotation names changed the calculation fingerprint.");
   if (rotationA === rotationB) throw new Error("Different rotation step content produced the same fingerprint.");
+  if (rotationA === reversedMartialArts)
+    throw new Error("Different ordered martial-art selections produced the same fingerprint.");
 
   console.log("Calculation fingerprint cache probe passed.");
 } finally {

@@ -7,41 +7,6 @@ import {
   type TimelineRow,
 } from "./calculations/rotationTimeline";
 
-export function resolveRotationSelection(args: {
-  pathChanged: boolean;
-  requestedRotationId: string | null;
-  activeRotationId: string;
-  editingRotationId: string;
-  defaultRotationId: string;
-  compatibleRotationIds: string[];
-  listedRotationIds: string[];
-}) {
-  const compatibleIds = new Set(args.compatibleRotationIds);
-  const defaultRotationId = compatibleIds.has(args.defaultRotationId)
-    ? args.defaultRotationId
-    : args.compatibleRotationIds[0];
-  if (!defaultRotationId) return undefined;
-
-  let activeRotationId = defaultRotationId;
-  if (!args.pathChanged && compatibleIds.has(args.activeRotationId)) activeRotationId = args.activeRotationId;
-
-  let editingRotationId = activeRotationId;
-  let preserveRequestedRotation = false;
-  if (args.pathChanged && args.requestedRotationId && compatibleIds.has(args.requestedRotationId)) {
-    editingRotationId = args.requestedRotationId;
-    preserveRequestedRotation = true;
-  } else if (!args.pathChanged && args.listedRotationIds.includes(args.editingRotationId)) {
-    editingRotationId = args.editingRotationId;
-  }
-
-  return {
-    activeRotationId,
-    editingRotationId,
-    resetEditingRotation:
-      editingRotationId !== args.editingRotationId || (args.pathChanged && !preserveRequestedRotation),
-  };
-}
-
 export function isAutomaticCooldownDelay(step: RotationStep | undefined): boolean {
   return step?.type === "event" && step.event === "Delay" && step.automatic === "cooldown";
 }

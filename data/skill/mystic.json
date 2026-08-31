@@ -3,6 +3,8 @@
     "name": "Soaring Spin 1-Hit",
     "shortName": "Soaring 1 Hit",
     "castTime": 1.26,
+    "cooldown": 12,
+    "cooldownGroup": "SoaringSpin",
     "action": [
       {
         "type": "consumeResource",
@@ -11,11 +13,37 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 4.5,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "damage",
         "phyCoef": 3.1956,
         "phyBonus": 459,
         "attrBonus": 0,
         "time": 1.26
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.26,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -25,12 +53,26 @@
     "name": "Soaring Spin",
     "shortName": "Soaring",
     "castTime": 2.1,
+    "cooldown": 12,
+    "cooldownGroup": "SoaringSpin",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 15,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 4.5,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "damage",
@@ -45,6 +87,20 @@
         "phyBonus": 561,
         "attrBonus": 0,
         "time": 2.05
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 2.1,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -54,12 +110,25 @@
     "name": "Leaping Toad [Cancel]",
     "shortName": "Toad",
     "castTime": 1.25,
+    "cooldown": 8,
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 25,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 7.5,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "damage",
@@ -81,6 +150,20 @@
         "value": "ToadVenom",
         "reapply": false,
         "time": 1.15
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.25,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -98,11 +181,37 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 3,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
         "reapply": false,
         "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -118,6 +227,18 @@
         "value": "Vitality",
         "amount": 6,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1.7999999999999998,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -161,6 +282,20 @@
         ],
         "value": "SmolderExplosion",
         "time": 1.1125
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.325,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -190,6 +325,18 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1.7999999999999998,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -231,6 +378,20 @@
         ],
         "value": "SmolderExplosion",
         "time": 1
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.1875,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -260,6 +421,18 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1.7999999999999998,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -301,6 +474,20 @@
         ],
         "value": "SmolderExplosion",
         "time": 1.1125
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.3125,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -330,6 +517,18 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1.7999999999999998,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "Intoxicated",
@@ -371,6 +570,20 @@
         ],
         "value": "SmolderExplosion",
         "time": 1.1625
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.3375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -398,6 +611,18 @@
         "value": "Vitality",
         "amount": 6,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1.7999999999999998,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "consume",
@@ -441,6 +666,20 @@
         ],
         "value": "SmolderExplosion",
         "time": 1.275
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.275,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -528,12 +767,26 @@
     "name": "Dragon's Breath 1-Hit [Cancel]",
     "shortName": "Breath 1 Hit",
     "castTime": 1.3375,
+    "cooldown": 6,
+    "cooldownGroup": "DragonBreath",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 20,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -563,6 +816,20 @@
         "duration": 8,
         "reapply": false,
         "time": 1.3375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.3375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -584,12 +851,26 @@
     "name": "Dragon's Breath - Smolder 1-Hit [Cancel]",
     "shortName": "Smolder 1 Hit",
     "castTime": 1.3375,
+    "cooldown": 12,
+    "cooldownGroup": "DragonBreathSmolder",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 20,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -619,6 +900,20 @@
         "reapply": false,
         "duration": 4,
         "time": 1.3375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.3375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -640,12 +935,26 @@
     "name": "Dragon's Breath 2-Hit [Cancel]",
     "shortName": "Breath Full",
     "castTime": 2.7375,
+    "cooldown": 6,
+    "cooldownGroup": "DragonBreath",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 20,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -696,6 +1005,20 @@
         "value": "Combustion",
         "duration": 3,
         "time": 2.7375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 2.7375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -722,12 +1045,26 @@
     "name": "Dragon's Breath - Smolder 2-Hit [Cancel]",
     "shortName": "Smolder Full",
     "castTime": 2.7375,
+    "cooldown": 12,
+    "cooldownGroup": "DragonBreathSmolder",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 20,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -778,6 +1115,20 @@
         "value": "Smolder",
         "duration": 7.5,
         "time": 2.7375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 2.7375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [
@@ -806,12 +1157,25 @@
     "collectBoostDamage": "Flute",
     "castTime": 0.8,
     "cooldown": 25,
+    "cooldownGroup": "FluteOfTheTides",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 50,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -824,6 +1188,20 @@
         "type": "trigger",
         "value": "FluteRipple",
         "time": 3.275
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.8,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -835,12 +1213,25 @@
     "collectBoostDamage": "Flute",
     "castTime": 3.275,
     "cooldown": 25,
+    "cooldownGroup": "FluteOfTheTides",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 50,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "damage",
@@ -867,6 +1258,20 @@
         "type": "trigger",
         "value": "FluteRipple",
         "time": 3.275
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 3.275,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -919,12 +1324,25 @@
     "name": "Ghostly Step",
     "collectBoostDamage": "MysteryDMGBoost",
     "castTime": 0,
+    "cooldown": 60,
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
-        "amount": 40,
+        "amount": 35,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -932,6 +1350,20 @@
         "value": "Mystery",
         "reapply": true,
         "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -941,6 +1373,7 @@
     "name": "Ghostly Step - Umbra",
     "collectBoostDamage": "MysteryDMGBoost",
     "castTime": 0,
+    "cooldown": 60,
     "action": [
       {
         "type": "consumeResource",
@@ -949,11 +1382,37 @@
         "time": 0
       },
       {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
         "type": "apply",
         "target": "self",
         "value": "MysteryUmbra",
         "reapply": true,
         "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -962,12 +1421,25 @@
   "DragonHeadTide": {
     "name": "Dragon Head - Tide",
     "castTime": 5.85,
+    "cooldown": 120,
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 80,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -1039,6 +1511,20 @@
         "phyBonus": 1259.5814,
         "attrBonus": 0,
         "time": 4.7375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 5.85,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -1047,6 +1533,7 @@
   "SereneBreeze": {
     "name": "Serene Breeze",
     "castTime": 0.4375,
+    "cooldown": 30,
     "action": [
       {
         "type": "damage",
@@ -1054,6 +1541,20 @@
         "phyBonus": 467,
         "attrBonus": 0,
         "time": 0.4375
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.4375,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -1062,12 +1563,26 @@
   "BurstingNine": {
     "name": "Bursting Nine",
     "castTime": 1.45,
+    "cooldown": 30,
+    "cooldownGroup": "BurstingNine",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 20,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 6,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "damage",
@@ -1131,6 +1646,20 @@
         "phyBonus": 36.5,
         "attrBonus": 0,
         "time": 1.1625
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.45,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -1139,12 +1668,26 @@
   "BurstingNine2Shots": {
     "name": "Bursting Nine 2 Shots",
     "castTime": 1.925,
+    "cooldown": 30,
+    "cooldownGroup": "BurstingNine",
     "action": [
       {
         "type": "consumeResource",
         "value": "Vitality",
         "amount": 30,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 9,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
       },
       {
         "type": "damage",
@@ -1271,6 +1814,20 @@
         "phyBonus": 18.25,
         "attrBonus": 0,
         "time": 1.6125
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 1.925,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
       }
     ],
     "modifier": [],

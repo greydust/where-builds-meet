@@ -73,11 +73,11 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.4
+      "duration": 0.5
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",
@@ -114,16 +114,11 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.55
+      "duration": 0.45
     },
     {
       "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.23
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",
@@ -156,11 +151,11 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.35
+      "duration": 0.58
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",
@@ -217,11 +212,6 @@
     {
       "type": "skill",
       "skill": "Deflect"
-    },
-    {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.5
     },
     {
       "type": "skill",
@@ -306,7 +296,7 @@
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",
@@ -343,7 +333,7 @@
     },
     {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",

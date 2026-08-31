@@ -15,6 +15,8 @@ export type CharacterStats = {
   defense: number;
   maxHp: number;
   physicalDefense: number;
+  /** Defensive flat resistance; intentionally omitted from the character-stat UI. */
+  physicalResistance: number;
   maxEndurance: number;
   maxVitality: number;
   /** Heaven's Will generated per second. */

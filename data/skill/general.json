@@ -131,6 +131,18 @@
         "value": "Vitality",
         "amount": 3,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT4"
+          }
+        ]
       }
     ],
     "modifier": [],
@@ -161,6 +173,18 @@
         "value": "Vitality",
         "amount": 3,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT1"
+          }
+        ]
       },
       {
         "type": "apply",
@@ -260,6 +284,18 @@
         "value": "Vitality",
         "amount": 3,
         "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT1"
+          }
+        ]
       },
       {
         "type": "apply",

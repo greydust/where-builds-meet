@@ -150,7 +150,7 @@ catalog workflow and validation rules.
 - reusable character profiles containing those override maps, the selected breakthrough, and Main-tab setup
 - two equipped weapons
 - selected combat path and its optional weapon lock
-- build list, shared gear inventory, and active build ID
+- build list, shared gear inventory, and one active build ID per combat path
 - selected breakthrough profile
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
@@ -181,11 +181,22 @@ active build contributes gear stats, attunement, weapon and armor sets, bow/ring
 arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
+Bundled rotation presets are immutable editor sources. Switching, activating,
+or creating another rotation only writes the current editor content back when
+the previous entry is user-created.
 
-Changing combat paths immediately activates that path's configured default
-rotation before calculation and simulation bundles are published. This keeps a
-preset that was active on the previous path from leaking into the new path's
-state while the ordinary compatibility reconciliation runs.
+Build and rotation activation are stored independently for every combat path.
+A single parent-owned path transition resolves the destination path's compatible
+build and rotation before changing any visible state. A missing or incompatible
+saved selection falls back to that path's configured default. The transition
+invalidates the previous calculation batch, installs the path, martial arts,
+build, and rotation together, then lets the normal fingerprint schedule restore
+a cached result or start one replacement batch. The Rotation Editor remounts at
+this path boundary but shares the application-level calculation cache; it does
+not reconcile the new path through a later child effect. Calculation
+fingerprints explicitly contain the ordered pair of equipped martial arts, so
+otherwise identical rotations from different martial-art selections cannot
+share cached results.
 
 Rotation editing uses a separate baseline-preview schedule. Input changes render
 immediately while a short debounce coalesces rapid edits before constructing and
@@ -218,6 +229,13 @@ Vitality as an infinite timeline resource: its displayed value is `∞`, and its
 normal gains, regeneration, and consumption are skipped while ordinary resource
 requirements continue to use the character's capped maximum.
 
+Timeline construction records an auditable numeric-resource ledger alongside
+the first sorted row. The worker uses the ledger's consumed and final Vitality
+to apply any rotation-wide Mystic damage sustainability correction only to the
+published total damage and DPS. Action breakdowns and the Rotation Editor keep
+their original calculated values; the UI does not independently derive or
+apply this correction.
+
 Current martial art and physical weapon are timeline state as well. They start
 from the left equipped martial art, change automatically at the start of each
 castable `MartialArts` skill from that skill's data fields, and remain unchanged
@@ -241,7 +259,7 @@ same-origin session key before React state is initialized.
 | Explicitly selected locale                      | `localStorage`, `wwm-locale`                     |
 | Custom character profiles                       | `localStorage`, `wwm-character-profiles-v1`      |
 | Build list, shared gear, and per-build loadouts | `localStorage`, `wwm-build-list-v1`              |
-| Active build ID                                 | `localStorage`, `wwm-active-build-v1`            |
+| Active build IDs by combat path                 | `localStorage`, `wwm-active-build-by-path-v1`    |
 | Skill editor overrides                          | `localStorage`, `wwm-skill-editor-session-v1`    |
 | Combat path                                     | `localStorage`, `wwm-path-session-v1`            |
 | Dev layout preview                              | `localStorage`, `wwm-layout-preview-session-v1`  |
@@ -253,9 +271,11 @@ same-origin session key before React state is initialized.
 | Script                                          | `localStorage`, `wwm-script-session-v1`          |
 | Global buff/debuff controls                     | `localStorage`, `wwm-global-debuffs-session-v1`  |
 | Rotation list                                   | `localStorage`, `wwm-rotation-list-session-v1`   |
-| Active rotation ID                              | `localStorage`, `wwm-active-rotation-session-v1` |
+| Active rotation IDs by combat path              | `localStorage`, `wwm-active-rotation-by-path-v1` |
 | Custom simulation percentiles                   | `localStorage`, `wwm-simulation-percentiles-v1`  |
 
+The former global active-build and active-rotation IDs migrate into the current
+combat path when that path has no saved selection in the new per-path maps.
 Loaders validate enough shape to fall back to defaults and include migrations
 for older percentage, penetration, attunement, rotation, per-build inventory,
 single-inventory gear, and session-wide build setup formats. Non-zero values from the former raw character and attunement

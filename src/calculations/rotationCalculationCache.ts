@@ -25,7 +25,11 @@ function calculationVariant(variant: RotationSimulationVariant) {
 
 export function rotationBundleFingerprint(bundle: RotationSimulationBundle) {
   const { name: _displayName, ...rotation } = bundle.timeline.rotation;
-  return calculationFingerprint({ ...bundle, timeline: { ...bundle.timeline, rotation } });
+  return calculationFingerprint({
+    martialArts: [...bundle.weapons],
+    ...bundle,
+    timeline: { ...bundle.timeline, rotation },
+  });
 }
 
 export function rotationVariantFingerprint(

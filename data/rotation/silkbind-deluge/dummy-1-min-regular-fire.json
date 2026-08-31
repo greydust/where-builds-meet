@@ -2,108 +2,418 @@
   "name": "Dummy 1 Min Regular Fire",
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "eventTimeReference": "battleStart",
-  "start": { "step": 3, "action": 0 },
+  "start": {
+    "step": 3,
+    "action": 0
+  },
   "steps": [
-    { "type": "skill", "skill": "CloudburstHealingCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "FloatingGrace" },
-    { "type": "skill", "skill": "SereneBreeze" },
-    { "type": "skill", "skill": "DragonsBreath2" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "event", "event": "Delay", "duration": 0.26 },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "CloudburstHealing" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "JumpHeavy" },
-    { "type": "skill", "skill": "JumpHeavy" },
-    { "type": "skill", "skill": "JumpHeavy" },
-    { "type": "event", "event": "Delay", "duration": 0.2 },
-    { "type": "skill", "skill": "FloatingGrace" },
-    { "type": "skill", "skill": "SereneBreeze" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "CloudburstHealingCancel" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "event", "event": "Delay", "duration": 0.63 },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "DrunkenPoet1" },
-    { "type": "skill", "skill": "DrunkenPoet2" },
-    { "type": "skill", "skill": "DrunkenPoet3" },
-    { "type": "skill", "skill": "DrunkenPoet4" },
-    { "type": "skill", "skill": "DrunkenPoet5" },
-    { "type": "skill", "skill": "Deflect" },
-    { "type": "skill", "skill": "JumpHeavy" },
-    { "type": "skill", "skill": "JumpHeavy" },
-    { "type": "skill", "skill": "SoaringSpin2" },
-    { "type": "event", "event": "BattleEnd", "startTime": 60 }
+    {
+      "type": "skill",
+      "skill": "CloudburstHealingCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "FloatingGrace"
+    },
+    {
+      "type": "skill",
+      "skill": "SereneBreeze"
+    },
+    {
+      "type": "skill",
+      "skill": "DragonsBreath2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.26
+    },
+    {
+      "type": "skill",
+      "skill": "DeflectSuccessful"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "CloudburstHealing"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.2
+    },
+    {
+      "type": "skill",
+      "skill": "FloatingGrace"
+    },
+    {
+      "type": "skill",
+      "skill": "SereneBreeze"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "CloudburstHealingCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.63
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "skill",
+      "skill": "SoaringSpin2"
+    },
+    {
+      "type": "event",
+      "event": "BattleEnd",
+      "startTime": 60
+    }
   ]
 }

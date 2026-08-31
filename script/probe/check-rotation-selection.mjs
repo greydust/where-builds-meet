@@ -13,54 +13,54 @@ const assert = (condition, message) => {
 };
 
 try {
-  const { resolveRotationSelection } = await viteServer.ssrLoadModule("/src/rotationEditing.ts");
-  const directPathSwitch = resolveRotationSelection({
-    pathChanged: true,
-    requestedRotationId: null,
-    activeRotationId: "mixed-dummy-infinite-vitality-1-min",
-    editingRotationId: "mixed-dummy-infinite-vitality-1-min",
+  const { resolvePathWorkspaceSelection } = await viteServer.ssrLoadModule("/src/pathWorkspace.ts");
+  const directPathSwitch = resolvePathWorkspaceSelection({
+    buildIds: ["might-build"],
+    rotationIds: ["dummy-1-min", "might-custom"],
+    savedBuildId: "strength-build",
+    savedRotationId: "mixed-dummy-infinite-vitality-1-min",
+    defaultBuildId: "might-build",
     defaultRotationId: "dummy-1-min",
-    compatibleRotationIds: ["dummy-1-min", "might-custom"],
-    listedRotationIds: ["dummy-1-min", "might-custom", "strength-custom"],
   });
   assert(
-    directPathSwitch?.activeRotationId === "dummy-1-min" &&
-      directPathSwitch.editingRotationId === "dummy-1-min" &&
-      directPathSwitch.resetEditingRotation,
-    "A direct path switch must replace both the active and editable rotation with the new path default.",
+    directPathSwitch?.buildId === "might-build" && directPathSwitch.rotationId === "dummy-1-min",
+    "A path transition must resolve both destination defaults before changing paths.",
   );
 
-  const crossPathCustomSelection = resolveRotationSelection({
-    pathChanged: true,
+  const savedPathSelection = resolvePathWorkspaceSelection({
+    buildIds: ["might-build", "might-custom-build"],
+    rotationIds: ["dummy-1-min", "might-custom"],
+    savedBuildId: "might-custom-build",
+    savedRotationId: "might-custom",
+    defaultBuildId: "might-build",
+    defaultRotationId: "dummy-1-min",
+  });
+  assert(
+    savedPathSelection?.buildId === "might-custom-build" && savedPathSelection.rotationId === "might-custom",
+    "A path transition must restore both selections previously saved for that destination path.",
+  );
+
+  const crossPathCustomSelection = resolvePathWorkspaceSelection({
+    buildIds: ["might-build"],
+    rotationIds: ["dummy-1-min", "might-custom"],
+    savedBuildId: "might-build",
+    savedRotationId: "dummy-1-min",
     requestedRotationId: "might-custom",
-    activeRotationId: "mixed-dummy-infinite-vitality-1-min",
-    editingRotationId: "might-custom",
+    defaultBuildId: "might-build",
     defaultRotationId: "dummy-1-min",
-    compatibleRotationIds: ["dummy-1-min", "might-custom"],
-    listedRotationIds: ["dummy-1-min", "might-custom", "strength-custom"],
   });
   assert(
-    crossPathCustomSelection?.activeRotationId === "dummy-1-min" &&
-      crossPathCustomSelection.editingRotationId === "might-custom" &&
-      !crossPathCustomSelection.resetEditingRotation,
-    "Selecting a dimmed custom rotation must switch paths without discarding that editor selection.",
+    crossPathCustomSelection?.rotationId === "might-custom",
+    "Selecting a compatible dimmed rotation must make it the destination path selection.",
   );
 
-  const samePathSelection = resolveRotationSelection({
-    pathChanged: false,
-    requestedRotationId: null,
-    activeRotationId: "dummy-1-min",
-    editingRotationId: "might-custom",
+  const unavailableWorkspace = resolvePathWorkspaceSelection({
+    buildIds: [],
+    rotationIds: ["dummy-1-min"],
+    defaultBuildId: "missing-build",
     defaultRotationId: "dummy-1-min",
-    compatibleRotationIds: ["dummy-1-min", "might-custom"],
-    listedRotationIds: ["dummy-1-min", "might-custom"],
   });
-  assert(
-    samePathSelection?.activeRotationId === "dummy-1-min" &&
-      samePathSelection.editingRotationId === "might-custom" &&
-      !samePathSelection.resetEditingRotation,
-    "Ordinary editing within a path must not reset the selected rotation.",
-  );
+  assert(unavailableWorkspace === undefined, "A path transition must not install an incomplete workspace.");
 
   console.log("Rotation path-selection checks passed.");
 } finally {

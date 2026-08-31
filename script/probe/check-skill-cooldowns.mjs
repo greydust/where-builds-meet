@@ -14,6 +14,7 @@ try {
     await viteServer.ssrLoadModule("/src/rotationEditing.ts");
   const { default: snowpartingSkills } = await viteServer.ssrLoadModule("/data/skill/snowparting-blade.json");
   const { default: phalanxbaneSkills } = await viteServer.ssrLoadModule("/data/skill/phalanxbane-blade.json");
+  const { default: mysticSkills } = await viteServer.ssrLoadModule("/data/skill/mystic.json");
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -57,6 +58,22 @@ try {
   assert(isAutomaticCooldownDelay(generated), "Editor reconciliation must materialize a protected cooldown delay.");
   assert(generated.duration === 9, "The generated delay must preserve the timeline's exact cooldown wait.");
   assert(adjusted.steps[4].type === "skill", "The generated cooldown delay must be immediately before its skill.");
+
+  const sharedCooldownSkills = {
+    Short: { castTime: 1, cooldown: 10, cooldownGroup: "Shared", action: [] },
+    Long: { castTime: 2, cooldown: 10, cooldownGroup: "Shared", action: [] },
+  };
+  const sharedCooldownRows = build(
+    {
+      name: "Shared cooldown probe",
+      steps: [
+        { type: "skill", skill: "Short" },
+        { type: "skill", skill: "Long" },
+      ],
+    },
+    sharedCooldownSkills,
+  ).filter((row) => row.kind === "rotation" && row.step.type === "skill");
+  assert(sharedCooldownRows[1].startTime === 10, "Different skill variants in one group must share a cooldown window.");
 
   const legion = {
     Legion: {
@@ -114,7 +131,31 @@ try {
     "The real Legion Summon definition must use its normal cooldown and Steadfast T1 override.",
   );
 
-  console.log("Per-skill cooldown windows, multiple uses, editor waits, and cooldown modifiers passed.");
+  const mysticRows = (first, second) =>
+    build(
+      {
+        name: "Mystic shared cooldown probe",
+        steps: [
+          { type: "skill", skill: first },
+          { type: "skill", skill: second },
+        ],
+      },
+      mysticSkills,
+    ).filter((row) => row.kind === "rotation" && row.step.type === "skill");
+  [
+    ["SoaringSpin1", "SoaringSpin2", 12],
+    ["DragonsBreath1", "DragonsBreath2", 6],
+    ["DragonsBreathSmolder1", "DragonsBreathSmolder2", 12],
+    ["FluteOfTheTidesCancel", "FluteOfTheTides", 25],
+    ["BurstingNine", "BurstingNine2Shots", 30],
+  ].forEach(([first, second, readyAt]) => {
+    assert(
+      mysticRows(first, second)[1].startTime === readyAt,
+      `${first} and ${second} must share their ${readyAt}-second cooldown window.`,
+    );
+  });
+
+  console.log("Skill and group cooldown windows, multiple uses, editor waits, and cooldown modifiers passed.");
 } finally {
   await viteServer.close();
 }

@@ -1,14 +1,53 @@
 {
   "name": "Fury Harvest",
-  "altersTimeline": false,
+  "altersTimeline": true,
   "tags": ["SilkbindDeluge"],
   "effect": {
     "FuryHarvestT0": {},
     "FuryHarvestT1": {},
-    "FuryHarvestT2": {},
-    "FuryHarvestT3": {},
+    "FuryHarvestT2": {
+      "effect": [
+        {
+          "stat": {
+            "physicalDefense": 33.5
+          }
+        }
+      ]
+    },
+    "FuryHarvestT3": {
+      "trigger": [
+        {
+          "event": "damage",
+          "action": [
+            {
+              "type": "addResource",
+              "value": "Vitality",
+              "amount": 0.1
+            }
+          ]
+        },
+        {
+          "event": "takeDamage",
+          "action": [
+            {
+              "type": "addResource",
+              "value": "Vitality",
+              "amount": 0.1
+            }
+          ]
+        }
+      ]
+    },
     "FuryHarvestT4": {},
-    "FuryHarvestT5": {},
+    "FuryHarvestT5": {
+      "effect": [
+        {
+          "stat": {
+            "physicalResistance": 5.1
+          }
+        }
+      ]
+    },
     "FuryHarvestT6": {}
   }
 }

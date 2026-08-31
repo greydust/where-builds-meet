@@ -11,6 +11,7 @@ const viteServer = await createServer({
   logLevel: "silent",
 });
 const damage = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
+const timelineCalculation = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
 const statDefinitions = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
 const effectiveStats = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
 const assert = (condition, message) => {
@@ -79,12 +80,60 @@ assert(
 );
 assert(
   Math.abs(damageFor("FireWater") - damageFor("Fire")) < 1e-9,
-  "Stored Qi damage must remain inert until implemented.",
+  "A healing-triggered resource effect must not alter direct damage.",
 );
 assert(
   Math.abs(damageFor("FirePoison") - damageFor("Fire")) < 1e-9,
-  "Stored healing-triggered Vitality gain must remain inert until implemented.",
+  "Stored Qi damage must remain inert until implemented.",
 );
 
-console.log("Divinecraft data and supported-effect checks passed.");
+const vitalityAfterHeals = (id) => {
+  const timeline = timelineCalculation.buildRotationTimeline({
+    rotation: {
+      name: `${id} healing trigger probe`,
+      steps: [
+        { type: "skill", skill: "HealingSequence" },
+        { type: "skill", skill: "Observe" },
+      ],
+    },
+    skills: {
+      HealingSequence: {
+        name: "Healing Sequence",
+        castTime: 6.1,
+        action: [
+          { type: "heal", phyCoef: 1, time: 0 },
+          { type: "heal", phyCoef: 1, time: 2.9 },
+          { type: "heal", phyCoef: 1, time: 3 },
+          { type: "heal", phyCoef: 1, time: 6 },
+        ],
+      },
+      Observe: { name: "Observe", castTime: 0, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [definitions[id].effect],
+    weapons: [],
+    initialResources: { Vitality: 0 },
+    resourceMaximums: { Vitality: 100 },
+  });
+  return timeline.find((row) => row.step.type === "skill" && row.step.skill === "Observe")?.resources.Vitality;
+};
+
+[
+  ["FireWater", 2.4],
+  ["WaterFire", 3],
+  ["WaterPoison", 3],
+  ["PoisonWater", 2.4],
+].forEach(([id, expected]) => {
+  assert(
+    Math.abs(vitalityAfterHeals(id) - expected) < 1e-9,
+    `${id} must grant Vitality on the first heal and again at each three-second cooldown boundary.`,
+  );
+});
+assert(vitalityAfterHeals("Fire") === 0, "Divinecraft without a healing trigger must not grant Vitality.");
+
+console.log("Divinecraft damage and healing-triggered Vitality checks passed.");
 await viteServer.close();

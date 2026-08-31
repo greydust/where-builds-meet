@@ -130,6 +130,37 @@ uses each branch's own Affinity rate for the next Focus transition. Simulation
 runs use only their concrete active or inactive state. This avoids feeding an
 average Direct Affinity value back into the Focus distribution.
 
+Seasonal Edge uses deterministic proc times and random branch contents. A
+Conversion skill finishing outside its shared cooldown creates an 8- or
+12-second window according to Inner Way tier. Multi-buff tiers draw without
+replacement: each later draw renormalizes the weights of the remaining buffs,
+and ordered draws that produce the same set are merged. Expected calculations
+evaluate each unique effect set through the ordinary damage pipeline and
+combine them with its exact probability. Identical no-effect sets share one
+calculation. Simulation runs sample one set per proc window and reuse that
+result for every hit in the window, rather than rerolling per action.
+
+### Vitality deficit adjustment
+
+The timeline records initial, consumed, regenerated, and final values for each
+numeric resource. Vitality may finish below zero. When it does, directly and
+indirectly triggered damage carrying the `Mystic` tag is multiplied by:
+
+```text
+Mystic Vitality Scale = clamp((Total Vitality Consumed + Final Vitality) / Total Vitality Consumed, 0, 1)
+```
+
+This is equivalent to available Vitality divided by consumed Vitality. For
+example, consuming 300 Vitality and ending at -100 retains `200 / 300`, or
+two-thirds, of Mystic damage. Non-Mystic damage and healing are unchanged.
+Infinite Vitality disables the adjustment. Seasonal Edge uses the
+probability-weighted Yield regeneration when resolving its expected ending
+Vitality.
+
+The adjustment is deliberately an aggregate result correction. Timeline
+actions, per-action damage, skill and cast breakdowns, and editor resource
+values remain unscaled so they continue to describe the authored rotation.
+
 ### Per-action stat conversion
 
 An active effect may convert one named numeric calculation stat into another:

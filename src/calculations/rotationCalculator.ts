@@ -46,6 +46,14 @@ import {
   insightfulStrikeEffectFor,
   type InsightfulStrikeEffect,
 } from "./insightfulStrike";
+import {
+  applySeasonalVitalityRanges,
+  seasonalEdgeEffectFor,
+  seasonalEdgeStateAt,
+  seasonalEdgeWindows,
+  type SeasonalEdgeEntryState,
+  type SeasonalEdgeOutcomeDefinition,
+} from "./seasonalEdge";
 
 export type RotationDamageEntry = {
   id?: string;
@@ -60,6 +68,7 @@ export type RotationDamageEntry = {
   replay?: { sourceEntryId: string; coef: number };
   hawkwing?: HawkwingEffect;
   insightfulStrike?: InsightfulStrikeEffect;
+  seasonalEdge?: SeasonalEdgeEntryState;
   damageEvent?: {
     buffs: TrackedEffect[];
     debuffs: TrackedEffect[];
@@ -151,6 +160,7 @@ export type RotationSimulationResult = {
 export type RotationSimulationBaseline = RotationSimulationResult & {
   baseline: RotationDamageEntry[];
   expectedOutcomeBuffSchedule: ExpectedOutcomeBuffSchedule;
+  mysticVitalityDamageScale: number;
 };
 
 const emptyBreakdown = (): DamageBreakdown => ({
@@ -174,6 +184,7 @@ function calculateRotationDamageEntry(
   directAffinityBonus = 0,
   random?: () => number,
   record = true,
+  additionalEffects: EditableObject[] = [],
 ): RotationActionBreakdown {
   let breakdown: RotationActionBreakdown;
   if (entry.replay) {
@@ -193,12 +204,17 @@ function calculateRotationDamageEntry(
             ),
           }
         : entry.context;
-    const context = directAffinityBonus
-      ? {
-          ...contextWithDamageEffects,
-          effects: [...contextWithDamageEffects.effects, { stat: { directAffinity: directAffinityBonus } }],
-        }
-      : contextWithDamageEffects;
+    const context =
+      directAffinityBonus || additionalEffects.length
+        ? {
+            ...contextWithDamageEffects,
+            effects: [
+              ...contextWithDamageEffects.effects,
+              ...(directAffinityBonus ? [{ stat: { directAffinity: directAffinityBonus } }] : []),
+              ...additionalEffects,
+            ],
+          }
+        : contextWithDamageEffects;
     breakdown = random
       ? calculateSimulatedDamageBreakdown(entry.action, context, random)
       : calculateDamageBreakdown(entry.action, context);
@@ -239,6 +255,33 @@ function blendDamageBreakdowns(
   };
 }
 
+function effectsForSeasonalOutcome(context: DamageContext, outcome: SeasonalEdgeOutcomeDefinition) {
+  return outcome.effects
+    .filter(
+      (effect): effect is EditableObject => Boolean(effect) && typeof effect === "object" && !Array.isArray(effect),
+    )
+    .filter((effect) =>
+      requirementsPass(
+        effect.requirement,
+        context.buffs.map((name) => ({ name })),
+        [],
+        context.skillTags,
+        new Set(),
+        context.weapons,
+        {},
+        {
+          selfHPPercentage: (context.currentHPRatio ?? 1) * 100,
+          targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+        },
+      ),
+    )
+    .map((effect) =>
+      effect.effect && typeof effect.effect === "object" && !Array.isArray(effect.effect)
+        ? (effect.effect as EditableObject)
+        : effect,
+    );
+}
+
 export type ResolvedRotationDamage = {
   entry: RotationDamageEntry;
   breakdown: RotationActionBreakdown;
@@ -257,6 +300,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
   const simulatedHawkwing = random ? new SimulatedHawkwingTracker() : undefined;
   const expectedInsightfulStrike = random ? undefined : new ExpectedInsightfulStrikeTracker();
   const simulatedInsightfulStrike = random ? new SimulatedInsightfulStrikeTracker() : undefined;
+  const simulatedSeasons = new Map<string, string>();
   const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
     const tick = outcomeBuffTick(entry.timelineTime);
     const expectedBuffStacks: Record<string, number> = {};
@@ -287,20 +331,85 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
         targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
       });
     }
+    if (entry.seasonalEdge?.cooldownActive) expectedBuffStacks.SeasonalEdgeCooldown = 1;
+    const seasonalOutcomes = entry.seasonalEdge?.outcomes;
+    let selectedSeasonalOutcome: SeasonalEdgeOutcomeDefinition | undefined;
+    if (random && seasonalOutcomes?.length) {
+      const windowId = entry.seasonalEdge!.windowId!;
+      let selectedId = simulatedSeasons.get(windowId);
+      if (!selectedId) {
+        const roll = random();
+        let cumulative = 0;
+        selectedId = seasonalOutcomes[seasonalOutcomes.length - 1].id;
+        for (const outcome of seasonalOutcomes) {
+          cumulative += outcome.weight;
+          if (roll < cumulative) {
+            selectedId = outcome.id;
+            break;
+          }
+        }
+        simulatedSeasons.set(windowId, selectedId);
+      }
+      selectedSeasonalOutcome = seasonalOutcomes.find((outcome) => outcome.id === selectedId);
+    }
+    if (random) selectedSeasonalOutcome?.buffs.forEach((buff) => (expectedBuffStacks[buff] = 1));
+    else
+      seasonalOutcomes?.forEach((outcome) => {
+        outcome.buffs.forEach((buff) => {
+          expectedBuffStacks[buff] = (expectedBuffStacks[buff] ?? 0) + outcome.weight;
+        });
+      });
+    const calculateWithSeason = (
+      baseOutcomeEffects: UnconditionalDamageEffects,
+      directAffinityBonus: number,
+    ): RotationActionBreakdown => {
+      const outcomes = entry.seasonalEdge?.outcomes;
+      if (!outcomes?.length || entry.action.type !== "damage" || entry.replay)
+        return calculateRotationDamageEntry(entry, resolved, baseOutcomeEffects, directAffinityBonus, random, false);
+      if (random) {
+        return calculateRotationDamageEntry(
+          entry,
+          resolved,
+          baseOutcomeEffects,
+          directAffinityBonus,
+          random,
+          false,
+          effectsForSeasonalOutcome(entry.context, selectedSeasonalOutcome!),
+        );
+      }
+      const grouped = new Map<string, { weight: number; effects: EditableObject[] }>();
+      outcomes.forEach((outcome) => {
+        const effects = effectsForSeasonalOutcome(entry.context, outcome);
+        const key = JSON.stringify(effects);
+        const current = grouped.get(key);
+        grouped.set(key, { weight: (current?.weight ?? 0) + outcome.weight, effects });
+      });
+      let combined: RotationActionBreakdown | undefined;
+      let combinedWeight = 0;
+      grouped.forEach(({ weight, effects }) => {
+        const current = calculateRotationDamageEntry(
+          entry,
+          resolved,
+          baseOutcomeEffects,
+          directAffinityBonus,
+          undefined,
+          false,
+          effects,
+        );
+        combined = combined ? blendDamageBreakdowns(combined, current, weight / (combinedWeight + weight)) : current;
+        combinedWeight += weight;
+      });
+      return combined!;
+    };
     let inactiveBreakdown: RotationActionBreakdown | undefined;
     let activeBreakdown: RotationActionBreakdown | undefined;
     let breakdown: RotationActionBreakdown;
     if (concentrationProbability !== undefined && entry.action.type === "damage" && !entry.replay && !random) {
-      if (concentrationProbability < 1)
-        inactiveBreakdown = calculateRotationDamageEntry(entry, resolved, outcomeEffects, 0, undefined, false);
+      if (concentrationProbability < 1) inactiveBreakdown = calculateWithSeason(outcomeEffects, 0);
       if (concentrationProbability > 0)
-        activeBreakdown = calculateRotationDamageEntry(
-          entry,
-          resolved,
+        activeBreakdown = calculateWithSeason(
           addUnconditionalDamageEffects(outcomeEffects, concentrationEffects),
           concentrationDirectAffinity,
-          undefined,
-          false,
         );
       breakdown =
         inactiveBreakdown && activeBreakdown
@@ -309,12 +418,9 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
       if (entry.id) resolved.set(entry.id, breakdown);
     } else {
       const concentrationActive = concentrationProbability === 1;
-      breakdown = calculateRotationDamageEntry(
-        entry,
-        resolved,
+      breakdown = calculateWithSeason(
         concentrationActive ? addUnconditionalDamageEffects(outcomeEffects, concentrationEffects) : outcomeEffects,
         concentrationActive ? concentrationDirectAffinity : 0,
-        random,
       );
       if (!random) {
         if (concentrationActive) activeBreakdown = breakdown;
@@ -344,6 +450,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
           );
       }
     }
+    if (entry.id) resolved.set(entry.id, breakdown);
     return {
       entry,
       breakdown,
@@ -394,6 +501,7 @@ function contextWithOutcomeEffects(
   context: DamageContext,
   outcomeEffects: UnconditionalDamageEffects | undefined,
   directAffinityBonus = 0,
+  additionalEffects: EditableObject[] = [],
 ) {
   const withDamageEffects =
     outcomeEffects && Object.keys(outcomeEffects).length
@@ -402,12 +510,45 @@ function contextWithOutcomeEffects(
           unconditionalDamageEffects: addUnconditionalDamageEffects(context.unconditionalDamageEffects, outcomeEffects),
         }
       : context;
-  return directAffinityBonus
+  return directAffinityBonus || additionalEffects.length
     ? {
         ...withDamageEffects,
-        effects: [...withDamageEffects.effects, { stat: { directAffinity: directAffinityBonus } }],
+        effects: [
+          ...withDamageEffects.effects,
+          ...(directAffinityBonus ? [{ stat: { directAffinity: directAffinityBonus } }] : []),
+          ...additionalEffects,
+        ],
       }
     : withDamageEffects;
+}
+
+function calculateExpectedSeasonalDamage(
+  action: DamageAction,
+  context: DamageContext,
+  outcomeEffects: UnconditionalDamageEffects | undefined,
+  directAffinityBonus: number,
+  seasonalEdge: SeasonalEdgeEntryState | undefined,
+) {
+  if (!seasonalEdge?.outcomes?.length || action.type !== "damage")
+    return calculateDamageBreakdown(action, contextWithOutcomeEffects(context, outcomeEffects, directAffinityBonus));
+  const grouped = new Map<string, { weight: number; effects: EditableObject[] }>();
+  seasonalEdge.outcomes.forEach((outcome) => {
+    const effects = effectsForSeasonalOutcome(context, outcome);
+    const key = JSON.stringify(effects);
+    const current = grouped.get(key);
+    grouped.set(key, { weight: (current?.weight ?? 0) + outcome.weight, effects });
+  });
+  let combined: RotationActionBreakdown | undefined;
+  let combinedWeight = 0;
+  grouped.forEach(({ weight, effects }) => {
+    const current = calculateDamageBreakdown(
+      action,
+      contextWithOutcomeEffects(context, outcomeEffects, directAffinityBonus, effects),
+    );
+    combined = combined ? blendDamageBreakdowns(combined, current, weight / (combinedWeight + weight)) : current;
+    combinedWeight += weight;
+  });
+  return combined!;
 }
 
 function calculateExpectedOutcomeDamage(
@@ -415,16 +556,16 @@ function calculateExpectedOutcomeDamage(
   context: DamageContext,
   outcomeEffects: UnconditionalDamageEffects | undefined,
   concentration: ResolvedRotationDamage["expectedConcentration"],
+  seasonalEdge?: SeasonalEdgeEntryState,
 ) {
-  const inactive = calculateDamageBreakdown(action, contextWithOutcomeEffects(context, outcomeEffects));
+  const inactive = calculateExpectedSeasonalDamage(action, context, outcomeEffects, 0, seasonalEdge);
   if (!concentration || concentration.probability <= 0) return inactive;
-  const active = calculateDamageBreakdown(
+  const active = calculateExpectedSeasonalDamage(
     action,
-    contextWithOutcomeEffects(
-      context,
-      addUnconditionalDamageEffects(outcomeEffects, concentration.activeEffects),
-      concentration.directAffinityBonus,
-    ),
+    context,
+    addUnconditionalDamageEffects(outcomeEffects, concentration.activeEffects),
+    concentration.directAffinityBonus,
+    seasonalEdge,
   );
   return concentration.probability >= 1 ? active : blendDamageBreakdowns(inactive, active, concentration.probability);
 }
@@ -444,6 +585,26 @@ function sumResolvedSequence(sequence: ResolvedRotationDamageSequence) {
     },
     { ...emptyBreakdown(), healing: 0 },
   );
+}
+
+function mysticDamageInResolvedSequence(sequence: ResolvedRotationDamageSequence) {
+  return sequence.reduce(
+    (total, { entry, breakdown }) => total + (entry.context.skillTags.includes("Mystic") ? breakdown.total : 0),
+    0,
+  );
+}
+
+function vitalityDamageScale(timeline: TimelineRow[], input: TimelineBuildInput, expectedEndingVitality?: number) {
+  if (input.rotation.infiniteVitality) return 1;
+  const summary = timeline.find((row) => row.timelineResourceSummary)?.timelineResourceSummary?.Vitality;
+  if (!summary || summary.consumed <= 0) return 1;
+  const endingVitality = expectedEndingVitality ?? summary.final;
+  return endingVitality < 0 ? Math.max(0, Math.min(1, (summary.consumed + endingVitality) / summary.consumed)) : 1;
+}
+
+function adjustedDamageTotal(sequence: ResolvedRotationDamageSequence, mysticDamageScale: number) {
+  const total = sumResolvedSequence(sequence).total;
+  return total - mysticDamageInResolvedSequence(sequence) * (1 - mysticDamageScale);
 }
 
 function sumEntries(entries: RotationDamageEntry[]) {
@@ -1064,7 +1225,11 @@ function timelineDamageEntries(
   overrides: RotationSimulationVariant = { label: "" },
   updateTimelineState = false,
   expectedBuffSchedule?: ExpectedOutcomeBuffSchedule,
-): { entries: RotationDamageEntry[]; resolvedSequence?: ResolvedRotationDamageSequence } {
+): {
+  entries: RotationDamageEntry[];
+  resolvedSequence?: ResolvedRotationDamageSequence;
+  expectedEndingVitality?: number;
+} {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
   const damageListeners = rules.flatMap((rule, index) =>
     rule.listen?.event === "damage" ? [{ key: `${rule.source}:T${rule.tier}:${index}`, rule }] : [],
@@ -1073,6 +1238,12 @@ function timelineDamageEntries(
   const setupEffects = overrides.setupEffects ?? input.setupEffects;
   const hawkwing = hawkwingEffectFor(setupEffects, input.effectDefinitions);
   const insightfulStrike = insightfulStrikeEffectFor(rules, input.effectDefinitions);
+  const seasonalEdge = seasonalEdgeEffectFor(rules, input.effectDefinitions);
+  const seasonalWindows = seasonalEdge ? seasonalEdgeWindows(timeline, seasonalEdge) : [];
+  const expectedEndingVitality =
+    seasonalEdge && !input.rotation.infiniteVitality
+      ? applySeasonalVitalityRanges(timeline, seasonalWindows, input.resourceMaximums?.Vitality, updateTimelineState)
+      : undefined;
   const staticSetupEffects = setupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
   const dynamicSetupEffects = setupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
   const staticInnerWayRules = rules.filter((rule) => requirementIsSkillStatic(rule.requirement));
@@ -1313,6 +1484,11 @@ function timelineDamageEntries(
               activeDebuffStacks: Object.fromEntries(debuffs.map((effect) => [effect.name, effect.stack ?? 1])),
               ...(hawkwing ? { hawkwing } : {}),
               ...(insightfulStrike ? { insightfulStrike } : {}),
+              ...(seasonalEdge
+                ? {
+                    seasonalEdge: seasonalEdgeStateAt(actionTime, row.id, seasonalEdge, seasonalWindows),
+                  }
+                : {}),
               ...(action.type === "damage" && damageListeners.length
                 ? {
                     damageEvent: {
@@ -1376,7 +1552,7 @@ function timelineDamageEntries(
   };
   const requiresOrderedDamageResolution = damageListeners.length > 0 || hpEvents.length > 0 || usesTargetDamage;
   if (!requiresOrderedDamageResolution) {
-    return { entries: damageEntries.map(stripTargetHPUpdater) };
+    return { entries: damageEntries.map(stripTargetHPUpdater), expectedEndingVitality };
   }
   let targetHPRatio = usesTargetDamage ? 1 : DEFAULT_TARGET_HP_RATIO;
   const targetHPStateSnapshots = updateTimelineState
@@ -1642,7 +1818,7 @@ function timelineDamageEntries(
       ...(resolvedRow?.outcomeEffects ? { outcomeEffects: resolvedRow.outcomeEffects } : {}),
     };
   });
-  return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence };
+  return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence, expectedEndingVitality };
 }
 
 function timelineTiming(
@@ -1708,18 +1884,23 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   );
   const baseline = baselineResolution.entries;
   const resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
+  const mysticVitalityDamageScale = vitalityDamageScale(
+    timeline,
+    bundle.timeline,
+    baselineResolution.expectedEndingVitality,
+  );
   if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
   const finalTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
   if (import.meta.env.DEV) finishCalculationPhase("timingResolution", finalTimingStartedAt);
   const metricsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-  let baselineDamage = 0;
+  let rawBaselineDamage = 0;
   let baselineHealing = 0;
   const actionBreakdowns = Object.fromEntries(
     resolvedSequence
       .filter(({ entry }) => entry.id)
       .map(({ entry, breakdown, expectedBuffStacks, outcomeEffects, expectedConcentration }) => {
-        baselineDamage += breakdown.total;
+        rawBaselineDamage += breakdown.total;
         baselineHealing += breakdown.healing?.total ?? 0;
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
@@ -1730,6 +1911,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
                 context,
                 outcomeEffects,
                 expectedConcentration,
+                entry.seasonalEdge,
               ).total;
               if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt);
               return [sourceRowId, breakdown.total - counterfactualDamage];
@@ -1746,6 +1928,8 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
         ];
       }),
   );
+  const baselineDamage =
+    rawBaselineDamage - mysticDamageInResolvedSequence(resolvedSequence) * (1 - mysticVitalityDamageScale);
   const metrics = calculateRotationMetrics(
     {
       duration,
@@ -1765,7 +1949,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     bundle.timeline.effectDefinitions,
     anchorTime,
     duration,
-    baselineDamage,
+    rawBaselineDamage,
     baselineHealing,
   );
   metrics.expectedHawkwingStacks = averageExpectedBuffStack(resolvedSequence, "Hawkwing");
@@ -1778,6 +1962,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     actionBreakdowns,
     baseline,
     expectedOutcomeBuffSchedule: expectedOutcomeBuffSchedule(resolvedSequence),
+    mysticVitalityDamageScale,
   };
 }
 
@@ -1841,9 +2026,14 @@ export function calculateRotationComparisons(
       duration = timelineTiming(variantTimeline, bundle.startAnchor, entries).duration;
       if (import.meta.env.DEV) finishCalculationPhase("timingResolution", timingStartedAt);
     }
+    const mysticVitalityDamageScale = vitalityDamageScale(
+      variantTimeline,
+      timelineInput,
+      resolution.expectedEndingVitality,
+    );
     const calculation = {
       entries,
-      damage: sumResolvedSequence(resolvedSequence).total,
+      damage: adjustedDamageTotal(resolvedSequence, mysticVitalityDamageScale),
       duration,
     };
     completedVariants += 1;
@@ -1897,6 +2087,7 @@ export function calculateRotationSimulation(bundle: RotationSimulationBundle): R
   const {
     baseline: _baseline,
     expectedOutcomeBuffSchedule: _expectedOutcomeBuffSchedule,
+    mysticVitalityDamageScale: _mysticVitalityDamageScale,
     ...publicResult
   } = baselineResult;
   return { ...publicResult, metrics };

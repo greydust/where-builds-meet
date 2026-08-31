@@ -44,6 +44,7 @@ type SkillDefinition = {
   shortName?: string;
   castTime: number;
   cooldown?: number;
+  cooldownGroup?: string;
   cooldownUses?: number;
   action: SkillAction[];
   subAction?: Array<{
@@ -275,10 +276,11 @@ The referenced skill is inserted at the action timestamp. Triggered skills do
 not consume rotation cast time. A skill-level `cooldown` prevents both casts and
 triggers while active. An unavailable explicit cast waits until its cooldown is
 ready; triggered skills remain rejected while unavailable. Cooldowns are keyed
-by skill ID, so separate skill definitions always maintain independent windows.
-`cooldownUses` permits that many casts of the same skill during its window,
-which starts with the first cast. A matching skill modifier may override
-`cooldown` while its requirements pass.
+by `cooldownGroup` when declared and otherwise by skill ID. Separate definitions
+with the same group therefore read, consume, and clear one shared window.
+`cooldownUses` permits that many casts in the window, which starts with the first
+cast. A matching skill modifier may override `cooldown` while its requirements
+pass.
 
 The rotation editor materializes each cooldown wait as a protected Delay step with
 `automatic: "cooldown"`; these generated steps cannot be edited, moved, or
@@ -457,9 +459,9 @@ respectively, 41% and 60% of the interval from the previous Exhausted expiration
 
 ### Numeric resources
 
-The timeline also tracks named, nonnegative numeric resources. Resources start
-at zero unless supplied through `TimelineBuildInput.initialResources`. Skill and
-effect actions can update them:
+The timeline also tracks named numeric resources. Resources start at zero
+unless supplied through `TimelineBuildInput.initialResources`. Skill and effect
+actions can update them:
 
 ```json
 { "type": "setResource", "value": "HeavensWill", "amount": 1, "time": 0 }
@@ -469,10 +471,19 @@ effect actions can update them:
 
 `setResource` replaces the value, `addResource` increases it, and
 `consumeResource` decreases it. A `consumeResource` action may use `"all"` as
-its amount to set the resource to zero. Results are clamped to zero and to an
-optional named maximum supplied by `TimelineBuildInput.resourceMaximums`. Every action
-snapshots the resources before that action resolves, so a resource change
-affects later actions at the same timestamp but not earlier actions.
+its amount to set the resource to zero. Results are normally clamped to zero
+and to an optional named maximum supplied by
+`TimelineBuildInput.resourceMaximums`. Vitality is the exception: consumption
+may take it below zero so a rotation can expose its resource deficit. Every
+action snapshots the resources before that action resolves, so a resource
+change affects later actions at the same timestamp but not earlier actions.
+
+Timeline construction also keeps a resource ledger containing the initial,
+accepted consumed, accepted regenerated, and final value of every resource.
+Regeneration records the amount actually received after applying the resource
+cap; wasted gains at the cap do not count. The final Vitality ledger drives the
+aggregate Mystic damage correction described in `damage-formula.md` without
+changing the resource values displayed on individual timeline rows.
 
 An action can lock its requirement result when its owning skill or sub-action
 component begins:
@@ -515,6 +526,48 @@ rotation with `"infiniteVitality": true` marks Vitality through the generic
 `TimelineBuildInput.infiniteResources` handling; its value remains at the
 resource maximum while resource gains, regeneration, and consumption are
 ignored.
+
+Inner Way triggers may react to either `damage` or `takeDamage` and execute the
+same numeric resource actions used by skills. A missing trigger event continues
+to mean `damage` for existing Inner Ways. Fury Harvest T3 uses two such triggers
+to add `0.1` Vitality after every outgoing damage action and every Take Damage
+event. Fury Harvest T1 adds one conditional Vitality action to Perfect Dodge,
+and T4 adds one to a successful Deflect. T2 grants `33.5` Physical Defense. T5
+grants `5.1` defensive Physical Resistance; this internal stat also accepts the
+Physical Resistance attunement but is intentionally omitted from the character
+stat display.
+
+Fury Harvest T6 uses explicit actions on directly cast Mystic skills. At cast
+end, the skill applies or refreshes one stack of the general Turnaround buff for five seconds.
+If Turnaround was already active when a later Mystic consumed Vitality at cast
+start, an immediately following action refunds 30% of that skill's declared
+cost, capped at 10 Vitality. Turnaround is not consumed by the refund. Triggered
+Mystic follow-ups neither spend Vitality nor apply Turnaround.
+
+Seasonal Edge T0 uses a `skillEndRandomBuff` trigger on skills tagged
+`Conversion`. Finishing an eligible skill outside the 30-second cooldown opens
+one eight-second window whose `outcome` entries select Bloom, Flare, Yield, or
+Frost with equal weight. T1 extends the shared duration to 12 seconds. T2 adds
+24.8 Min Physical Attack and 49.6 Max Physical Attack. T3 changes the result
+count to 70% one buff and 30% two distinct buffs; later selections use the
+remaining weighted pool rather than allowing a duplicate.
+
+T4 changes the outcome weights to 10/40/40/10 for Bloom, Flare, Yield, and
+Frost, and permits Serene Breeze to trigger the same proc. T5 adds 2.8%
+Physical DMG Bonus. T6 removes Frost, uses 10/40/40 weights for the remaining
+pool, and changes result counts to 50% one buff, 30% two distinct buffs, and
+20% all three buffs. Deterministic damage calculations enumerate and merge the
+weighted buff combinations; simulations roll one concrete combination and
+retain it for the whole window. Bloom and Frost currently have no numerical
+effect. Flare adds 10% All Martial Arts and another 10% while self HP is above
+75%. Yield adds 10% Mystic Skill Damage and may restore two Vitality per second.
+
+Because any multi-buff result may include Yield, the timeline displays Vitality
+as a lower and upper bound. The lower bound follows the ordinary resource
+timeline for outcomes without Yield. The upper bound applies Yield during every
+possible Seasonal Edge window while respecting Max Vitality. These bounds are
+display state; damage calculations and simulations continue to use exact
+seasonal combinations.
 
 ## Requirements
 
@@ -978,7 +1031,9 @@ setup triggers such as Revelry Script. Buff and Debuff events select a definitio
 directories and apply it before the target using that definition's duration.
 Buff and Debuff events may specify a positive integer `stack`; omitted values
 apply one stack, and tracked-effect resolution caps the result at the selected
-effect's `maxStack`.
+effect's resolved `maxStack`. The editor applies unconditional Inner Way
+definition modifiers for the active build when choosing and validating this
+stack count, matching the cap used by timeline calculation.
 Distance and HP columns are hidden unless the rotation contains their event or
 a skill tagged `Distance`/`HP` respectively.
 
@@ -1324,9 +1379,13 @@ adds the `FormBend4` setup condition; Predator's Shield checks that condition
 and extends the refreshed Shield and Breakthrough by two seconds.
 
 Divinecraft definitions use the same direct setup-effect shape as food and set
-effects. Percentage values remain decimal ratios. `hpDMGBonus` is active;
-`qiDMGBonus` and a `trigger` with `event: "healing"` are currently stored for
-future implementation and intentionally ignored by the calculation engine.
+effects. Percentage values remain decimal ratios. `hpDMGBonus` is active, while
+`qiDMGBonus` remains stored for future implementation. A setup trigger with
+`event: "heal"` runs its resource action after a healing action resolves and may
+declare its own cooldown. Fire-Water and Poison-Water restore `0.8` Vitality;
+Water-Fire and Water-Poison restore `1`, each at most once every three seconds.
+These four choices alter resource state, so comparisons rebuild the timeline
+when either the baseline or candidate uses one.
 
 Script definitions also use direct setup effects. Wraithstrike, Voidrot,
 Convergence, Opportunity, Detachment, and Insight use action-time HP/Qi or skill
@@ -1342,10 +1401,12 @@ Envigorated Warrior's `healingBonus` increases the final combined healing of
 matching actions alongside its separate active `dmgBonus` effect.
 
 Royal Remedy T0 grants Cloudburst Healing, including its cancel variant, `0.1`
-general Healing Bonus. T2 adds `0.086` Effective Critical Rate and T5 adds
-`0.046` Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical Attack
-and `49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus. The
-T2 and T5 bonuses are unconditional stat effects resolved by the shared
+general Healing Bonus. T1 reacts to every `heal` action from a skill tagged
+`CloudburstHealing` and restores `2` Vitality, so all seven Fan Q heal ticks
+grant the resource independently. T2 adds `0.086` Effective Critical Rate and
+T5 adds `0.046` Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical
+Attack and `49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus.
+The T2 and T5 bonuses are unconditional stat effects resolved by the shared
 character-stat pipeline.
 
 Panacea Fan converts Agility to Critical Rate at `0.085 / 280`, capped at

@@ -1,11 +1,11 @@
-export type TimelineAwareScriptDefinition = {
+export type TimelineAwareSetupDefinition = {
   altersTimeline?: boolean;
 };
 
-export function scriptSelectionChangesTimeline(
+export function setupSelectionChangesTimeline(
   current: string,
   replacement: string,
-  definitions: Record<string, TimelineAwareScriptDefinition>,
+  definitions: Record<string, TimelineAwareSetupDefinition>,
 ): boolean {
   if (current === replacement) return false;
   return definitions[current]?.altersTimeline === true || definitions[replacement]?.altersTimeline === true;

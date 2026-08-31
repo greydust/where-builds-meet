@@ -1,6 +1,6 @@
 {
   "name": "Royal Remedy",
-  "altersTimeline": false,
+  "altersTimeline": true,
   "tags": ["SilkbindDeluge"],
   "effect": {
     "RoyalRemedyT0": {
@@ -18,7 +18,26 @@
         }
       ]
     },
-    "RoyalRemedyT1": {},
+    "RoyalRemedyT1": {
+      "trigger": [
+        {
+          "event": "heal",
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "CloudburstHealing"
+            }
+          ],
+          "action": [
+            {
+              "type": "addResource",
+              "value": "Vitality",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
     "RoyalRemedyT2": {
       "effect": [
         {
