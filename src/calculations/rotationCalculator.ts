@@ -54,6 +54,7 @@ import {
   seasonalEdgeWindows,
   type SeasonalEdgeEntryState,
   type SeasonalEdgeOutcomeDefinition,
+  type SeasonalVitalityResult,
 } from "./seasonalEdge";
 
 export type RotationDamageEntry = {
@@ -104,6 +105,7 @@ export type RotationCalculationBundle = {
     entries: RotationDamageEntry[];
     duration?: number;
     damage?: number;
+    healing?: number;
   }>;
   attunementPriority: Array<{
     label: string;
@@ -111,6 +113,7 @@ export type RotationCalculationBundle = {
     entries: RotationDamageEntry[];
     duration?: number;
     damage?: number;
+    healing?: number;
   }>;
   innerWayPriority: Array<{
     label: string;
@@ -118,10 +121,18 @@ export type RotationCalculationBundle = {
     entries: RotationDamageEntry[];
     duration?: number;
     damage?: number;
+    healing?: number;
   }>;
   setupComparisons: Record<
     string,
-    Array<{ label: string; maxRoll?: number; entries: RotationDamageEntry[]; duration?: number; damage?: number }>
+    Array<{
+      label: string;
+      maxRoll?: number;
+      entries: RotationDamageEntry[];
+      duration?: number;
+      damage?: number;
+      healing?: number;
+    }>
   >;
 };
 
@@ -594,12 +605,22 @@ function mysticDamageInResolvedSequence(sequence: ResolvedRotationDamageSequence
   );
 }
 
-function vitalityDamageScale(timeline: TimelineRow[], input: TimelineBuildInput, expectedEndingVitality?: number) {
+function vitalityDamageScale(
+  timeline: TimelineRow[],
+  input: TimelineBuildInput,
+  seasonalVitality?: SeasonalVitalityResult,
+) {
   if (input.rotation.infiniteVitality) return 1;
   const summary = timeline.find((row) => row.timelineResourceSummary)?.timelineResourceSummary?.Vitality;
   if (!summary || summary.consumed <= 0) return 1;
-  const endingVitality = expectedEndingVitality ?? summary.final;
-  return endingVitality < 0 ? Math.max(0, Math.min(1, (summary.consumed + endingVitality) / summary.consumed)) : 1;
+  const scaleForEndingVitality = (endingVitality: number) =>
+    endingVitality < 0 ? Math.max(0, Math.min(1, (summary.consumed + endingVitality) / summary.consumed)) : 1;
+  return seasonalVitality
+    ? seasonalVitality.endingDistribution.reduce(
+        (total, outcome) => total + scaleForEndingVitality(outcome.vitality) * outcome.probability,
+        0,
+      )
+    : scaleForEndingVitality(summary.final);
 }
 
 function adjustedDamageTotal(sequence: ResolvedRotationDamageSequence, mysticDamageScale: number) {
@@ -611,17 +632,27 @@ function sumEntries(entries: RotationDamageEntry[]) {
   return sumResolvedSequence(calculateRotationDamageSequence(entries));
 }
 
-function priorityRow(label: string, baselineDps: number, variantDps: number, maxRoll?: number): RotationPriority {
+function priorityRow(
+  label: string,
+  baselineDps: number,
+  variantDps: number,
+  baselineHps: number,
+  variantHps: number,
+  maxRoll?: number,
+): RotationPriority {
   return {
     label,
     maxRoll,
     increase: baselineDps > 0 ? (variantDps / baselineDps - 1) * 100 : 0,
     dpsDifference: variantDps - baselineDps,
+    healingIncrease: baselineHps > 0 ? (variantHps / baselineHps - 1) * 100 : 0,
+    hpsDifference: variantHps - baselineHps,
   };
 }
 
 function calculatePriorityRows(
   baselineDps: number,
+  baselineHps: number,
   duration: number,
   variants: Array<{
     label: string;
@@ -629,25 +660,29 @@ function calculatePriorityRows(
     entries: RotationDamageEntry[];
     duration?: number;
     damage?: number;
+    healing?: number;
   }>,
   order: "ascending" | "descending" = "descending",
 ) {
-  return sortRotationPriorityRows(
-    variants.map(({ label, maxRoll, entries, duration: variantDuration = duration, damage }) =>
-      priorityRow(
-        label,
-        baselineDps,
-        variantDuration > 0 ? (damage ?? sumEntries(entries).total) / variantDuration : 0,
-        maxRoll,
-      ),
-    ),
-    order,
-  );
+  const rows = variants.map(({ label, maxRoll, entries, duration: variantDuration = duration, damage, healing }) => {
+    const totals = damage === undefined || healing === undefined ? sumEntries(entries) : undefined;
+    return priorityRow(
+      label,
+      baselineDps,
+      variantDuration > 0 ? (damage ?? totals?.total ?? 0) / variantDuration : 0,
+      baselineHps,
+      variantDuration > 0 ? (healing ?? totals?.healing ?? 0) / variantDuration : 0,
+      maxRoll,
+    );
+  });
+  return sortRotationPriorityRows(rows, order);
 }
 
 export function sortRotationPriorityRows(rows: RotationPriority[], order: "ascending" | "descending" = "descending") {
-  return [...rows].sort((left, right) =>
-    order === "ascending" ? left.dpsDifference - right.dpsDifference : right.dpsDifference - left.dpsDifference,
+  const direction = order === "ascending" ? 1 : -1;
+  return [...rows].sort(
+    (left, right) =>
+      direction * (left.dpsDifference - right.dpsDifference) || direction * (left.hpsDifference - right.hpsDifference),
   );
 }
 
@@ -688,20 +723,20 @@ export function calculateRotationMetrics(
   const setupComparisons = Object.fromEntries(
     Object.entries(bundle.setupComparisons).map(([group, variants]) => [
       group,
-      calculatePriorityRows(baselineDps, duration, variants),
+      calculatePriorityRows(baselineDps, baselineHps, duration, variants),
     ]),
   );
 
-  const attunementRows = calculatePriorityRows(baselineDps, duration, bundle.attunementPriority);
+  const attunementRows = calculatePriorityRows(baselineDps, baselineHps, duration, bundle.attunementPriority);
   return {
     totalDamage: baselineDamage,
     dps: baselineDps,
     totalHealing: baselineHealing,
     hps: baselineHps,
     breakdown: emptyRotationBreakdown(),
-    statPriority: calculatePriorityRows(baselineDps, duration, bundle.statPriority),
+    statPriority: calculatePriorityRows(baselineDps, baselineHps, duration, bundle.statPriority, "descending"),
     attunementPriority: sortAttunementPriorityRows(attunementRows),
-    innerWayPriority: calculatePriorityRows(baselineDps, duration, bundle.innerWayPriority, "ascending"),
+    innerWayPriority: calculatePriorityRows(baselineDps, baselineHps, duration, bundle.innerWayPriority, "ascending"),
     setupComparisons,
   };
 }
@@ -1228,7 +1263,7 @@ function timelineDamageEntries(
 ): {
   entries: RotationDamageEntry[];
   resolvedSequence?: ResolvedRotationDamageSequence;
-  expectedEndingVitality?: number;
+  seasonalVitality?: SeasonalVitalityResult;
 } {
   const rules = overrides.innerWayRules ?? input.innerWayRules;
   const damageListeners = rules.flatMap((rule, index) =>
@@ -1241,7 +1276,7 @@ function timelineDamageEntries(
   const seasonalEdge = seasonalEdgeEffectFor(rules, input.effectDefinitions);
   const seasonalWindows = seasonalEdge ? seasonalEdgeWindows(timeline, seasonalEdge) : [];
   if (seasonalEdge && updateTimelineState) applySeasonalEdgeCooldownToTimeline(timeline, seasonalWindows);
-  const expectedEndingVitality =
+  const seasonalVitality =
     seasonalEdge && !input.rotation.infiniteVitality
       ? applySeasonalVitalityRanges(timeline, seasonalWindows, input.resourceMaximums?.Vitality, updateTimelineState)
       : undefined;
@@ -1281,7 +1316,7 @@ function timelineDamageEntries(
   const stats = overrides.stats ?? state.stats;
   const attunement = overrides.attunement ?? state.attunement;
   const derivedStats = overrides.stats
-    ? calculateDerivedStats(stats, state.enemy.judgementResistance)
+    ? calculateDerivedStats(stats, state.enemy.judgementResistance, {}, state.weapons)
     : state.derivedStats;
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorActionIndex = startAnchor.actionIndex;
@@ -1553,7 +1588,7 @@ function timelineDamageEntries(
   };
   const requiresOrderedDamageResolution = damageListeners.length > 0 || hpEvents.length > 0 || usesTargetDamage;
   if (!requiresOrderedDamageResolution) {
-    return { entries: damageEntries.map(stripTargetHPUpdater), expectedEndingVitality };
+    return { entries: damageEntries.map(stripTargetHPUpdater), seasonalVitality };
   }
   let targetHPRatio = usesTargetDamage ? 1 : DEFAULT_TARGET_HP_RATIO;
   const targetHPStateSnapshots = updateTimelineState
@@ -1819,7 +1854,7 @@ function timelineDamageEntries(
       ...(resolvedRow?.outcomeEffects ? { outcomeEffects: resolvedRow.outcomeEffects } : {}),
     };
   });
-  return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence, expectedEndingVitality };
+  return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence, seasonalVitality };
 }
 
 function timelineTiming(
@@ -1885,11 +1920,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   );
   const baseline = baselineResolution.entries;
   const resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
-  const mysticVitalityDamageScale = vitalityDamageScale(
-    timeline,
-    bundle.timeline,
-    baselineResolution.expectedEndingVitality,
-  );
+  const mysticVitalityDamageScale = vitalityDamageScale(timeline, bundle.timeline, baselineResolution.seasonalVitality);
   if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
   const finalTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const { duration } = timelineTiming(timeline, bundle.startAnchor, baseline);
@@ -2027,14 +2058,12 @@ export function calculateRotationComparisons(
       duration = timelineTiming(variantTimeline, bundle.startAnchor, entries).duration;
       if (import.meta.env.DEV) finishCalculationPhase("timingResolution", timingStartedAt);
     }
-    const mysticVitalityDamageScale = vitalityDamageScale(
-      variantTimeline,
-      timelineInput,
-      resolution.expectedEndingVitality,
-    );
+    const mysticVitalityDamageScale = vitalityDamageScale(variantTimeline, timelineInput, resolution.seasonalVitality);
+    const totals = sumResolvedSequence(resolvedSequence);
     const calculation = {
       entries,
-      damage: adjustedDamageTotal(resolvedSequence, mysticVitalityDamageScale),
+      damage: totals.total - mysticDamageInResolvedSequence(resolvedSequence) * (1 - mysticVitalityDamageScale),
+      healing: totals.healing,
       duration,
     };
     completedVariants += 1;

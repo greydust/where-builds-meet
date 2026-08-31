@@ -1,6 +1,6 @@
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
-import { calculateRates } from "./effectiveStats";
+import { calculateRates, mainAttributeForWeapons } from "./effectiveStats";
 import type { DerivedStats } from "./effectiveStats";
 import {
   calculateStatsWithEffects,
@@ -98,39 +98,7 @@ function penetrationMultiplier(penetration: number, resistance = 0) {
   return penetration >= resistance ? 1 + (penetration - resistance) / 200 : 1 + (penetration - resistance) / 100;
 }
 
-function mainAttribute(weapons: WeaponId[]) {
-  let hasBamboocutWeapon = false;
-  for (const weapon of weapons) {
-    switch (weapon) {
-      case "snowparting":
-      case "phalanxbane":
-      case "thundercry":
-      case "stormbreaker":
-        return "stonesplit" as const;
-      case "namelessSword":
-      case "namelessSpear":
-      case "strategicSword":
-      case "heavenquakerSpear":
-        return "bellstrike" as const;
-      case "vernalUmbrella":
-      case "inkwellFan":
-      case "panaceaFan":
-      case "soulshadeUmbrella":
-        return "silkbind" as const;
-      case "everspring":
-      case "unfettered":
-      case "heavenwill":
-      case "skygrasp":
-      case "infernalTwinblades":
-      case "mortalRopeDart":
-        hasBamboocutWeapon = true;
-        break;
-    }
-  }
-  if (hasBamboocutWeapon) return "bamboocut" as const;
-}
-
-function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
+export function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
   for (const tag of skillTags) {
     switch (tag) {
       case "MoBlade":
@@ -188,6 +156,7 @@ function calculateDamageBreakdownInternal(
         baseStats,
         effects as Array<StatEffectContainer & EffectiveStatEffectContainer>,
         enemy.judgementResistance,
+        weapons,
       )
     : undefined;
   const stats = calculatedStats?.stats ?? baseStats;
@@ -229,7 +198,7 @@ function calculateDamageBreakdownInternal(
   const coefficient = numberValue(action.phyCoef);
   const physicalBonus = context.isDot ? 0 : numberValue(action.phyBonus);
   const attributeBonus = context.isDot ? 0 : numberValue(action.attrBonus);
-  const path = mainAttribute(weapons);
+  const path = mainAttributeForWeapons(weapons);
   const effectFieldAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const accumulatorStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const unconditional = context.unconditionalDamageEffects ?? {};

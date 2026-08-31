@@ -776,9 +776,11 @@ already renders those choices as active, so calculating an identical baseline
 variant would only produce a redundant zero-difference result. Weapon and armor
 set comparison generation likewise omits the currently selected tier.
 
-Each priority row stores absolute DPS difference and percentage change. Character
-and attunement priorities sort by descending DPS gain. Inner Ways are removed,
-so their rows sort by the most negative DPS change first.
+Each priority row stores absolute and percentage changes for both DPS and HPS.
+All priority rows sort by DPS change first and use HPS change as the tie-breaker.
+Character-stat and attunement priorities use descending order. Inner Ways are
+removed, so their rows use ascending order to show the largest lost DPS first,
+then the largest lost HPS when DPS changes are equal.
 Character and attunement priority variants are generated only for fields visible
 under the current weapon/path selection. In particular, Art of Heng/Mo follows
 the selected weapon families and non-Mixed attunement priority keeps the two
@@ -949,7 +951,7 @@ A path can also declare a shared `tag` and a fixed `[left, right]`
 `lockedWeapons` pair; paths without a weapon lock
 allow either martial art in either slot. New weapons still require changes to
 `WeaponId`, settings validation, martial-art imports, attunement matching, and
-`mainAttribute()` in `damage.ts`. Each martial-art JSON definition declares its
+`mainAttributeForWeapons()` in `effectiveStats.ts`. Each martial-art JSON definition declares its
 physical weapon family and a shared `tag`; Art-of field visibility is derived
 from the weapon family, while attunement and set eligibility use the tag.
 The `status` value is one of `available`, `wip`, `devOnly`, or `plannerOnly`.

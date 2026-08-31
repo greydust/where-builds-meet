@@ -10,7 +10,9 @@ const viteServer = await createServer({
 
 try {
   const { calculateHealingBreakdown } = await viteServer.ssrLoadModule("/src/calculations/healing.ts");
-  const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { calculateRotationBaseline, calculateRotationSimulation } = await viteServer.ssrLoadModule(
+    "/src/calculations/rotationCalculator.ts",
+  );
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
@@ -44,10 +46,16 @@ try {
     judgementResistance: 0,
   };
   const derivedStats = calculateDerivedStats(stats, 0);
+  const martialStats = {
+    ...stats,
+    allMartialArts: 0.05,
+    fanDmgBoost: 0.06,
+    umbrellaDmgBoost: 0.07,
+  };
   const action = { type: "heal", phyCoef: 1, phyBonus: 10, attrBonus: 20 };
   const context = {
-    stats,
-    derivedStats,
+    stats: martialStats,
+    derivedStats: calculateDerivedStats(martialStats, 0),
     enemy,
     weapons: ["panaceaFan", "soulshadeUmbrella"],
     skillTags: ["Heal", "Heavy", "MartialArts", "Fan", "PanaceaFan"],
@@ -59,10 +67,19 @@ try {
   const physical = 110 * 1.15;
   const silkbind = 70 * 1.05 * 1.1;
   const criticalRate = 0.3;
-  const expected = (physical + silkbind) * (1 + criticalRate * 0.7) * 1.2;
+  const expected = (physical + silkbind) * (1 + criticalRate * 0.7) * 1.31;
   assert(
     closeTo(healing.total, expected),
-    `Healing must apply both attack channels, penetration, and healing bonuses (${JSON.stringify(healing)} !== ${expected}).`,
+    `Healing must apply both attack channels, penetration, general healing, All Martial Arts, and matching Art of Fan bonuses (${JSON.stringify(healing)} !== ${expected}).`,
+  );
+  const umbrellaHealing = calculateHealingBreakdown(action, {
+    ...context,
+    skillTags: ["Heal", "MartialArts", "Umbrella", "SoulshadeUmbrella"],
+  });
+  const umbrellaExpected = (physical + silkbind) * (1 + criticalRate * 0.7) * 1.22;
+  assert(
+    closeTo(umbrellaHealing.total, umbrellaExpected),
+    `Umbrella healing must apply All Martial Arts and Art of Umbrella instead of Art of Fan (${JSON.stringify(umbrellaHealing)} !== ${umbrellaExpected}).`,
   );
   assert(
     closeTo(healing.criticalRate, criticalRate) && closeTo(healing.normalRate, 1 - criticalRate),
@@ -160,6 +177,61 @@ try {
     closeTo(healingBySkill(royalRemedyResult, "SmallerHeal"), healingBySkill(result, "SmallerHeal") * 1.1) &&
       closeTo(healingBySkill(royalRemedyResult, "LargerHeal"), healingBySkill(result, "LargerHeal")),
     "Royal Remedy T0 must increase Cloudburst Healing by 10% without affecting other healing skills.",
+  );
+
+  const priorityResult = calculateRotationSimulation({
+    ...baselineInput,
+    statPriority: [
+      { label: "Smaller healing increase", stats: { ...stats, allMartialArts: 0.05 } },
+      { label: "Larger healing increase", stats: { ...stats, allMartialArts: 0.1 } },
+    ],
+  });
+  assert(
+    priorityResult.metrics.statPriority.map((row) => row.label).join(",") ===
+      "Larger healing increase,Smaller healing increase" &&
+      priorityResult.metrics.statPriority.every(
+        (row) => row.dpsDifference === 0 && row.hpsDifference > 0 && row.healingIncrease > 0,
+      ),
+    "Healing stat-priority variants must expose HPS changes and use HPS to break equal-DPS ties.",
+  );
+  const attunementPriorityResult = calculateRotationSimulation({
+    ...baselineInput,
+    attunementPriority: [
+      { label: "Smaller healing attunement", attunement: { panaceaMartialHealingBoost: 0.05 } },
+      { label: "Larger healing attunement", attunement: { panaceaMartialHealingBoost: 0.1 } },
+    ],
+  });
+  assert(
+    attunementPriorityResult.metrics.attunementPriority.map((row) => row.label).join(",") ===
+      "Larger healing attunement,Smaller healing attunement" &&
+      attunementPriorityResult.metrics.attunementPriority.every(
+        (row) => row.dpsDifference === 0 && row.hpsDifference > 0 && row.healingIncrease > 0,
+      ),
+    "Healing Attunement variants must expose HPS changes and use HPS to break equal-DPS ties.",
+  );
+  const setupComparisonResult = calculateRotationSimulation({
+    ...baselineInput,
+    setupComparisons: {
+      healingSetup: [{ label: "Healing setup", attunement: { panaceaMartialHealingBoost: 0.1 } }],
+    },
+  });
+  const healingSetup = setupComparisonResult.metrics.setupComparisons.healingSetup[0];
+  assert(
+    healingSetup.dpsDifference === 0 && healingSetup.hpsDifference > 0 && healingSetup.healingIncrease > 0,
+    "Setup comparisons must expose HPS changes independently from DPS changes.",
+  );
+  const innerWayPriorityResult = calculateRotationSimulation({
+    ...baselineInput,
+    innerWayPriority: [
+      { label: "Larger healing increase", stats: { ...stats, allMartialArts: 0.1 } },
+      { label: "Smaller healing increase", stats: { ...stats, allMartialArts: 0.05 } },
+    ],
+  });
+  assert(
+    innerWayPriorityResult.metrics.innerWayPriority.map((row) => row.label).join(",") ===
+      "Smaller healing increase,Larger healing increase" &&
+      innerWayPriorityResult.metrics.innerWayPriority.every((row) => row.hpsDifference > 0),
+    "Healing Inner Way variants must expose HPS changes and use ascending HPS for equal-DPS removal ties.",
   );
 
   const royalRemedyT1 = royalRemedy.effect.RoyalRemedyT1.trigger[0];

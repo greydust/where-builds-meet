@@ -36,6 +36,10 @@ export type SeasonalEdgeEntryState = {
   outcomes?: SeasonalEdgeEffect["outcomes"];
 };
 
+export type SeasonalVitalityResult = {
+  endingDistribution: { vitality: number; probability: number }[];
+};
+
 function finitePositive(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
@@ -208,12 +212,9 @@ export function applySeasonalEdgeCooldownToTimeline(timeline: TimelineRow[], win
   }
 }
 
-function overlapDuration(start: number, end: number, windows: SeasonalEdgeWindow[], expected = false) {
+function overlapDuration(start: number, end: number, windows: SeasonalEdgeWindow[]) {
   return windows.reduce(
-    (total, window) =>
-      total +
-      Math.max(0, Math.min(end, window.expiresAt) - Math.max(start, window.startsAt)) *
-        (expected ? window.yieldProbability : 1),
+    (total, window) => total + Math.max(0, Math.min(end, window.expiresAt) - Math.max(start, window.startsAt)),
     0,
   );
 }
@@ -271,23 +272,55 @@ export function applySeasonalVitalityRanges(
   snapshots.sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order);
   const first = snapshots.find((snapshot) => Number.isFinite(snapshot.resources.Vitality));
   if (!first) return undefined;
-  let previousTime = first.time;
-  let previousBase = first.resources.Vitality;
-  let upper = previousBase;
-  let expected = previousBase;
+  const branches = windows.reduce<{ selected: SeasonalEdgeWindow[]; probability: number }[]>(
+    (current, window) => {
+      if (window.yieldProbability <= 0) return current;
+      if (window.yieldProbability >= 1)
+        return current.map((branch) => ({
+          selected: [...branch.selected, window],
+          probability: branch.probability,
+        }));
+      return current.flatMap((branch) => [
+        {
+          selected: branch.selected,
+          probability: branch.probability * (1 - window.yieldProbability),
+        },
+        {
+          selected: [...branch.selected, window],
+          probability: branch.probability * window.yieldProbability,
+        },
+      ]);
+    },
+    [{ selected: [], probability: 1 }],
+  );
   const cap = typeof maximum === "number" && Number.isFinite(maximum) ? maximum : Number.POSITIVE_INFINITY;
-  for (const snapshot of snapshots) {
-    const base = snapshot.resources.Vitality;
-    if (!Number.isFinite(base)) continue;
-    upper += base - previousBase;
-    upper += overlapDuration(previousTime, snapshot.time, windows) * 2;
-    upper = Math.max(base, Math.min(cap, upper));
-    expected += base - previousBase;
-    expected += overlapDuration(previousTime, snapshot.time, windows, true) * 2;
-    expected = Math.max(base, Math.min(cap, expected));
-    snapshot.setRange(base, upper, expected);
-    previousBase = base;
-    previousTime = snapshot.time;
-  }
-  return expected;
+  const snapshotOutcomes = snapshots.map(() => [] as { vitality: number; probability: number }[]);
+  const endingDistribution = branches.map((branch) => {
+    let previousTime = first.time;
+    let previousBase = first.resources.Vitality;
+    let vitality = previousBase;
+    snapshots.forEach((snapshot, index) => {
+      const base = snapshot.resources.Vitality;
+      if (!Number.isFinite(base)) return;
+      vitality += base - previousBase;
+      vitality += overlapDuration(previousTime, snapshot.time, branch.selected) * 2;
+      vitality = Math.max(base, Math.min(cap, vitality));
+      snapshotOutcomes[index].push({ vitality, probability: branch.probability });
+      previousBase = base;
+      previousTime = snapshot.time;
+    });
+    return { vitality, probability: branch.probability };
+  });
+  snapshots.forEach((snapshot, index) => {
+    const outcomes = snapshotOutcomes[index];
+    if (!outcomes.length) return;
+    snapshot.setRange(
+      Math.min(...outcomes.map((outcome) => outcome.vitality)),
+      Math.max(...outcomes.map((outcome) => outcome.vitality)),
+      outcomes.reduce((total, outcome) => total + outcome.vitality * outcome.probability, 0),
+    );
+  });
+  return {
+    endingDistribution,
+  } satisfies SeasonalVitalityResult;
 }

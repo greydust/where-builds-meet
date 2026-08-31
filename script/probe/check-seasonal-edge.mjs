@@ -179,6 +179,47 @@ try {
     mysticState.resourceRanges.Vitality.expected < mysticState.resourceRanges.Vitality.maximum
   ))
     throw new Error("Expected Vitality must probability-weight Yield between its lower and upper bounds.");
+  closeTo(
+    result.mysticVitalityDamageScale,
+    0.625,
+    "A resource-surplus Yield branch must not erase the Mystic damage loss from deficit branches",
+  );
+  const resourceBoostedResult = calculateRotationBaseline({
+    timeline: {
+      ...timeline,
+      skills: {
+        ...timeline.skills,
+        Conversion: {
+          ...timeline.skills.Conversion,
+          action: [{ type: "heal", phyCoef: 0, time: 0 }],
+        },
+      },
+      setupEffects: [
+        {
+          trigger: {
+            event: "heal",
+            cooldown: 3,
+            action: { type: "addResource", value: "Vitality", amount: 2 },
+          },
+        },
+      ],
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats: calculateDerivedStats(stats, 0),
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  if (
+    resourceBoostedResult.mysticVitalityDamageScale <= result.mysticVitalityDamageScale ||
+    resourceBoostedResult.metrics.totalDamage <= result.metrics.totalDamage
+  )
+    throw new Error("Healing-triggered Vitality must improve expected Mystic damage while deficit branches remain.");
   const displayedTimeline = mergeCalculatedTargetHPState(buildRotationTimeline(timeline), result.timeline);
   closeTo(
     displayedTimeline[3].actionStates[1].resourceRanges.Vitality.minimum,

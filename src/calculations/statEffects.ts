@@ -1,4 +1,4 @@
-import type { CharacterStats } from "../types";
+import type { CharacterStats, WeaponId } from "../types";
 import { calculateDerivedStats, type DerivedStats } from "./effectiveStats";
 import { resolveSegmentValue } from "./dynamicValues";
 import { applyCharacterStatCaps, calculationStatMaximum } from "./statCaps";
@@ -159,13 +159,19 @@ export function calculateStatsWithEffects(
   baseStats: CharacterStats,
   effects: Array<StatEffectContainer & EffectiveStatEffectContainer>,
   judgementResistance: number,
+  weapons: WeaponId[] = [],
 ) {
   const directlyAdjustedStats = applyStatEffects(baseStats, effects);
   const initialEffectiveStat = collectEffectiveStatEffects(directlyAdjustedStats, effects);
-  const initialDerivedStats = calculateDerivedStats(directlyAdjustedStats, judgementResistance, initialEffectiveStat);
+  const initialDerivedStats = calculateDerivedStats(
+    directlyAdjustedStats,
+    judgementResistance,
+    initialEffectiveStat,
+    weapons,
+  );
   const stats = applyDerivedStatEffects(directlyAdjustedStats, effects, initialDerivedStats);
   const effectiveStat = collectEffectiveStatEffects(stats, effects);
-  const derivedStats = calculateDerivedStats(stats, judgementResistance, effectiveStat);
+  const derivedStats = calculateDerivedStats(stats, judgementResistance, effectiveStat, weapons);
   return { stats, effectiveStat, derivedStats };
 }
 
@@ -176,6 +182,7 @@ export function calculateStatsWithOverrides(
   effects: Array<StatEffectContainer & EffectiveStatEffectContainer>,
   judgementResistance: number,
   overrides: CharacterStatOverrides,
+  weapons: WeaponId[] = [],
 ) {
   const adjustedBaseStats = { ...baseStats };
   const overrideEntries = Object.entries(overrides).filter(
@@ -187,7 +194,7 @@ export function calculateStatsWithOverrides(
   // the shared pipeline after every correction also lets an overridden source
   // stat feed formula effects before a dependent overridden stat is corrected.
   for (let iteration = 0; iteration < 8; iteration += 1) {
-    const result = calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance);
+    const result = calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance, weapons);
     let largestCorrection = 0;
     for (const [key, targetValue] of overrideEntries) {
       const correction = targetValue - result.stats[key];
@@ -199,6 +206,6 @@ export function calculateStatsWithOverrides(
 
   return {
     baseStats: adjustedBaseStats,
-    ...calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance),
+    ...calculateStatsWithEffects(adjustedBaseStats, effects, judgementResistance, weapons),
   };
 }

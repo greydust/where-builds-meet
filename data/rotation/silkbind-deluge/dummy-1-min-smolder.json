@@ -345,15 +345,31 @@
     },
     {
       "type": "skill",
-      "skill": "JumpHeavy"
+      "skill": "DrunkenPoet1"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet2"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet3"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet4"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "skill",
       "skill": "JumpHeavy"
-    },
-    {
-      "type": "skill",
-      "skill": "SoaringSpin2"
     },
     {
       "type": "event",

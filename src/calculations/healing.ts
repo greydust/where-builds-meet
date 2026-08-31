@@ -1,5 +1,5 @@
 import attunementJson from "../../data/attunement.json";
-import type { DamageAction, DamageContext } from "./damage";
+import { weaponArtBonus, type DamageAction, type DamageContext } from "./damage";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
 import { calculateStatsWithEffects, resolveFormulaValue, type StatFormula } from "./statEffects";
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
@@ -72,7 +72,7 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
       (effect.effectiveStat && typeof effect.effectiveStat === "object"),
   );
   const calculated = hasStatEffects
-    ? calculateStatsWithEffects(context.stats, context.effects, context.enemy.judgementResistance)
+    ? calculateStatsWithEffects(context.stats, context.effects, context.enemy.judgementResistance, context.weapons)
     : undefined;
   const stats = calculated?.stats ?? context.stats;
   const derivedStats = calculated?.derivedStats ?? context.derivedStats;
@@ -113,7 +113,10 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
     Math.max(0, (derivedStats.effectiveCrit + derivedStats.directCrit) * derivedStats.effectivePrecision),
   );
   const criticalMultiplier = 1 + criticalRate * (BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus);
-  const generalMultiplier = 1 + healingBonus;
+  const martialArtHealingBonus = context.skillTags.includes("MartialArts")
+    ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
+    : 0;
+  const generalMultiplier = 1 + healingBonus + martialArtHealingBonus;
 
   return {
     physical: Math.max(0, physical * criticalMultiplier * generalMultiplier),

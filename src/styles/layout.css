@@ -210,10 +210,14 @@
 
   .app-layout {
     display: grid;
-    grid-template-columns: 48rem minmax(26rem, 32rem) minmax(22rem, 37.5rem);
+    grid-template-columns: 44rem 27rem minmax(22rem, 44rem);
     align-items: start;
     justify-content: start;
     gap: 16px;
+  }
+
+  .app-layout:has(.results-column-with-healing) {
+    grid-template-columns: 44rem 27rem 45.25rem;
   }
 
   .app-layout > * {
@@ -226,6 +230,8 @@
 
   .middle-stats-column {
     display: grid;
+    inline-size: 100%;
+    max-inline-size: 27rem;
     gap: 12px;
   }
 
@@ -259,9 +265,22 @@
   }
 
   /* Layout Responsive Breakpoints */
+  @media (max-width: 110em) {
+    .app-layout:has(.results-column-with-healing) {
+      grid-template-columns: minmax(0, 44rem) minmax(41.5rem, 1fr);
+    }
+    .app-layout:has(.results-column-with-healing) .middle-stats-column {
+      grid-column: 1;
+    }
+    .app-layout:has(.results-column-with-healing) .results-column {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+
   @media (max-width: 100em) {
     .app-layout {
-      grid-template-columns: minmax(0, 48rem) minmax(17.5rem, 1fr);
+      grid-template-columns: minmax(0, 44rem) minmax(17.5rem, 1fr);
     }
     .middle-stats-column {
       grid-column: 1;
@@ -273,11 +292,14 @@
   }
 
   @media (max-width: 70em) {
-    .app-layout {
+    .app-layout,
+    .app-layout:has(.results-column-with-healing) {
       grid-template-columns: 1fr;
     }
     .middle-stats-column,
-    .results-column {
+    .results-column,
+    .app-layout:has(.results-column-with-healing) .middle-stats-column,
+    .app-layout:has(.results-column-with-healing) .results-column {
       grid-column: auto;
       grid-row: auto;
     }

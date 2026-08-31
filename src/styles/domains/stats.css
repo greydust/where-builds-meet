@@ -2,14 +2,14 @@
   .character-stats-column {
     display: grid;
     inline-size: 100%;
-    max-inline-size: 48rem;
+    max-inline-size: 44rem;
     gap: 12px;
     min-inline-size: 0;
   }
 
   .character-secondary-stats {
     display: grid;
-    grid-template-columns: 24.125rem minmax(0, 1fr);
+    grid-template-columns: 22.125rem minmax(0, 1fr);
     align-items: start;
     gap: 12px;
     min-inline-size: 0;
@@ -73,7 +73,7 @@
   }
 
   .stats-panel .stats-grid {
-    grid-template-columns: minmax(0, 16rem) 6rem 1rem minmax(0, 16rem) 6rem;
+    grid-template-columns: minmax(0, 14rem) 6rem 1rem minmax(0, 14rem) 6rem;
     gap: 3px 6px;
     justify-content: start;
   }
@@ -308,23 +308,37 @@
   }
 
   .priority-list {
+    --priority-columns: minmax(8rem, 1fr) 6.5rem 5rem;
+
     display: grid;
+    inline-size: 100%;
     gap: 7px;
+    overflow-x: auto;
   }
 
   .priority-header,
   .priority-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(6.5rem, auto) minmax(5.5rem, auto);
+    grid-template-columns: var(--priority-columns);
     gap: 10px;
     align-items: center;
     color: var(--text-muted);
   }
 
-  .priority-list-with-roll .priority-header,
-  .priority-list-with-roll .priority-row {
-    grid-template-columns: minmax(0, 1fr) minmax(5rem, auto) minmax(6.5rem, auto) minmax(5.5rem, auto);
-    gap: 10px;
+  .priority-list-with-roll {
+    --priority-columns: minmax(8rem, 1fr) 5rem 6.5rem 5rem;
+  }
+
+  .priority-list-with-healing {
+    --priority-columns: minmax(8rem, 1fr) 6.5rem 5rem 6.5rem 5rem;
+
+    min-inline-size: 34rem;
+  }
+
+  .priority-list-with-roll.priority-list-with-healing {
+    --priority-columns: minmax(8rem, 1fr) 5rem 6.5rem 5rem 6.5rem 5rem;
+
+    min-inline-size: 39.625rem;
   }
 
   .priority-header {
@@ -456,12 +470,24 @@
     color: var(--text);
   }
 
-  .priority-positive {
+  .damage-positive {
     color: var(--primary);
   }
 
-  .priority-negative {
+  .damage-negative {
     color: var(--error);
+  }
+
+  .healing-positive {
+    color: var(--success);
+  }
+
+  .healing-negative {
+    color: var(--healing-negative);
+  }
+
+  .throughput-neutral {
+    color: var(--text);
   }
 
   .priority-section-start {

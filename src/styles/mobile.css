@@ -174,15 +174,27 @@
 
   .layout-mobile .priority-header,
   .layout-mobile .priority-row {
-    grid-template-columns: minmax(9rem, 1fr) max-content max-content;
+    grid-template-columns: var(--priority-columns);
     min-inline-size: 21rem;
     gap: 0.65rem;
   }
 
   .layout-mobile .priority-list-with-roll .priority-header,
   .layout-mobile .priority-list-with-roll .priority-row {
-    grid-template-columns: minmax(9rem, 1fr) max-content max-content max-content;
+    grid-template-columns: var(--priority-columns);
     min-inline-size: 27rem;
+  }
+
+  .layout-mobile .priority-list-with-healing .priority-header,
+  .layout-mobile .priority-list-with-healing .priority-row {
+    grid-template-columns: var(--priority-columns);
+    min-inline-size: 34rem;
+  }
+
+  .layout-mobile .priority-list-with-roll.priority-list-with-healing .priority-header,
+  .layout-mobile .priority-list-with-roll.priority-list-with-healing .priority-row {
+    grid-template-columns: var(--priority-columns);
+    min-inline-size: 39.625rem;
   }
 
   .layout-mobile .setup-option-list-wide,

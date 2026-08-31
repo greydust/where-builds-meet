@@ -70,6 +70,7 @@
 
     --success: oklch(0.78 0.13 145);
     --success-soft: oklch(from var(--success) l c h / 0.14);
+    --healing-negative: oklch(0.62 0.14 310);
 
     /* Game Elements / Damage Types (Tuned for dark mode contrast) */
     --damage-physical: var(--text);

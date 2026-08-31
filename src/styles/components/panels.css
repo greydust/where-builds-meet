@@ -143,16 +143,12 @@
     display: block;
   }
 
+  .layout-pc .middle-stats-column .setup-delta-label > span {
+    white-space: nowrap;
+  }
+
   .setup-active-label {
     color: var(--primary);
-  }
-
-  .setup-positive-label {
-    color: var(--success);
-  }
-
-  .setup-negative-label {
-    color: var(--error);
   }
 
   .setup-inactive-label {

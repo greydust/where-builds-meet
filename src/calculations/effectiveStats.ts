@@ -1,4 +1,4 @@
-import type { CharacterStats } from "../types";
+import type { CharacterStats, WeaponId } from "../types";
 import { DIRECT_CRIT_RATE_CAP } from "./statCaps";
 
 // Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
@@ -39,6 +39,38 @@ export type RateCalculation = {
   critRate: number;
   affinityRate: number;
 };
+
+export function mainAttributeForWeapons(weapons: WeaponId[]) {
+  let hasBamboocutWeapon = false;
+  for (const weapon of weapons) {
+    switch (weapon) {
+      case "snowparting":
+      case "phalanxbane":
+      case "thundercry":
+      case "stormbreaker":
+        return "stonesplit" as const;
+      case "namelessSword":
+      case "namelessSpear":
+      case "strategicSword":
+      case "heavenquakerSpear":
+        return "bellstrike" as const;
+      case "vernalUmbrella":
+      case "inkwellFan":
+      case "panaceaFan":
+      case "soulshadeUmbrella":
+        return "silkbind" as const;
+      case "everspring":
+      case "unfettered":
+      case "heavenwill":
+      case "skygrasp":
+      case "infernalTwinblades":
+      case "mortalRopeDart":
+        hasBamboocutWeapon = true;
+        break;
+    }
+  }
+  if (hasBamboocutWeapon) return "bamboocut" as const;
+}
 
 export function calculateRates(
   input: {
@@ -99,6 +131,7 @@ export function calculateDerivedStats(
   stats: CharacterStats,
   judgementResistance = JUDGEMENT_RESISTANCE,
   effectiveStat: Partial<CharacterStats> = {},
+  weapons: WeaponId[] = [],
 ): DerivedStats {
   const effectiveMax = (min: number, max: number) => Math.max(min, max);
   const effectiveValue = (key: keyof CharacterStats) =>
@@ -113,11 +146,23 @@ export function calculateDerivedStats(
   const maxSilkbind = effectiveValue("maxSilkbind");
   const minBamboocut = effectiveValue("minBamboocut");
   const maxBamboocut = effectiveValue("maxBamboocut");
-  const normalizedStonesplitMax = effectiveMax(minStonesplit, maxStonesplit);
-  const stonesplitWithVoidMin = minStonesplit + effectiveValue("minVoidAttack");
-  const stonesplitWithVoidMax = normalizedStonesplitMax + effectiveValue("maxVoidAttack");
-  const effectiveMinStonesplit = stonesplitWithVoidMin;
-  const effectiveMaxStonesplit = Math.max(stonesplitWithVoidMin, stonesplitWithVoidMax);
+  const mainAttribute = mainAttributeForWeapons(weapons);
+  const voidMin = effectiveValue("minVoidAttack");
+  const voidMax = effectiveValue("maxVoidAttack");
+  const attributeRange = (
+    attribute: "bellstrike" | "stonesplit" | "silkbind" | "bamboocut",
+    minimum: number,
+    maximum: number,
+  ) => {
+    const normalizedMaximum = effectiveMax(minimum, maximum);
+    if (mainAttribute !== attribute) return [minimum, normalizedMaximum] as const;
+    const minimumWithVoid = minimum + voidMin;
+    return [minimumWithVoid, effectiveMax(minimumWithVoid, normalizedMaximum + voidMax)] as const;
+  };
+  const [effectiveMinBellstrike, effectiveMaxBellstrike] = attributeRange("bellstrike", minBellstrike, maxBellstrike);
+  const [effectiveMinStonesplit, effectiveMaxStonesplit] = attributeRange("stonesplit", minStonesplit, maxStonesplit);
+  const [effectiveMinSilkbind, effectiveMaxSilkbind] = attributeRange("silkbind", minSilkbind, maxSilkbind);
+  const [effectiveMinBamboocut, effectiveMaxBamboocut] = attributeRange("bamboocut", minBamboocut, maxBamboocut);
   const precision = effectiveValue("precision");
   const crit = effectiveValue("crit");
   const effectiveCritBonus = effectiveValue("effectiveCritBonus");
@@ -135,14 +180,14 @@ export function calculateDerivedStats(
   return {
     effectiveMinPhys: minPhys,
     effectiveMaxPhys: effectiveMax(minPhys, maxPhys),
-    effectiveMinBellstrike: minBellstrike,
-    effectiveMaxBellstrike: effectiveMax(minBellstrike, maxBellstrike),
-    effectiveMinSilkbind: minSilkbind,
-    effectiveMaxSilkbind: effectiveMax(minSilkbind, maxSilkbind),
+    effectiveMinBellstrike,
+    effectiveMaxBellstrike,
+    effectiveMinSilkbind,
+    effectiveMaxSilkbind,
     effectiveMinStonesplit,
     effectiveMaxStonesplit,
-    effectiveMinBamboocut: minBamboocut,
-    effectiveMaxBamboocut: effectiveMax(minBamboocut, maxBamboocut),
+    effectiveMinBamboocut,
+    effectiveMaxBamboocut,
     effectivePrecision,
     effectiveCrit,
     effectiveAffinity,

@@ -1,4 +1,11 @@
-export type RotationPriority = { label: string; maxRoll?: number; increase: number; dpsDifference: number };
+export type RotationPriority = {
+  label: string;
+  maxRoll?: number;
+  increase: number;
+  dpsDifference: number;
+  healingIncrease: number;
+  hpsDifference: number;
+};
 export type RotationSkillBreakdown = {
   id: string;
   name: string;

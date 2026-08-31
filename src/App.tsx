@@ -1507,6 +1507,31 @@ function formatNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }
 
+type ThroughputChannel = "damage" | "healing";
+
+function displayedDelta(value: number) {
+  return Number(value.toFixed(2));
+}
+
+function formatDelta(value: number) {
+  return formatNumber(displayedDelta(value));
+}
+
+function deltaPrefix(value: number) {
+  return displayedDelta(value) > 0 ? "+" : "";
+}
+
+function throughputDeltaClass(value: number, channel: ThroughputChannel) {
+  const delta = displayedDelta(value);
+  if (delta === 0) return "throughput-neutral";
+  switch (channel) {
+    case "damage":
+      return delta > 0 ? "damage-positive" : "damage-negative";
+    case "healing":
+      return delta > 0 ? "healing-positive" : "healing-negative";
+  }
+}
+
 function skillFieldText(skillId: string, skill: SkillRecord | undefined, field: "name" | "shortName") {
   const value = skill?.[field]?.trim();
   if (!value) return field === "name" ? skillId : "";
@@ -1795,6 +1820,7 @@ function calculateGlobalStatState(
     globalStatEffects(settings, gearStatEffect, buildSetup),
     enemy.judgementResistance,
     overrides,
+    settings.weapons,
   );
 }
 
@@ -1857,6 +1883,7 @@ function buildGraduationBundle(environment: GraduationEnvironment): RotationSimu
     [...unconditionalSetupEffects, ...innerWayStatEffects],
     enemy.judgementResistance,
     {},
+    weapons,
   );
   const definitions = resolveSkillCalculationDefinitions(
     defaultSkillMaps,
@@ -2024,12 +2051,14 @@ function PriorityPanel({
   calculationCategory,
   sectionBreakAt,
   showMaxRoll = false,
+  showHealing = false,
 }: {
   title: string;
   rows: RotationPriority[];
   calculationCategory: RotationCalculationCategory;
   sectionBreakAt?: number;
   showMaxRoll?: boolean;
+  showHealing?: boolean;
 }) {
   return (
     <section className="panel priority-panel">
@@ -2040,12 +2069,28 @@ function PriorityPanel({
         </div>
       </div>
       {rows.length > 0 ? (
-        <div className={`priority-list ${showMaxRoll ? "priority-list-with-roll" : ""}`}>
+        <div
+          className={`priority-list ${showMaxRoll ? "priority-list-with-roll" : ""} ${showHealing ? "priority-list-with-healing" : ""}`}
+        >
           <div className="priority-header">
             <span>{t("ui.app.name")}</span>
             {showMaxRoll && <span>{t("ui.app.maxRoll")}</span>}
-            <span>{t("ui.app.dpsChange", { dps: t("system.dps") })}</span>
-            <span>{t("ui.app.percentage")}</span>
+            <span>{t("ui.app.throughputDeltaHeader", { throughput: t("system.dps") })}</span>
+            <span>
+              {showHealing
+                ? t("ui.app.throughputPercentageHeader", { throughput: t("system.dps") })
+                : t("ui.app.percentage")}
+            </span>
+            {showHealing ? (
+              <>
+                <span className="healing-value">
+                  {t("ui.app.throughputDeltaHeader", { throughput: t("system.hps") })}
+                </span>
+                <span className="healing-value">
+                  {t("ui.app.throughputPercentageHeader", { throughput: t("system.hps") })}
+                </span>
+              </>
+            ) : null}
           </div>
           {rows.map((row, index) => (
             <div className={`priority-row ${sectionBreakAt === index ? "priority-section-start" : ""}`} key={row.label}>
@@ -2055,14 +2100,26 @@ function PriorityPanel({
                   {row.maxRoll === undefined ? "—" : formatNumber(row.maxRoll)}
                 </strong>
               )}
-              <strong className={row.dpsDifference >= 0 ? "priority-positive" : "priority-negative"}>
-                {row.dpsDifference >= 0 ? "+" : ""}
-                {formatNumber(row.dpsDifference)}
+              <strong className={throughputDeltaClass(row.dpsDifference, "damage")}>
+                {deltaPrefix(row.dpsDifference)}
+                {formatDelta(row.dpsDifference)}
               </strong>
-              <strong className={row.increase >= 0 ? "priority-positive" : "priority-negative"}>
-                {row.increase >= 0 ? "+" : ""}
-                {formatNumber(row.increase)}%
+              <strong className={throughputDeltaClass(row.increase, "damage")}>
+                {deltaPrefix(row.increase)}
+                {formatDelta(row.increase)}%
               </strong>
+              {showHealing ? (
+                <>
+                  <strong className={throughputDeltaClass(row.hpsDifference, "healing")}>
+                    {deltaPrefix(row.hpsDifference)}
+                    {formatDelta(row.hpsDifference)}
+                  </strong>
+                  <strong className={throughputDeltaClass(row.healingIncrease, "healing")}>
+                    {deltaPrefix(row.healingIncrease)}
+                    {formatDelta(row.healingIncrease)}%
+                  </strong>
+                </>
+              ) : null}
             </div>
           ))}
         </div>
@@ -2783,17 +2840,27 @@ function StatsTab({
     if (active) return <small className="setup-active-label">{t("ui.app.active")}</small>;
     const comparison = rotationMetrics?.setupComparisons[group]?.find((row) => row.label === value);
     return comparison ? (
-      <small
-        className={`setup-delta-label ${comparison.dpsDifference >= 0 ? "setup-positive-label" : "setup-negative-label"}`}
-      >
-        <span>
-          {comparison.dpsDifference >= 0 ? "+" : ""}
-          {formatNumber(comparison.dpsDifference)} {t("system.dps")}
+      <small className="setup-delta-label">
+        <span className={throughputDeltaClass(comparison.dpsDifference, "damage")}>
+          {deltaPrefix(comparison.dpsDifference)}
+          {formatDelta(comparison.dpsDifference)} {t("system.dps")}
         </span>
-        <span>
-          ({comparison.increase >= 0 ? "+" : ""}
-          {formatNumber(comparison.increase)}%)
+        <span className={throughputDeltaClass(comparison.increase, "damage")}>
+          ({deltaPrefix(comparison.increase)}
+          {formatDelta(comparison.increase)}%)
         </span>
+        {rotationMetrics && rotationMetrics.hps > 0 ? (
+          <>
+            <span className={throughputDeltaClass(comparison.hpsDifference, "healing")}>
+              {deltaPrefix(comparison.hpsDifference)}
+              {formatDelta(comparison.hpsDifference)} {t("system.hps")}
+            </span>
+            <span className={throughputDeltaClass(comparison.healingIncrease, "healing")}>
+              ({deltaPrefix(comparison.healingIncrease)}
+              {formatDelta(comparison.healingIncrease)}%)
+            </span>
+          </>
+        ) : null}
       </small>
     ) : (
       <small className="setup-inactive-label">—</small>
@@ -2930,7 +2997,7 @@ function StatsTab({
                     definition={left}
                     derivedLabel={
                       index === 0
-                        ? t("ui.app.effectiveMinPhysicalAttack")
+                        ? t("ui.app.effectiveMinAttack", { name: t("system.damageType.physical") })
                         : index === 3
                           ? t("ui.app.effectiveCritical")
                           : index === 4
@@ -2952,7 +3019,7 @@ function StatsTab({
                     definition={right}
                     derivedLabel={
                       index === 0
-                        ? t("ui.app.effectiveMaxPhysicalAttack")
+                        ? t("ui.app.effectiveMaxAttack", { name: t("system.damageType.physical") })
                         : index === 2
                           ? t("ui.app.effectivePrecision")
                           : index === 3
@@ -2980,7 +3047,9 @@ function StatsTab({
                 <div className="stat-row" key={left.key}>
                   <CalculatedStatField
                     definition={left}
-                    derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(left.label) })}
+                    derivedLabel={t("ui.app.effectiveMinAttack", {
+                      name: t(`system.damageType.${["bellstrike", "stonesplit", "silkbind", "bamboocut"][index]}`),
+                    })}
                     derivedValue={
                       derivedStats[
                         [
@@ -2994,7 +3063,9 @@ function StatsTab({
                   />
                   <CalculatedStatField
                     definition={right}
-                    derivedLabel={t("ui.app.effectiveNamedStat", { name: gameText(right.label) })}
+                    derivedLabel={t("ui.app.effectiveMaxAttack", {
+                      name: t(`system.damageType.${["bellstrike", "stonesplit", "silkbind", "bamboocut"][index]}`),
+                    })}
                     derivedValue={
                       derivedStats[
                         [
@@ -3475,7 +3546,9 @@ function StatsTab({
             </div>
           </section>
         </section>
-        <aside className="results-column">
+        <aside
+          className={`results-column ${rotationMetrics && rotationMetrics.hps > 0 ? "results-column-with-healing" : ""}`}
+        >
           <section className="panel dps-panel">
             <div className="panel-heading">
               <div>
@@ -3549,6 +3622,7 @@ function StatsTab({
             rows={rotationMetrics?.statPriority ?? []}
             calculationCategory="statPriority"
             showMaxRoll
+            showHealing={Boolean(rotationMetrics && rotationMetrics.hps > 0)}
           />
           <PriorityPanel
             title={t("ui.app.attunementStatsPriority")}
@@ -3556,11 +3630,13 @@ function StatsTab({
             calculationCategory="attunementPriority"
             sectionBreakAt={2}
             showMaxRoll
+            showHealing={Boolean(rotationMetrics && rotationMetrics.hps > 0)}
           />
           <PriorityPanel
             title={t("ui.app.innerWaysPriority")}
             rows={rotationMetrics?.innerWayPriority ?? []}
             calculationCategory="innerWays"
+            showHealing={Boolean(rotationMetrics && rotationMetrics.hps > 0)}
           />
         </aside>
       </div>

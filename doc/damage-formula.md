@@ -25,21 +25,22 @@ A manually edited Main-tab stat is stored as a final-value override. The calcula
 
 ### Effective attack ranges
 
-For physical, Bellstrike, Silkbind, and Bamboocut attack:
+For physical, Bellstrike, Stonesplit, Silkbind, and Bamboocut attack:
 
 ```text
 Effective Minimum = Minimum
 Effective Maximum = max(Minimum, Maximum)
 ```
 
-Void/Formless Attack is folded into the primary attribute after Stonesplit's first minimum/maximum normalization:
+Void/Formless Attack is folded into the equipped path's primary attribute after
+that attribute's first minimum/maximum normalization:
 
 ```text
-Normalized Stonesplit Maximum = max(Min Stonesplit, Max Stonesplit)
-Effective Min Stonesplit = Min Stonesplit + Min Void/Formless
-Effective Max Stonesplit = max(
-  Effective Min Stonesplit,
-  Normalized Stonesplit Maximum + Max Void/Formless
+Normalized Primary Maximum = max(Min Primary, Max Primary)
+Effective Min Primary = Min Primary + Min Void/Formless
+Effective Max Primary = max(
+  Effective Min Primary,
+  Normalized Primary Maximum + Max Void/Formless
 )
 ```
 
@@ -50,8 +51,9 @@ Fan, Panacea Fan, and Soulshade Umbrella use Silkbind. Everspring Umbrella,
 Unfettered Rope Dart, Heavenwill Gauntlets, Skygrasp Rope Dart, Infernal
 Twinblades, and Mortal Rope Dart use Bamboocut. The primary attribute receives
 the action's attribute bonus, the 1.5 path multiplier, and Formless Penetration.
-Void/Formless Attack folding remains Stonesplit-only until its behavior for the
-other attributes is defined.
+Void/Formless Attack is therefore Stonesplit for Strength and Might, Bellstrike
+for Splendor and Umbra, Silkbind for Jade and Deluge, and Bamboocut for Dust,
+Kite, and Wind.
 
 ## Damage outcomes
 
@@ -153,9 +155,12 @@ Mystic Vitality Scale = clamp((Total Vitality Consumed + Final Vitality) / Total
 This is equivalent to available Vitality divided by consumed Vitality. For
 example, consuming 300 Vitality and ending at -100 retains `200 / 300`, or
 two-thirds, of Mystic damage. Non-Mystic damage and healing are unchanged.
-Infinite Vitality disables the adjustment. Seasonal Edge uses the
-probability-weighted Yield regeneration when resolving its expected ending
-Vitality.
+Infinite Vitality disables the adjustment. Seasonal Edge resolves each possible
+Yield-regeneration branch independently, applies the deficit scale to that
+branch, and then probability-weights the resulting scales. It does not apply
+the nonlinear deficit clamp to an averaged ending Vitality, because a
+resource-surplus branch must not erase the damage loss from a resource-deficit
+branch.
 
 The adjustment is deliberately an aggregate result correction. Timeline
 actions, per-action damage, skill and cast breakdowns, and editor resource
@@ -282,11 +287,13 @@ Expected Critical Multiplier =
 Final Healing =
   (Physical Healing + Silkbind Healing)
   × Expected Critical Multiplier
-  × (1 + General Healing Bonus)
+  × (1 + Healing Bonus Category)
 ```
 
 The base Critical Healing Bonus is 50%. Critical Healing Bonus effects add to
-that bonus, while General Healing Bonus multiplies the expected combined heal.
+that bonus. The Healing Bonus Category adds General Healing Bonus, All Martial
+Arts for actions tagged `MartialArts`, and the matching weapon Art bonus (for
+example, Art of Fan or Art of Umbrella), then multiplies the expected combined heal.
 Healing totals use the same fight duration as damage, producing HPS alongside
 DPS. Per-skill healing breakdowns report the average Normal and Critical
 outcome rates across that skill's healing actions; abrasion and affinity are
