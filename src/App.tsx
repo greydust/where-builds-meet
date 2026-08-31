@@ -2076,11 +2076,7 @@ function PriorityPanel({
             <span>{t("ui.app.name")}</span>
             {showMaxRoll && <span>{t("ui.app.maxRoll")}</span>}
             <span>{t("ui.app.throughputDeltaHeader", { throughput: t("system.dps") })}</span>
-            <span>
-              {showHealing
-                ? t("ui.app.throughputPercentageHeader", { throughput: t("system.dps") })
-                : t("ui.app.percentage")}
-            </span>
+            <span>{t("ui.app.throughputPercentageHeader", { throughput: t("system.dps") })}</span>
             {showHealing ? (
               <>
                 <span className="healing-value">
@@ -3372,7 +3368,7 @@ function StatsTab({
           {setPanel(t("ui.app.weaponSet"), "weaponSets", typedWeaponSetDefinitions, availableWeaponSets)}
           {availableArmorSets.length > 0 &&
             setPanel(t("ui.app.armorSet"), "armorSets", typedArmorSetDefinitions, availableArmorSets)}
-          <section className="panel setup-placeholder-panel">
+          <section className="panel setup-placeholder-panel bow-ring-panel">
             <div className="panel-heading">
               <div>
                 <h2>{t("ui.app.bowRingSet")}</h2>
@@ -3390,7 +3386,7 @@ function StatsTab({
                 </button>
               )}
             </div>
-            <div className="setup-option-list setup-option-list-wide">
+            <div className="setup-option-list setup-option-list-wide bow-ring-option-list">
               {Object.entries(typedBowRingSetDefinitions).map(([value, definition]) => (
                 <button
                   className={bowRingSet === value ? "selected" : ""}

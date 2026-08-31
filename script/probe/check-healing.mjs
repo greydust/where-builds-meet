@@ -72,6 +72,29 @@ try {
     closeTo(healing.total, expected),
     `Healing must apply both attack channels, penetration, general healing, All Martial Arts, and matching Art of Fan bonuses (${JSON.stringify(healing)} !== ${expected}).`,
   );
+  const silkbindPenetrationHealing = calculateHealingBreakdown(action, {
+    ...context,
+    stats: { ...context.stats, silkbindPenetration: context.stats.silkbindPenetration + 10 },
+  });
+  const formlessPenetrationHealing = calculateHealingBreakdown(action, {
+    ...context,
+    attunement: { ...context.attunement, formlessPenetration: 10 },
+  });
+  const expectedSilkbindPenetrationIncrease = 70 * 0.05 * 1.1 * (1 + criticalRate * 0.7) * 1.31;
+  assert(
+    closeTo(silkbindPenetrationHealing.total - healing.total, expectedSilkbindPenetrationIncrease) &&
+      closeTo(formlessPenetrationHealing.total - healing.total, expectedSilkbindPenetrationIncrease),
+    "Native Silkbind Penetration and Formless Penetration converted by a Silkbind path must boost Silkbind healing equally.",
+  );
+  const nonSilkbindFormlessHealing = calculateHealingBreakdown(action, {
+    ...context,
+    weapons: ["thundercry", "stormbreaker"],
+    attunement: { ...context.attunement, formlessPenetration: 10 },
+  });
+  assert(
+    closeTo(nonSilkbindFormlessHealing.total, healing.total),
+    "Formless Penetration converted to a non-Silkbind primary attribute must not boost Silkbind healing.",
+  );
   const umbrellaHealing = calculateHealingBreakdown(action, {
     ...context,
     skillTags: ["Heal", "MartialArts", "Umbrella", "SoulshadeUmbrella"],

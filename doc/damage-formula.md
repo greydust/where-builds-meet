@@ -273,7 +273,9 @@ respective average attack before the coefficient. Matching Martial Art Skill
 Healing Boost attunements contribute General Healing Bonus. Physical
 Penetration combines its Weapon attunement value with matching calculation-time
 effects. Silkbind Penetration combines its resolved character-stat value with
-matching calculation-time effects.
+matching calculation-time effects. Formless Penetration converts to the equipped
+path's primary attribute before healing is resolved, so it contributes to
+Silkbind Healing when Silkbind is the primary attribute.
 
 Healing has only Normal and Critical outcomes:
 

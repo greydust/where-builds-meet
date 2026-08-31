@@ -1,6 +1,7 @@
 import attunementJson from "../../data/attunement.json";
 import { weaponArtBonus, type DamageAction, type DamageContext } from "./damage";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
+import { mainAttributeForWeapons } from "./effectiveStats";
 import { calculateStatsWithEffects, resolveFormulaValue, type StatFormula } from "./statEffects";
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 
@@ -50,6 +51,7 @@ function effectValue(
 
 function matchingAttunementStats(context: DamageContext) {
   let physicalPenetration = 0;
+  let formlessPenetration = 0;
   let healingBonus = 0;
   for (const [key, value] of Object.entries(context.attunement)) {
     const definition = attunementDefinitions[key];
@@ -59,9 +61,10 @@ function matchingAttunementStats(context: DamageContext) {
     if (excludedTags?.some((tag) => context.skillTags.includes(tag))) continue;
     const stats = definition?.effect?.stat;
     physicalPenetration += value * numberValue(stats?.physicalPenetration);
+    formlessPenetration += value * numberValue(stats?.formlessPenetration);
     healingBonus += value * numberValue(stats?.healingBonus);
   }
-  return { physicalPenetration, healingBonus };
+  return { physicalPenetration, formlessPenetration, healingBonus };
 }
 
 /** Resolve one healing action from the same hit-time stats and effects used by damage actions. */
@@ -95,6 +98,9 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
 
   const attunement = matchingAttunementStats(context);
   physicalPenetration += attunement.physicalPenetration;
+  if (mainAttributeForWeapons(context.weapons) === "silkbind") {
+    silkbindPenetration += attunement.formlessPenetration;
+  }
   healingBonus += attunement.healingBonus;
 
   const coefficient = numberValue(action.phyCoef);

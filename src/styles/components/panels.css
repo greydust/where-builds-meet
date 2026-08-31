@@ -79,6 +79,14 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .bow-ring-panel {
+    padding-inline: 8px;
+  }
+
+  .bow-ring-option-list {
+    gap: 2px;
+  }
+
   .setup-option-list-food,
   .setup-option-list-arsenal {
     grid-template-columns: repeat(3, minmax(0, 1fr));
