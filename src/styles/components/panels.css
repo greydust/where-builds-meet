@@ -364,4 +364,8 @@
   .global-debuff-options button small {
     margin-block-start: 2px;
   }
+
+  .layout-pc .global-debuff-options .setup-delta-label > span {
+    white-space: nowrap;
+  }
 }

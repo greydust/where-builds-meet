@@ -9,7 +9,7 @@
 
   .character-secondary-stats {
     display: grid;
-    grid-template-columns: 22.125rem minmax(0, 1fr);
+    grid-template-columns: 19.125rem minmax(0, 1fr);
     align-items: start;
     gap: 12px;
     min-inline-size: 0;
@@ -355,6 +355,10 @@
 
   .attunement-panel {
     padding: 12px;
+  }
+
+  .attunement-panel .attunement-field {
+    grid-template-columns: minmax(0, 1fr) 6rem;
   }
 
   .breakthrough-panel {
