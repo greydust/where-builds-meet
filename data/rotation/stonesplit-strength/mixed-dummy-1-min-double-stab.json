@@ -1,5 +1,5 @@
 {
-  "name": "Mixed Dummy 1 Min Dual Stab",
+  "name": "Mixed Dummy 1 Min Double Stab",
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "start": {
