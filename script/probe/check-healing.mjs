@@ -18,6 +18,8 @@ try {
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const royalRemedy = (await viteServer.ssrLoadModule("/data/innerway/royal-remedy.json")).default;
   const panaceaFanSkills = (await viteServer.ssrLoadModule("/data/skill/panacea-fan.json")).default;
+  const soulshadeUmbrellaSkills = (await viteServer.ssrLoadModule("/data/skill/soulshade-umbrella.json")).default;
+  const delugeBuffs = (await viteServer.ssrLoadModule("/data/buff/silkbind-deluge.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -298,8 +300,119 @@ try {
     "Royal Remedy T1 must restore two Vitality for each of all seven Fan Q healing ticks.",
   );
 
+  const morningDrizzleTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Morning Drizzle periodic healing probe",
+      steps: [
+        { type: "skill", skill: "MorningDrizzle" },
+        { type: "skill", skill: "Wait" },
+      ],
+    },
+    skills: {
+      MorningDrizzle: panaceaFanSkills.MorningDrizzle,
+      Wait: { name: "Wait", castTime: 6, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: { MorningDrizzle: delugeBuffs.MorningDrizzle },
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  });
+  const morningDrizzleTicks = morningDrizzleTimeline
+    .filter((row) => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "MorningDrizzle")
+    .map((row) => row.startTime);
+  assert(
+    morningDrizzleTicks.length === 6 && morningDrizzleTicks.every((time, index) => closeTo(time, 0.55 + index)),
+    `Morning Drizzle must heal immediately on application and once per second through 5 seconds (${morningDrizzleTicks.join(", ")}).`,
+  );
+  const refreshedMorningDrizzleTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Morning Drizzle refresh probe",
+      steps: [
+        { type: "skill", skill: "MorningDrizzle" },
+        { type: "skill", skill: "MorningDrizzle" },
+        { type: "skill", skill: "Wait" },
+      ],
+    },
+    skills: {
+      MorningDrizzle: panaceaFanSkills.MorningDrizzle,
+      Wait: { name: "Wait", castTime: 6, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: { MorningDrizzle: delugeBuffs.MorningDrizzle },
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  });
+  const refreshedMorningDrizzleTicks = refreshedMorningDrizzleTimeline
+    .filter((row) => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "MorningDrizzle")
+    .map((row) => row.startTime);
+  assert(
+    refreshedMorningDrizzleTicks.length === 7 &&
+      closeTo(refreshedMorningDrizzleTicks[0], 0.55) &&
+      refreshedMorningDrizzleTicks.slice(1).every((time, index) => closeTo(time, 1.3125 + index)),
+    `Refreshing Morning Drizzle must restart its six-tick cadence without retaining superseded ticks (${refreshedMorningDrizzleTicks.join(", ")}).`,
+  );
+
+  const echoesTimelineInput = {
+    rotation: {
+      name: "Echoes of a Thousand Plants periodic healing probe",
+      steps: [
+        { type: "skill", skill: "EchoesOfAThousandPlants" },
+        { type: "skill", skill: "Wait" },
+      ],
+    },
+    skills: {
+      EchoesOfAThousandPlants: soulshadeUmbrellaSkills.EchoesOfAThousandPlants,
+      Wait: { name: "Wait", castTime: 61, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: { EchoesOfAThousandPlants: delugeBuffs.EchoesOfAThousandPlants },
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  };
+  const echoesTimeline = buildRotationTimeline(echoesTimelineInput);
+  const echoesTicks = echoesTimeline
+    .filter(
+      (row) => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "EchoesOfAThousandPlants",
+    )
+    .map((row) => row.startTime);
+  assert(
+    echoesTicks.length === 60 && echoesTicks.every((time, index) => closeTo(time, 1.625 + index)),
+    `Echoes of a Thousand Plants must begin healing 1 second after application and repeat every second for its 60-second duration (${echoesTicks.length} ticks).`,
+  );
+  const consumedEchoesTimeline = buildRotationTimeline({
+    ...echoesTimelineInput,
+    rotation: {
+      name: "Floating Grace consumes Echoes probe",
+      steps: [
+        { type: "skill", skill: "EchoesOfAThousandPlants" },
+        { type: "skill", skill: "FloatingGrace" },
+        { type: "skill", skill: "Wait" },
+      ],
+    },
+    skills: {
+      EchoesOfAThousandPlants: soulshadeUmbrellaSkills.EchoesOfAThousandPlants,
+      FloatingGrace: soulshadeUmbrellaSkills.FloatingGrace,
+      Wait: { name: "Wait", castTime: 2, action: [] },
+    },
+  });
+  assert(
+    !consumedEchoesTimeline.some(
+      (row) => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "EchoesOfAThousandPlants",
+    ),
+    "Casting Floating Grace must consume Echoes of a Thousand Plants before its pending healing ticks resolve.",
+  );
+
   console.log(
-    "Healing formula, outcomes, Royal Remedy triggers, timeline totals, HPS, and breakdown sorting verified.",
+    "Healing formula, outcomes, periodic healing and consumption, Royal Remedy triggers, timeline totals, HPS, and breakdown sorting verified.",
   );
 } finally {
   await viteServer.close();

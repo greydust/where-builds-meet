@@ -1,4 +1,23 @@
 {
+  "MorningDrizzle": {
+    "name": "Morning Drizzle",
+    "shortName": "Fan Special",
+    "castTime": 0.7625,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.55
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Special", "Fan", "PanaceaFan", "MorningDrizzle"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
   "CloudburstHealing": {
     "name": "Cloudburst Healing",
     "shortName": "Fan Q",

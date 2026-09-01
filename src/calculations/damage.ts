@@ -407,13 +407,17 @@ function calculateDamageBreakdownInternal(
     directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
     finalAffinity: derivedStats.finalAffinity,
   };
-  const convertedRateStats = effects.some((effect) => effect.convert !== undefined)
-    ? applyStatConversions(rateStats, effects as StatConversionEffectContainer[])
-    : rateStats;
+  const conversionEffects = effects.filter(
+    (effect): effect is Record<string, unknown> & StatConversionEffectContainer => effect.convert !== undefined,
+  );
+  const convertedRateStats =
+    conversionEffects.length > 0 ? applyStatConversions(rateStats, conversionEffects) : rateStats;
   const SteadfastGuaranteedCrit =
     effects.some((effect) => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"));
-  const rates = calculateRates(convertedRateStats, { SteadfastGuaranteedCrit });
+  const calculatedRates = calculateRates(convertedRateStats, { SteadfastGuaranteedCrit });
+  const rates =
+    conversionEffects.length > 0 ? applyStatConversions(calculatedRates, conversionEffects) : calculatedRates;
   if (import.meta.env.DEV) finishCalculationPhase("damageRateResolution", rateResolutionStartedAt);
   if (random) {
     const outcomeSelectionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;

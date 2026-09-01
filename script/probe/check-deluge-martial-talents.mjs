@@ -14,6 +14,8 @@ try {
   const { calculateStatsWithEffects, resolveFormulaValue } = await viteServer.ssrLoadModule(
     "/src/calculations/statEffects.ts",
   );
+  const { calculateDamageBreakdown } = await viteServer.ssrLoadModule("/src/calculations/damage.ts");
+  const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { requirementsPass } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
 
@@ -61,7 +63,10 @@ try {
   const criticalHealing = soulshadeUmbrella.talent
     .flatMap((talent) => talent.effect ?? [])
     .find((effect) => effect.effect?.criticalHealingBonus);
-  if (!heavyHealing || !mysticBuff || !criticalHealing)
+  const mysticPrecision = panaceaFan.talent
+    .flatMap((talent) => talent.effect ?? [])
+    .find((effect) => effect.effect?.convert?.from === "abrasionRate");
+  if (!heavyHealing || !mysticBuff || !criticalHealing || !mysticPrecision)
     throw new Error("Deluge conditional talent effects are missing.");
 
   const requirementPasses = (requirement, tags, martialArts) =>
@@ -82,6 +87,39 @@ try {
     requirementPasses(criticalHealing.requirement, ["Heavy"], ["panaceaFan", "soulshadeUmbrella"])
   )
     throw new Error("Soulshade Umbrella Critical Healing must be restricted to Special-tagged actions.");
+  if (
+    !requirementPasses(mysticPrecision.requirement, ["Mystic"], ["panaceaFan", "soulshadeUmbrella"]) ||
+    requirementPasses(mysticPrecision.requirement, ["Mystic"], ["panaceaFan", "inkwellFan"]) ||
+    requirementPasses(mysticPrecision.requirement, ["MartialArts"], ["panaceaFan", "soulshadeUmbrella"])
+  )
+    throw new Error("Panacea Fan's outcome conversion must require both Soulshade Umbrella and a Mystic action.");
+
+  const precisionStats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 0.8 };
+  const precisionBreakdown = calculateDamageBreakdown(
+    { phyCoef: 1 },
+    {
+      stats: precisionStats,
+      derivedStats: calculateDerivedStats(precisionStats, 0, {}, ["panaceaFan", "soulshadeUmbrella"]),
+      enemy: {
+        name: "Deluge talent probe",
+        level: 96,
+        defense: 0,
+        physicalResistance: 0,
+        bellstrikeResistance: 0,
+        stonesplitResistance: 0,
+        silkbindResistance: 0,
+        bamboocutResistance: 0,
+        judgementResistance: 0,
+      },
+      weapons: ["panaceaFan", "soulshadeUmbrella"],
+      skillTags: ["Mystic"],
+      buffs: [],
+      effects: [mysticPrecision.effect],
+      attunement: {},
+    },
+  );
+  assertClose(precisionBreakdown.outcomeRates.abrasion, 0, "Mystic Precision must remove all Abrasion chance.");
+  assertClose(precisionBreakdown.outcomeRates.normal, 1, "Mystic Precision must convert Abrasion into Normal chance.");
 
   assertClose(
     resolveFormulaValue(heavyHealing.effect.healingBonus.formula, { minPhys: 750 }),

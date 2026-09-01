@@ -189,7 +189,11 @@ Missing or non-numeric names make the conversion inert. Multiple conversions
 run in data order and therefore read the result of the previous conversion.
 `max` caps the source amount consumed, while Direct Critical Rate has a global
 target cap of `0.2` (20%). Converted rate fields are passed through the ordinary
-outcome-rate formula and its existing caps.
+outcome-rate formula and its existing caps. The same conversions then run on
+the derived `abrasionRate`, `normalRate`, `critRate`, and `affinityRate`
+snapshot. This lets a data effect convert one finished outcome probability into
+another without adding a mechanic-specific damage branch; conversions whose
+named fields are absent from either snapshot are inert in that stage.
 
 ### Monte Carlo outcome and attack sampling
 

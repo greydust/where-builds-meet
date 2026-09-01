@@ -1,4 +1,59 @@
 {
+  "EchoesOfAThousandPlants": {
+    "name": "Echoes of a Thousand Plants",
+    "shortName": "Echoes",
+    "description": "Heals once per second after a 1-second delay and increases healing by 15%.",
+    "duration": 60,
+    "maxStack": 1,
+    "refresh": true,
+    "periodic": {
+      "interval": 1,
+      "firstTick": 1,
+      "resetOnRefresh": true,
+      "action": [
+        {
+          "type": "heal",
+          "phyCoef": 0.7721,
+          "phyBonus": 214,
+          "attrBonus": 116,
+          "time": 0
+        }
+      ]
+    },
+    "effect": [
+      {
+        "effect": {
+          "healingBonus": 0.15
+        }
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "HOT", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"]
+  },
+  "MorningDrizzle": {
+    "name": "Morning Drizzle",
+    "shortName": "MD",
+    "description": "Heals once per second for 5 seconds, beginning immediately.",
+    "duration": 5,
+    "maxStack": 1,
+    "refresh": true,
+    "periodic": {
+      "interval": 1,
+      "firstTick": 0,
+      "resetOnRefresh": true,
+      "action": [
+        {
+          "type": "heal",
+          "phyCoef": 1.69,
+          "phyBonus": 470,
+          "attrBonus": 256,
+          "time": 0
+        }
+      ]
+    },
+    "modifier": [],
+    "tags": ["Heal", "HOT", "MartialArts", "Special", "Fan", "PanaceaFan", "MorningDrizzle"]
+  },
   "FloatingGrace": {
     "name": "Floating Grace",
     "shortName": "FG",

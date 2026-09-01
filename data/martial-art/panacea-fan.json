@@ -38,6 +38,24 @@
       ]
     },
     {
+      "name": "Mystic Precision Enhancement",
+      "effect": [
+        {
+          "requirement": [
+            { "target": "equippedMartialArt", "value": "soulshadeUmbrella" },
+            { "target": "skillTag", "value": "Mystic" }
+          ],
+          "effect": {
+            "convert": {
+              "from": "abrasionRate",
+              "to": "normalRate",
+              "ratio": 1
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Silkbind Attribute Up",
       "effect": [
         {
