@@ -55,8 +55,8 @@
           "value": 0.08
         },
         {
-          "key": "hengBladeDmgBoost",
-          "value": 0.062
+          "key": "maxVoidAttack",
+          "value": 44.2
         }
       ],
       "attunement": {
@@ -86,8 +86,8 @@
           "value": 0.062
         },
         {
-          "key": "precision",
-          "value": 0.08
+          "key": "maxVoidAttack",
+          "value": 44.2
         }
       ],
       "attunement": {
