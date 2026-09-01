@@ -1410,7 +1410,10 @@ grant the resource independently. T2 adds `0.086` Effective Critical Rate and
 T5 adds `0.046` Direct Critical Rate. Seasonal Edge T2 adds `24.8` Min Physical
 Attack and `49.6` Max Physical Attack, while T5 adds `0.028` Physical DMG Bonus.
 The T2 and T5 bonuses are unconditional stat effects resolved by the shared
-character-stat pipeline.
+character-stat pipeline. Every Inner Way T2 and T5 stat bonus uses this form
+and appears in the appropriate Stats-page total. Physical Penetration is
+included in Attunement Stats, while Physical Resistance remains
+calculation-only and is intentionally omitted from the page.
 
 Panacea Fan converts Agility to Critical Rate at `0.085 / 280`, capped at
 `0.085`. Heavy-tagged healing stores a `0.05` base Healing Bonus plus up to

@@ -14,10 +14,13 @@ import {
   type SetStateAction,
 } from "react";
 import { type AttunementStats, type DamageBreakdown } from "./calculations/damage";
+import { resolveAttunementStats, type AttunementOverrides } from "./calculations/attunementStats";
 import { resolveSwitchValue } from "./calculations/dynamicValues";
 import { UiIcon } from "./UiIcon";
-const BuildTab = lazy(() => import("./BuildTab"));
-const SimulationTab = lazy(() => import("./SimulationTab"));
+const loadBuildTab = () => import("./BuildTab");
+const loadSimulationTab = () => import("./SimulationTab");
+const BuildTab = lazy(loadBuildTab);
+const SimulationTab = lazy(loadSimulationTab);
 import { allStatDefinitions, emptyStats } from "./data/statDefinitions";
 import {
   activeBuildStorageKey,
@@ -1665,6 +1668,7 @@ type CharacterState = {
   stats: CharacterStats;
   rawStats: CharacterStats;
   attunementStats: AttunementStats;
+  displayedAttunementStats: AttunementStats;
   settings: CalculatorSettings;
   enemy: EnemyProfile;
   derivedStats: DerivedStats;
@@ -1691,8 +1695,6 @@ function loadAttunementStats() {
     return { ...defaultAttunementStats };
   }
 }
-
-type AttunementOverrides = Partial<AttunementStats>;
 
 function loadAttunementOverrides(): AttunementOverrides {
   try {
@@ -2578,7 +2580,7 @@ function StatsTab({
   activeRotationName: string;
   onInnerWayChange: () => void;
 }) {
-  const { stats, derivedStats, attunementStats, buildSetup, settings } = character;
+  const { stats, derivedStats, displayedAttunementStats: attunementStats, buildSetup, settings } = character;
   const breakthrough = breakthroughProfile(settings);
   const [food, setFood] = useState(loadFood);
   const [script, setScript] = useState(loadScript);
@@ -8219,9 +8221,22 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<
     "main" | "build" | "breakdown" | "rotations" | "simulation" | "skills" | "settings"
   >("main");
-  // Load the large simulator only on first use, then keep it mounted while hidden.
+  // Mount the simulator only on first use, then keep it mounted while hidden. Its module is preloaded below.
   // Remounting would cancel its worker and discard progress/results on every tab switch.
   const [simulationMounted, setSimulationMounted] = useState(false);
+
+  useEffect(() => {
+    const preloadDeferredTabs = () => {
+      void Promise.allSettled([loadBuildTab(), loadSimulationTab()]);
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      const idleCallback = window.requestIdleCallback(preloadDeferredTabs, { timeout: 1500 });
+      return () => window.cancelIdleCallback(idleCallback);
+    }
+    const timeout = window.setTimeout(preloadDeferredTabs, 1);
+    return () => window.clearTimeout(timeout);
+  }, []);
+
   const [skillOverrides, setSkillOverrides] = useState<SkillOverrides>(loadSkillOverrides);
   const skillEditorModified = hasSkillOverrides(skillOverrides);
   const [activeSimulation, setActiveSimulation] = useState<{
@@ -8304,26 +8319,19 @@ export default function App() {
   );
   const displayedStats = globalStatState.stats;
   const derivedStats = globalStatState.derivedStats;
-  const displayedAttunementStats = useMemo(
+  const resolvedAttunementStats = useMemo(
     () =>
-      Object.fromEntries(
-        Object.keys(defaultAttunementStats).map((key) => {
-          const statKey = key as keyof AttunementStats;
-          return [
-            statKey,
-            Object.prototype.hasOwnProperty.call(attunementOverrides, statKey)
-              ? attunementOverrides[statKey]
-              : (equippedGearEffects.attunement[statKey] ?? 0),
-          ];
-        }),
-      ) as AttunementStats,
-    [attunementOverrides, equippedGearEffects],
+      resolveAttunementStats(defaultAttunementStats, equippedGearEffects.attunement, attunementOverrides, {
+        physicalPenetration: displayedStats.physicalPenetration,
+      }),
+    [attunementOverrides, displayedStats.physicalPenetration, equippedGearEffects.attunement],
   );
   const character = useMemo(
     () => ({
       stats: displayedStats,
       rawStats: globalStatState.baseStats,
-      attunementStats: displayedAttunementStats,
+      attunementStats: resolvedAttunementStats.calculation,
+      displayedAttunementStats: resolvedAttunementStats.displayed,
       settings,
       enemy,
       derivedStats,
@@ -8334,7 +8342,7 @@ export default function App() {
     [
       displayedStats,
       globalStatState.baseStats,
-      displayedAttunementStats,
+      resolvedAttunementStats,
       settings,
       enemy,
       derivedStats,

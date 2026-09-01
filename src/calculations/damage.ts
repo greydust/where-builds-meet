@@ -373,7 +373,7 @@ function calculateDamageBreakdownInternal(
     const physicalDamage =
       (coefficient * (physicalAttack - adjustedEnemyDefense) + physicalBonus) *
       penetrationMultiplier(
-        attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
+        stats.physicalPenetration + attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
         enemy.physicalResistance + resolvedEffects.physicalResistance,
       ) *
       (1 + stats.physDmgBonus);

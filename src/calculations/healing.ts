@@ -82,7 +82,7 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
   const unconditional = context.unconditionalDamageEffects ?? {};
   let physicalAttackBonus = unconditional.physicalAttackBonus ?? 0;
   let silkbindAttackBonus = unconditional.silkbindAttackBonus ?? 0;
-  let physicalPenetration = unconditional.physicalPenetration ?? 0;
+  let physicalPenetration = stats.physicalPenetration + (unconditional.physicalPenetration ?? 0);
   let silkbindPenetration = stats.silkbindPenetration + (unconditional.silkbindPenetration ?? 0);
   let healingBonus = 0;
   let criticalHealingBonus = 0;

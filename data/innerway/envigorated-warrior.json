@@ -19,7 +19,7 @@
     "EnvigoratedWarriorT5": {
       "effect": [
         {
-          "effect": {
+          "stat": {
             "physicalPenetration": 5.1
           }
         }

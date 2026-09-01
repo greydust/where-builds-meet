@@ -12,6 +12,8 @@ try {
   const empiricalEdge = (await viteServer.ssrLoadModule("/data/innerway/empirical-edge.json")).default;
   const kiteBuffs = (await viteServer.ssrLoadModule("/data/buff/bamboocut-kite.json")).default;
   const { innerWayDefinitions } = await viteServer.ssrLoadModule("/src/data/innerWayDefinitions.ts");
+  const { calculateStatsWithEffects } = await viteServer.ssrLoadModule("/src/calculations/statEffects.ts");
+  const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const { buildRotationTimeline, requirementsPass } = await viteServer.ssrLoadModule(
     "/src/calculations/rotationTimeline.ts",
   );
@@ -47,11 +49,14 @@ try {
       empiricalEdge.effect.EmpiricalEdgeT4.effect[0].modify.cooldown === 0,
     "Empirical Edge must apply the Cognition duration, stack-cap, and cooldown tier modifiers.",
   );
+  const empiricalStats = calculateStatsWithEffects(
+    emptyStats,
+    [empiricalEdge.effect.EmpiricalEdgeT2, empiricalEdge.effect.EmpiricalEdgeT5].flatMap((tier) => tier.effect),
+    0,
+  ).stats;
   assert(
-    empiricalEdge.effect.EmpiricalEdgeT2.effect[0].stat.minPhys === 22.3 &&
-      empiricalEdge.effect.EmpiricalEdgeT2.effect[0].stat.maxPhys === 44.7 &&
-      empiricalEdge.effect.EmpiricalEdgeT5.effect[0].effect.physDmgBonus === 0.025,
-    "Empirical Edge must define its T2 attack and T5 Physical DMG bonuses as stat effects.",
+    empiricalStats.minPhys === 22.3 && empiricalStats.maxPhys === 44.7 && empiricalStats.physDmgBonus === 0.025,
+    "Empirical Edge T2 and T5 must change the shared character stats.",
   );
 
   const penetrationFields = [

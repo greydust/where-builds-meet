@@ -454,7 +454,8 @@ When penetration is lower than resistance:
 Penetration Multiplier = 1 + (Penetration − Resistance) / 100
 ```
 
-Physical penetration consists of attunement Physical Penetration plus active `physicalPenetration` effects.
+Physical penetration consists of the character's Physical Penetration stat, matching attunement Physical Penetration,
+and active `physicalPenetration` effects.
 
 Each attribute starts with its corresponding character penetration stat. Stonesplit additionally receives active `stonesplitPenetration` effects. Formless Penetration is added to the primary attribute.
 

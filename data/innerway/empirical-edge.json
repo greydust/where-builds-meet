@@ -76,8 +76,7 @@
     "EmpiricalEdgeT5": {
       "effect": [
         {
-          "target": "stat",
-          "effect": {
+          "stat": {
             "physDmgBonus": 0.025
           }
         }

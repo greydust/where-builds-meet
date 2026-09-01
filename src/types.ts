@@ -15,6 +15,8 @@ export type CharacterStats = {
   defense: number;
   maxHp: number;
   physicalDefense: number;
+  /** Offensive flat penetration applied to the physical damage and healing channels. */
+  physicalPenetration: number;
   /** Defensive flat resistance; intentionally omitted from the character-stat UI. */
   physicalResistance: number;
   maxEndurance: number;
