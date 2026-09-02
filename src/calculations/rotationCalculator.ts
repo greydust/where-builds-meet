@@ -761,6 +761,7 @@ export function calculateRotationMetrics(
   bundle: RotationCalculationBundle,
   baselineDamageOverride?: number,
   baselineHealingOverride?: number,
+  unscaledDamageOverride?: number,
 ): RotationMetrics {
   const duration = Math.max(0, bundle.duration);
   const baselineTotals =
@@ -768,8 +769,10 @@ export function calculateRotationMetrics(
       ? sumEntries(bundle.baseline)
       : undefined;
   const baselineDamage = baselineDamageOverride ?? baselineTotals?.total ?? 0;
+  const unscaledDamage = unscaledDamageOverride ?? baselineDamage;
   const baselineHealing = baselineHealingOverride ?? baselineTotals?.healing ?? 0;
   const baselineDps = duration > 0 ? baselineDamage / duration : 0;
+  const unscaledDps = duration > 0 ? unscaledDamage / duration : 0;
   const baselineHps = duration > 0 ? baselineHealing / duration : 0;
   const setupComparisons = Object.fromEntries(
     Object.entries(bundle.setupComparisons).map(([group, variants]) => [
@@ -782,6 +785,8 @@ export function calculateRotationMetrics(
   return {
     totalDamage: baselineDamage,
     dps: baselineDps,
+    unscaledTotalDamage: unscaledDamage,
+    unscaledDps,
     totalHealing: baselineHealing,
     hps: baselineHps,
     breakdown: emptyRotationBreakdown(),
@@ -2310,6 +2315,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     },
     baselineDamage,
     baselineHealing,
+    rawBaselineDamage,
   );
   metrics.breakdown = calculateBreakdown(
     timeline,

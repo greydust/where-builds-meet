@@ -91,6 +91,18 @@ try {
     "Only Mystic damage must be scaled in the final total",
   );
   closeTo(
+    result.metrics.unscaledTotalDamage,
+    generalDamage + mysticDamage,
+    "The editor-facing total must retain damage before the aggregate Vitality correction",
+  );
+  closeTo(
+    result.metrics.unscaledDps,
+    result.metrics.unscaledTotalDamage / result.duration,
+    "The editor-facing DPS must use the unscaled damage total",
+  );
+  if (!(result.metrics.dps < result.metrics.unscaledDps))
+    throw new Error("A Vitality deficit must reduce published Main DPS below the editor preview DPS");
+  closeTo(
     result.actionBreakdowns["rotation-0:1"].total,
     mysticDamage,
     "The Mystic action breakdown must retain its unscaled damage",

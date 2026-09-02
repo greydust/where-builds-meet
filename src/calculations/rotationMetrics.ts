@@ -94,6 +94,8 @@ export const emptyRotationBreakdown = (): RotationBreakdown => ({
 export type RotationMetrics = {
   totalDamage: number;
   dps: number;
+  unscaledTotalDamage: number;
+  unscaledDps: number;
   totalHealing: number;
   hps: number;
   expectedHawkwingStacks?: number;

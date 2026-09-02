@@ -55,8 +55,8 @@
           "value": 0.0846
         },
         {
-          "key": "precision",
-          "value": 0.0752
+          "key": "fanDmgBoost",
+          "value": 0.05828
         }
       ],
       "attunement": {
@@ -86,8 +86,8 @@
           "value": 0.0846
         },
         {
-          "key": "maxSilkbind",
-          "value": 41.548
+          "key": "precision",
+          "value": 0.0752
         }
       ],
       "attunement": {

@@ -209,7 +209,6 @@ import {
   characterProfileMatches,
   characterProfileStorageKey,
   exportCharacterProfiles,
-  defaultBreakthrough,
   loadCharacterProfiles,
   mergeImportedCharacterProfiles,
   serializeCharacterProfiles,
@@ -1113,6 +1112,7 @@ type BreakthroughProfile = EnemyProfile & {
   };
 };
 const typedBreakthroughProfiles = breakthroughProfiles as Record<string, BreakthroughProfile>;
+const defaultBreakthrough = "17";
 const defaultSettings: CalculatorSettings = {
   weapons: ["snowparting", "phalanxbane"],
   breakthrough: defaultBreakthrough,
@@ -1518,6 +1518,11 @@ function formatNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }
 
+function formatDamageNumber(value: number) {
+  const rounded = Number(value.toFixed(2));
+  return rounded === 0 ? "0" : rounded.toFixed(2);
+}
+
 type ThroughputChannel = "damage" | "healing";
 
 function displayedDelta(value: number) {
@@ -1628,24 +1633,17 @@ function loadStatOverrides(): CharacterStatOverrides {
 
 function loadSettings(): CalculatorSettings {
   try {
-    const saved = JSON.parse(getPersistentItem(settingsStorageKey) ?? "null") as
-      (Partial<CalculatorSettings> & { enemy?: unknown; weapon?: unknown }) | null;
+    const saved = JSON.parse(getPersistentItem(settingsStorageKey) ?? "null") as {
+      weapons?: unknown;
+      weapon?: unknown;
+    } | null;
     const savedWeapons = Array.isArray(saved?.weapons) ? saved.weapons.filter(isWeaponId) : [];
     const legacyWeapon = saved && "weapon" in saved && saved.weapon === "phalanxbane" ? "phalanxbane" : "snowparting";
     const weapons: [WeaponId, WeaponId] =
       savedWeapons.length === 2
         ? [savedWeapons[0], savedWeapons[1]]
         : [legacyWeapon, legacyWeapon === "snowparting" ? "phalanxbane" : "snowparting"];
-    const legacyBreakthrough =
-      saved?.enemy === "level100" || saved?.enemy === "level96" || saved?.enemy === "96" ? "16" : undefined;
-    const savedBreakthrough = saved?.breakthrough ?? legacyBreakthrough;
-    return {
-      weapons,
-      breakthrough:
-        typeof savedBreakthrough === "string" && typedBreakthroughProfiles[savedBreakthrough]
-          ? savedBreakthrough
-          : defaultSettings.breakthrough,
-    };
+    return { weapons, breakthrough: defaultBreakthrough };
   } catch {
     return { ...defaultSettings };
   }
@@ -2166,7 +2164,7 @@ function BreakdownGroupTable({
         {rows.map((row) => (
           <div className="breakdown-table-row" key={row.id}>
             <span className={colored ? `damage-${row.id}` : ""}>{gameText(row.name)}</span>
-            <strong>{formatNumber(row.damage)}</strong>
+            <strong>{formatDamageNumber(row.damage)}</strong>
             <strong>{formatNumber(row.percentage)}%</strong>
           </div>
         ))}
@@ -2185,7 +2183,7 @@ function BreakdownGroupTable({
               .map((row) => (
                 <div className="breakdown-table-row" key={row.id}>
                   <span className={colored ? `healing-${row.id}` : ""}>{gameText(row.name)}</span>
-                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong className="healing-value">+{formatDamageNumber(row.healing)}</strong>
                   <strong>{formatNumber(row.percentage)}%</strong>
                 </div>
               ))}
@@ -2205,12 +2203,12 @@ function CastBreakdownComparison({
   valueWithBuff: number | undefined;
   stacked: boolean;
 }) {
-  if (valueWithBuff === undefined) return value === undefined ? "—" : formatNumber(value);
-  if (!stacked) return `${formatNumber(value ?? 0)} (${formatNumber(valueWithBuff)})`;
+  if (valueWithBuff === undefined) return value === undefined ? "—" : formatDamageNumber(value);
+  if (!stacked) return `${formatDamageNumber(value ?? 0)} (${formatDamageNumber(valueWithBuff)})`;
   return (
     <span className="breakdown-stacked-value">
-      <span>{formatNumber(value ?? 0)}</span>
-      <span>({formatNumber(valueWithBuff)})</span>
+      <span>{formatDamageNumber(value ?? 0)}</span>
+      <span>({formatDamageNumber(valueWithBuff)})</span>
     </span>
   );
 }
@@ -2284,19 +2282,19 @@ function BreakdownTab({ metrics, pathId }: { metrics?: RotationMetrics; pathId: 
           </div>
           <div className="breakdown-totals">
             <span>
-              {t("system.totalDamage")} <strong>{formatNumber(metrics.totalDamage)}</strong>
+              {t("system.totalDamage")} <strong>{formatDamageNumber(metrics.totalDamage)}</strong>
             </span>
             <span>
-              {t("system.dps")} <strong>{formatNumber(metrics.dps)}</strong>
+              {t("system.dps")} <strong>{formatDamageNumber(metrics.dps)}</strong>
             </span>
             {hasHealing ? (
               <>
                 <span>
                   {t("system.totalHealing")}{" "}
-                  <strong className="healing-value">+{formatNumber(metrics.totalHealing)}</strong>
+                  <strong className="healing-value">+{formatDamageNumber(metrics.totalHealing)}</strong>
                 </span>
                 <span>
-                  {t("system.hps")} <strong className="healing-value">{formatNumber(metrics.hps)}</strong>
+                  {t("system.hps")} <strong className="healing-value">{formatDamageNumber(metrics.hps)}</strong>
                 </span>
               </>
             ) : null}
@@ -2326,7 +2324,7 @@ function BreakdownTab({ metrics, pathId }: { metrics?: RotationMetrics; pathId: 
               <strong>{formatNumber(row.normalRate)}%</strong>
               <strong>{formatNumber(row.criticalRate)}%</strong>
               <strong>{formatNumber(row.affinityRate)}%</strong>
-              <strong>{formatNumber(row.damage)}</strong>
+              <strong>{formatDamageNumber(row.damage)}</strong>
               <strong>{formatNumber(row.percentage)}%</strong>
             </div>
           ))}
@@ -2353,7 +2351,7 @@ function BreakdownTab({ metrics, pathId }: { metrics?: RotationMetrics; pathId: 
                   <strong>{row.heals || ""}</strong>
                   <strong>{formatNumber(row.normalRate)}%</strong>
                   <strong>{formatNumber(row.criticalRate)}%</strong>
-                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong className="healing-value">+{formatDamageNumber(row.healing)}</strong>
                   <strong>{formatNumber(row.percentage)}%</strong>
                 </div>
               ))}
@@ -2450,10 +2448,10 @@ function BreakdownTab({ metrics, pathId }: { metrics?: RotationMetrics; pathId: 
                     {t("ui.app.s")}
                   </strong>
                   <strong className="healing-value">
-                    {row.averageHps === undefined ? "—" : formatNumber(row.averageHps)}
+                    {row.averageHps === undefined ? "—" : formatDamageNumber(row.averageHps)}
                   </strong>
-                  <strong className="healing-value">+{formatNumber(row.averageHealing)}</strong>
-                  <strong className="healing-value">+{formatNumber(row.healing)}</strong>
+                  <strong className="healing-value">+{formatDamageNumber(row.averageHealing)}</strong>
+                  <strong className="healing-value">+{formatDamageNumber(row.healing)}</strong>
                   <strong>{formatNumber(row.percentage)}%</strong>
                 </div>
               ))}
@@ -2490,12 +2488,12 @@ function DamageBreakdownValue({ breakdown, className = "" }: { breakdown: Damage
   ];
   return (
     <span className={`damage-breakdown-wrap ${className}`}>
-      <span>{formatNumber(breakdown.total)}</span>
+      <span>{formatDamageNumber(breakdown.total)}</span>
       <span className="damage-breakdown-tooltip">
         {parts.map(([key, label]) => (
           <span className={`damage-breakdown-part damage-${key}`} key={key}>
             <i>{label}</i>
-            {formatNumber(breakdown[key] as number)}
+            {formatDamageNumber(breakdown[key] as number)}
           </span>
         ))}
       </span>
@@ -2512,15 +2510,15 @@ function HealingBreakdownValue({
 }) {
   return (
     <span className={`damage-breakdown-wrap healing-value ${className}`}>
-      <span>+{formatNumber(breakdown.total)}</span>
+      <span>+{formatDamageNumber(breakdown.total)}</span>
       <span className="damage-breakdown-tooltip">
         <span className="damage-breakdown-part healing-physical">
           <i>{gameText("Physical")}</i>
-          {formatNumber(breakdown.physical)}
+          {formatDamageNumber(breakdown.physical)}
         </span>
         <span className="damage-breakdown-part healing-silkbind">
           <i>{gameText("Silkbind")}</i>
-          {formatNumber(breakdown.silkbind)}
+          {formatDamageNumber(breakdown.silkbind)}
         </span>
       </span>
     </span>
@@ -2634,7 +2632,6 @@ function StatsTab({
   const currentProfileData = {
     statOverrides,
     attunementOverrides,
-    breakthrough: settings.breakthrough,
     innerWays,
     buildSetup,
   };
@@ -2642,8 +2639,7 @@ function StatsTab({
   const isCalculated =
     Object.keys(statOverrides).length === 0 &&
     Object.keys(attunementOverrides).length === 0 &&
-    Object.keys(buildSetupOverrides).length === 0 &&
-    settings.breakthrough === defaultBreakthrough;
+    Object.keys(buildSetupOverrides).length === 0;
   const [selectedProfileId, setSelectedProfileId] = useState(() =>
     isCalculated ? "__calculated" : (matchingProfile?.id ?? "__modified"),
   );
@@ -2667,7 +2663,6 @@ function StatsTab({
               ...profile,
               statOverrides: { ...statOverrides },
               attunementOverrides: { ...attunementOverrides },
-              breakthrough: settings.breakthrough,
               innerWays: innerWays.map((row) => ({ ...row })),
               buildSetup: {
                 ...buildSetup,
@@ -2687,7 +2682,6 @@ function StatsTab({
     isCalculated,
     onCharacterProfilesChange,
     selectedProfileId,
-    settings.breakthrough,
     statOverrides,
   ]);
 
@@ -2717,7 +2711,6 @@ function StatsTab({
         name,
         statOverrides: { ...statOverrides },
         attunementOverrides: { ...attunementOverrides },
-        breakthrough: settings.breakthrough,
         innerWays: innerWays.map((row) => ({ ...row })),
         buildSetup: {
           ...buildSetup,
@@ -7062,6 +7055,8 @@ function RotationEditorTab({
   const localRotationCalculation: RotationMetrics = {
     totalDamage: totalRotationDamage,
     dps: rotationDps,
+    unscaledTotalDamage: currentCachedResult?.metrics.unscaledTotalDamage ?? totalRotationDamage,
+    unscaledDps: currentCachedResult?.metrics.unscaledDps ?? rotationDps,
     totalHealing: totalRotationHealing,
     hps: rotationHps,
     breakdown: currentCachedResult?.metrics.breakdown ?? emptyRotationBreakdown(),
@@ -7350,19 +7345,19 @@ function RotationEditorTab({
               </span>
               <span className="rotation-results">
                 <span>
-                  {t("system.totalDamage")}: {formatNumber(rotationCalculation.totalDamage)}
+                  {t("system.totalDamage")}: {formatDamageNumber(rotationCalculation.unscaledTotalDamage)}
                 </span>
                 {rotationCalculation.totalHealing > 0 ? (
                   <span className="healing-value">
-                    {t("system.totalHealing")}: +{formatNumber(rotationCalculation.totalHealing)}
+                    {t("system.totalHealing")}: +{formatDamageNumber(rotationCalculation.totalHealing)}
                   </span>
                 ) : null}
                 <span>
-                  {t("system.dps")}: {formatNumber(rotationCalculation.dps)}
+                  {t("system.dps")}: {formatDamageNumber(rotationCalculation.unscaledDps)}
                   {rotationCalculation.hps > 0 ? (
                     <span className="healing-value">
                       {" / "}
-                      {t("system.hps")}: {formatNumber(rotationCalculation.hps)}
+                      {t("system.hps")}: {formatDamageNumber(rotationCalculation.hps)}
                     </span>
                   ) : null}
                 </span>
@@ -7815,7 +7810,7 @@ function RotationEditorTab({
                               <span data-mobile-label={t("ui.app.selfHp")}>
                                 {isManualEvent && step.event === "TakeDamage" ? (
                                   rowReadOnly ? (
-                                    <span>{formatNumber(resolvedTakeDamage)}</span>
+                                    <span>{formatDamageNumber(resolvedTakeDamage)}</span>
                                   ) : (
                                     <span className="rotation-distance-input-wrap">
                                       <input
@@ -8498,10 +8493,6 @@ export default function App() {
   const applyCharacterProfile = (profile?: CharacterProfile) => {
     setStatOverrides(profile ? { ...profile.statOverrides } : {});
     setAttunementOverrides(profile ? { ...profile.attunementOverrides } : {});
-    setSettings((current) => ({
-      ...current,
-      breakthrough: profile?.breakthrough ?? defaultBreakthrough,
-    }));
     if (!profile) {
       setBuildSetupOverrides({});
       return;
@@ -8666,7 +8657,10 @@ export default function App() {
     () => setPersistentItem(buildSetupOverrideStorageKey, JSON.stringify(buildSetupOverrides)),
     [buildSetupOverrides],
   );
-  useEffect(() => setPersistentItem(settingsStorageKey, JSON.stringify(settings)), [settings]);
+  useEffect(
+    () => setPersistentItem(settingsStorageKey, JSON.stringify({ weapons: settings.weapons })),
+    [settings.weapons],
+  );
   useEffect(() => setPersistentItem(pathStorageKey, pathId), [pathId]);
 
   return (

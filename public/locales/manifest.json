@@ -2,7 +2,7 @@
   "default": "en",
   "locales": ["en", "zh-Hant", "ko"],
   "completion": {
-    "zh-Hant": 88,
+    "zh-Hant": 89,
     "ko": 67
   }
 }

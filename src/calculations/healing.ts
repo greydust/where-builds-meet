@@ -1,7 +1,7 @@
 import attunementJson from "../../data/attunement.json";
 import { weaponArtBonus, type DamageAction, type DamageContext } from "./damage";
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues";
-import { mainAttributeForWeapons } from "./effectiveStats";
+import { calculateDerivedStats, mainAttributeForWeapons } from "./effectiveStats";
 import { calculateStatsWithEffects, resolveFormulaValue, type StatFormula } from "./statEffects";
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 
@@ -91,11 +91,11 @@ function resolveHealingAttackState(context: DamageContext) {
   return { stats, derivedStats, averagePhysicalAttack, averageSilkbindAttack };
 }
 
-/** Raw character-sheet attack averages used by thresholds that ignore combat-time effects. */
-export function calculateRawHealingAttackSnapshot(context: Pick<DamageContext, "stats">) {
-  const averagePhysicalAttack = (context.stats.minPhys + Math.max(context.stats.minPhys, context.stats.maxPhys)) / 2;
-  const averageSilkbindAttack =
-    (context.stats.minSilkbind + Math.max(context.stats.minSilkbind, context.stats.maxSilkbind)) / 2;
+/** Character-sheet attack averages used by thresholds that ignore combat-time effects. */
+export function calculateRawHealingAttackSnapshot(context: Pick<DamageContext, "stats" | "weapons">) {
+  const derivedStats = calculateDerivedStats(context.stats, 0, {}, context.weapons);
+  const averagePhysicalAttack = (derivedStats.effectiveMinPhys + derivedStats.effectiveMaxPhys) / 2;
+  const averageSilkbindAttack = (derivedStats.effectiveMinSilkbind + derivedStats.effectiveMaxSilkbind) / 2;
   return { averagePhysicalAttack, averageSilkbindAttack };
 }
 

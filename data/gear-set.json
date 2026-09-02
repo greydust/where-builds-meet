@@ -98,6 +98,47 @@
       }
     }
   },
+  "Ivorybloom": {
+    "name": "Ivorybloom",
+    "altersTimeline": true,
+    "tags": ["SilkbindDeluge", "PanaceaFan", "SoulshadeUmbrella"],
+    "options": {
+      "0": {
+        "name": "0",
+        "effect": {
+          "stat": {}
+        }
+      },
+      "2": {
+        "name": "2",
+        "effect": {
+          "stat": {
+            "crit": 0.09
+          }
+        }
+      },
+      "4": {
+        "name": "4",
+        "effect": [
+          {
+            "stat": {
+              "crit": 0.09
+            }
+          },
+          {
+            "requirement": [{ "target": "selfHPPercentage", "comparison": ">=", "amount": 100 }],
+            "effect": {
+              "stat": {
+                "crit": 0.05
+              },
+              "critDmgBonus": 0.15,
+              "criticalHealingBonus": 0.15
+            }
+          }
+        ]
+      }
+    }
+  },
   "Hawkwing": {
     "name": "Hawkwing",
     "altersTimeline": false,

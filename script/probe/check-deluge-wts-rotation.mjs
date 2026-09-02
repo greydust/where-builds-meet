@@ -23,6 +23,7 @@ try {
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { mergeCalculatedTimelineState } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { calculateRawHealingAttackSnapshot } = await viteServer.ssrLoadModule("/src/calculations/healing.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const assert = (condition, message) => {
@@ -86,6 +87,14 @@ try {
     maxSilkbind: 500,
     precision: 1,
   };
+  const voidSnapshot = calculateRawHealingAttackSnapshot({
+    stats: { ...stats, minVoidAttack: 100, maxVoidAttack: 200 },
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  });
+  assert(
+    Math.abs(voidSnapshot.averageSilkbindAttack - 650) < 1e-9,
+    "World to Sword must include Deluge's Void Attack conversion in its effective Silkbind threshold snapshot.",
+  );
   const timelineBundle = {
     ...timelineInput,
     initialResources: { Vitality: 100 },

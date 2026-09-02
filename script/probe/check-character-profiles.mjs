@@ -9,13 +9,8 @@ const viteServer = await createServer({
 });
 
 try {
-  const {
-    characterProfileMatches,
-    defaultBreakthrough,
-    exportCharacterProfiles,
-    mergeImportedCharacterProfiles,
-    parseCharacterProfiles,
-  } = await viteServer.ssrLoadModule("/src/characterProfiles.ts");
+  const { characterProfileMatches, exportCharacterProfiles, mergeImportedCharacterProfiles, parseCharacterProfiles } =
+    await viteServer.ssrLoadModule("/src/characterProfiles.ts");
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -51,14 +46,11 @@ try {
     "Only finite known attunement overrides may load.",
   );
   assert(
-    !("food" in parsed[0]) && !("divinecraft" in parsed[0]) && !("globalDebuffs" in parsed[0]),
-    "Legacy independent setup selections must be discarded from character profiles.",
-  );
-  assert(parsed[0].breakthrough === "17", "Profiles must retain their selected breakthrough.");
-  const [profileUsingDefaultBreakthrough] = parseCharacterProfiles([{ ...parsed[0], breakthrough: "unknown" }]);
-  assert(
-    profileUsingDefaultBreakthrough.breakthrough === defaultBreakthrough && defaultBreakthrough === "17",
-    "Profiles with no valid saved breakthrough must use the current default.",
+    !("breakthrough" in parsed[0]) &&
+      !("food" in parsed[0]) &&
+      !("divinecraft" in parsed[0]) &&
+      !("globalDebuffs" in parsed[0]),
+    "Transient and legacy independent selections must be discarded from character profiles.",
   );
   assert(
     parsed[0].buildSetup.weaponSets.Cleftpeak === 2 && parsed[0].buildSetup.armorSets.Formbend === 0,
@@ -68,7 +60,6 @@ try {
     characterProfileMatches(parsed[0], {
       statOverrides: { minPhys: 123 },
       attunementOverrides: { physicalPenetration: 0.051 },
-      breakthrough: "17",
       innerWays: parsed[0].innerWays.map((row) => ({ ...row })),
       buildSetup: {
         ...parsed[0].buildSetup,
@@ -82,9 +73,8 @@ try {
 
   assert(
     !characterProfileMatches(parsed[0], {
-      statOverrides: { minPhys: 123 },
+      statOverrides: { minPhys: 124 },
       attunementOverrides: { physicalPenetration: 0.051 },
-      breakthrough: "16",
       innerWays: parsed[0].innerWays.map((row) => ({ ...row })),
       buildSetup: {
         ...parsed[0].buildSetup,
@@ -93,20 +83,20 @@ try {
         armorSets: { ...parsed[0].buildSetup.armorSets },
       },
     }),
-    "Changing breakthrough must make the current Main-tab state differ from the saved profile.",
+    "Changing profile-owned character state must make the current Main-tab state differ from the saved profile.",
   );
 
   const exported = JSON.parse(exportCharacterProfiles(parsed));
   assert(
     exported.version === 5 &&
-      exported.profiles[0].breakthrough === "17" &&
+      !("breakthrough" in exported.profiles[0]) &&
       exported.profiles[0].buildSetup.innerWays.length === 4 &&
       exported.profiles[0].buildSetup.weaponSets.Cleftpeak === 2 &&
       exported.profiles[0].buildSetup.armorSets.Formbend === 0 &&
       !("food" in exported.profiles[0]) &&
       !("divinecraft" in exported.profiles[0]) &&
       !("globalDebuffs" in exported.profiles[0]),
-    "Profile export v5 must include breakthrough and build-backed setup selections but omit independent session controls.",
+    "Profile export v5 must include build-backed setup selections but omit transient and independent session controls.",
   );
   const merged = mergeImportedCharacterProfiles(parsed, exported);
   assert(merged.importedCount === 1 && merged.profiles.length === 2, "Import must append valid profiles.");
@@ -118,10 +108,10 @@ try {
   });
   assert(
     migrated.profiles[0].innerWays.length === 4 &&
-      migrated.profiles[0].breakthrough === "16" &&
+      !("breakthrough" in migrated.profiles[0]) &&
       !("food" in migrated.profiles[0]) &&
       !("divinecraft" in migrated.profiles[0]),
-    "Version 1 profiles must migrate to Breakthrough 16 while omitting independent session controls.",
+    "Version 1 profiles must discard transient and independent session controls.",
   );
   console.log("Character profile validation, matching, export, and collision-safe import checks passed.");
 } finally {

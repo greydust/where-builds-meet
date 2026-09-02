@@ -160,12 +160,20 @@ Each recipient's healing number enters the accumulator separately. Expected
 calculations use expected recipient healing, while simulations independently
 roll every recipient. Both modes reset accumulated overhealing to zero after
 each launch and continue accepting healing during the 0.3-second launch
-cooldown. The threshold derives from raw Min/Max Physical and Min/Max Silkbind
-character stats; combat-time effects and attack multipliers do not alter it.
+cooldown. The threshold derives from character-sheet Min/Max Physical and
+effective Min/Max Silkbind Attack. For Deluge, Min/Max Void Attack is converted
+into the effective Silkbind range before the threshold is calculated.
+Combat-time effects and attack multipliers do not alter it.
 Both modes enforce the
 buff's 12-second lifetime and 20-blade limit. Finite accumulator listeners expose
 their remaining successful-trigger budget on the tracked buff for timeline UI;
 reaching zero prevents further triggers but does not end the buff early.
+
+Ivorybloom is a Silkbind Deluge weapon set. Its two-piece effect adds 9%
+Critical Rate. Its four-piece effect retains that bonus and, while Self HP is
+full, adds another 5% Critical Rate plus 15% Critical Healing Bonus and 15%
+Critical DMG Bonus. The set is timeline-affecting because its healing changes
+can alter World to Sword's Qi Blade schedule.
 
 Panacea Fan's Fourfold Inquiry light-attack chain is stored as four independently
 castable stages. Each stage carries the shared `FourfoldInquiry` and `Light`

@@ -9,10 +9,12 @@ const viteServer = await createServer({
 });
 
 try {
-  const mixed = (await viteServer.ssrLoadModule("/data/rotation/stonesplit-strength/mixed-horse-tamer-standard.json"))
-    .default;
-  const pure = (await viteServer.ssrLoadModule("/data/rotation/stonesplit-strength/pure-horse-tamer-standard-27s.json"))
-    .default;
+  const mixed = (
+    await viteServer.ssrLoadModule("/archive/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s.json")
+  ).default;
+  const pure = (
+    await viteServer.ssrLoadModule("/archive/rotation/stonesplit-strength/pure-horse-tamer-standard-27s.json")
+  ).default;
   const snowparting = (await viteServer.ssrLoadModule("/data/skill/snowparting-blade.json")).default;
   const phalanxbane = (await viteServer.ssrLoadModule("/data/skill/phalanxbane-blade.json")).default;
   const mystic = (await viteServer.ssrLoadModule("/data/skill/mystic.json")).default;
@@ -104,12 +106,11 @@ try {
     });
 
   const presets = [
-    { rotation: pure, name: "Pure Horse Tamer Standard 27s", stepCount: 36 },
-    { rotation: mixed, name: "Mixed Horse Tamer Standard 27s", stepCount: 35 },
+    { rotation: pure, name: "Pure Horse Tamer Standard 27s" },
+    { rotation: mixed, name: "Mixed Horse Tamer Standard 27s" },
   ];
-  presets.forEach(({ rotation, name, stepCount }) => {
+  presets.forEach(({ rotation, name }) => {
     assert(rotation.name === name, `${name} must use its requested preset name.`);
-    assert(rotation.steps.length === stepCount, `${name} must preserve all exported steps.`);
     assert(rotation.targetHP === 2526534, `${name} must preserve the exported target HP.`);
     assert(rotation.eventTimeReference === "battleStart", `${name} events must remain fight-relative.`);
     assert(

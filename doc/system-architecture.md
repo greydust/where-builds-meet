@@ -147,7 +147,7 @@ catalog workflow and validation rules.
 
 - final-value character stat overrides
 - final-value attunement overrides
-- reusable character profiles containing those override maps, the selected breakthrough, and Main-tab setup
+- reusable character profiles containing those override maps and Main-tab setup
 - two equipped weapons
 - selected combat path and its optional weapon lock
 - build list, shared gear inventory, and one active build ID per combat path
@@ -278,7 +278,7 @@ same-origin session key before React state is initialized.
 | Combat path                                     | `localStorage`, `wwm-path-session-v1`            |
 | Dev layout preview                              | `localStorage`, `wwm-layout-preview-session-v1`  |
 | Attunement overrides                            | `localStorage`, `wwm-attunement-overrides-v1`    |
-| Weapons and breakthrough                        | `localStorage`, `wwm-settings-session-v1`        |
+| Weapons                                         | `localStorage`, `wwm-settings-session-v1`        |
 | Build setup overrides                           | `localStorage`, `wwm-build-setup-overrides-v1`   |
 | Food                                            | `localStorage`, `wwm-food-session-v1`            |
 | Divinecraft                                     | `localStorage`, `wwm-divinecraft-session-v1`     |
@@ -331,7 +331,7 @@ migrated to post-action `after` attachments.
 
 Character Profile export produces a versioned JSON snapshot containing only
 custom profiles. Each profile contains character and attunement override maps,
-the selected breakthrough, Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
+Inner Ways, and final weapon-set/armor-set/bow-ring/arsenal selections. Food, Divinecraft,
 global buff/debuff controls, and Script controls remain independent
 session state and are not stored in character profiles.
 The implicit `Calculated` profile is reconstructed in the UI and is never
@@ -393,10 +393,9 @@ source use the same conversion rules.
 `data/breakthrough.json` groups the selected enemy profile and its
 `levelBonusStats` under the breakthrough number. Changing breakthrough therefore
 updates enemy inputs and replaces the level-derived Precision and five base
-attributes through the same shared effect pipeline. Breakthrough 17 is the
-default for new state and invalid saved selections; an existing valid profile
-selection remains unchanged. Imported version-1 profiles retain their historical
-implicit Breakthrough 16 selection.
+attributes through the same shared effect pipeline. Breakthrough 17 is selected
+on every page load. The user may switch to Breakthrough 16 for the current page
+session, but Breakthrough is not written to browser storage or character profiles.
 The hidden base stat `heavensWillRegen` is also resolved through this pipeline.
 It is passed into the timeline as the per-second regeneration rate for the
 numeric `HeavensWill` resource rather than exposed as an editable combat stat.
@@ -979,7 +978,8 @@ tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
 Add a complete breakthrough entry to `data/breakthrough.json`. Each entry combines
 an `EnemyProfile` with a `levelBonusStats` effect. The Main-tab selector reads the
 entry keys, while its detail block above Inner Ways shows the level bonus and enemy
-properties. Breakthrough is profile-owned and is intentionally not part of build data.
+properties. Breakthrough is transient Main-tab state and is intentionally not
+part of build data, character profiles, or browser storage.
 
 ### Gear definition
 
