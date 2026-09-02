@@ -77,6 +77,13 @@ try {
         innerWayRules: [],
         setupEffects: [
           {
+            stat: { minPhys: 10, maxPhys: 10 },
+          },
+          {
+            requirement: [{ target: "skillTag", value: "Charged" }],
+            stat: { minPhys: 10, maxPhys: 10 },
+          },
+          {
             requirement: [{ target: "skillTag", value: "Charged" }],
             effect: { dmgBonus: 0.2 },
           },
@@ -102,8 +109,8 @@ try {
   console.table = originalTable;
 
   assert(
-    Math.abs(result.metrics.totalDamage - 480) < 1e-9,
-    `Expected cached tag-static and hit-time effects to total 480 damage; received ${result.metrics.totalDamage}.`,
+    Math.abs(result.metrics.totalDamage - 559) < 1e-9,
+    `Expected character-static, cached tag-static, and hit-time effects to total 559 damage; received ${result.metrics.totalDamage}.`,
   );
   assert(
     benchmarkRows.some((row) => row.phase === "Skill-static effect aggregation (cache misses)" && row.calls === 2),

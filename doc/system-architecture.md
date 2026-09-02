@@ -774,16 +774,26 @@ visible without being double-counted in the formula remainder.
 Stat resolution separately reports effect detection and shared stat-pipeline
 execution. Effect aggregation reports damage-effect fields, resolved channel
 snapshots, matching attunements, and shared multiplier construction.
+Effect resolution uses three explicit layers. Unconditional character effects
+from progression, oddities, gear, breakthrough, setup choices, and unconditional
+Inner Way tiers are resolved once into a character-static stat and derived-stat
+snapshot for each baseline or comparison variant. Effects whose requirements
+depend only on the effective action tags or equipped martial arts are then
+resolved once per distinct tag signature into a skill-static stat snapshot and
+numeric damage aggregate. Only timeline-dependent buffs, debuffs, resources,
+HP/Qi state, distance, and action modifiers remain in each hit's effect list.
+
 Unconditional finite numeric fields from tracked buffs and debuffs are split
 from their definitions and maintained as a timeline-state aggregate at effect
 lifecycle transitions. Damage contexts carry the aggregate separately, while
 conditional or dynamic rules remain in the regular effect list. This removes
 stable tracked-effect field probes from each hit without tying the reusable
 timeline to a particular character-stat baseline.
-Setup and Inner Way damage fields with requirements limited to action tags and
-the equipped martial-art pair are additionally cached per effective action-tag
-signature while damage entries are built. Their numeric fields join the
-aggregate; state-dependent rules and non-damage residual fields remain in the
+Setup and Inner Way stat or damage fields with requirements limited to action
+tags and the equipped martial-art pair are additionally cached per effective
+action-tag signature while damage entries are built. Stat fields produce the
+skill-static stat and derived-stat snapshot; numeric damage fields join the
+aggregate. State-dependent rules and non-stat residual fields remain in the
 per-hit list. Multi-action component tags therefore receive independent cache
 entries instead of inheriting the displayed parent skill's tags.
 Derived remainder rows reconcile unclassified work without adding nested replay

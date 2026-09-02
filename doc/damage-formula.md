@@ -86,11 +86,18 @@ content that can be modified. Mixed definitions are split rule by rule, so an
 unconditional attack bonus can use the aggregate while a conditional
 penetration rule from the same stack tier is still evaluated on hit.
 
+Before action-specific resolution, unconditional `stat` and `effectiveStat`
+effects are applied once to the raw character inputs. This character-static
+snapshot includes permanent progression, gear, breakthrough, unconditional
+setup selections, and unconditional Inner Way stats. Those effects are removed
+from the action effect list rather than being applied again for every hit.
+
 Setup and Inner Way rules whose complete requirements depend only on skill tags,
 the skill's martial-art tag, or the equipped martial-art pair are resolved once
-per distinct effective action-tag signature. Their finite numeric damage fields
-are cached in the same aggregate shape used by tracked effects. Static non-damage
-fields remain in a cached residual effect list. Rules that inspect buffs,
+per distinct effective action-tag signature. Their stat fields produce a cached
+skill-static stat and derived-stat snapshot, and their finite numeric damage
+fields use the same aggregate shape as tracked effects. Static residual fields
+remain in a compact cached effect list. Rules that inspect buffs,
 debuffs, stacks, resources, HP, Qi, distance, cooldowns, or other hit-time state
 remain on the per-hit path. This preserves state changes between hits and the
 different component tags of multi-action skills while avoiding repeated static

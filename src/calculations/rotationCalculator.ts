@@ -42,6 +42,7 @@ import {
   subtractUnconditionalDamageEffects,
   type UnconditionalDamageEffects,
 } from "./unconditionalDamageEffects";
+import { calculateStatsWithEffects, type EffectiveStatEffectContainer, type StatEffectContainer } from "./statEffects";
 import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTriggeredBuffs";
 import { ExpectedHawkwingTracker, SimulatedHawkwingTracker, hawkwingEffectFor, type HawkwingEffect } from "./hawkwing";
 import {
@@ -1307,6 +1308,31 @@ function unwrappedEffect(effect: EditableObject): EditableObject {
     : effect;
 }
 
+function requirementIsUnconditional(requirement: unknown) {
+  return requirement === undefined || requirement === null || (Array.isArray(requirement) && requirement.length === 0);
+}
+
+function splitStaticStatEffect(effect: EditableObject): {
+  statEffect?: StatEffectContainer & EffectiveStatEffectContainer;
+  remaining?: EditableObject;
+} {
+  const statEffect: StatEffectContainer & EffectiveStatEffectContainer = {};
+  if (effect.stat && typeof effect.stat === "object" && !Array.isArray(effect.stat))
+    statEffect.stat = effect.stat as StatEffectContainer["stat"];
+  if (effect.effectiveStat && typeof effect.effectiveStat === "object" && !Array.isArray(effect.effectiveStat))
+    statEffect.effectiveStat = effect.effectiveStat as EffectiveStatEffectContainer["effectiveStat"];
+
+  const remaining = { ...effect };
+  delete remaining.stat;
+  delete remaining.effectiveStat;
+  const hasStatEffect = Object.keys(statEffect).length > 0;
+  if (Object.keys(remaining).every((key) => key === "id")) return hasStatEffect ? { statEffect } : {};
+  return {
+    ...(hasStatEffect ? { statEffect } : {}),
+    ...(Object.keys(remaining).length ? { remaining } : {}),
+  };
+}
+
 function timelineDamageEntries(
   timeline: TimelineRow[],
   input: TimelineBuildInput,
@@ -1337,13 +1363,44 @@ function timelineDamageEntries(
     seasonalEdge && !input.rotation.infiniteVitality
       ? applySeasonalVitalityRanges(timeline, seasonalWindows, input.resourceMaximums?.Vitality, updateTimelineState)
       : undefined;
-  const staticSetupEffects = setupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
-  const dynamicSetupEffects = setupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
-  const staticInnerWayRules = rules.filter((rule) => requirementIsSkillStatic(rule.requirement));
+  const baseStats = overrides.stats ?? state.stats;
+  const characterStaticEffects = [
+    ...setupEffects.filter((effect) => requirementIsUnconditional(effect.requirement)).map(unwrappedEffect),
+    ...rules.filter((rule) => requirementIsUnconditional(rule.requirement)).map((rule) => rule.effect),
+  ].flatMap((effect) => {
+    const split = splitStaticStatEffect(effect);
+    return split.statEffect ? [split.statEffect] : [];
+  });
+  const characterStaticState = characterStaticEffects.length
+    ? calculateStatsWithEffects(baseStats, characterStaticEffects, state.enemy.judgementResistance, state.weapons)
+    : {
+        stats: baseStats,
+        derivedStats: overrides.stats
+          ? calculateDerivedStats(baseStats, state.enemy.judgementResistance, {}, state.weapons)
+          : state.derivedStats,
+      };
+  const calculationSetupEffects = setupEffects.flatMap((effect) => {
+    if (!requirementIsUnconditional(effect.requirement)) return [effect];
+    const split = splitStaticStatEffect(unwrappedEffect(effect));
+    return split.remaining ? [split.remaining] : [];
+  });
+  const staticSetupEffects = calculationSetupEffects.filter((effect) => requirementIsSkillStatic(effect.requirement));
+  const dynamicSetupEffects = calculationSetupEffects.filter((effect) => !requirementIsSkillStatic(effect.requirement));
+  const staticInnerWayRules = rules.flatMap((rule) => {
+    if (!requirementIsSkillStatic(rule.requirement)) return [];
+    if (!requirementIsUnconditional(rule.requirement)) return [rule];
+    const split = splitStaticStatEffect(rule.effect);
+    return split.remaining ? [{ ...rule, effect: split.remaining }] : [];
+  });
   const dynamicInnerWayRules = rules.filter((rule) => !requirementIsSkillStatic(rule.requirement));
   const skillStaticEffectCache = new Map<
     string,
-    { aggregated: UnconditionalDamageEffects; remaining: EditableObject[] }
+    {
+      stats: CharacterStats;
+      derivedStats: DamageContext["derivedStats"];
+      aggregated: UnconditionalDamageEffects;
+      remaining: EditableObject[];
+    }
   >();
   const skillStaticEffectsFor = (skillTags: string[]) => {
     const key = [...skillTags].sort().join("\u001f");
@@ -1359,22 +1416,36 @@ function timelineDamageEntries(
         .map((rule) => rule.effect),
     ];
     let aggregated: UnconditionalDamageEffects = {};
+    const statEffects: Array<StatEffectContainer & EffectiveStatEffectContainer> = [];
     const remaining: EditableObject[] = [];
     for (const effect of applicableEffects) {
-      const split = splitStaticDamageEffect(effect, state.weapons);
-      aggregated = addUnconditionalDamageEffects(aggregated, split.aggregated);
-      if (split.remaining) remaining.push(split.remaining);
+      const statSplit = splitStaticStatEffect(effect);
+      if (statSplit.statEffect) statEffects.push(statSplit.statEffect);
+      if (!statSplit.remaining) continue;
+      const damageSplit = splitStaticDamageEffect(statSplit.remaining, state.weapons);
+      aggregated = addUnconditionalDamageEffects(aggregated, damageSplit.aggregated);
+      if (damageSplit.remaining && !Object.keys(damageSplit.remaining).every((field) => field === "id"))
+        remaining.push(damageSplit.remaining);
     }
-    const resolved = { aggregated, remaining };
+    const staticState = statEffects.length
+      ? calculateStatsWithEffects(
+          characterStaticState.stats,
+          statEffects,
+          state.enemy.judgementResistance,
+          state.weapons,
+        )
+      : characterStaticState;
+    const resolved = {
+      stats: staticState.stats,
+      derivedStats: staticState.derivedStats,
+      aggregated,
+      remaining,
+    };
     skillStaticEffectCache.set(key, resolved);
     if (import.meta.env.DEV) finishCalculationPhase("skillStaticEffectAggregation", startedAt);
     return resolved;
   };
-  const stats = overrides.stats ?? state.stats;
   const attunement = overrides.attunement ?? state.attunement;
-  const derivedStats = overrides.stats
-    ? calculateDerivedStats(stats, state.enemy.judgementResistance, {}, state.weapons)
-    : state.derivedStats;
   const anchorRow = timeline.find((row) => row.id === startAnchor.rowId) ?? timeline[0];
   const anchorActionIndex = startAnchor.actionIndex;
   const anchorTime = anchorRow
@@ -1527,13 +1598,13 @@ function timelineDamageEntries(
             return resolvedEffects;
           };
           const context: DamageContext = {
-            stats,
+            stats: skillStaticEffects.stats,
             attunement,
             skillTags,
             weapons: state.weapons,
             buffs: buffs.map((effect) => effect.name),
             enemy: state.enemy,
-            derivedStats,
+            derivedStats: skillStaticEffects.derivedStats,
             effects: effectsForState(buffs, debuffs, resources),
             unconditionalDamageEffects: addUnconditionalDamageEffects(
               actionState.unconditionalDamageEffects,
