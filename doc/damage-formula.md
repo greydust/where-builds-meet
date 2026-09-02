@@ -333,19 +333,24 @@ teammate copy contributes its full Per-Recipient Healing. Morning Drizzle uses
 this single-target rule; its independently timed copies do not use the group-heal
 one-fifth multiplier.
 
-World to Sword snapshots its conversion threshold when cast:
+World to Sword derives its conversion threshold from the raw character stats in
+the calculation bundle:
 
 ```text
 Qi Blade Threshold =
-  12 × Average Physical Attack + 18 × Average Silkbind Attack
+  12 × Raw Average Physical Attack + 18 × Raw Average Silkbind Attack
 ```
 
-Expected calculations apply the one-threshold cap after combining self and
-teammate overhealing, so additional recipients do not create independently
-capped contributions. They launch one Qi Blade per accumulated threshold,
-subject to the 0.3-second launch cooldown. Simulation uses the rolled heal and
-clears stored overhealing after a launch. Overhealing continues to accumulate
-while the launch is on cooldown.
+The raw averages use the stored Min/Max Physical and Min/Max Silkbind ranges.
+Combat-time stat effects, effective-stat additions, and percentage attack
+multipliers do not change this threshold.
+
+Every recipient's healing number enters the accumulator separately. Expected
+calculations use that recipient's expected healing; simulations roll each
+recipient independently. Reaching the threshold launches one Qi Blade and
+resets accumulated overhealing to zero in both modes. If the 0.3-second launch
+cooldown is active, further healing remains accumulated; the delayed cooldown
+check launches the blade and resets the complete stored amount once ready.
 
 ### Shared multiplier
 

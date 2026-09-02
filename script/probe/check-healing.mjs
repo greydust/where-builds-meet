@@ -9,7 +9,7 @@ const viteServer = await createServer({
 });
 
 try {
-  const { calculateHealingAttackSnapshot, calculateHealingBreakdown } =
+  const { calculateRawHealingAttackSnapshot, calculateHealingBreakdown } =
     await viteServer.ssrLoadModule("/src/calculations/healing.ts");
   const { calculateRotationBaseline, calculateRotationSimulation, calculateSimulatedRotationRun } =
     await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
@@ -617,7 +617,7 @@ try {
     attunement: {},
   };
   const groupHealingThreshold = (() => {
-    const snapshot = calculateHealingAttackSnapshot(groupHealingContext);
+    const snapshot = calculateRawHealingAttackSnapshot(groupHealingContext);
     return snapshot.averagePhysicalAttack * 12 + snapshot.averageSilkbindAttack * 18;
   })();
   const healingPerPhysicalBonus = calculateHealingBreakdown(
@@ -675,6 +675,42 @@ try {
   const groupQiBladeCount = (result) =>
     result.timeline.filter((row) => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "QiBlade")
       .length;
+  const rawThresholdResult = calculateRotationBaseline({
+    ...worldToSwordBundle,
+    timeline: {
+      ...worldToSwordBundle.timeline,
+      rotation: {
+        name: "Raw WTS threshold probe",
+        steps: [
+          { type: "skill", skill: "WorldToSword" },
+          { type: "skill", skill: "RawThresholdHeal" },
+        ],
+      },
+      skills: {
+        WorldToSword: mysticSkills.WorldToSword,
+        QiBlade: mysticSkills.QiBlade,
+        RawThresholdHeal: {
+          name: "Raw threshold heal",
+          castTime: 0.1,
+          action: [
+            {
+              type: "heal",
+              phyCoef: 0,
+              phyBonus: (groupHealingThreshold * 1.1) / healingPerPhysicalBonus,
+              attrBonus: 0,
+              time: 0.1,
+            },
+          ],
+          tags: ["Heal"],
+        },
+      },
+      setupEffects: [{ physicalAttackBonus: 4, silkbindAttackBonus: 4 }],
+    },
+  });
+  assert(
+    groupQiBladeCount(rawThresholdResult) === 1,
+    "World to Sword's threshold must use raw character attacks rather than combat-time attack multipliers.",
+  );
   assert(
     groupQiBladeCount(soloGroupHealing) === 0 &&
       groupQiBladeCount(teamGroupHealing) === 1 &&
@@ -773,22 +809,28 @@ try {
         QiBlade: mysticSkills.QiBlade,
         TwentyOverflowHeals: {
           name: "Twenty Overflow Heals",
-          castTime: 0.1,
-          action: Array.from({ length: 20 }, () => ({ type: "heal", phyCoef: 30, time: 0.1 })),
+          castTime: 6,
+          action: Array.from({ length: 20 }, (_, index) => ({
+            type: "heal",
+            phyCoef: 30,
+            time: 0.1 + index * 0.31,
+          })),
           tags: ["Heal"],
         },
-        WaitForBlades: { name: "Wait for Blades", castTime: 6.5, action: [] },
+        WaitForBlades: { name: "Wait for Blades", castTime: 0.5, action: [] },
         Observe: { name: "Observe", castTime: 0, action: [] },
       },
     },
   });
-  const exhaustedWorldToSwordBuff = exhaustedWorldToSword.timeline
-    .find((row) => row.step.type === "skill" && row.step.skill === "Observe")
-    ?.buffs.find((buff) => buff.name === "WorldToSword");
+  const exhaustedWorldToSwordObserve = exhaustedWorldToSword.timeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "Observe",
+  );
+  const exhaustedWorldToSwordBuff = exhaustedWorldToSwordObserve?.buffs.find((buff) => buff.name === "WorldToSword");
   assert(
     groupQiBladeCount(exhaustedWorldToSword) === 20 &&
       exhaustedWorldToSwordBuff?.remainingTriggers === 0 &&
-      (exhaustedWorldToSwordBuff.expiresAt ?? 0) > 6.6,
+      (exhaustedWorldToSwordBuff.expiresAt ?? 0) >
+        (exhaustedWorldToSwordObserve?.startTime ?? Number.POSITIVE_INFINITY),
     "World to Sword must remain active until its normal expiry after all 20 Qi Blades have launched.",
   );
   const ordinaryHealingResult = calculateRotationBaseline({
@@ -871,6 +913,23 @@ try {
     simulatedWorldToSword.resolvedSequence.filter(({ entry }) => entry.context.skillTags.includes("QiBlade")).length ===
       2,
     "Simulation must use rolled healing while retaining overheal accumulated during the Qi Blade cooldown.",
+  );
+  let recipientRoll = 0;
+  const independentlyRolledGroupHealing = calculateSimulatedRotationRun(groupHealingBundle(5), () => {
+    recipientRoll += 1;
+    return recipientRoll % 2 === 1 ? 0 : 0.99;
+  });
+  const groupHealingEntry = independentlyRolledGroupHealing.resolvedSequence.find(
+    ({ entry }) => entry.id === "rotation-1:0",
+  );
+  const groupHealingOutcomes = new Set(
+    groupHealingEntry?.breakdown.recipientHealing?.map((healing) => healing.outcome),
+  );
+  assert(
+    groupHealingEntry?.breakdown.recipientHealing?.length === 5 &&
+      groupHealingOutcomes.has("normal") &&
+      groupHealingOutcomes.has("critical"),
+    "Simulation must independently roll every recipient of a group healing action.",
   );
 
   console.log(

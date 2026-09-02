@@ -29,7 +29,7 @@ import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
 import {
-  calculateHealingAttackSnapshot,
+  calculateRawHealingAttackSnapshot,
   calculateHealingBreakdown,
   calculateSimulatedHealingBreakdown,
   type HealingBreakdown,
@@ -78,7 +78,7 @@ export type RotationDamageEntry = {
   insightfulStrike?: InsightfulStrikeEffect;
   seasonalEdge?: SeasonalEdgeEntryState;
   healingRecipients?: { self: number; teammates: number; teammateOverhealRatio: number };
-  resolvedHealing?: HealingBreakdown;
+  resolvedHealing?: ResolvedHealingBreakdown;
   damageEvent?: {
     buffs: TrackedEffect[];
     debuffs: TrackedEffect[];
@@ -94,8 +94,14 @@ export type RotationDamageEntry = {
 
 export type RotationActionBreakdown = DamageBreakdown & {
   healing?: HealingBreakdown;
+  recipientHealing?: HealingBreakdown[];
   buffedDamageBySource?: Record<string, number>;
   expectedBuffStacks?: Record<string, number>;
+};
+
+type ResolvedHealingBreakdown = {
+  total: HealingBreakdown;
+  recipients: HealingBreakdown[];
 };
 
 export type RotationCalculationVariant = {
@@ -207,6 +213,20 @@ function scaleHealingBreakdown(healing: HealingBreakdown, multiplier: number): H
   };
 }
 
+function combineHealingBreakdowns(recipients: HealingBreakdown[]): HealingBreakdown {
+  const count = recipients.length;
+  const sum = (field: "physical" | "silkbind" | "total") =>
+    recipients.reduce((total, healing) => total + healing[field], 0);
+  return {
+    physical: sum("physical"),
+    silkbind: sum("silkbind"),
+    total: sum("total"),
+    normalRate: count > 0 ? recipients.reduce((total, healing) => total + (healing.normalRate ?? 0), 0) / count : 0,
+    criticalRate: count > 0 ? recipients.reduce((total, healing) => total + (healing.criticalRate ?? 0), 0) / count : 0,
+    ...(count === 1 && recipients[0].outcome ? { outcome: recipients[0].outcome } : {}),
+  };
+}
+
 function calculateRotationDamageEntry(
   entry: RotationDamageEntry,
   resolved: Map<string, RotationActionBreakdown>,
@@ -221,17 +241,19 @@ function calculateRotationDamageEntry(
     const sourceDamage = resolved.get(entry.replay.sourceEntryId)?.total ?? 0;
     breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
   } else if (entry.action.type === "heal") {
-    const perTargetHealing =
-      entry.resolvedHealing ??
-      (random
-        ? calculateSimulatedHealingBreakdown(entry.action, entry.context, random)
-        : calculateHealingBreakdown(entry.action, entry.context));
+    const recipientCount = (entry.healingRecipients?.self ?? 1) + (entry.healingRecipients?.teammates ?? 0);
+    const resolvedHealing = entry.resolvedHealing;
+    const recipientHealing =
+      resolvedHealing?.recipients ??
+      Array.from({ length: recipientCount }, () =>
+        random
+          ? calculateSimulatedHealingBreakdown(entry.action, entry.context, random)
+          : calculateHealingBreakdown(entry.action, entry.context),
+      );
     breakdown = {
       ...emptyBreakdown(),
-      healing: scaleHealingBreakdown(
-        perTargetHealing,
-        (entry.healingRecipients?.self ?? 1) + (entry.healingRecipients?.teammates ?? 0),
-      ),
+      healing: resolvedHealing?.total ?? combineHealingBreakdowns(recipientHealing),
+      recipientHealing,
     };
   } else {
     const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
@@ -1342,7 +1364,7 @@ function timelineDamageEntries(
   updateTimelineState = false,
   expectedBuffSchedule?: ExpectedOutcomeBuffSchedule,
   random?: () => number,
-  resolvedHealing?: Record<string, HealingBreakdown>,
+  resolvedHealing?: Record<string, ResolvedHealingBreakdown>,
 ): {
   entries: RotationDamageEntry[];
   resolvedSequence?: ResolvedRotationDamageSequence;
@@ -2048,14 +2070,13 @@ function timelineTiming(
 }
 
 type HealingTimelineRuntime = {
-  timeline: Pick<TimelineBuildInput, "resolvedHealing" | "accumulatorThresholds" | "calculationMode">;
-  healingBreakdowns: Record<string, HealingBreakdown>;
+  timeline: Pick<TimelineBuildInput, "resolvedHealing" | "accumulatorThresholds">;
+  healingBreakdowns: Record<string, ResolvedHealingBreakdown>;
 };
 
 function healingTimelineRuntime(
   timeline: TimelineRow[],
   resolvedSequence: ResolvedRotationDamageSequence,
-  calculationMode: "expected" | "simulation" = "expected",
 ): HealingTimelineRuntime | undefined {
   const applications = timeline.flatMap((row) =>
     row.actions.flatMap((action, actionIndex) =>
@@ -2082,14 +2103,17 @@ function healingTimelineRuntime(
       if (!entry.id || !breakdown.healing) return [];
       const healingRecipients = entry.healingRecipients ?? { self: 1, teammates: 0, teammateOverhealRatio: 0 };
       const recipientCount = healingRecipients.self + healingRecipients.teammates;
-      const perTargetHealing = breakdown.healing.total / recipientCount;
+      const recipientHealing =
+        breakdown.recipientHealing ??
+        Array.from({ length: recipientCount }, () => scaleHealingBreakdown(breakdown.healing!, 1 / recipientCount));
       return [
         [
           entry.id,
           {
-            self: perTargetHealing * healingRecipients.self,
-            teammateOverhealContribution:
-              perTargetHealing * healingRecipients.teammates * healingRecipients.teammateOverhealRatio,
+            self: recipientHealing.slice(0, healingRecipients.self).map((healing) => healing.total),
+            teammateOverhealContributions: recipientHealing
+              .slice(healingRecipients.self)
+              .map((healing) => healing.total * healingRecipients.teammateOverhealRatio),
           },
         ] as const,
       ];
@@ -2099,12 +2123,11 @@ function healingTimelineRuntime(
     resolvedSequence.flatMap(({ entry, breakdown }) => {
       if (!entry.id || !breakdown.healing) return [];
       const healingRecipients = entry.healingRecipients ?? { self: 1, teammates: 0, teammateOverhealRatio: 0 };
-      return [
-        [
-          entry.id,
-          scaleHealingBreakdown(breakdown.healing, 1 / (healingRecipients.self + healingRecipients.teammates)),
-        ] as const,
-      ];
+      const recipientCount = healingRecipients.self + healingRecipients.teammates;
+      const recipients =
+        breakdown.recipientHealing ??
+        Array.from({ length: recipientCount }, () => scaleHealingBreakdown(breakdown.healing!, 1 / recipientCount));
+      return [[entry.id, { total: breakdown.healing, recipients }] as const];
     }),
   );
   if (applications.length === 0 && Object.keys(resolvedHealing).length === 0) return undefined;
@@ -2126,21 +2149,14 @@ function healingTimelineRuntime(
         );
       const representative = following ?? preceding;
       if (!representative) return [];
-      const snapshotContext = representative.outcomeEffects
-        ? {
-            ...representative.entry.context,
-            unconditionalDamageEffects: addUnconditionalDamageEffects(
-              representative.entry.context.unconditionalDamageEffects,
-              representative.outcomeEffects,
-            ),
-          }
-        : representative.entry.context;
-      const { averagePhysicalAttack, averageSilkbindAttack } = calculateHealingAttackSnapshot(snapshotContext);
+      const { averagePhysicalAttack, averageSilkbindAttack } = calculateRawHealingAttackSnapshot(
+        representative.entry.context,
+      );
       return [[application.key, averagePhysicalAttack * 12 + averageSilkbindAttack * 18] as const];
     }),
   );
   return {
-    timeline: { resolvedHealing, accumulatorThresholds, calculationMode },
+    timeline: { resolvedHealing, accumulatorThresholds },
     healingBreakdowns,
   };
 }
@@ -2164,7 +2180,6 @@ export function calculateSimulatedRotationRun(
     ...bundle.timeline,
     resolvedHealing: undefined,
     accumulatorThresholds: undefined,
-    calculationMode: undefined,
   };
   let timeline = buildRotationTimeline(structuralInput);
   let resolution = timelineDamageEntries(
@@ -2178,7 +2193,7 @@ export function calculateSimulatedRotationRun(
     random,
   );
   let resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(resolution.entries, random);
-  const runtime = healingTimelineRuntime(timeline, resolvedSequence, "simulation");
+  const runtime = healingTimelineRuntime(timeline, resolvedSequence);
   if (runtime) {
     const resolvedTimelineInput = { ...bundle.timeline, ...runtime.timeline };
     timeline = buildRotationTimeline(resolvedTimelineInput);
@@ -2364,7 +2379,6 @@ export function calculateRotationComparisons(
           ...timelineInput,
           resolvedHealing: undefined,
           accumulatorThresholds: undefined,
-          calculationMode: undefined,
         })
       : baselineResult.timeline;
     if (import.meta.env.DEV && rebuildStructuralTimeline)

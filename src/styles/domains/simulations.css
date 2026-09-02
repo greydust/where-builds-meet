@@ -1,6 +1,6 @@
 @layer components {
   .simulation-panel {
-    max-inline-size: 1100px;
+    max-inline-size: 72rem;
   }
 
   .simulation-controls {

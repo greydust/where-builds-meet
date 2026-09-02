@@ -156,10 +156,13 @@ emits `QiBladeCheck` 0.3 seconds after launch so stored overhealing can launch
 the next blade as soon as the cooldown is ready. `emitEvent` is an internal
 skill action and does not create a general combat-event broadcast.
 
-Expected calculations cap each individual heal's accumulator contribution at
-the snapshotted threshold and retain cumulative threshold credit. Simulations
-use the rolled heal, reset accumulated overhealing after each launch, and still
-accept healing during the 0.3-second launch cooldown. Both modes enforce the
+Each recipient's healing number enters the accumulator separately. Expected
+calculations use expected recipient healing, while simulations independently
+roll every recipient. Both modes reset accumulated overhealing to zero after
+each launch and continue accepting healing during the 0.3-second launch
+cooldown. The threshold derives from raw Min/Max Physical and Min/Max Silkbind
+character stats; combat-time effects and attack multipliers do not alter it.
+Both modes enforce the
 buff's 12-second lifetime and 20-blade limit. Finite accumulator listeners expose
 their remaining successful-trigger budget on the tracked buff for timeline UI;
 reaching zero prevents further triggers but does not end the buff early.

@@ -579,18 +579,19 @@ beside damage and publishes total healing, HPS, and independently sorted
 healing breakdown rows through the same baseline result.
 
 The timeline applies one per-recipient copy of resolved healing to absolute Self
-HP before calculating overhealing. Other recipients of a group heal are assumed
-full and contribute one-fifth of their healing to World to Sword. Their combined
-contribution and the tracked player's overhealing emit one accumulator event per
-healing action, so the expected-mode per-action threshold cap remains singular
-regardless of group size. A single-target periodic heal assigned to a teammate
+HP before calculating overhealing. Simulations roll every recipient separately
+rather than multiplying one shared outcome. Other recipients of a group heal are
+assumed full and each contribute one-fifth of their own healing number to World
+to Sword. Every recipient emits a separate accumulator event. A single-target
+periodic heal assigned to a teammate
 also assumes that teammate is full, but contributes its complete healing rather
 than the group-heal one-fifth weight. Buff accumulators subscribe to explicitly named internal events;
 the timeline does not broadcast every combat action. World to Sword snapshots
-its Physical/Silkbind attack threshold when applied, accepts `overheal`, and
-checks only on overheal or a Qi Blade's delayed `QiBladeCheck`. Expected mode
-tracks fractional threshold credit, while simulation mode uses rolled healing
-and resets the accumulator after a launch. The calculated timeline carries a
+its threshold from the raw Physical/Silkbind character-stat ranges, accepts `overheal`, and
+checks only on overheal or a Qi Blade's delayed `QiBladeCheck`. Expected and
+simulation modes both reset the accumulator after a launch. Healing received
+during the cooldown remains stored until the delayed check can launch the next
+blade. The calculated timeline carries a
 finite listener's remaining trigger count into the editor's tracked buff state,
 independently of the buff's normal expiration time.
 

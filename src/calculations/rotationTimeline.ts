@@ -113,8 +113,8 @@ export type TrackedEffect = {
 };
 export type ResourceState = Record<string, number>;
 export type ResolvedHealingState = {
-  self: number;
-  teammateOverhealContribution: number;
+  self: number[];
+  teammateOverhealContributions: number[];
 };
 export type ResourceRangeState = Record<string, { minimum: number; maximum: number; expected?: number }>;
 export type TimelineResourceSummary = Record<
@@ -293,8 +293,6 @@ export type EffectDefinition = {
   accumulator?: {
     event?: string;
     checkEvent?: string;
-    expectedEventCap?: "threshold";
-    simulationReset?: "zero";
   };
   listen?: Array<{
     event?: string;
@@ -358,7 +356,6 @@ export type TimelineBuildInput = {
   cooldownPolicy?: "skip" | "wait";
   resolvedHealing?: Record<string, ResolvedHealingState>;
   accumulatorThresholds?: Record<string, number>;
-  calculationMode?: "expected" | "simulation";
 };
 
 export type ResourceEventRule = {
@@ -1994,10 +1991,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           if (listener.event !== eventName) continue;
           const maxTriggers = Math.max(0, Math.floor(listener.maxTriggers ?? Number.POSITIVE_INFINITY));
           if (accumulator.firedTriggers >= maxTriggers || accumulator.nextReadyAt > event.time) continue;
-          const available =
-            input.calculationMode === "simulation"
-              ? accumulator.accumulated >= accumulator.threshold
-              : Math.floor(accumulator.accumulated / accumulator.threshold) > accumulator.firedTriggers;
+          const available = accumulator.accumulated >= accumulator.threshold;
           if (!available) continue;
           const triggerAction = listener.action;
           if (triggerAction?.type !== "trigger" || typeof triggerAction.value !== "string") continue;
@@ -2012,8 +2006,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
               ),
             );
           accumulator.nextReadyAt = event.time + Math.max(0, listener.cooldown ?? 0);
-          if (input.calculationMode === "simulation" && definition.accumulator?.simulationReset === "zero")
-            accumulator.accumulated = 0;
+          accumulator.accumulated = 0;
         }
       }
     };
@@ -2024,11 +2017,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         const accumulatorDefinition = definition?.accumulator;
         const accumulator = accumulatorStates.get(activeBuff.name);
         if (!accumulatorDefinition || accumulatorDefinition.event !== eventName || !accumulator) continue;
-        const contribution =
-          input.calculationMode !== "simulation" && accumulatorDefinition.expectedEventCap === "threshold"
-            ? Math.min(amount, accumulator.threshold)
-            : amount;
-        accumulator.accumulated += contribution;
+        accumulator.accumulated += amount;
         if (accumulatorDefinition.checkEvent) emitCustomEvent(accumulatorDefinition.checkEvent);
       }
     };
@@ -2265,15 +2254,17 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       const healingKey = `${event.row.id}:${event.actionIndex ?? -1}`;
       const resolvedHealing = input.resolvedHealing?.[healingKey];
       if (resolvedHealing) {
-        const rawHealing =
-          typeof resolvedHealing.self === "number" && Number.isFinite(resolvedHealing.self)
-            ? Math.max(0, resolvedHealing.self)
-            : 0;
-        const missingHP = Math.max(0, maxHP - currentHP);
-        const effectiveHealing = Math.min(rawHealing, missingHP);
-        const overhealing = Math.max(0, rawHealing - effectiveHealing);
-        setCurrentHP(currentHP + effectiveHealing);
-        accumulateEventValue("overheal", overhealing + Math.max(0, resolvedHealing?.teammateOverhealContribution ?? 0));
+        resolvedHealing.self.forEach((healing) => {
+          const rawHealing = typeof healing === "number" && Number.isFinite(healing) ? Math.max(0, healing) : 0;
+          const missingHP = Math.max(0, maxHP - currentHP);
+          const effectiveHealing = Math.min(rawHealing, missingHP);
+          const overhealing = Math.max(0, rawHealing - effectiveHealing);
+          setCurrentHP(currentHP + effectiveHealing);
+          accumulateEventValue("overheal", overhealing);
+        });
+        resolvedHealing.teammateOverhealContributions.forEach((healing) =>
+          accumulateEventValue("overheal", Math.max(0, healing)),
+        );
       }
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("heal");

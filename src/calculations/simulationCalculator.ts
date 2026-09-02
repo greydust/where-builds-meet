@@ -88,17 +88,17 @@ export function simulateRotation(
       }
       if (breakdown.healing) {
         totalHealing += breakdown.healing.total;
-        const recipients = entry.healingRecipients ?? { self: 1, teammates: 0 };
-        const recipientCount = recipients.self + recipients.teammates;
-        switch (breakdown.healing.outcome) {
-          case "normal":
-            normalHeals += recipientCount;
-            healCount += recipientCount;
-            break;
-          case "critical":
-            criticalHeals += recipientCount;
-            healCount += recipientCount;
-            break;
+        for (const recipientHealing of breakdown.recipientHealing ?? [breakdown.healing]) {
+          switch (recipientHealing.outcome) {
+            case "normal":
+              normalHeals += 1;
+              healCount += 1;
+              break;
+            case "critical":
+              criticalHeals += 1;
+              healCount += 1;
+              break;
+          }
         }
       }
     });

@@ -1236,9 +1236,7 @@
     "refresh": true,
     "accumulator": {
       "event": "overheal",
-      "checkEvent": "QiBladeCheck",
-      "expectedEventCap": "threshold",
-      "simulationReset": "zero"
+      "checkEvent": "QiBladeCheck"
     },
     "listen": [
       {

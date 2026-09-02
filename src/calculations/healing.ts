@@ -93,9 +93,11 @@ function resolveHealingAttackState(context: DamageContext) {
   return { stats, derivedStats, averagePhysicalAttack, averageSilkbindAttack };
 }
 
-/** Attack values used by healing and cast-time healing thresholds. */
-export function calculateHealingAttackSnapshot(context: DamageContext) {
-  const { averagePhysicalAttack, averageSilkbindAttack } = resolveHealingAttackState(context);
+/** Raw character-sheet attack averages used by thresholds that ignore combat-time effects. */
+export function calculateRawHealingAttackSnapshot(context: Pick<DamageContext, "stats">) {
+  const averagePhysicalAttack = (context.stats.minPhys + Math.max(context.stats.minPhys, context.stats.maxPhys)) / 2;
+  const averageSilkbindAttack =
+    (context.stats.minSilkbind + Math.max(context.stats.minSilkbind, context.stats.maxSilkbind)) / 2;
   return { averagePhysicalAttack, averageSilkbindAttack };
 }
 
