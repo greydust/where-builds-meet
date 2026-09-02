@@ -82,6 +82,14 @@
       "skill": "Deflect"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": "start"
+      },
+      "targetQiRatio": 0.5999
+    },
+    {
       "type": "skill",
       "skill": "DrunkenPoet5HitsCancel"
     },
@@ -101,6 +109,14 @@
     {
       "type": "skill",
       "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 35
+      },
+      "targetQiRatio": 0.3999
     },
     {
       "type": "skill",
@@ -178,6 +194,14 @@
     {
       "type": "skill",
       "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 6
+      },
+      "targetQiRatio": 0
     },
     {
       "type": "skill",

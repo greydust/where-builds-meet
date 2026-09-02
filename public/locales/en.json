@@ -1067,6 +1067,7 @@
   "ui.simulationTab.current": "Current",
   "ui.simulationTab.customPercentiles": "Custom percentiles",
   "ui.simulationTab.deleteResult": "Delete simulation result",
+  "ui.simulationTab.healingOutcome": "Healing {outcome}",
   "ui.simulationTab.invalidCountError": "Simulation count must be a positive whole number.",
   "ui.simulationTab.median": "Median",
   "ui.simulationTab.outdated": "Outdated",

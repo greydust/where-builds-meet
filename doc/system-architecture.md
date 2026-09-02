@@ -653,7 +653,7 @@ completed metrics.
 The Simulation tab receives an immutable baseline-only snapshot for the active
 rotation. Starting a simulation creates a separate `simulationWorker.ts`
 instance. That worker builds the combat timeline once, repeatedly samples its
-damage entries, reports progress, sorts completed runs by DPS, and returns the
+damage and healing entries, reports progress, sorts completed runs by DPS, and returns the
 best, P99, P95, P90, P75, and median runs. Cancel terminates that disposable worker;
 it cannot disturb the persistent deterministic worker or its queue. Simulation
 results are UI-local and are not published as `RotationMetrics` or persisted.
@@ -671,6 +671,8 @@ worker result retains its DPS-sorted runs, so adding or removing a display row
 updates every retained result immediately without changing fingerprint status.
 Custom row choices persist in browser storage; simulation history itself
 remains component memory and is not stored.
+Healing simulations publish HPS plus recipient-weighted Normal and Critical
+healing percentages on the same DPS-ranked run records.
 
 ## Baseline and variant calculation
 

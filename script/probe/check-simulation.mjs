@@ -113,6 +113,44 @@ try {
     ordered.every((result) => result.normalPercentage === 100),
     "Outcome percentages must count the sampled hit outcomes.",
   );
+  const healingStats = { ...stats, crit: 1 };
+  const healingSummary = simulateRotation(
+    {
+      ...bundle,
+      timeline: {
+        ...timeline,
+        rotation: {
+          name: "Healing simulation probe",
+          groupSize: 5,
+          steps: [{ type: "skill", skill: "GroupHeal" }],
+        },
+        skills: {
+          GroupHeal: {
+            name: "Group Heal",
+            group: true,
+            castTime: 1,
+            tags: ["Heal"],
+            action: [{ type: "heal", time: 1, phyCoef: 1 }],
+          },
+        },
+      },
+      stats: healingStats,
+      derivedStats: calculateDerivedStats(healingStats, 0),
+    },
+    1,
+    () => 0,
+  );
+  const healingRun = healingSummary.results.best;
+  assert(
+    healingRun.totalDamage === 0 &&
+      healingRun.totalHealing > 0 &&
+      healingRun.hps === healingRun.totalHealing / healingSummary.duration,
+    "Simulation runs must publish sampled total healing and HPS alongside damage.",
+  );
+  assert(
+    healingRun.healingNormalPercentage === 0 && healingRun.healingCriticalPercentage === 100,
+    "Healing simulation percentages must count sampled recipient-weighted Normal and Critical outcomes.",
+  );
   console.log("Shared simulated-damage mode, progress, and percentile checks passed.");
 } finally {
   await viteServer.close();

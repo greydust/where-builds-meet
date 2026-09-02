@@ -111,6 +111,14 @@
       "skill": "DeflectSuccessful"
     },
     {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 32
+      },
+      "targetQiRatio": 0.5999
+    },
+    {
       "type": "skill",
       "skill": "DrunkenPoet5HitsCancel"
     },
@@ -150,6 +158,14 @@
     {
       "type": "skill",
       "skill": "DeflectSuccessful"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": "start"
+      },
+      "targetQiRatio": 0.3999
     },
     {
       "type": "skill",
@@ -224,6 +240,14 @@
     {
       "type": "skill",
       "skill": "WorldToSword"
+    },
+    {
+      "type": "event",
+      "event": "Qi",
+      "before": {
+        "action": 0
+      },
+      "targetQiRatio": 0
     },
     {
       "type": "skill",

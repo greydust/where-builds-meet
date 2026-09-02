@@ -307,6 +307,9 @@ DPS. A skill marked `group: true` reports `Final Healing × Group Size`, where
 Group Size is 1, 5, or 10. Per-skill healing breakdowns report the average
 Normal and Critical outcome rates across that skill's healing actions; abrasion
 and affinity are always absent.
+Simulation rolls each healing action's Normal or Critical result. Group-heal
+outcome counts are weighted by recipient count, and each DPS-ranked simulation
+record also reports its sampled HPS and healing outcome percentages.
 
 At the heal timestamp, one per-recipient healing copy first restores missing
 Self HP up to Max HP; the remainder is self overhealing. Other recipients of a

@@ -85,6 +85,7 @@ function SimulationResultCard({
     record.summary,
     customPercentiles,
   );
+  const hasHealing = resultRows.some(({ result }) => result.totalHealing > 0);
   return (
     <article className="simulation-record">
       <header className="simulation-record-heading">
@@ -112,25 +113,47 @@ function SimulationResultCard({
         </button>
       </header>
       <div className="simulation-results">
-        <div className="simulation-table" role="table" aria-label={t("ui.simulationTab.simulationPercentileResults")}>
+        <div
+          className={`simulation-table${hasHealing ? " with-healing" : ""}`}
+          role="table"
+          aria-label={t("ui.simulationTab.simulationPercentileResults")}
+        >
           <div className="simulation-table-row simulation-table-header" role="row">
             <span>{t("ui.simulationTab.result")}</span>
             <span>{t("system.totalDamage")}</span>
             <span>{t("system.dps")}</span>
+            {hasHealing ? <span className="healing-value">{t("system.hps")}</span> : null}
             <span>{t("system.abrasion")}</span>
             <span>{t("system.normal")}</span>
             <span>{t("system.critical")}</span>
             <span>{t("system.affinity")}</span>
+            {hasHealing ? (
+              <>
+                <span className="healing-value">
+                  {t("ui.simulationTab.healingOutcome", { outcome: t("system.normal") })}
+                </span>
+                <span className="healing-value">
+                  {t("ui.simulationTab.healingOutcome", { outcome: t("system.critical") })}
+                </span>
+              </>
+            ) : null}
           </div>
           {resultRows.map(({ label, result }) => (
             <div className="simulation-table-row" role="row" key={label}>
               <strong>{label}</strong>
               <span>{formatNumber(result.totalDamage)}</span>
               <span>{formatNumber(result.dps)}</span>
+              {hasHealing ? <span className="healing-value">{formatNumber(result.hps)}</span> : null}
               <span>{formatPercentage(result.abrasionPercentage)}</span>
               <span>{formatPercentage(result.normalPercentage)}</span>
               <span>{formatPercentage(result.criticalPercentage)}</span>
               <span>{formatPercentage(result.affinityPercentage)}</span>
+              {hasHealing ? (
+                <>
+                  <span className="healing-value">{formatPercentage(result.healingNormalPercentage)}</span>
+                  <span className="healing-value">{formatPercentage(result.healingCriticalPercentage)}</span>
+                </>
+              ) : null}
             </div>
           ))}
         </div>

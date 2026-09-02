@@ -924,6 +924,7 @@
   "ui.simulationTab.current": "目前",
   "ui.simulationTab.customPercentiles": "自訂百分位數",
   "ui.simulationTab.deleteResult": "刪除此模擬結果",
+  "ui.simulationTab.healingOutcome": "治療{outcome}",
   "ui.simulationTab.invalidCountError": "模擬次數必須是正整數。",
   "ui.simulationTab.median": "中位數",
   "ui.simulationTab.outdated": "已過期",
