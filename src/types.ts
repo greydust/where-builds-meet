@@ -43,6 +43,8 @@ export type CharacterStats = {
   silkbindDmgBonus: number;
   /** Multiplier applied to the Silkbind component of healing actions. */
   silkbindHealingBonus: number;
+  /** Base bonus used by Critical healing outcomes before action-specific effects. */
+  criticalHealingBonus: number;
   bamboocutDmgBonus: number;
   critDmgBonus: number;
   affinityDmgBonus: number;

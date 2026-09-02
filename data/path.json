@@ -58,7 +58,7 @@
     "name": "Deluge",
     "icon": "deluge.png",
     "tag": "SilkbindDeluge",
-    "status": "wip",
+    "status": "available",
     "buildGroup": "silkbind-deluge",
     "defaultBuild": "deluge-fully-relayed-min-ew",
     "graduated": "deluge-full-min-ew",

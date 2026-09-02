@@ -85,8 +85,8 @@
           "value": 0.09
         },
         {
-          "key": "umbrellaDmgBoost",
-          "value": 0.062
+          "key": "maxVoidAttack",
+          "value": 44.2
         }
       ],
       "attunement": {

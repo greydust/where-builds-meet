@@ -186,6 +186,90 @@ export type TimelineRow = {
   cooldownWait?: number;
 };
 
+type OrderedQueueEntry<T> = {
+  value: T;
+  sequence: number;
+};
+
+class OrderedQueue<T> {
+  private entries: Array<OrderedQueueEntry<T>> = [];
+  private nextSequence = 0;
+  private dirty = false;
+
+  constructor(private readonly compareValues: (left: T, right: T) => number) {}
+
+  get length() {
+    return this.entries.length;
+  }
+
+  push(...values: T[]) {
+    values.forEach((value) => {
+      const entry = { value, sequence: this.nextSequence++ };
+      this.entries.push(entry);
+      if (!this.dirty) this.siftUp(this.entries.length - 1);
+    });
+  }
+
+  shift() {
+    this.ensureHeap();
+    const first = this.entries[0];
+    const last = this.entries.pop();
+    if (!first) return undefined;
+    if (last && this.entries.length > 0) {
+      this.entries[0] = last;
+      this.siftDown(0);
+    }
+    return first.value;
+  }
+
+  mutate(callback: (value: T) => void) {
+    this.entries.forEach((entry) => callback(entry.value));
+    this.dirty = true;
+  }
+
+  remove(predicate: (value: T) => boolean) {
+    const remaining = this.entries.filter((entry) => !predicate(entry.value));
+    if (remaining.length === this.entries.length) return;
+    this.entries = remaining;
+    this.dirty = true;
+  }
+
+  private compare(left: OrderedQueueEntry<T>, right: OrderedQueueEntry<T>) {
+    return this.compareValues(left.value, right.value) || left.sequence - right.sequence;
+  }
+
+  private ensureHeap() {
+    if (!this.dirty) return;
+    for (let index = Math.floor(this.entries.length / 2) - 1; index >= 0; index -= 1) this.siftDown(index);
+    this.dirty = false;
+  }
+
+  private siftUp(startIndex: number) {
+    let index = startIndex;
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2);
+      if (this.compare(this.entries[parent], this.entries[index]) <= 0) return;
+      [this.entries[parent], this.entries[index]] = [this.entries[index], this.entries[parent]];
+      index = parent;
+    }
+  }
+
+  private siftDown(startIndex: number) {
+    let index = startIndex;
+    while (true) {
+      const left = index * 2 + 1;
+      const right = left + 1;
+      let smallest = index;
+      if (left < this.entries.length && this.compare(this.entries[left], this.entries[smallest]) < 0) smallest = left;
+      if (right < this.entries.length && this.compare(this.entries[right], this.entries[smallest]) < 0)
+        smallest = right;
+      if (smallest === index) return;
+      [this.entries[index], this.entries[smallest]] = [this.entries[smallest], this.entries[index]];
+      index = smallest;
+    }
+  }
+}
+
 function timelineRowsRepresentSameStep(left: TimelineRow, right: TimelineRow) {
   if (left.kind !== right.kind || left.step.type !== right.step.type) return false;
   switch (left.step.type) {
@@ -717,7 +801,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   const innerWayConditions = new Set(input.innerWayConditions);
   const subActionChoices = new Map<string, boolean>();
   const rows: TimelineRow[] = [];
-  const events: TimelineEvent[] = [];
+  const events = new OrderedQueue<TimelineEvent>(
+    (left, right) => compareTimelineTime(left.time, right.time) || compareSortOrder(left.sortOrder, right.sortOrder),
+  );
   const attachedEvent = (step: RotationStep) => {
     if (step.type !== "event") return undefined;
     if (
@@ -929,7 +1015,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     attachedRows.forEach((eventRow) => {
       eventRow.startTime += shift;
     });
-    events.forEach((queued) => {
+    events.mutate((queued) => {
       if (queued.row === targetRow || attachedRows.has(queued.row)) queued.time += shift;
     });
   };
@@ -1148,6 +1234,24 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   const cooldowns: Record<string, number> = {};
   const skillCooldownWindows: Record<string, { expiresAt: number; uses: number }> = {};
   const setupTriggerCooldowns = new Map<number, number>();
+  const setupTriggersByEvent = new Map<string, Array<{ setupIndex: number; trigger: EditableObject }>>();
+  setupEffects.forEach((setup, setupIndex) => {
+    const trigger =
+      setup.trigger && typeof setup.trigger === "object" && !Array.isArray(setup.trigger)
+        ? (setup.trigger as EditableObject)
+        : undefined;
+    if (typeof trigger?.event !== "string") return;
+    setupTriggersByEvent.set(trigger.event, [
+      ...(setupTriggersByEvent.get(trigger.event) ?? []),
+      { setupIndex, trigger },
+    ]);
+  });
+  const innerWayTriggersByEvent = new Map<string, InnerWayEffectRule[]>();
+  innerWayRules.forEach((rule) => {
+    const triggerEvent = rule.trigger?.event ?? "damage";
+    if (triggerEvent === "damageOutcome" || typeof triggerEvent !== "string") return;
+    innerWayTriggersByEvent.set(triggerEvent, [...(innerWayTriggersByEvent.get(triggerEvent) ?? []), rule]);
+  });
   const skillCooldownGroups = Object.fromEntries(
     Object.entries(skills)
       .filter((entry): entry is [string, SkillRecord & { cooldownGroup: string }] => Boolean(entry[1]?.cooldownGroup))
@@ -1283,8 +1387,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     if (pendingRows.size === 0) return;
     activeEffect.rows = activeEffect.rows.filter((row) => !pendingRows.has(row));
     for (let index = rows.length - 1; index >= 0; index -= 1) if (pendingRows.has(rows[index])) rows.splice(index, 1);
-    for (let index = events.length - 1; index >= 0; index -= 1)
-      if (pendingRows.has(events[index].row)) events.splice(index, 1);
+    events.remove((event) => pendingRows.has(event.row));
   };
   const schedulePeriodicActions = (
     name: string,
@@ -1483,7 +1586,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           ? row.startTime
           : row.startTime + Number(row.actions[attachment.target.action]?.time ?? 0);
       attachment.eventRow.startTime = targetTime;
-      events.forEach((queued) => {
+      events.mutate((queued) => {
         if (queued.row !== attachment.eventRow) return;
         queued.time =
           targetTime +
@@ -1512,7 +1615,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       ...action,
       ...(typeof action.time === "number" ? { time: adjust(action.time) } : {}),
     }));
-    events.forEach((queued) => {
+    events.mutate((queued) => {
       if (queued.row === row && queued.kind === "action")
         queued.time =
           queued.expiresEffect?.expiresAt ??
@@ -1527,9 +1630,6 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
 
   while (events.length && processedEvents < 2000) {
     const queueStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-    events.sort(
-      (left, right) => compareTimelineTime(left.time, right.time) || compareSortOrder(left.sortOrder, right.sortOrder),
-    );
     const event = events.shift()!;
     if (import.meta.env.DEV) finishCalculationPhase("timelineQueueOrdering", queueStartedAt);
     processedEvents += 1;
@@ -1613,8 +1713,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       (directAttachments.get(event.row.id) ?? []).forEach(({ eventRow, target }) => {
         if (typeof target.action !== "number" || !inactiveActionIndexes.has(target.action)) return;
         eventRow.skipped = true;
-        for (let index = events.length - 1; index >= 0; index -= 1)
-          if (events[index].row === eventRow) events.splice(index, 1);
+        events.remove((queued) => queued.row === eventRow);
       });
       const skillTags = segment.skill.tags ?? [];
       event.row.actionSkillTags ??= {};
@@ -1640,7 +1739,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         const actionTime = segmentStartOffset + adjust(segment.localActionTimes[localIndex] ?? 0);
         event.row.actions[actionIndex] = { ...event.row.actions[actionIndex], time: actionTime };
         event.row.actionModifierEffects![actionIndex] = modifiers;
-        events.forEach((queued) => {
+        events.mutate((queued) => {
           if (queued.row === event.row && queued.kind === "action" && queued.actionIndex === actionIndex)
             queued.time = event.row.startTime + actionTime;
         });
@@ -1657,7 +1756,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             if (typeof action?.time === "number") action.time += shift;
           });
         });
-        events.forEach((queued) => {
+        events.mutate((queued) => {
           if (queued.row !== event.row) return;
           if (queued.kind === "subActionStart" && (queued.subActionIndex ?? -1) > (event.subActionIndex ?? -1))
             queued.time += shift;
@@ -1739,8 +1838,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         [...(directAttachments.get(event.row.id) ?? []), ...(triggeredAttachments.get(event.row.id) ?? [])].forEach(
           ({ eventRow }) => {
             eventRow.skipped = true;
-            for (let index = events.length - 1; index >= 0; index -= 1)
-              if (events[index].row === eventRow) events.splice(index, 1);
+            events.remove((queued) => queued.row === eventRow);
           },
         );
         rows.forEach((row) => {
@@ -2164,13 +2262,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       }
     };
     const runSetupTriggers = (triggerEvent: string) => {
-      setupEffects.forEach((setup, setupIndex) => {
-        const trigger =
-          setup.trigger && typeof setup.trigger === "object" && !Array.isArray(setup.trigger)
-            ? (setup.trigger as EditableObject)
-            : undefined;
+      (setupTriggersByEvent.get(triggerEvent) ?? []).forEach(({ setupIndex, trigger }) => {
         if (
-          trigger?.event !== triggerEvent ||
           (setupTriggerCooldowns.get(setupIndex) ?? 0) > event.time ||
           !requirementsPass(
             trigger.requirement,
@@ -2192,35 +2285,33 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       });
     };
     const runInnerWayTriggers = (triggerEvent: "damage" | "heal" | "takeDamage") => {
-      innerWayRules
-        .filter((rule) => rule.trigger?.event !== "damageOutcome" && (rule.trigger?.event ?? "damage") === triggerEvent)
-        .forEach((rule) => {
-          const requirement = rule.requirement ?? rule.trigger?.requirement;
-          if (
-            !requirementsPass(
-              requirement,
-              buffs,
-              debuffs,
-              skillTags,
-              innerWayConditions,
-              weapons,
-              resources,
-              requirementState(),
-            )
+      (innerWayTriggersByEvent.get(triggerEvent) ?? []).forEach((rule) => {
+        const requirement = rule.requirement ?? rule.trigger?.requirement;
+        if (
+          !requirementsPass(
+            requirement,
+            buffs,
+            debuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
           )
-            return;
-          const triggerActions = Array.isArray(rule.trigger?.action)
-            ? rule.trigger.action
-            : rule.trigger?.action && typeof rule.trigger.action === "object"
-              ? [rule.trigger.action]
-              : [];
-          triggerActions
-            .filter(
-              (triggerAction): triggerAction is EditableObject =>
-                Boolean(triggerAction) && typeof triggerAction === "object" && !Array.isArray(triggerAction),
-            )
-            .forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
-        });
+        )
+          return;
+        const triggerActions = Array.isArray(rule.trigger?.action)
+          ? rule.trigger.action
+          : rule.trigger?.action && typeof rule.trigger.action === "object"
+            ? [rule.trigger.action]
+            : [];
+        triggerActions
+          .filter(
+            (triggerAction): triggerAction is EditableObject =>
+              Boolean(triggerAction) && typeof triggerAction === "object" && !Array.isArray(triggerAction),
+          )
+          .forEach((triggerAction) => applyTriggerAction(triggerAction, "innerWay"));
+      });
     };
     if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
       const avoidsTakeDamage = rows.some(
@@ -2464,7 +2555,9 @@ function buildRotationTimelineResolved(input: TimelineBuildInput): TimelineRow[]
   return buildRotationTimelinePass(input, anchorTime);
 }
 
-function automaticTargetHPRotation(input: TimelineBuildInput, rows: TimelineRow[]): RotationRecord {
+type AutomaticEventTiming = { anchorTime: number; duration: number };
+
+function automaticEventTimingFromRows(input: TimelineBuildInput, rows: TimelineRow[]): AutomaticEventTiming {
   const anchorRow = rows.find((row) => row.id === `rotation-${input.rotation.start?.step ?? 0}`) ?? rows[0];
   const anchorTime = anchorRow
     ? anchorRow.startTime +
@@ -2491,6 +2584,20 @@ function automaticTargetHPRotation(input: TimelineBuildInput, rows: TimelineRow[
         anchorTime,
       );
   const duration = Math.max(0, lastTimelineTime - anchorTime);
+  return { anchorTime, duration };
+}
+
+function explicitBattleEndTiming(rotation: RotationRecord): AutomaticEventTiming | undefined {
+  if (rotation.eventTimeReference !== "battleStart") return undefined;
+  const battleEndTime = rotation.steps.reduce<number | undefined>((earliest, step) => {
+    if (step.type !== "event" || step.event !== "BattleEnd" || !Number.isFinite(step.startTime)) return earliest;
+    return earliest === undefined ? step.startTime : Math.min(earliest, step.startTime);
+  }, undefined);
+  return battleEndTime === undefined ? undefined : { anchorTime: 0, duration: Math.max(0, battleEndTime) };
+}
+
+function automaticTargetHPRotation(input: TimelineBuildInput, timing: AutomaticEventTiming): RotationRecord {
+  const { anchorTime, duration } = timing;
   const automaticSteps: RotationStep[] = Array.from({ length: duration > 0 ? 10 : 1 }, (_, index) => ({
     type: "event",
     event: "HP",
@@ -2504,33 +2611,8 @@ function automaticTargetHPRotation(input: TimelineBuildInput, rows: TimelineRow[
   return { ...input.rotation, steps: [...input.rotation.steps, ...automaticSteps] };
 }
 
-function automaticDummyAttackRotation(input: TimelineBuildInput, rows: TimelineRow[]): RotationRecord {
-  const anchorRow = rows.find((row) => row.id === `rotation-${input.rotation.start?.step ?? 0}`) ?? rows[0];
-  const anchorTime = anchorRow
-    ? anchorRow.startTime +
-      (input.rotation.start?.action === undefined
-        ? 0
-        : Number(anchorRow.actions[input.rotation.start.action]?.time ?? 0))
-    : 0;
-  const battleEnd = rows.find((row) => row.step.type === "event" && row.step.event === "BattleEnd" && !row.skipped);
-  const lastTimelineTime = battleEnd
-    ? battleEnd.startTime
-    : rows.reduce(
-        (latest, row) =>
-          row.skipped
-            ? latest
-            : Math.max(
-                latest,
-                row.step.type === "event" && row.step.event === "Delay"
-                  ? row.startTime + row.effectiveCastTime
-                  : row.startTime,
-                ...row.actions.flatMap((action) =>
-                  typeof action.time === "number" ? [row.startTime + action.time] : [],
-                ),
-              ),
-        anchorTime,
-      );
-  const duration = Math.max(0, lastTimelineTime - anchorTime);
+function automaticDummyAttackRotation(input: TimelineBuildInput, timing: AutomaticEventTiming): RotationRecord {
+  const { anchorTime, duration } = timing;
   const attackCount = Math.max(0, Math.ceil((duration - 5.5) / 6));
   const automaticSteps: RotationStep[] = Array.from({ length: attackCount }, (_, index) => 5.5 + index * 6).flatMap(
     (fightTime) => {
@@ -2549,15 +2631,20 @@ function automaticDummyAttackRotation(input: TimelineBuildInput, rows: TimelineR
 
 export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
   if (!input.rotation.autoHP && !input.rotation.dummyAttack) return buildRotationTimelineResolved(input);
-  const baseRows = buildRotationTimelineResolved({
-    ...input,
-    rotation: { ...input.rotation, autoHP: false, dummyAttack: false },
-  });
+  const automaticTiming =
+    explicitBattleEndTiming(input.rotation) ??
+    automaticEventTimingFromRows(
+      input,
+      buildRotationTimelineResolved({
+        ...input,
+        rotation: { ...input.rotation, autoHP: false, dummyAttack: false },
+      }),
+    );
   let resolvedRotation = input.rotation;
   if (input.rotation.autoHP)
-    resolvedRotation = automaticTargetHPRotation({ ...input, rotation: resolvedRotation }, baseRows);
+    resolvedRotation = automaticTargetHPRotation({ ...input, rotation: resolvedRotation }, automaticTiming);
   if (input.rotation.dummyAttack)
-    resolvedRotation = automaticDummyAttackRotation({ ...input, rotation: resolvedRotation }, baseRows);
+    resolvedRotation = automaticDummyAttackRotation({ ...input, rotation: resolvedRotation }, automaticTiming);
   return buildRotationTimelineResolved({
     ...input,
     rotation: resolvedRotation,

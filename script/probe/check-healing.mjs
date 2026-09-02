@@ -36,6 +36,7 @@ try {
     maxSilkbind: 50,
     silkbindPenetration: 10,
     silkbindHealingBonus: 0.1,
+    criticalHealingBonus: 0.5,
     precision: 1,
     crit: 0.2,
     directCrit: 0.1,

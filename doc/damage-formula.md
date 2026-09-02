@@ -305,8 +305,9 @@ Final Healing =
   × (1 + Healing Bonus Category)
 ```
 
-The base Critical Healing Bonus is 50%. Critical Healing Bonus effects add to
-that bonus. The Healing Bonus Category adds General Healing Bonus, All Martial
+The base Critical Healing Bonus is the `0.5` character stat supplied by
+`data/system.json`. Critical Healing Bonus effects add to that stat for their
+matching actions. The Healing Bonus Category adds General Healing Bonus, All Martial
 Arts for actions tagged `MartialArts`, and the matching weapon Art bonus (for
 example, Art of Fan or Art of Umbrella), then multiplies the expected combined heal.
 Healing totals use the same fight duration as damage, producing HPS alongside

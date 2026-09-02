@@ -5,6 +5,7 @@
   "start": {
     "step": 4
   },
+  "infiniteVitality": true,
   "steps": [
     {
       "type": "skill",

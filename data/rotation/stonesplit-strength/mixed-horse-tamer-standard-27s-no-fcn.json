@@ -1,5 +1,7 @@
 {
   "name": "Mixed Horse Tamer Standard 27s No FCN",
+  "infiniteVitality": true,
+  "autoHP": true,
   "steps": [
     {
       "type": "event",

@@ -26,6 +26,7 @@
       "maxPhys": 505,
       "maxHp": 101929,
       "heavensWillRegen": 0.1,
+      "criticalHealingBonus": 0.5,
       "critDmgBonus": 0.35,
       "affinityDmgBonus": 0.2,
       "maxEndurance": 80,
@@ -95,7 +96,15 @@
     { "id": "talent-54", "stat": { "crit": 0.04 } },
     { "id": "talent-55", "stat": { "maxHp": 1000 } },
     { "id": "talent-56", "stat": { "agility": 1, "power": 1, "momentum": 1, "body": 1, "defense": 1 } },
-    { "id": "talent-57", "stat": { "physicalDefense": 13.2 } }
+    { "id": "talent-57", "stat": { "physicalDefense": 13.2 } },
+    { "id": "talent-58", "stat": { "agility": 1, "power": 1, "momentum": 1, "body": 1, "defense": 1 } },
+    { "id": "talent-59", "stat": { "agility": 1, "power": 1, "momentum": 1, "body": 1, "defense": 1 } },
+    { "id": "talent-60", "stat": { "agility": 1, "power": 1, "momentum": 1, "body": 1, "defense": 1 } },
+    { "id": "talent-61", "stat": { "maxVoidAttack": 13.2 } },
+    { "id": "talent-62", "stat": { "minVoidAttack": 13.2 } },
+    { "id": "talent-63", "stat": { "agility": 1, "power": 1, "momentum": 1, "body": 1, "defense": 1 } },
+    { "id": "talent-64", "stat": { "maxHp": 1000 } },
+    { "id": "talent-65", "stat": { "physicalDefense": 13.2 } }
   ],
   "qingheOddityStats": [
     { "id": "qinghe-oddity-01", "stat": { "physicalDefense": 2 } },

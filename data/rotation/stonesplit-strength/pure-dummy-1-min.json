@@ -2,6 +2,8 @@
   "name": "Pure Dummy 1 min",
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
+  "infiniteVitality": true,
+  "autoHP": true,
   "start": {
     "step": 5,
     "action": 0

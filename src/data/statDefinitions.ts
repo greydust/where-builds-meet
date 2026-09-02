@@ -71,6 +71,13 @@ export const defenseStats: StatDefinition[] = [
     showUnitInLabel: false,
     showUnitInInput: true,
   },
+  {
+    key: "criticalHealingBonus",
+    label: "Critical Healing Bonus",
+    unit: "%",
+    showUnitInLabel: false,
+    showUnitInInput: true,
+  },
   { key: "bamboocutDmgBonus", label: "Bamboocut DMG Bonus", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "allMartialArts", label: "All Martial Arts", unit: "%", showUnitInLabel: false, showUnitInInput: true },
   { key: "vsBossDmg", label: "vs Boss DMG", unit: "%", showUnitInLabel: false, showUnitInInput: true },

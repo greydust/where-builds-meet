@@ -1348,7 +1348,12 @@ const artStatByWeaponFamily: Record<WeaponFamily, keyof CharacterStats> = {
   DualBlades: "dualBladesDmgBoost",
 };
 
-function characterStatAvailableForSettings(key: keyof CharacterStats, settings: CalculatorSettings) {
+function characterStatAvailableForSettings(
+  key: keyof CharacterStats,
+  settings: CalculatorSettings,
+  pathId = loadSelectedPath(),
+) {
+  if (key === "criticalHealingBonus" || key === "silkbindHealingBonus") return pathId === "silkbindDeluge";
   const artStats = new Set(Object.values(artStatByWeaponFamily));
   if (artStats.has(key))
     return settings.weapons.some((weapon) => artStatByWeaponFamily[martialArtDefinitions[weapon].weapon] === key);
@@ -2607,6 +2612,7 @@ function StatsTab({
   onInnerWayChange: () => void;
 }) {
   const { stats, derivedStats, displayedAttunementStats: attunementStats, buildSetup, settings } = character;
+  const showHealingStats = pathId === "silkbindDeluge";
   const breakthrough = breakthroughProfile(settings);
   const [food, setFood] = useState(loadFood);
   const [script, setScript] = useState(loadScript);
@@ -3135,7 +3141,7 @@ function StatsTab({
               </div>
               <div className="stat-row">
                 <CalculatedStatField definition={statDefinition("silkbindDmgBonus")} compact />
-                <CalculatedStatField definition={statDefinition("silkbindHealingBonus")} compact />
+                <span />
               </div>
               <div className="stat-row">
                 <CalculatedStatField definition={statDefinition("allMartialArts")} compact />
@@ -3151,6 +3157,12 @@ function StatsTab({
                 <CalculatedStatField definition={statDefinition("singleTargetMysticDmgBoost")} compact />
                 <CalculatedStatField definition={statDefinition("areaMysticDmgBoost")} compact />
               </div>
+              {showHealingStats ? (
+                <div className="stat-row">
+                  <CalculatedStatField definition={statDefinition("criticalHealingBonus")} compact />
+                  <CalculatedStatField definition={statDefinition("silkbindHealingBonus")} compact />
+                </div>
+              ) : null}
               <div className="stat-row">
                 <CalculatedStatField definition={maxHpStat} compact />
                 <CalculatedStatField definition={bodyStat} compact />
@@ -6547,7 +6559,7 @@ function RotationEditorTab({
   const priorityLevelData = statRollsForLevel(enemy.level);
   const priorityCharacter = Object.fromEntries(
     Object.entries(priorityLevelData?.affix ?? {}).filter(([key]) =>
-      characterStatAvailableForSettings(key as keyof CharacterStats, settings),
+      characterStatAvailableForSettings(key as keyof CharacterStats, settings, pathId),
     ),
   ) as Partial<Record<keyof CharacterStats, number>>;
   const priorityAttunement = Object.keys(attunementData)

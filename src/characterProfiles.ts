@@ -7,7 +7,7 @@ import defaultSetupJson from "../data/default-setup.json";
 
 export const characterProfileStorageKey = "wwm-character-profiles-v1";
 export const characterProfileExportFormat = "where-builds-meet-character-profiles";
-export const defaultBreakthrough = "16";
+export const defaultBreakthrough = "17";
 
 export type CharacterProfile = {
   id: string;
@@ -120,7 +120,15 @@ export function mergeImportedCharacterProfiles(current: CharacterProfile[], valu
   if (source.format !== characterProfileExportFormat || !supportedProfileVersions.has(source.version as number))
     throw new Error("This file uses an unsupported character profile format.");
   if (!Array.isArray(source.profiles)) throw new Error("The character profile file does not contain a profile list.");
-  const parsed = parseCharacterProfiles(source.profiles);
+  const profilesToParse =
+    source.version === 1
+      ? source.profiles.map((profile) =>
+          profile && typeof profile === "object" && !Array.isArray(profile)
+            ? { ...profile, breakthrough: "16" }
+            : profile,
+        )
+      : source.profiles;
+  const parsed = parseCharacterProfiles(profilesToParse);
   if (source.profiles.length > 0 && parsed.length === 0)
     throw new Error("The character profile file does not contain any valid profiles.");
   const usedIds = new Set(current.map(({ id }) => id));

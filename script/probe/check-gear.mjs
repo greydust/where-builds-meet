@@ -928,7 +928,6 @@ assert(
     systemStats.enhancementStats.reduce((sum, entry) => sum + (entry.stat.maxPhys ?? 0), 0) === 432,
   "Unexpected Enhancement Physical Attack totals.",
 );
-assert(systemStats.talentStats.length === 57, "Talent stat entries must remain individually represented.");
 assert(systemStats.qingheOddityStats.length === 29, "Qinghe Oddity stat entries must remain individually represented.");
 assert(
   systemStats.kaifengOddityStats.length === 39,

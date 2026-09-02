@@ -393,7 +393,10 @@ source use the same conversion rules.
 `data/breakthrough.json` groups the selected enemy profile and its
 `levelBonusStats` under the breakthrough number. Changing breakthrough therefore
 updates enemy inputs and replaces the level-derived Precision and five base
-attributes through the same shared effect pipeline.
+attributes through the same shared effect pipeline. Breakthrough 17 is the
+default for new state and invalid saved selections; an existing valid profile
+selection remains unchanged. Imported version-1 profiles retain their historical
+implicit Breakthrough 16 selection.
 The hidden base stat `heavensWillRegen` is also resolved through this pipeline.
 It is passed into the timeline as the per-second regeneration rate for the
 numeric `HeavensWill` resource rather than exposed as an editable combat stat.
@@ -493,7 +496,12 @@ The builder resolves cast-time modifiers and the fight-start anchor in a bounded
 convergence pass, then processes manual events at their final absolute times.
 This prevents an already-processed event from being retroactively moved across
 a skill when pre-start cast timing changes.
-The event queue is sorted by timestamp and then by a lexicographic causal order.
+The event queue is a stable priority queue ordered by timestamp and then by a
+lexicographic causal order. Ordinary insertions and removals update its binary
+heap directly. Cast-time changes can mutate several queued timestamps at once;
+those mutations mark the queue dirty and rebuild the heap once before the next
+event is removed. An insertion sequence preserves the previous stable order
+when both ordering keys are equal.
 Fixed-time and Move events have priority over skills, triggers, and DOTs at the
 same timestamp, while Exhausted attachments sort immediately after their target
 action. Within
@@ -553,6 +561,14 @@ and source-cast presentation.
 
 The simulator has a 2,000-event safety limit to prevent accidental infinite
 trigger chains.
+
+Setup and Inner Way triggers are indexed by event name once for each timeline
+pass. A damage, healing, or incoming-damage action evaluates only the rules for
+that event while retaining their original data order. Rotations using Auto HP
+or Dummy Attack normally derive their duration from a preliminary resolved
+timeline. When fight-relative timing and an explicit Battle End are present,
+its timestamp supplies the duration directly and skips that preliminary pass;
+rotations without an explicit end retain the resolved-timeline fallback.
 
 ## Damage calculation
 

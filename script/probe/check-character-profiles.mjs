@@ -9,8 +9,13 @@ const viteServer = await createServer({
 });
 
 try {
-  const { characterProfileMatches, exportCharacterProfiles, mergeImportedCharacterProfiles, parseCharacterProfiles } =
-    await viteServer.ssrLoadModule("/src/characterProfiles.ts");
+  const {
+    characterProfileMatches,
+    defaultBreakthrough,
+    exportCharacterProfiles,
+    mergeImportedCharacterProfiles,
+    parseCharacterProfiles,
+  } = await viteServer.ssrLoadModule("/src/characterProfiles.ts");
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -50,6 +55,11 @@ try {
     "Legacy independent setup selections must be discarded from character profiles.",
   );
   assert(parsed[0].breakthrough === "17", "Profiles must retain their selected breakthrough.");
+  const [profileUsingDefaultBreakthrough] = parseCharacterProfiles([{ ...parsed[0], breakthrough: "unknown" }]);
+  assert(
+    profileUsingDefaultBreakthrough.breakthrough === defaultBreakthrough && defaultBreakthrough === "17",
+    "Profiles with no valid saved breakthrough must use the current default.",
+  );
   assert(
     parsed[0].buildSetup.weaponSets.Cleftpeak === 2 && parsed[0].buildSetup.armorSets.Formbend === 0,
     "Legacy gearSets must migrate to weaponSets while armor sets receive their default.",

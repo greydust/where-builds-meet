@@ -103,7 +103,7 @@ function reportBenchmark(session: BenchmarkSession, totalDuration: number) {
   addRow("remainder", "Worker orchestration and unclassified", totalDuration - measuredTopLevel, "derived");
 
   const subphases: Array<[CalculationBenchmarkPhase, string]> = [
-    ["timelineQueueOrdering", "Timeline queue sorting and removal"],
+    ["timelineQueueOrdering", "Timeline queue ordering and removal"],
     ["effectTriggering", "Timeline effect-trigger evaluation"],
     ["damageEntryConstruction", "Damage entry/context construction"],
     ["skillStaticEffectAggregation", "Skill-static effect aggregation (cache misses)"],

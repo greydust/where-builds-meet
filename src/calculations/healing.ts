@@ -11,8 +11,6 @@ type AttunementDefinition = {
 
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
 
-export const BASE_CRITICAL_HEALING_BONUS = 0.5;
-
 export type HealingBreakdown = {
   physical: number;
   silkbind: number;
@@ -139,8 +137,8 @@ function calculateHealingBreakdownInternal(
     Math.max(0, (derivedStats.effectiveCrit + derivedStats.directCrit) * derivedStats.effectivePrecision),
   );
   const outcome = random && random() < criticalRate ? "critical" : "normal";
-  let criticalMultiplier = 1 + criticalRate * (BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus);
-  if (random) criticalMultiplier = outcome === "critical" ? 1 + BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus : 1;
+  let criticalMultiplier = 1 + criticalRate * (stats.criticalHealingBonus + criticalHealingBonus);
+  if (random) criticalMultiplier = outcome === "critical" ? 1 + stats.criticalHealingBonus + criticalHealingBonus : 1;
   const martialArtHealingBonus = context.skillTags.includes("MartialArts")
     ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
     : 0;

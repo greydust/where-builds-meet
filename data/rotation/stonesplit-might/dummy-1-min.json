@@ -1,6 +1,7 @@
 {
   "name": "Dummy 1 min",
   "martialArts": ["thundercry", "stormbreaker"],
+  "infiniteVitality": true,
   "steps": [
     {
       "type": "skill",

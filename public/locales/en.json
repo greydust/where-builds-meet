@@ -523,6 +523,7 @@
   "stat.body": "Body",
   "stat.crit": "Critical Rate",
   "stat.critDmgBonus": "Crit DMG Bonus",
+  "stat.criticalHealingBonus": "Critical Healing Bonus",
   "stat.defense": "Defense",
   "stat.directAffinity": "Direct Affinity Rate",
   "stat.directCrit": "Direct Critical Rate",
