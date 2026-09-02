@@ -146,7 +146,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["Deflect"]
+    "tags": ["Deflect", "AvoidsTakeDamage"]
   },
   "MoraleChant": {
     "name": "Morale Chant",
@@ -258,7 +258,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["General", "PerfectDodge"]
+    "tags": ["General", "PerfectDodge", "AvoidsTakeDamage"]
   },
   "PerfectDodge": {
     "name": "Perfect Dodge",
@@ -369,6 +369,6 @@
       }
     ],
     "modifier": [],
-    "tags": ["General", "PerfectDodge"]
+    "tags": ["General", "PerfectDodge", "AvoidsTakeDamage"]
   }
 }

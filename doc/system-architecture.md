@@ -224,10 +224,24 @@ its effect resolves before or after the selected action at the shared timestamp.
 The optional `autoHP` rotation flag removes manual target-HP events and compiles
 ten hidden fixed-time HP events from the resolved rotation duration. Target HP is
 99.99% at fight start and loses ten percentage points at each subsequent 10%
-duration boundary through 90%. The optional `infiniteVitality` flag marks
+duration boundary through 90%. The optional `dummyAttack` flag compiles two
+read-only 200-damage Take Damage events at the same timestamp every six seconds,
+starting 5.5 seconds after fight start and stopping before Battle End. A Take
+Damage event overlapping a skill tagged `AvoidsTakeDamage` resolves to zero and
+does not fire take-damage triggers; the cast interval includes both boundaries,
+so a zero-cast-time avoidance skill protects its exact timestamp. Other Take
+Damage events use the ordinary Self HP and take-damage trigger pipeline. The optional `infiniteVitality` flag marks
 Vitality as an infinite timeline resource: its displayed value is `∞`, and its
 normal gains, regeneration, and consumption are skipped while ordinary resource
 requirements continue to use the character's capped maximum.
+
+Every normalized rotation also stores `groupSize` as `1`, `5`, or `10`, exposed
+in the editor as Solo, Team, or Group. Missing and invalid legacy values migrate
+to `1`. A skill with `group: true` multiplies its reported healing by this
+recipient count, while only one copy enters the tracked Self HP state. A
+`target: "player"` application instead allocates one independently expiring
+effect copy to self first and then to teammates. Once every represented player
+has a copy, reapplication replaces the copy with the least remaining duration.
 
 Timeline construction records an auditable numeric-resource ledger alongside
 the first sorted row. The worker uses the ledger's consumed and final Vitality
@@ -285,6 +299,9 @@ are reconstructed from repository data and omitted from browser persistence;
 formerly edited default rotations migrate to custom copies. A malformed custom
 rotation is skipped independently so it cannot discard other saved rotations,
 and initial load never replaces unreadable storage with an empty list.
+Legacy consecutive Drunken Poet 1-through-5 steps migrate to the conditional
+five-hit composite, including remapping fight-start and attached-action anchors
+to the composite's flattened action indexes.
 Standalone Inner Way, legacy gear-set, bow/ring, and arsenal selections migrate
 only when the unified build-setup override has never been saved. Once that
 override exists—even as an empty object—the active build supplies every
@@ -561,6 +578,22 @@ Healing has Normal and Critical outcomes only. The worker aggregates healing
 beside damage and publishes total healing, HPS, and independently sorted
 healing breakdown rows through the same baseline result.
 
+The timeline applies one per-recipient copy of resolved healing to absolute Self
+HP before calculating overhealing. Other recipients of a group heal are assumed
+full and contribute one-fifth of their healing to World to Sword. Their combined
+contribution and the tracked player's overhealing emit one accumulator event per
+healing action, so the expected-mode per-action threshold cap remains singular
+regardless of group size. A single-target periodic heal assigned to a teammate
+also assumes that teammate is full, but contributes its complete healing rather
+than the group-heal one-fifth weight. Buff accumulators subscribe to explicitly named internal events;
+the timeline does not broadcast every combat action. World to Sword snapshots
+its Physical/Silkbind attack threshold when applied, accepts `overheal`, and
+checks only on overheal or a Qi Blade's delayed `QiBladeCheck`. Expected mode
+tracks fractional threshold credit, while simulation mode uses rolled healing
+and resets the accumulator after a launch. The calculated timeline carries a
+finite listener's remaining trigger count into the editor's tracked buff state,
+independently of the buff's normal expiration time.
+
 After an ordinary hit resolves, the centralized damage sequence emits a typed,
 synchronous damage event containing its final damage, action-specific tags, and
 the immutable combat-state snapshot for that action. Active Inner Way listeners
@@ -661,11 +694,15 @@ effective cast time. When the next explicit skill is Deflect, its effective cast
 time is added to the preceding cast's time sample. Deflect and every other skill
 with no attributed damage are omitted from this breakdown. The row shows the
 arithmetic mean of the remaining cast DPS values, average damage per cast,
-summed total damage, and average cast time. The two damage values sit beneath a
-shared Damage header. Attributed buff-inclusive values are calculated for both
-the per-cast average and total.
-Zero-time-only damaging groups leave DPS undefined. Rows sort by average DPS
-descending.
+summed total damage, and average cast time. These damage values sit beneath a
+shared Damage header. Each group also records the gross Vitality consumed by
+its casts and divides attributed damage by that total. Deluge displays this
+Per Vit value before DPS and sorts the rows by the inclusive Per Vit value;
+zero-cost skills show no Per Vit value and follow Vitality-consuming skills.
+Attributed buff-inclusive values are calculated for DPS, Per Vit, the per-cast
+average, and total damage.
+Zero-time-only damaging groups leave DPS undefined. Outside Deluge, rows sort
+by average DPS descending.
 
 Tracked effects retain the cast row that applied them. A skill with
 `collectBoostDamage` passes that target effect ID and its cast row into buffs it

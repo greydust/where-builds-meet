@@ -10,7 +10,7 @@ const viteServer = await createServer({
 
 try {
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
-  const { buildRotationTimeline, mergeCalculatedTargetHPState } = await viteServer.ssrLoadModule(
+  const { buildRotationTimeline, mergeCalculatedTimelineState } = await viteServer.ssrLoadModule(
     "/src/calculations/rotationTimeline.ts",
   );
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
@@ -19,6 +19,7 @@ try {
   const mysticBuffs = (await viteServer.ssrLoadModule("/data/buff/mystic.json")).default;
   const generalDebuffs = (await viteServer.ssrLoadModule("/data/debuff/general.json")).default;
   const scripts = (await viteServer.ssrLoadModule("/data/script.json")).default;
+  const generalSkills = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -181,7 +182,7 @@ try {
     },
     skills: { Hit: hit, NoDamage: noDamage },
   });
-  const displayedTargetHPTimeline = mergeCalculatedTargetHPState(structuralTargetHPTimeline, targetHPResult.timeline);
+  const displayedTargetHPTimeline = mergeCalculatedTimelineState(structuralTargetHPTimeline, targetHPResult.timeline);
   const displayedHitRow = displayedTargetHPTimeline.find((row) => row.id === "rotation-0");
   const displayedNoDamageRow = displayedTargetHPTimeline.find((row) => row.id === "rotation-1");
   assert(
@@ -231,6 +232,60 @@ try {
   assert(
     timedDamageHitRow.actionStates[1].buffs.some((effect) => effect.name === "Revelry"),
     "Timed damage must continue to activate Take Damage setup triggers.",
+  );
+
+  const avoidedDamageTimeline = buildRotationTimeline({
+    ...baseInput,
+    rotation: {
+      name: "Avoided damage probe",
+      eventTimeReference: "battleStart",
+      steps: [
+        { type: "skill", skill: "DeflectSuccessful" },
+        { type: "event", event: "TakeDamage", startTime: 0.1, damage: 20 },
+        { type: "skill", skill: "PerfectDodge" },
+        { type: "event", event: "TakeDamage", startTime: 0.5, damage: 20 },
+        { type: "skill", skill: "Deflect" },
+        { type: "event", event: "TakeDamage", startTime: 1, damage: 20 },
+        { type: "skill", skill: "NoDamage" },
+      ],
+      start: { step: 0 },
+    },
+    skills: {
+      DeflectSuccessful: generalSkills.DeflectSuccessful,
+      PerfectDodge: generalSkills.PerfectDodge,
+      Deflect: generalSkills.Deflect,
+      NoDamage: noDamage,
+    },
+    effectDefinitions: {
+      ...baseInput.effectDefinitions,
+      DamageSeen: { name: "Damage Seen", duration: 10, maxStack: 1, effect: [] },
+    },
+    setupEffects: [
+      {
+        trigger: {
+          event: "takeDamage",
+          action: { type: "apply", target: "self", value: "DamageSeen" },
+        },
+      },
+    ],
+    maxHP: 100,
+  });
+  const successfulDeflectDamage = avoidedDamageTimeline.find((row) => row.id === "rotation-1");
+  const perfectDodgeDamage = avoidedDamageTimeline.find((row) => row.id === "rotation-3");
+  const ordinaryDeflectDamage = avoidedDamageTimeline.find((row) => row.id === "rotation-5");
+  const afterAvoidance = avoidedDamageTimeline.find((row) => row.id === "rotation-6");
+  assert(
+    successfulDeflectDamage.actions[0].damage === 0 && perfectDodgeDamage.actions[0].damage === 0,
+    "Take Damage inside Successful Deflect or Perfect Dodge cast time must resolve to zero.",
+  );
+  assert(
+    ordinaryDeflectDamage.actions[0].damage === 20 && closeTo(afterAvoidance.currentHPRatio, 0.8),
+    "Ordinary Deflect must not avoid Take Damage.",
+  );
+  assert(
+    !ordinaryDeflectDamage.buffs.some((effect) => effect.name === "DamageSeen") &&
+      afterAvoidance.buffs.some((effect) => effect.name === "DamageSeen"),
+    "Avoided damage must not fire take-damage triggers, while a real hit still must.",
   );
 
   const takeDamageAttachmentTimeline = buildRotationTimeline({

@@ -170,6 +170,54 @@
     "tags": ["DirectDamage", "Mystic", "AreaMystic", "LeapingToad"]
   },
   "DrunkenPoetDrink": {
+    "name": "Drunken Poet Drink",
+    "shortName": "Drink",
+    "castTime": 0.6875,
+    "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 3,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Intoxicated",
+        "reapply": false,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.6875,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
+  "DrunkenPoetDrinkCancel": {
     "name": "Drunken Poet Drink [Cancel]",
     "shortName": "Drink",
     "castTime": 0,
@@ -217,10 +265,265 @@
     "modifier": [],
     "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
   },
+  "DrunkenPoet1Hit": {
+    "name": "Drunken Poet 1 Hit",
+    "shortName": "Poet x1",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "DrunkenPoetDrink",
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Intoxicated"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet1",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
+  "DrunkenPoet2Hits": {
+    "name": "Drunken Poet 2 Hits",
+    "shortName": "Poet x2",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "DrunkenPoetDrink",
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Intoxicated"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet1",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet2",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
+  "DrunkenPoet3Hits": {
+    "name": "Drunken Poet 3 Hits",
+    "shortName": "Poet x3",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "DrunkenPoetDrink",
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Intoxicated"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet1",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet2",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet3",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
+  "DrunkenPoet4Hits": {
+    "name": "Drunken Poet 4 Hits",
+    "shortName": "Poet x4",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "DrunkenPoetDrink",
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Intoxicated"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet1",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet2",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet3",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet4",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
+  "DrunkenPoet5HitsCancel": {
+    "name": "Drunken Poet 5 Hits [Cancel]",
+    "shortName": "Poet x5",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "DrunkenPoetDrink",
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "target": "self",
+                "value": "Intoxicated"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet1",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet2",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet3",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet4",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      },
+      {
+        "value": "DrunkenPoet5",
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Intoxicated"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+  },
   "DrunkenPoet1": {
     "name": "Drunken Poet 1st Hit",
     "shortName": "Poet",
-    "castTime": 1.325,
+    "castTime": 0.6375,
     "action": [
       {
         "type": "consumeResource",
@@ -241,25 +544,18 @@
         ]
       },
       {
-        "type": "apply",
-        "target": "self",
-        "value": "Intoxicated",
-        "reapply": false,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "trigger",
@@ -270,7 +566,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "trigger",
@@ -281,7 +577,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "apply",
@@ -289,7 +585,7 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 1.325,
+        "time": 0.6375,
         "requirement": [
           {
             "target": "self",
@@ -298,25 +594,13 @@
         ]
       }
     ],
-    "modifier": [
-      {
-        "requirement": [
-          {
-            "target": "self",
-            "value": "Intoxicated"
-          }
-        ],
-        "effect": {
-          "castTimeModifier": -0.6875
-        }
-      }
-    ],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"]
   },
   "DrunkenPoet2": {
     "name": "Drunken Poet 2nd Hit",
     "shortName": "Poet",
-    "castTime": 1.1875,
+    "castTime": 0.5,
     "action": [
       {
         "type": "consumeResource",
@@ -337,25 +621,18 @@
         ]
       },
       {
-        "type": "apply",
-        "target": "self",
-        "value": "Intoxicated",
-        "reapply": false,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1
+        "time": 0.3125
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1
+        "time": 0.3125
       },
       {
         "type": "trigger",
@@ -366,7 +643,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1
+        "time": 0.3125
       },
       {
         "type": "trigger",
@@ -377,7 +654,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1
+        "time": 0.3125
       },
       {
         "type": "apply",
@@ -385,7 +662,7 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 1.1875,
+        "time": 0.5,
         "requirement": [
           {
             "target": "self",
@@ -394,25 +671,13 @@
         ]
       }
     ],
-    "modifier": [
-      {
-        "requirement": [
-          {
-            "target": "self",
-            "value": "Intoxicated"
-          }
-        ],
-        "effect": {
-          "castTimeModifier": -0.6875
-        }
-      }
-    ],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"]
   },
   "DrunkenPoet3": {
     "name": "Drunken Poet 3rd Hit",
     "shortName": "Poet",
-    "castTime": 1.3125,
+    "castTime": 0.625,
     "action": [
       {
         "type": "consumeResource",
@@ -433,25 +698,18 @@
         ]
       },
       {
-        "type": "apply",
-        "target": "self",
-        "value": "Intoxicated",
-        "reapply": false,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "trigger",
@@ -462,7 +720,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "trigger",
@@ -473,7 +731,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.1125
+        "time": 0.425
       },
       {
         "type": "apply",
@@ -481,7 +739,7 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 1.3125,
+        "time": 0.625,
         "requirement": [
           {
             "target": "self",
@@ -490,25 +748,13 @@
         ]
       }
     ],
-    "modifier": [
-      {
-        "requirement": [
-          {
-            "target": "self",
-            "value": "Intoxicated"
-          }
-        ],
-        "effect": {
-          "castTimeModifier": -0.6875
-        }
-      }
-    ],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"]
   },
   "DrunkenPoet4": {
     "name": "Drunken Poet 4th Hit",
     "shortName": "Poet",
-    "castTime": 1.3375,
+    "castTime": 0.65,
     "action": [
       {
         "type": "consumeResource",
@@ -529,25 +775,18 @@
         ]
       },
       {
-        "type": "apply",
-        "target": "self",
-        "value": "Intoxicated",
-        "reapply": false,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 1.0231,
         "phyBonus": 146,
         "attrBonus": 0,
-        "time": 1.1625
+        "time": 0.475
       },
       {
         "type": "apply",
         "target": "self",
         "value": "EnhanceDrunkenPoet",
         "stack": 1,
-        "time": 1.1625
+        "time": 0.475
       },
       {
         "type": "trigger",
@@ -558,7 +797,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.1625
+        "time": 0.475
       },
       {
         "type": "trigger",
@@ -569,7 +808,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.1625
+        "time": 0.475
       },
       {
         "type": "apply",
@@ -577,7 +816,7 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 1.3375,
+        "time": 0.65,
         "requirement": [
           {
             "target": "self",
@@ -586,25 +825,13 @@
         ]
       }
     ],
-    "modifier": [
-      {
-        "requirement": [
-          {
-            "target": "self",
-            "value": "Intoxicated"
-          }
-        ],
-        "effect": {
-          "castTimeModifier": -0.6875
-        }
-      }
-    ],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"]
   },
   "DrunkenPoet5": {
     "name": "Drunken Poet 5th Hit [Cancel]",
     "shortName": "Poet",
-    "castTime": 1.275,
+    "castTime": 0.5875,
     "action": [
       {
         "type": "consumeResource",
@@ -632,18 +859,11 @@
         "time": 0
       },
       {
-        "type": "apply",
-        "target": "self",
-        "value": "Intoxicated",
-        "reapply": false,
-        "time": 0
-      },
-      {
         "type": "damage",
         "phyCoef": 1.7052,
         "phyBonus": 244,
         "attrBonus": 0,
-        "time": 1.275
+        "time": 0.5875
       },
       {
         "type": "trigger",
@@ -654,7 +874,7 @@
           }
         ],
         "value": "CombustionExplosion",
-        "time": 1.275
+        "time": 0.5875
       },
       {
         "type": "trigger",
@@ -665,7 +885,7 @@
           }
         ],
         "value": "SmolderExplosion",
-        "time": 1.275
+        "time": 0.5875
       },
       {
         "type": "apply",
@@ -673,7 +893,7 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 1.275,
+        "time": 0.5875,
         "requirement": [
           {
             "target": "self",
@@ -697,20 +917,9 @@
             "param2": 0.2
           }
         }
-      },
-      {
-        "requirement": [
-          {
-            "target": "self",
-            "value": "Intoxicated"
-          }
-        ],
-        "effect": {
-          "castTimeModifier": -0.6875
-        }
       }
     ],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"]
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"]
   },
   "CombustionExplosion": {
     "name": "Combustion Explosion",
@@ -718,15 +927,8 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.3508,
+        "phyCoef": 0.7016,
         "phyBonus": 100,
-        "attrBonus": 0,
-        "time": 0
-      },
-      {
-        "type": "damage",
-        "phyCoef": 0.3508,
-        "phyBonus": 50,
         "attrBonus": 0,
         "time": 0
       },
@@ -747,15 +949,8 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.8039,
-        "phyBonus": 115,
-        "attrBonus": 0,
-        "time": 0
-      },
-      {
-        "type": "damage",
-        "phyCoef": 0.8039,
-        "phyBonus": 115,
+        "phyCoef": 1.6078,
+        "phyBonus": 230,
         "attrBonus": 0,
         "time": 0
       }
@@ -1922,5 +2117,76 @@
     ],
     "modifier": [],
     "tags": ["DirectDamage", "Mystic", "GhostlySteps", "Triggered", "Gauntlet"]
+  },
+  "WorldToSword": {
+    "name": "World to Sword",
+    "shortName": "WTS",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "consumeResource",
+        "value": "Vitality",
+        "amount": 40,
+        "time": 0
+      },
+      {
+        "type": "addResource",
+        "value": "Vitality",
+        "amount": 10,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "Turnaround"
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "WorldToSword",
+        "stack": 1,
+        "reapply": true,
+        "time": 0
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Turnaround",
+        "stack": 1,
+        "reapply": true,
+        "time": 0,
+        "requirement": [
+          {
+            "target": "self",
+            "value": "FuryHarvestT6"
+          }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["Mystic", "SingleTargetMystic", "WorldToSword"]
+  },
+  "QiBlade": {
+    "name": "Qi Blade",
+    "shortName": "Qi Blade",
+    "castTime": 0,
+    "cooldown": 0.3,
+    "action": [
+      {
+        "type": "emitEvent",
+        "value": "QiBladeCheck",
+        "time": 0.3
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.0184,
+        "phyBonus": 146,
+        "attrBonus": 0,
+        "time": 0.5
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "WorldToSword", "QiBlade", "Triggered"]
   }
 }

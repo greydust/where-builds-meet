@@ -273,8 +273,10 @@ Silkbind Healing =
 ```
 
 Calculation-time Physical and Silkbind Attack Bonus effects multiply their
-respective average attack before the coefficient. Matching Martial Art Skill
-Healing Boost attunements contribute General Healing Bonus. Physical
+respective average attack before the coefficient. Matching healing attunements
+contribute General Healing Bonus: Martial Art Skill requires the owning martial
+art, Special Skill additionally requires `Special`, and Panacea Fan Healing
+Skill requires `Heavy`. Physical
 Penetration combines its Weapon attunement value with matching calculation-time
 effects. Silkbind Penetration combines its resolved character-stat value with
 matching calculation-time effects. Formless Penetration converts to the equipped
@@ -301,9 +303,39 @@ that bonus. The Healing Bonus Category adds General Healing Bonus, All Martial
 Arts for actions tagged `MartialArts`, and the matching weapon Art bonus (for
 example, Art of Fan or Art of Umbrella), then multiplies the expected combined heal.
 Healing totals use the same fight duration as damage, producing HPS alongside
-DPS. Per-skill healing breakdowns report the average Normal and Critical
-outcome rates across that skill's healing actions; abrasion and affinity are
-always absent.
+DPS. A skill marked `group: true` reports `Final Healing × Group Size`, where
+Group Size is 1, 5, or 10. Per-skill healing breakdowns report the average
+Normal and Critical outcome rates across that skill's healing actions; abrasion
+and affinity are always absent.
+
+At the heal timestamp, one per-recipient healing copy first restores missing
+Self HP up to Max HP; the remainder is self overhealing. Other recipients of a
+group heal are assumed full. World to Sword counts one-fifth of each teammate's
+healing as overhealing:
+
+```text
+WTS Action Overhealing =
+  Self Overhealing + Per-Recipient Healing × (Group Size - 1) / 5
+```
+
+For a single-target `player` heal, the self copy uses Self Overhealing and each
+teammate copy contributes its full Per-Recipient Healing. Morning Drizzle uses
+this single-target rule; its independently timed copies do not use the group-heal
+one-fifth multiplier.
+
+World to Sword snapshots its conversion threshold when cast:
+
+```text
+Qi Blade Threshold =
+  12 × Average Physical Attack + 18 × Average Silkbind Attack
+```
+
+Expected calculations apply the one-threshold cap after combining self and
+teammate overhealing, so additional recipients do not create independently
+capped contributions. They launch one Qi Blade per accumulated threshold,
+subject to the 0.3-second launch cooldown. Simulation uses the rolled heal and
+clears stored overhealing after a launch. Overhealing continues to accumulate
+while the launch is on cooldown.
 
 ### Shared multiplier
 

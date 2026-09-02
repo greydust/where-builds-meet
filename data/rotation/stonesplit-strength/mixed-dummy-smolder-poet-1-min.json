@@ -21,7 +21,7 @@
     },
     {
       "type": "skill",
-      "skill": "DrunkenPoetDrink"
+      "skill": "DrunkenPoetDrinkCancel"
     },
     {
       "type": "skill",
@@ -225,23 +225,7 @@
     },
     {
       "type": "skill",
-      "skill": "DrunkenPoet1"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet2"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet3"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet4"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet5"
+      "skill": "DrunkenPoet5HitsCancel"
     },
     {
       "type": "skill",

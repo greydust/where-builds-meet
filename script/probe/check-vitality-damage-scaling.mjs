@@ -12,6 +12,8 @@ try {
   const { calculateRotationBaseline } = await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
+  const mysticSkills = (await viteServer.ssrLoadModule("/data/skill/mystic.json")).default;
+  const mysticBuffs = (await viteServer.ssrLoadModule("/data/buff/mystic.json")).default;
   const closeTo = (actual, expected, message) => {
     if (Math.abs(actual - expected) > 1e-8) throw new Error(`${message} (${actual} !== ${expected})`);
   };
@@ -125,6 +127,57 @@ try {
     infinite.actionBreakdowns["rotation-0:1"].total + infinite.actionBreakdowns["rotation-1:0"].total,
     "Infinite Vitality must retain all damage",
   );
+
+  const drunkenPoet = calculateRotationBaseline({
+    timeline: {
+      rotation: {
+        name: "Drunken Poet conditional cost probe",
+        steps: [
+          { type: "skill", skill: "DrunkenPoet1Hit" },
+          { type: "skill", skill: "DrunkenPoet1Hit" },
+        ],
+      },
+      skills: {
+        DrunkenPoet1Hit: mysticSkills.DrunkenPoet1Hit,
+        DrunkenPoetDrink: mysticSkills.DrunkenPoetDrink,
+        DrunkenPoet1: mysticSkills.DrunkenPoet1,
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: { Intoxicated: mysticBuffs.Intoxicated },
+      innerWayConditions: [],
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: [],
+      initialResources: { Vitality: 100 },
+      resourceMaximums: { Vitality: 100 },
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats: calculateDerivedStats(stats, 0),
+    weapons: [],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  const poetRows = drunkenPoet.timeline.filter(
+    (row) => row.step.type === "skill" && row.step.skill === "DrunkenPoet1Hit",
+  );
+  const poetCast = drunkenPoet.metrics.breakdown.casts.find((row) => row.skillId === "DrunkenPoet1Hit");
+  closeTo(
+    poetRows[0].resourceConsumption?.Vitality ?? 0,
+    16,
+    "Drunken Poet 1 Hit must drink before its first hit when Intoxicated is absent",
+  );
+  closeTo(
+    poetRows[1].resourceConsumption?.Vitality ?? 0,
+    6,
+    "Drunken Poet 1 Hit must skip the drink while Intoxicated is active",
+  );
+  closeTo(poetCast?.vitalitySpent ?? 0, 22, "Per-cast metrics must sum accepted conditional Vitality costs");
 
   console.log("Vitality resource ledger and final Mystic damage scaling checks passed.");
 } finally {

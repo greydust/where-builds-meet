@@ -83,6 +83,7 @@
     --event-trigger: oklch(from var(--damage-bellstrike) l c h / 0.18);
     --event-dot: oklch(from var(--damage-bamboocut) l c h / 0.16);
     --event-move: oklch(from var(--damage-silkbind) l c h / 0.14);
+    --event-take-damage: oklch(0.3 0.08 25);
     --event-default: oklch(from var(--text-muted) l c h / 0.12);
 
     /* Overlays & Backdrops */

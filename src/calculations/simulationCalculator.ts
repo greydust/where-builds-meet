@@ -2,6 +2,7 @@ import type { DamageOutcome } from "./damage";
 import {
   calculateRotationBaseline,
   calculateRotationDamageSequence,
+  calculateSimulatedRotationRun,
   type RotationSimulationBundle,
 } from "./rotationCalculator";
 
@@ -55,6 +56,9 @@ export function simulateRotation(
 ): SimulationSummary {
   const count = Math.max(1, Math.floor(runCount));
   const baseline = calculateRotationBaseline(bundle);
+  const usesWorldToSword = bundle.timeline.rotation.steps.some(
+    (step) => step.type === "skill" && step.skill === "WorldToSword",
+  );
   const runs: SimulationRunResult[] = [];
   const progressStep = Math.max(1, Math.floor(count / 100));
 
@@ -63,7 +67,9 @@ export function simulateRotation(
     const outcomes: Record<DamageOutcome, number> = { abrasion: 0, normal: 0, critical: 0, affinity: 0 };
     let hitCount = 0;
     let mysticDamage = 0;
-    calculateRotationDamageSequence(baseline.baseline, random).forEach(({ entry, breakdown }) => {
+    const simulated = usesWorldToSword ? calculateSimulatedRotationRun(bundle, random) : undefined;
+    const resolvedSequence = simulated?.resolvedSequence ?? calculateRotationDamageSequence(baseline.baseline, random);
+    resolvedSequence.forEach(({ entry, breakdown }) => {
       totalDamage += breakdown.total;
       if (entry.context.skillTags.includes("Mystic")) mysticDamage += breakdown.total;
       if (breakdown.outcome) {
@@ -71,11 +77,12 @@ export function simulateRotation(
         hitCount += 1;
       }
     });
-    totalDamage -= mysticDamage * (1 - baseline.mysticVitalityDamageScale);
+    totalDamage -= mysticDamage * (1 - (simulated?.mysticVitalityDamageScale ?? baseline.mysticVitalityDamageScale));
     const percentage = (outcome: DamageOutcome) => (hitCount > 0 ? (outcomes[outcome] / hitCount) * 100 : 0);
     runs.push({
       totalDamage,
-      dps: baseline.duration > 0 ? totalDamage / baseline.duration : 0,
+      dps:
+        (simulated?.duration ?? baseline.duration) > 0 ? totalDamage / (simulated?.duration ?? baseline.duration) : 0,
       abrasionPercentage: percentage("abrasion"),
       normalPercentage: percentage("normal"),
       criticalPercentage: percentage("critical"),

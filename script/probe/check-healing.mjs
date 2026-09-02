@@ -9,17 +9,21 @@ const viteServer = await createServer({
 });
 
 try {
-  const { calculateHealingBreakdown } = await viteServer.ssrLoadModule("/src/calculations/healing.ts");
-  const { calculateRotationBaseline, calculateRotationSimulation } = await viteServer.ssrLoadModule(
-    "/src/calculations/rotationCalculator.ts",
+  const { calculateHealingAttackSnapshot, calculateHealingBreakdown } =
+    await viteServer.ssrLoadModule("/src/calculations/healing.ts");
+  const { calculateRotationBaseline, calculateRotationSimulation, calculateSimulatedRotationRun } =
+    await viteServer.ssrLoadModule("/src/calculations/rotationCalculator.ts");
+  const { buildRotationTimeline, mergeCalculatedTimelineState } = await viteServer.ssrLoadModule(
+    "/src/calculations/rotationTimeline.ts",
   );
-  const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
   const { emptyStats } = await viteServer.ssrLoadModule("/src/data/statDefinitions.ts");
   const royalRemedy = (await viteServer.ssrLoadModule("/data/innerway/royal-remedy.json")).default;
   const panaceaFanSkills = (await viteServer.ssrLoadModule("/data/skill/panacea-fan.json")).default;
   const soulshadeUmbrellaSkills = (await viteServer.ssrLoadModule("/data/skill/soulshade-umbrella.json")).default;
   const delugeBuffs = (await viteServer.ssrLoadModule("/data/buff/silkbind-deluge.json")).default;
+  const mysticSkills = (await viteServer.ssrLoadModule("/data/skill/mystic.json")).default;
+  const mysticBuffs = (await viteServer.ssrLoadModule("/data/buff/mystic.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -73,6 +77,45 @@ try {
   assert(
     closeTo(healing.total, expected),
     `Healing must apply both attack channels, penetration, general healing, All Martial Arts, and matching Art of Fan bonuses (${JSON.stringify(healing)} !== ${expected}).`,
+  );
+  const panaceaHeavyAttunement = calculateHealingBreakdown(action, {
+    ...context,
+    attunement: { ...context.attunement, panaceaHealingSkillBoost: 0.06 },
+  });
+  assert(
+    closeTo(panaceaHeavyAttunement.total, expected * (1.37 / 1.31)),
+    "Panacea Fan Healing Skill Boost must add General Healing Bonus to Fan Heavy healing.",
+  );
+  const panaceaSpecialAttunement = calculateHealingBreakdown(action, {
+    ...context,
+    skillTags: ["Heal", "MartialArts", "Special", "Fan", "PanaceaFan"],
+    attunement: {
+      ...context.attunement,
+      panaceaSpecialHealingBoost: 0.06,
+      panaceaHealingSkillBoost: 0.06,
+    },
+  });
+  const panaceaSpecialBaseline = calculateHealingBreakdown(action, {
+    ...context,
+    skillTags: ["Heal", "MartialArts", "Special", "Fan", "PanaceaFan"],
+  });
+  assert(
+    closeTo(panaceaSpecialAttunement.total / panaceaSpecialBaseline.total, 1.37 / 1.31),
+    "Panacea Fan Special Skill Healing Boost must match Special healing while the Heavy-only boost remains inactive.",
+  );
+  const soulshadeSpecialBaseline = calculateHealingBreakdown(action, {
+    ...context,
+    skillTags: ["Heal", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"],
+    attunement: {},
+  });
+  const soulshadeSpecialAttunement = calculateHealingBreakdown(action, {
+    ...context,
+    skillTags: ["Heal", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"],
+    attunement: { soulshadeSpecialHealingBoost: 0.06 },
+  });
+  assert(
+    closeTo(soulshadeSpecialAttunement.total / soulshadeSpecialBaseline.total, 1.28 / 1.22),
+    "Soulshade Umbrella Special Skill Healing Boost must add General Healing Bonus only to matching Special healing.",
   );
   const silkbindPenetrationHealing = calculateHealingBreakdown(action, {
     ...context,
@@ -357,6 +400,67 @@ try {
       refreshedMorningDrizzleTicks.slice(1).every((time, index) => closeTo(time, 1.3125 + index)),
     `Refreshing Morning Drizzle must restart its six-tick cadence without retaining superseded ticks (${refreshedMorningDrizzleTicks.join(", ")}).`,
   );
+  const teamEndlessCloudTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Team Endless Cloud Morning Drizzle probe",
+      groupSize: 5,
+      steps: [
+        { type: "skill", skill: "EndlessCloud" },
+        { type: "skill", skill: "Wait" },
+      ],
+    },
+    skills: {
+      EndlessCloud: panaceaFanSkills.EndlessCloud,
+      Wait: { name: "Wait", castTime: 6, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: { MorningDrizzle: delugeBuffs.MorningDrizzle },
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  });
+  const teamMorningDrizzleTicks = teamEndlessCloudTimeline.filter(
+    (row) => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "MorningDrizzle",
+  );
+  assert(
+    teamMorningDrizzleTicks.length === 12 &&
+      teamMorningDrizzleTicks.filter((row) => row.playerRecipientIndex === 0).length === 6 &&
+      teamMorningDrizzleTicks.filter((row) => row.playerRecipientIndex === 1).length === 6,
+    "Endless Cloud must maintain independent Morning Drizzle copies on self and one teammate in a team.",
+  );
+  const replacedMorningDrizzleTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Morning Drizzle recipient replacement probe",
+      groupSize: 5,
+      steps: [
+        ...Array.from({ length: 6 }, () => ({ type: "skill", skill: "MorningDrizzle" })),
+        { type: "skill", skill: "Observe" },
+      ],
+    },
+    skills: {
+      MorningDrizzle: panaceaFanSkills.MorningDrizzle,
+      Observe: { name: "Observe", castTime: 0, action: [] },
+    },
+    eventDefinitions: {},
+    dots: {},
+    effectDefinitions: { MorningDrizzle: delugeBuffs.MorningDrizzle },
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+  });
+  const replacementObservation = replacedMorningDrizzleTimeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "Observe",
+  );
+  const replacedCopies = replacementObservation?.buffs.filter((buff) => buff.name === "MorningDrizzle") ?? [];
+  assert(
+    replacedCopies.length === 5 &&
+      closeTo(replacedCopies.find((buff) => buff.playerRecipientIndex === 0)?.appliedAt, 4.3625) &&
+      closeTo(replacedCopies.find((buff) => buff.playerRecipientIndex === 1)?.appliedAt, 1.3125),
+    "A full player-target buff roster must replace the copy with the least remaining duration.",
+  );
 
   const echoesTimelineInput = {
     rotation: {
@@ -388,6 +492,46 @@ try {
     echoesTicks.length === 60 && echoesTicks.every((time, index) => closeTo(time, 1.625 + index)),
     `Echoes of a Thousand Plants must begin healing 1 second after application and repeat every second for its 60-second duration (${echoesTicks.length} ticks).`,
   );
+  const cutoffEchoesResult = calculateRotationBaseline({
+    timeline: {
+      ...echoesTimelineInput,
+      rotation: {
+        name: "Echoes Battle End cutoff probe",
+        eventTimeReference: "battleStart",
+        start: { step: 0 },
+        steps: [
+          { type: "skill", skill: "EchoesOfAThousandPlants" },
+          { type: "event", event: "BattleEnd", startTime: 5 },
+          { type: "skill", skill: "Wait" },
+        ],
+      },
+      eventDefinitions: { BattleEnd: { name: "Battle End", castTime: 0, action: [] } },
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats,
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  });
+  const cutoffEchoesHealing = cutoffEchoesResult.metrics.breakdown.healingSkills.find(
+    (row) => row.id === "EchoesOfAThousandPlants",
+  );
+  const cutoffEchoesDamage = cutoffEchoesResult.metrics.breakdown.skills.find(
+    (row) => row.id === "EchoesOfAThousandPlants",
+  );
+  assert(
+    cutoffEchoesHealing?.triggers === 4 && cutoffEchoesHealing.heals === 4,
+    `Periodic healing triggers after Battle End must not enter the healing breakdown (${JSON.stringify(cutoffEchoesHealing)}).`,
+  );
+  assert(
+    cutoffEchoesDamage?.triggers === 0,
+    `Healing-only periodic rows must not count as damage triggers (${JSON.stringify(cutoffEchoesDamage)}).`,
+  );
   const consumedEchoesTimeline = buildRotationTimeline({
     ...echoesTimelineInput,
     rotation: {
@@ -411,8 +555,326 @@ try {
     "Casting Floating Grace must consume Echoes of a Thousand Plants before its pending healing ticks resolve.",
   );
 
+  const worldToSwordBundle = {
+    timeline: {
+      rotation: {
+        name: "World to Sword overheal probe",
+        steps: [
+          { type: "skill", skill: "WorldToSword" },
+          { type: "skill", skill: "IncomingHit" },
+          { type: "skill", skill: "OverflowHeal" },
+        ],
+      },
+      skills: {
+        WorldToSword: mysticSkills.WorldToSword,
+        QiBlade: mysticSkills.QiBlade,
+        IncomingHit: {
+          name: "Incoming Hit",
+          castTime: 0.1,
+          action: [{ type: "takeDamage", damage: 100, time: 0.1 }],
+          tags: [],
+        },
+        OverflowHeal: {
+          name: "Overflow Heal",
+          castTime: 0.2,
+          action: [
+            { type: "heal", phyCoef: 30, time: 0.2 },
+            { type: "heal", phyCoef: 30, time: 0.2 },
+          ],
+          tags: ["Heal", "MartialArts", "PanaceaFan"],
+        },
+      },
+      eventDefinitions: {},
+      dots: {},
+      effectDefinitions: { WorldToSword: mysticBuffs.WorldToSword },
+      innerWayConditions: [],
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: ["panaceaFan", "soulshadeUmbrella"],
+      initialResources: { Vitality: 100 },
+      resourceMaximums: { Vitality: 100 },
+      maxHP: 1000,
+    },
+    startAnchor: { rowId: "rotation-0" },
+    stats,
+    attunement: {},
+    enemy,
+    derivedStats,
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+    statPriority: [],
+    attunementPriority: [],
+    innerWayPriority: [],
+    setupComparisons: {},
+  };
+  const groupHealingContext = {
+    stats,
+    derivedStats,
+    enemy,
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+    skillTags: ["Heal"],
+    buffs: [],
+    effects: [],
+    attunement: {},
+  };
+  const groupHealingThreshold = (() => {
+    const snapshot = calculateHealingAttackSnapshot(groupHealingContext);
+    return snapshot.averagePhysicalAttack * 12 + snapshot.averageSilkbindAttack * 18;
+  })();
+  const healingPerPhysicalBonus = calculateHealingBreakdown(
+    { type: "heal", phyCoef: 0, phyBonus: 1, attrBonus: 0 },
+    groupHealingContext,
+  ).total;
+  const groupHealAction = {
+    type: "heal",
+    phyCoef: 0,
+    phyBonus: (groupHealingThreshold * 0.7) / healingPerPhysicalBonus,
+    attrBonus: 0,
+    time: 0.1,
+  };
+  const groupHealingBundle = (groupSize) => ({
+    ...worldToSwordBundle,
+    timeline: {
+      ...worldToSwordBundle.timeline,
+      rotation: {
+        name: `Group healing ${groupSize}`,
+        groupSize,
+        steps: [
+          { type: "skill", skill: "WorldToSword" },
+          { type: "skill", skill: "GroupHeal" },
+        ],
+      },
+      skills: {
+        WorldToSword: mysticSkills.WorldToSword,
+        QiBlade: mysticSkills.QiBlade,
+        GroupHeal: {
+          name: "Group Heal",
+          group: true,
+          castTime: 0.1,
+          action: [groupHealAction],
+          tags: ["Heal"],
+        },
+      },
+    },
+  });
+  const soloGroupHealing = calculateRotationBaseline(groupHealingBundle(1));
+  const teamGroupHealing = calculateRotationBaseline(groupHealingBundle(5));
+  const raidGroupHealing = calculateRotationBaseline(groupHealingBundle(10));
+  assert(
+    closeTo(teamGroupHealing.metrics.totalHealing, soloGroupHealing.metrics.totalHealing * 5) &&
+      closeTo(raidGroupHealing.metrics.totalHealing, soloGroupHealing.metrics.totalHealing * 10),
+    "A group heal must report one healing copy for every recipient in the rotation group.",
+  );
+  const groupHealCount = (result) =>
+    result.metrics.breakdown.healingSkills.find((row) => row.id === "GroupHeal")?.heals;
+  assert(
+    groupHealCount(soloGroupHealing) === 1 &&
+      groupHealCount(teamGroupHealing) === 5 &&
+      groupHealCount(raidGroupHealing) === 10,
+    "A group heal's breakdown must count one heal for every recipient.",
+  );
+  const groupQiBladeCount = (result) =>
+    result.timeline.filter((row) => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "QiBlade")
+      .length;
+  assert(
+    groupQiBladeCount(soloGroupHealing) === 0 &&
+      groupQiBladeCount(teamGroupHealing) === 1 &&
+      groupQiBladeCount(raidGroupHealing) === 1,
+    "WTS must count teammate group healing as one-fifth overhealing while retaining one threshold cap per action.",
+  );
+  const playerTargetHealing = calculateRotationBaseline({
+    ...worldToSwordBundle,
+    timeline: {
+      ...worldToSwordBundle.timeline,
+      rotation: {
+        name: "Single-target teammate WTS probe",
+        groupSize: 5,
+        steps: [
+          { type: "skill", skill: "WorldToSword" },
+          { type: "skill", skill: "ApplyPlayerHeal" },
+        ],
+      },
+      skills: {
+        WorldToSword: mysticSkills.WorldToSword,
+        QiBlade: mysticSkills.QiBlade,
+        ApplyPlayerHeal: {
+          name: "Apply Player Heal",
+          castTime: 0.1,
+          action: [
+            { type: "apply", target: "player", value: "PlayerHeal", time: 0.1 },
+            { type: "apply", target: "player", value: "PlayerHeal", time: 0.1 },
+          ],
+          tags: ["Heal"],
+        },
+      },
+      effectDefinitions: {
+        WorldToSword: mysticBuffs.WorldToSword,
+        PlayerHeal: {
+          name: "Player Heal",
+          duration: 0.1,
+          maxStack: 1,
+          refresh: true,
+          periodic: { interval: 1, firstTick: 0, action: [groupHealAction] },
+        },
+      },
+    },
+  });
+  assert(
+    groupQiBladeCount(playerTargetHealing) === 1,
+    "WTS must count all overhealing from a single-target heal assigned to a teammate, rather than applying the group-heal one-fifth weight.",
+  );
+  const worldToSwordResult = calculateRotationBaseline(worldToSwordBundle);
+  const qiBlades = worldToSwordResult.timeline.filter(
+    (row) => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "QiBlade",
+  );
+  assert(
+    qiBlades.length === 2 && closeTo(qiBlades[1].startTime - qiBlades[0].startTime, 0.3),
+    "Expected overhealing must retain threshold credit during cooldown and launch queued Qi Blades 0.3 seconds apart.",
+  );
+  const overflowHealRow = worldToSwordResult.timeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "OverflowHeal",
+  );
+  assert(
+    overflowHealRow?.actionStates[1]?.currentHP === 1000,
+    "Healing must restore missing self HP before later healing is counted entirely as overhealing.",
+  );
+  assert(
+    overflowHealRow?.actionStates[1]?.buffs.find((buff) => buff.name === "WorldToSword")?.remainingTriggers === 19,
+    "World to Sword must expose its remaining Qi Blade budget after a successful launch.",
+  );
+  const mergedWorldToSwordTimeline = mergeCalculatedTimelineState(
+    buildRotationTimeline(worldToSwordBundle.timeline),
+    worldToSwordResult.timeline,
+  );
+  const mergedOverflowHealRow = mergedWorldToSwordTimeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "OverflowHeal",
+  );
+  assert(
+    mergedOverflowHealRow?.actionStates[1]?.currentHP === 1000 &&
+      mergedOverflowHealRow.currentHPRatio === overflowHealRow.currentHPRatio &&
+      mergedOverflowHealRow.actionStates[1]?.buffs.find((buff) => buff.name === "WorldToSword")?.remainingTriggers ===
+        19,
+    "The editor timeline must retain calculated self-HP restoration and finite buff-trigger progress when it merges worker results.",
+  );
+  const exhaustedWorldToSword = calculateRotationBaseline({
+    ...worldToSwordBundle,
+    timeline: {
+      ...worldToSwordBundle.timeline,
+      rotation: {
+        name: "World to Sword trigger-limit probe",
+        steps: [
+          { type: "skill", skill: "WorldToSword" },
+          { type: "skill", skill: "TwentyOverflowHeals" },
+          { type: "skill", skill: "WaitForBlades" },
+          { type: "skill", skill: "Observe" },
+        ],
+      },
+      skills: {
+        WorldToSword: mysticSkills.WorldToSword,
+        QiBlade: mysticSkills.QiBlade,
+        TwentyOverflowHeals: {
+          name: "Twenty Overflow Heals",
+          castTime: 0.1,
+          action: Array.from({ length: 20 }, () => ({ type: "heal", phyCoef: 30, time: 0.1 })),
+          tags: ["Heal"],
+        },
+        WaitForBlades: { name: "Wait for Blades", castTime: 6.5, action: [] },
+        Observe: { name: "Observe", castTime: 0, action: [] },
+      },
+    },
+  });
+  const exhaustedWorldToSwordBuff = exhaustedWorldToSword.timeline
+    .find((row) => row.step.type === "skill" && row.step.skill === "Observe")
+    ?.buffs.find((buff) => buff.name === "WorldToSword");
+  assert(
+    groupQiBladeCount(exhaustedWorldToSword) === 20 &&
+      exhaustedWorldToSwordBuff?.remainingTriggers === 0 &&
+      (exhaustedWorldToSwordBuff.expiresAt ?? 0) > 6.6,
+    "World to Sword must remain active until its normal expiry after all 20 Qi Blades have launched.",
+  );
+  const ordinaryHealingResult = calculateRotationBaseline({
+    ...worldToSwordBundle,
+    timeline: {
+      ...worldToSwordBundle.timeline,
+      rotation: {
+        name: "Ordinary self-healing probe",
+        steps: [
+          { type: "skill", skill: "IncomingHit" },
+          { type: "skill", skill: "OverflowHeal" },
+          { type: "skill", skill: "Observe" },
+        ],
+      },
+      skills: {
+        ...worldToSwordBundle.timeline.skills,
+        Observe: { name: "Observe", castTime: 0, action: [] },
+      },
+      effectDefinitions: {},
+    },
+    startAnchor: { rowId: "rotation-0" },
+  });
+  const ordinaryHealRow = ordinaryHealingResult.timeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "OverflowHeal",
+  );
+  const ordinaryObserveRow = ordinaryHealingResult.timeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "Observe",
+  );
+  assert(
+    ordinaryHealRow?.actionStates[1]?.currentHP === 1000 && ordinaryObserveRow?.currentHP === 1000,
+    "Ordinary healing must restore timeline self HP even when World to Sword is not active.",
+  );
+  const fanQQTimeline = buildRotationTimeline({
+    rotation: {
+      name: "Fan QQ automatic Echoes probe",
+      steps: [
+        { type: "skill", skill: "EndlessCloud" },
+        { type: "skill", skill: "EndlessCloudCancel" },
+        { type: "event", event: "Delay", duration: 30 },
+        { type: "skill", skill: "EndlessCloud" },
+      ],
+    },
+    skills: { ...panaceaFanSkills, ...soulshadeUmbrellaSkills },
+    eventDefinitions: { Delay: { name: "Delay", castTime: 0, action: [], tags: ["Event"] } },
+    dots: {},
+    effectDefinitions: delugeBuffs,
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["panaceaFan", "soulshadeUmbrella"],
+    martialArtState: {
+      panaceaFan: { weapon: "Fan" },
+      soulshadeUmbrella: { weapon: "Umbrella" },
+    },
+  });
+  const fanQQEchoes = fanQQTimeline.filter(
+    (row) => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "EchoesOfAThousandPlantsFanQQ",
+  );
+  assert(
+    fanQQEchoes.length === 2 && fanQQEchoes.every((row) => row.actions.every((action) => action.type !== "damage")),
+    "Fan QQ must trigger the non-damaging Echoes utility cast only while its shared cooldown is ready.",
+  );
+  assert(
+    fanQQEchoes.every((row) => row.currentMartialArt === "panaceaFan" && row.currentWeapon === "Fan"),
+    "The automatic Echoes utility cast must not switch the current martial art or weapon.",
+  );
+  const secondFanQQ = fanQQTimeline.find(
+    (row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "EndlessCloudCancel",
+  );
+  assert(
+    secondFanQQ?.buffs.some((buff) => buff.name === "MorningDrizzle"),
+    "Fan QQ and Fan QQ Cancel must apply Morning Drizzle at their healing timestamp.",
+  );
+  assert(
+    worldToSwordResult.metrics.breakdown.skills.some((skill) => skill.id === "QiBlade" && skill.hits === 2),
+    "Every launched Qi Blade must resolve its delayed damage through the normal damage pipeline.",
+  );
+  const simulatedWorldToSword = calculateSimulatedRotationRun(worldToSwordBundle, () => 0.25);
+  assert(
+    simulatedWorldToSword.resolvedSequence.filter(({ entry }) => entry.context.skillTags.includes("QiBlade")).length ===
+      2,
+    "Simulation must use rolled healing while retaining overheal accumulated during the Qi Blade cooldown.",
+  );
+
   console.log(
-    "Healing formula, outcomes, periodic healing and consumption, Royal Remedy triggers, timeline totals, HPS, and breakdown sorting verified.",
+    "Healing formula, self-HP restoration, World to Sword overheal conversion, periodic healing and consumption, Royal Remedy triggers, timeline totals, HPS, and breakdown sorting verified.",
   );
 } finally {
   await viteServer.close();

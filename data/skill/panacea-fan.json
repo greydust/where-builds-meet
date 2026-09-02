@@ -6,7 +6,7 @@
     "action": [
       {
         "type": "apply",
-        "target": "self",
+        "target": "player",
         "value": "MorningDrizzle",
         "stack": 1,
         "reapply": true,
@@ -21,6 +21,7 @@
   "CloudburstHealing": {
     "name": "Cloudburst Healing",
     "shortName": "Fan Q",
+    "group": true,
     "castTime": 0.9125,
     "action": [
       {
@@ -81,6 +82,7 @@
   "CloudburstHealingCancel": {
     "name": "Cloudburst Healing [Cancel]",
     "shortName": "Fan Q [Cancel]",
+    "group": true,
     "castTime": 0,
     "action": [
       {
@@ -141,6 +143,7 @@
   "EndlessCloud": {
     "name": "Endless Cloud",
     "shortName": "Fan QQ",
+    "group": true,
     "castTime": 0.9375,
     "action": [
       {
@@ -149,6 +152,28 @@
         "phyBonus": 3259,
         "attrBonus": 1776,
         "time": 0.3125
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125
+      },
+      {
+        "type": "trigger",
+        "value": "EchoesOfAThousandPlantsFanQQ",
+        "time": 0.3125,
+        "requirement": [{ "target": "equippedMartialArt", "value": "soulshadeUmbrella" }]
       }
     ],
     "modifier": [],
@@ -159,6 +184,7 @@
   "EndlessCloudCancel": {
     "name": "Endless Cloud [Cancel]",
     "shortName": "Fan QQ [Cancel]",
+    "group": true,
     "castTime": 0.3125,
     "action": [
       {
@@ -167,6 +193,28 @@
         "phyBonus": 3259,
         "attrBonus": 1776,
         "time": 0.3125
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125
+      },
+      {
+        "type": "trigger",
+        "value": "EchoesOfAThousandPlantsFanQQ",
+        "time": 0.3125,
+        "requirement": [{ "target": "equippedMartialArt", "value": "soulshadeUmbrella" }]
       }
     ],
     "modifier": [],
@@ -243,6 +291,78 @@
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "Light", "Fan", "PanaceaFan", "FourfoldInquiry"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EmeraldDewtouch1": {
+    "name": "Emerald Dewtouch 1st Hit",
+    "shortName": "Fan H1",
+    "castTime": 0.4,
+    "action": [
+      {
+        "type": "heal",
+        "phyCoef": 1.8767,
+        "phyBonus": 519,
+        "attrBonus": 283,
+        "time": 0.325
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EmeraldDewtouch2": {
+    "name": "Emerald Dewtouch 2nd Hit",
+    "shortName": "Fan H2",
+    "castTime": 0.8,
+    "action": [
+      {
+        "type": "heal",
+        "phyCoef": 2.4129,
+        "phyBonus": 668,
+        "attrBonus": 364,
+        "time": 0.25
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EmeraldDewtouch2Cancel": {
+    "name": "Emerald Dewtouch 2nd Hit [Cancel]",
+    "shortName": "Fan H2 [Cancel]",
+    "castTime": 0.25,
+    "action": [
+      {
+        "type": "heal",
+        "phyCoef": 2.4129,
+        "phyBonus": 668,
+        "attrBonus": 364,
+        "time": 0.25
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
+    "martialArt": "panaceaFan",
+    "weapon": "Fan"
+  },
+  "EmeraldDewtouch3Cancel": {
+    "name": "Emerald Dewtouch 3rd Hit [Cancel]",
+    "shortName": "Fan H3 [Cancel]",
+    "castTime": 0.3375,
+    "action": [
+      {
+        "type": "heal",
+        "phyCoef": 3.3512,
+        "phyBonus": 928,
+        "attrBonus": 506,
+        "time": 0.3375
+      }
+    ],
+    "modifier": [],
+    "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
     "martialArt": "panaceaFan",
     "weapon": "Fan"
   },

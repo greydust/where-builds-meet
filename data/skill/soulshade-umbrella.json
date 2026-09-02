@@ -55,9 +55,29 @@
     "martialArt": "soulshadeUmbrella",
     "weapon": "Umbrella"
   },
+  "EchoesOfAThousandPlantsFanQQ": {
+    "name": "Echoes of a Thousand Plants",
+    "shortName": "Umbrella Special [Cancel]",
+    "castTime": 0.625,
+    "cooldown": 30,
+    "cooldownGroup": "EchoesOfAThousandPlants",
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "EchoesOfAThousandPlants",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.625
+      }
+    ],
+    "modifier": [],
+    "tags": ["Triggered", "EchoesOfAThousandPlants"]
+  },
   "FloatingGrace": {
     "name": "Floating Grace",
     "shortName": "Umbrella Q",
+    "group": true,
     "castTime": 1.15,
     "action": [
       {

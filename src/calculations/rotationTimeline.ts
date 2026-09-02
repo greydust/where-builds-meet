@@ -24,6 +24,7 @@ export type SkillRecord = {
   [key: string]: unknown;
   name?: string;
   shortName?: string;
+  group?: boolean;
   castTime?: number | SwitchValue;
   cooldown?: number;
   cooldownGroup?: string;
@@ -46,7 +47,13 @@ export type RotationStep =
   | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number }
   | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHP: number; currentHPRatio?: number }
   | { type: "event"; event: "SelfHP"; before: AttachedEventTarget; currentHPRatio: number; currentHP?: number }
-  | { type: "event"; event: "TakeDamage"; startTime: number; damage: number }
+  | {
+      type: "event";
+      event: "TakeDamage";
+      startTime: number;
+      damage: number;
+      automatic?: "dummyAttack";
+    }
   // Accepted only at persistence/import boundaries and migrated to startTime.
   | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number }
   | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number }
@@ -82,16 +89,22 @@ export type RotationRecord = {
   steps: RotationStep[];
   targetHP?: number;
   autoHP?: boolean;
+  dummyAttack?: boolean;
+  groupSize?: 1 | 5 | 10;
   infiniteVitality?: boolean;
   start?: { step: number; action?: number };
   eventTimeReference?: "battleStart";
 };
 export type TrackedEffect = {
   name: string;
+  /** Zero is self; positive indexes are the other players represented by the rotation. */
+  playerRecipientIndex?: number;
   appliedAt?: number;
   expiresAt?: number;
   stack?: number;
   maxStack?: number;
+  /** Remaining successful triggers for a finite effect listener. */
+  remainingTriggers?: number;
   persistent?: boolean;
   sourceRowId?: string;
   collectBoostDamage?: string;
@@ -99,6 +112,10 @@ export type TrackedEffect = {
   perHitEffectRules?: unknown[];
 };
 export type ResourceState = Record<string, number>;
+export type ResolvedHealingState = {
+  self: number;
+  teammateOverhealContribution: number;
+};
 export type ResourceRangeState = Record<string, { minimum: number; maximum: number; expected?: number }>;
 export type TimelineResourceSummary = Record<
   string,
@@ -119,6 +136,8 @@ export type TimelineRow = {
   id: string;
   kind: TimelineRowKind;
   sourceRowId?: string;
+  /** Recipient of a periodic player-target effect. Zero is self. */
+  playerRecipientIndex?: number;
   triggerSource?: "skill" | "setup" | "innerWay";
   rotationIndex?: number;
   order: number;
@@ -130,6 +149,8 @@ export type TimelineRow = {
   targetHPRatio: number;
   targetQiRatio: number;
   resources: ResourceState;
+  /** Gross resource costs from accepted actions on this resolved row. */
+  resourceConsumption?: ResourceState;
   resourceRanges?: ResourceRangeState;
   currentMartialArt?: WeaponId;
   currentWeapon?: WeaponFamily;
@@ -175,10 +196,19 @@ function timelineRowsRepresentSameStep(left: TimelineRow, right: TimelineRow) {
   }
 }
 
-export function mergeCalculatedTargetHPState(structuralTimeline: TimelineRow[], calculatedTimeline?: TimelineRow[]) {
+export function mergeCalculatedTimelineState(structuralTimeline: TimelineRow[], calculatedTimeline?: TimelineRow[]) {
   if (!calculatedTimeline) return structuralTimeline;
   const calculatedRows = new Map(calculatedTimeline.map((row) => [row.id, row]));
-  return structuralTimeline.map((row) => {
+  const mergeEffectRuntimeState = (structural: TrackedEffect[], calculated: TrackedEffect[]) =>
+    structural.map((effect) => {
+      const calculatedEffect = calculated.find(
+        (candidate) => candidate.name === effect.name && candidate.playerRecipientIndex === effect.playerRecipientIndex,
+      );
+      return calculatedEffect?.remainingTriggers === undefined
+        ? effect
+        : { ...effect, remainingTriggers: calculatedEffect.remainingTriggers };
+    });
+  const mergeStructuralRow = (row: TimelineRow) => {
     const calculatedRow = calculatedRows.get(row.id);
     if (!calculatedRow || !timelineRowsRepresentSameStep(row, calculatedRow)) return row;
     const actionStates = Object.fromEntries(
@@ -189,8 +219,12 @@ export function mergeCalculatedTargetHPState(structuralTimeline: TimelineRow[], 
           calculatedState
             ? {
                 ...state,
+                currentHP: calculatedState.currentHP,
+                currentHPRatio: calculatedState.currentHPRatio,
                 targetHPRatio: calculatedState.targetHPRatio,
                 resourceRanges: calculatedState.resourceRanges,
+                buffs: mergeEffectRuntimeState(state.buffs, calculatedState.buffs),
+                debuffs: mergeEffectRuntimeState(state.debuffs, calculatedState.debuffs),
               }
             : state,
         ];
@@ -198,11 +232,47 @@ export function mergeCalculatedTargetHPState(structuralTimeline: TimelineRow[], 
     );
     return {
       ...row,
+      currentHP: calculatedRow.currentHP,
+      currentHPRatio: calculatedRow.currentHPRatio,
       targetHPRatio: calculatedRow.targetHPRatio,
       resourceRanges: calculatedRow.resourceRanges,
+      buffs: mergeEffectRuntimeState(row.buffs, calculatedRow.buffs),
+      debuffs: mergeEffectRuntimeState(row.debuffs, calculatedRow.debuffs),
       actionStates,
     };
-  });
+  };
+  const mergedStructuralRows = new Map(structuralTimeline.map((row) => [row.id, mergeStructuralRow(row)]));
+  const acceptedRowIds = new Set(structuralTimeline.map((row) => row.id));
+  const displayedRows: TimelineRow[] = [];
+  const displayedRowIds = new Set<string>();
+
+  for (const calculatedRow of calculatedTimeline) {
+    const structuralRow = mergedStructuralRows.get(calculatedRow.id);
+    if (structuralRow && timelineRowsRepresentSameStep(structuralRow, calculatedRow)) {
+      displayedRows.push(structuralRow);
+      displayedRowIds.add(structuralRow.id);
+      continue;
+    }
+    if (
+      calculatedRow.kind === "rotation" ||
+      !calculatedRow.sourceRowId ||
+      !acceptedRowIds.has(calculatedRow.sourceRowId)
+    )
+      continue;
+    displayedRows.push(calculatedRow);
+    displayedRowIds.add(calculatedRow.id);
+    acceptedRowIds.add(calculatedRow.id);
+  }
+
+  for (const structuralRow of mergedStructuralRows.values()) {
+    if (!displayedRowIds.has(structuralRow.id)) displayedRows.push(structuralRow);
+  }
+  return displayedRows.sort(
+    (left, right) =>
+      compareTimelineTime(left.startTime, right.startTime) ||
+      left.order - right.order ||
+      (left.kind === "rotation" ? -1 : right.kind === "rotation" ? 1 : 0),
+  );
 }
 
 export type EffectDefinition = {
@@ -220,7 +290,26 @@ export type EffectDefinition = {
   stackEffects?: unknown[][];
   action?: unknown[];
   periodic?: PeriodicEffect;
+  accumulator?: {
+    event?: string;
+    checkEvent?: string;
+    expectedEventCap?: "threshold";
+    simulationReset?: "zero";
+  };
+  listen?: Array<{
+    event?: string;
+    cooldown?: number;
+    maxTriggers?: number;
+    action?: EditableObject;
+  }>;
 };
+
+function finiteListenerTriggerLimit(definition: EffectDefinition) {
+  const limit = definition.listen?.find(
+    (listener) => typeof listener.maxTriggers === "number" && Number.isFinite(listener.maxTriggers),
+  )?.maxTriggers;
+  return typeof limit === "number" ? Math.max(0, Math.floor(limit)) : undefined;
+}
 
 export function effectsForTrackedEffect(stack: number | undefined, definition: EffectDefinition | undefined) {
   if (Array.isArray(definition?.stackEffects)) {
@@ -267,6 +356,9 @@ export type TimelineBuildInput = {
   resourceEvents?: ResourceEventRule[];
   maxHP?: number;
   cooldownPolicy?: "skip" | "wait";
+  resolvedHealing?: Record<string, ResolvedHealingState>;
+  accumulatorThresholds?: Record<string, number>;
+  calculationMode?: "expected" | "simulation";
 };
 
 export type ResourceEventRule = {
@@ -349,7 +441,9 @@ export function requirementsPass(
       default:
         break;
     }
-    const trackedEffect = (target === "target" ? debuffs : buffs).find((effect) => effect.name === value);
+    const trackedEffect = (target === "target" ? debuffs : buffs).find(
+      (effect) => effect.name === value && (target === "target" || (effect.playerRecipientIndex ?? 0) === 0),
+    );
     if (requiredStack === "max")
       return Boolean(trackedEffect?.maxStack !== undefined && (trackedEffect.stack ?? 0) >= trackedEffect.maxStack);
     if (typeof requiredStack === "number") return Boolean(trackedEffect && (trackedEffect.stack ?? 0) >= requiredStack);
@@ -437,17 +531,23 @@ function applyTrackedEffect(
   refresh = true,
   sourceRowId?: string,
   collectBoostDamage?: string,
+  playerRecipientIndex?: number,
+  remainingTriggers?: number,
 ) {
-  const existing = effects.find((effect) => effect.name === name);
+  const matchesRecipient = (effect: TrackedEffect) =>
+    effect.name === name && effect.playerRecipientIndex === playerRecipientIndex;
+  const existing = effects.find(matchesRecipient);
   const nextStack = Math.min(maxStackOverride ?? Number.POSITIVE_INFINITY, (existing?.stack ?? 0) + (stack ?? 1));
   const persistent = existing?.persistent === true;
   const expiresAt =
     persistent || duration === undefined ? undefined : existing && !refresh ? existing.expiresAt : time + duration;
   const nextEffect: TrackedEffect = {
     name,
+    ...(playerRecipientIndex !== undefined ? { playerRecipientIndex } : {}),
     appliedAt: existing && !refresh ? existing.appliedAt : time,
     stack: nextStack,
     maxStack: maxStackOverride,
+    ...(remainingTriggers !== undefined ? { remainingTriggers } : {}),
     expiresAt,
     ...(persistent ? { persistent: true } : {}),
     ...(sourceRowId ? { sourceRowId } : existing?.sourceRowId ? { sourceRowId: existing.sourceRowId } : {}),
@@ -457,7 +557,7 @@ function applyTrackedEffect(
         ? { collectBoostDamage: existing.collectBoostDamage }
         : {}),
   };
-  return [...effects.filter((effect) => effect.name !== name), nextEffect];
+  return [...effects.filter((effect) => !matchesRecipient(effect)), nextEffect];
 }
 
 function extendTrackedEffect(effects: TrackedEffect[], name: string, duration: number, time: number) {
@@ -504,7 +604,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     row: TimelineRow;
     actionIndex?: number;
     subActionIndex?: number;
-    expiresEffect?: { target: "self" | "target"; name: string; expiresAt: number; scheduleId: number };
+    expiresEffect?: { target: "self" | "target" | "player"; name: string; expiresAt: number; scheduleId: number };
   };
   const compareSortOrder = (left: number[], right: number[]) => {
     const sharedLength = Math.min(left.length, right.length);
@@ -879,12 +979,16 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     })),
   );
   let unconditionalDamageEffects = addUnconditionalDamageEffects(
-    ...buffs.map((effect) => effect.unconditionalDamageEffects),
+    ...buffs
+      .filter((effect) => (effect.playerRecipientIndex ?? 0) === 0)
+      .map((effect) => effect.unconditionalDamageEffects),
     ...debuffs.map((effect) => effect.unconditionalDamageEffects),
   );
   const refreshUnconditionalDamageEffects = () => {
     unconditionalDamageEffects = addUnconditionalDamageEffects(
-      ...buffs.map((effect) => effect.unconditionalDamageEffects),
+      ...buffs
+        .filter((effect) => (effect.playerRecipientIndex ?? 0) === 0)
+        .map((effect) => effect.unconditionalDamageEffects),
       ...debuffs.map((effect) => effect.unconditionalDamageEffects),
     );
   };
@@ -906,6 +1010,15 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   let targetHPRatio = input.rotation.targetHP ? 1 : DEFAULT_TARGET_HP_RATIO;
   let targetQiRatio = 1;
+  type AccumulatorState = {
+    threshold: number;
+    accumulated: number;
+    firedTriggers: number;
+    nextReadyAt: number;
+    sourceRowId: string;
+    expiresAt?: number;
+  };
+  const accumulatorStates = new Map<string, AccumulatorState>();
   let currentMartialArt = weapons[0];
   let currentWeapon = currentMartialArt ? input.martialArtState?.[currentMartialArt]?.weapon : undefined;
   const resourceMaximums = Object.fromEntries(
@@ -978,7 +1091,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         resourceEventCooldowns.set(ruleIndex, time + rule.cooldown);
     });
   };
-  const applyResourceAction = (action: EditableObject) => {
+  const applyResourceAction = (action: EditableObject, row: TimelineRow) => {
     if (
       (action.type !== "setResource" && action.type !== "addResource" && action.type !== "consumeResource") ||
       typeof action.value !== "string" ||
@@ -988,6 +1101,13 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       )
     )
       return false;
+    if (action.type === "consumeResource") {
+      const spent = action.amount === "all" ? Math.max(0, resources[action.value] ?? 0) : action.amount;
+      row.resourceConsumption = {
+        ...(row.resourceConsumption ?? {}),
+        [action.value]: (row.resourceConsumption?.[action.value] ?? 0) + spent,
+      };
+    }
     if (infiniteResources.has(action.value)) return true;
     const current = resources[action.value] ?? 0;
     const amount = typeof action.amount === "number" ? action.amount : 0;
@@ -1079,6 +1199,20 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     effects.some((effect) => effect.expiresAt !== undefined && effect.expiresAt <= time)
       ? effects.filter((effect) => effect.expiresAt === undefined || effect.expiresAt > time)
       : effects;
+  const groupSize = input.rotation.groupSize === 5 || input.rotation.groupSize === 10 ? input.rotation.groupSize : 1;
+  const selectPlayerRecipient = (effects: TrackedEffect[], name: string) => {
+    const copies = effects.filter((effect) => effect.name === name && effect.playerRecipientIndex !== undefined);
+    const occupied = new Set(copies.map((effect) => effect.playerRecipientIndex));
+    for (let recipientIndex = 0; recipientIndex < groupSize; recipientIndex += 1) {
+      if (!occupied.has(recipientIndex)) return recipientIndex;
+    }
+    return copies.reduce((selected, candidate) => {
+      const selectedExpiry = selected.expiresAt ?? Number.POSITIVE_INFINITY;
+      const candidateExpiry = candidate.expiresAt ?? Number.POSITIVE_INFINITY;
+      if (candidateExpiry !== selectedExpiry) return candidateExpiry < selectedExpiry ? candidate : selected;
+      return (candidate.playerRecipientIndex ?? 0) < (selected.playerRecipientIndex ?? 0) ? candidate : selected;
+    }).playerRecipientIndex!;
+  };
   const getModifiedEffectDefinition = (
     name: string,
     currentBuffs: TrackedEffect[],
@@ -1131,10 +1265,12 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     appliedAt: number;
     expiresAt: number;
     sourceRowId: string;
+    playerRecipientIndex?: number;
     rows: TimelineRow[];
   };
   const activePeriodicEffects: Record<string, ActivePeriodicEffect> = {};
-  const periodicEffectKey = (target: "self" | "target", name: string) => `${target}:${name}`;
+  const periodicEffectKey = (target: "self" | "target" | "player", name: string, playerRecipientIndex?: number) =>
+    target === "player" ? `${target}:${name}:${playerRecipientIndex ?? 0}` : `${target}:${name}`;
   const removePendingPeriodicRows = (
     activeEffect: ActivePeriodicEffect,
     afterTime: number,
@@ -1180,6 +1316,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         id: `${isDot ? "dot" : "periodic"}-${derivedId}`,
         kind: isDot ? "dot" : "periodic",
         sourceRowId: activeEffect.sourceRowId,
+        ...(activeEffect.playerRecipientIndex !== undefined
+          ? { playerRecipientIndex: activeEffect.playerRecipientIndex }
+          : {}),
         order: sourceOrder + 10 + tickIndex / 1000,
         step: { type: "skill", skill: name },
         startTime: tickTime,
@@ -1215,7 +1354,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   };
   const transferAndReschedulePeriodicEffect = (
     name: string,
-    target: "self" | "target",
+    target: "self" | "target" | "player",
     definition: EffectDefinition,
     expiresAt: number,
     eventTime: number,
@@ -1223,8 +1362,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     causalSortOrder: number[],
     sourceOrder: number,
     resetCadence = false,
+    playerRecipientIndex?: number,
   ) => {
-    const activeEffect = activePeriodicEffects[periodicEffectKey(target, name)];
+    const activeEffect = activePeriodicEffects[periodicEffectKey(target, name, playerRecipientIndex)];
     if (!activeEffect) return;
     removePendingPeriodicRows(activeEffect, eventTime);
     activeEffect.definition = definition;
@@ -1240,7 +1380,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     sourceRowId: string,
     causalSortOrder: number[],
     sourceOrder: number,
-    target: "self" | "target",
+    target: "self" | "target" | "player",
     expiresAt?: number,
   ) => {
     const actions = Array.isArray(definition.action) ? (definition.action as EditableObject[]) : [];
@@ -1739,7 +1879,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       currentWeapon = input.martialArtState?.[currentMartialArt]?.weapon;
       continue;
     }
-    if (applyResourceAction(action)) continue;
+    if (applyResourceAction(action, event.row)) continue;
     if (action.type === "consume") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
       const valueObject =
@@ -1784,7 +1924,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
     ) => {
       const triggeredSkill = skills[skillId];
       const key = skillCooldownKey(skillId, triggeredSkill);
-      if (!triggeredSkill || (cooldowns[key] ?? 0) > event.time) return;
+      if (!triggeredSkill || (cooldowns[key] ?? 0) > event.time) return false;
       const actions = Array.isArray(triggeredSkill.action) ? (triggeredSkill.action as EditableObject[]) : [];
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...event.sortOrder, derivedId];
@@ -1843,9 +1983,57 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           });
       }
       if (typeof triggeredSkill.cooldown === "number") cooldowns[key] = event.time + triggeredSkill.cooldown;
+      return true;
+    };
+    const emitCustomEvent = (eventName: string) => {
+      for (const activeBuff of buffs) {
+        const definition = effectDefinitions[activeBuff.name];
+        const accumulator = accumulatorStates.get(activeBuff.name);
+        if (!accumulator || (accumulator.expiresAt !== undefined && accumulator.expiresAt <= event.time)) continue;
+        for (const listener of definition?.listen ?? []) {
+          if (listener.event !== eventName) continue;
+          const maxTriggers = Math.max(0, Math.floor(listener.maxTriggers ?? Number.POSITIVE_INFINITY));
+          if (accumulator.firedTriggers >= maxTriggers || accumulator.nextReadyAt > event.time) continue;
+          const available =
+            input.calculationMode === "simulation"
+              ? accumulator.accumulated >= accumulator.threshold
+              : Math.floor(accumulator.accumulated / accumulator.threshold) > accumulator.firedTriggers;
+          if (!available) continue;
+          const triggerAction = listener.action;
+          if (triggerAction?.type !== "trigger" || typeof triggerAction.value !== "string") continue;
+          if (!enqueueTriggeredSkill(triggerAction.value, accumulator.sourceRowId)) continue;
+          accumulator.firedTriggers += 1;
+          if (Number.isFinite(maxTriggers))
+            setBuffs(
+              buffs.map((effect) =>
+                effect.name === activeBuff.name && effect.playerRecipientIndex === activeBuff.playerRecipientIndex
+                  ? { ...effect, remainingTriggers: Math.max(0, maxTriggers - accumulator.firedTriggers) }
+                  : effect,
+              ),
+            );
+          accumulator.nextReadyAt = event.time + Math.max(0, listener.cooldown ?? 0);
+          if (input.calculationMode === "simulation" && definition.accumulator?.simulationReset === "zero")
+            accumulator.accumulated = 0;
+        }
+      }
+    };
+    const accumulateEventValue = (eventName: string, amount: number) => {
+      if (!(amount > 0)) return;
+      for (const activeBuff of buffs) {
+        const definition = effectDefinitions[activeBuff.name];
+        const accumulatorDefinition = definition?.accumulator;
+        const accumulator = accumulatorStates.get(activeBuff.name);
+        if (!accumulatorDefinition || accumulatorDefinition.event !== eventName || !accumulator) continue;
+        const contribution =
+          input.calculationMode !== "simulation" && accumulatorDefinition.expectedEventCap === "threshold"
+            ? Math.min(amount, accumulator.threshold)
+            : amount;
+        accumulator.accumulated += contribution;
+        if (accumulatorDefinition.checkEvent) emitCustomEvent(accumulatorDefinition.checkEvent);
+      }
     };
     const applyTriggerAction = (triggerAction: EditableObject, triggerSource: "setup" | "innerWay") => {
-      if (applyResourceAction(triggerAction)) return;
+      if (applyResourceAction(triggerAction, event.row)) return;
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         cooldowns[triggerAction.value] = event.time;
         clearSkillCooldown(triggerAction.value, event.time);
@@ -1932,6 +2120,8 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         definition.refresh !== false,
         collection.sourceRowId,
         collection.collectBoostDamage,
+        undefined,
+        finiteListenerTriggerLimit(definition),
       );
       if (triggerAction.target === "target") setDebuffs(next);
       else setBuffs(next);
@@ -2044,8 +2234,19 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         });
     };
     if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
+      const avoidsTakeDamage = rows.some(
+        (row) =>
+          !row.skipped &&
+          row.step.type === "skill" &&
+          row.skill?.tags?.includes("AvoidsTakeDamage") === true &&
+          compareTimelineTime(event.time, row.startTime) >= 0 &&
+          compareTimelineTime(event.time, row.startTime + row.effectiveCastTime) <= 0,
+      );
+      const resolvedDamage = avoidsTakeDamage ? 0 : Math.max(0, action.damage);
+      action.damage = resolvedDamage;
+      if (resolvedDamage === 0) continue;
       const previousHP = currentHP;
-      setCurrentHP(currentHP - Math.max(0, action.damage));
+      setCurrentHP(currentHP - resolvedDamage);
       applyResourceEvent("takeDamage", event.time, previousHP - currentHP);
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("takeDamage");
@@ -2061,6 +2262,19 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
       applyResourceEvent("damage", event.time);
     }
     if (action.type === "heal") {
+      const healingKey = `${event.row.id}:${event.actionIndex ?? -1}`;
+      const resolvedHealing = input.resolvedHealing?.[healingKey];
+      if (resolvedHealing) {
+        const rawHealing =
+          typeof resolvedHealing.self === "number" && Number.isFinite(resolvedHealing.self)
+            ? Math.max(0, resolvedHealing.self)
+            : 0;
+        const missingHP = Math.max(0, maxHP - currentHP);
+        const effectiveHealing = Math.min(rawHealing, missingHP);
+        const overhealing = Math.max(0, rawHealing - effectiveHealing);
+        setCurrentHP(currentHP + effectiveHealing);
+        accumulateEventValue("overheal", overhealing + Math.max(0, resolvedHealing?.teammateOverhealContribution ?? 0));
+      }
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       runSetupTriggers("heal");
       runInnerWayTriggers("heal");
@@ -2074,9 +2288,14 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : undefined;
       enqueueTriggeredSkill(action.value, event.row.sourceRowId ?? event.row.id, triggerOrdinal);
     }
+    if (action.type === "emitEvent" && typeof action.value === "string") emitCustomEvent(action.value);
     if ((action.type === "apply" || action.type === "extend") && typeof action.value === "string") {
       const targetEffects = action.target === "target" ? debuffs : buffs;
-      const periodicTarget = action.target === "target" ? "target" : "self";
+      const periodicTarget = action.target === "target" ? "target" : action.target === "player" ? "player" : "self";
+      const playerRecipientIndex =
+        action.type === "apply" && action.target === "player"
+          ? selectPlayerRecipient(targetEffects, action.value)
+          : undefined;
       const modifierDuration = (
         event.row.actionModifierEffects?.[event.actionIndex ?? -1] ?? event.row.modifierEffects
       ).find((effect) => typeof effect.duration === "number");
@@ -2087,7 +2306,9 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           : typeof modifierDuration?.duration === "number"
             ? modifierDuration.duration
             : definition.duration;
-      const existing = targetEffects.find((effect) => effect.name === action.value);
+      const existing = targetEffects.find(
+        (effect) => effect.name === action.value && effect.playerRecipientIndex === playerRecipientIndex,
+      );
       const fallbackSourceRowId =
         event.row.step.type === "event" ? event.row.id : (event.row.sourceRowId ?? event.row.id);
       const collection = boostDamageCollection(
@@ -2111,13 +2332,17 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
                 definition.refresh !== false,
                 collection.sourceRowId,
                 collection.collectBoostDamage,
+                playerRecipientIndex,
+                finiteListenerTriggerLimit(definition),
               )
             : targetEffects;
       if (action.target === "target") setDebuffs(next);
       else setBuffs(next);
-      const appliedEffect = next.find((effect) => effect.name === action.value);
+      const appliedEffect = next.find(
+        (effect) => effect.name === action.value && effect.playerRecipientIndex === playerRecipientIndex,
+      );
       if (shouldApply && definition.periodic && appliedEffect?.expiresAt !== undefined) {
-        const key = periodicEffectKey(periodicTarget, action.value);
+        const key = periodicEffectKey(periodicTarget, action.value, playerRecipientIndex);
         const effectSourceRowId = event.row.sourceRowId ?? event.row.id;
         if (existing && activePeriodicEffects[key] && definition.refresh !== false) {
           transferAndReschedulePeriodicEffect(
@@ -2130,6 +2355,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             event.sortOrder,
             event.row.order + (event.actionIndex ?? 0),
             definition.periodic?.resetOnRefresh === true,
+            playerRecipientIndex,
           );
         } else if (!existing || !activePeriodicEffects[key]) {
           const activeEffect: ActivePeriodicEffect = {
@@ -2137,6 +2363,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             appliedAt: event.time,
             expiresAt: appliedEffect.expiresAt,
             sourceRowId: effectSourceRowId,
+            ...(playerRecipientIndex !== undefined ? { playerRecipientIndex } : {}),
             rows: [],
           };
           activePeriodicEffects[key] = activeEffect;
@@ -2155,7 +2382,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
         typeof duration === "number" &&
         existing?.expiresAt !== undefined &&
         existing.expiresAt > event.time &&
-        activePeriodicEffects[periodicEffectKey(periodicTarget, action.value)]
+        activePeriodicEffects[periodicEffectKey(periodicTarget, action.value, playerRecipientIndex)]
       ) {
         transferAndReschedulePeriodicEffect(
           action.value,
@@ -2166,9 +2393,24 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           event.row.sourceRowId ?? event.row.id,
           event.sortOrder,
           event.row.order + (event.actionIndex ?? 0),
+          false,
+          playerRecipientIndex,
         );
       }
       if (shouldApply && appliedEffect) {
+        if (definition.accumulator) {
+          const threshold = input.accumulatorThresholds?.[`${event.row.id}:${event.actionIndex ?? -1}`];
+          if (typeof threshold === "number" && Number.isFinite(threshold) && threshold > 0) {
+            accumulatorStates.set(action.value, {
+              threshold,
+              accumulated: 0,
+              firedTriggers: 0,
+              nextReadyAt: event.time,
+              sourceRowId: collection.sourceRowId,
+              expiresAt: appliedEffect.expiresAt,
+            });
+          }
+        }
         enqueueEffectActions(
           action.value,
           definition,
@@ -2271,14 +2513,62 @@ function automaticTargetHPRotation(input: TimelineBuildInput, rows: TimelineRow[
   return { ...input.rotation, steps: [...input.rotation.steps, ...automaticSteps] };
 }
 
+function automaticDummyAttackRotation(input: TimelineBuildInput, rows: TimelineRow[]): RotationRecord {
+  const anchorRow = rows.find((row) => row.id === `rotation-${input.rotation.start?.step ?? 0}`) ?? rows[0];
+  const anchorTime = anchorRow
+    ? anchorRow.startTime +
+      (input.rotation.start?.action === undefined
+        ? 0
+        : Number(anchorRow.actions[input.rotation.start.action]?.time ?? 0))
+    : 0;
+  const battleEnd = rows.find((row) => row.step.type === "event" && row.step.event === "BattleEnd" && !row.skipped);
+  const lastTimelineTime = battleEnd
+    ? battleEnd.startTime
+    : rows.reduce(
+        (latest, row) =>
+          row.skipped
+            ? latest
+            : Math.max(
+                latest,
+                row.step.type === "event" && row.step.event === "Delay"
+                  ? row.startTime + row.effectiveCastTime
+                  : row.startTime,
+                ...row.actions.flatMap((action) =>
+                  typeof action.time === "number" ? [row.startTime + action.time] : [],
+                ),
+              ),
+        anchorTime,
+      );
+  const duration = Math.max(0, lastTimelineTime - anchorTime);
+  const attackCount = Math.max(0, Math.ceil((duration - 5.5) / 6));
+  const automaticSteps: RotationStep[] = Array.from({ length: attackCount }, (_, index) => 5.5 + index * 6).flatMap(
+    (fightTime) => {
+      const startTime = input.rotation.eventTimeReference === "battleStart" ? fightTime : anchorTime + fightTime;
+      return Array.from({ length: 2 }, () => ({
+        type: "event" as const,
+        event: "TakeDamage" as const,
+        startTime,
+        damage: 200,
+        automatic: "dummyAttack" as const,
+      }));
+    },
+  );
+  return { ...input.rotation, steps: [...input.rotation.steps, ...automaticSteps] };
+}
+
 export function buildRotationTimeline(input: TimelineBuildInput): TimelineRow[] {
-  if (!input.rotation.autoHP) return buildRotationTimelineResolved(input);
+  if (!input.rotation.autoHP && !input.rotation.dummyAttack) return buildRotationTimelineResolved(input);
   const baseRows = buildRotationTimelineResolved({
     ...input,
-    rotation: { ...input.rotation, autoHP: false },
+    rotation: { ...input.rotation, autoHP: false, dummyAttack: false },
   });
+  let resolvedRotation = input.rotation;
+  if (input.rotation.autoHP)
+    resolvedRotation = automaticTargetHPRotation({ ...input, rotation: resolvedRotation }, baseRows);
+  if (input.rotation.dummyAttack)
+    resolvedRotation = automaticDummyAttackRotation({ ...input, rotation: resolvedRotation }, baseRows);
   return buildRotationTimelineResolved({
     ...input,
-    rotation: automaticTargetHPRotation(input, baseRows),
+    rotation: resolvedRotation,
   });
 }

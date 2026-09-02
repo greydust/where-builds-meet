@@ -62,7 +62,7 @@
     "buildGroup": "silkbind-deluge",
     "defaultBuild": "deluge-fully-relayed-min-ew",
     "graduated": "deluge-full-min-ew",
-    "defaultRotation": "dummy-1-min-smolder",
+    "defaultRotation": "dummy-1-min-wts-team",
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"]
   },
   "bamboocutWind": {

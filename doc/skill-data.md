@@ -42,6 +42,7 @@ type SkillMap = Record<string, SkillDefinition>;
 type SkillDefinition = {
   name: string;
   shortName?: string;
+  group?: boolean;
   castTime: number;
   cooldown?: number;
   cooldownGroup?: string;
@@ -62,6 +63,13 @@ type SkillDefinition = {
 `shortName` is optional presentation metadata. Skill lists, selectors, timeline
 rows, and breakdowns display it as `Long Name (Short Name)` without changing the
 stable skill ID used by rotations and trigger actions.
+
+`group: true` marks healing actions that affect every member represented by the
+rotation's `groupSize`. Reported healing is multiplied by that recipient count,
+and the healing breakdown counts one heal per recipient, while Self HP receives
+only one copy. Its teammate copies contribute one-fifth of their healing to
+World to Sword. A single-target heal assigned through a `player` effect
+contributes its full healing instead.
 
 Actions must be listed in nondecreasing `time` order. Equal times are valid and
 array order breaks ties. Triggered events inherit a causal ordering so their
@@ -141,6 +149,21 @@ Healing-over-time skills carry the `HOT` tag. Their later heal actions may
 resolve after the skill's cast time so the next sequential cast can begin while
 the stored healing sequence continues.
 
+Healing restores missing Self HP at its action time. The amount beyond Max HP
+is overhealing and can feed a targeted buff accumulator. World to Sword uses
+this mechanism: its buff listens only for the `overheal` event and its Qi Blade
+emits `QiBladeCheck` 0.3 seconds after launch so stored overhealing can launch
+the next blade as soon as the cooldown is ready. `emitEvent` is an internal
+skill action and does not create a general combat-event broadcast.
+
+Expected calculations cap each individual heal's accumulator contribution at
+the snapshotted threshold and retain cumulative threshold credit. Simulations
+use the rolled heal, reset accumulated overhealing after each launch, and still
+accept healing during the 0.3-second launch cooldown. Both modes enforce the
+buff's 12-second lifetime and 20-blade limit. Finite accumulator listeners expose
+their remaining successful-trigger budget on the tracked buff for timeline UI;
+reaching zero prevents further triggers but does not end the buff early.
+
 Panacea Fan's Fourfold Inquiry light-attack chain is stored as four independently
 castable stages. Each stage carries the shared `FourfoldInquiry` and `Light`
 tags plus its own timing and damage values.
@@ -149,7 +172,13 @@ retains its full `1.3125`-second cast time.
 
 Intoxicated lasts 30 seconds. Drunken Poet and Dragon's Breath applications use
 `reapply: false`, so casts made while the buff is active do not refresh that
-expiry; a cast after expiry can apply a new 30-second instance.
+expiry; a cast after expiry can apply a new 30-second instance. Drunken Poet is
+selected through one- to five-hit composite skills. Each composite conditionally
+casts Drunken Poet Drink first when Intoxicated is absent, then checks
+Intoxicated again at the start of every requested hit and stops the remaining
+components if it expires. The five underlying hit definitions are `SubAction`
+components and use their always-Intoxicated timings directly; they have no
+runtime cast-time modifier and are hidden from the castable skill list.
 
 ```json
 {
@@ -159,6 +188,13 @@ expiry; a cast after expiry can apply a new 30-second instance.
   "attrBonus": 743,
   "time": 0.975
 }
+```
+
+An internal targeted event action names only the listeners interested in that
+event:
+
+```json
+{ "type": "emitEvent", "value": "QiBladeCheck", "time": 0.3 }
 ```
 
 ### Replay
@@ -194,6 +230,9 @@ and do not emit damage events, preventing recursive replay chains.
 
 - `target: "self"` creates or updates a buff.
 - `target: "target"` creates or updates a debuff and starts its periodic actions when defined.
+- `target: "player"` creates an independently timed buff copy for one player.
+  Applications fill self and then teammate recipients up to the rotation's
+  `groupSize`; once full, the copy with the earliest expiration is replaced.
 - `stack` defaults to one and is capped by the resolved definition's `maxStack`.
 - `duration` overrides the definition duration. No duration means the state does
   not expire.
@@ -435,6 +474,13 @@ duration, starts target HP at 99.99% at the fight-start anchor, and applies a
 hidden ten-percentage-point reduction at every 10% duration boundary through
 90%. Enabling Auto HP removes stored manual HP events, and the editor does not
 offer the HP event while the option remains enabled.
+
+A rotation with `"dummyAttack": true` derives two hidden Take Damage events at
+5.5 seconds after fight start and every six seconds thereafter. Both events at
+each timestamp deal 200 damage and use the same `takeDamage` action and trigger
+ordering as manually entered damage. Generation stops before Battle End, or
+before the resolved final timeline time when Battle End is absent. Generated
+events are not written into the editable `steps` array.
 
 Qi also starts at 100%. A Qi event emits `setQi`; setting Qi to zero immediately
 applies Exhausted. Exhausted declares a generic expiry action which restores Qi
@@ -914,6 +960,8 @@ effect without a resolved duration does not schedule periodic actions.
 `resetOnRefresh: false` preserves the original cadence when a refresh extends
 the effect; `true` starts a new cadence from the refresh timestamp. Consuming
 the final stack or removing the effect cancels its remaining periodic rows.
+Periodic rows from `player` effects retain their recipient: recipient zero heals
+self, while every other copy heals one always-full teammate.
 
 DOT definitions are periodic target debuffs tagged `DOT`. Their generated rows
 remain DOT rows for damage rules and source-cast attribution. `apply.duration`
@@ -1123,6 +1171,12 @@ without repeating one trigger action per weapon.
 General Deflect uses this weapon-time switch. Gauntlet Deflect is measured at
 `0.3` seconds; the other weapon cases retain the shared `0.338`-second
 placeholder until their individual timings are measured.
+
+Successful Deflect and both Perfect Dodge variants carry the shared
+`AvoidsTakeDamage` tag. A Take Damage event inside one of those cast intervals,
+including either boundary, resolves to zero and does not activate take-damage
+triggers. Ordinary Deflect does not carry the tag and therefore does not avoid
+the event.
 
 `multiply` multiplies a dynamic parameter by a scalar:
 

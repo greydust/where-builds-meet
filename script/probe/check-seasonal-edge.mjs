@@ -13,7 +13,7 @@ try {
     "/src/calculations/rotationCalculator.ts",
   );
   const { calculateDerivedStats } = await viteServer.ssrLoadModule("/src/calculations/effectiveStats.ts");
-  const { buildRotationTimeline, mergeCalculatedTargetHPState } = await viteServer.ssrLoadModule(
+  const { buildRotationTimeline, mergeCalculatedTimelineState } = await viteServer.ssrLoadModule(
     "/src/calculations/rotationTimeline.ts",
   );
   const { seasonalEdgeEffectFor, seasonalEdgeWindows } = await viteServer.ssrLoadModule(
@@ -220,7 +220,7 @@ try {
     resourceBoostedResult.metrics.totalDamage <= result.metrics.totalDamage
   )
     throw new Error("Healing-triggered Vitality must improve expected Mystic damage while deficit branches remain.");
-  const displayedTimeline = mergeCalculatedTargetHPState(buildRotationTimeline(timeline), result.timeline);
+  const displayedTimeline = mergeCalculatedTimelineState(buildRotationTimeline(timeline), result.timeline);
   closeTo(
     displayedTimeline[3].actionStates[1].resourceRanges.Vitality.minimum,
     -10,

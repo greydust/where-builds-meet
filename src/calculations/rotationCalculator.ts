@@ -28,7 +28,12 @@ import {
 import type { CharacterStats, EnemyProfile, WeaponId } from "../types";
 import attunementJson from "../../data/attunement.json";
 import type { AttunementStats } from "./damage";
-import { calculateHealingBreakdown, type HealingBreakdown } from "./healing";
+import {
+  calculateHealingAttackSnapshot,
+  calculateHealingBreakdown,
+  calculateSimulatedHealingBreakdown,
+  type HealingBreakdown,
+} from "./healing";
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark";
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults";
 import {
@@ -71,6 +76,8 @@ export type RotationDamageEntry = {
   hawkwing?: HawkwingEffect;
   insightfulStrike?: InsightfulStrikeEffect;
   seasonalEdge?: SeasonalEdgeEntryState;
+  healingRecipients?: { self: number; teammates: number; teammateOverhealRatio: number };
+  resolvedHealing?: HealingBreakdown;
   damageEvent?: {
     buffs: TrackedEffect[];
     debuffs: TrackedEffect[];
@@ -189,6 +196,16 @@ function replayBreakdown(damage: number): DamageBreakdown {
   return { physical: total, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total };
 }
 
+function scaleHealingBreakdown(healing: HealingBreakdown, multiplier: number): HealingBreakdown {
+  if (multiplier === 1) return healing;
+  return {
+    ...healing,
+    physical: healing.physical * multiplier,
+    silkbind: healing.silkbind * multiplier,
+    total: healing.total * multiplier,
+  };
+}
+
 function calculateRotationDamageEntry(
   entry: RotationDamageEntry,
   resolved: Map<string, RotationActionBreakdown>,
@@ -203,7 +220,18 @@ function calculateRotationDamageEntry(
     const sourceDamage = resolved.get(entry.replay.sourceEntryId)?.total ?? 0;
     breakdown = replayBreakdown(sourceDamage * entry.replay.coef);
   } else if (entry.action.type === "heal") {
-    breakdown = { ...emptyBreakdown(), healing: calculateHealingBreakdown(entry.action, entry.context) };
+    const perTargetHealing =
+      entry.resolvedHealing ??
+      (random
+        ? calculateSimulatedHealingBreakdown(entry.action, entry.context, random)
+        : calculateHealingBreakdown(entry.action, entry.context));
+    breakdown = {
+      ...emptyBreakdown(),
+      healing: scaleHealingBreakdown(
+        perTargetHealing,
+        (entry.healingRecipients?.self ?? 1) + (entry.healingRecipients?.teammates ?? 0),
+      ),
+    };
   } else {
     const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
     const contextWithDamageEffects =
@@ -758,6 +786,13 @@ function calculateBreakdown(
     const breakdown = actionBreakdowns[entry.id];
     return Boolean(breakdown && (breakdown.total > 0 || (breakdown.healing?.total ?? 0) > 0));
   });
+  const healingRecipientCounts = new Map(
+    entries.flatMap((entry) => {
+      if (!entry.id || entry.action.type !== "heal") return [];
+      const recipients = entry.healingRecipients ?? { self: 1, teammates: 0 };
+      return [[entry.id, recipients.self + recipients.teammates] as const];
+    }),
+  );
   const debuffTimeCoverage = (id: string) => {
     if (duration <= 0) return 0;
     const windowEnd = anchorTime + duration;
@@ -867,6 +902,7 @@ function calculateBreakdown(
         damage: 0,
         healing: 0,
         buffedDamage: 0,
+        vitalitySpent: row.resourceConsumption?.Vitality ?? 0,
         time: row.startTime,
         order: row.order,
       },
@@ -900,6 +936,13 @@ function calculateBreakdown(
   timeline.forEach((row) => {
     if (row.skipped || row.step.type !== "skill" || !row.step.skill) return;
     const id = row.step.skill;
+    const hasCountedDamage = row.actions.some(
+      (action, actionIndex) =>
+        (action.type === "damage" || action.type === "replay") && Boolean(actionBreakdowns[`${row.id}:${actionIndex}`]),
+    );
+    const hasCountedHealing = row.actions.some(
+      (action, actionIndex) => action.type === "heal" && Boolean(actionBreakdowns[`${row.id}:${actionIndex}`]?.healing),
+    );
     const current = skills.get(id) ?? {
       id,
       name: row.skill?.name ?? id,
@@ -925,9 +968,9 @@ function calculateBreakdown(
       tags: row.skill?.tags ?? [],
     };
     if (row.kind === "rotation") current.casts += 1;
-    else current.triggers += 1;
+    else if (hasCountedDamage) current.triggers += 1;
     if (row.kind === "rotation") currentHealing.casts += 1;
-    else currentHealing.triggers += 1;
+    else if (hasCountedHealing) currentHealing.triggers += 1;
     row.actions.forEach((action, actionIndex) => {
       if (action.type === "damage" || action.type === "replay") {
         const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
@@ -946,15 +989,17 @@ function calculateBreakdown(
         current.criticalTotal += breakdown.outcomeRates?.critical ?? 0;
         current.affinityTotal += breakdown.outcomeRates?.affinity ?? 0;
       } else if (action.type === "heal") {
-        const breakdown = actionBreakdowns[`${row.id}:${actionIndex}`];
+        const actionId = `${row.id}:${actionIndex}`;
+        const breakdown = actionBreakdowns[actionId];
         if (!breakdown?.healing) return;
         const castId = owningCastId(row);
         const cast = castId ? casts.get(castId) : undefined;
         if (cast) cast.healing += breakdown.healing.total;
-        currentHealing.heals += 1;
+        const recipientCount = healingRecipientCounts.get(actionId) ?? 1;
+        currentHealing.heals += recipientCount;
         currentHealing.healing += breakdown.healing.total;
-        currentHealing.normalTotal += breakdown.healing.normalRate ?? 0;
-        currentHealing.criticalTotal += breakdown.healing.criticalRate ?? 0;
+        currentHealing.normalTotal += (breakdown.healing.normalRate ?? 0) * recipientCount;
+        currentHealing.criticalTotal += (breakdown.healing.criticalRate ?? 0) * recipientCount;
       }
     });
     skills.set(id, current);
@@ -1028,6 +1073,7 @@ function calculateBreakdown(
           dpsSamples: number;
           damage: number;
           buffedDamage: number;
+          vitalitySpent: number;
         }>
       >((groups, cast) => {
         const existing = groups.find((group) => group.skillId === cast.skillId);
@@ -1042,12 +1088,14 @@ function calculateBreakdown(
           dpsSamples: 0,
           damage: 0,
           buffedDamage: 0,
+          vitalitySpent: 0,
         };
         if (!existing) groups.push(group);
         group.casts += 1;
         group.totalCastTime += cast.castTime;
         group.damage += cast.damage;
         group.buffedDamage += cast.buffedDamage;
+        group.vitalitySpent += cast.vitalitySpent;
         if (cast.castTime > 0) {
           group.dpsTotal += cast.damage / cast.castTime;
           group.dpsWithBuffTotal += (cast.damage + cast.buffedDamage) / cast.castTime;
@@ -1055,20 +1103,27 @@ function calculateBreakdown(
         }
         return groups;
       }, [])
-      .map(({ totalCastTime, dpsTotal, dpsWithBuffTotal, dpsSamples, buffedDamage, ...group }) => ({
-        ...group,
-        averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
-        averageDamage: group.casts > 0 ? group.damage / group.casts : 0,
-        ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
-        ...(buffedDamage > 0
-          ? {
-              averageDamageWithBuff: group.casts > 0 ? (group.damage + buffedDamage) / group.casts : 0,
-              damageWithBuff: group.damage + buffedDamage,
-              ...(dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {}),
-            }
-          : {}),
-        percentage: percentage(group.damage),
-      }))
+      .map(({ totalCastTime, dpsTotal, dpsWithBuffTotal, dpsSamples, buffedDamage, ...group }) => {
+        const damagePerVitality = group.vitalitySpent > 0 ? group.damage / group.vitalitySpent : undefined;
+        return {
+          ...group,
+          averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+          averageDamage: group.casts > 0 ? group.damage / group.casts : 0,
+          ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
+          ...(damagePerVitality === undefined ? {} : { damagePerVitality }),
+          ...(buffedDamage > 0
+            ? {
+                averageDamageWithBuff: group.casts > 0 ? (group.damage + buffedDamage) / group.casts : 0,
+                damageWithBuff: group.damage + buffedDamage,
+                ...(dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {}),
+                ...(group.vitalitySpent > 0
+                  ? { damagePerVitalityWithBuff: (group.damage + buffedDamage) / group.vitalitySpent }
+                  : {}),
+              }
+            : {}),
+          percentage: percentage(group.damage),
+        };
+      })
       .sort(
         (left, right) =>
           (right.averageDpsWithBuff ?? right.averageDps ?? Number.NEGATIVE_INFINITY) -
@@ -1260,6 +1315,8 @@ function timelineDamageEntries(
   overrides: RotationSimulationVariant = { label: "" },
   updateTimelineState = false,
   expectedBuffSchedule?: ExpectedOutcomeBuffSchedule,
+  random?: () => number,
+  resolvedHealing?: Record<string, HealingBreakdown>,
 ): {
   entries: RotationDamageEntry[];
   resolvedSequence?: ResolvedRotationDamageSequence;
@@ -1349,7 +1406,7 @@ function timelineDamageEntries(
             resources: row.resources,
             unconditionalDamageEffects: row.unconditionalDamageEffects,
           };
-          const buffs = actionState.buffs;
+          const buffs = actionState.buffs.filter((effect) => (effect.playerRecipientIndex ?? 0) === 0);
           const debuffs = actionState.debuffs;
           const resources = actionState.resources;
           const skillTags = row.actionSkillTags?.[actionIndex] ?? row.skill?.tags ?? [];
@@ -1525,6 +1582,30 @@ function timelineDamageEntries(
                     seasonalEdge: seasonalEdgeStateAt(actionTime, row.id, seasonalEdge, seasonalWindows),
                   }
                 : {}),
+              ...(action.type === "heal"
+                ? {
+                    healingRecipients:
+                      row.playerRecipientIndex !== undefined
+                        ? {
+                            self: row.playerRecipientIndex === 0 ? 1 : 0,
+                            teammates: row.playerRecipientIndex === 0 ? 0 : 1,
+                            teammateOverhealRatio: 1,
+                          }
+                        : row.skill?.group === true
+                          ? {
+                              self: 1,
+                              teammates:
+                                input.rotation.groupSize === 5 || input.rotation.groupSize === 10
+                                  ? input.rotation.groupSize - 1
+                                  : 0,
+                              teammateOverhealRatio: 0.2,
+                            }
+                          : { self: 1, teammates: 0, teammateOverhealRatio: 0 },
+                  }
+                : {}),
+              ...(resolvedHealing?.[`${row.id}:${actionIndex}`]
+                ? { resolvedHealing: resolvedHealing[`${row.id}:${actionIndex}`] }
+                : {}),
               ...(action.type === "damage" && damageListeners.length
                 ? {
                     damageEvent: {
@@ -1647,7 +1728,7 @@ function timelineDamageEntries(
     })),
   ].sort(compareOrderedItems);
   if (import.meta.env.DEV) finishCalculationPhase("damageEventOrdering", damageEventOrderingStartedAt);
-  const damageResolver = createRotationDamageResolver(undefined, expectedBuffSchedule);
+  const damageResolver = createRotationDamageResolver(random, expectedBuffSchedule);
   const resolvedByEntry = new Map<(typeof damageEntries)[number], ResolvedRotationDamage>();
   const listenerCooldowns = new Map<string, number>();
   let replayInvocation = 0;
@@ -1895,9 +1976,164 @@ function timelineTiming(
   };
 }
 
+type HealingTimelineRuntime = {
+  timeline: Pick<TimelineBuildInput, "resolvedHealing" | "accumulatorThresholds" | "calculationMode">;
+  healingBreakdowns: Record<string, HealingBreakdown>;
+};
+
+function healingTimelineRuntime(
+  timeline: TimelineRow[],
+  resolvedSequence: ResolvedRotationDamageSequence,
+  calculationMode: "expected" | "simulation" = "expected",
+): HealingTimelineRuntime | undefined {
+  const applications = timeline.flatMap((row) =>
+    row.actions.flatMap((action, actionIndex) =>
+      action.type === "apply" && action.target !== "target" && action.value === "WorldToSword"
+        ? [
+            {
+              key: `${row.id}:${actionIndex}`,
+              time: row.startTime + Number(action.time ?? 0),
+              order: row.order + 10 + actionIndex,
+            },
+          ]
+        : [],
+    ),
+  );
+  const orderedEntries = resolvedSequence
+    .filter(({ entry }) => typeof entry.timelineTime === "number")
+    .sort(
+      (left, right) =>
+        compareTimelineTime(left.entry.timelineTime ?? 0, right.entry.timelineTime ?? 0) ||
+        (left.entry.timelineOrder ?? 0) - (right.entry.timelineOrder ?? 0),
+    );
+  const resolvedHealing = Object.fromEntries(
+    resolvedSequence.flatMap(({ entry, breakdown }) => {
+      if (!entry.id || !breakdown.healing) return [];
+      const healingRecipients = entry.healingRecipients ?? { self: 1, teammates: 0, teammateOverhealRatio: 0 };
+      const recipientCount = healingRecipients.self + healingRecipients.teammates;
+      const perTargetHealing = breakdown.healing.total / recipientCount;
+      return [
+        [
+          entry.id,
+          {
+            self: perTargetHealing * healingRecipients.self,
+            teammateOverhealContribution:
+              perTargetHealing * healingRecipients.teammates * healingRecipients.teammateOverhealRatio,
+          },
+        ] as const,
+      ];
+    }),
+  );
+  const healingBreakdowns = Object.fromEntries(
+    resolvedSequence.flatMap(({ entry, breakdown }) => {
+      if (!entry.id || !breakdown.healing) return [];
+      const healingRecipients = entry.healingRecipients ?? { self: 1, teammates: 0, teammateOverhealRatio: 0 };
+      return [
+        [
+          entry.id,
+          scaleHealingBreakdown(breakdown.healing, 1 / (healingRecipients.self + healingRecipients.teammates)),
+        ] as const,
+      ];
+    }),
+  );
+  if (applications.length === 0 && Object.keys(resolvedHealing).length === 0) return undefined;
+  const accumulatorThresholds = Object.fromEntries(
+    applications.flatMap((application) => {
+      const following = orderedEntries.find(
+        ({ entry }) =>
+          compareTimelineTime(entry.timelineTime ?? 0, application.time) > 0 ||
+          (compareTimelineTime(entry.timelineTime ?? 0, application.time) === 0 &&
+            (entry.timelineOrder ?? 0) >= application.order),
+      );
+      const preceding = [...orderedEntries]
+        .reverse()
+        .find(
+          ({ entry }) =>
+            compareTimelineTime(entry.timelineTime ?? 0, application.time) < 0 ||
+            (compareTimelineTime(entry.timelineTime ?? 0, application.time) === 0 &&
+              (entry.timelineOrder ?? 0) <= application.order),
+        );
+      const representative = following ?? preceding;
+      if (!representative) return [];
+      const snapshotContext = representative.outcomeEffects
+        ? {
+            ...representative.entry.context,
+            unconditionalDamageEffects: addUnconditionalDamageEffects(
+              representative.entry.context.unconditionalDamageEffects,
+              representative.outcomeEffects,
+            ),
+          }
+        : representative.entry.context;
+      const { averagePhysicalAttack, averageSilkbindAttack } = calculateHealingAttackSnapshot(snapshotContext);
+      return [[application.key, averagePhysicalAttack * 12 + averageSilkbindAttack * 18] as const];
+    }),
+  );
+  return {
+    timeline: { resolvedHealing, accumulatorThresholds, calculationMode },
+    healingBreakdowns,
+  };
+}
+
+export function calculateSimulatedRotationRun(
+  bundle: RotationSimulationBundle,
+  random: () => number,
+): {
+  resolvedSequence: ResolvedRotationDamage[];
+  duration: number;
+  mysticVitalityDamageScale: number;
+} {
+  const state = {
+    stats: bundle.stats,
+    attunement: bundle.attunement,
+    enemy: bundle.enemy,
+    derivedStats: bundle.derivedStats,
+    weapons: bundle.weapons,
+  };
+  const structuralInput = {
+    ...bundle.timeline,
+    resolvedHealing: undefined,
+    accumulatorThresholds: undefined,
+    calculationMode: undefined,
+  };
+  let timeline = buildRotationTimeline(structuralInput);
+  let resolution = timelineDamageEntries(
+    timeline,
+    structuralInput,
+    state,
+    bundle.startAnchor,
+    { label: "" },
+    false,
+    undefined,
+    random,
+  );
+  let resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(resolution.entries, random);
+  const runtime = healingTimelineRuntime(timeline, resolvedSequence, "simulation");
+  if (runtime) {
+    const resolvedTimelineInput = { ...bundle.timeline, ...runtime.timeline };
+    timeline = buildRotationTimeline(resolvedTimelineInput);
+    resolution = timelineDamageEntries(
+      timeline,
+      resolvedTimelineInput,
+      state,
+      bundle.startAnchor,
+      { label: "" },
+      false,
+      undefined,
+      random,
+      runtime.healingBreakdowns,
+    );
+    resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(resolution.entries, random);
+  }
+  return {
+    resolvedSequence,
+    duration: timelineTiming(timeline, bundle.startAnchor, resolution.entries).duration,
+    mysticVitalityDamageScale: vitalityDamageScale(timeline, bundle.timeline, resolution.seasonalVitality),
+  };
+}
+
 export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
   const timelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-  const timeline = buildRotationTimeline(bundle.timeline);
+  let timeline = buildRotationTimeline(bundle.timeline);
   if (import.meta.env.DEV) finishCalculationPhase("timelineConstruction", timelineStartedAt);
   const initialTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
   const { anchorTime } = timelineTiming(timeline, bundle.startAnchor);
@@ -1910,7 +2146,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     weapons: bundle.weapons,
   };
   const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-  const baselineResolution = timelineDamageEntries(
+  let baselineResolution = timelineDamageEntries(
     timeline,
     bundle.timeline,
     state,
@@ -1918,8 +2154,23 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     { label: "" },
     true,
   );
-  const baseline = baselineResolution.entries;
-  const resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
+  let baseline = baselineResolution.entries;
+  let resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
+  const healingRuntime = healingTimelineRuntime(timeline, resolvedSequence);
+  if (healingRuntime) {
+    const resolvedTimelineInput = { ...bundle.timeline, ...healingRuntime.timeline };
+    timeline = buildRotationTimeline(resolvedTimelineInput);
+    baselineResolution = timelineDamageEntries(
+      timeline,
+      resolvedTimelineInput,
+      state,
+      bundle.startAnchor,
+      { label: "" },
+      true,
+    );
+    baseline = baselineResolution.entries;
+    resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
+  }
   const mysticVitalityDamageScale = vitalityDamageScale(timeline, bundle.timeline, baselineResolution.seasonalVitality);
   if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
   const finalTimingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
@@ -2032,14 +2283,27 @@ export function calculateRotationComparisons(
   onProgress?.(0, totalVariants);
   const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline;
-    const timelineStartedAt = import.meta.env.DEV && variant.timeline ? startCalculationPhase() : 0;
-    const variantTimeline = variant.timeline ? buildRotationTimeline(timelineInput) : baselineResult.timeline;
-    if (import.meta.env.DEV && variant.timeline) finishCalculationPhase("timelineConstruction", timelineStartedAt);
+    const usesWorldToSword = timelineInput.rotation.steps.some(
+      (step) => step.type === "skill" && step.skill === "WorldToSword",
+    );
+    const rebuildStructuralTimeline = Boolean(variant.timeline) || usesWorldToSword;
+    const timelineStartedAt = import.meta.env.DEV && rebuildStructuralTimeline ? startCalculationPhase() : 0;
+    let variantTimeline = rebuildStructuralTimeline
+      ? buildRotationTimeline({
+          ...timelineInput,
+          resolvedHealing: undefined,
+          accumulatorThresholds: undefined,
+          calculationMode: undefined,
+        })
+      : baselineResult.timeline;
+    if (import.meta.env.DEV && rebuildStructuralTimeline)
+      finishCalculationPhase("timelineConstruction", timelineStartedAt);
     const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
-    const reusableExpectedBuffSchedule = canReuseExpectedOutcomeBuffSchedule(variant)
-      ? baselineResult.expectedOutcomeBuffSchedule
-      : undefined;
-    const resolution = timelineDamageEntries(
+    const reusableExpectedBuffSchedule =
+      !usesWorldToSword && canReuseExpectedOutcomeBuffSchedule(variant)
+        ? baselineResult.expectedOutcomeBuffSchedule
+        : undefined;
+    let resolution = timelineDamageEntries(
       variantTimeline,
       timelineInput,
       state,
@@ -2048,12 +2312,27 @@ export function calculateRotationComparisons(
       false,
       reusableExpectedBuffSchedule,
     );
-    const entries = resolution.entries;
-    const resolvedSequence =
+    let entries = resolution.entries;
+    let resolvedSequence =
       resolution.resolvedSequence ?? calculateRotationDamageSequence(entries, undefined, reusableExpectedBuffSchedule);
+    const healingRuntime = healingTimelineRuntime(variantTimeline, resolvedSequence);
+    if (healingRuntime) {
+      const resolvedTimelineInput = { ...timelineInput, ...healingRuntime.timeline };
+      variantTimeline = buildRotationTimeline(resolvedTimelineInput);
+      resolution = timelineDamageEntries(
+        variantTimeline,
+        resolvedTimelineInput,
+        state,
+        bundle.startAnchor,
+        variant,
+        false,
+      );
+      entries = resolution.entries;
+      resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(entries);
+    }
     if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt);
     let duration = baselineResult.duration;
-    if (variant.timeline) {
+    if (variant.timeline || healingRuntime) {
       const timingStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
       duration = timelineTiming(variantTimeline, bundle.startAnchor, entries).duration;
       if (import.meta.env.DEV) finishCalculationPhase("timingResolution", timingStartedAt);

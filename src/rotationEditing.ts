@@ -26,6 +26,111 @@ export function withoutAutomaticCooldownDelays(rotation: RotationRecord): Rotati
   };
 }
 
+const legacyDrunkenPoetSequence = [
+  "DrunkenPoet1",
+  "DrunkenPoet2",
+  "DrunkenPoet3",
+  "DrunkenPoet4",
+  "DrunkenPoet5",
+] as const;
+const legacyDrunkenPoetActionOffsets = [4, 13, 21, 29, 37] as const;
+
+type CollapsedDrunkenPoetStep = { step: number; component: number };
+
+function remapDrunkenPoetTarget(target: AttachedEventTarget, component: number): AttachedEventTarget {
+  if (target.trigger !== undefined) return target;
+  const offset = legacyDrunkenPoetActionOffsets[component] ?? 0;
+  return { action: target.action === "start" ? offset : offset + target.action };
+}
+
+/** Migrates the former five selectable Poet stages into the equivalent conditional composite. */
+export function migrateDrunkenPoetSequences(rotation: RotationRecord): RotationRecord {
+  const collapsed = new Map<number, CollapsedDrunkenPoetStep>();
+  const steps: RotationStep[] = [];
+  const sourceIndexes: number[] = [];
+
+  for (let index = 0; index < rotation.steps.length; index += 1) {
+    const candidates = rotation.steps.slice(index, index + legacyDrunkenPoetSequence.length);
+    const matches = legacyDrunkenPoetSequence.every((skill, component) => {
+      const candidate = candidates[component];
+      return (
+        candidate?.type === "skill" &&
+        candidate.skill === skill &&
+        candidate.condition === undefined &&
+        (component === legacyDrunkenPoetSequence.length - 1 || candidate.causesBreak !== true)
+      );
+    });
+    if (!matches) {
+      steps.push(rotation.steps[index]);
+      sourceIndexes.push(index);
+      continue;
+    }
+
+    const replacementIndex = steps.length;
+    const finalCandidate = candidates[legacyDrunkenPoetSequence.length - 1];
+    candidates.forEach((_step, component) => collapsed.set(index + component, { step: replacementIndex, component }));
+    steps.push({
+      type: "skill",
+      skill: "DrunkenPoet5HitsCancel",
+      ...(finalCandidate?.type === "skill" && finalCandidate.causesBreak ? { causesBreak: true } : {}),
+    });
+    sourceIndexes.push(index);
+    index += legacyDrunkenPoetSequence.length - 1;
+  }
+
+  if (!collapsed.size) return rotation;
+
+  const retainedIndex = new Map<number, number>();
+  let nextIndex = 0;
+  rotation.steps.forEach((_step, index) => {
+    const replacement = collapsed.get(index);
+    if (replacement) {
+      retainedIndex.set(index, replacement.step);
+      if (replacement.component === legacyDrunkenPoetSequence.length - 1) nextIndex = replacement.step + 1;
+      return;
+    }
+    retainedIndex.set(index, nextIndex);
+    nextIndex += 1;
+  });
+
+  const remappedSteps = steps.map((step, newIndex) => {
+    if (step.type !== "event") return step;
+    const phase = attachedEventPhase(step);
+    const target = attachedTargetForStep(step);
+    if (!phase || !target) return step;
+    const oldIndex = sourceIndexes[newIndex];
+    let anchorIndex = -1;
+    for (let index = oldIndex + 1; index < rotation.steps.length; index += 1) {
+      if (canAnchorAttachedEvent(rotation.steps[index], target)) {
+        anchorIndex = index;
+        break;
+      }
+    }
+    const anchor = collapsed.get(anchorIndex);
+    if (!anchor) return step;
+    const remappedTarget = remapDrunkenPoetTarget(target, anchor.component);
+    if (step.event === "MartialArt") return step;
+    return (
+      phase === "before" ? { ...step, before: remappedTarget } : { ...step, after: remappedTarget }
+    ) as RotationStep;
+  });
+
+  const start = rotation.start
+    ? (() => {
+        const replacement = collapsed.get(rotation.start!.step);
+        if (!replacement)
+          return { ...rotation.start!, step: retainedIndex.get(rotation.start!.step) ?? rotation.start!.step };
+        const offset = legacyDrunkenPoetActionOffsets[replacement.component] ?? 0;
+        return {
+          step: replacement.step,
+          action: offset + (rotation.start!.action ?? 0),
+        };
+      })()
+    : undefined;
+
+  return { ...rotation, steps: remappedSteps, ...(start ? { start } : {}) };
+}
+
 export function withAutomaticCooldownDelays(rotation: RotationRecord, timeline: TimelineRow[]): RotationRecord {
   const waits = new Map(
     timeline.flatMap((row) =>

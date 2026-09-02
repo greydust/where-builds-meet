@@ -1225,5 +1225,31 @@
     ],
     "refresh": false,
     "description": "Boosts Dragon Head - Tide damage by 1.25% per stack. Doubles its base damage against an Exhausted target."
+  },
+  "WorldToSword": {
+    "name": "World to Sword",
+    "shortName": "WTS",
+    "description": "Accumulates overhealing and launches up to 20 Qi Blades.",
+    "duration": 12,
+    "maxStack": 1,
+    "effect": [],
+    "refresh": true,
+    "accumulator": {
+      "event": "overheal",
+      "checkEvent": "QiBladeCheck",
+      "expectedEventCap": "threshold",
+      "simulationReset": "zero"
+    },
+    "listen": [
+      {
+        "event": "QiBladeCheck",
+        "cooldown": 0.3,
+        "maxTriggers": 20,
+        "action": {
+          "type": "trigger",
+          "value": "QiBlade"
+        }
+      }
+    ]
   }
 }

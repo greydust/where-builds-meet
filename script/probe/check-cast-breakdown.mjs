@@ -45,6 +45,7 @@ try {
           action: [
             { type: "damage", phyCoef: 1, time: 0 },
             { type: "trigger", value: "Child", time: 0.5 },
+            { type: "consumeResource", value: "Vitality", amount: 10, time: 0 },
           ],
           modifier: [],
           tags: ["BaseOnly"],
@@ -125,6 +126,10 @@ try {
       Math.abs(baseCast.averageDamage - damagePerBaseCast) < 1e-9 &&
       Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9,
     "Per-cast damage must be averaged by cast count while a following Deflect contributes to the DPS time sample.",
+  );
+  assert(
+    baseCast.vitalitySpent === 20 && Math.abs((baseCast.damagePerVitality ?? 0) - baseCast.damage / 20) < 1e-9,
+    "Per-cast groups must report gross Vitality consumption and their total attributed damage per Vitality.",
   );
   assert(
     !result.metrics.breakdown.casts.some((row) => row.skillId === "Deflect" || row.skillId === "Utility"),

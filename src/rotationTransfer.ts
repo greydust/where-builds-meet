@@ -220,6 +220,8 @@ function parseRotation(value: unknown): RotationRecord | undefined {
     steps?: unknown;
     targetHP?: unknown;
     autoHP?: unknown;
+    dummyAttack?: unknown;
+    groupSize?: unknown;
     infiniteVitality?: unknown;
     start?: unknown;
     eventTimeReference?: unknown;
@@ -265,6 +267,8 @@ function parseRotation(value: unknown): RotationRecord | undefined {
       ? { targetHP: candidate.targetHP }
       : {}),
     ...(autoHP ? { autoHP: true } : {}),
+    ...(candidate.dummyAttack === true ? { dummyAttack: true } : {}),
+    groupSize: candidate.groupSize === 5 || candidate.groupSize === 10 ? candidate.groupSize : 1,
     ...(typeof candidate.infiniteVitality === "boolean"
       ? { infiniteVitality: candidate.infiniteVitality }
       : /\bIV\b|infinite vitality/i.test(candidate.name)
@@ -292,7 +296,7 @@ export function exportRotationEntries(entries: RotationEntry[]) {
   return JSON.stringify(
     {
       format: rotationExportFormat,
-      version: 8,
+      version: 9,
       exportedAt: new Date().toISOString(),
       rotations: entries
         .filter((entry) => !entry.isDefault)
@@ -316,7 +320,8 @@ export function mergeImportedRotationEntries(current: RotationEntry[], value: un
       source.version !== 5 &&
       source.version !== 6 &&
       source.version !== 7 &&
-      source.version !== 8) ||
+      source.version !== 8 &&
+      source.version !== 9) ||
     !Array.isArray(source.rotations)
   ) {
     throw new Error("This file uses an unsupported rotation export format.");

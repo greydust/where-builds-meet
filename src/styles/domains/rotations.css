@@ -230,7 +230,8 @@
   }
 
   .rotation-target-hp,
-  .rotation-option-toggle {
+  .rotation-option-toggle,
+  .rotation-group-size {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -243,6 +244,11 @@
 
   .rotation-target-hp input {
     inline-size: 10rem;
+  }
+
+  .rotation-group-size select {
+    inline-size: auto;
+    min-inline-size: 7rem;
   }
 
   .rotation-toolbar {
@@ -339,6 +345,10 @@
 
   .rotation-move-event-row {
     background: var(--event-move);
+  }
+
+  .rotation-take-damage-event-row {
+    background: var(--event-take-damage);
   }
 
   .rotation-dot-row {

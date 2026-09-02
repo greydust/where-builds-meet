@@ -27,6 +27,18 @@ try {
         action: [{ type: "setTargetHP", time: 0 }],
         tags: ["Event"],
       },
+      TakeDamage: {
+        name: "Event: Take Damage",
+        castTime: 0,
+        action: [{ type: "takeDamage", time: 0 }],
+        tags: ["Event"],
+      },
+      BattleEnd: {
+        name: "Event: Battle End",
+        castTime: 0,
+        action: [],
+        tags: ["Event"],
+      },
     },
   };
 
@@ -89,7 +101,48 @@ try {
     "An infinite resource must remain at its maximum through gains and every form of consumption.",
   );
 
-  console.log("Rotation Auto HP and Infinite Vitality checks passed.");
+  const dummyAttackTimeline = buildRotationTimeline({
+    ...commonInput,
+    rotation: {
+      name: "Dummy Attack probe",
+      dummyAttack: true,
+      eventTimeReference: "battleStart",
+      steps: [
+        { type: "skill", skill: "ObserveDamage" },
+        { type: "event", event: "BattleEnd", startTime: 18 },
+      ],
+    },
+    skills: {
+      ObserveDamage: {
+        name: "Observe Damage",
+        castTime: 18,
+        action: [{ type: "damage", phyCoef: 1, time: 18 }],
+        tags: ["General"],
+      },
+    },
+    maxHP: 2000,
+  });
+  const dummyAttackRows = dummyAttackTimeline.filter(
+    (row) => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "dummyAttack",
+  );
+  assert(
+    dummyAttackRows.length === 6 &&
+      dummyAttackRows.every((row, index) => Math.abs(row.startTime - (5.5 + Math.floor(index / 2) * 6)) < 1e-9),
+    "Dummy Attack must create two generated 200-damage events together every six seconds from 5.5s until Battle End.",
+  );
+  assert(
+    dummyAttackRows.every((row) => row.actions[0]?.damage === 200),
+    "Every generated Dummy Attack hit must deal exactly 200 damage.",
+  );
+  const observedDamageRow = dummyAttackTimeline.find(
+    (row) => row.step.type === "skill" && row.step.skill === "ObserveDamage",
+  );
+  assert(
+    observedDamageRow?.actionStates[0]?.currentHP === 800,
+    "Generated Dummy Attack hits must update the same Self HP state as manual Take Damage events.",
+  );
+
+  console.log("Rotation Auto HP, Dummy Attack, and Infinite Vitality checks passed.");
 } finally {
   await viteServer.close();
 }

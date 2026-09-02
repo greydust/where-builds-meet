@@ -162,7 +162,7 @@ import {
   compareTimelineTime,
   isAttachmentAnchorStep,
   mergeEffectDefinition,
-  mergeCalculatedTargetHPState,
+  mergeCalculatedTimelineState,
   type AttachedEventTarget,
   type EditableObject,
   type EffectDefinition,
@@ -200,6 +200,7 @@ import {
   attachedEventSiblingIndex,
   attachedTargetForStep,
   isAutomaticCooldownDelay,
+  migrateDrunkenPoetSequences,
   reorderAttachedEventWithinTarget,
   withAutomaticCooldownDelays,
   withoutAutomaticCooldownDelays,
@@ -834,6 +835,8 @@ function normalizeRotation(rotation: RotationRecord): RotationRecord {
     steps,
     ...(typeof rotation.targetHP === "number" && rotation.targetHP > 0 ? { targetHP: rotation.targetHP } : {}),
     ...(autoHP ? { autoHP: true } : {}),
+    ...(rotation.dummyAttack === true ? { dummyAttack: true } : {}),
+    groupSize: rotation.groupSize === 5 || rotation.groupSize === 10 ? rotation.groupSize : 1,
     infiniteVitality:
       typeof rotation.infiniteVitality === "boolean"
         ? rotation.infiniteVitality
@@ -906,7 +909,7 @@ function timelineAnchorTime(timeline: TimelineRow[], startAnchor: { rowId: strin
 }
 
 function migrateRotation(rotation: RotationRecord): RotationRecord {
-  const migrated = normalizeRotation(rotation);
+  const migrated = migrateDrunkenPoetSequences(normalizeRotation(rotation));
   const attachedDamageIndexes = migrated.steps.flatMap((step, index) =>
     step.type === "event" && step.event === "TakeDamage" && "before" in step ? [index] : [],
   );
@@ -1517,7 +1520,8 @@ function displayedDelta(value: number) {
 }
 
 function formatDelta(value: number) {
-  return formatNumber(displayedDelta(value));
+  const delta = displayedDelta(value);
+  return delta === 0 ? "0" : delta.toFixed(2);
 }
 
 function deltaPrefix(value: number) {
@@ -2244,7 +2248,7 @@ function EffectCoveragePanel({
   );
 }
 
-function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
+function BreakdownTab({ metrics, pathId }: { metrics?: RotationMetrics; pathId: PathId }) {
   if (!metrics)
     return (
       <section className="panel breakdown-empty">
@@ -2254,6 +2258,18 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
     );
   const { breakdown } = metrics;
   const hasHealing = metrics.totalHealing > 0;
+  const showDamagePerVitality = pathId === "silkbindDeluge";
+  const castRows = showDamagePerVitality
+    ? [...breakdown.casts].sort((left, right) => {
+        const leftPerVitality = left.damagePerVitalityWithBuff ?? left.damagePerVitality ?? Number.NEGATIVE_INFINITY;
+        const rightPerVitality = right.damagePerVitalityWithBuff ?? right.damagePerVitality ?? Number.NEGATIVE_INFINITY;
+        return (
+          rightPerVitality - leftPerVitality ||
+          (right.averageDpsWithBuff ?? right.averageDps ?? Number.NEGATIVE_INFINITY) -
+            (left.averageDpsWithBuff ?? left.averageDps ?? Number.NEGATIVE_INFINITY)
+        );
+      })
+    : breakdown.casts;
   return (
     <div className="breakdown-page">
       <section className="panel breakdown-panel">
@@ -2347,20 +2363,21 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
           </div>
         </div>
         {hasHealing ? <h3 className="breakdown-channel-heading">{t("ui.app.damage")}</h3> : null}
-        <div className="breakdown-table breakdown-cast-table">
+        <div className={`breakdown-table breakdown-cast-table${showDamagePerVitality ? " with-vitality" : ""}`}>
           <div className="breakdown-table-header breakdown-cast-table-header">
             <span>{t("ui.app.skill")}</span>
             <span>{t("ui.app.casts")}</span>
             <span>{t("ui.app.avgCastTime")}</span>
-            <span>{t("ui.app.averageDps")}</span>
-            <span className="breakdown-damage-header">
+            <span className={`breakdown-damage-header${showDamagePerVitality ? " with-vitality" : ""}`}>
               <span>{t("ui.app.damage")}</span>
+              {showDamagePerVitality ? <span>{t("ui.app.perVit")}</span> : null}
+              <span>{t("system.dps")}</span>
               <span>{t("ui.app.perCast")}</span>
               <span>{t("ui.app.total")}</span>
             </span>
             <span>{t("ui.app.percentage")}</span>
           </div>
-          {breakdown.casts.map((row) => {
+          {castRows.map((row) => {
             const stackBuffComparison =
               allSkillDefinitions[row.skillId]?.tags?.some((tag) => stackedBuffAttributionTags.has(tag)) ?? false;
             return (
@@ -2371,6 +2388,15 @@ function BreakdownTab({ metrics }: { metrics?: RotationMetrics }) {
                   {formatNumber(row.averageCastTime)}
                   {t("ui.app.s")}
                 </strong>
+                {showDamagePerVitality ? (
+                  <strong>
+                    <CastBreakdownComparison
+                      value={row.damagePerVitality}
+                      valueWithBuff={row.damagePerVitalityWithBuff}
+                      stacked={stackBuffComparison}
+                    />
+                  </strong>
+                ) : null}
                 <strong>
                   <CastBreakdownComparison
                     value={row.averageDps}
@@ -6105,6 +6131,7 @@ function RotationEditorTab({
     const nextRotation: RotationRecord = {
       name: t("ui.app.newRotation"),
       steps: [{ type: "skill", skill: rotationSkillIds[0] }],
+      groupSize: 1,
       eventTimeReference: "battleStart",
     };
     const nextEntries = [
@@ -6290,6 +6317,7 @@ function RotationEditorTab({
     [
       calculationContextKey,
       rotation.autoHP,
+      rotation.dummyAttack,
       rotation.eventTimeReference,
       rotation.infiniteVitality,
       rotation.start,
@@ -6302,7 +6330,7 @@ function RotationEditorTab({
     [rotation.steps],
   );
   const timeline = useMemo(
-    () => mergeCalculatedTargetHPState(structuralTimeline, currentCachedResult?.timeline),
+    () => mergeCalculatedTimelineState(structuralTimeline, currentCachedResult?.timeline),
     [currentCachedResult?.timeline, structuralTimeline],
   );
   const anchorTime = useMemo(() => timelineAnchorTime(timeline, startAnchor), [startAnchor, timeline]);
@@ -6427,7 +6455,13 @@ function RotationEditorTab({
 
     return timeline
       .flatMap((row) => {
-        if (row.step.type === "event" && row.step.event === "HP" && "automatic" in row.step) return [];
+        if (
+          row.step.type === "event" &&
+          row.step.event === "HP" &&
+          "automatic" in row.step &&
+          row.step.automatic === true
+        )
+          return [];
         if (row.skipped) return [];
         const entries: Array<{
           row: TimelineRow;
@@ -6469,12 +6503,13 @@ function RotationEditorTab({
   );
   const showSelfHPColumn = useMemo(
     () =>
+      rotation.dummyAttack === true ||
       rotation.steps.some(
         (step) =>
           (step.type === "event" && (step.event === "SelfHP" || step.event === "TakeDamage")) ||
           (step.type === "skill" && findSkill(step.skill ?? "")?.tags?.includes("HP")),
       ),
-    [rotation.steps],
+    [rotation.dummyAttack, rotation.steps],
   );
   const showTargetHPColumn = useMemo(
     () =>
@@ -7229,6 +7264,33 @@ function RotationEditorTab({
                     />
                     <span>{t("ui.app.infiniteVitality")}</span>
                   </label>
+                  <label className="rotation-option-toggle">
+                    <input
+                      type="checkbox"
+                      disabled={rotationLocked}
+                      checked={rotation.dummyAttack === true}
+                      onChange={(event) =>
+                        setRotation((current) => ({ ...current, dummyAttack: event.target.checked }))
+                      }
+                    />
+                    <span>{t("ui.app.dummyAttack")}</span>
+                  </label>
+                  <label className="rotation-group-size">
+                    <span>{t("ui.app.groupType")}</span>
+                    <select
+                      disabled={rotationLocked}
+                      value={rotation.groupSize ?? 1}
+                      onChange={(event) => {
+                        const groupSize = Number(event.target.value);
+                        if (groupSize !== 1 && groupSize !== 5 && groupSize !== 10) return;
+                        setRotation((current) => ({ ...current, groupSize }));
+                      }}
+                    >
+                      <option value={1}>{t("ui.app.solo")}</option>
+                      <option value={5}>{t("ui.app.team")}</option>
+                      <option value={10}>{t("ui.app.group")}</option>
+                    </select>
+                  </label>
                 </div>
               </div>
               <div className="detail-active-actions">
@@ -7341,6 +7403,7 @@ function RotationEditorTab({
                         name: string;
                         stack?: number;
                         maxStack?: number;
+                        remainingTriggers?: number;
                         expiresAt?: number;
                         hideRemainingTime?: boolean;
                         averageStackOnly?: boolean;
@@ -7363,6 +7426,18 @@ function RotationEditorTab({
                             const label = `${gameText(definition?.shortName) || name}${showStack ? ` ×${formatNumber(effect.stack ?? 0)}` : ""}`;
                             const timeLeft =
                               effect.expiresAt === undefined ? "∞" : Math.max(0, effect.expiresAt - atTime).toFixed(2);
+                            const finiteListener = definition?.listen?.find(
+                              (listener) =>
+                                typeof listener.maxTriggers === "number" &&
+                                Number.isFinite(listener.maxTriggers) &&
+                                listener.action?.type === "trigger" &&
+                                typeof listener.action.value === "string",
+                            );
+                            const triggerSkillId = finiteListener?.action?.value;
+                            const remainingTriggerName =
+                              typeof triggerSkillId === "string"
+                                ? gameText(calculationDefinitions.skills[triggerSkillId]?.name ?? triggerSkillId)
+                                : "";
                             const plateKind = dotEffectIds.has(effect.name)
                               ? " effect-plate-dot"
                               : generalDebuffIds.has(effect.name)
@@ -7378,11 +7453,26 @@ function RotationEditorTab({
                                     </span>
                                   ) : (
                                     <>
-                                      <strong>
-                                        {effect.hideRemainingTime
-                                          ? name
-                                          : `${name} - ${t("ui.app.sLeft", { number: timeLeft })}`}
-                                      </strong>
+                                      {effect.remainingTriggers !== undefined && remainingTriggerName ? (
+                                        <>
+                                          <strong>{name}</strong>
+                                          <span>
+                                            {t("ui.app.remainingTriggerCount", {
+                                              name: remainingTriggerName,
+                                              number: effect.remainingTriggers,
+                                            })}
+                                          </span>
+                                          {!effect.hideRemainingTime ? (
+                                            <span>{t("ui.app.sLeft", { number: timeLeft })}</span>
+                                          ) : null}
+                                        </>
+                                      ) : (
+                                        <strong>
+                                          {effect.hideRemainingTime
+                                            ? name
+                                            : `${name} - ${t("ui.app.sLeft", { number: timeLeft })}`}
+                                        </strong>
+                                      )}
                                       {description ? <span>{description}</span> : null}
                                     </>
                                   )}
@@ -7397,6 +7487,16 @@ function RotationEditorTab({
                     const isManualEvent = step.type === "event";
                     const isDelayEvent = isManualEvent && step.event === "Delay";
                     const isProtectedDelay = isAutomaticCooldownDelay(step);
+                    const isGeneratedEvent =
+                      step.type === "event" &&
+                      step.event === "TakeDamage" &&
+                      "automatic" in step &&
+                      step.automatic === "dummyAttack";
+                    const rowReadOnly = rotationLocked || isGeneratedEvent;
+                    const resolvedTakeDamage =
+                      step.type === "event" && step.event === "TakeDamage"
+                        ? Number(row.actions.find((action) => action.type === "takeDamage")?.damage ?? step.damage)
+                        : 0;
                     const skillNumber =
                       step.type === "skill" && row.rotationIndex !== undefined
                         ? rotation.steps.slice(0, row.rotationIndex).filter((candidate) => candidate.type === "skill")
@@ -7529,7 +7629,7 @@ function RotationEditorTab({
                       <div className="rotation-row-group" key={`${row.id}-${entry.kind}-${actionIndex ?? "skill"}`}>
                         {!isAction && (
                           <div
-                            className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""} ${isManualEvent && step.event === "Move" ? "rotation-move-event-row" : ""}`}
+                            className={`rotation-table-row ${isManualEvent ? "rotation-event-row" : ""} ${isManualEvent && step.event === "Move" ? "rotation-move-event-row" : ""} ${isManualEvent && step.event === "TakeDamage" ? "rotation-take-damage-event-row" : ""}`}
                             data-rotation-step-index={row.rotationIndex}
                           >
                             {row.kind === "rotation" ? (
@@ -7537,7 +7637,7 @@ function RotationEditorTab({
                                 className={`start-marker ${startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "active" : ""}`}
                                 type="button"
                                 aria-label={t("ui.app.setFightStartHere")}
-                                disabled={rotationLocked || isProtectedDelay}
+                                disabled={rowReadOnly || isProtectedDelay}
                                 onClick={() => selectStart(row.rotationIndex ?? 0)}
                               >
                                 {startAnchor.rowId === row.id && startAnchor.actionIndex === undefined ? "→" : "•"}
@@ -7548,7 +7648,7 @@ function RotationEditorTab({
                             <span className="rotation-index">{skillNumber}</span>
                             <span className="rotation-mobile-field" data-mobile-label={t("ui.app.startTime")}>
                               {isManualEvent ? (
-                                isAttachedEvent || isDelayEvent || rotationLocked ? (
+                                isAttachedEvent || isDelayEvent || rowReadOnly ? (
                                   <span>
                                     {formatNumber(displayTime(startTime))}
                                     {t("ui.app.s")}
@@ -7577,7 +7677,7 @@ function RotationEditorTab({
                             </span>
                             <span className="rotation-mobile-field" data-mobile-label={t("ui.app.castTime")}>
                               {durationEvent ? (
-                                rotationLocked || isProtectedDelay ? (
+                                rowReadOnly || isProtectedDelay ? (
                                   <span>
                                     {formatNumber(durationValue)}
                                     {t("ui.app.s")}
@@ -7608,7 +7708,7 @@ function RotationEditorTab({
                               )}
                             </span>
                             {row.kind === "rotation" ? (
-                              rotationLocked || isProtectedDelay ? (
+                              rowReadOnly || isProtectedDelay ? (
                                 <span className="rotation-skill-name">
                                   {isManualEvent ? (
                                     <span>{rotationEventDisplayName(step.event)}</span>
@@ -7663,7 +7763,7 @@ function RotationEditorTab({
                             {showDistanceColumn && (
                               <span data-mobile-label={t("ui.app.distance")}>
                                 {isManualEvent && step.event === "Move" ? (
-                                  rotationLocked ? (
+                                  rowReadOnly ? (
                                     <span>
                                       {step.distance}
                                       {t("ui.app.m")}
@@ -7702,8 +7802,8 @@ function RotationEditorTab({
                             {showSelfHPColumn && (
                               <span data-mobile-label={t("ui.app.selfHp")}>
                                 {isManualEvent && step.event === "TakeDamage" ? (
-                                  rotationLocked ? (
-                                    <span>{formatNumber(step.damage)}</span>
+                                  rowReadOnly ? (
+                                    <span>{formatNumber(resolvedTakeDamage)}</span>
                                   ) : (
                                     <span className="rotation-distance-input-wrap">
                                       <input
@@ -8049,7 +8149,7 @@ function RotationEditorTab({
                                   </button>
                                 </>
                               )}{" "}
-                              {row.kind === "rotation" && !isProtectedDelay && (
+                              {row.kind === "rotation" && !isProtectedDelay && !isGeneratedEvent && (
                                 <>
                                   <button
                                     type="button"
@@ -8702,7 +8802,7 @@ export default function App() {
           </div>
         </Suspense>
       ) : activeTab === "breakdown" ? (
-        <BreakdownTab metrics={rotationMetrics} />
+        <BreakdownTab metrics={rotationMetrics} pathId={pathId} />
       ) : activeTab === "skills" ? (
         <SkillEditorTab
           weapons={settings.weapons}

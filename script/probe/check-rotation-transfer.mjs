@@ -25,6 +25,8 @@ const customEntry = {
   rotation: {
     name: "Custom",
     targetHP: 123456,
+    dummyAttack: true,
+    groupSize: 5,
     infiniteVitality: true,
     steps: [
       { type: "event", event: "Move", before: { trigger: 0, action: 1 }, distance: 6 },
@@ -50,7 +52,7 @@ assert(
 const exported = JSON.parse(transfer.exportRotationEntries(current));
 assert(
   exported.format === transfer.rotationExportFormat &&
-    exported.version === 8 &&
+    exported.version === 9 &&
     exported.rotations.length === 1 &&
     exported.rotations[0].id === customEntry.id,
   "Rotation export must omit the bundled default.",
@@ -70,10 +72,28 @@ const imported = merged.entries.find((entry) => entry.id === merged.importedIds[
 assert(
   imported?.rotation.steps.length === 10 &&
     imported.rotation.targetHP === 123456 &&
+    imported.rotation.dummyAttack === true &&
+    imported.rotation.groupSize === 5 &&
     imported.rotation.infiniteVitality === true &&
     imported.rotation.start.step === 8 &&
     imported.rotation.start.action === 1,
   "Rotation steps and start anchor must survive export and import.",
+);
+
+const legacyGroupSizeImport = transfer.mergeImportedRotationEntries(current, {
+  ...exported,
+  version: 8,
+  rotations: [
+    {
+      id: "legacy-group-size",
+      rotation: { name: "Legacy Group Size", steps: [{ type: "skill", skill: "SnowpartingQStab" }] },
+    },
+  ],
+});
+assert(
+  legacyGroupSizeImport.entries.find((entry) => entry.id === legacyGroupSizeImport.importedIds[0])?.rotation
+    .groupSize === 1,
+  "A rotation without group metadata must migrate to Solo.",
 );
 assert(
   imported?.martialArts.join(",") === "snowparting,phalanxbane",

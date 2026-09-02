@@ -38,6 +38,9 @@ export type RotationCastBreakdown = {
   averageCastTime: number;
   averageDps?: number;
   averageDpsWithBuff?: number;
+  vitalitySpent: number;
+  damagePerVitality?: number;
+  damagePerVitalityWithBuff?: number;
   averageDamage: number;
   averageDamageWithBuff?: number;
   damage: number;

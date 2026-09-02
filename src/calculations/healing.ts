@@ -19,6 +19,7 @@ export type HealingBreakdown = {
   total: number;
   normalRate?: number;
   criticalRate?: number;
+  outcome?: "normal" | "critical";
 };
 
 const numberValue = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : 0);
@@ -67,8 +68,7 @@ function matchingAttunementStats(context: DamageContext) {
   return { physicalPenetration, formlessPenetration, healingBonus };
 }
 
-/** Resolve one healing action from the same hit-time stats and effects used by damage actions. */
-export function calculateHealingBreakdown(action: DamageAction, context: DamageContext): HealingBreakdown {
+function resolveHealingAttackState(context: DamageContext) {
   const hasStatEffects = context.effects.some(
     (effect) =>
       (effect.stat && typeof effect.stat === "object") ||
@@ -82,14 +82,36 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
   const unconditional = context.unconditionalDamageEffects ?? {};
   let physicalAttackBonus = unconditional.physicalAttackBonus ?? 0;
   let silkbindAttackBonus = unconditional.silkbindAttackBonus ?? 0;
+  for (const effect of context.effects) {
+    physicalAttackBonus += effectValue(effect.physicalAttackBonus, context, stats, derivedStats);
+    silkbindAttackBonus += effectValue(effect.silkbindAttackBonus, context, stats, derivedStats);
+  }
+  const averagePhysicalAttack =
+    ((derivedStats.effectiveMinPhys + derivedStats.effectiveMaxPhys) / 2) * (1 + physicalAttackBonus);
+  const averageSilkbindAttack =
+    ((derivedStats.effectiveMinSilkbind + derivedStats.effectiveMaxSilkbind) / 2) * (1 + silkbindAttackBonus);
+  return { stats, derivedStats, averagePhysicalAttack, averageSilkbindAttack };
+}
+
+/** Attack values used by healing and cast-time healing thresholds. */
+export function calculateHealingAttackSnapshot(context: DamageContext) {
+  const { averagePhysicalAttack, averageSilkbindAttack } = resolveHealingAttackState(context);
+  return { averagePhysicalAttack, averageSilkbindAttack };
+}
+
+function calculateHealingBreakdownInternal(
+  action: DamageAction,
+  context: DamageContext,
+  random?: () => number,
+): HealingBreakdown {
+  const { stats, derivedStats, averagePhysicalAttack, averageSilkbindAttack } = resolveHealingAttackState(context);
+  const unconditional = context.unconditionalDamageEffects ?? {};
   let physicalPenetration = stats.physicalPenetration + (unconditional.physicalPenetration ?? 0);
   let silkbindPenetration = stats.silkbindPenetration + (unconditional.silkbindPenetration ?? 0);
   let healingBonus = 0;
   let criticalHealingBonus = 0;
 
   for (const effect of context.effects) {
-    physicalAttackBonus += effectValue(effect.physicalAttackBonus, context, stats, derivedStats);
-    silkbindAttackBonus += effectValue(effect.silkbindAttackBonus, context, stats, derivedStats);
     physicalPenetration += effectValue(effect.physicalPenetration, context, stats, derivedStats);
     silkbindPenetration += effectValue(effect.silkbindPenetration, context, stats, derivedStats);
     healingBonus += effectValue(effect.healingBonus, context, stats, derivedStats);
@@ -104,10 +126,6 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
   healingBonus += attunement.healingBonus;
 
   const coefficient = numberValue(action.phyCoef);
-  const averagePhysicalAttack =
-    ((derivedStats.effectiveMinPhys + derivedStats.effectiveMaxPhys) / 2) * (1 + physicalAttackBonus);
-  const averageSilkbindAttack =
-    ((derivedStats.effectiveMinSilkbind + derivedStats.effectiveMaxSilkbind) / 2) * (1 + silkbindAttackBonus);
   const physical =
     (averagePhysicalAttack * coefficient + numberValue(action.phyBonus)) * (1 + physicalPenetration / 200);
   const silkbind =
@@ -118,7 +136,9 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
     1,
     Math.max(0, (derivedStats.effectiveCrit + derivedStats.directCrit) * derivedStats.effectivePrecision),
   );
-  const criticalMultiplier = 1 + criticalRate * (BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus);
+  const outcome = random && random() < criticalRate ? "critical" : "normal";
+  let criticalMultiplier = 1 + criticalRate * (BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus);
+  if (random) criticalMultiplier = outcome === "critical" ? 1 + BASE_CRITICAL_HEALING_BONUS + criticalHealingBonus : 1;
   const martialArtHealingBonus = context.skillTags.includes("MartialArts")
     ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
     : 0;
@@ -130,5 +150,20 @@ export function calculateHealingBreakdown(action: DamageAction, context: DamageC
     total: Math.max(0, (physical + silkbind) * criticalMultiplier * generalMultiplier),
     normalRate: 1 - criticalRate,
     criticalRate,
+    ...(random ? { outcome } : {}),
   };
+}
+
+/** Resolve one expected healing action from the same hit-time stats and effects used by damage actions. */
+export function calculateHealingBreakdown(action: DamageAction, context: DamageContext): HealingBreakdown {
+  return calculateHealingBreakdownInternal(action, context);
+}
+
+/** Resolve one sampled Normal/Critical healing action for a simulation run. */
+export function calculateSimulatedHealingBreakdown(
+  action: DamageAction,
+  context: DamageContext,
+  random: () => number,
+): HealingBreakdown {
+  return calculateHealingBreakdownInternal(action, context, random);
 }

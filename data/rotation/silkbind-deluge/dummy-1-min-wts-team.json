@@ -1,7 +1,8 @@
 {
-  "name": "Dummy 1 Min Smolder",
+  "name": "Dummy 1 Min WTS Team",
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "dummyAttack": true,
+  "groupSize": 5,
   "eventTimeReference": "battleStart",
   "start": {
     "step": 0
@@ -17,14 +18,6 @@
     },
     {
       "type": "skill",
-      "skill": "CloudburstHealingCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
       "skill": "DragonsBreathSmolder2"
     },
     {
@@ -36,17 +29,102 @@
       "skill": "Deflect"
     },
     {
-      "type": "skill",
-      "skill": "DrunkenPoet5HitsCancel"
-    },
-    {
       "type": "event",
       "event": "Delay",
-      "duration": 0.49
+      "duration": 0.44
+    },
+    {
+      "type": "skill",
+      "skill": "WorldToSword"
+    },
+    {
+      "type": "skill",
+      "skill": "CloudburstHealing"
+    },
+    {
+      "type": "skill",
+      "skill": "EndlessCloud"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch1"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch2"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch3Cancel"
     },
     {
       "type": "skill",
       "skill": "DeflectSuccessful"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch1"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch2Cancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch1"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch2Cancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch1"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch2Cancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.64
+    },
+    {
+      "type": "skill",
+      "skill": "DragonsBreathSmolder2"
+    },
+    {
+      "type": "skill",
+      "skill": "DeflectSuccessful"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5HitsCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5HitsCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
     },
     {
       "type": "skill",
@@ -62,61 +140,16 @@
     },
     {
       "type": "skill",
-      "skill": "FourfoldInquiry1"
-    },
-    {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.45
-    },
-    {
-      "type": "skill",
-      "skill": "DeflectSuccessful"
-    },
-    {
-      "type": "skill",
-      "skill": "DragonsBreathSmolder2"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet5HitsCancel"
-    },
-    {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.58
-    },
-    {
-      "type": "skill",
-      "skill": "DeflectSuccessful"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet5HitsCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet5HitsCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
       "skill": "CloudburstHealingCancel"
     },
     {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.66
+    },
+    {
       "type": "skill",
-      "skill": "Deflect"
+      "skill": "DeflectSuccessful"
     },
     {
       "type": "skill",
@@ -128,6 +161,10 @@
     },
     {
       "type": "skill",
+      "skill": "EchoesOfAThousandPlants"
+    },
+    {
+      "type": "skill",
       "skill": "DragonsBreathSmolder2"
     },
     {
@@ -137,22 +174,6 @@
     {
       "type": "skill",
       "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "DrunkenPoet5HitsCancel"
-    },
-    {
-      "type": "skill",
-      "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "JumpHeavy"
-    },
-    {
-      "type": "skill",
-      "skill": "JumpHeavy"
     },
     {
       "type": "skill",
@@ -165,7 +186,32 @@
     {
       "type": "event",
       "event": "Delay",
-      "duration": 0.83
+      "duration": 0.56
+    },
+    {
+      "type": "skill",
+      "skill": "DeflectSuccessful"
+    },
+    {
+      "type": "skill",
+      "skill": "DrunkenPoet5HitsCancel"
+    },
+    {
+      "type": "skill",
+      "skill": "Deflect"
+    },
+    {
+      "type": "event",
+      "event": "Delay",
+      "duration": 0.59
+    },
+    {
+      "type": "skill",
+      "skill": "JumpHeavy"
+    },
+    {
+      "type": "skill",
+      "skill": "FourfoldInquiry1"
     },
     {
       "type": "skill",
@@ -177,6 +223,30 @@
     },
     {
       "type": "skill",
+      "skill": "WorldToSword"
+    },
+    {
+      "type": "skill",
+      "skill": "CloudburstHealing"
+    },
+    {
+      "type": "skill",
+      "skill": "EndlessCloud"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch1"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch2"
+    },
+    {
+      "type": "skill",
+      "skill": "EmeraldDewtouch3Cancel"
+    },
+    {
+      "type": "skill",
       "skill": "Deflect"
     },
     {
@@ -184,19 +254,6 @@
       "skill": "DrunkenPoet5HitsCancel"
     },
     {
-      "type": "event",
-      "event": "Delay",
-      "duration": 0.59
-    },
-    {
-      "type": "skill",
-      "skill": "DeflectSuccessful"
-    },
-    {
-      "type": "skill",
-      "skill": "CloudburstHealingCancel"
-    },
-    {
       "type": "skill",
       "skill": "Deflect"
     },
@@ -207,10 +264,6 @@
     {
       "type": "skill",
       "skill": "Deflect"
-    },
-    {
-      "type": "skill",
-      "skill": "JumpHeavy"
     },
     {
       "type": "event",

@@ -47,6 +47,11 @@
     min-inline-size: 64rem;
   }
 
+  .breakdown-cast-table.with-vitality {
+    grid-template-columns: minmax(16.25rem, 1fr) repeat(7, max-content);
+    min-inline-size: 69rem;
+  }
+
   .breakdown-healing-skill-table {
     grid-template-columns: minmax(15rem, 1fr) repeat(7, max-content);
     min-inline-size: 58rem;
@@ -136,7 +141,7 @@
 
   .breakdown-damage-header {
     display: grid;
-    grid-column: span 2;
+    grid-column: span 3;
     grid-template-columns: subgrid;
 
     > :first-child {
@@ -147,6 +152,10 @@
     > :not(:first-child) {
       text-align: end;
     }
+  }
+
+  .breakdown-damage-header.with-vitality {
+    grid-column: span 4;
   }
 
   .breakdown-table-row strong {

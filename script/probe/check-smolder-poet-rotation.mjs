@@ -53,7 +53,7 @@ try {
     weapons: ["snowparting", "phalanxbane"],
   });
   const skillSteps = rotation.steps.filter((step) => step.type === "skill");
-  const cancelSkillIds = new Set(["DrunkenPoetDrink", "FluteOfTheTidesCancel", "DrunkenPoet5"]);
+  const cancelSkillIds = new Set(["DrunkenPoetDrinkCancel", "FluteOfTheTidesCancel", "DrunkenPoet5HitsCancel"]);
   skillSteps.forEach((step, index) => {
     if (cancelSkillIds.has(step.skill))
       assert(skillSteps[index + 1]?.skill === "Deflect", `${step.skill} must be followed by Deflect.`);
@@ -65,14 +65,22 @@ try {
     rotation.start?.step === startSkillIndex && rotation.start.action === 5,
     "The rotation must start at Sideway Fleeting Trace action index 5.",
   );
-  const poet5RotationIndex = rotation.steps.findIndex((step) => step.type === "skill" && step.skill === "DrunkenPoet5");
+  const poet5RotationIndex = rotation.steps.findIndex(
+    (step) => step.type === "skill" && step.skill === "DrunkenPoet5HitsCancel",
+  );
   const poet5Row = timeline.find((row) => row.id === `rotation-${poet5RotationIndex}`);
+  const poet5DamageIndex = poet5Row?.actions.findIndex(
+    (action) => action.type === "damage" && action.phyCoef === 1.7052,
+  );
+  const poet5ModifierEffects = poet5Row?.actionModifierEffects?.[poet5DamageIndex ?? -1] ?? [];
   assert(
-    poet5Row?.modifierEffects.some((effect) => effect.dmgBonus === 0.8),
+    poet5ModifierEffects.some((effect) => effect.dmgBonus === 0.8),
     "Poet 5 must capture four Enhanced Drunken Poet stacks as an 80% direct-damage bonus.",
   );
   assert(
-    !poet5Row?.actionStates[2]?.buffs.some((effect) => effect.name === "EnhanceDrunkenPoet"),
+    poet5DamageIndex !== undefined &&
+      poet5DamageIndex >= 0 &&
+      !poet5Row?.actionStates[poet5DamageIndex]?.buffs.some((effect) => effect.name === "EnhanceDrunkenPoet"),
     "Poet 5 must consume every Enhanced Drunken Poet stack before its direct hit.",
   );
   const poet5Explosions = timeline.filter(
@@ -100,11 +108,11 @@ try {
     bamboocutResistance: 0,
     judgementResistance: 0,
   };
-  const directAction = poet5Row?.actions[2];
+  const directAction = poet5Row?.actions[poet5DamageIndex ?? -1];
   const directContext = {
     stats,
     attunement: {},
-    skillTags: poet5Row?.skill?.tags ?? [],
+    skillTags: poet5Row?.actionSkillTags?.[poet5DamageIndex ?? -1] ?? [],
     weapons: [],
     buffs: [],
     enemy,
@@ -114,7 +122,7 @@ try {
   const unenhancedDamage = calculateDamageBreakdown(directAction, directContext).total;
   const enhancedDamage = calculateDamageBreakdown(directAction, {
     ...directContext,
-    effects: poet5Row?.modifierEffects ?? [],
+    effects: poet5ModifierEffects,
   }).total;
   assert(
     Math.abs(enhancedDamage / unenhancedDamage - 1.8) < 1e-9,
