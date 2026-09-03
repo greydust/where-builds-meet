@@ -49,6 +49,26 @@ try {
   if (rotationA === reversedMartialArts)
     throw new Error("Different ordered martial-art selections produced the same fingerprint.");
 
+  const rotationSettings = [
+    ["target HP", { targetHP: 100000 }],
+    ["automatic HP", { autoHP: true }],
+    ["dummy attacks", { dummyAttack: true }],
+    ["group size", { groupSize: 5 }],
+    ["infinite Vitality", { infiniteVitality: true }],
+    ["battle-start event timing", { eventTimeReference: "battleStart" }],
+    ["battle start anchor", { start: { step: 0, action: 0 } }],
+  ];
+  const baseRotation = { name: "Settings", steps: [{ type: "skill", skill: "SkillA" }], groupSize: 1 };
+  const baseSettingsFingerprint = rotationBundleFingerprint({ timeline: { rotation: baseRotation }, weapons: [] });
+  for (const [label, setting] of rotationSettings) {
+    const changedFingerprint = rotationBundleFingerprint({
+      timeline: { rotation: { ...baseRotation, ...setting } },
+      weapons: [],
+    });
+    if (changedFingerprint === baseSettingsFingerprint)
+      throw new Error(`Changing ${label} did not change the rotation calculation fingerprint.`);
+  }
+
   console.log("Calculation fingerprint cache probe passed.");
 } finally {
   await viteServer.close();

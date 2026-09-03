@@ -206,6 +206,10 @@ work. Results enter the cache when completed, but only the latest requested
 fingerprint may replace the editor preview. The previous completed preview stays
 visible while newer work runs. Editor previews never request comparison variants;
 active-rotation comparisons remain tied to save, activation, or setup changes.
+The rotation portion of the fingerprint includes its steps, target HP, Auto HP,
+Dummy Attack, group size, Infinite Vitality, battle-start anchor, and event-time
+reference. Its display name is intentionally excluded because renaming cannot
+change a calculation.
 
 Rotations may optionally store a target maximum HP. Without one, the target HP
 state defaults to 99% but damage does not deplete it. The centralized baseline

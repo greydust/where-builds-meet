@@ -799,7 +799,7 @@
   "ui.app.targetHp": "目標氣血",
   "ui.app.targetHpPercentage": "目標氣血百分比",
   "ui.app.targetQiPercentage": "目標真氣百分比",
-  "ui.app.team": "小隊",
+  "ui.app.team": "隊伍",
   "ui.app.thisIsAPrebuiltDefaultRotationAndCannot": "這是預建的預設循環，無法修改。請複製後再編輯。",
   "ui.app.thresholdNumber": "門檻 {number}",
   "ui.app.thresholds": "門檻",

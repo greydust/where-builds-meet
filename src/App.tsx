@@ -5679,6 +5679,10 @@ function RotationEditorTab({
       ),
     }));
   }
+  function updateRotationCalculationSetting(value: SetStateAction<RotationRecord>) {
+    scheduledRefreshTargetRef.current = null;
+    setRotation(value);
+  }
   function toggleAutoHP(checked: boolean) {
     if (rotationLocked) return;
     const removedBeforeStart = checked
@@ -5689,7 +5693,7 @@ function RotationEditorTab({
     const nextStart = rotation.start
       ? { ...rotation.start, step: Math.max(0, rotation.start.step - removedBeforeStart) }
       : undefined;
-    setRotation({
+    updateRotationCalculationSetting({
       ...rotation,
       ...(checked ? { autoHP: true } : { autoHP: undefined }),
       steps: checked ? rotation.steps.filter((step) => step.type !== "event" || step.event !== "HP") : rotation.steps,
@@ -6324,6 +6328,7 @@ function RotationEditorTab({
       rotation.autoHP,
       rotation.dummyAttack,
       rotation.eventTimeReference,
+      rotation.groupSize,
       rotation.infiniteVitality,
       rotation.start,
       rotation.steps,
@@ -7253,7 +7258,7 @@ function RotationEditorTab({
                         const value = event.target.value;
                         const parsed = Number(value);
                         if (value !== "" && !Number.isFinite(parsed)) return;
-                        setRotation((current) => ({
+                        updateRotationCalculationSetting((current) => ({
                           ...current,
                           ...(value === "" ? { targetHP: undefined } : { targetHP: Math.max(1, parsed) }),
                         }));
@@ -7266,7 +7271,10 @@ function RotationEditorTab({
                       disabled={rotationLocked}
                       checked={rotation.infiniteVitality === true}
                       onChange={(event) =>
-                        setRotation((current) => ({ ...current, infiniteVitality: event.target.checked }))
+                        updateRotationCalculationSetting((current) => ({
+                          ...current,
+                          infiniteVitality: event.target.checked,
+                        }))
                       }
                     />
                     <span>{t("ui.app.infiniteVitality")}</span>
@@ -7277,7 +7285,10 @@ function RotationEditorTab({
                       disabled={rotationLocked}
                       checked={rotation.dummyAttack === true}
                       onChange={(event) =>
-                        setRotation((current) => ({ ...current, dummyAttack: event.target.checked }))
+                        updateRotationCalculationSetting((current) => ({
+                          ...current,
+                          dummyAttack: event.target.checked,
+                        }))
                       }
                     />
                     <span>{t("ui.app.dummyAttack")}</span>
@@ -7290,7 +7301,7 @@ function RotationEditorTab({
                       onChange={(event) => {
                         const groupSize = Number(event.target.value);
                         if (groupSize !== 1 && groupSize !== 5 && groupSize !== 10) return;
-                        setRotation((current) => ({ ...current, groupSize }));
+                        updateRotationCalculationSetting((current) => ({ ...current, groupSize }));
                       }}
                     >
                       <option value={1}>{t("ui.app.solo")}</option>

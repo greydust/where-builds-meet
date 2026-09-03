@@ -126,6 +126,47 @@ try {
     innerWayPriority: [],
     setupComparisons: {},
   });
+  const groupResult = (groupSize) =>
+    calculateRotationBaseline({
+      timeline: {
+        ...timelineBundle,
+        rotation: { ...rotation, groupSize },
+      },
+      startAnchor: { rowId: "rotation-0" },
+      stats,
+      attunement: {},
+      enemy: {
+        name: "Probe",
+        level: 96,
+        defense: 0,
+        physicalResistance: 0,
+        bellstrikeResistance: 0,
+        stonesplitResistance: 0,
+        silkbindResistance: 0,
+        bamboocutResistance: 0,
+        judgementResistance: 0,
+        setupEffects: [],
+        weapons: ["panaceaFan", "soulshadeUmbrella"],
+      },
+      derivedStats: calculateDerivedStats(stats, 0),
+      weapons: ["panaceaFan", "soulshadeUmbrella"],
+      statPriority: [],
+      attunementPriority: [],
+      innerWayPriority: [],
+      setupComparisons: {},
+    });
+  const teamBaseline = groupResult(5);
+  const groupBaseline = groupResult(10);
+  const qiBladeHits = (result) => result.metrics.breakdown.skills.find((skill) => skill.id === "QiBlade")?.hits ?? 0;
+  assert(
+    baseline.metrics.totalHealing < teamBaseline.metrics.totalHealing &&
+      teamBaseline.metrics.totalHealing < groupBaseline.metrics.totalHealing,
+    "Changing the WTS preset from Solo to Team to Group must increase recipient-weighted healing.",
+  );
+  assert(
+    qiBladeHits(baseline) < qiBladeHits(teamBaseline) && qiBladeHits(teamBaseline) <= qiBladeHits(groupBaseline),
+    "Changing the WTS preset group size must increase its overheal-driven Qi Blade triggers.",
+  );
   const qiBladeBreakdown = baseline.metrics.breakdown.skills.find((skill) => skill.id === "QiBlade");
   assert(qiBladeBreakdown?.hits, "The WTS preset must trigger Qi Blade damage before Battle End.");
   const worldToSwordCast = baseline.metrics.breakdown.casts.find((cast) => cast.skillId === "WorldToSword");
