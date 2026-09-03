@@ -377,6 +377,10 @@ export type EffectDefinition = {
   accumulator?: {
     event?: string;
     checkEvent?: string;
+    expected?: {
+      consume?: "all" | "threshold";
+      actionCap?: number;
+    };
   };
   listen?: Array<{
     event?: string;
@@ -440,6 +444,7 @@ export type TimelineBuildInput = {
   cooldownPolicy?: "skip" | "wait";
   resolvedHealing?: Record<string, ResolvedHealingState>;
   accumulatorThresholds?: Record<string, number>;
+  accumulatorMode?: "expected" | "simulation";
 };
 
 export type ResourceEventRule = {
@@ -1096,6 +1101,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
   type AccumulatorState = {
     threshold: number;
     accumulated: number;
+    accumulatedByAction: Map<string, number>;
     firedTriggers: number;
     nextReadyAt: number;
     sourceRowId: string;
@@ -2104,18 +2110,33 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
               ),
             );
           accumulator.nextReadyAt = event.time + Math.max(0, listener.cooldown ?? 0);
-          accumulator.accumulated = 0;
+          accumulator.accumulated =
+            input.accumulatorMode === "expected" && definition.accumulator?.expected?.consume === "threshold"
+              ? Math.max(0, accumulator.accumulated - accumulator.threshold)
+              : 0;
         }
       }
     };
-    const accumulateEventValue = (eventName: string, amount: number) => {
+    const accumulateEventValue = (eventName: string, amount: number, actionKey: string) => {
       if (!(amount > 0)) return;
       for (const activeBuff of buffs) {
         const definition = effectDefinitions[activeBuff.name];
         const accumulatorDefinition = definition?.accumulator;
         const accumulator = accumulatorStates.get(activeBuff.name);
         if (!accumulatorDefinition || accumulatorDefinition.event !== eventName || !accumulator) continue;
-        accumulator.accumulated += amount;
+        let acceptedAmount = amount;
+        const expectedActionCap = accumulatorDefinition.expected?.actionCap;
+        if (
+          input.accumulatorMode === "expected" &&
+          typeof expectedActionCap === "number" &&
+          Number.isFinite(expectedActionCap)
+        ) {
+          const accumulatedByAction = accumulator.accumulatedByAction.get(actionKey) ?? 0;
+          const actionMaximum = Math.max(0, expectedActionCap) * accumulator.threshold;
+          acceptedAmount = Math.min(acceptedAmount, Math.max(0, actionMaximum - accumulatedByAction));
+          accumulator.accumulatedByAction.set(actionKey, accumulatedByAction + acceptedAmount);
+        }
+        accumulator.accumulated += acceptedAmount;
         if (accumulatorDefinition.checkEvent) emitCustomEvent(accumulatorDefinition.checkEvent);
       }
     };
@@ -2351,10 +2372,10 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
           const effectiveHealing = Math.min(rawHealing, missingHP);
           const overhealing = Math.max(0, rawHealing - effectiveHealing);
           setCurrentHP(currentHP + effectiveHealing);
-          accumulateEventValue("overheal", overhealing);
+          accumulateEventValue("overheal", overhealing, healingKey);
         });
         resolvedHealing.teammateOverhealContributions.forEach((healing) =>
-          accumulateEventValue("overheal", Math.max(0, healing)),
+          accumulateEventValue("overheal", Math.max(0, healing), healingKey),
         );
       }
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0;
@@ -2486,6 +2507,7 @@ function buildRotationTimelinePass(input: TimelineBuildInput, resolvedAnchorTime
             accumulatorStates.set(action.value, {
               threshold,
               accumulated: 0,
+              accumulatedByAction: new Map(),
               firedTriggers: 0,
               nextReadyAt: event.time,
               sourceRowId: collection.sourceRowId,
