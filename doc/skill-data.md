@@ -158,10 +158,8 @@ skill action and does not create a general combat-event broadcast.
 
 Each recipient's healing number enters the accumulator separately. Expected
 calculations use expected recipient healing, while simulations independently
-roll every recipient. Expected calculation caps each healing action's total
-contribution across its recipients at two thresholds and subtracts one threshold
-after each launch, preserving overflow. Simulations reset accumulated overhealing to zero after
-each launch. Both modes continue accepting healing during the 0.3-second launch
+roll every recipient. Both modes reset accumulated overhealing to zero after
+each launch and continue accepting healing during the 0.3-second launch
 cooldown. The threshold derives from character-sheet Min/Max Physical and
 effective Min/Max Silkbind Attack. For Deluge, Min/Max Void Attack is converted
 into the effective Silkbind range before the threshold is calculated.

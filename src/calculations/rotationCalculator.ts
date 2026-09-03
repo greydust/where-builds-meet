@@ -2075,14 +2075,13 @@ function timelineTiming(
 }
 
 type HealingTimelineRuntime = {
-  timeline: Pick<TimelineBuildInput, "resolvedHealing" | "accumulatorThresholds" | "accumulatorMode">;
+  timeline: Pick<TimelineBuildInput, "resolvedHealing" | "accumulatorThresholds">;
   healingBreakdowns: Record<string, ResolvedHealingBreakdown>;
 };
 
 function healingTimelineRuntime(
   timeline: TimelineRow[],
   resolvedSequence: ResolvedRotationDamageSequence,
-  accumulatorMode: NonNullable<TimelineBuildInput["accumulatorMode"]>,
 ): HealingTimelineRuntime | undefined {
   const applications = timeline.flatMap((row) =>
     row.actions.flatMap((action, actionIndex) =>
@@ -2162,7 +2161,7 @@ function healingTimelineRuntime(
     }),
   );
   return {
-    timeline: { resolvedHealing, accumulatorThresholds, accumulatorMode },
+    timeline: { resolvedHealing, accumulatorThresholds },
     healingBreakdowns,
   };
 }
@@ -2199,7 +2198,7 @@ export function calculateSimulatedRotationRun(
     random,
   );
   let resolvedSequence = resolution.resolvedSequence ?? calculateRotationDamageSequence(resolution.entries, random);
-  const runtime = healingTimelineRuntime(timeline, resolvedSequence, "simulation");
+  const runtime = healingTimelineRuntime(timeline, resolvedSequence);
   if (runtime) {
     const resolvedTimelineInput = { ...bundle.timeline, ...runtime.timeline };
     timeline = buildRotationTimeline(resolvedTimelineInput);
@@ -2248,7 +2247,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   );
   let baseline = baselineResolution.entries;
   let resolvedSequence = baselineResolution.resolvedSequence ?? calculateRotationDamageSequence(baseline);
-  const healingRuntime = healingTimelineRuntime(timeline, resolvedSequence, "expected");
+  const healingRuntime = healingTimelineRuntime(timeline, resolvedSequence);
   if (healingRuntime) {
     const resolvedTimelineInput = { ...bundle.timeline, ...healingRuntime.timeline };
     timeline = buildRotationTimeline(resolvedTimelineInput);
@@ -2407,7 +2406,7 @@ export function calculateRotationComparisons(
     let entries = resolution.entries;
     let resolvedSequence =
       resolution.resolvedSequence ?? calculateRotationDamageSequence(entries, undefined, reusableExpectedBuffSchedule);
-    const healingRuntime = healingTimelineRuntime(variantTimeline, resolvedSequence, "expected");
+    const healingRuntime = healingTimelineRuntime(variantTimeline, resolvedSequence);
     if (healingRuntime) {
       const resolvedTimelineInput = { ...timelineInput, ...healingRuntime.timeline };
       variantTimeline = buildRotationTimeline(resolvedTimelineInput);

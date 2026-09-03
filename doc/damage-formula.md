@@ -350,12 +350,10 @@ multipliers do not change this threshold.
 
 Every recipient's healing number enters the accumulator separately. Expected
 calculations use that recipient's expected healing; simulations roll each
-recipient independently. In expected calculations, each healing action can
-contribute at most two thresholds of overhealing across all of its recipients.
-Launching a Qi Blade subtracts one threshold and preserves any remaining credit. Simulations instead reset
-accumulated overhealing to zero after each launch. If the 0.3-second launch
-cooldown is active, further eligible healing remains accumulated and the delayed
-cooldown check launches the next blade once ready.
+recipient independently. Reaching the threshold launches one Qi Blade and
+resets accumulated overhealing to zero in both modes. If the 0.3-second launch
+cooldown is active, further healing remains accumulated; the delayed cooldown
+check launches the blade and resets the complete stored amount once ready.
 
 ### Shared multiplier
 

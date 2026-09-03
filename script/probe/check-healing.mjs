@@ -759,103 +759,13 @@ try {
     groupQiBladeCount(playerTargetHealing) === 1,
     "WTS must count all overhealing from a single-target heal assigned to a teammate, rather than applying the group-heal one-fifth weight.",
   );
-  const retainedOverflowResult = calculateRotationBaseline({
-    ...worldToSwordBundle,
-    timeline: {
-      ...worldToSwordBundle.timeline,
-      rotation: {
-        name: "World to Sword retained-overflow probe",
-        steps: [
-          { type: "skill", skill: "WorldToSword" },
-          { type: "skill", skill: "OneAndHalfThresholdHeal" },
-          { type: "skill", skill: "HalfThresholdHeal" },
-          { type: "skill", skill: "WaitForSecondBlade" },
-        ],
-      },
-      skills: {
-        WorldToSword: mysticSkills.WorldToSword,
-        QiBlade: mysticSkills.QiBlade,
-        OneAndHalfThresholdHeal: {
-          name: "One and a half threshold heal",
-          castTime: 0.1,
-          action: [
-            {
-              type: "heal",
-              phyCoef: 0,
-              phyBonus: (groupHealingThreshold * 1.5) / healingPerPhysicalBonus,
-              attrBonus: 0,
-              time: 0.1,
-            },
-          ],
-          tags: ["Heal"],
-        },
-        HalfThresholdHeal: {
-          name: "Half threshold heal",
-          castTime: 0.1,
-          action: [
-            {
-              type: "heal",
-              phyCoef: 0,
-              phyBonus: (groupHealingThreshold * 0.5) / healingPerPhysicalBonus,
-              attrBonus: 0,
-              time: 0.1,
-            },
-          ],
-          tags: ["Heal"],
-        },
-        WaitForSecondBlade: { name: "Wait for second blade", castTime: 0.4, action: [] },
-      },
-    },
-  });
-  assert(
-    groupQiBladeCount(retainedOverflowResult) === 2,
-    "Expected WTS calculation must subtract one threshold after launch so later healing can complete the retained overflow.",
-  );
-  const cappedSourceResult = calculateRotationBaseline({
-    ...worldToSwordBundle,
-    timeline: {
-      ...worldToSwordBundle.timeline,
-      rotation: {
-        name: "World to Sword per-action cap probe",
-        steps: [
-          { type: "skill", skill: "WorldToSword" },
-          { type: "skill", skill: "ExcessiveSingleHeal" },
-          { type: "skill", skill: "WaitForSecondBlade" },
-        ],
-      },
-      skills: {
-        WorldToSword: mysticSkills.WorldToSword,
-        QiBlade: mysticSkills.QiBlade,
-        ExcessiveSingleHeal: {
-          name: "Excessive single heal",
-          castTime: 0.1,
-          action: [
-            {
-              type: "heal",
-              phyCoef: 0,
-              phyBonus: (groupHealingThreshold * 5) / healingPerPhysicalBonus,
-              attrBonus: 0,
-              time: 0.1,
-            },
-          ],
-          tags: ["Heal"],
-        },
-        WaitForSecondBlade: { name: "Wait for second blade", castTime: 1, action: [] },
-      },
-    },
-  });
-  assert(
-    groupQiBladeCount(cappedSourceResult) === 2,
-    "One healing action must contribute no more than two WTS thresholds in expected calculation.",
-  );
   const worldToSwordResult = calculateRotationBaseline(worldToSwordBundle);
   const qiBlades = worldToSwordResult.timeline.filter(
     (row) => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "QiBlade",
   );
   assert(
-    qiBlades.length === 4 &&
-      qiBlades.slice(1).every((blade, index) => closeTo(blade.startTime - qiBlades[index].startTime, 0.3)),
-    "Expected overhealing must cap each healing action separately, retain threshold credit, and launch queued Qi Blades 0.3 seconds apart.",
+    qiBlades.length === 2 && closeTo(qiBlades[1].startTime - qiBlades[0].startTime, 0.3),
+    "Expected overhealing must retain threshold credit during cooldown and launch queued Qi Blades 0.3 seconds apart.",
   );
   const overflowHealRow = worldToSwordResult.timeline.find(
     (row) => row.step.type === "skill" && row.step.skill === "OverflowHeal",
@@ -890,7 +800,7 @@ try {
         name: "World to Sword trigger-limit probe",
         steps: [
           { type: "skill", skill: "WorldToSword" },
-          ...Array.from({ length: 10 }, () => ({ type: "skill", skill: "TwoOverflowHeals" })),
+          { type: "skill", skill: "TwentyOverflowHeals" },
           { type: "skill", skill: "WaitForBlades" },
           { type: "skill", skill: "Observe" },
         ],
@@ -898,10 +808,10 @@ try {
       skills: {
         WorldToSword: mysticSkills.WorldToSword,
         QiBlade: mysticSkills.QiBlade,
-        TwoOverflowHeals: {
-          name: "Two Overflow Heals",
-          castTime: 0.62,
-          action: Array.from({ length: 2 }, (_, index) => ({
+        TwentyOverflowHeals: {
+          name: "Twenty Overflow Heals",
+          castTime: 6,
+          action: Array.from({ length: 20 }, (_, index) => ({
             type: "heal",
             phyCoef: 30,
             time: 0.1 + index * 0.31,
@@ -996,7 +906,7 @@ try {
     "Fan QQ and Fan QQ Cancel must apply Morning Drizzle at their healing timestamp.",
   );
   assert(
-    worldToSwordResult.metrics.breakdown.skills.some((skill) => skill.id === "QiBlade" && skill.hits === 4),
+    worldToSwordResult.metrics.breakdown.skills.some((skill) => skill.id === "QiBlade" && skill.hits === 2),
     "Every launched Qi Blade must resolve its delayed damage through the normal damage pipeline.",
   );
   const simulatedWorldToSword = calculateSimulatedRotationRun(worldToSwordBundle, () => 0.25);
