@@ -10,6 +10,7 @@ type AttunementDefinition = {
 };
 
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>;
+const SIMULATED_HEALING_FLUCTUATION = 0.08;
 
 export type HealingBreakdown = {
   physical: number;
@@ -139,15 +140,19 @@ function calculateHealingBreakdownInternal(
   const outcome = random && random() < criticalRate ? "critical" : "normal";
   let criticalMultiplier = 1 + criticalRate * (stats.criticalHealingBonus + criticalHealingBonus);
   if (random) criticalMultiplier = outcome === "critical" ? 1 + stats.criticalHealingBonus + criticalHealingBonus : 1;
+  const fluctuationMultiplier = random
+    ? 1 - SIMULATED_HEALING_FLUCTUATION + random() * SIMULATED_HEALING_FLUCTUATION * 2
+    : 1;
   const martialArtHealingBonus = context.skillTags.includes("MartialArts")
     ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
     : 0;
   const generalMultiplier = 1 + healingBonus + martialArtHealingBonus;
+  const finalMultiplier = criticalMultiplier * generalMultiplier * fluctuationMultiplier;
 
   return {
-    physical: Math.max(0, physical * criticalMultiplier * generalMultiplier),
-    silkbind: Math.max(0, silkbind * criticalMultiplier * generalMultiplier),
-    total: Math.max(0, (physical + silkbind) * criticalMultiplier * generalMultiplier),
+    physical: Math.max(0, physical * finalMultiplier),
+    silkbind: Math.max(0, silkbind * finalMultiplier),
+    total: Math.max(0, (physical + silkbind) * finalMultiplier),
     normalRate: 1 - criticalRate,
     criticalRate,
     ...(random ? { outcome } : {}),

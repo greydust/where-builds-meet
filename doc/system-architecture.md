@@ -691,8 +691,10 @@ worker result retains its DPS-sorted runs, so adding or removing a display row
 updates every retained result immediately without changing fingerprint status.
 Custom row choices persist in browser storage; simulation history itself
 remains component memory and is not stored.
-Healing simulations publish HPS plus recipient-weighted Normal and Critical
-healing percentages on the same DPS-ranked run records.
+Healing simulations independently sample each recipient's Normal/Critical
+outcome and uniform ±8% final-healing fluctuation. They publish HPS plus
+recipient-weighted Normal and Critical healing percentages on the same
+DPS-ranked run records. Deterministic rotation results remain unchanged.
 
 ## Baseline and variant calculation
 

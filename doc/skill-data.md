@@ -158,7 +158,8 @@ skill action and does not create a general combat-event broadcast.
 
 Each recipient's healing number enters the accumulator separately. Expected
 calculations use expected recipient healing, while simulations independently
-roll every recipient. Both modes reset accumulated overhealing to zero after
+roll every recipient's healing outcome and uniform `0.92`-to-`1.08` final-healing
+fluctuation. Both modes reset accumulated overhealing to zero after
 each launch and continue accepting healing during the 0.3-second launch
 cooldown. The threshold derives from character-sheet Min/Max Physical and
 effective Min/Max Silkbind Attack. For Deluge, Min/Max Void Attack is converted

@@ -918,7 +918,14 @@ try {
   let recipientRoll = 0;
   const independentlyRolledGroupHealing = calculateSimulatedRotationRun(groupHealingBundle(5), () => {
     recipientRoll += 1;
-    return recipientRoll % 2 === 1 ? 0 : 0.99;
+    switch (recipientRoll % 4) {
+      case 1:
+        return 0;
+      case 3:
+        return 0.99;
+      default:
+        return 0.5;
+    }
   });
   const groupHealingEntry = independentlyRolledGroupHealing.resolvedSequence.find(
     ({ entry }) => entry.id === "rotation-1:0",

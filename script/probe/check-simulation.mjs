@@ -11,6 +11,8 @@ const viteServer = await createServer({
 try {
   const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } =
     await viteServer.ssrLoadModule("/src/calculations/damage.ts");
+  const { calculateHealingBreakdown, calculateSimulatedHealingBreakdown } =
+    await viteServer.ssrLoadModule("/src/calculations/healing.ts");
   const { selectSimulationPercentile, simulateRotation } = await viteServer.ssrLoadModule(
     "/src/calculations/simulationCalculator.ts",
   );
@@ -53,6 +55,15 @@ try {
   assert(
     minimum.total < expected.total && expected.total < maximum.total,
     "Simulation mode must sample around deterministic average damage.",
+  );
+  const healingAction = { type: "heal", time: 1, phyCoef: 1 };
+  const expectedHealing = calculateHealingBreakdown(healingAction, context);
+  const minimumHealing = calculateSimulatedHealingBreakdown(healingAction, context, () => 0);
+  const maximumHealing = calculateSimulatedHealingBreakdown(healingAction, context, () => 1);
+  assert(
+    Math.abs(minimumHealing.total / expectedHealing.total - 0.92) < 1e-9 &&
+      Math.abs(maximumHealing.total / expectedHealing.total - 1.08) < 1e-9,
+    "Simulation mode must apply the full -8% to +8% healing fluctuation without changing expected healing.",
   );
 
   const timeline = {
