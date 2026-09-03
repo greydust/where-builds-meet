@@ -7,14 +7,31 @@
       "trigger": [
         {
           "event": "skillEndRandomBuff",
-          "requirement": [{ "target": "skillTag", "value": "Conversion" }],
+          "requirement": [
+            {
+              "target": "skillTag",
+              "value": "Conversion"
+            }
+          ],
           "duration": 8,
           "cooldown": 30,
           "outcome": [
-            { "value": "Bloom", "weight": 0.25 },
-            { "value": "Flare", "weight": 0.25 },
-            { "value": "Yield", "weight": 0.25 },
-            { "value": "Frost", "weight": 0.25 }
+            {
+              "value": "Bloom",
+              "weight": 0.25
+            },
+            {
+              "value": "Flare",
+              "weight": 0.25
+            },
+            {
+              "value": "Yield",
+              "weight": 0.25
+            },
+            {
+              "value": "Frost",
+              "weight": 0.25
+            }
           ]
         }
       ]
@@ -23,7 +40,9 @@
       "effect": [
         {
           "target": "SeasonalEdgeRandomBuff",
-          "modify": { "duration": 12 }
+          "modify": {
+            "duration": 12
+          }
         }
       ]
     },
@@ -31,8 +50,8 @@
       "effect": [
         {
           "stat": {
-            "minPhys": 24.8,
-            "maxPhys": 49.6
+            "minPhys": 25.9,
+            "maxPhys": 51.9
           }
         }
       ]
@@ -43,8 +62,14 @@
           "target": "SeasonalEdgeRandomBuff",
           "modify": {
             "count": [
-              { "value": 1, "weight": 0.7 },
-              { "value": 2, "weight": 0.3 }
+              {
+                "value": 1,
+                "weight": 0.7
+              },
+              {
+                "value": 2,
+                "weight": 0.3
+              }
             ]
           }
         }
@@ -56,10 +81,22 @@
           "target": "SeasonalEdgeRandomBuff",
           "modify": {
             "outcome": [
-              { "value": "Bloom", "weight": 0.1 },
-              { "value": "Flare", "weight": 0.4 },
-              { "value": "Yield", "weight": 0.4 },
-              { "value": "Frost", "weight": 0.1 }
+              {
+                "value": "Bloom",
+                "weight": 0.1
+              },
+              {
+                "value": "Flare",
+                "weight": 0.4
+              },
+              {
+                "value": "Yield",
+                "weight": 0.4
+              },
+              {
+                "value": "Frost",
+                "weight": 0.1
+              }
             ],
             "additionalSkills": ["SereneBreeze"]
           }
@@ -81,14 +118,32 @@
           "target": "SeasonalEdgeRandomBuff",
           "modify": {
             "count": [
-              { "value": 1, "weight": 0.5 },
-              { "value": 2, "weight": 0.3 },
-              { "value": 3, "weight": 0.2 }
+              {
+                "value": 1,
+                "weight": 0.5
+              },
+              {
+                "value": 2,
+                "weight": 0.3
+              },
+              {
+                "value": 3,
+                "weight": 0.2
+              }
             ],
             "outcome": [
-              { "value": "Bloom", "weight": 0.1 },
-              { "value": "Flare", "weight": 0.4 },
-              { "value": "Yield", "weight": 0.4 }
+              {
+                "value": "Bloom",
+                "weight": 0.1
+              },
+              {
+                "value": "Flare",
+                "weight": 0.4
+              },
+              {
+                "value": "Yield",
+                "weight": 0.4
+              }
             ]
           }
         }

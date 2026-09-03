@@ -9,8 +9,8 @@
       "effect": [
         {
           "stat": {
-            "minStonesplit": 12.7,
-            "maxStonesplit": 25.3
+            "minStonesplit": 13.3,
+            "maxStonesplit": 26.5
           }
         }
       ]

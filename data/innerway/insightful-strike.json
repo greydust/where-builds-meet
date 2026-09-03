@@ -60,8 +60,8 @@
       "effect": [
         {
           "stat": {
-            "minPhys": 22.3,
-            "maxPhys": 44.7
+            "minPhys": 23.3,
+            "maxPhys": 46.7
           }
         }
       ]
