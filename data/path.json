@@ -98,6 +98,17 @@
     "defaultRotation": "dummy-1-min-iv-bp",
     "lockedWeapons": ["heavenwill", "skygrasp"]
   },
+  "bamboocutDraught": {
+    "name": "Draught",
+    "icon": "draught.png",
+    "tag": "BamboocutDraught",
+    "status": "plannerOnly",
+    "buildGroup": "bamboocut-draught",
+    "defaultBuild": "empty",
+    "graduated": "empty",
+    "defaultRotation": "empty",
+    "lockedWeapons": ["skystrikeGauntlets", "rivenTwinblades"]
+  },
   "mixed": {
     "name": "Mixed",
     "status": "devOnly",

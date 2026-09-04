@@ -49,11 +49,12 @@ use Stonesplit as their primary attribute. Nameless Sword, Nameless Spear,
 Strategic Sword, and HeavenQuaker Spear use Bellstrike. Vernal Umbrella, Inkwell
 Fan, Panacea Fan, and Soulshade Umbrella use Silkbind. Everspring Umbrella,
 Unfettered Rope Dart, Heavenwill Gauntlets, Skygrasp Rope Dart, Infernal
-Twinblades, and Mortal Rope Dart use Bamboocut. The primary attribute receives
+Twinblades, Mortal Rope Dart, Skystrike Gauntlets, and Riven Twinblades use
+Bamboocut. The primary attribute receives
 the action's attribute bonus, the 1.5 path multiplier, and Formless Penetration.
 Void/Formless Attack is therefore Stonesplit for Strength and Might, Bellstrike
 for Splendor and Umbra, Silkbind for Jade and Deluge, and Bamboocut for Dust,
-Kite, and Wind.
+Kite, Wind, and Draught.
 
 ## Damage outcomes
 

@@ -138,6 +138,8 @@ import panaceaFanMartialArt from "../data/martial-art/panacea-fan.json";
 import soulshadeUmbrellaMartialArt from "../data/martial-art/soulshade-umbrella.json";
 import infernalTwinbladesMartialArt from "../data/martial-art/infernal-twinblades.json";
 import mortalRopeDartMartialArt from "../data/martial-art/mortal-rope-dart.json";
+import skystrikeGauntletsMartialArt from "../data/martial-art/skystrike-gauntlets.json";
+import rivenTwinbladesMartialArt from "../data/martial-art/riven-twinblades.json";
 import {
   sortAttunementPriorityRows,
   sortRotationPriorityRows,
@@ -278,7 +280,8 @@ type PathId =
   | "silkbindDeluge"
   | "bamboocutWind"
   | "bamboocutKite"
-  | "bamboocutDust";
+  | "bamboocutDust"
+  | "bamboocutDraught";
 type PathDefinition = {
   name: string;
   icon?: string;
@@ -1320,6 +1323,8 @@ const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
   soulshadeUmbrella: soulshadeUmbrellaMartialArt as MartialArtDefinition,
   infernalTwinblades: infernalTwinbladesMartialArt as MartialArtDefinition,
   mortalRopeDart: mortalRopeDartMartialArt as MartialArtDefinition,
+  skystrikeGauntlets: skystrikeGauntletsMartialArt as MartialArtDefinition,
+  rivenTwinblades: rivenTwinbladesMartialArt as MartialArtDefinition,
 };
 const weaponFamilyNames: Record<WeaponFamily, string> = {
   HengBlade: "Heng Blade",
