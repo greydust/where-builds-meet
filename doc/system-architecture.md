@@ -102,7 +102,12 @@ doc/
 
 src/
   App.tsx                         UI, data composition, and current orchestration
-  BuildTab.tsx                    equipped slots, inventory, and gear editor
+  BuildTab.tsx                    build orchestration, equipped slots, and inventory
+  ui/                             generic, reusable, domain-agnostic UI primitives
+    Modal.tsx                     controlled native-dialog wrapper
+  components/                     application/domain-level components built on ui/
+    GearEditor.tsx                gear add/edit presentation and local draft state
+    GearOcrModal.tsx              gear screenshot import dialog
   i18n.ts                         locale resolution, message loading, and UI translation
   gear.ts                         persisted gear model and equipped effects
   readableRotation.ts             pure readable-sequence formatter
@@ -126,6 +131,16 @@ public/
   locales/                       generated per-locale runtime message JSON
   paths/                         static combat-path icons copied into the build
 ```
+
+## UI layering
+
+`src/ui/` contains only generic, reusable UI primitives. A primitive stays
+domain-agnostic: it renders arbitrary children, owns no game or application
+state, and imports nothing from `src/components/` or other application/domain
+code. `src/components/` contains structural, application-level components that
+may know about game mechanics and compose primitives from `src/ui/`. The
+dependency direction is one-way: application code and domain components may
+import from `src/ui/`; `src/ui/` must never import from `src/components/`.
 
 ## Localization boundary
 
