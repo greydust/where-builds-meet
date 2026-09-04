@@ -830,13 +830,19 @@
   }
 
   /* Gear Responsive Breakpoints */
-  @media (max-width: 62.5em) {
+  @media (max-width: 115em) {
+    .equipped-gear-grid,
+    .available-gear-grid {
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    }
+  }
+
+  @media (max-width: 80em) {
     .build-overview-grid {
       grid-template-columns: 1fr;
     }
-    .equipped-gear-grid,
-    .available-gear-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .build-setup-column {
+      order: -1;
     }
   }
 

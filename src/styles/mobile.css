@@ -285,12 +285,13 @@
     grid-template-columns: 1fr;
   }
 
-  .layout-mobile .equipped-gear-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .layout-mobile .build-setup-column {
+    order: -1;
   }
 
+  .layout-mobile .equipped-gear-grid,
   .layout-mobile .available-gear-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
 
   .layout-mobile .gear-base-stat {
