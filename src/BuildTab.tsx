@@ -1,4 +1,14 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type Dispatch, type SetStateAction } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ChangeEvent,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
+} from "react";
 import { UiIcon } from "./UiIcon";
 import { Modal } from "./ui/Modal";
 import {
@@ -86,6 +96,23 @@ type BuildManagementProps = {
   onInventoryChange: Dispatch<SetStateAction<GearInventory>>;
   onSetupChange: (setup: BuildSetup) => void;
 };
+
+const stackedBuildLayoutQuery = "(max-width: 80em)";
+
+function subscribeToStackedBuildLayout(callback: () => void) {
+  const query = window.matchMedia(stackedBuildLayoutQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+
+function stackedBuildLayoutSnapshot() {
+  return window.matchMedia(stackedBuildLayoutQuery).matches;
+}
+
+function ResponsiveBuildOverview({ children, setup }: { children: ReactElement; setup: ReactElement }) {
+  const setupFirst = useSyncExternalStore(subscribeToStackedBuildLayout, stackedBuildLayoutSnapshot, () => false);
+  return <div className="build-overview-grid">{setupFirst ? [setup, children] : [children, setup]}</div>;
+}
 
 function displayValue(value: number, definition?: { percentage?: boolean }) {
   return `${formatNumber(definition?.percentage ? value * 100 : value)}${definition?.percentage ? "%" : ""}`;
@@ -1011,8 +1038,20 @@ function BuildManagement({
 
   return (
     <div className="build-page">
-      <div className="build-overview-grid">
-        <div className="build-management-grid">
+      <ResponsiveBuildOverview
+        setup={
+          <BuildSetupPanel
+            key="setup"
+            setup={setup}
+            affixSummary={affixSummary}
+            martialArtTags={martialArtTags}
+            pathTag={pathTag}
+            locked={locked}
+            onChange={onSetupChange}
+          />
+        }
+      >
+        <div key="gear" className="build-management-grid">
           <section className="panel build-equipped-panel">
             <div className="panel-heading">
               <div>
@@ -1174,15 +1213,7 @@ function BuildManagement({
             </Modal>
           )}
         </div>
-        <BuildSetupPanel
-          setup={setup}
-          affixSummary={affixSummary}
-          martialArtTags={martialArtTags}
-          pathTag={pathTag}
-          locked={locked}
-          onChange={onSetupChange}
-        />
-      </div>
+      </ResponsiveBuildOverview>
     </div>
   );
 }
