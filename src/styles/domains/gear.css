@@ -841,9 +841,6 @@
     .build-overview-grid {
       grid-template-columns: 1fr;
     }
-    .build-setup-column {
-      order: -1;
-    }
   }
 
   @media (max-width: 43.75em) {
