@@ -19,8 +19,13 @@ export function Modal({ open, onClose, onCancel, className, label, children }: M
     else if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  const handleClose = (event: SyntheticEvent<HTMLDialogElement, Event>) => {
+    event.stopPropagation();
+    onClose();
+  };
+
   return (
-    <dialog ref={dialogRef} className={className} aria-label={label} onCancel={onCancel} onClose={onClose}>
+    <dialog ref={dialogRef} className={className} aria-label={label} onCancel={onCancel} onClose={handleClose}>
       {children}
     </dialog>
   );

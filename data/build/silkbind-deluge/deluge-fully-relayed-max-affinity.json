@@ -29,7 +29,7 @@
     "armorSets": {
       "Moonflare": 0
     },
-    "bowRingSet": "Precision",
+    "bowRingSet": "Critical",
     "arsenal": "Silkbind"
   },
   "gear": {
@@ -51,8 +51,8 @@
           "value": 46.436
         },
         {
-          "key": "precision",
-          "value": 0.0752
+          "key": "power",
+          "value": 46.436
         },
         {
           "key": "affinity",
@@ -117,8 +117,8 @@
           "value": 46.436
         },
         {
-          "key": "crit",
-          "value": 0.0846
+          "key": "power",
+          "value": 46.436
         }
       ],
       "attunement": {
@@ -148,8 +148,8 @@
           "value": 46.436
         },
         {
-          "key": "affinity",
-          "value": 0.04136
+          "key": "crit",
+          "value": 0.0846
         }
       ],
       "attunement": {
@@ -162,8 +162,8 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "crit",
-        "value": 0.0846
+        "key": "affinity",
+        "value": 0.04136
       },
       "additionalAffixes": [
         {
@@ -179,8 +179,8 @@
           "value": 0.09212
         },
         {
-          "key": "precision",
-          "value": 0.0752
+          "key": "power",
+          "value": 46.436
         }
       ],
       "attunement": {
@@ -193,8 +193,8 @@
       "level": 96,
       "rarity": "Gold",
       "baseAffix": {
-        "key": "crit",
-        "value": 0.0846
+        "key": "affinity",
+        "value": 0.04136
       },
       "additionalAffixes": [
         {
@@ -210,8 +210,8 @@
           "value": 0.09212
         },
         {
-          "key": "precision",
-          "value": 0.0752
+          "key": "power",
+          "value": 46.436
         }
       ],
       "attunement": {
