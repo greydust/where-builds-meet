@@ -1405,6 +1405,11 @@ Avalanche cast starts.
 Battle Anthem and Adaptive Steel are alternative Stonesplit Might Inner Ways.
 Breaking Point is also available to both Stonesplit Strength and Stonesplit
 Might through its path tags.
+At T6, both Perfect Dodge variants trigger `BreakingPointT6Dodge`, which applies
+five Disintegration stacks and has a 15-second skill cooldown. Only this proc
+shares the cooldown across dodge variants; dodge timing and other dodge effects
+remain independent. Disintegration itself has no application cooldown, so normal
+Breaking Point stack generation remains available throughout the proc cooldown.
 Battle Anthem adds 10% Charged Skill damage at T0, 3.9% Affinity at T2, and a
 further 5% Charged Skill damage at T4. Its T6 damage scaling is stored as a
 segment over `enduranceLost`, from 0% below 10 lost Endurance through 10% at 50

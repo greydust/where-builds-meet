@@ -12,6 +12,7 @@ try {
   const { buildRotationTimeline } = await viteServer.ssrLoadModule("/src/calculations/rotationTimeline.ts");
   const buffs = (await viteServer.ssrLoadModule("/data/buff/bamboocut-wind.json")).default;
   const breakingPoint = (await viteServer.ssrLoadModule("/data/innerway/breaking-point.json")).default;
+  const generalSkills = (await viteServer.ssrLoadModule("/data/skill/general.json")).default;
   const assert = (condition, message) => {
     if (!condition) throw new Error(message);
   };
@@ -87,7 +88,68 @@ try {
     JSON.stringify(stackStarts(6, true)) === JSON.stringify([0, 1, 2, 3, 4, 5]),
     "Breaking Point T4 must accumulate Disintegration to five stacks.",
   );
-  console.log("Breaking Point stacking checks passed.");
+  for (const firstDodge of ["PerfectDodge", "PerfectDodgeCancel"]) {
+    const secondDodge = firstDodge === "PerfectDodge" ? "PerfectDodgeCancel" : "PerfectDodge";
+    const firstCastTime = firstDodge === "PerfectDodge" ? 0.5 : 0;
+    const secondCastTime = secondDodge === "PerfectDodge" ? 0.5 : 0;
+    const runDodgeProbe = (tier) =>
+      buildRotationTimeline({
+        rotation: {
+          name: "Breaking Point dodge cooldown probe",
+          steps: [
+            { type: "skill", skill: firstDodge },
+            { type: "skill", skill: "Observe" },
+            { type: "event", event: "Delay", duration: 4 - firstCastTime },
+            { type: "skill", skill: secondDodge },
+            { type: "skill", skill: "Observe" },
+            { type: "skill", skill: "Hit" },
+            { type: "skill", skill: "Observe" },
+            { type: "event", event: "Delay", duration: 10 - secondCastTime },
+            { type: "skill", skill: firstDodge },
+            { type: "skill", skill: "Observe" },
+            { type: "event", event: "Exhausted", startTime: 0 },
+          ],
+          eventTimeReference: "battleStart",
+        },
+        skills: { ...generalSkills, Hit: hit, Observe: { name: "Observe", castTime: 0, action: [], tags: [] } },
+        eventDefinitions: { Exhausted: exhausted },
+        dots: {},
+        effectDefinitions: { ...buffs, Exhausted: { name: "Exhausted", duration: 100, maxStack: 1 } },
+        innerWayConditions: Array.from({ length: tier + 1 }, (_, index) => `BreakingPointT${index}`),
+        innerWayRules: [triggerRule, maxStackRule],
+        setupEffects: [],
+        weapons: [],
+        initialResources: { Vitality: 0 },
+        resourceMaximums: { Vitality: 40 },
+      });
+    const timeline = runDodgeProbe(6);
+    assert(
+      timeline.filter((row) => row.step.skill === "Observe").at(-1).resources.Vitality === 9,
+      "All three dodges must grant Vitality even when the BP T6 proc is on cooldown.",
+    );
+    const observedStacks = timeline
+      .filter((row) => row.step.skill === "Observe")
+      .map((row) => row.buffs.find((effect) => effect.name === "Disintegration")?.stack ?? 0);
+    assert(
+      JSON.stringify(observedStacks) === JSON.stringify([5, 0, 1, 5]),
+      "Dodge must share only the T6 proc cooldown, permit normal stacks during it, and proc again at 15 seconds.",
+    );
+    const dodges = timeline.filter(
+      (row) => row.kind === "rotation" && [firstDodge, secondDodge].includes(row.step.skill),
+    );
+    assert(
+      JSON.stringify(dodges.map((row) => row.startTime)) === JSON.stringify([0, 4, 15]),
+      "The BP T6 proc cooldown must not delay either dodge variant.",
+    );
+    const belowT6 = runDodgeProbe(5)
+      .filter((row) => row.step.skill === "Observe")
+      .map((row) => row.buffs.find((effect) => effect.name === "Disintegration")?.stack ?? 0);
+    assert(
+      JSON.stringify(belowT6) === JSON.stringify([0, 0, 1, 0]),
+      "Dodges must not grant Disintegration below Breaking Point T6.",
+    );
+  }
+  console.log("Breaking Point stacking and dodge proc cooldown checks passed.");
 } finally {
   await viteServer.close();
 }

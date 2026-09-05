@@ -285,6 +285,7 @@
   "data.script.Wraithstrike.description": "Critical DMG +10% against targets below 40% Qi.",
   "data.script.Wraithstrike.name": "Wraithstrike Script",
   "data.skill.general.AoRT4Shield.name": "AoR T4 Shield",
+  "data.skill.general.BreakingPointT6Dodge.name": "Disintegration",
   "data.skill.general.Defense.name": "Defense",
   "data.skill.general.Deflect.name": "Deflect",
   "data.skill.general.DeflectSuccessful.name": "Deflect (Successful)",

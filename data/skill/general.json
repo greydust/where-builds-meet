@@ -164,6 +164,22 @@
     "modifier": [],
     "tags": ["DirectDamage", "General", "MoraleChant", "Triggered"]
   },
+  "BreakingPointT6Dodge": {
+    "name": "Disintegration",
+    "castTime": 0,
+    "cooldown": 15,
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Disintegration",
+        "stack": 5,
+        "reapply": true,
+        "time": 0
+      }
+    ],
+    "tags": ["Triggered"]
+  },
   "PerfectDodgeCancel": {
     "name": "Perfect Dodge [Cancel]",
     "castTime": 0,
@@ -196,11 +212,9 @@
         "requirement": [{ "target": "self", "value": "Etherwrath4P" }]
       },
       {
-        "type": "apply",
+        "type": "trigger",
         "target": "self",
-        "value": "Disintegration",
-        "stack": 5,
-        "reapply": true,
+        "value": "BreakingPointT6Dodge",
         "time": 0,
         "requirement": [
           {
@@ -307,11 +321,9 @@
         "requirement": [{ "target": "self", "value": "Etherwrath4P" }]
       },
       {
-        "type": "apply",
+        "type": "trigger",
         "target": "self",
-        "value": "Disintegration",
-        "stack": 5,
-        "reapply": true,
+        "value": "BreakingPointT6Dodge",
         "time": 0,
         "requirement": [
           {
