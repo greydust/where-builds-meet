@@ -94,17 +94,32 @@ export const weaponIds = [
   "soulshadeUmbrella",
   "infernalTwinblades",
   "mortalRopeDart",
+  "skystrikeGauntlets",
+  "rivenTwinblades",
 ] as const;
 export type WeaponId = (typeof weaponIds)[number];
-const legacyUniversalWeaponIds: readonly WeaponId[] = [
-  "snowparting",
-  "phalanxbane",
-  "thundercry",
-  "stormbreaker",
-  "everspring",
-  "unfettered",
-  "heavenwill",
-  "skygrasp",
+const legacyUniversalWeaponIdSets: readonly (readonly WeaponId[])[] = [
+  ["snowparting", "phalanxbane", "thundercry", "stormbreaker", "everspring", "unfettered", "heavenwill", "skygrasp"],
+  [
+    "snowparting",
+    "phalanxbane",
+    "thundercry",
+    "stormbreaker",
+    "everspring",
+    "unfettered",
+    "heavenwill",
+    "skygrasp",
+    "namelessSword",
+    "namelessSpear",
+    "strategicSword",
+    "heavenquakerSpear",
+    "vernalUmbrella",
+    "inkwellFan",
+    "panaceaFan",
+    "soulshadeUmbrella",
+    "infernalTwinblades",
+    "mortalRopeDart",
+  ],
 ];
 
 export function normalizeStoredWeaponIds(value: unknown): WeaponId[] {
@@ -115,9 +130,9 @@ export function normalizeStoredWeaponIds(value: unknown): WeaponId[] {
         ),
       ]
     : [];
-  const isLegacyUniversal =
-    parsed.length === legacyUniversalWeaponIds.length &&
-    legacyUniversalWeaponIds.every((weapon) => parsed.includes(weapon));
+  const isLegacyUniversal = legacyUniversalWeaponIdSets.some(
+    (legacyIds) => parsed.length === legacyIds.length && legacyIds.every((weapon) => parsed.includes(weapon)),
+  );
   return isLegacyUniversal ? [...weaponIds] : parsed;
 }
 export type WeaponFamily =

@@ -446,6 +446,8 @@ const weaponDefinitionIds: Record<WeaponId, string> = {
   soulshadeUmbrella: "umbrella",
   infernalTwinblades: "dualBlades",
   mortalRopeDart: "unfetteredRopeDart",
+  skystrikeGauntlets: "gauntlet",
+  rivenTwinblades: "dualBlades",
 };
 
 export function gearDefinitionForSlot(slot: GearSlot, weapons: [WeaponId, WeaponId]) {

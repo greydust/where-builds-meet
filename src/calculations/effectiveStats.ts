@@ -65,6 +65,8 @@ export function mainAttributeForWeapons(weapons: WeaponId[]) {
       case "skygrasp":
       case "infernalTwinblades":
       case "mortalRopeDart":
+      case "skystrikeGauntlets":
+      case "rivenTwinblades":
         hasBamboocutWeapon = true;
         break;
     }

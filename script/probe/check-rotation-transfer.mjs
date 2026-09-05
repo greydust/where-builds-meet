@@ -8,10 +8,19 @@ const viteServer = await createServer({
   logLevel: "silent",
 });
 const transfer = await viteServer.ssrLoadModule("/src/rotationTransfer.ts");
+const { normalizeStoredWeaponIds, weaponIds } = await viteServer.ssrLoadModule("/src/types.ts");
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
+
+const previousUniversalMartialArts = weaponIds.filter(
+  (weapon) => weapon !== "skystrikeGauntlets" && weapon !== "rivenTwinblades",
+);
+assert(
+  normalizeStoredWeaponIds(previousUniversalMartialArts).length === weaponIds.length,
+  "A universal martial-art list saved before Draught must expand to include the new pair.",
+);
 
 const defaultEntry = {
   id: "dummy-1-min",

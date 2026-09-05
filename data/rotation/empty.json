@@ -18,7 +18,9 @@
     "panaceaFan",
     "soulshadeUmbrella",
     "infernalTwinblades",
-    "mortalRopeDart"
+    "mortalRopeDart",
+    "skystrikeGauntlets",
+    "rivenTwinblades"
   ],
   "test": true,
   "eventTimeReference": "battleStart",

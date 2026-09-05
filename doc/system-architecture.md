@@ -102,7 +102,12 @@ doc/
 
 src/
   App.tsx                         UI, data composition, and current orchestration
-  BuildTab.tsx                    equipped slots, inventory, and gear editor
+  BuildTab.tsx                    build orchestration, equipped slots, and inventory
+  ui/                             generic, reusable, domain-agnostic UI primitives
+    Modal.tsx                     controlled native-dialog wrapper
+  components/                     application/domain-level components built on ui/
+    GearEditor.tsx                gear add/edit presentation and local draft state
+    GearOcrModal.tsx              gear screenshot import dialog
   i18n.ts                         locale resolution, message loading, and UI translation
   gear.ts                         persisted gear model and equipped effects
   readableRotation.ts             pure readable-sequence formatter
@@ -126,6 +131,16 @@ public/
   locales/                       generated per-locale runtime message JSON
   paths/                         static combat-path icons copied into the build
 ```
+
+## UI layering
+
+`src/ui/` contains only generic, reusable UI primitives. A primitive stays
+domain-agnostic: it renders arbitrary children, owns no game or application
+state, and imports nothing from `src/components/` or other application/domain
+code. `src/components/` contains structural, application-level components that
+may know about game mechanics and compose primitives from `src/ui/`. The
+dependency direction is one-way: application code and domain components may
+import from `src/ui/`; `src/ui/` must never import from `src/components/`.
 
 ## Localization boundary
 
@@ -941,7 +956,7 @@ Presets with `test: true` remain bundled but are hidden until the persisted
 header-level Dev toggle is enabled. The application currently recognizes:
 
 - Snowparting, Phalanxbane, Thundercry, Stormbreaker, Heavenwill, Mystic, General, Buff, Debuff, and DOT editor categories
-- eighteen martial-art IDs across Heng Blade, Mo Blade, Sword, Spear, Umbrella, Fan, Rope Dart, Gauntlet, and Dual Blades weapon families
+- twenty martial-art IDs across Heng Blade, Mo Blade, Sword, Spear, Umbrella, Fan, Rope Dart, Gauntlet, and Dual Blades weapon families
 - six Inner Ways
 - eight available Divinecraft definitions, including a no-effect choice
 - seven Script definitions plus a no-effect choice
@@ -1034,16 +1049,17 @@ martial-art pair and build-planner surfaces are registered but their combat mech
 are not implemented. Planner-only
 paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
 is enabled. Bellstrike Splendor and Umbra, Silkbind Jade and Deluge, and Bamboocut
-Dust currently use this state. Their fixed martial-art pairs and physical weapon
+Dust and Draught currently use this state. Their fixed martial-art pairs and physical weapon
 families are available to Settings and Build, but they intentionally have no
 path-specific skill, talent, set, or attunement definitions yet. Mixed is the final
 selector option and is Dev-only. Kite is available without Dev mode, while Wind
 remains a WIP path.
 
-Stored universal build and rotation records created before the planner-only
-martial arts were registered contain the previous eight martial-art IDs. Shared
-weapon-ID normalization recognizes that exact legacy universe and expands it to
-the current list, preserving those records as universal across upgrades.
+Stored universal build and rotation records created before either planner-only
+martial-art expansion contain one of the previous complete martial-art ID sets.
+Shared weapon-ID normalization recognizes those exact legacy universes and
+expands them to the current list, preserving those records as universal across
+upgrades.
 
 ### Manual event
 
