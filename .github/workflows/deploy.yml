@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -41,8 +42,47 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check deployment update behavior
+        run: node script/probe/check-deployment-updates.mjs
+
       - name: Configure Pages
+        id: pages
         uses: actions/configure-pages@v6
+
+      - name: Find previous deployment artifact for initial asset retention
+        id: previous
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { data } = await github.rest.actions.listWorkflowRuns({
+              ...context.repo, workflow_id: "deploy.yml", branch: "release", status: "success", per_page: 1,
+            });
+            const run = data.workflow_runs[0];
+            if (!run) return;
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({ ...context.repo, run_id: run.id });
+            if (artifacts.data.artifacts.some(artifact => artifact.name === "github-pages" && !artifact.expired)) {
+              core.setOutput("run-id", String(run.id));
+            }
+
+      - name: Download previous Pages artifact
+        if: steps.previous.outputs.run-id != ''
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/previous-pages-artifact
+          github-token: ${{ github.token }}
+          run-id: ${{ steps.previous.outputs.run-id }}
+
+      - name: Extract previous Pages site
+        if: steps.previous.outputs.run-id != ''
+        run: |
+          mkdir -p "$RUNNER_TEMP/previous-pages-site"
+          tar -xf "$RUNNER_TEMP/previous-pages-artifact/artifact.tar" -C "$RUNNER_TEMP/previous-pages-site"
+
+      - name: Retain previous assets for seven days
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: node script/deploy/retain-assets.mjs dist "$RUNNER_TEMP/previous-pages-site" "$SITE_URL"
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v5

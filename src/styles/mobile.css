@@ -41,6 +41,12 @@
     min-inline-size: 0;
   }
 
+  .layout-mobile .notice-area {
+    inset-block-start: calc(100% + 0.75rem);
+    inset-inline-end: 0;
+    inline-size: min(28rem, calc(100vw - 2rem));
+  }
+
   .layout-mobile .locale-selector select {
     inline-size: 100%;
     min-inline-size: 0;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { UiIcon } from "./UiIcon";
+import { publishNotice, dismissNotice } from "./notices";
 import type { RotationSimulationBundle } from "./calculations/rotationCalculator";
 import {
   selectSimulationPercentile,
@@ -212,6 +213,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
       return;
     }
     setError("");
+    dismissNotice("simulation");
     setProgress({ completed: 0, total: runCount });
     setRunning(true);
     const simulationBundleKey = bundleKey ?? "";
@@ -231,7 +233,8 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
       nextRecordIdRef.current += 1;
       setRecords((current) => [record, ...current]);
     } catch (taskError) {
-      if (taskError instanceof Error && taskError.message !== "Simulation cancelled") setError(taskError.message);
+      if (taskError instanceof Error && taskError.message !== "Simulation cancelled")
+        publishNotice({ id: "simulation", error: true, message: taskError.message });
     } finally {
       if (taskRef.current === task) taskRef.current = undefined;
       setRunning(false);

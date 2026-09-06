@@ -1,3 +1,4 @@
+import { publishNotice, dismissNotice } from "./notices";
 import {
   useEffect,
   useMemo,
@@ -239,7 +240,6 @@ export default function BuildTab({
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId);
   const [editingName, setEditingName] = useState(false);
   const [officialImportText, setOfficialImportText] = useState("");
-  const [officialImportError, setOfficialImportError] = useState("");
   const officialImportDialogRef = useRef<HTMLDialogElement>(null);
   const officialBookmarkletRef = useRef<HTMLAnchorElement>(null);
   const officialGearBookmarklet = createOfficialGearBookmarklet({
@@ -399,6 +399,7 @@ export default function BuildTab({
     const file = input.files?.[0];
     input.value = "";
     if (!file) return;
+    dismissNotice("build-import");
     try {
       const result = mergeImportedBuildState(buildState, JSON.parse(await file.text()) as unknown);
       onBuildStateChange(result.state);
@@ -407,30 +408,39 @@ export default function BuildTab({
         setEditingName(false);
       }
     } catch (error) {
-      console.error("[Build import] Could not import the selected file.", error);
+      publishNotice({
+        id: "build-import",
+        error: true,
+        message: error instanceof Error ? error.message : t("ui.notices.buildImportError"),
+      });
     }
   }
 
   function openOfficialImport() {
     setOfficialImportText("");
-    setOfficialImportError("");
+    dismissNotice("official-import");
     officialImportDialogRef.current?.showModal();
   }
 
   async function importFromOfficial() {
+    dismissNotice("official-import");
     try {
       const { parseOfficialGearExport } = await import("./officialGearImport");
       const official = parseOfficialGearExport(JSON.parse(officialImportText), weapons);
       const result = mergeImportedBuildState(buildState, official.exportValue, { reuseIdenticalGear: true });
       if (result.importedGearCount + result.reusedGearCount !== official.gearCount || result.importedBuildCount !== 1)
         throw new Error(t("ui.buildTab.dashboardValidationError"));
-      official.warnings.forEach((warning) => console.warn(`[Official gear import] ${warning}`));
+      if (official.warnings.length) publishNotice({ id: "official-import", message: official.warnings.join("\n") });
       onBuildStateChange(result.state);
       setEditingBuildId(result.importedBuildIds[0]);
       setEditingName(false);
       officialImportDialogRef.current?.close();
     } catch (error) {
-      setOfficialImportError(error instanceof Error ? error.message : t("ui.buildTab.dashboardImportError"));
+      publishNotice({
+        id: "official-import",
+        error: true,
+        message: error instanceof Error ? error.message : t("ui.buildTab.dashboardImportError"),
+      });
     }
   }
 
@@ -586,11 +596,7 @@ export default function BuildTab({
           />
         </div>
       </div>
-      <dialog
-        className="official-import-dialog"
-        ref={officialImportDialogRef}
-        onClose={() => setOfficialImportError("")}
-      >
+      <dialog className="official-import-dialog" ref={officialImportDialogRef}>
         <div className="official-import-heading">
           <div>
             <span className="detail-kicker">{t("ui.buildTab.officialDashboard")}</span>
@@ -629,14 +635,9 @@ export default function BuildTab({
           value={officialImportText}
           onChange={(event) => {
             setOfficialImportText(event.target.value);
-            setOfficialImportError("");
+            dismissNotice("official-import");
           }}
         />
-        {officialImportError && (
-          <p className="editor-error" role="alert">
-            {officialImportError}
-          </p>
-        )}
         <div className="official-import-actions">
           <button
             className="button button-secondary"

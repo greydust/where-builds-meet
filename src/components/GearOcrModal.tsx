@@ -10,6 +10,7 @@ import { Modal } from "../ui/Modal";
 import { gearData } from "../gear";
 import type { GearOcrResult } from "../gearOcr";
 import { t } from "../i18n";
+import { publishNotice, dismissNotice } from "../notices";
 
 type GearOcrModule = typeof import("../gearOcr");
 
@@ -37,7 +38,6 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
   const ocrInputRef = useRef<HTMLInputElement>(null);
   const [ocrBusy, setOcrBusy] = useState(false);
   const [ocrDragging, setOcrDragging] = useState(false);
-  const [ocrError, setOcrError] = useState("");
   const [ocrStatus, setOcrStatus] = useState("");
   const [ocrProgress, setOcrProgress] = useState(0);
   const [ocrPreview, setOcrPreview] = useState("");
@@ -50,7 +50,7 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
       return "";
     });
     if (ocrInputRef.current) ocrInputRef.current.value = "";
-    setOcrError("");
+    dismissNotice("image-import");
     setOcrStatus("");
     setOcrProgress(0);
     setOcrDragging(false);
@@ -69,10 +69,10 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
   const importImage = async (file?: File) => {
     if (!file || ocrBusy) return;
     if (file.size > 15 * 1024 * 1024) {
-      setOcrError(t("ui.buildTab.imageTooLargeError"));
+      publishNotice({ id: "image-import", error: true, message: t("ui.buildTab.imageTooLargeError") });
       return;
     }
-    setOcrError("");
+    dismissNotice("image-import");
     setOcrBusy(true);
     setOcrStatus(t("ui.buildTab.loadingOcrModel"));
     setOcrProgress(0);
@@ -99,7 +99,11 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
       onImport(result);
       onClose();
     } catch (caught) {
-      setOcrError(caught instanceof Error ? caught.message : t("ui.buildTab.imageImportError"));
+      publishNotice({
+        id: "image-import",
+        error: true,
+        message: caught instanceof Error ? caught.message : t("ui.buildTab.imageImportError"),
+      });
     } finally {
       setOcrBusy(false);
       setOcrStatus("");
@@ -120,7 +124,7 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
         .find((item) => item.kind === "file" && item.type.startsWith("image/"))
         ?.getAsFile() ?? Array.from(event.clipboardData.files).find((file) => file.type.startsWith("image/"));
     if (!clipboardFile) {
-      setOcrError(t("ui.buildTab.clipboardImageError"));
+      publishNotice({ id: "image-import", error: true, message: t("ui.buildTab.clipboardImageError") });
       return;
     }
     event.preventDefault();
@@ -201,11 +205,6 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
             </div>
             <progress max={1} value={ocrProgress} />
           </div>
-        )}
-        {ocrError && (
-          <p className="editor-error gear-ocr-error" role="alert">
-            {ocrError}
-          </p>
         )}
       </div>
     </Modal>

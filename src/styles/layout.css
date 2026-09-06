@@ -165,8 +165,10 @@
     }
 
     .page-header-controls {
+      position: relative;
       display: flex;
-      flex: 0 0 auto;
+      flex: 0 1 auto;
+      max-inline-size: 100%;
       align-items: end;
       flex-wrap: wrap;
       justify-content: end;

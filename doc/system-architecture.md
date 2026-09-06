@@ -1144,6 +1144,45 @@ to rerender on every worker update.
 
 ## Development and deployment
 
+Every production build embeds a unique version and emits the matching
+`version.json`. Visible sessions check it once a minute and when focus,
+visibility, or connectivity returns, using uncached requests. A non-blocking
+notice asks users to save unfinished edits with the existing Save controls and
+then reload. Reload is always explicit; it neither saves drafts nor clears
+browser storage. A cache-busting navigation requests the current entry page.
+Development-server sessions do not poll for releases.
+
+`src/notices.ts` owns the shared, in-memory notice list. The header's `NoticeArea`
+renders it as an absolutely positioned overlay to the left of Language on wide
+screens, and below the controls on narrow screens or mobile. The controls provide
+its positioning anchor; adding or dismissing notices never changes header or page
+layout. It is a non-blocking panel with a viewport-bounded scroll limit and individual
+dismiss buttons. Source IDs replace an earlier message from the same operation while
+unrelated notices coexist. Update/module-load notices, profile and rotation
+transfer results, build/dashboard/image import failures, save confirmations, and
+calculation/simulation failures all publish through this store. Field validation and ongoing
+progress remain next to their inputs. Notices survive tab changes but are not
+persisted across page reloads. Dismissing an update does not cause every periodic
+check to announce it again. Message keys are resolved at render time for update
+notices; operation-specific error text is captured when the operation finishes.
+
+The same notice handles Vite import failures without claiming every network
+failure is a deployment. Boundaries around lazy Build and Simulation features
+keep an import rejection from unmounting the app and its rotation editor.
+
+The Pages workflow carries hashed `assets/` files forward for seven days after
+they leave the current build. The deployed `asset-history.json` records current
+assets with a null deadline and retired assets with an absolute expiry; later
+deployments do not extend that expiry. Retention reads the live site's inventory
+and files, so it does not depend on Actions artifact lifetime. The initial rollout
+bootstraps from the last successful release's Pages artifact, before an inventory
+exists. Missing required old files or inventory failures stop deployment rather
+than silently dropping retained assets. Only assets are carried forward; HTML,
+version metadata, and public locale files always come from the new build.
+Expired assets are omitted at the next deployment. Tabs older than the retention
+window may need the reload fallback. Already-open versions predating the notice
+cannot display it until their first reload, though their retained chunks work.
+
 ```text
 npm install
 npm run dev

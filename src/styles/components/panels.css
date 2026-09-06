@@ -1,4 +1,75 @@
 @layer components {
+  .notice-area {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: calc(100% + 0.75rem);
+    z-index: 10;
+    inline-size: clamp(16rem, 28vw, 28rem);
+    max-inline-size: calc(100vw - 2rem);
+    &:empty {
+      display: none;
+    }
+  }
+
+  @media (max-width: 64em) {
+    .notice-area {
+      inset-block-start: calc(100% + 0.75rem);
+      inset-inline-end: 0;
+    }
+  }
+
+  .notice-area-panel {
+    max-block-size: min(14rem, 50dvh);
+    overflow-y: auto;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 0.25rem 1rem var(--shadow-color);
+
+    h2 {
+      margin: 0 0 0.5rem;
+      font-size: 0.875rem;
+    }
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    p {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    button {
+      min-block-size: 2.75rem;
+      min-inline-size: 2.75rem;
+    }
+    .button {
+      margin-block-start: 0.5rem;
+    }
+  }
+
+  .notice-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+
+    & + & {
+      margin-block-start: 0.75rem;
+      padding-block-start: 0.75rem;
+      border-block-start: 1px solid var(--border);
+    }
+    strong {
+      display: block;
+      margin-block-end: 0.25rem;
+    }
+    .icon-button {
+      margin: 0;
+    }
+  }
   .panel {
     margin-block-end: 12px;
     padding: 16px;

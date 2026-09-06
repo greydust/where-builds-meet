@@ -17,6 +17,8 @@ import { type AttunementStats, type DamageBreakdown } from "./calculations/damag
 import { resolveAttunementStats, type AttunementOverrides } from "./calculations/attunementStats";
 import { resolveSwitchValue } from "./calculations/dynamicValues";
 import { UiIcon } from "./UiIcon";
+import { NoticeArea, FeatureLoadBoundary } from "./components/NoticeArea";
+import { publishNotice, dismissNotice } from "./notices";
 const loadBuildTab = () => import("./BuildTab");
 const loadSimulationTab = () => import("./SimulationTab");
 const BuildTab = lazy(loadBuildTab);
@@ -2623,7 +2625,6 @@ function StatsTab({
   const [globalDebuffs, setGlobalDebuffs] = useState(loadGlobalDebuffs);
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({});
   const [newProfileName, setNewProfileName] = useState("");
-  const [profileTransferStatus, setProfileTransferStatus] = useState<{ message: string; error?: boolean }>();
   const profileDialogRef = useRef<HTMLDialogElement>(null);
   const graduationRate =
     rotationMetrics && graduationDps && graduationDps > 0 ? (rotationMetrics.dps / graduationDps) * 100 : undefined;
@@ -2727,7 +2728,7 @@ function StatsTab({
     ]);
     setSelectedProfileId(id);
     setNewProfileName("");
-    setProfileTransferStatus({ message: t("ui.app.profileSaved", { name }) });
+    publishNotice({ id: "profile-transfer", message: t("ui.app.profileSaved", { name }) });
   }
 
   function exportProfiles() {
@@ -2738,7 +2739,10 @@ function StatsTab({
     link.download = `where-builds-meet-character-profiles-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(href);
-    setProfileTransferStatus({ message: t("ui.app.profilesExported", { count: characterProfiles.length }) });
+    publishNotice({
+      id: "profile-transfer",
+      message: t("ui.app.profilesExported", { count: characterProfiles.length }),
+    });
   }
 
   async function importProfiles(event: ChangeEvent<HTMLInputElement>) {
@@ -2748,9 +2752,10 @@ function StatsTab({
     try {
       const result = mergeImportedCharacterProfiles(characterProfiles, JSON.parse(await file.text()));
       onCharacterProfilesChange(result.profiles);
-      setProfileTransferStatus({ message: t("ui.app.profilesImported", { count: result.importedCount }) });
+      publishNotice({ id: "profile-transfer", message: t("ui.app.profilesImported", { count: result.importedCount }) });
     } catch (error) {
-      setProfileTransferStatus({
+      publishNotice({
+        id: "profile-transfer",
         message: error instanceof Error ? error.message : t("ui.app.profileImportError"),
         error: true,
       });
@@ -3007,7 +3012,7 @@ function StatsTab({
                   className="button button-secondary"
                   type="button"
                   onClick={() => {
-                    setProfileTransferStatus(undefined);
+                    dismissNotice("profile-transfer");
                     profileDialogRef.current?.showModal();
                   }}
                 >
@@ -3674,11 +3679,7 @@ function StatsTab({
           />
         </aside>
       </div>
-      <dialog
-        className="character-profile-dialog"
-        ref={profileDialogRef}
-        onCancel={() => setProfileTransferStatus(undefined)}
-      >
+      <dialog className="character-profile-dialog" ref={profileDialogRef}>
         <div className="character-profile-dialog-heading">
           <div>
             <h2>{t("ui.app.characterProfiles")}</h2>
@@ -3817,14 +3818,6 @@ function StatsTab({
               />
             </label>
           </div>
-          {profileTransferStatus && (
-            <p
-              className={profileTransferStatus.error ? "error" : ""}
-              role={profileTransferStatus.error ? "alert" : "status"}
-            >
-              {profileTransferStatus.message}
-            </p>
-          )}
           <button className="button button-primary" type="button" onClick={() => profileDialogRef.current?.close()}>
             {t("ui.app.done")}
           </button>
@@ -4972,7 +4965,10 @@ function SkillEditorTab({
   const [selectedSkill, setSelectedSkill] = useState(Object.keys(defaultEditorMaps.Snowparting)[0]);
   const [draft, setDraft] = useState(() => skillToDraft(defaultEditorMaps.Snowparting[selectedSkill]));
   const [error, setError] = useState("");
-  const [status, setStatus] = useState("");
+  const setStatus = (message: string) => {
+    if (message) publishNotice({ id: "skill-save", message });
+    else dismissNotice("skill-save");
+  };
 
   const skills = useMemo(
     () => ({ ...defaultEditorMaps[category], ...(overrides[category] ?? {}) }),
@@ -5099,8 +5095,11 @@ function SkillEditorTab({
       setStatus(t("ui.app.savedForThisSession"));
       setError("");
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : t("ui.app.recordSaveError"));
-      setStatus("");
+      publishNotice({
+        id: "skill-save",
+        error: true,
+        message: saveError instanceof Error ? saveError.message : t("ui.app.recordSaveError"),
+      });
     }
   }
 
@@ -5187,7 +5186,6 @@ function SkillEditorTab({
                 <span className="detail-kicker">{category}</span>
                 <h3>{skillDisplayName(skills[selectedSkill], selectedSkill)}</h3>
               </div>
-              {status && <span className="editor-status">{status}</span>}
             </div>
             {isDefinitionCategory ? (
               <>
@@ -5542,9 +5540,11 @@ function RotationEditorTab({
   const [startAnchor, setStartAnchor] = useState<{ rowId: string; actionIndex?: number }>(initialState.startAnchor);
   const [expandedSkillRows, setExpandedSkillRows] = useState<Set<string>>(() => new Set());
   const [editingName, setEditingName] = useState(false);
-  const [status, setStatus] = useState("");
+  const setStatus = (message: string) => {
+    if (message) publishNotice({ id: "rotation-save", message });
+    else dismissNotice("rotation-save");
+  };
   const [error, setError] = useState("");
-  const [transferStatus, setTransferStatus] = useState<{ message: string; error?: boolean } | null>(null);
   const [eventTimeDrafts, setEventTimeDrafts] = useState<Record<string, string>>({});
   const [eventDurationDrafts, setEventDurationDrafts] = useState<Record<string, string>>({});
   const [eventDistanceDrafts, setEventDistanceDrafts] = useState<Record<string, string>>({});
@@ -6250,7 +6250,7 @@ function RotationEditorTab({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    setTransferStatus({ message: t("ui.app.rotationsExported", { count: exportedCount }) });
+    publishNotice({ id: "rotation-transfer", message: t("ui.app.rotationsExported", { count: exportedCount }) });
   }
 
   async function importRotations(event: ChangeEvent<HTMLInputElement>) {
@@ -6288,9 +6288,13 @@ function RotationEditorTab({
         setStatus("");
         setError("");
       }
-      setTransferStatus({ message: t("ui.app.rotationsImported", { count: result.importedCount }) });
+      publishNotice({
+        id: "rotation-transfer",
+        message: t("ui.app.rotationsImported", { count: result.importedCount }),
+      });
     } catch (error) {
-      setTransferStatus({
+      publishNotice({
+        id: "rotation-transfer",
         message: error instanceof Error ? error.message : t("ui.app.rotationImportError"),
         error: true,
       });
@@ -7005,7 +7009,11 @@ function RotationEditorTab({
         await calculateGraduationDps(rotationRecord);
       } catch (graduationError) {
         if (diffRequestSequenceRef.current === requestSequence)
-          console.error("Graduation baseline calculation failed", graduationError);
+          publishNotice({
+            id: "graduation-calculation",
+            error: true,
+            message: graduationError instanceof Error ? graduationError.message : t("ui.notices.calculationError"),
+          });
       }
       if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
 
@@ -7055,7 +7063,11 @@ function RotationEditorTab({
     } catch (calculationError) {
       if (diffRequestSequenceRef.current === requestSequence) endRotationCalculation();
       if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
-      console.error("Rotation calculation failed", calculationError);
+      publishNotice({
+        id: "rotation-calculation",
+        error: true,
+        message: calculationError instanceof Error ? calculationError.message : t("ui.notices.calculationError"),
+      });
       return "failed" as const;
     } finally {
       if (diffRequestSequenceRef.current === requestSequence) runningRefreshTargetRef.current = null;
@@ -7083,7 +7095,11 @@ function RotationEditorTab({
       void calculateEditorPreview(editingRotationId, rotation, requestSequence).catch((calculationError) => {
         if (editorPreviewRequestSequenceRef.current !== requestSequence) return;
         if (calculationError instanceof Error && calculationError.message.includes("superseded")) return;
-        console.error("Rotation editor preview calculation failed", calculationError);
+        publishNotice({
+          id: "rotation-preview",
+          error: true,
+          message: calculationError instanceof Error ? calculationError.message : t("ui.notices.calculationError"),
+        });
       });
     }, 250);
     return () => {
@@ -7200,11 +7216,6 @@ function RotationEditorTab({
                 />
               </label>
             </div>
-            {transferStatus && (
-              <p className={transferStatus.error ? "error" : ""} role={transferStatus.error ? "alert" : "status"}>
-                {transferStatus.message}
-              </p>
-            )}
           </div>
         </aside>
         {editingEntry ? (
@@ -7317,7 +7328,6 @@ function RotationEditorTab({
                 </div>
               </div>
               <div className="detail-active-actions">
-                {status && <span className="editor-status">{status}</span>}
                 <span className="rotation-heading-actions">
                   <button
                     className="button button-secondary button-small"
@@ -8690,6 +8700,7 @@ export default function App() {
           <p className="intro">{t("ui.app.buildSimulateAndOptimizeForWhereWindsMeet")}</p>
         </div>
         <div className="page-header-controls">
+          <NoticeArea />
           <label className="locale-selector">
             <span>{t("ui.app.language")}</span>
             <select value={locale} onChange={(event) => void changeLocale(event.target.value)}>
@@ -8807,22 +8818,24 @@ export default function App() {
           onInnerWayChange={() => setInnerWayRevision((current) => current + 1)}
         />
       ) : activeTab === "build" ? (
-        <Suspense fallback={<div className="viewport-tab-content" />}>
-          <div className="viewport-tab-content">
-            <BuildTab
-              weapons={settings.weapons}
-              martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)}
-              pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag}
-              buildGroup={typedPathDefinitions[pathId].buildGroup}
-              graduatedBuildId={typedPathDefinitions[pathId].graduated}
-              devMode={devMode}
-              buildState={effectiveBuildState}
-              onBuildStateChange={setBuildState}
-              onActiveBuildChange={activateBuildForPath}
-              onSelectBuildWeapons={selectBuildWeapons}
-            />
-          </div>
-        </Suspense>
+        <FeatureLoadBoundary>
+          <Suspense fallback={<div className="viewport-tab-content" />}>
+            <div className="viewport-tab-content">
+              <BuildTab
+                weapons={settings.weapons}
+                martialArtTags={settings.weapons.map((weapon) => martialArtDefinitions[weapon].tag)}
+                pathTag={pathId === "mixed" ? undefined : typedPathDefinitions[pathId].tag}
+                buildGroup={typedPathDefinitions[pathId].buildGroup}
+                graduatedBuildId={typedPathDefinitions[pathId].graduated}
+                devMode={devMode}
+                buildState={effectiveBuildState}
+                onBuildStateChange={setBuildState}
+                onActiveBuildChange={activateBuildForPath}
+                onSelectBuildWeapons={selectBuildWeapons}
+              />
+            </div>
+          </Suspense>
+        </FeatureLoadBoundary>
       ) : activeTab === "breakdown" ? (
         <BreakdownTab metrics={rotationMetrics} pathId={pathId} />
       ) : activeTab === "skills" ? (
@@ -8860,14 +8873,16 @@ export default function App() {
       </div>
       {simulationMounted && (
         <div className={activeTab === "simulation" ? "" : "tab-hidden"}>
-          <Suspense fallback={null}>
-            <SimulationTab
-              bundle={activeSimulation?.bundle}
-              bundleKey={activeSimulation?.bundleKey}
-              rotationName={activeSimulation ? activeRotationDisplayName : undefined}
-              buildName={activeBuildDisplayName}
-            />
-          </Suspense>
+          <FeatureLoadBoundary>
+            <Suspense fallback={null}>
+              <SimulationTab
+                bundle={activeSimulation?.bundle}
+                bundleKey={activeSimulation?.bundleKey}
+                rotationName={activeSimulation ? activeRotationDisplayName : undefined}
+                buildName={activeBuildDisplayName}
+              />
+            </Suspense>
+          </FeatureLoadBoundary>
         </div>
       )}
       <footer className="page-footer">
