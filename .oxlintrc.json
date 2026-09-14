@@ -1,12 +1,13 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript", "unicorn", "oxc"],
+  "plugins": ["eslint", "typescript", "unicorn", "react", "react-perf", "oxc", "import", "jsx-a11y", "vitest"],
   "categories": {
     "correctness": "error"
   },
   "rules": {},
-  "ignorePatterns": ["public/ocr/", "dist/", "dist-preview/", "local/", ".agents/skills/"],
+  "ignorePatterns": ["public/", "dist/", "dist-preview/", "local/", ".agents/"],
   "env": {
-    "builtin": true
+    "builtin": true,
+    "browser": true
   }
 }
