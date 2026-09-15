@@ -67,9 +67,18 @@ describe("dps-snapshots", () => {
     const { buildPresetRotationBundle } = await import("../src/App.tsx");
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts");
     const actual = {};
-    for (const pathId of pathIds) {
+    const loadedRotations = await Promise.all(
+      pathIds.map(
+        async (pathId) =>
+          [
+            pathId,
+            (await probeLoad(`/data/rotation/${paths[pathId].buildGroup}/${paths[pathId].defaultRotation}.json`))
+              .default,
+          ] as const,
+      ),
+    );
+    for (const [pathId, rotation] of loadedRotations) {
       const path = paths[pathId];
-      const rotation = (await probeLoad(`/data/rotation/${path.buildGroup}/${path.defaultRotation}.json`)).default;
       const fixture = {
         build: path.defaultBuild,
         rotation: path.defaultRotation,

@@ -11,6 +11,12 @@
       "rules": {
         "oxc/no-map-spread": "error"
       }
+    },
+    {
+      "files": ["script/**/*.mjs", "tests/**/*.ts", "src/App.tsx"],
+      "rules": {
+        "eslint/no-await-in-loop": "error"
+      }
     }
   ],
   "ignorePatterns": ["public/", "dist/", "dist-preview/", "local/", ".agents/"],

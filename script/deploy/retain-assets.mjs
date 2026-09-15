@@ -48,6 +48,7 @@ export async function retainAssets({ dist, previous, site, now = Date.now() }) {
   if (!previousAssets || typeof previousAssets !== "object" || Array.isArray(previousAssets))
     throw new Error("Invalid deployed asset inventory.");
   await mkdir(assetsDirectory, { recursive: true });
+  const pending = [];
   for (const [name, previousExpiry] of Object.entries(previousAssets)) {
     if (!assetName.test(name) || name === "." || name === "..") throw new Error(`Invalid retained asset: ${name}`);
     if (previousExpiry !== null && (typeof previousExpiry !== "number" || !Number.isFinite(previousExpiry)))
@@ -55,14 +56,20 @@ export async function retainAssets({ dist, previous, site, now = Date.now() }) {
     if (Object.hasOwn(assets, name)) continue;
     const expiresAt = previousExpiry ?? now + retentionMs;
     if (expiresAt <= now) continue;
-    const destination = path.join(assetsDirectory, name);
-    if (fromArchive) await copyFile(path.join(previous, "assets", name), destination);
-    else {
-      const asset = await fetchRequired(new URL(`assets/${name}`, inventoryUrl));
-      await writeFile(destination, Buffer.from(await asset.arrayBuffer()));
-    }
-    assets[name] = expiresAt;
+    pending.push([name, expiresAt]);
   }
+  const retained = await Promise.all(
+    pending.map(async ([name, expiresAt]) => {
+      const destination = path.join(assetsDirectory, name);
+      if (fromArchive) await copyFile(path.join(previous, "assets", name), destination);
+      else {
+        const asset = await fetchRequired(new URL(`assets/${name}`, inventoryUrl));
+        await writeFile(destination, Buffer.from(await asset.arrayBuffer()));
+      }
+      return [name, expiresAt];
+    }),
+  );
+  for (const [name, expiresAt] of retained) assets[name] = expiresAt;
   await writeFile(path.join(dist, "asset-history.json"), JSON.stringify({ assets }, null, 2) + "\n");
   console.log(
     `Published ${currentFiles.length} current and ${Object.keys(assets).length - currentFiles.length} retained assets.`,

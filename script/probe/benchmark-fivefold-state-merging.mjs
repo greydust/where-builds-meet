@@ -13,8 +13,9 @@ try {
   const { calculateRotationBaseline, calculateSimulatedRotationRun } = await server.ssrLoadModule(
     "/src/calculations/rotationCalculator.ts",
   );
-  for (const count of process.argv.slice(2).length ? process.argv.slice(2).map(Number) : [400]) {
-    const bundle = await fivefoldBenchmarkBundle(server, count);
+  const counts = process.argv.slice(2).length ? process.argv.slice(2).map(Number) : [400];
+  const bundles = await Promise.all(counts.map(async (count) => [count, await fivefoldBenchmarkBundle(server, count)]));
+  for (const [count, bundle] of bundles) {
     const input = bundle.timeline;
     const samples = { exact: [], merged: [] };
     const output = {};

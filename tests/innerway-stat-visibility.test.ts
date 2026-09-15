@@ -59,11 +59,11 @@ describe("innerway-stat-visibility", () => {
       "The Physical Penetration character stat must increase physical healing.",
     );
 
-    for (const fileName of innerWayFiles) {
-      const definition = innerWayDefinitionForSoloLevel(
-        JSON.parse(await readFile(`data/innerway/${fileName}`, "utf8")),
-        17,
-      );
+    const innerWaySources = await Promise.all(
+      innerWayFiles.map(async (fileName) => [fileName, await readFile(`data/innerway/${fileName}`, "utf8")] as const),
+    );
+    for (const [fileName, source] of innerWaySources) {
+      const definition = innerWayDefinitionForSoloLevel(JSON.parse(source), 17);
       const id = Object.keys(definition.effect)[0].replace(/T0$/, "");
       assert(
         innerWayDefinitions[id]?.name === definition.name,

@@ -16,16 +16,26 @@ describe("martial-art-talents", () => {
     const { emptyStats } = await import("../src/data/statDefinitions.ts");
     const mapping = (await read("data/official/profile-map.json")).martialArts;
     const system = await read("data/system.json");
+    const martialArtFiles = await readdir("data/martial-art");
+    const martialArtPayloads = await Promise.all(
+      martialArtFiles.map(async (filename) => [filename, await read(`data/martial-art/${filename}`)] as const),
+    );
     const arts = {};
-    for (const filename of await readdir("data/martial-art")) {
-      const art = await read(`data/martial-art/${filename}`);
+    for (const [, art] of martialArtPayloads) {
       const identity = Object.values(mapping).find((m) => m.name.toLowerCase() === art.name.toLowerCase());
       arts[identity.weapon] = art;
     }
+    const effectDirectories = ["buff", "debuff"];
+    const effectFiles = await Promise.all(
+      effectDirectories.map(async (dir) => [dir, await readdir(`data/${dir}`)] as const),
+    );
+    const effectPayloads = await Promise.all(
+      effectFiles.flatMap(([dir, files]) =>
+        files.map(async (file) => [dir, file, await read(`data/${dir}/${file}`)] as const),
+      ),
+    );
     const effectDefinitions = {};
-    for (const dir of ["buff", "debuff"])
-      for (const file of await readdir(`data/${dir}`))
-        Object.assign(effectDefinitions, await read(`data/${dir}/${file}`));
+    for (const [, , payload] of effectPayloads) Object.assign(effectDefinitions, payload);
     const baseCases = [
       ["strategicSword", "power", "affinity", 0.000152, 0.04256],
       ["namelessSword", "momentum", "maxPhys", 0.264, 73.92],

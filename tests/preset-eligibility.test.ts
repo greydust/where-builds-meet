@@ -7,17 +7,15 @@ describe("preset-eligibility", () => {
   it("Preset eligibility consistency checks passed", async () => {
     const readJson = async (file) => JSON.parse(await readFile(file, "utf8"));
     const collectJsonFiles = async (root) => {
-      const files = [];
-      const pending = [root];
-      while (pending.length) {
-        const directory = pending.pop();
-        for (const entry of await readdir(directory, { withFileTypes: true })) {
-          const entryPath = path.join(directory, entry.name);
-          if (entry.isDirectory()) pending.push(entryPath);
-          else if (entry.name.endsWith(".json")) files.push(entryPath);
-        }
-      }
-      return files;
+      const entries = await readdir(root, { withFileTypes: true });
+      const nested = await Promise.all(
+        entries.map(async (entry) => {
+          const entryPath = path.join(root, entry.name);
+          if (entry.isDirectory()) return collectJsonFiles(entryPath);
+          return entry.name.endsWith(".json") ? [entryPath] : [];
+        }),
+      );
+      return nested.flat();
     };
     const assertUniqueMartialArts = (definition, file) => {
       assert(
@@ -62,8 +60,10 @@ describe("preset-eligibility", () => {
     const buildPresetIds = new Set();
     const buildsById = new Map();
     const rotationsById = new Map();
-    for (const file of [...buildFiles, ...rotationFiles]) {
-      const definition = await readJson(file);
+    const presetPayloads = await Promise.all(
+      [...buildFiles, ...rotationFiles].map(async (file) => [file, await readJson(file)] as const),
+    );
+    for (const [file, definition] of presetPayloads) {
       assertUniqueMartialArts(definition, file);
       definition.martialArts.forEach((martialArt) => presetMartialArts.add(martialArt));
       if (file.startsWith(`data${path.sep}build${path.sep}`)) {

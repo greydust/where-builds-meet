@@ -7371,17 +7371,14 @@ function RotationEditorTab({
         if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
 
         const comparisonBundle = calculationBundleFor(rotationRecord, true);
-        for (const category of comparisonCategoryOrder) {
+        const calculateComparisonCategory = async (
+          category: RotationCalculationCategory,
+          previousMetrics: RotationMetrics,
+        ): Promise<RotationMetrics | "superseded" | "discarded"> => {
           const variants = comparisonVariantRequests(comparisonBundle, category);
-          if (variants.length === 0) {
-            metrics = mergeComparisonCategory(metrics, baseline.metrics, category);
-            onMetricsChange(metrics, true);
-            completeRotationCalculationCategory(category);
-            continue;
-          }
+          if (variants.length === 0) return mergeComparisonCategory(previousMetrics, baseline.metrics, category);
           const variantMetrics: RotationMetrics[] = [];
-          for (let index = 0; index < variants.length; index += 1) {
-            const variant = variants[index];
+          const calculateComparisonVariant = async (variant: ComparisonVariantRequest, index: number) => {
             let calculated = calculationCacheRef.current.variant(resultKey, variant.key);
             if (!calculated) {
               calculated = await requestRotationComparisons(variant.bundle, workerCacheKeyFor(resultKey), baseline, {
@@ -7397,7 +7394,11 @@ function RotationEditorTab({
             variantMetrics.push(calculated);
             if (diffRequestSequenceRef.current === requestSequence)
               publishRotationCategoryProgress(category, (index + 1) / variants.length);
-          }
+          };
+          await variants.reduce(
+            (previous, variant, index) => previous.then(() => calculateComparisonVariant(variant, index)),
+            Promise.resolve(),
+          );
           if (calculationContextKeyRef.current !== contextKey) {
             if (diffRequestSequenceRef.current !== requestSequence) return "superseded" as const;
             endRotationCalculation();
@@ -7408,10 +7409,23 @@ function RotationEditorTab({
             endRotationCalculation();
             return "discarded" as const;
           }
-          metrics = combineComparisonVariantMetrics(metrics, variantMetrics, category);
-          onMetricsChange(metrics, true);
-          completeRotationCalculationCategory(category);
-        }
+          return combineComparisonVariantMetrics(previousMetrics, variantMetrics, category);
+        };
+        type ComparisonProgress = { status: "published" | "superseded" | "discarded"; metrics: RotationMetrics };
+        const comparisonOutcome = await comparisonCategoryOrder.reduce(
+          async (previous, category): Promise<ComparisonProgress> => {
+            const state = await previous;
+            if (state.status !== "published") return state;
+            const result = await calculateComparisonCategory(category, state.metrics);
+            if (result === "superseded" || result === "discarded") return { status: result, metrics: state.metrics };
+            onMetricsChange(result, true);
+            completeRotationCalculationCategory(category);
+            return { status: "published" as const, metrics: result };
+          },
+          Promise.resolve({ status: "published" as const, metrics }),
+        );
+        if (comparisonOutcome.status !== "published") return comparisonOutcome.status;
+        metrics = comparisonOutcome.metrics;
         return "published" as const;
       } catch (calculationError) {
         if (diffRequestSequenceRef.current === requestSequence) endRotationCalculation();
@@ -7483,14 +7497,15 @@ function RotationEditorTab({
       }
       if (outcome !== "published") return;
       if (calculationContextKeyRef.current !== calculationContextKey) return;
-      for (const entry of entries) {
-        if (entry.id === activeEntry.id) continue;
+      const refreshEntryBaseline = async (entry: RotationEntry) => {
+        if (entry.id === activeEntry.id) return;
         try {
           await calculateBaselineForRotation(entry.id, rotationRecordForEntry(entry), 100);
         } catch {
           /* Superseded by newer work. */
         }
-      }
+      };
+      await entries.reduce((previous, entry) => previous.then(() => refreshEntryBaseline(entry)), Promise.resolve());
     })();
   }, [
     activeRotationId,

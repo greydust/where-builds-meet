@@ -45,8 +45,8 @@ describe("default-rotation-moves", () => {
       BattleEnd: { name: "Battle End", castTime: 0, action: [], tags: ["Event"] },
       Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], tags: ["Event"] },
     };
-    for (const path of rotationPaths) {
-      const rotation = (await probeLoad(path)).default;
+    const loadedRotations = await Promise.all(rotationPaths.map(async (path) => (await probeLoad(path)).default));
+    for (const rotation of loadedRotations) {
       const timeline = buildRotationTimeline({
         rotation,
         skills,
