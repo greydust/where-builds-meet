@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-empirical-edge.mjs.
@@ -9,10 +9,7 @@ describe("empirical-edge", () => {
     const { innerWayDefinitions } = await import("../src/data/innerWayDefinitions.ts");
     const { buildRotationTimeline, requirementsPass } = await probeLoad("/src/calculations/rotationTimeline.ts");
 
-    expect(
-      innerWayDefinitions.EmpiricalEdge === empiricalEdge,
-      "Empirical Edge must be registered as an Inner Way.",
-    ).toBeTruthy();
+    assert(innerWayDefinitions.EmpiricalEdge === empiricalEdge, "Empirical Edge must be registered as an Inner Way.");
     const trigger = empiricalEdge.effect.EmpiricalEdgeT0.trigger[0];
 
     const cognition = kiteBuffs.Cognition;
@@ -35,10 +32,10 @@ describe("empirical-edge", () => {
           Object.fromEntries(penetrationFields.map((field) => [field, 0])),
         );
     const martialArtPenetration = resolvedPenetration(["MartialArtEffect"]);
-    expect(
+    assert(
       martialArtPenetration.physicalPenetration === 0,
       "Cognition must not grant Physical Penetration before Empirical Edge T6.",
-    ).toBeTruthy();
+    );
     for (const tags of [
       ["MartialArtEffect", "HeavenwillGauntlets", "Falcon"],
       ["MartialArtEffect", "VileCondemned"],
@@ -48,10 +45,10 @@ describe("empirical-edge", () => {
       const t6Penetration = resolvedPenetration(tags, ["EmpiricalEdgeT6"]);
       expect(t6Penetration.physicalPenetration).toBe(t6Penetration.bamboocutPenetration);
 
-      expect(
+      assert(
         penetration.physicalPenetration === 0,
         "Qualifying Cognition effects must not gain Physical Penetration before T6.",
-      ).toBeTruthy();
+      );
     }
 
     const probeSkill = {
@@ -82,9 +79,9 @@ describe("empirical-edge", () => {
     const row = timeline.find((candidate) => candidate.id === "rotation-0");
     const cognitionStackAt = (actionIndex) =>
       row.actionStates[actionIndex].buffs.find((buff) => buff.name === "Cognition")?.stack ?? 0;
-    expect(
+    assert(
       [0, 1, 1, 2].every((stack, index) => cognitionStackAt(index) === stack),
       "Cognition must apply after damage and reject reapplications during its one-second cooldown.",
-    ).toBeTruthy();
+    );
   });
 });

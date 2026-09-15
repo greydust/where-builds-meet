@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-worker-batch-supersession.mjs.
 describe("worker-batch-supersession", () => {
@@ -69,11 +69,13 @@ describe("worker-batch-supersession", () => {
       const oldResults = await Promise.allSettled([running, pending]);
       const replacement = await requestRotationCalculation(bundle, { key: "replacement" });
 
-      if (!workers[0]?.terminated) throw new Error("The superseded batch worker was not terminated.");
-      if (oldResults.some((result) => result.status !== "rejected" || !result.reason.message.includes("superseded")))
-        throw new Error("The superseded batch did not reject all running and pending work.");
-      if (workers.length !== 2) throw new Error(`Expected a fresh replacement worker, but created ${workers.length}.`);
-      if (replacement.dps !== metrics.dps) throw new Error("The replacement batch did not complete.");
+      assert(workers[0]?.terminated, "The superseded batch worker was not terminated.");
+      assert(
+        !oldResults.some((result) => result.status !== "rejected" || !result.reason.message.includes("superseded")),
+        "The superseded batch did not reject all running and pending work.",
+      );
+      assert(workers.length === 2, `Expected a fresh replacement worker, but created ${workers.length}.`);
+      assert(replacement.dps === metrics.dps, "The replacement batch did not complete.");
 
       const cachedBaseline = {
         metrics,
@@ -86,10 +88,14 @@ describe("worker-batch-supersession", () => {
       await requestRotationComparisons(bundle, "setup-a", cachedBaseline, { key: "variant-a" });
       await requestRotationComparisons(bundle, "setup-a", cachedBaseline, { key: "variant-b" });
       const comparisonMessages = workers[1].messages.filter((message) => message.mode === "comparisons");
-      if (comparisonMessages[0]?.baseline !== cachedBaseline)
-        throw new Error("A fresh worker was not seeded from the main-thread baseline cache.");
-      if (comparisonMessages[1]?.baseline !== undefined)
-        throw new Error("The cached baseline was redundantly sent after the worker had been seeded.");
+      assert(
+        comparisonMessages[0]?.baseline === cachedBaseline,
+        "A fresh worker was not seeded from the main-thread baseline cache.",
+      );
+      assert(
+        comparisonMessages[1]?.baseline === undefined,
+        "The cached baseline was redundantly sent after the worker had been seeded.",
+      );
 
       disposeRotationCalculationWorker();
     } finally {

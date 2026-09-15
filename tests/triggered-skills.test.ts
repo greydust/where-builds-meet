@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -40,18 +40,15 @@ describe("triggered-skills", () => {
     );
 
     triggeredIds.forEach((skillId) => {
-      expect(definitions[skillId], `Triggered skill ${skillId} has no skill definition.`).toBeTruthy();
-      expect(
+      assert(definitions[skillId], `Triggered skill ${skillId} has no skill definition.`);
+      assert(
         definitions[skillId].tags?.includes("Triggered"),
         `Triggered skill ${skillId} is missing the Triggered tag.`,
-      ).toBeTruthy();
+      );
     });
     Object.entries(definitions).forEach(([skillId, definition]) => {
       if (definition.tags?.includes("Triggered"))
-        expect(
-          triggeredIds.has(skillId),
-          `${skillId} is tagged Triggered but is not referenced by a trigger action.`,
-        ).toBeTruthy();
+        assert(triggeredIds.has(skillId), `${skillId} is tagged Triggered but is not referenced by a trigger action.`);
     });
   });
 });

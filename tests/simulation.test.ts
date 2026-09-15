@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-simulation.mjs.
@@ -40,23 +40,23 @@ describe("simulation", () => {
     const minimum = calculateSimulatedDamageBreakdown(action, context, () => 0);
     const maximum = calculateSimulatedDamageBreakdown(action, context, () => 1);
 
-    expect(
+    assert(
       minimum.outcome === "normal" && maximum.outcome === "normal",
       "The controlled probe should select a normal hit.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       minimum.total < expected.total && expected.total < maximum.total,
       "Simulation mode must sample around deterministic average damage.",
-    ).toBeTruthy();
+    );
     const healingAction = { type: "heal", time: 1, phyCoef: 1, silkbindCoef: 1 };
     const expectedHealing = calculateHealingBreakdown(healingAction, context);
     const minimumHealing = calculateSimulatedHealingBreakdown(healingAction, context, () => 0);
     const maximumHealing = calculateSimulatedHealingBreakdown(healingAction, context, () => 1);
-    expect(
+    assert(
       Math.abs(minimumHealing.total / expectedHealing.total - 0.92) < 1e-9 &&
         Math.abs(maximumHealing.total / expectedHealing.total - 1.08) < 1e-9,
       "Simulation mode must apply the full -8% to +8% healing fluctuation without changing expected healing.",
-    ).toBeTruthy();
+    );
 
     const timeline = {
       rotation: { name: "Simulation probe", steps: [{ type: "skill", skill: "ProbeSkill" }] },
@@ -99,23 +99,23 @@ describe("simulation", () => {
       summary.results.median,
     ];
 
-    expect(summary.runCount === 101, "The simulator must produce the requested number of runs.").toBeTruthy();
-    expect(
+    assert(summary.runCount === 101, "The simulator must produce the requested number of runs.");
+    assert(
       finalProgress?.completed === 101 && finalProgress.total === 101,
       "Progress must finish at the requested run count.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       summary.runs.length === 101 && customResult,
       "Sorted runs must remain available for immediate arbitrary-percentile display.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       ordered.every((result, index) => index === 0 || ordered[index - 1].dps >= result.dps),
       "Displayed DPS percentiles must remain sorted.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       ordered.every((result) => result.normalPercentage === 100),
       "Outcome percentages must count the sampled hit outcomes.",
-    ).toBeTruthy();
+    );
     const healingStats = { ...stats, crit: 1 };
     const healingSummary = simulateRotation(
       {
@@ -144,15 +144,15 @@ describe("simulation", () => {
       () => 0,
     );
     const healingRun = healingSummary.results.best;
-    expect(
+    assert(
       healingRun.totalDamage === 0 &&
         healingRun.totalHealing > 0 &&
         healingRun.hps === healingRun.totalHealing / healingSummary.duration,
       "Simulation runs must publish sampled total healing and HPS alongside damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       healingRun.healingNormalPercentage === 0 && healingRun.healingCriticalPercentage === 100,
       "Healing simulation percentages must count sampled recipient-weighted Normal and Critical outcomes.",
-    ).toBeTruthy();
+    );
   });
 });

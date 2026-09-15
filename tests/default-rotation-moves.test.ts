@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-default-rotation-moves.mjs.
@@ -61,11 +61,11 @@ describe("default-rotation-moves", () => {
       const firstSkill = timeline
         .filter((row) => row.step.type === "skill" && !row.skipped)
         .sort((left, right) => left.startTime - right.startTime || left.order - right.order)[0];
-      expect(firstSkill.distance === 19, `${rotation.name} must begin at 19m.`).toBeTruthy();
+      assert(firstSkill.distance === 19, `${rotation.name} must begin at 19m.`);
       const fleeting = timeline.find(
         (row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "SnowpartingSpecial",
       );
-      expect(fleeting?.distance === 3, `${rotation.name} first Fleeting Trace must begin at 3m.`).toBeTruthy();
+      assert(fleeting?.distance === 3, `${rotation.name} first Fleeting Trace must begin at 3m.`);
       for (const row of timeline.filter(
         (candidate) =>
           candidate.kind === "rotation" &&
@@ -87,18 +87,18 @@ describe("default-rotation-moves", () => {
             candidate.step.type === "skill" &&
             candidate.step.skill === "AnxiSoldierBurningHeart3",
         );
-        expect(
+        assert(
           firstAnxi?.actionStates[0]?.distance === 6,
           `${rotation.name} Burning Heart ${row.rotationIndex} first Anxi must be 6m.`,
-        ).toBeTruthy();
-        expect(
+        );
+        assert(
           secondAnxi?.actionStates[0]?.distance === 4,
           `${rotation.name} Burning Heart ${row.rotationIndex} second Anxi must be 4m.`,
-        ).toBeTruthy();
-        expect(
+        );
+        assert(
           row.actionStates[3]?.distance === 2,
           `${rotation.name} Burning Heart ${row.rotationIndex} first damage must be 2m.`,
-        ).toBeTruthy();
+        );
       }
     }
   });

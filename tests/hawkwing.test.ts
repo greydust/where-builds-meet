@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-hawkwing.mjs.
 describe("hawkwing", () => {
@@ -132,10 +132,7 @@ describe("hawkwing", () => {
     tracker.resolveAffinity(buff, outcomeBuffTick(0), 1);
     closeTo(tracker.expectedStack(buff, outcomeBuffTick(4.9999)), 1, "A stack must remain active before expiry");
     closeTo(tracker.expectedStack(buff, outcomeBuffTick(5)), 0, "A stack must expire exactly at its 0.1 ms tick");
-    expect(
-      result.metrics.totalDamage > 300,
-      "Expected Hawkwing stacks must increase later physical hits.",
-    ).toBeTruthy();
+    assert(result.metrics.totalDamage > 300, "Expected Hawkwing stacks must increase later physical hits.");
 
     const guaranteedAffinityStats = { ...stats, directAffinity: 1 };
     const guaranteedAffinityResult = calculateRotationBaseline({
@@ -154,10 +151,10 @@ describe("hawkwing", () => {
     const simulatedStacks = calculateRotationDamageSequence(guaranteedAffinityResult.baseline, () => 0.5).map(
       (row) => row.expectedBuffStacks?.Hawkwing,
     );
-    expect(
+    assert(
       JSON.stringify(simulatedStacks) === JSON.stringify([0, 1, 2]),
       `Simulation must advance concrete Hawkwing stacks after sampled Affinity hits; received ${simulatedStacks}.`,
-    ).toBeTruthy();
+    );
 
     const momentumAffinityEffect = {
       stat: { affinity: { formula: { source: "momentum", multiplier: 0.001 } } },

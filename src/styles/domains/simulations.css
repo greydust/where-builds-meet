@@ -233,6 +233,10 @@
     min-inline-size: 1080px;
   }
 
+  .simulation-table > tbody {
+    display: contents;
+  }
+
   .simulation-table-row {
     display: grid;
     grid-column: 1 / -1;
@@ -247,7 +251,7 @@
     background: oklch(from var(--surface-alt) l c h / 0.3);
   }
 
-  .simulation-table-row span:not(:first-child) {
+  .simulation-table-row > :not(:first-child) {
     text-align: end;
   }
 

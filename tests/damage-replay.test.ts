@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-damage-replay.mjs.
 describe("damage-replay", () => {
@@ -123,68 +123,59 @@ describe("damage-replay", () => {
       },
     };
     const withHealing = calculateRotationBaseline(healingBundle);
-    expect(
+    assert(
       closeTo(withHealing.metrics.totalDamage, result.metrics.totalDamage),
       "Live healing resolution must preserve cached source damage for every delayed replay.",
-    ).toBeTruthy();
+    );
     const normalEntries = result.baseline.filter((entry) => !entry.replay);
     const replayEntries = result.baseline.filter((entry) => entry.replay);
-    expect(normalEntries.length === 4, "The probe must retain all four ordinary damage actions.").toBeTruthy();
-    expect(
+    assert(normalEntries.length === 4, "The probe must retain all four ordinary damage actions.");
+    assert(
       replayEntries.length === 6,
       "The 18-second listener cooldown must allow only the first hit of each separated Charged cast to replay.",
-    ).toBeTruthy();
+    );
     const firstSource = result.actionBreakdowns[normalEntries[0].id].total;
     const firstReplayTotal = replayEntries
       .slice(0, 3)
       .reduce((total, entry) => total + result.actionBreakdowns[entry.id].total, 0);
-    expect(
-      closeTo(firstReplayTotal, firstSource * 0.4),
-      "Replay actions must deal exactly 40% of the source hit.",
-    ).toBeTruthy();
+    assert(closeTo(firstReplayTotal, firstSource * 0.4), "Replay actions must deal exactly 40% of the source hit.");
     const firstCastDamage =
       result.actionBreakdowns[normalEntries[0].id].total + result.actionBreakdowns[normalEntries[1].id].total;
-    expect(
+    assert(
       closeTo(normalEntries[2].context.targetHPRatio, 1 - (firstCastDamage + firstReplayTotal) / 10000),
       "Delayed replay ticks must reduce target HP before later ordinary damage is evaluated.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       replayEntries.every((entry) => {
         const breakdown = result.actionBreakdowns[entry.id];
         return !breakdown.outcomeRates && breakdown.physical === breakdown.total;
       }),
       "Replay damage must bypass outcomes and every normal damage channel calculation.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       result.timeline.filter((row) => row.step.type === "skill" && row.step.skill === "ReplayProbe").length === 2,
       "Each accepted damage event must spawn one visible replay-skill invocation.",
-    ).toBeTruthy();
-    expect(
-      closeTo(result.duration, 23.4),
-      "The explicit trailing Delay, not replay ticks, defines combat duration.",
-    ).toBeTruthy();
+    );
+    assert(closeTo(result.duration, 23.4), "The explicit trailing Delay, not replay ticks, defines combat duration.");
     const shortBundle = createBundle();
     shortBundle.timeline.rotation.steps.pop();
     const shortResult = calculateRotationBaseline(shortBundle);
-    expect(
-      closeTo(shortResult.duration, 18.4),
-      "Without a trailing Delay combat ends at the final cast completion.",
-    ).toBeTruthy();
-    expect(
+    assert(closeTo(shortResult.duration, 18.4), "Without a trailing Delay combat ends at the final cast completion.");
+    assert(
       shortResult.baseline.filter((entry) => entry.replay).length === 3,
       "The final cast's delayed replays must be dropped after combat ends.",
-    ).toBeTruthy();
+    );
 
     const withoutDebuff = calculateRotationBaseline(createBundle(false));
-    expect(
+    assert(
       withoutDebuff.baseline.every((entry) => !entry.replay),
       "A Charged hit without Heaven's Might must not spawn replay damage.",
-    ).toBeTruthy();
+    );
 
     const simulation = simulateRotation(createBundle(), 3, () => 0.5);
-    expect(
+    assert(
       simulation.runs.every((run) => run.normalPercentage === 100),
       "Replay ticks must not dilute simulated hit-outcome percentages.",
-    ).toBeTruthy();
+    );
   });
 });

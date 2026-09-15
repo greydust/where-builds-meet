@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 import { readdir, readFile } from "node:fs/promises";
 
@@ -14,14 +14,14 @@ describe("innerway-stat-visibility", () => {
     const visibleStats = new Set(allStatDefinitions.map(({ key }) => key));
     const innerWayFiles = (await readdir("data/innerway")).filter((fileName) => fileName.endsWith(".json"));
 
-    expect(
+    assert(
       !visibleStats.has("physicalPenetration") && "physicalPenetration" in emptyStats,
       "Physical Penetration must remain a shared calculation stat rather than a Character Stats field.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       "physicalResistance" in emptyStats && !visibleStats.has("physicalResistance"),
       "Physical Resistance must remain available to calculations but hidden from Character Stats.",
-    ).toBeTruthy();
+    );
 
     const physicalPenetrationOutput = (physicalPenetration, calculate) => {
       const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1, physicalPenetration };
@@ -49,15 +49,15 @@ describe("innerway-stat-visibility", () => {
         },
       ).total;
     };
-    expect(
+    assert(
       physicalPenetrationOutput(5.1, calculateDamageBreakdown) > physicalPenetrationOutput(0, calculateDamageBreakdown),
       "The Physical Penetration character stat must increase physical damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       physicalPenetrationOutput(5.1, calculateHealingBreakdown) >
         physicalPenetrationOutput(0, calculateHealingBreakdown),
       "The Physical Penetration character stat must increase physical healing.",
-    ).toBeTruthy();
+    );
 
     for (const fileName of innerWayFiles) {
       const definition = innerWayDefinitionForSoloLevel(
@@ -65,27 +65,27 @@ describe("innerway-stat-visibility", () => {
         17,
       );
       const id = Object.keys(definition.effect)[0].replace(/T0$/, "");
-      expect(
+      assert(
         innerWayDefinitions[id]?.name === definition.name,
         `${fileName} must be registered under its tier ID prefix.`,
-      ).toBeTruthy();
+      );
       for (const tier of [2, 5]) {
         const tierDefinition = Object.entries(definition.effect ?? {}).find(([key]) => key.endsWith(`T${tier}`))?.[1];
         if (!tierDefinition?.effect) continue;
         for (const effect of tierDefinition.effect) {
-          expect(
+          assert(
             effect.rawStat && !effect.requirement && !effect.target && !effect.modify,
             `${definition.name} T${tier} must express its unconditional bonus through the shared stat pipeline.`,
-          ).toBeTruthy();
+          );
           for (const stat of Object.keys(effect.rawStat)) {
-            expect(stat in emptyStats, `${definition.name} T${tier} uses unknown stat ${stat}.`).toBeTruthy();
-            expect(
+            assert(stat in emptyStats, `${definition.name} T${tier} uses unknown stat ${stat}.`);
+            assert(
               stat === "physicalPenetration" ||
                 stat === "formlessPenetration" ||
                 stat === "physicalResistance" ||
                 visibleStats.has(stat),
               `${definition.name} T${tier} stat ${stat} must be visible in its Stats-page section.`,
-            ).toBeTruthy();
+            );
           }
         }
       }
@@ -98,10 +98,10 @@ describe("innerway-stat-visibility", () => {
       {},
       { physicalPenetration: 5.1 },
     );
-    expect(
+    assert(
       resolvedAttunement.displayed.physicalPenetration === 15.1 &&
         resolvedAttunement.calculation.physicalPenetration === 10,
       "Inner Way Physical Penetration must update the displayed Attunement Stats total without duplicating its calculation.",
-    ).toBeTruthy();
+    );
   });
 });

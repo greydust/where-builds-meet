@@ -114,50 +114,57 @@ function SimulationResultCard({
         </button>
       </header>
       <div className="simulation-results">
-        <div
+        <table
           className={`simulation-table${hasHealing ? " with-healing" : ""}`}
-          role="table"
           aria-label={t("ui.simulationTab.simulationPercentileResults")}
         >
-          <div className="simulation-table-row simulation-table-header" role="row">
-            <span>{t("ui.simulationTab.result")}</span>
-            <span>{t("system.totalDamage")}</span>
-            <span>{t("system.dps")}</span>
-            {hasHealing ? <span className="healing-value">{t("system.hps")}</span> : null}
-            <span>{t("system.abrasion")}</span>
-            <span>{t("system.normal")}</span>
-            <span>{t("system.critical")}</span>
-            <span>{t("system.affinity")}</span>
-            {hasHealing ? (
-              <>
-                <span className="healing-value">
-                  {t("ui.simulationTab.healingOutcome", { outcome: t("system.normal") })}
-                </span>
-                <span className="healing-value">
-                  {t("ui.simulationTab.healingOutcome", { outcome: t("system.critical") })}
-                </span>
-              </>
-            ) : null}
-          </div>
-          {resultRows.map(({ label, result }) => (
-            <div className="simulation-table-row" role="row" key={label}>
-              <strong>{label}</strong>
-              <span>{formatNumber(result.totalDamage)}</span>
-              <span>{formatNumber(result.dps)}</span>
-              {hasHealing ? <span className="healing-value">{formatNumber(result.hps)}</span> : null}
-              <span>{formatPercentage(result.abrasionPercentage)}</span>
-              <span>{formatPercentage(result.normalPercentage)}</span>
-              <span>{formatPercentage(result.criticalPercentage)}</span>
-              <span>{formatPercentage(result.affinityPercentage)}</span>
+          <tbody>
+            <tr className="simulation-table-row simulation-table-header">
+              <th scope="col">{t("ui.simulationTab.result")}</th>
+              <th scope="col">{t("system.totalDamage")}</th>
+              <th scope="col">{t("system.dps")}</th>
+              {hasHealing ? (
+                <th scope="col" className="healing-value">
+                  {t("system.hps")}
+                </th>
+              ) : null}
+              <th scope="col">{t("system.abrasion")}</th>
+              <th scope="col">{t("system.normal")}</th>
+              <th scope="col">{t("system.critical")}</th>
+              <th scope="col">{t("system.affinity")}</th>
               {hasHealing ? (
                 <>
-                  <span className="healing-value">{formatPercentage(result.healingNormalPercentage)}</span>
-                  <span className="healing-value">{formatPercentage(result.healingCriticalPercentage)}</span>
+                  <th scope="col" className="healing-value">
+                    {t("ui.simulationTab.healingOutcome", { outcome: t("system.normal") })}
+                  </th>
+                  <th scope="col" className="healing-value">
+                    {t("ui.simulationTab.healingOutcome", { outcome: t("system.critical") })}
+                  </th>
                 </>
               ) : null}
-            </div>
-          ))}
-        </div>
+            </tr>
+            {resultRows.map(({ label, result }) => (
+              <tr className="simulation-table-row" key={label}>
+                <th scope="row">
+                  <strong>{label}</strong>
+                </th>
+                <td>{formatNumber(result.totalDamage)}</td>
+                <td>{formatNumber(result.dps)}</td>
+                {hasHealing ? <td className="healing-value">{formatNumber(result.hps)}</td> : null}
+                <td>{formatPercentage(result.abrasionPercentage)}</td>
+                <td>{formatPercentage(result.normalPercentage)}</td>
+                <td>{formatPercentage(result.criticalPercentage)}</td>
+                <td>{formatPercentage(result.affinityPercentage)}</td>
+                {hasHealing ? (
+                  <>
+                    <td className="healing-value">{formatPercentage(result.healingNormalPercentage)}</td>
+                    <td className="healing-value">{formatPercentage(result.healingCriticalPercentage)}</td>
+                  </>
+                ) : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </article>
   );
@@ -175,8 +182,12 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
   const [error, setError] = useState("");
   const taskRef = useRef<SimulationTask | undefined>(undefined);
   const nextRecordIdRef = useRef(1);
+  const percentileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => () => taskRef.current?.cancel(), []);
+  useEffect(() => {
+    if (addingPercentile) percentileInputRef.current?.focus();
+  }, [addingPercentile]);
   useEffect(
     () => setPersistentItem(customPercentileStorageKey, JSON.stringify(customPercentiles)),
     [customPercentiles],
@@ -303,11 +314,11 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
             <label>
               <span>{t("ui.simulationTab.p")}</span>
               <input
+                ref={percentileInputRef}
                 type="number"
                 min="0"
                 max="99.999999"
                 step="any"
-                autoFocus
                 value={percentileDraft}
                 onChange={(event) => setPercentileDraft(event.target.value)}
                 onKeyDown={(event) => {
@@ -338,7 +349,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
         )}
       </div>
       {running && (
-        <div className="simulation-progress" role="status" aria-live="polite">
+        <output className="simulation-progress" aria-live="polite">
           <progress max={progress.total} value={progress.completed} />
           <span>
             {progress.completed.toLocaleString()} / {progress.total.toLocaleString()}{" "}
@@ -346,7 +357,7 @@ export default function SimulationTab({ bundle, bundleKey, rotationName, buildNa
             {percentComplete.toFixed(0)}
             %)
           </span>
-        </div>
+        </output>
       )}
       {error && (
         <p className="editor-error" role="alert">

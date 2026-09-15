@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-nameless-spear-talents.mjs.
 describe("nameless-spear-talents", () => {
@@ -11,8 +11,10 @@ describe("nameless-spear-talents", () => {
     const { emptyStats } = await import("../src/data/statDefinitions.ts");
 
     const assertClose = (actual, expected, message) => {
-      if (!Number.isFinite(actual) || Math.abs(actual - expected) > 1e-9)
-        throw new Error(`${message} Expected ${expected}, received ${actual}.`);
+      assert(
+        Number.isFinite(actual) || Math.abs(actual - expected) > 1e-9,
+        `${message} Expected ${expected}, received ${actual}.`,
+      );
     };
     const effects = namelessSpear.talent[13].flatMap((talent) =>
       (talent.effect ?? []).map((effect) => ({ ...effect, statStage: "talent" })),
@@ -37,9 +39,9 @@ describe("nameless-spear-talents", () => {
     );
 
     const affinityRule = effects.find((rule) => rule.effect?.affinityDmgBonus);
-    if (!affinityRule) throw new Error("Nameless Spear Affinity damage talent rule was not found.");
-    if (
-      !requirementsPass(
+    assert(affinityRule, "Nameless Spear Affinity damage talent rule was not found.");
+    assert(
+      requirementsPass(
         affinityRule.requirement,
         [{ name: "EndlessGale" }],
         [],
@@ -49,9 +51,9 @@ describe("nameless-spear-talents", () => {
         {},
         {},
       ) ||
-      requirementsPass(affinityRule.requirement, [], [], [], new Set(), ["namelessSword", "namelessSpear"], {}, {})
-    )
-      throw new Error("Affinity DMG Up must work with Endless Gale while low Endurance remains unsimulated.");
+        requirementsPass(affinityRule.requirement, [], [], [], new Set(), ["namelessSword", "namelessSpear"], {}, {}),
+      "Affinity DMG Up must work with Endless Gale while low Endurance remains unsimulated.",
+    );
 
     const damageStats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1, affinity: 1 };
     const enemy = {

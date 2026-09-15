@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-single-damage-resolution.mjs.
 describe("single-damage-resolution", () => {
@@ -72,11 +72,11 @@ describe("single-damage-resolution", () => {
         innerWayPriority: [],
         setupComparisons: {},
       });
-      expect(result.metrics.totalDamage > 0, "The probe hit must deal damage.").toBeTruthy();
-      expect(
+      assert(result.metrics.totalDamage > 0, "The probe hit must deal damage.");
+      assert(
         damageEvaluations === 1,
         `Each deterministic hit must resolve once; observed ${damageEvaluations} evaluations.`,
-      ).toBeTruthy();
+      );
     };
 
     runCase();

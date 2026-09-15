@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-default-rotation.mjs.
 describe("default-rotation", () => {
@@ -66,18 +66,18 @@ describe("default-rotation", () => {
       innerWayPriority: [],
       setupComparisons: {},
     });
-    expect(
+    assert(
       result.actionBreakdowns[`rotation-${startSkillIndex}:5`],
       "The configured Fleeting Trace starting action must calculate damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       result.metrics.totalDamage > 0 && result.duration > 0,
       "The new default rotation must produce a valid calculation.",
-    ).toBeTruthy();
+    );
     const ghostlyCast = result.metrics.breakdown.casts.find((row) => row.skillId === "GhostlySteps");
-    expect(
+    assert(
       (ghostlyCast?.damageWithBuff ?? 0) > (ghostlyCast?.damage ?? 0),
       "The bundled Ghostly Step cast must include damage indirectly added by Mystery DMG Boost.",
-    ).toBeTruthy();
+    );
   });
 });

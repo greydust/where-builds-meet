@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-pure-dummy-rotation.mjs.
 describe("pure-dummy-rotation", () => {
@@ -77,10 +77,10 @@ describe("pure-dummy-rotation", () => {
       innerWayPriority: [],
       setupComparisons: {},
     });
-    expect(
+    assert(
       result.metrics.totalDamage > 0 &&
         result.duration === rotation.steps.find((step) => step.event === "BattleEnd").startTime,
       "The translated preset must calculate as a 60-second rotation.",
-    ).toBeTruthy();
+    );
   });
 });

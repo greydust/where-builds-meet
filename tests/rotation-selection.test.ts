@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-rotation-selection.mjs.
 describe("rotation-selection", () => {
@@ -12,10 +12,10 @@ describe("rotation-selection", () => {
       defaultBuildId: "might-build",
       defaultRotationId: "dummy-1-min",
     });
-    expect(
+    assert(
       directPathSwitch?.buildId === "might-build" && directPathSwitch.rotationId === "dummy-1-min",
       "A path transition must resolve both destination defaults before changing paths.",
-    ).toBeTruthy();
+    );
 
     const savedPathSelection = resolvePathWorkspaceSelection({
       buildIds: ["might-build", "might-custom-build"],
@@ -25,10 +25,10 @@ describe("rotation-selection", () => {
       defaultBuildId: "might-build",
       defaultRotationId: "dummy-1-min",
     });
-    expect(
+    assert(
       savedPathSelection?.buildId === "might-custom-build" && savedPathSelection.rotationId === "might-custom",
       "A path transition must restore both selections previously saved for that destination path.",
-    ).toBeTruthy();
+    );
 
     const crossPathCustomSelection = resolvePathWorkspaceSelection({
       buildIds: ["might-build"],
@@ -39,10 +39,10 @@ describe("rotation-selection", () => {
       defaultBuildId: "might-build",
       defaultRotationId: "dummy-1-min",
     });
-    expect(
+    assert(
       crossPathCustomSelection?.rotationId === "might-custom",
       "Selecting a compatible dimmed rotation must make it the destination path selection.",
-    ).toBeTruthy();
+    );
 
     const unavailableWorkspace = resolvePathWorkspaceSelection({
       buildIds: [],
@@ -50,9 +50,6 @@ describe("rotation-selection", () => {
       defaultBuildId: "missing-build",
       defaultRotationId: "dummy-1-min",
     });
-    expect(
-      unavailableWorkspace === undefined,
-      "A path transition must not install an incomplete workspace.",
-    ).toBeTruthy();
+    assert(unavailableWorkspace === undefined, "A path transition must not install an incomplete workspace.");
   });
 });

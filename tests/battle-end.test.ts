@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-battle-end.mjs.
 describe("battle-end", () => {
@@ -76,26 +76,26 @@ describe("battle-end", () => {
     });
     const exhausted = result.timeline.find((row) => row.step.type === "event" && row.step.event === "Exhausted");
     const battleEnd = result.timeline.find((row) => row.step.type === "event" && row.step.event === "BattleEnd");
-    expect(
+    assert(
       Math.abs(exhausted.startTime - result.anchorTime - 2) < 1e-9,
       "Exhausted must remain two seconds after the dynamically shifted fight start.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(battleEnd.startTime - result.anchorTime - 2.5) < 1e-9,
       "Battle End must remain 2.5 seconds after the dynamically shifted fight start.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(result.duration - 2.5) < 1e-9,
       `Battle End must cap duration at 2.5 seconds, received ${result.duration}.`,
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Object.keys(result.actionBreakdowns).length === 2,
       `Expected two damage actions before Battle End, received ${Object.keys(result.actionBreakdowns).length}.`,
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !result.actionBreakdowns["rotation-1:2"],
       "Damage at the same timestamp as Battle End must not be calculated.",
-    ).toBeTruthy();
-    expect(!result.actionBreakdowns["rotation-4:0"], "Damage after Battle End must not be calculated.").toBeTruthy();
+    );
+    assert(!result.actionBreakdowns["rotation-4:0"], "Damage after Battle End must not be calculated.");
   });
 });

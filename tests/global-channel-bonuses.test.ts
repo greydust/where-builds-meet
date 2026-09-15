@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-global-channel-bonuses.mjs.
 describe("global-channel-bonuses", () => {
@@ -45,31 +45,31 @@ describe("global-channel-bonuses", () => {
       );
     const baseline = damage([]);
     const globalHp = damage([{ globalHPDMGBonus: 0.08 }]);
-    expect(
+    assert(
       closeTo(globalHp.physical / baseline.physical, 1.08) &&
         closeTo(globalHp.bellstrike / baseline.bellstrike, 1.08) &&
         closeTo(globalHp.stonesplit / baseline.stonesplit, 1.08),
       "Global HP DMG Bonus must multiply every damage component.",
-    ).toBeTruthy();
+    );
     const bellstrikeOnly = damage([{ globalBellstrikeDMGBonus: 0.08 }]);
-    expect(
+    assert(
       closeTo(bellstrikeOnly.physical, baseline.physical) &&
         closeTo(bellstrikeOnly.stonesplit, baseline.stonesplit) &&
         closeTo(bellstrikeOnly.bellstrike / baseline.bellstrike, 1.08),
       "Global Bellstrike DMG Bonus must multiply Bellstrike only.",
-    ).toBeTruthy();
+    );
     const combinedGlobal = damage([{ globalDmgBonus: 0.1, globalHPDMGBonus: 0.08, globalBellstrikeDMGBonus: 0.08 }]);
-    expect(
+    assert(
       closeTo(combinedGlobal.physical / baseline.physical, 1.18) &&
         closeTo(combinedGlobal.bellstrike / baseline.bellstrike, 1.26),
       "Global-category effects must add before forming their channel multiplier.",
-    ).toBeTruthy();
+    );
     const bellstrikeStat = damage([], { ...stats, bellstrikeDmgBonus: 0.08 });
     const bothCategories = damage([{ globalBellstrikeDMGBonus: 0.08 }], { ...stats, bellstrikeDmgBonus: 0.08 });
-    expect(
+    assert(
       closeTo(bothCategories.bellstrike / baseline.bellstrike, 1.08 * 1.08) &&
         closeTo(bellstrikeStat.bellstrike / baseline.bellstrike, 1.08),
       "Character Bellstrike DMG Bonus must multiply separately from its global channel bonus.",
-    ).toBeTruthy();
+    );
   });
 });

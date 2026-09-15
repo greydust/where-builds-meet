@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { publishNotice, dismissNotice } from "./notices";
 import {
   useEffect,
@@ -71,6 +72,10 @@ function gearSlotLabel(slot: GearSlot) {
 
 function buildEntryDisplayName(entry: Pick<BuildEntry, "name" | "isDefault">) {
   return (entry.isDefault ? gameText(entry.name) : entry.name) || "Unnamed Build";
+}
+
+function createBuildId() {
+  return `build-${nanoid()}`;
 }
 
 type BuildTabProps = {
@@ -241,7 +246,7 @@ export default function BuildTab({
   const [editingName, setEditingName] = useState(false);
   const [officialImportText, setOfficialImportText] = useState("");
   const officialImportDialogRef = useRef<HTMLDialogElement>(null);
-  const officialBookmarkletRef = useRef<HTMLAnchorElement>(null);
+  const buildNameInputRef = useRef<HTMLInputElement>(null);
   const officialGearBookmarklet = createOfficialGearBookmarklet({
     noGearData: t("ui.buildTab.bookmarkletNoGearData"),
     copyPrompt: t("ui.buildTab.bookmarkletCopyPrompt"),
@@ -251,19 +256,17 @@ export default function BuildTab({
     dashboardUnreachable: t("ui.buildTab.bookmarkletDashboardUnreachable"),
   });
   useEffect(() => {
-    officialBookmarkletRef.current?.setAttribute("href", officialGearBookmarklet);
-  }, [officialGearBookmarklet]);
+    if (editingName) buildNameInputRef.current?.focus();
+  }, [editingName]);
   const listedEntries = buildState.entries.filter(
     (entry) =>
       (devMode || !buildEntryIsTestPreset(entry)) &&
       (!entry.isDefault || buildEntryAvailableForPath(entry, buildGroup, weapons)),
   );
   const editingEntry = listedEntries.find((entry) => entry.id === editingBuildId) ?? listedEntries[0];
-  useEffect(() => {
-    if (editingEntry && editingEntry.id !== editingBuildId) setEditingBuildId(editingEntry.id);
-  }, [editingBuildId, editingEntry]);
+  if (editingEntry && editingEntry.id !== editingBuildId) setEditingBuildId(editingEntry.id);
   function addBuild() {
-    const id = `build-${Date.now()}`;
+    const id = createBuildId();
     onBuildStateChange((current) => ({
       ...current,
       entries: [
@@ -347,7 +350,7 @@ export default function BuildTab({
   }
 
   function duplicateBuild() {
-    const id = `build-${Date.now()}`;
+    const id = createBuildId();
     const name = t("ui.buildTab.copyOfNamedBuild", { name: buildEntryDisplayName(editingEntry) });
     onBuildStateChange((current) => duplicateBuildState(current, editingEntry.id, { id, name }));
     setEditingBuildId(id);
@@ -470,31 +473,31 @@ export default function BuildTab({
                 <div
                   className={`build-list-item ${entry.id === buildState.activeBuildId ? "active" : ""} ${entry.id === editingBuildId ? "editing" : ""} ${incompatible ? "incompatible" : ""}`}
                   key={entry.id}
-                  role="button"
-                  tabIndex={0}
-                  title={incompatible ? t("ui.buildTab.selectThisBuildAndSwitchToItsMartial") : undefined}
-                  onClick={() => selectBuild(entry)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") selectBuild(entry);
-                  }}
                 >
-                  <span>
-                    <strong>
-                      {entry.id === buildState.activeBuildId && (
-                        <i className="active-build-icon" title={t("ui.buildTab.activeBuild")}>
-                          <UiIcon name="active" />
-                        </i>
+                  <button
+                    className="build-select-button"
+                    type="button"
+                    title={incompatible ? t("ui.buildTab.selectThisBuildAndSwitchToItsMartial") : undefined}
+                    onClick={() => selectBuild(entry)}
+                  >
+                    <span>
+                      <strong>
+                        {entry.id === buildState.activeBuildId && (
+                          <i className="active-build-icon" title={t("ui.buildTab.activeBuild")}>
+                            <UiIcon name="active" />
+                          </i>
+                        )}
+                        {buildEntryDisplayName(entry)}
+                      </strong>
+                      {entry.isDefault && (
+                        <small>
+                          {entry.presetId === graduatedBuildId
+                            ? t("ui.buildTab.graduatePreset")
+                            : t("ui.buildTab.defaultPreset")}
+                        </small>
                       )}
-                      {buildEntryDisplayName(entry)}
-                    </strong>
-                    {entry.isDefault && (
-                      <small>
-                        {entry.presetId === graduatedBuildId
-                          ? t("ui.buildTab.graduatePreset")
-                          : t("ui.buildTab.defaultPreset")}
-                      </small>
-                    )}
-                  </span>
+                    </span>
+                  </button>
                   {!entry.isDefault && (
                     <button
                       className="build-remove-button"
@@ -541,8 +544,8 @@ export default function BuildTab({
             <div>
               {editingName && !editingEntry.isDefault ? (
                 <input
+                  ref={buildNameInputRef}
                   className="build-name-input"
-                  autoFocus
                   value={editingEntry.name}
                   onChange={(event) => renameBuild(event.target.value)}
                   onBlur={() => setEditingName(false)}
@@ -614,7 +617,7 @@ export default function BuildTab({
         <ol className="official-import-steps">
           <li>
             {t("ui.buildTab.drag")}{" "}
-            <a className="button button-primary official-bookmarklet" ref={officialBookmarkletRef}>
+            <a className="button button-primary official-bookmarklet" href={officialGearBookmarklet}>
               {t("ui.buildTab.exportWwmGear")}
             </a>{" "}
             {t("ui.buildTab.toYourBrowserBookmarksBar")}

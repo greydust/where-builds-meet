@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { existsSync } from "node:fs";
 import { createWorker, OEM, PSM } from "tesseract.js";
 import { inferGearLevelAndRarity, parseGearOcrTsv } from "../src/gearOcr";
@@ -22,63 +22,63 @@ describe("gear-ocr", () => {
       };
 
       const moBlade = await recognize("local/OCR/mo blade.png", 583, 797);
-      expect(
+      assert(
         moBlade.definitionId === "moBlade" && moBlade.level === 96 && moBlade.rarity === "Gold" && !moBlade.relayed,
         "Mo Blade metadata was not recognized.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         moBlade.baseAffix.key === "maxPhys" && moBlade.baseAffix.value === 55,
         "Mo Blade base affix was not recognized.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         moBlade.additionalAffixes.map((affix) => affix.key).join(",") === "moBladeDmgBoost,maxPhys,crit,maxVoidAttack",
         "Mo Blade additional affixes were not recognized in order.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         Math.abs(moBlade.additionalAffixes[0].value - 0.06) < 1e-9 &&
           Math.abs(moBlade.additionalAffixes[2].value - 0.088) < 1e-9,
         "Mo Blade percentage values were not converted to ratios.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         moBlade.attunement.key === "physicalPenetration" && moBlade.attunement.value === 10,
         "Mo Blade attunement was not recognized.",
-      ).toBeTruthy();
+      );
 
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK, preserve_interword_spaces: "1" });
       const moBladeBlock = await worker.recognize("local/OCR/mo blade.png", {}, { text: true, tsv: true });
       const moBladeFallback = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 797);
-      expect(
+      assert(
         moBladeFallback.additionalAffixes.length === 4 && moBladeFallback.attunement.key === "physicalPenetration",
         "The block-layout fallback must recognize all six Mo Blade rows.",
-      ).toBeTruthy();
+      );
       const moBladeDifferentCrop = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 2000);
-      expect(
+      assert(
         moBladeDifferentCrop.additionalAffixes.map((affix) => affix.key).join(",") ===
           "moBladeDmgBoost,maxPhys,crit,maxVoidAttack" && moBladeDifferentCrop.attunement.key === "physicalPenetration",
         "Affix row recognition must not depend on the screenshot height.",
-      ).toBeTruthy();
+      );
 
       const helmet = await recognize("local/OCR/helmet.png", 564, 811);
-      expect(
+      assert(
         helmet.definitionId === "helmet" && helmet.level === 96 && helmet.rarity === "Purple" && helmet.relayed,
         "Helmet metadata was not recognized.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         helmet.baseAffix.key === "precision" && Math.abs(helmet.baseAffix.value - 0.075) < 1e-9,
         "Helmet base affix was not recognized.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         helmet.additionalAffixes.map((affix) => affix.key).join(",") === "minPhys,agility,crit,maxStonesplit",
         "Helmet additional affixes were not recognized in order.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         helmet.additionalAffixes[0].value === 73.1 && helmet.additionalAffixes[1].value === 46.4,
         "Helmet numeric values were not recognized.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         helmet.attunement.key === "phalanxbaneChargedBoost" && Math.abs(helmet.attunement.value - 0.054) < 1e-9,
         "Helmet attunement was not recognized.",
-      ).toBeTruthy();
+      );
     } finally {
       await worker.terminate();
     }
@@ -86,15 +86,15 @@ describe("gear-ocr", () => {
 
   it("infers rarity and tolerates unclear OCR fields without screenshots", () => {
     const inferredPurple = inferGearLevelAndRarity("helmet", "Gear Tier 96 Max HP 5196 Physical Defense 20");
-    expect(
+    assert(
       inferredPurple.level === 96 && inferredPurple.rarity === "Purple",
       "Fixed base stats must determine rarity.",
-    ).toBeTruthy();
+    );
     const defaultMetadata = inferGearLevelAndRarity("helmet", "unreadable metadata");
-    expect(
+    assert(
       defaultMetadata.level === 96 && defaultMetadata.rarity === "Gold",
       "Unclear metadata must default to 96 Gold.",
-    ).toBeTruthy();
+    );
     const partial = parseGearOcrTsv(
       "5\t1\t1\t1\t1\t1\t10\t10\t100\t20\t90\tUnreadable",
       "Unreadable",
@@ -102,7 +102,7 @@ describe("gear-ocr", () => {
       500,
       "moBlade",
     );
-    expect(
+    assert(
       partial.definitionId === "moBlade" &&
         partial.level === 96 &&
         partial.rarity === "Gold" &&
@@ -110,6 +110,6 @@ describe("gear-ocr", () => {
         partial.additionalAffixes.length === 0 &&
         !partial.attunement,
       "Unclear OCR fields must use the editor gear type and leave attribute rows empty.",
-    ).toBeTruthy();
+    );
   });
 });

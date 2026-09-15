@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-skill-static-effect-aggregation.mjs.
 describe("skill-static-effect-aggregation", () => {
@@ -99,17 +99,17 @@ describe("skill-static-effect-aggregation", () => {
     );
     console.table = originalTable;
 
-    expect(
+    assert(
       Math.abs(result.metrics.totalDamage - 559) < 1e-9,
       `Expected character-static, cached tag-static, and hit-time effects to total 559 damage; received ${result.metrics.totalDamage}.`,
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       benchmarkRows.some((row) => row.phase === "Skill-static effect aggregation (cache misses)" && row.calls === 2),
       "The calculator must resolve static effects once for each distinct effective action-tag signature.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       benchmarkRows.some((row) => row.phase === "Remaining per-hit effect field scan (parent)" && row.calls === 3),
       "The benchmark must still report one residual dynamic-effect scan per damage hit.",
-    ).toBeTruthy();
+    );
   });
 });

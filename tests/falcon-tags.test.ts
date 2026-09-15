@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { readdir, readFile } from "node:fs/promises";
 
 // Ported from script/probe/check-falcon-tags.mjs.
@@ -17,6 +17,6 @@ describe("falcon-tags", () => {
       }
     }
 
-    if (missing.length) throw new Error(`Falcon skills missing MartialArts: ${missing.join(", ")}`);
+    assert(!missing.length, `Falcon skills missing MartialArts: ${missing.join(", ")}`);
   });
 });

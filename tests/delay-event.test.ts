@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-delay-event.mjs.
 describe("delay-event", () => {
@@ -46,11 +46,11 @@ describe("delay-event", () => {
     const timeline = buildRotationTimeline(timelineInput);
     const delay = timeline.find((row) => row.step.type === "event" && row.step.event === "Delay");
     const followUp = timeline.find((row) => row.step.type === "skill" && row.step.skill === "FollowUp");
-    expect(
+    assert(
       delay?.startTime === 1 && delay.effectiveCastTime === 3,
       "Delay must start after the adjusted preceding cast and retain its duration.",
-    ).toBeTruthy();
-    expect(followUp?.startTime === 4, "Delay must shift every following skill by its duration.").toBeTruthy();
+    );
+    assert(followUp?.startTime === 4, "Delay must shift every following skill by its duration.");
 
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
     const enemy = {
@@ -85,9 +85,6 @@ describe("delay-event", () => {
       innerWayPriority: [],
       setupComparisons: {},
     });
-    expect(
-      result.duration === 4,
-      "A trailing Delay must extend rotation duration even though it has no actions.",
-    ).toBeTruthy();
+    assert(result.duration === 4, "A trailing Delay must extend rotation duration even though it has no actions.");
   });
 });

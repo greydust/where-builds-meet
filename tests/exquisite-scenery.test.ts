@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-exquisite-scenery.mjs.
 describe("exquisite-scenery", () => {
@@ -12,7 +12,7 @@ describe("exquisite-scenery", () => {
     const sceneryT6 = exquisiteScenery.effect.ExquisiteSceneryT6.effect[0];
     const sceneryT6Applies = (tags) =>
       requirementsPass(sceneryT6.requirement, [], [], tags, ["ExquisiteSceneryT6"], ["thundercry", "stormbreaker"]);
-    expect(
+    assert(
       [
         ["Light", "Charged"],
         ["Heavy", "Charged"],
@@ -20,11 +20,11 @@ describe("exquisite-scenery", () => {
         ["Heavy", "VariedCombo"],
       ].every(sceneryT6Applies),
       "Exquisite Scenery T6 must grant its damage bonus to all four charged and charged-varied attack categories.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !sceneryT6Applies(["Light"]) && !sceneryT6Applies(["Charged"]) && !sceneryT6Applies(["Heavy", "MartialArts"]),
       "Exquisite Scenery T6 must not affect attacks outside its charged and varied-combo categories.",
-    ).toBeTruthy();
+    );
 
     const t6Rule = {
       requirement: sceneryT6.requirement,
@@ -78,23 +78,23 @@ describe("exquisite-scenery", () => {
       }).metrics.totalDamage;
 
     const heavyChargedBase = sceneryDamage(["Heavy", "Charged"], []);
-    expect(
+    assert(
       Math.abs(sceneryDamage(["Heavy", "Charged"], [t6Rule]) / heavyChargedBase - 1.5) < 1e-9,
       "Exquisite Scenery T6 must multiply qualifying calculated damage by 1.5 when no other damage bonus is present.",
-    ).toBeTruthy();
+    );
     const categoryBonusRule = {
       requirement: [],
       effect: { dmgBonus: 0.2 },
       source: "Category bonus probe",
       tier: 0,
     };
-    expect(
+    assert(
       Math.abs(sceneryDamage(["Heavy", "Charged"], [categoryBonusRule, t6Rule]) / heavyChargedBase - 1.8) < 1e-9,
       "Exquisite Scenery T6 must multiply ordinary damage bonuses as a separate Base DMG Bonus category.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       sceneryDamage(["Heavy", "MartialArts"], [t6Rule]) === sceneryDamage(["Heavy", "MartialArts"], []),
       "Exquisite Scenery T6 must leave non-qualifying calculated damage unchanged.",
-    ).toBeTruthy();
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 import { readFile, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
@@ -15,7 +15,7 @@ describe("dps-snapshots", () => {
     const pathIds = Object.keys(paths)
       .filter((id) => paths[id].status === "available")
       .sort();
-    if (!pathIds.length) throw new Error("No implemented paths found for DPS snapshots.");
+    assert(pathIds.length, "No implemented paths found for DPS snapshots.");
     // Snapshot refresh is review-gated: DPS_UPDATE_IDS is unset in check mode,
     // "all" refreshes every path, otherwise a space-separated path-id list.
     // Example: DPS_UPDATE_IDS="bamboocutKite silkbindDeluge" npm run snapshots:dps:update
@@ -23,27 +23,25 @@ describe("dps-snapshots", () => {
     let updateIds = [];
     if (rawUpdateIds) {
       updateIds = rawUpdateIds === "all" ? pathIds : rawUpdateIds.split(/\s+/);
-      if (
-        !updateIds.length ||
-        new Set(updateIds).size !== updateIds.length ||
-        updateIds.some((id) => !pathIds.includes(id))
-      ) {
-        throw new Error(
-          `Choose reviewed paths explicitly: DPS_UPDATE_IDS="<pathId...>" (or "all") npm run snapshots:dps:update. Available: ${pathIds.join(", ")}`,
-        );
-      }
+      assert(
+        updateIds.length ||
+          new Set(updateIds).size !== updateIds.length ||
+          updateIds.some((id) => !pathIds.includes(id)),
+        `Choose reviewed paths explicitly: DPS_UPDATE_IDS="<pathId...>" (or "all") npm run snapshots:dps:update. Available: ${pathIds.join(", ")}`,
+      );
     }
     let snapshot;
     try {
       snapshot = JSON.parse(await readFile(snapshotFile, "utf8"));
-      if (
-        snapshot.schemaVersion !== 1 ||
-        !snapshot.cases ||
-        typeof snapshot.cases !== "object" ||
-        Array.isArray(snapshot.cases)
-      ) {
-        throw new Error("Invalid DPS snapshot format.");
-      }
+      assert(
+        !(
+          snapshot.schemaVersion !== 1 ||
+          !snapshot.cases ||
+          typeof snapshot.cases !== "object" ||
+          Array.isArray(snapshot.cases)
+        ),
+        "Invalid DPS snapshot format.",
+      );
     } catch (error) {
       if (error.code !== "ENOENT" || !updateIds.length) throw error;
       snapshot = { schemaVersion: 1, cases: {} };
@@ -82,7 +80,7 @@ describe("dps-snapshots", () => {
         { pathId, martialArts: path.lockedWeapons, rotation, ...environment, skillOverrides: {} },
         path.defaultBuild,
       );
-      if (!bundle) throw new Error(`${pathId}: failed to build the production preset calculation bundle.`);
+      assert(bundle, `${pathId}: failed to build the production preset calculation bundle.`);
       const { metrics, duration } = calculateRotationBaseline(bundle);
       actual[pathId] = { fixture, dps: metrics.dps, totalDamage: metrics.totalDamage, duration };
       const previous = snapshot.cases[pathId]?.dps;
@@ -94,7 +92,7 @@ describe("dps-snapshots", () => {
     }
     // Reject invalid outputs even when the user explicitly requests an update.
     const invalid = compareDpsSnapshots(actual, actual);
-    if (invalid.length) throw new Error(invalid.join("\n"));
+    assert(!invalid.length, invalid.join("\n"));
     if (updateIds.length) {
       const next = { ...snapshot.cases };
       for (const pathId of updateIds) next[pathId] = actual[pathId];
@@ -113,10 +111,10 @@ describe("dps-snapshots", () => {
       console.log(`Updated reviewed DPS snapshots: ${updateIds.join(", ")}. Inspect and commit the snapshot diff.`);
     } else {
       const failures = compareDpsSnapshots(snapshot.cases, actual);
-      if (failures.length)
-        throw new Error(
-          `${failures.join("\n")}\nReview each change. Fix regressions; update only paths whose changes have been confirmed correct. Never refresh snapshots automatically to make this check pass.`,
-        );
+      assert(
+        !failures.length,
+        `${failures.join("\n")}\nReview each change. Fix regressions; update only paths whose changes have been confirmed correct. Never refresh snapshots automatically to make this check pass.`,
+      );
       console.log(
         `All implemented paths remain within ${dpsSnapshotTolerance * 100}% of their accepted DPS snapshots.`,
       );

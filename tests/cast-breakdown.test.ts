@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-cast-breakdown.mjs.
 describe("cast-breakdown", () => {
@@ -98,38 +98,38 @@ describe("cast-breakdown", () => {
     const moraleCast = result.metrics.breakdown.casts.find((row) => row.skillId === "MoraleChant");
     const damage = (row) => (row ? (result.actionBreakdowns[`${row.id}:0`]?.total ?? 0) : 0);
     const damageSum = (rows) => rows.reduce((total, row) => total + damage(row), 0);
-    expect(
+    assert(
       result.metrics.breakdown.casts.length === 2,
       "Repeated casts must group into one skill row, with Inner Way triggers in their own group.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       baseCast?.casts === 2 && Math.abs(baseCast.damage - damageSum(baseRows) - damageSum(childRows)) < 1e-9,
       "Directly triggered skill damage must sum into its grouped base casts.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       moraleCast?.casts === 2 && Math.abs(moraleCast.damage - damageSum(moraleRows)) < 1e-9,
       "Inner Way-triggered Morale Chant damage must remain a separate grouped row.",
-    ).toBeTruthy();
+    );
     const damagePerBaseCast = baseCast.damage / baseCast.casts;
     const expectedAverageDps = (damagePerBaseCast / 2.5 + damagePerBaseCast / 2) / 2;
-    expect(
+    assert(
       baseCast.averageCastTime === 2.25 &&
         Math.abs(baseCast.averageDamage - damagePerBaseCast) < 1e-9 &&
         Math.abs((baseCast.averageDps ?? 0) - expectedAverageDps) < 1e-9,
       "Per-cast damage must be averaged by cast count while a following Deflect contributes to the DPS time sample.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       baseCast.vitalitySpent === 20 && Math.abs((baseCast.damagePerVitality ?? 0) - baseCast.damage / 20) < 1e-9,
       "Per-cast groups must report gross Vitality consumption and their total attributed damage per Vitality.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !result.metrics.breakdown.casts.some((row) => row.skillId === "Deflect" || row.skillId === "Utility"),
       "Skills with no attributed damage must be omitted from per-cast breakdown.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       result.metrics.breakdown.casts[0].skillId === "Base",
       "Grouped cast rows must be sorted by average DPS descending.",
-    ).toBeTruthy();
+    );
 
     const attributionBundle = (withFluteEffect) => ({
       timeline: {
@@ -196,18 +196,18 @@ describe("cast-breakdown", () => {
     const unbuffed = calculateRotationBaseline(attributionBundle(false));
     const fluteCast = attributed.metrics.breakdown.casts.find((row) => row.skillId === "FluteCast");
     const fluteDifference = attributed.metrics.totalDamage - unbuffed.metrics.totalDamage;
-    expect(fluteDifference > 0, "The Flute buff must increase the following hit.").toBeTruthy();
-    expect(
+    assert(fluteDifference > 0, "The Flute buff must increase the following hit.");
+    assert(
       fluteCast?.damage === 0 &&
         fluteCast.averageDamage === 0 &&
         Math.abs((fluteCast.damageWithBuff ?? 0) - fluteDifference) < 1e-9 &&
         Math.abs((fluteCast.averageDamageWithBuff ?? 0) - fluteDifference) < 1e-9,
       "Flute's inclusive total and per-cast damage must add exactly the damage caused by its buff.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       fluteCast?.averageDps === 0 && Math.abs((fluteCast.averageDpsWithBuff ?? 0) - fluteDifference) < 1e-9,
       "Flute's inclusive average DPS must include its attributed buff damage.",
-    ).toBeTruthy();
+    );
 
     const ghostlyAttributionBundle = (withGhostlyEffect) => ({
       timeline: {
@@ -282,17 +282,17 @@ describe("cast-breakdown", () => {
     const ghostlyUnbuffed = calculateRotationBaseline(ghostlyAttributionBundle(false));
     const ghostlyCast = ghostlyAttributed.metrics.breakdown.casts.find((row) => row.skillId === "GhostlyCast");
     const ghostlyDifference = ghostlyAttributed.metrics.totalDamage - ghostlyUnbuffed.metrics.totalDamage;
-    expect(ghostlyDifference > 0, "Mystery DMG Boost must increase the following hit.").toBeTruthy();
-    expect(
+    assert(ghostlyDifference > 0, "Mystery DMG Boost must increase the following hit.");
+    assert(
       ghostlyCast?.damage === 0 &&
         ghostlyCast.averageDamage === 0 &&
         Math.abs((ghostlyCast.damageWithBuff ?? 0) - ghostlyDifference) < 1e-9 &&
         Math.abs((ghostlyCast.averageDamageWithBuff ?? 0) - ghostlyDifference) < 1e-9,
       "Ghostly Step's total and per-cast damage must inherit the indirect buff damage applied through Perfect Dodge.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !ghostlyAttributed.metrics.breakdown.casts.some((row) => row.skillId === "PerfectDodge"),
       "Perfect Dodge must not own Ghostly Step's attributed buff damage.",
-    ).toBeTruthy();
+    );
   });
 });

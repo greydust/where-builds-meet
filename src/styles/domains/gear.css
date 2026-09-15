@@ -84,6 +84,19 @@
     min-inline-size: 0;
   }
 
+  .build-list-item > .build-select-button {
+    display: block;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
   .build-list-item strong,
   .build-list-item small {
     display: block;

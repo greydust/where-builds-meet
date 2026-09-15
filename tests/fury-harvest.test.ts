@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { readFile } from "node:fs/promises";
 
 // Ported from script/probe/check-fury-harvest.mjs.
@@ -67,10 +67,10 @@ describe("fury-harvest", () => {
       maxHP: 1000,
     });
 
-    expect(
+    assert(
       timeline.at(-1).actionStates[0].resources.Vitality === 14.1,
       `Dodge and deflect grant 8 total; base damage recovery grants 2.1 and incoming damage retains its ordinary 4; actual ${timeline.at(-1).actionStates[0].resources.Vitality}.`,
-    ).toBeTruthy();
+    );
 
     const recoveryInput = {
       rotation: { name: "Base recovery cooldown", steps: [{ type: "skill", skill: "Hits" }] },
@@ -97,22 +97,22 @@ describe("fury-harvest", () => {
     };
     const recovery = (input) =>
       buildRotationTimeline(input).find((row) => row.step.skill === "Hits").actionStates[7].resources.Vitality;
-    expect(
+    assert(
       recovery(recoveryInput) === 6.3,
       "Only the recovery events at 0, 2 and 4 seconds grant 2.1; intervening hits grant nothing.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       recovery({ ...recoveryInput, innerWayConditions: ["FuryHarvestT0", "FuryHarvestT1", "FuryHarvestT2"] }) === 6,
       "Below T3 the same cooldown grants the normal 2 Vitality.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       recovery({ ...recoveryInput, resourceEvents: [] }) === 0,
       "T3 has no independent damage-event resource gain.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       recovery({ ...recoveryInput, resourceMaximums: { Vitality: 4 } }) === 4,
       "The combined recovery respects the resource cap.",
-    ).toBeTruthy();
+    );
 
     const turnaroundTimeline = buildRotationTimeline({
       rotation: {
@@ -154,13 +154,13 @@ describe("fury-harvest", () => {
     const burstingNine = turnaroundTimeline.find(
       (row) => row.step.type === "skill" && row.step.skill === "BurstingNine",
     );
-    expect(
+    assert(
       dragonHead.actionStates[2].resources.Vitality === 30,
       "Turnaround from the preceding Mystic must cap an 80-Vitality skill's refund at 10.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       burstingNine.actionStates[2].resources.Vitality === 10 && turnaroundTimeline.at(-1).resources.Vitality === 10,
       "Turnaround must expire five seconds after its last refresh and stop refunding later Mystic casts.",
-    ).toBeTruthy();
+    );
   });
 });

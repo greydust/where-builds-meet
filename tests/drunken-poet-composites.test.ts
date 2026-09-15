@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-drunken-poet-composites.mjs.
 describe("drunken-poet-composites", () => {
@@ -37,16 +37,16 @@ describe("drunken-poet-composites", () => {
       const expectedPoetTime = componentTimes.slice(0, hitCount).reduce((total, value) => total + value, 0);
       const sober = timelineFor(skillId);
       const intoxicated = timelineFor(skillId, [{ name: "Intoxicated", stack: 1 }]);
-      expect(
+      assert(
         sober.actions.filter((action) => action.type === "damage").length === hitCount &&
           intoxicated.actions.filter((action) => action.type === "damage").length === hitCount,
         `${skillId} must resolve exactly ${hitCount} Poet damage actions with or without initial Intoxicated.`,
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         closeTo(sober.effectiveCastTime, expectedPoetTime + 0.6875) &&
           closeTo(intoxicated.effectiveCastTime, expectedPoetTime),
         `${skillId} must insert Drink only when Intoxicated is absent.`,
-      ).toBeTruthy();
+      );
     });
 
     const expiringTimeline = buildRotationTimeline({
@@ -79,10 +79,10 @@ describe("drunken-poet-composites", () => {
     const expiringPoet = expiringTimeline.find(
       (row) => row.step.type === "skill" && row.step.skill === "DrunkenPoet5HitsCancel",
     );
-    expect(
+    assert(
       expiringPoet?.actions.filter((action) => action.type === "damage" && action.type !== "inactive").length === 2,
       "Each Poet component must recheck Intoxicated and stop the remaining chain after it expires.",
-    ).toBeTruthy();
+    );
 
     const migrated = migrateDrunkenPoetSequences({
       name: "Legacy Poet chain",
@@ -97,21 +97,18 @@ describe("drunken-poet-composites", () => {
       ],
       start: { step: 3, action: 1 },
     });
-    expect(
+    assert(
       migrated.steps.length === 3 && migrated.steps[1]?.skill === "DrunkenPoet5HitsCancel",
       "A persisted five-stage Poet chain must migrate to one composite without disturbing neighboring steps.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       migrated.steps[0]?.before?.action === 6,
       "An event attached to legacy Poet 1 must retain its action anchor after migration.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       migrated.start?.step === 1 && migrated.start.action === 22,
       "A fight-start anchor inside a legacy Poet chain must retain its component action after migration.",
-    ).toBeTruthy();
-    expect(
-      migrated.steps[1]?.causesBreak === true,
-      "A break marker on legacy Poet 5 must move to the composite.",
-    ).toBeTruthy();
+    );
+    assert(migrated.steps[1]?.causesBreak === true, "A break marker on legacy Poet 5 must move to the composite.");
   });
 });

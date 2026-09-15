@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-skill-override-calculation.mjs.
 describe("skill-override-calculation", () => {
@@ -17,12 +17,20 @@ describe("skill-override-calculation", () => {
       },
     });
     const migratedActions = migrated.General.Legacy.action;
-    if (migratedActions[0].attrCoef !== 2 || migratedActions[1].silkbindCoef !== 3 || migratedActions[2].attrCoef !== 0)
-      throw new Error("Legacy overrides must preserve old coefficients without overwriting explicit zero.");
+    assert(
+      !(
+        migratedActions[0].attrCoef !== 2 ||
+        migratedActions[1].silkbindCoef !== 3 ||
+        migratedActions[2].attrCoef !== 0
+      ),
+      "Legacy overrides must preserve old coefficients without overwriting explicit zero.",
+    );
     const physicalOnly = { DOT: { Bleed: { periodic: { action: [{ type: "damage", phyCoef: 0.02 }] } } } };
     const reloaded = deserializeSkillOverrides(JSON.parse(serializeSkillOverrides(physicalOnly)));
-    if (reloaded.DOT.Bleed.periodic.action[0].attrCoef !== undefined)
-      throw new Error("New physical-only overrides must remain physical-only after saving and reloading.");
+    assert(
+      reloaded.DOT.Bleed.periodic.action[0].attrCoef === undefined,
+      "New physical-only overrides must remain physical-only after saving and reloading.",
+    );
     const oldStacked = deserializeSkillOverrides({
       version: 2,
       overrides: {
@@ -33,14 +41,14 @@ describe("skill-override-calculation", () => {
         },
       },
     });
-    if (
-      oldStacked.DOT.Bleed.periodic.stackDamage !== undefined ||
-      oldStacked.DOT.Bleed.periodic.tickOnExpire !== false ||
-      oldStacked.DOT.Bleed.periodic.action[0].attrCoef !== undefined
-    )
-      throw new Error(
-        "Old stack-damage overrides must preserve expiration behavior and physical-only coefficients, but drop stack scaling.",
-      );
+    assert(
+      !(
+        oldStacked.DOT.Bleed.periodic.stackDamage !== undefined ||
+        oldStacked.DOT.Bleed.periodic.tickOnExpire !== false ||
+        oldStacked.DOT.Bleed.periodic.action[0].attrCoef !== undefined
+      ),
+      "Old stack-damage overrides must preserve expiration behavior and physical-only coefficients, but drop stack scaling.",
+    );
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts");
     const { rotationBundleFingerprint } = await import("../src/calculations/rotationCalculationCache.ts");
     const defaults = {
@@ -64,13 +72,13 @@ describe("skill-override-calculation", () => {
       Debuff: { Weakness: { duration: 8, effect: [{ dmgBonus: 0.02 }] } },
       DOT: { Burning: { duration: 8, periodic: { interval: 2 } } },
     });
-    if (modified.skills.Attack.castTime !== 2) throw new Error("Skill overrides did not reach calculation skills.");
-    if (modified.effectDefinitions.Power.duration !== 10)
-      throw new Error("Buff overrides did not reach calculation effects.");
-    if (modified.effectDefinitions.Weakness.duration !== 8)
-      throw new Error("Debuff overrides did not reach calculation effects.");
-    if (modified.dots.Burning.duration !== 8 || modified.effectDefinitions.Burning.duration !== 8)
-      throw new Error("DOT overrides did not reach both calculation maps.");
+    assert(modified.skills.Attack.castTime === 2, "Skill overrides did not reach calculation skills.");
+    assert(modified.effectDefinitions.Power.duration === 10, "Buff overrides did not reach calculation effects.");
+    assert(modified.effectDefinitions.Weakness.duration === 8, "Debuff overrides did not reach calculation effects.");
+    assert(
+      !(modified.dots.Burning.duration !== 8 || modified.effectDefinitions.Burning.duration !== 8),
+      "DOT overrides did not reach both calculation maps.",
+    );
 
     const timelineFor = (definitions) =>
       buildRotationTimeline({
@@ -84,8 +92,10 @@ describe("skill-override-calculation", () => {
         setupEffects: [],
         weapons: ["snowparting"],
       });
-    if (timelineFor(baseline)[0].effectiveCastTime !== 1 || timelineFor(modified)[0].effectiveCastTime !== 2)
-      throw new Error("Skill overrides did not change the generated calculation timeline.");
+    assert(
+      !(timelineFor(baseline)[0].effectiveCastTime !== 1 || timelineFor(modified)[0].effectiveCastTime !== 2),
+      "Skill overrides did not change the generated calculation timeline.",
+    );
 
     const bundleFor = (definitions) => ({
       weapons: ["snowparting"],
@@ -96,7 +106,9 @@ describe("skill-override-calculation", () => {
         effectDefinitions: definitions.effectDefinitions,
       },
     });
-    if (rotationBundleFingerprint(bundleFor(baseline)) === rotationBundleFingerprint(bundleFor(modified)))
-      throw new Error("Skill definition changes did not invalidate the calculation fingerprint.");
+    assert(
+      rotationBundleFingerprint(bundleFor(baseline)) !== rotationBundleFingerprint(bundleFor(modified)),
+      "Skill definition changes did not invalidate the calculation fingerprint.",
+    );
   });
 });

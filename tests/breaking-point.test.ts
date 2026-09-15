@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-breaking-point.mjs.
 describe("breaking-point", () => {
@@ -57,14 +57,14 @@ describe("breaking-point", () => {
         .filter((row) => row.kind === "rotation" && row.step.type === "skill")
         .map((row) => row.buffs.find((effect) => effect.name === "Disintegration")?.stack ?? 0);
     };
-    expect(
+    assert(
       JSON.stringify(stackStarts(4, false)) === JSON.stringify([0, 1, 2, 3]),
       "Repeated Breaking Point triggers must accumulate to the default three-stack cap.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       JSON.stringify(stackStarts(6, true)) === JSON.stringify([0, 1, 2, 3, 4, 5]),
       "Breaking Point T4 must accumulate Disintegration to five stacks.",
-    ).toBeTruthy();
+    );
     for (const firstDodge of ["PerfectDodge", "PerfectDodgeCancel"]) {
       const secondDodge = firstDodge === "PerfectDodge" ? "PerfectDodgeCancel" : "PerfectDodge";
       const firstCastTime = firstDodge === "PerfectDodge" ? 0.5 : 0;
@@ -100,31 +100,31 @@ describe("breaking-point", () => {
           resourceMaximums: { Vitality: 40 },
         });
       const timeline = runDodgeProbe(6);
-      expect(
+      assert(
         timeline.filter((row) => row.step.skill === "Observe").at(-1).resources.Vitality === 9,
         "All three dodges must grant Vitality even when the BP T6 proc is on cooldown.",
-      ).toBeTruthy();
+      );
       const observedStacks = timeline
         .filter((row) => row.step.skill === "Observe")
         .map((row) => row.buffs.find((effect) => effect.name === "Disintegration")?.stack ?? 0);
-      expect(
+      assert(
         JSON.stringify(observedStacks) === JSON.stringify([5, 0, 1, 5]),
         "Dodge must share only the T6 proc cooldown, permit normal stacks during it, and proc again at 15 seconds.",
-      ).toBeTruthy();
+      );
       const dodges = timeline.filter(
         (row) => row.kind === "rotation" && [firstDodge, secondDodge].includes(row.step.skill),
       );
-      expect(
+      assert(
         JSON.stringify(dodges.map((row) => row.startTime)) === JSON.stringify([0, 4, 15]),
         "The BP T6 proc cooldown must not delay either dodge variant.",
-      ).toBeTruthy();
+      );
       const belowT6 = runDodgeProbe(5)
         .filter((row) => row.step.skill === "Observe")
         .map((row) => row.buffs.find((effect) => effect.name === "Disintegration")?.stack ?? 0);
-      expect(
+      assert(
         JSON.stringify(belowT6) === JSON.stringify([0, 0, 1, 0]),
         "Dodges must not grant Disintegration below Breaking Point T6.",
-      ).toBeTruthy();
+      );
     }
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-worker-recovery.mjs.
@@ -56,8 +56,8 @@ describe("worker-recovery", () => {
         innerWayPriority: [],
         setupComparisons: {},
       });
-      if (result.dps !== metrics.dps) throw new Error("The interrupted calculation did not recover.");
-      if (workersCreated !== 2) throw new Error(`Expected one replacement worker, but created ${workersCreated}.`);
+      assert(result.dps === metrics.dps, "The interrupted calculation did not recover.");
+      assert(workersCreated === 2, `Expected one replacement worker, but created ${workersCreated}.`);
       disposeRotationCalculationWorker();
     } finally {
       delete globalThis.Worker;
