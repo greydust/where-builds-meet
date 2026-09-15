@@ -12,20 +12,18 @@ describe("fivefold-bleed-loops", () => {
     const rules = (tier) =>
       Array.from({ length: tier + 1 }, (_, index) => {
         const definition = way.effect[`FivefoldBleedT${index}`];
-        return [
-          ...(definition.effect ?? []).map((effect) => ({
-            ...effect,
-            effect: effect.effect ?? effect,
-            source: "FivefoldBleed",
-            tier: index,
-          })),
-          ...(definition.trigger ?? []).map((trigger) => ({
-            trigger,
-            effect: {},
-            source: "FivefoldBleed",
-            tier: index,
-          })),
-        ];
+        return (definition.effect ?? [])
+          .map((effect) =>
+            Object.assign({}, effect, { effect: effect.effect ?? effect, source: "FivefoldBleed", tier: index }),
+          )
+          .concat(
+            (definition.trigger ?? []).map((trigger) => ({
+              trigger,
+              effect: {},
+              source: "FivefoldBleed",
+              tier: index,
+            })),
+          );
       }).flat();
     const inputFor = (times, end = 12, tier = 6) => ({
       rotation: {

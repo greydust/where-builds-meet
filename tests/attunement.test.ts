@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-attunement.mjs.
 describe("attunement", () => {
@@ -56,23 +56,20 @@ describe("attunement", () => {
     ]);
     const penetrated = damage({ ...baseAttunement, physicalPenetration: 10 }, []);
 
-    expect(
+    assert(
       closeTo(oneMatching / baseline, 1.06),
       "A matching armor attunement must apply as a standalone 1 + attunement DMG Bonus multiplier.",
-    ).toBeTruthy();
-    expect(closeTo(missingTag, baseline), "An armor attunement must require every configured skill tag.").toBeTruthy();
-    expect(
-      closeTo(wrongWeapon, baseline),
-      "An armor attunement must not apply to another weapon's skills.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(closeTo(missingTag, baseline), "An armor attunement must require every configured skill tag.");
+    assert(closeTo(wrongWeapon, baseline), "An armor attunement must not apply to another weapon's skills.");
+    assert(
       closeTo(twoMatching / baseline, 1.12),
       "Matching armor attunement bonuses must sum inside the standalone multiplier.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(penetrated / baseline, 1.05),
       "A weapon attunement without skill-match tags must apply to its penetration channel.",
-    ).toBeTruthy();
+    );
 
     const cleaveBundle = (attunement) => ({
       timeline: {
@@ -107,16 +104,16 @@ describe("attunement", () => {
       if (!row) throw new Error(`Missing ${skillId} timeline row.`);
       return result.actionBreakdowns[`${row.id}:0`]?.total ?? 0;
     };
-    expect(
+    assert(
       closeTo(
         damageBySkill(cleaveBoosted, "StonebreakerCleave") / damageBySkill(cleaveBaseline, "StonebreakerCleave"),
         1.06,
       ),
       "Thundercry Charged attunement must apply to Stonebreaker Cleave.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(damageBySkill(cleaveBoosted, "StonebreakerQuake"), damageBySkill(cleaveBaseline, "StonebreakerQuake")),
       "Thundercry Charged attunement must exclude Stonebreaker Quake without removing its Charged tag.",
-    ).toBeTruthy();
+    );
   });
 });

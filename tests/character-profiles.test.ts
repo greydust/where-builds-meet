@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-character-profiles.mjs.
 describe("character-profiles", () => {
@@ -24,33 +24,30 @@ describe("character-profiles", () => {
         globalDebuffs: { phantomChime: true },
       },
     ]);
-    expect(
-      parsed.length === 1 && parsed[0].name === "Test Profile",
-      "Profiles must load with a trimmed name.",
-    ).toBeTruthy();
-    expect(
+    assert(parsed.length === 1 && parsed[0].name === "Test Profile", "Profiles must load with a trimmed name.");
+    assert(
       parsed[0].statOverrides.minPhys === 123 &&
         !("unknownStat" in parsed[0].statOverrides) &&
         !("maxPhys" in parsed[0].statOverrides),
       "Only finite known character overrides may load.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       parsed[0].attunementOverrides.physicalPenetration === 0.051 &&
         !("unknownAttunement" in parsed[0].attunementOverrides),
       "Only finite known attunement overrides may load.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !("breakthrough" in parsed[0]) &&
         !("food" in parsed[0]) &&
         !("divinecraft" in parsed[0]) &&
         !("globalDebuffs" in parsed[0]),
       "Transient and legacy independent selections must be discarded from character profiles.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       parsed[0].buildSetup.weaponSets.Cleftpeak === 2 && parsed[0].buildSetup.armorSets.Formbend === 0,
       "Legacy gearSets must migrate to weaponSets while armor sets receive their default.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       characterProfileMatches(parsed[0], {
         statOverrides: { minPhys: 123 },
         attunementOverrides: { physicalPenetration: 0.051 },
@@ -63,9 +60,9 @@ describe("character-profiles", () => {
         },
       }),
       "Profile matching must include every profile-owned Main-tab selection.",
-    ).toBeTruthy();
+    );
 
-    expect(
+    assert(
       !characterProfileMatches(parsed[0], {
         statOverrides: { minPhys: 124 },
         attunementOverrides: { physicalPenetration: 0.051 },
@@ -78,10 +75,10 @@ describe("character-profiles", () => {
         },
       }),
       "Changing profile-owned character state must make the current Main-tab state differ from the saved profile.",
-    ).toBeTruthy();
+    );
 
     const exported = JSON.parse(exportCharacterProfiles(parsed));
-    expect(
+    assert(
       exported.version === 5 &&
         !("breakthrough" in exported.profiles[0]) &&
         exported.profiles[0].buildSetup.innerWays.length === 4 &&
@@ -91,24 +88,21 @@ describe("character-profiles", () => {
         !("divinecraft" in exported.profiles[0]) &&
         !("globalDebuffs" in exported.profiles[0]),
       "Profile export v5 must include build-backed setup selections but omit transient and independent session controls.",
-    ).toBeTruthy();
+    );
     const merged = mergeImportedCharacterProfiles(parsed, exported);
-    expect(
-      merged.importedCount === 1 && merged.profiles.length === 2,
-      "Import must append valid profiles.",
-    ).toBeTruthy();
-    expect(merged.profiles[1].id !== parsed[0].id, "Import must remap a colliding profile ID.").toBeTruthy();
+    assert(merged.importedCount === 1 && merged.profiles.length === 2, "Import must append valid profiles.");
+    assert(merged.profiles[1].id !== parsed[0].id, "Import must remap a colliding profile ID.");
     const migrated = mergeImportedCharacterProfiles([], {
       format: exported.format,
       version: 1,
       profiles: [{ id: "legacy", name: "Legacy", statOverrides: { minPhys: 99 }, attunementOverrides: {} }],
     });
-    expect(
+    assert(
       migrated.profiles[0].innerWays.length === 4 &&
         !("breakthrough" in migrated.profiles[0]) &&
         !("food" in migrated.profiles[0]) &&
         !("divinecraft" in migrated.profiles[0]),
       "Version 1 profiles must discard transient and independent session controls.",
-    ).toBeTruthy();
+    );
   });
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-deluge-qi-timing.mjs.
@@ -90,14 +90,14 @@ describe("deluge-qi-timing", () => {
         { ratio: 0.3999, time: 30 },
         { ratio: 0, time: 50 },
       ];
-      expect(qiRows.length === expected.length, `${file} must contain one complete Qi segment.`).toBeTruthy();
+      assert(qiRows.length === expected.length, `${file} must contain one complete Qi segment.`);
       for (const target of expected) {
         const row = qiRows.find((candidate) => candidate.step.targetQiRatio === target.ratio);
-        expect(row, `${file} is missing its ${target.ratio * 100}% Qi event.`).toBeTruthy();
-        expect(
+        assert(row, `${file} is missing its ${target.ratio * 100}% Qi event.`);
+        assert(
           Math.abs(row.startTime - target.time) <= 0.75,
           `${file} ${target.ratio * 100}% Qi occurs at ${row.startTime.toFixed(3)}s instead of near ${target.time}s.`,
-        ).toBeTruthy();
+        );
       }
     }
   });

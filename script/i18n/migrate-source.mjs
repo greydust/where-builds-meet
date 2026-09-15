@@ -21,7 +21,7 @@ const keyPart = (value) => {
 };
 const filePart = (file) => path.basename(file, path.extname(file)).replace(/^[A-Z]/, (value) => value.toLowerCase());
 
-for (const relativeFile of files) {
+const migrateFile = async (relativeFile) => {
   const file = path.join(root, relativeFile);
   const source = await readFile(file, "utf8");
   const sourceFile = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -108,7 +108,10 @@ for (const relativeFile of files) {
       source,
     );
   await writeFile(file, migrated, "utf8");
-}
+};
+
+// Files share the key registry, so migrate strictly in order.
+await files.reduce((chain, relativeFile) => chain.then(() => migrateFile(relativeFile)), Promise.resolve());
 
 await writeCatalog(
   catalogFile,

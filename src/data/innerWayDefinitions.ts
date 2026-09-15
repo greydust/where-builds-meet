@@ -147,8 +147,7 @@ export function innerWayDefinitionForSoloLevel(definition: InnerWayDefinition, s
           effect: tier.effect.map((item) => {
             const rawStat = item.rawStat as Record<string, number | { bySoloLevel: (number | null)[] }> | undefined;
             if (!rawStat) return item;
-            return {
-              ...item,
+            return Object.assign({}, item, {
               rawStat: Object.fromEntries(
                 Object.entries(rawStat).map(([stat, amount]) => {
                   if (typeof amount === "number") return [stat, amount];
@@ -160,7 +159,7 @@ export function innerWayDefinitionForSoloLevel(definition: InnerWayDefinition, s
                   return [stat, selected ?? 0];
                 }),
               ),
-            };
+            });
           }),
         },
       ];

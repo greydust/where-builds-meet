@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-snowbreak-hit-effect.mjs.
 describe("snowbreak-hit-effect", () => {
@@ -66,21 +66,21 @@ describe("snowbreak-hit-effect", () => {
     };
 
     const baseline = damage();
-    expect(
+    assert(
       closeTo(damage({ exhaustedAt: 0.5 }) / baseline, 1.4),
       "Exhausted applied after cast start but before the hit must grant the 40% bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(damage({ exhaustedAt: 1.5 }), baseline),
       "Exhausted applied after the hit must not grant the bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(damage({ innerPassion: true }) / baseline, 1.4),
       "Inner Passion active at the hit must grant the 40% bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(damage({ exhaustedAt: 0.5, innerPassion: true }) / baseline, 1.4),
       "Inner Passion and Exhausted together must grant only one 40% bonus.",
-    ).toBeTruthy();
+    );
   });
 });

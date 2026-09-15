@@ -121,7 +121,7 @@ export function seasonalEdgeEffectFor(
   return {
     duration: modified.duration,
     cooldown: trigger.cooldown,
-    outcomes: outcomes.map((outcome) => ({ ...outcome, weight: outcome.weight / totalOutcomeWeight })),
+    outcomes: outcomes.map((outcome) => Object.assign({}, outcome, { weight: outcome.weight / totalOutcomeWeight })),
     additionalSkills: Array.isArray(modified.additionalSkills)
       ? modified.additionalSkills.filter((skill): skill is string => typeof skill === "string")
       : [],

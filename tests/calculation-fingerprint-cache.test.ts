@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-calculation-fingerprint-cache.mjs.
 describe("calculation-fingerprint-cache", () => {
@@ -20,12 +20,10 @@ describe("calculation-fingerprint-cache", () => {
     cache.storeBaseline(setupB, baselineB);
     cache.storeBaseline(setupC, baselineC);
 
-    if (cache.baseline(setupA) !== baselineA) throw new Error("Returning to setup A did not restore its baseline.");
-    if (cache.variant(setupA, variant) !== variantA) throw new Error("Setup A did not restore its cached variant.");
-    if (cache.variant(setupB, variant) !== undefined)
-      throw new Error("A cached variant leaked into a different setup fingerprint.");
-    if (new Set([setupA, setupB, setupC]).size !== 3)
-      throw new Error("Distinct setup inputs produced duplicate fingerprints.");
+    assert(cache.baseline(setupA) === baselineA, "Returning to setup A did not restore its baseline.");
+    assert(cache.variant(setupA, variant) === variantA, "Setup A did not restore its cached variant.");
+    assert(cache.variant(setupB, variant) === undefined, "A cached variant leaked into a different setup fingerprint.");
+    assert(new Set([setupA, setupB, setupC]).size === 3, "Distinct setup inputs produced duplicate fingerprints.");
 
     const namedRotationBundle = (name, skill, weapons = ["snowparting", "phalanxbane"]) => ({
       timeline: { rotation: { name, steps: [{ type: "skill", skill }] } },
@@ -37,11 +35,12 @@ describe("calculation-fingerprint-cache", () => {
     const reversedMartialArts = rotationBundleFingerprint(
       namedRotationBundle("First name", "SkillA", ["phalanxbane", "snowparting"]),
     );
-    if (rotationA !== renamedRotationA)
-      throw new Error("Display-only rotation names changed the calculation fingerprint.");
-    if (rotationA === rotationB) throw new Error("Different rotation step content produced the same fingerprint.");
-    if (rotationA === reversedMartialArts)
-      throw new Error("Different ordered martial-art selections produced the same fingerprint.");
+    assert(rotationA === renamedRotationA, "Display-only rotation names changed the calculation fingerprint.");
+    assert(rotationA !== rotationB, "Different rotation step content produced the same fingerprint.");
+    assert(
+      rotationA !== reversedMartialArts,
+      "Different ordered martial-art selections produced the same fingerprint.",
+    );
 
     const rotationSettings = [
       ["target HP", { targetHP: 100000 }],
@@ -59,8 +58,10 @@ describe("calculation-fingerprint-cache", () => {
         timeline: { rotation: { ...baseRotation, ...setting } },
         weapons: [],
       });
-      if (changedFingerprint === baseSettingsFingerprint)
-        throw new Error(`Changing ${label} did not change the rotation calculation fingerprint.`);
+      assert(
+        changedFingerprint !== baseSettingsFingerprint,
+        `Changing ${label} did not change the rotation calculation fingerprint.`,
+      );
     }
   });
 });

@@ -41,19 +41,21 @@ export function GearOcrModal({ open, definitionId, definitionName, onClose, onIm
   const [ocrStatus, setOcrStatus] = useState("");
   const [ocrProgress, setOcrProgress] = useState(0);
   const [ocrPreview, setOcrPreview] = useState("");
+  const [wasOcrOpen, setWasOcrOpen] = useState(open);
+  if (open && !wasOcrOpen) {
+    setWasOcrOpen(true);
+    setOcrPreview("");
+    setOcrStatus("");
+    setOcrProgress(0);
+    setOcrDragging(false);
+  }
+  if (!open && wasOcrOpen) setWasOcrOpen(false);
 
   useEffect(() => {
     if (!open) return;
     void loadGearOcrModule().catch(() => undefined);
-    setOcrPreview((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return "";
-    });
     if (ocrInputRef.current) ocrInputRef.current.value = "";
     dismissNotice("image-import");
-    setOcrStatus("");
-    setOcrProgress(0);
-    setOcrDragging(false);
   }, [open]);
 
   useEffect(

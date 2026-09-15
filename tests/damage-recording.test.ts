@@ -46,12 +46,9 @@ describe("damage-recording", () => {
         weapons,
         innerWayConditions: ["VendettaT3", "Flamelash", "EchoesOfOblivionT6"],
         innerWayRules: [0, 1].flatMap((tier) =>
-          vendetta.effect["VendettaT" + tier].effect.map((effect) => ({
-            effect: {},
-            ...effect,
-            source: "Vendetta",
-            tier,
-          })),
+          vendetta.effect["VendettaT" + tier].effect.map((effect) =>
+            Object.assign({ effect: {} }, effect, { source: "Vendetta", tier }),
+          ),
         ),
         setupEffects: [],
       },

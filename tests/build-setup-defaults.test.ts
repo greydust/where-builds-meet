@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-build-setup-defaults.mjs.
 describe("build-setup-defaults", () => {
@@ -36,17 +36,17 @@ describe("build-setup-defaults", () => {
       sessionStorage.setItem("wwm-build-setup-overrides-v1", "{}");
       sessionStorage.setItem("wwm-inner-way-session-v1", JSON.stringify(legacyInnerWays));
       const current = loadBuildSetupOverrides(defaultBuildSetup);
-      expect(
+      assert(
         Object.keys(current).length === 0,
         "An explicitly saved empty override must use every setup value from the active build.",
-      ).toBeTruthy();
+      );
 
       localStorage.removeItem("wwm-build-setup-overrides-v1");
       const migrated = loadBuildSetupOverrides(defaultBuildSetup);
-      expect(
+      assert(
         migrated.innerWays?.[0]?.innerWay === "BreakingPoint",
         "The standalone Inner Way session must migrate only when the unified override has never been saved.",
-      ).toBeTruthy();
+      );
     } finally {
       delete globalThis.window;
       delete globalThis.localStorage;

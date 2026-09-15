@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-void-attack-path.mjs.
 describe("void-attack-path", () => {
@@ -20,39 +20,39 @@ describe("void-attack-path", () => {
     };
 
     const strength = calculateDerivedStats(stats, 0, {}, ["snowparting", "phalanxbane"]);
-    expect(
+    assert(
       strength.effectiveMinStonesplit === 35 &&
         strength.effectiveMaxStonesplit === 50 &&
         strength.effectiveMinSilkbind === 50 &&
         strength.effectiveMinBamboocut === 70,
       "Stonesplit paths must add Void Attack only to Stonesplit Attack.",
-    ).toBeTruthy();
+    );
 
     const kite = calculateDerivedStats(stats, 0, {}, ["heavenwill", "skygrasp"]);
-    expect(
+    assert(
       kite.effectiveMinBamboocut === 75 &&
         kite.effectiveMaxBamboocut === 90 &&
         kite.effectiveMinStonesplit === 30 &&
         kite.effectiveMinSilkbind === 50,
       "Bamboocut paths must add Void Attack only to Bamboocut Attack.",
-    ).toBeTruthy();
+    );
 
     const deluge = calculateDerivedStats(stats, 0, {}, ["panaceaFan", "soulshadeUmbrella"]);
-    expect(
+    assert(
       deluge.effectiveMinSilkbind === 55 &&
         deluge.effectiveMaxSilkbind === 70 &&
         deluge.effectiveMinStonesplit === 30 &&
         deluge.effectiveMinBamboocut === 70,
       "Silkbind paths must add Void Attack only to Silkbind Attack.",
-    ).toBeTruthy();
+    );
 
     const splendor = calculateDerivedStats(stats, 0, {}, ["namelessSword", "namelessSpear"]);
-    expect(
+    assert(
       splendor.effectiveMinBellstrike === 15 &&
         splendor.effectiveMaxBellstrike === 30 &&
         splendor.effectiveMinStonesplit === 30 &&
         splendor.effectiveMinSilkbind === 50,
       "Bellstrike paths must add Void Attack only to Bellstrike Attack.",
-    ).toBeTruthy();
+    );
   });
 });

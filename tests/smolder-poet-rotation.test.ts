@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-smolder-poet-rotation.mjs.
 describe("smolder-poet-rotation", () => {
@@ -53,16 +53,16 @@ describe("smolder-poet-rotation", () => {
     const poet5Row = timeline.find((row) => row.id === `rotation-${poet5RotationIndex}`);
     const poet5DamageIndex = poet5Row?.actions.findLastIndex((action) => action.type === "damage");
     const poet5ModifierEffects = poet5Row?.actionModifierEffects?.[poet5DamageIndex ?? -1] ?? [];
-    expect(
+    assert(
       poet5ModifierEffects.some((effect) => effect.dmgBonus === 0.8),
       "Poet 5 must capture four Enhanced Drunken Poet stacks as an 80% direct-damage bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       poet5DamageIndex !== undefined &&
         poet5DamageIndex >= 0 &&
         !poet5Row?.actionStates[poet5DamageIndex]?.buffs.some((effect) => effect.name === "EnhanceDrunkenPoet"),
       "Poet 5 must consume every Enhanced Drunken Poet stack before its direct hit.",
-    ).toBeTruthy();
+    );
     const poet5Explosions = timeline.filter(
       (row) =>
         row.kind === "trigger" &&
@@ -70,12 +70,12 @@ describe("smolder-poet-rotation", () => {
         row.step.type === "skill" &&
         ["CombustionExplosion", "SmolderExplosion"].includes(row.step.skill ?? ""),
     );
-    expect(
+    assert(
       poet5Explosions.every(
         (row) => !row.modifierEffects.some((effect) => typeof effect.dmgBonus === "number" && effect.dmgBonus !== 0),
       ),
       "Poet 5's triggered explosions must not inherit its stack-scaled damage bonus.",
-    ).toBeTruthy();
+    );
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1 };
     const enemy = {
       name: "Probe",
@@ -104,9 +104,9 @@ describe("smolder-poet-rotation", () => {
       ...directContext,
       effects: poet5ModifierEffects,
     }).total;
-    expect(
+    assert(
       Math.abs(enhancedDamage / unenhancedDamage - 1.8) < 1e-9,
       "Four Enhanced Drunken Poet stacks must multiply Poet 5 direct damage by 1.8.",
-    ).toBeTruthy();
+    );
   });
 });

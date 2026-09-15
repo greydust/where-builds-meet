@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-script.mjs.
@@ -30,7 +30,7 @@ describe("script", () => {
     const scripts = (await import("../data/script.json")).default;
     const generalBuffs = (await import("../data/buff/general.json")).default;
 
-    expect(
+    assert(
       requirementsPass(
         scripts.Wraithstrike.effect.requirement,
         [],
@@ -42,8 +42,8 @@ describe("script", () => {
         { targetQiPercentage: 39 },
       ),
       "Wraithstrike must activate below 40% target Qi.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !requirementsPass(
         scripts.Insight.effect.requirement,
         [],
@@ -55,7 +55,7 @@ describe("script", () => {
         { targetHPPercentage: 80 },
       ),
       "Insight must require the Mystic skill tag.",
-    ).toBeTruthy();
+    );
 
     const timeline = buildRotationTimeline({
       rotation: {
@@ -102,19 +102,19 @@ describe("script", () => {
     });
     const hit = timeline.find((row) => row.id === "rotation-2");
     const takeDamageRow = timeline.find((row) => row.id === "rotation-1");
-    expect(
+    assert(
       takeDamageRow?.sourceRowId === hit?.id && takeDamageRow?.startTime === 1,
       "Take Damage must remain attached to its selected skill action.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       hit?.actionStates[0].currentHP === 1000 && hit?.actionStates[1].currentHP === 199,
       "Self HP and Take Damage must affect only their attached action and later state.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !hit?.actionStates[0].buffs.some((buff) => buff.name === "Revelry") &&
         hit?.actionStates[1].buffs.some((buff) => buff.name === "Revelry"),
       "Revelry Script must apply Revelry when Take Damage leaves self HP at 30% or below.",
-    ).toBeTruthy();
+    );
 
     const stats = {
       ...emptyStats,
@@ -173,9 +173,9 @@ describe("script", () => {
       innerWayPriority: [],
       setupComparisons: {},
     });
-    expect(
+    assert(
       thresholdResult.actionBreakdowns["rotation-0:0"].total > thresholdResult.actionBreakdowns["rotation-0:1"].total,
       `Target-HP Script requirements must be reevaluated after preceding calculated damage (${thresholdResult.actionBreakdowns["rotation-0:0"].total} -> ${thresholdResult.actionBreakdowns["rotation-0:1"].total}).`,
-    ).toBeTruthy();
+    );
   });
 });

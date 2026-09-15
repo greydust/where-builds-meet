@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-deluge-wts-rotation.mjs.
 describe("deluge-wts-rotation", () => {
@@ -52,16 +52,16 @@ describe("deluge-wts-rotation", () => {
       (await import("../data/rotation/silkbind-deluge/dummy-1-min-wts-team.json")).default,
     ]) {
       const rows = buildRotationTimeline({ ...timelineInput, rotation: preset });
-      expect(
+      assert(
         !rows.some((row) => row.step.skill === "EchoesOfAThousandPlantsFanQQ"),
         "Cancelled Fan QQ must not trigger Echoes in either WTS preset.",
-      ).toBeTruthy();
-      expect(
+      );
+      assert(
         rows
           .filter((row) => row.kind === "rotation" && row.step.skill === "EchoesOfAThousandPlants")
           .every((row) => !row.cooldownWait),
         "Cancelled Fan QQ must leave the preset's manual Umbrella Special available.",
-      ).toBeTruthy();
+      );
     }
     const deflectRows = timeline.filter(
       (row) => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "DeflectSuccessful",
@@ -73,19 +73,19 @@ describe("deluge-wts-rotation", () => {
         row.step.automatic !== "dummyAttack" &&
         row.startTime < 60,
     );
-    expect(manualAttackRows.length === 0, "The preset must not invent manual Take Damage events.").toBeTruthy();
+    assert(manualAttackRows.length === 0, "The preset must not invent manual Take Damage events.");
     const automaticAttackRows = timeline.filter(
       (row) => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "dummyAttack",
     );
-    expect(
+    assert(
       automaticAttackRows.length === 20 &&
         automaticAttackRows.every((row, index) => Math.abs(row.startTime - (5.5 + Math.floor(index / 2) * 6)) < 1e-9),
       "The preset must use only the standard paired dummy attacks every six seconds from 5.5 seconds.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       deflectRows.every((row) => row.startTime < 60),
       "Every requested Successful Deflect must occur before the one-minute battle end.",
-    ).toBeTruthy();
+    );
     const stats = {
       ...emptyStats,
       minPhys: 1000,
@@ -104,10 +104,10 @@ describe("deluge-wts-rotation", () => {
       enemy: { judgementResistance: 0 },
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     });
-    expect(
+    assert(
       Math.abs(voidSnapshot.averageSilkbindAttack - 650) < 1e-9,
       "World to Sword must include Deluge's Void Attack conversion in its effective Silkbind threshold snapshot.",
-    ).toBeTruthy();
+    );
     const timelineBundle = {
       ...timelineInput,
       initialResources: { Vitality: 100 },
@@ -171,30 +171,30 @@ describe("deluge-wts-rotation", () => {
     const teamBaseline = groupResult(5);
     const groupBaseline = groupResult(10);
     const qiBladeHits = (result) => result.metrics.breakdown.skills.find((skill) => skill.id === "QiBlade")?.hits ?? 0;
-    expect(
+    assert(
       baseline.metrics.totalHealing < teamBaseline.metrics.totalHealing &&
         teamBaseline.metrics.totalHealing < groupBaseline.metrics.totalHealing,
       "Changing the WTS preset from Solo to Team to Group must increase recipient-weighted healing.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       qiBladeHits(baseline) < qiBladeHits(teamBaseline) && qiBladeHits(teamBaseline) <= qiBladeHits(groupBaseline),
       "Changing the WTS preset group size must increase its overheal-driven Qi Blade triggers.",
-    ).toBeTruthy();
+    );
     const qiBladeBreakdown = baseline.metrics.breakdown.skills.find((skill) => skill.id === "QiBlade");
-    expect(qiBladeBreakdown?.hits, "The WTS preset must trigger Qi Blade damage before Battle End.").toBeTruthy();
+    assert(qiBladeBreakdown?.hits, "The WTS preset must trigger Qi Blade damage before Battle End.");
     const worldToSwordCast = baseline.metrics.breakdown.casts.find((cast) => cast.skillId === "WorldToSword");
-    expect(
+    assert(
       worldToSwordCast?.casts === 2 && Math.abs(worldToSwordCast.damage - qiBladeBreakdown.damage) < 1e-9,
       "The WTS per-cast row must own all damage dealt by its triggered Qi Blades.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !baseline.metrics.breakdown.casts.some((cast) => cast.skillId === "QiBlade"),
       "Triggered Qi Blades must not appear as a separate per-cast row.",
-    ).toBeTruthy();
+    );
     const displayedTimeline = mergeCalculatedTimelineState(timeline, baseline.timeline);
-    expect(
+    assert(
       displayedTimeline.some((row) => row.step.type === "skill" && row.step.skill === "QiBlade"),
       "The rotation editor timeline must retain worker-created Qi Blade rows.",
-    ).toBeTruthy();
+    );
   });
 });

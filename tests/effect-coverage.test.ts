@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-effect-coverage.mjs.
 describe("effect-coverage", () => {
@@ -97,21 +97,18 @@ describe("effect-coverage", () => {
     const buff = result.metrics.breakdown.buffCoverage.find((row) => row.id === "ShortBuff");
     const debuff = result.metrics.breakdown.debuffCoverage.find((row) => row.id === "ShortDebuff");
     const privateDebuff = result.metrics.breakdown.debuffCoverage.find((row) => row.id === "PrivateDebuff");
-    expect(
-      buff?.averageStacks === 0.5,
-      "Buff average stacks must include only damage and healing actions.",
-    ).toBeTruthy();
-    expect(
+    assert(buff?.averageStacks === 0.5, "Buff average stacks must include only damage and healing actions.");
+    assert(
       debuff?.averageStacks === 0.5 && debuff.timeCoverage === 75,
       "A shared debuff must report output-action average stacks and elapsed-time coverage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       privateDebuff?.averageStacks === 0.5 && privateDebuff.timeCoverage === undefined,
       "A non-shared debuff must report average stacks without elapsed-time coverage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !result.metrics.breakdown.buffCoverage.some((row) => row.id === "HiddenBuff"),
       "Effects without showCoverage must stay out of the coverage breakdown.",
-    ).toBeTruthy();
+    );
   });
 });

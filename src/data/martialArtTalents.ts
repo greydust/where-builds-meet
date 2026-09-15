@@ -10,7 +10,7 @@ export function martialArtEffectsForRank<Effect extends object>(
 ) {
   return Array.from(new Set(weapons)).flatMap((weapon) =>
     (definitions[weapon]?.talent[rank] ?? []).flatMap((talent) =>
-      (talent.effect ?? []).map((effect) => ({ ...effect, statStage: "talent" as const })),
+      (talent.effect ?? []).map((effect) => Object.assign({}, effect, { statStage: "talent" as const })),
     ),
   );
 }

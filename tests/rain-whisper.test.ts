@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-rain-whisper.mjs.
 describe("rain-whisper", () => {
@@ -74,17 +74,14 @@ describe("rain-whisper", () => {
     const unshieldedWithoutConditional = calculate(false, rainWhisperEffects.slice(0, 2));
     const shielded = calculate(true, rainWhisperEffects);
     const shieldedWithoutConditional = calculate(true, rainWhisperEffects.slice(0, 2));
-    expect(
+    assert(
       Math.abs(unshielded - unshieldedWithoutConditional) < 1e-9,
       "The conditional Rain Whisper bonus must remain inactive without Shield.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       unshielded > unshieldedStatOnly,
       "The unconditional Rain Whisper Critical DMG must apply during damage calculation.",
-    ).toBeTruthy();
-    expect(
-      shielded > shieldedWithoutConditional,
-      "The conditional Rain Whisper bonus must activate with Shield.",
-    ).toBeTruthy();
+    );
+    assert(shielded > shieldedWithoutConditional, "The conditional Rain Whisper bonus must activate with Shield.");
   });
 });

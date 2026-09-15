@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-global-debuff-controls.mjs.
 describe("global-debuff-controls", () => {
@@ -89,85 +89,82 @@ describe("global-debuff-controls", () => {
       }).metrics.dps;
     };
 
-    expect(
+    assert(
       JSON.stringify(normalizeGlobalDebuffs(null)) === JSON.stringify(defaultGlobalDebuffs),
       "Missing stored controls must migrate to the all-off default.",
-    ).toBeTruthy();
+    );
     const phantomEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, phantomChime: true });
-    expect(
+    assert(
       phantomEffects[0]?.name === "PhantomChime" && phantomEffects[0]?.stack === 5 && phantomEffects[0]?.persistent,
       "Phantom Chime On must initialize a permanent maximum-stack debuff.",
-    ).toBeTruthy();
+    );
     const soulEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, soulShaken: true });
-    expect(
+    assert(
       soulEffects[0]?.name === "SoulShaken" && soulEffects[0]?.stack === 5 && soulEffects[0]?.persistent,
       "Soul-Shaken On must initialize a permanent maximum-stack debuff.",
-    ).toBeTruthy();
+    );
     const qingyiEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, qingyisCharm: "T6" });
-    expect(
+    assert(
       qingyiEffects[0]?.name === "QingyisCharmT6" && qingyiEffects[0]?.stack === 5 && qingyiEffects[0]?.persistent,
       "Bitter Seasons T6 must initialize its permanent maximum-stack debuff.",
-    ).toBeTruthy();
+    );
 
     const baseline = result([]);
     const mixedGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "mixed" });
     const delugeGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "deluge" });
-    expect(
+    assert(
       mixedGraceEffects[0]?.name === "FloatingGrace" && mixedGraceEffects[0]?.persistent,
       "Floating Grace Mixed must initialize the permanent 10% base buff.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       delugeGraceEffects[0]?.name === "FloatingGraceDeluge" && delugeGraceEffects[0]?.persistent,
       "Floating Grace Deluge must initialize the permanent 24% Deluge buff.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(result([], [], false, false, mixedGraceEffects) / baseline, 1.1),
       "Floating Grace Mixed must increase general damage by 10%.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(result([], [], false, false, delugeGraceEffects) / baseline, 1.24),
       "Floating Grace Deluge must increase general damage by 24%.",
-    ).toBeTruthy();
+    );
     const phantom = result(phantomEffects);
-    expect(
+    assert(
       closeTo(phantom / baseline, 1.05),
       "Phantom Chime must reduce flat Physical Resistance through the full rotation path.",
-    ).toBeTruthy();
+    );
     const qingyi = result(qingyiEffects);
-    expect(
+    assert(
       closeTo(qingyi, (1000 - 408 * 0.94) * 1.05),
       "Qingyi's Charm T6 must combine defense and Physical Resistance reductions.",
-    ).toBeTruthy();
+    );
 
     const vulnerableEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, vulnerable: true });
-    expect(
+    assert(
       closeTo(result(vulnerableEffects) / baseline, 1.08),
       "Vulnerable must give its shared 8% to non-Might damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(result(vulnerableEffects, ["StormbreakerSpear"]) / baseline, 1.16),
       "Vulnerable must give an additional 8% to Might damage.",
-    ).toBeTruthy();
+    );
     const fearfulEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, fearfulBlade: true });
-    expect(
+    assert(
       closeTo(result(fearfulEffects, ["SnowpartingBlade"]) / baseline, 1.08),
       "Fearful Blade must give its conditional 8% to Strength damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       closeTo(result(fearfulEffects, ["SnowpartingBlade"], false, true) / baseline, 1.08),
       "A rotation-applied Fearful Blade must merge with the permanent global debuff instead of doubling it.",
-    ).toBeTruthy();
+    );
 
     const qiEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, qiImbalance: true });
-    expect(
-      closeTo(result(qiEffects) / baseline, 1),
-      "Qi Imbalance's HP bonus must remain inactive outside Exhausted.",
-    ).toBeTruthy();
+    assert(closeTo(result(qiEffects) / baseline, 1), "Qi Imbalance's HP bonus must remain inactive outside Exhausted.");
     const exhaustedBaseline = result([], [], true);
     const exhaustedQi = result(qiEffects, [], true);
-    expect(
+    assert(
       closeTo(exhaustedQi / exhaustedBaseline, 1.18 / 1.1),
       "Qi Imbalance must add 8% to the global category during Exhausted.",
-    ).toBeTruthy();
+    );
   });
 });

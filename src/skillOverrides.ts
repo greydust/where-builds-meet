@@ -76,10 +76,9 @@ export function resolveSkillCalculationDefinitions(
 ) {
   const skills = Object.assign(
     {},
-    ...(Object.entries(defaultSkillMaps) as Array<[SkillCategory, SkillMap]>).map(([category, definitions]) => ({
-      ...definitions,
-      ...overrides[category],
-    })),
+    ...(Object.entries(defaultSkillMaps) as Array<[SkillCategory, SkillMap]>).map(([category, definitions]) =>
+      Object.assign({}, definitions, overrides[category]),
+    ),
   ) as SkillMap;
   const dots = { ...defaultDotDefinitions, ...overrides.DOT };
   const effectDefinitions = {

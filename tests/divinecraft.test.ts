@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { existsSync } from "node:fs";
 
 // Ported from script/probe/check-divinecraft.mjs.
@@ -13,10 +13,7 @@ describe("divinecraft", () => {
 
     for (const definition of Object.values(definitions)) {
       if (definition.image)
-        expect(
-          existsSync(`public/divinecraft/${definition.image}`),
-          `Missing Divinecraft image: ${definition.image}`,
-        ).toBeTruthy();
+        assert(existsSync(`public/divinecraft/${definition.image}`), `Missing Divinecraft image: ${definition.image}`);
     }
 
     const stats = { ...statDefinitions.emptyStats, minPhys: 100, maxPhys: 100 };
@@ -52,34 +49,34 @@ describe("divinecraft", () => {
       damage.calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, { ...context, effects: [definitions[id].effect] })
         .total;
     const baseline = damage.calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, context).total;
-    expect(
+    assert(
       Math.abs(damageFor("Fire") / baseline - 1.015) < 1e-9,
       "Fire HP damage must apply as a 1.5% Category 1 bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("WaterFire") / baseline - 1.014) < 1e-9,
       "Water-Fire HP damage must apply as a 1.4% Category 1 bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("WaterPoison") / baseline - 1.01) < 1e-9,
       "Water-Poison HP damage must apply as a 1% Category 1 bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("PoisonFire") / baseline - 1.014) < 1e-9,
       "Poison-Fire HP damage must apply as a 1.4% Category 1 bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("PoisonWater") / baseline - 1.01) < 1e-9,
       "Poison-Water HP damage must apply as a 1% Category 1 bonus.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("FireWater") - damageFor("Fire")) < 1e-9,
       "A healing-triggered resource effect must not alter direct damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(damageFor("FirePoison") - damageFor("Fire")) < 1e-9,
       "Stored Qi damage must remain inert until implemented.",
-    ).toBeTruthy();
+    );
 
     const vitalityAfterHeals = (id) => {
       const timeline = timelineCalculation.buildRotationTimeline({
@@ -122,14 +119,11 @@ describe("divinecraft", () => {
       ["WaterPoison", 3],
       ["PoisonWater", 2.4],
     ].forEach(([id, expected]) => {
-      expect(
+      assert(
         Math.abs(vitalityAfterHeals(id) - expected) < 1e-9,
         `${id} must grant Vitality on the first heal and again at each three-second cooldown boundary.`,
-      ).toBeTruthy();
+      );
     });
-    expect(
-      vitalityAfterHeals("Fire") === 0,
-      "Divinecraft without a healing trigger must not grant Vitality.",
-    ).toBeTruthy();
+    assert(vitalityAfterHeals("Fire") === 0, "Divinecraft without a healing trigger must not grant Vitality.");
   });
 });

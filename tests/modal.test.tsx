@@ -7,10 +7,10 @@ import { Modal } from "../src/ui/Modal";
 // jsdom does not implement HTMLDialogElement.showModal/close; stub the missing
 // methods with matching open semantics so the effect under test can run.
 function stubDialogMethods() {
-  HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+  HTMLDialogElement.prototype.showModal = vi.fn<(this: HTMLDialogElement) => void>(function (this: HTMLDialogElement) {
     this.setAttribute("open", "");
   });
-  HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+  HTMLDialogElement.prototype.close = vi.fn<(this: HTMLDialogElement) => void>(function (this: HTMLDialogElement) {
     this.removeAttribute("open");
   });
 }
@@ -36,7 +36,7 @@ describe("Modal", () => {
   it("renders children with the accessible label", async () => {
     await act(async () => {
       root.render(
-        <Modal open onClose={vi.fn()} label="Example dialog">
+        <Modal open onClose={vi.fn<() => void>()} label="Example dialog">
           <button>Confirm</button>
         </Modal>,
       );
@@ -49,7 +49,7 @@ describe("Modal", () => {
   });
 
   it("reports closing through onClose", async () => {
-    const onClose = vi.fn();
+    const onClose = vi.fn<() => void>();
     await act(async () => {
       root.render(
         <Modal open onClose={onClose} label="Example dialog">

@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-insightful-strike.mjs.
@@ -20,8 +20,7 @@ describe("insightful-strike", () => {
     const insightfulStrikeDefinition = (await import("../data/innerway/insightful-strike.json")).default;
 
     const closeTo = (actual, expected, message, tolerance = 1e-9) => {
-      if (Math.abs(actual - expected) > tolerance)
-        throw new Error(`${message}: expected ${expected}, received ${actual}`);
+      assert(Math.abs(actual - expected) <= tolerance, `${message}: expected ${expected}, received ${actual}`);
     };
     const rule = {
       source: "InsightfulStrike",
@@ -36,7 +35,7 @@ describe("insightful-strike", () => {
       },
     };
     const insightfulStrike = insightfulStrikeEffectFor([rule], { Concentration: concentration });
-    if (!insightfulStrike) throw new Error("Insightful Strike outcome-resource data was not recognized.");
+    assert(insightfulStrike, "Insightful Strike outcome-resource data was not recognized.");
 
     const simulated = new SimulatedInsightfulStrikeTracker();
     for (const second of [0, 1, 2]) simulated.resolveAffinity(insightfulStrike, outcomeBuffTick(second));
@@ -71,7 +70,7 @@ describe("insightful-strike", () => {
       [rule, { source: "InsightfulStrike", tier: 4, effect: {}, ...t4Modifier }],
       { Concentration: concentration },
     );
-    if (!insightfulStrikeT4) throw new Error("Insightful Strike T4 Focus generation was not recognized.");
+    assert(insightfulStrikeT4, "Insightful Strike T4 Focus generation was not recognized.");
     const t4Simulation = new SimulatedInsightfulStrikeTracker();
     for (let hit = 0; hit < 3; hit += 1) t4Simulation.resolveAffinity(insightfulStrikeT4, outcomeBuffTick(0));
     closeTo(
@@ -83,7 +82,7 @@ describe("insightful-strike", () => {
     const t3Modifier = insightfulStrikeDefinition.effect.InsightfulStrikeT3.effect[0];
     const t3Rule = { source: "InsightfulStrike", tier: 3, effect: {}, ...t3Modifier };
     const insightfulStrikeT3 = insightfulStrikeEffectFor([rule, t3Rule], { Concentration: concentration });
-    if (!insightfulStrikeT3) throw new Error("Insightful Strike T3 Concentration modifier was not recognized.");
+    assert(insightfulStrikeT3, "Insightful Strike T3 Concentration modifier was not recognized.");
     closeTo(
       insightfulStrikeDirectAffinityBonus(insightfulStrikeT3, {
         selfHPPercentage: 100,
@@ -158,13 +157,15 @@ describe("insightful-strike", () => {
       setupComparisons: {},
     });
     const concentrations = result.baseline.map((entry) => result.expectedOutcomeBuffSchedule[entry.id]?.Concentration);
-    if (JSON.stringify(concentrations) !== JSON.stringify([0, 0, 0, 0, 1]))
-      throw new Error(
-        `Concentration must begin after the fourth hit and affect the fifth; received ${concentrations}.`,
-      );
+    assert(
+      JSON.stringify(concentrations) === JSON.stringify([0, 0, 0, 0, 1]),
+      `Concentration must begin after the fourth hit and affect the fifth; received ${concentrations}.`,
+    );
     const simulatedDamage = calculateRotationDamageSequence(result.baseline, () => 0.5);
-    if (!(simulatedDamage[4].breakdown.total > simulatedDamage[3].breakdown.total))
-      throw new Error("Active Concentration must increase the fifth Affinity hit's damage.");
+    assert(
+      simulatedDamage[4].breakdown.total > simulatedDamage[3].breakdown.total,
+      "Active Concentration must increase the fifth Affinity hit's damage.",
+    );
 
     const probabilisticStats = { ...stats, directAffinity: 0.5 };
     const probabilisticT0 = calculateRotationBaseline({

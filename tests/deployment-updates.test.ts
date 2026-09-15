@@ -26,14 +26,18 @@ describe("deployment-updates", () => {
       const directory = path.join(temporary, name);
       await mkdir(path.join(directory, "assets"), { recursive: true });
       await writeFile(path.join(directory, "index.html"), name);
-      for (const [file, content] of Object.entries(files))
-        await writeFile(path.join(directory, "assets", file), content);
+      await Promise.all(
+        Object.entries(files).map(([file, content]) => writeFile(path.join(directory, "assets", file), content)),
+      );
       return directory;
     };
     const publish = async (directory) => {
       liveFiles = new Map([["asset-history.json", await readFile(path.join(directory, "asset-history.json"), "utf8")]]);
-      for (const file of await readdir(path.join(directory, "assets")))
-        liveFiles.set(`assets/${file}`, await readFile(path.join(directory, "assets", file), "utf8"));
+      const assetFiles = await readdir(path.join(directory, "assets"));
+      const assetContents = await Promise.all(
+        assetFiles.map(async (file) => [file, await readFile(path.join(directory, "assets", file), "utf8")] as const),
+      );
+      for (const [file, content] of assetContents) liveFiles.set(`assets/${file}`, content);
     };
 
     try {

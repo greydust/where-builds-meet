@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-rotation-anchor.mjs.
 describe("rotation-anchor", () => {
@@ -72,38 +72,32 @@ describe("rotation-anchor", () => {
       comparisonProgress.push([completed, total]),
     );
 
-    expect(!result.actionBreakdowns["rotation-0:0"], "An action before the anchor time must be ignored.").toBeTruthy();
-    expect(
-      !result.actionBreakdowns["rotation-0:1"],
-      "An earlier action at the anchor timestamp must be ignored.",
-    ).toBeTruthy();
-    expect(result.actionBreakdowns["rotation-0:2"], "The starting action must be calculated.").toBeTruthy();
-    expect(result.actionBreakdowns["rotation-0:3"], "Actions after the anchor must be calculated.").toBeTruthy();
-    expect(
-      result.metrics.breakdown.skills[0]?.hits === 2,
-      "Ignored actions must not contribute to hit count.",
-    ).toBeTruthy();
-    expect(result.metrics.totalDamage > 0, "Calculated actions must still contribute damage.").toBeTruthy();
-    expect(
+    assert(!result.actionBreakdowns["rotation-0:0"], "An action before the anchor time must be ignored.");
+    assert(!result.actionBreakdowns["rotation-0:1"], "An earlier action at the anchor timestamp must be ignored.");
+    assert(result.actionBreakdowns["rotation-0:2"], "The starting action must be calculated.");
+    assert(result.actionBreakdowns["rotation-0:3"], "Actions after the anchor must be calculated.");
+    assert(result.metrics.breakdown.skills[0]?.hits === 2, "Ignored actions must not contribute to hit count.");
+    assert(result.metrics.totalDamage > 0, "Calculated actions must still contribute damage.");
+    assert(
       cachedBaseline.metrics.statPriority.length === 0,
       "A baseline-only calculation must not calculate comparison rows.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       cachedComparisons.totalDamage === result.metrics.totalDamage,
       "Cached comparison metrics must reuse the baseline total damage.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       cachedComparisons.statPriority[0]?.dpsDifference === result.metrics.statPriority[0]?.dpsDifference,
       "Cached comparison results must match a full simulation.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       JSON.stringify(comparisonProgress) ===
         JSON.stringify([
           [0, 1],
           [1, 1],
         ]),
       "Comparison progress must equal completed variants divided by the total variant count.",
-    ).toBeTruthy();
+    );
     const triggerTimeline = buildRotationTimeline({
       rotation: { name: "Trigger source probe", steps: [{ type: "skill", skill: "SourceSkill" }] },
       skills: {
@@ -136,10 +130,10 @@ describe("rotation-anchor", () => {
       setupEffects: [],
       weapons: [],
     });
-    expect(
+    assert(
       triggerTimeline.find((row) => row.kind === "trigger")?.sourceRowId === "rotation-0",
       "Inner Way-triggered actions must retain their originating base skill row.",
-    ).toBeTruthy();
+    );
     const durationTimeline = {
       rotation: { name: "Duration probe", steps: [{ type: "skill", skill: "DurationSkill" }] },
       skills: {
@@ -178,10 +172,10 @@ describe("rotation-anchor", () => {
     };
     const durationBaseline = calculateRotationBaseline(durationBundle);
     const durationComparison = calculateRotationComparisons(durationBundle, durationBaseline);
-    expect(durationBaseline.duration === 1, "The duration probe baseline must last one second.").toBeTruthy();
-    expect(
+    assert(durationBaseline.duration === 1, "The duration probe baseline must last one second.");
+    assert(
       Math.abs(durationComparison.innerWayPriority[0].dpsDifference + durationBaseline.metrics.dps / 2) < 1e-9,
       "A rebuilt two-second variant must use its own duration instead of the one-second baseline duration.",
-    ).toBeTruthy();
+    );
   });
 });

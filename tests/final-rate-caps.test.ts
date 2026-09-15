@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-final-rate-caps.mjs.
 describe("final-rate-caps", () => {
@@ -12,9 +12,9 @@ describe("final-rate-caps", () => {
       directCrit: 0.4,
       directAffinity: 0.8,
     });
-    expect(cappedAffinity.finalAffinity === 1, "Final Affinity must be capped at 100%.").toBeTruthy();
-    expect(cappedAffinity.affinityRate === 1, "The Affinity outcome rate must use capped Final Affinity.").toBeTruthy();
-    expect(cappedAffinity.finalCrit === 0, "Capped 100% Affinity must leave no Critical outcome rate.").toBeTruthy();
+    assert(cappedAffinity.finalAffinity === 1, "Final Affinity must be capped at 100%.");
+    assert(cappedAffinity.affinityRate === 1, "The Affinity outcome rate must use capped Final Affinity.");
+    assert(cappedAffinity.finalCrit === 0, "Capped 100% Affinity must leave no Critical outcome rate.");
 
     const boundedRates = calculateRates({
       effectivePrecision: 2,
@@ -23,7 +23,7 @@ describe("final-rate-caps", () => {
       directCrit: 0.4,
       directAffinity: 0,
     });
-    expect(boundedRates.finalCrit === 1, "Final Critical must be capped at 100%.").toBeTruthy();
-    expect(boundedRates.critRate === 1, "The Critical outcome rate must use capped Final Critical.").toBeTruthy();
+    assert(boundedRates.finalCrit === 1, "Final Critical must be capped at 100%.");
+    assert(boundedRates.critRate === 1, "The Critical outcome rate must use capped Final Critical.");
   });
 });

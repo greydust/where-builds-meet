@@ -54,7 +54,7 @@ function parseProfile(value: unknown): CharacterProfile | undefined {
     statOverrides: finiteValues(source.statOverrides, characterStatKeys) as CharacterStatOverrides,
     attunementOverrides: finiteValues(source.attunementOverrides, attunementKeys) as Partial<AttunementStats>,
     innerWays,
-    buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => ({ ...row })) },
+    buildSetup: { ...buildSetup, innerWays: innerWays.map((row) => Object.assign({}, row)) },
   };
 }
 
@@ -118,7 +118,7 @@ export function mergeImportedCharacterProfiles(current: CharacterProfile[], valu
   const imported = parsed.map((profile) => {
     const id = importedId(profile.id, usedIds);
     usedIds.add(id);
-    return { ...profile, id };
+    return Object.assign({}, profile, { id });
   });
   return { profiles: [...current, ...imported], importedCount: imported.length };
 }

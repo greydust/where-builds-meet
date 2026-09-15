@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-etherwrath.mjs.
 describe("etherwrath", () => {
@@ -11,17 +11,17 @@ describe("etherwrath", () => {
 
     const fourPiece = weaponSets.Etherwrath.options["4"].effect;
     const sparseSetup = normalizeBuildSetup({ weaponSets: { Etherwrath: 4 } });
-    expect(
+    assert(
       sparseSetup.weaponSets.Etherwrath === 4 &&
         sparseSetup.weaponSets.Cleftpeak === 0 &&
         sparseSetup.weaponSets.RainWhisper === 0,
       "A sparse build set map must preserve Etherwrath and treat omitted sets as zero.",
-    ).toBeTruthy();
+    );
     const sparseOverride = normalizeBuildSetupOverrides({ weaponSets: { Etherwrath: 4 } });
-    expect(
+    assert(
       sparseOverride.weaponSets?.Etherwrath === 4,
       "A sparse saved set override must remain valid when new set definitions are added.",
-    ).toBeTruthy();
+    );
 
     const hit = {
       name: "Etherwrath hit probe",
@@ -59,10 +59,10 @@ describe("etherwrath", () => {
       timelineInput({ name: "Stacking probe", steps: [{ type: "skill", skill: "Hit" }] }, { Hit: hit }),
     );
     const stackingRow = stackingTimeline.find((row) => row.step.skill === "Hit");
-    expect(
+    assert(
       stackingRow.actionStates[5].buffs.find((effect) => effect.name === "Etherwrath")?.stack === 5,
       "The sixth damage action must see the five stacks granted by the previous five hits.",
-    ).toBeTruthy();
+    );
     const dodgeTimeline = buildRotationTimeline(
       timelineInput(
         {
@@ -76,10 +76,10 @@ describe("etherwrath", () => {
       ),
     );
     const dodgeObserver = dodgeTimeline.find((row) => row.step.skill === "Observe");
-    expect(
+    assert(
       dodgeObserver.actionStates[0].buffs.find((effect) => effect.name === "Etherwrath")?.stack === 5,
       "Perfect Dodge must apply five Etherwrath stacks directly.",
-    ).toBeTruthy();
+    );
 
     const dots = (await import("../data/dot/innerway.json")).default;
     const directAndDot = {
@@ -112,14 +112,14 @@ describe("etherwrath", () => {
     const dotTimeline = buildRotationTimeline(dotInput);
     const watched = dotTimeline.find((row) => row.step.skill === "Watch");
     const activeStack = watched.actionStates[0].buffs.find((effect) => effect.name === "Etherwrath");
-    expect(
+    assert(
       activeStack?.stack === 1 && activeStack.expiresAt === 8,
       "A DOT tick must neither add nor refresh Etherwrath stacks.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !watched.actionStates[1].buffs.some((effect) => effect.name === "Etherwrath"),
       "DOT and untagged damage must not keep Etherwrath alive.",
-    ).toBeTruthy();
+    );
     const dotOnly = buildRotationTimeline({
       ...dotInput,
       skills: {
@@ -127,11 +127,11 @@ describe("etherwrath", () => {
         Start: { ...directAndDot, action: directAndDot.action.filter((action) => action.type !== "damage") },
       },
     });
-    expect(
+    assert(
       dotOnly.every((row) =>
         Object.values(row.actionStates).every((state) => !state.buffs.some((effect) => effect.name === "Etherwrath")),
       ),
       "DOT-only and untagged damage cannot initially activate Etherwrath.",
-    ).toBeTruthy();
+    );
   });
 });

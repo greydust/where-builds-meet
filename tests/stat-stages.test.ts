@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -21,14 +21,14 @@ describe("stat-stages", () => {
       agility: 100,
       minPhys: 150,
     });
-    expect(
+    assert(
       Math.abs(locked.stats.agility - 100) < 1e-9,
       "A modified source stat must resolve to its requested final value.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(locked.stats.minPhys - 150) < 1e-9,
       "A modified dependent stat must resolve after formula effects.",
-    ).toBeTruthy();
+    );
 
     const changedBaseline = calculateStatsWithOverrides(
       emptyStats,
@@ -43,10 +43,10 @@ describe("stat-stages", () => {
       0,
       { agility: 100, minPhys: 150 },
     );
-    expect(
+    assert(
       Math.abs(changedBaseline.stats.agility - 100) < 1e-9 && Math.abs(changedBaseline.stats.minPhys - 150) < 1e-9,
       "Baseline input changes must not move modified stats.",
-    ).toBeTruthy();
+    );
 
     const comparison = calculateStatsWithEffects(
       locked.baseStats,
@@ -60,14 +60,14 @@ describe("stat-stages", () => {
       ],
       0,
     );
-    expect(
+    assert(
       Math.abs(comparison.stats.agility - 110) < 1e-9,
       "Comparison variants must still apply their stat delta to a modified stat.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       Math.abs(comparison.stats.minPhys - 159) < 1e-9,
       "Comparison variants must preserve dependent formula deltas.",
-    ).toBeTruthy();
+    );
   });
 
   it("Stat stages passed: raw talent inputs, order independence, food retention, global baseline, expiration, caps, overrides, cache reuse, comparison deltas, healing and actual Kite talents", async () => {

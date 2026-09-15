@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { readFile } from "node:fs/promises";
 
 // Ported from script/probe/check-martial-art-state.mjs.
@@ -66,22 +66,22 @@ describe("martial-art-state", () => {
       .filter((row) => row.kind === "trigger" && row.step.type === "skill")
       .map((row) => row.step.skill);
 
-    expect(
+    assert(
       triggeredSkills.join(",") ===
         "GhostlyStepsUmbraDodgeHengBlade,GhostlyStepsUmbraDodgeMoBlade,GhostlyStepsUmbraDodgeHengBlade",
       "Perfect Dodge must dispatch Ghostly Step from the current weapon after automatic and manual switches.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       timeline.find((row) => row.id === "rotation-2")?.currentMartialArt === "phalanxbane" &&
         timeline.find((row) => row.id === "rotation-4")?.currentMartialArt === "snowparting",
       "Timeline rows must snapshot the current martial art.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       timeline
         .filter((row) => row.step.type === "skill" && row.step.skill === "PerfectDodge")
         .every((row) => row.effectiveCastTime === 0.5),
       "Perfect Dodge must resolve its weapon-switched cast time when each cast starts.",
-    ).toBeTruthy();
+    );
 
     const switchedTimingTimeline = buildRotationTimeline({
       rotation: {
@@ -119,12 +119,12 @@ describe("martial-art-state", () => {
         phalanxbane: { weapon: "MoBlade" },
       },
     });
-    expect(
+    assert(
       switchedTimingTimeline.find((row) => row.id === "rotation-0")?.effectiveCastTime === 0.25 &&
         switchedTimingTimeline.find((row) => row.id === "rotation-1")?.startTime === 0.25 &&
         switchedTimingTimeline.find((row) => row.id === "rotation-2")?.startTime === 0.25 &&
         switchedTimingTimeline.find((row) => row.id === "rotation-2")?.effectiveCastTime === 0.75,
       "A switched cast time must use the current weapon and shift subsequent casts at each skill start.",
-    ).toBeTruthy();
+    );
   });
 });

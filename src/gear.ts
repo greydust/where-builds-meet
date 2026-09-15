@@ -372,7 +372,7 @@ function buildGroupFromModulePath(modulePath: string) {
 }
 
 export const defaultBuildPresets = Object.entries(buildPresetModules)
-  .map(([modulePath, preset]) => ({ ...preset, buildGroup: buildGroupFromModulePath(modulePath) }))
+  .map(([modulePath, preset]) => Object.assign({}, preset, { buildGroup: buildGroupFromModulePath(modulePath) }))
   .sort(
     (left, right) =>
       (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||

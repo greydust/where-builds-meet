@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-skill-cooldowns.mjs.
 describe("skill-cooldowns", () => {
@@ -38,23 +38,11 @@ describe("skill-cooldowns", () => {
     };
     const multiUseTimeline = build(multiUseRotation, multiUseSkills);
     const explicitRows = multiUseTimeline.filter((row) => row.kind === "rotation" && row.step.type === "skill");
-    expect(
-      explicitRows[0].startTime === 0,
-      "The first cast must start its cooldown window without waiting.",
-    ).toBeTruthy();
-    expect(
-      explicitRows[1].startTime === 1,
-      "A different skill must maintain an independent cooldown window.",
-    ).toBeTruthy();
-    expect(explicitRows[2].startTime === 2, "The second allowed cast of First must remain available.").toBeTruthy();
-    expect(
-      explicitRows[3].startTime === 12,
-      "The third cast of First must wait for its own window to end.",
-    ).toBeTruthy();
-    expect(
-      explicitRows[3].cooldownWait === 9,
-      "The timeline must expose the exact wait required by the third cast.",
-    ).toBeTruthy();
+    assert(explicitRows[0].startTime === 0, "The first cast must start its cooldown window without waiting.");
+    assert(explicitRows[1].startTime === 1, "A different skill must maintain an independent cooldown window.");
+    assert(explicitRows[2].startTime === 2, "The second allowed cast of First must remain available.");
+    assert(explicitRows[3].startTime === 12, "The third cast of First must wait for its own window to end.");
+    assert(explicitRows[3].cooldownWait === 9, "The timeline must expose the exact wait required by the third cast.");
 
     const editor = calculateEditorTimeline({
       rotation: multiUseRotation,
@@ -67,35 +55,32 @@ describe("skill-cooldowns", () => {
       setupEffects: [],
       weapons: [],
     });
-    expect(
-      editor.rotation === multiUseRotation,
-      "Cooldown waits must not rewrite authored rotation steps.",
-    ).toBeTruthy();
-    expect(
+    assert(editor.rotation === multiUseRotation, "Cooldown waits must not rewrite authored rotation steps.");
+    assert(
       editor.timeline.find((row) => row.rotationIndex === 3).startTime === 12,
       "Editor uses live cooldown timing.",
-    ).toBeTruthy();
+    );
 
     const delays = (rows) =>
       rows.filter(
         (row) => row.step.type === "event" && row.step.event === "Delay" && row.step.automatic === "cooldown",
       );
     const editorWait = delays(editor.timeline);
-    expect(
+    assert(
       editorWait.length === 1 && editorWait[0].startTime === 3 && editorWait[0].step.duration === 9,
       "The editor must show the elapsed cooldown wait as one automatic Delay row.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       editorWait[0].rotationIndex === undefined &&
         editorWait[0].actions.length === 0 &&
         editorWait[0].effectiveCastTime === 9,
       "Generated waits have no editable step index or combat actions and display their actual duration.",
-    ).toBeTruthy();
+    );
     const { mergeCalculatedTimelineState } = await import("../src/calculations/rotationTimeline.ts");
-    expect(
+    assert(
       delays(mergeCalculatedTimelineState(editor.timeline, multiUseTimeline)).length === 1,
       "Merging calculated results retains exactly one displayed wait.",
-    ).toBeTruthy();
+    );
     const waitSkills = { Wait: { castTime: 1, cooldown: 10, action: [] } };
     const waitSteps = [
       { type: "skill", skill: "Wait" },
@@ -109,12 +94,12 @@ describe("skill-cooldowns", () => {
         eventDefinitions: { Controlled: { castTime: 0, action: [{ type: "clearCD", value: "Wait", time: 0 }] } },
       },
     );
-    expect(
+    assert(
       delays(resetRows).length === 1 &&
         delays(resetRows)[0].step.duration === 3 &&
         resetRows.find((row) => row.rotationIndex === 1).startTime === 4,
       "An early cooldown reset shortens the displayed wait without delaying the accepted cast.",
-    ).toBeTruthy();
+    );
     const cutoffRows = build(
       { name: "End during wait", steps: [...waitSteps, { type: "event", event: "BattleEnd", startTime: 5 }] },
       waitSkills,
@@ -123,12 +108,12 @@ describe("skill-cooldowns", () => {
         eventDefinitions: { BattleEnd: { castTime: 0, action: [] } },
       },
     );
-    expect(
+    assert(
       delays(cutoffRows).length === 1 &&
         delays(cutoffRows)[0].startTime === 1 &&
         delays(cutoffRows)[0].step.duration === 4,
       "An unfinished cooldown wait ends at Battle End.",
-    ).toBeTruthy();
+    );
     const { withUnresolvedEditorSteps } = await import("../src/editorTimelinePreview.ts");
     const cutoffPreview = withUnresolvedEditorSteps(
       {
@@ -141,15 +126,15 @@ describe("skill-cooldowns", () => {
       },
       cutoffRows,
     );
-    expect(
+    assert(
       cutoffPreview.some((row) => row.rotationIndex === 1 && row.skipped),
       "A generated wait must not hide the editor placeholder for the cast cut off by Battle End.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       delays(build({ name: "Skip unavailable", steps: waitSteps }, waitSkills, [], { cooldownPolicy: "skip" }))
         .length === 0,
       "Skipped casts do not produce wait rows.",
-    ).toBeTruthy();
+    );
 
     const sharedCooldownSkills = {
       Short: { castTime: 1, cooldown: 10, cooldownGroup: "Shared", action: [] },
@@ -165,10 +150,10 @@ describe("skill-cooldowns", () => {
       },
       sharedCooldownSkills,
     ).filter((row) => row.kind === "rotation" && row.step.type === "skill");
-    expect(
+    assert(
       sharedCooldownRows[1].startTime === 10,
       "Different skill variants in one group must share a cooldown window.",
-    ).toBeTruthy();
+    );
 
     const legion = {
       Legion: {
@@ -194,11 +179,8 @@ describe("skill-cooldowns", () => {
     const steadfastLegion = build(legionRotation, legion, ["SteadfastDevotionT1"]).filter(
       (row) => row.step.type === "skill",
     );
-    expect(ordinaryLegion[1].startTime === 20, "Legion Summon must normally wait for its full cooldown.").toBeTruthy();
-    expect(
-      steadfastLegion[1].startTime === 1,
-      "Steadfast T1 must override Legion Summon's cooldown to one second.",
-    ).toBeTruthy();
+    assert(ordinaryLegion[1].startTime === 20, "Legion Summon must normally wait for its full cooldown.");
+    assert(steadfastLegion[1].startTime === 1, "Steadfast T1 must override Legion Summon's cooldown to one second.");
 
     const actualSkills = { ...snowpartingSkills, ...phalanxbaneSkills };
     const actualRows = (skillIds, conditions = []) =>
@@ -207,27 +189,27 @@ describe("skill-cooldowns", () => {
         actualSkills,
         conditions,
       ).filter((row) => row.kind === "rotation" && row.step.type === "skill");
-    expect(
+    assert(
       Math.abs(actualRows(["SnowpartingQ", "SnowpartingQStab", "SnowpartingQ"])[2].startTime - 1.877) < 0.000001,
       "Stab must not consume a General's Bane use.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       actualRows(["SnowpartingQ", "SnowpartingQ", "SnowpartingQ"])[2].startTime === 12,
       "The third cast of the same General's Bane definition must wait for its two-use window.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       actualRows(["SnowpartingSpecial", "SnowpartingSpecial"])[1].startTime === 20,
       "The real Fleeting Trace definition must enforce its cooldown.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       actualRows(["PhalanxbaneQ", "PhalanxbaneQ"])[1].startTime === 15,
       "The real Total Annihilation definition must enforce its cooldown.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       actualRows(["PhalanxbaneSpecial", "PhalanxbaneSpecial"])[1].startTime === 20 &&
         actualRows(["PhalanxbaneSpecial", "PhalanxbaneSpecial"], ["SteadfastDevotionT1"])[1].startTime === 1.3,
       "The real Legion Summon definition must use its normal cooldown and Steadfast T1 override.",
-    ).toBeTruthy();
+    );
 
     const mysticRows = (first, second) =>
       build(
@@ -247,10 +229,10 @@ describe("skill-cooldowns", () => {
       ["FluteOfTheTidesCancel", "FluteOfTheTides", 25],
       ["BurstingNine", "BurstingNine2Shots", 30],
     ].forEach(([first, second, readyAt]) => {
-      expect(
+      assert(
         mysticRows(first, second)[1].startTime === readyAt,
         `${first} and ${second} must share their ${readyAt}-second cooldown window.`,
-      ).toBeTruthy();
+      );
     });
   });
 });

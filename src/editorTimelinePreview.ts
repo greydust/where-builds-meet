@@ -19,12 +19,13 @@ export function withUnresolvedEditorSteps(
   const placeholders = pendingEditorTimeline(input).filter((row) => !resolved.has(row.rotationIndex));
   return [
     ...timeline,
-    ...placeholders.map((row) => ({
-      ...row,
-      pendingCalculation: false,
-      skipped: true,
-      startTime: timeline[0]?.timelineEndTime ?? 0,
-    })),
+    ...placeholders.map((row) =>
+      Object.assign({}, row, {
+        pendingCalculation: false,
+        skipped: true,
+        startTime: timeline[0]?.timelineEndTime ?? 0,
+      }),
+    ),
   ];
 }
 

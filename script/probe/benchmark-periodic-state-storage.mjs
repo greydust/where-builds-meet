@@ -46,8 +46,11 @@ try {
     const middle = Math.floor(sorted.length / 2);
     return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
   };
-  for (const count of process.argv.slice(2).length ? process.argv.slice(2).map(Number) : [400]) {
-    const bundle = await fivefoldBenchmarkBundle(current.server, count);
+  const counts = process.argv.slice(2).length ? process.argv.slice(2).map(Number) : [400];
+  const bundles = await Promise.all(
+    counts.map(async (count) => [count, await fivefoldBenchmarkBundle(current.server, count)]),
+  );
+  for (const [count, bundle] of bundles) {
     const samples = { previous: [], packed: [], indexed: [] };
     const outputs = {};
     for (let run = 0; run < 12; run++) {
@@ -103,5 +106,5 @@ try {
     );
   }
 } finally {
-  for (const server of servers) await server.close();
+  await Promise.all(servers.map((server) => server.close()));
 }

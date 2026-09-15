@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-vitality-damage-scaling.mjs.
 describe("vitality-damage-scaling", () => {
@@ -9,7 +9,7 @@ describe("vitality-damage-scaling", () => {
     const mysticSkills = (await import("../data/skill/mystic.json")).default;
     const mysticBuffs = (await import("../data/buff/mystic.json")).default;
     const closeTo = (actual, expected, message) => {
-      if (Math.abs(actual - expected) > 1e-8) throw new Error(`${message} (${actual} !== ${expected})`);
+      assert(Math.abs(actual - expected) <= 1e-8, `${message} (${actual} !== ${expected})`);
     };
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
     const enemy = {
@@ -94,8 +94,10 @@ describe("vitality-damage-scaling", () => {
       result.metrics.unscaledTotalDamage / result.duration,
       "The editor-facing DPS must use the unscaled damage total",
     );
-    if (!(result.metrics.dps < result.metrics.unscaledDps))
-      throw new Error("A Vitality deficit must reduce published Main DPS below the editor preview DPS");
+    assert(
+      result.metrics.dps < result.metrics.unscaledDps,
+      "A Vitality deficit must reduce published Main DPS below the editor preview DPS",
+    );
     closeTo(
       result.actionBreakdowns["rotation-0:1"].total,
       mysticDamage,

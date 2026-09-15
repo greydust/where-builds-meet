@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { assert, describe, it } from "vitest";
 import { probeLoad } from "./helpers/probe-loader.js";
 
 // Ported from script/probe/check-stat-conversion.mjs.
@@ -10,7 +10,7 @@ describe("stat-conversion", () => {
     const soaringHigh = (await import("../data/innerway/soaring-high.json")).default;
     const breakthroughProfiles = (await import("../data/breakthrough.json")).default;
     const assertClose = (actual, expected, message) => {
-      if (Math.abs(actual - expected) > 1e-9) throw new Error(`${message} Expected ${expected}, received ${actual}.`);
+      assert(Math.abs(actual - expected) <= 1e-9, `${message} Expected ${expected}, received ${actual}.`);
     };
 
     const generic = applyStatConversions({ source: 0.2, target: 0.05, untouched: 3 }, [
@@ -36,16 +36,16 @@ describe("stat-conversion", () => {
 
     const t4Rule = soaringHigh.effect.SoaringHighT4.effect[0];
     const conversion = t4Rule.effect.convert;
-    if (
-      !t4Rule.requirement.some(
+    assert(
+      t4Rule.requirement.some(
         (requirement) => requirement.target === "skillTag" && requirement.value === "VileCondemned",
       ) ||
-      conversion.from !== "finalAffinity" ||
-      conversion.to !== "directCrit" ||
-      conversion.ratio !== 1 ||
-      conversion.max !== 0.12
-    )
-      throw new Error("Soaring High T4 must convert up to 12% Final Affinity into Direct Critical for Vile Condemned.");
+        conversion.from !== "finalAffinity" ||
+        conversion.to !== "directCrit" ||
+        conversion.ratio !== 1 ||
+        conversion.max !== 0.12,
+      "Soaring High T4 must convert up to 12% Final Affinity into Direct Critical for Vile Condemned.",
+    );
 
     const derivedStats = {
       effectiveMinPhys: 0,

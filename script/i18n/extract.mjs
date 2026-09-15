@@ -19,13 +19,15 @@ const normalizeSegment = (value) =>
     .replace(/[^A-Za-z0-9]+(.)/g, (_, next) => (next ? next.toUpperCase() : ""));
 
 async function filesUnder(directory, predicate) {
-  const result = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const fullPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) result.push(...(await filesUnder(fullPath, predicate)));
-    else if (predicate(fullPath)) result.push(fullPath);
-  }
-  return result;
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(
+    entries.map(async (entry) => {
+      const fullPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return filesUnder(fullPath, predicate);
+      return predicate(fullPath) ? [fullPath] : [];
+    }),
+  );
+  return nested.flat();
 }
 
 function collectDataStrings(value, keyPrefix, entries, canonicalKeysByEnglish, objectPath = []) {
@@ -120,9 +122,11 @@ for (const [key, english] of statLabels) {
   if (!canonicalKeysByEnglish.has(english)) canonicalKeysByEnglish.set(english, key);
 }
 
-for (const file of await filesUnder(path.join(root, "data"), (candidate) => candidate.endsWith(".json"))) {
+const dataFiles = await filesUnder(path.join(root, "data"), (candidate) => candidate.endsWith(".json"));
+const dataSources = await Promise.all(dataFiles.map(async (file) => [file, await readFile(file, "utf8")]));
+for (const [file, source] of dataSources) {
   const relative = path.relative(path.join(root, "data"), file).split(path.sep).map(normalizeSegment).join(".");
-  const data = JSON.parse(await readFile(file, "utf8"));
+  const data = JSON.parse(source);
   if (relative === "attunement") {
     for (const [id, definition] of Object.entries(data)) {
       if (typeof definition?.name !== "string" || !definition.name.trim()) continue;
@@ -144,8 +148,9 @@ for (const file of await filesUnder(path.join(root, "data"), (candidate) => cand
 
 const sourceKeys = new Set();
 const untranslated = [];
-for (const file of await filesUnder(path.join(root, "src"), (candidate) => /\.(?:ts|tsx)$/.test(candidate)))
-  collectSourceKeys(await readFile(file, "utf8"), file, sourceKeys, untranslated);
+const sourceFiles = await filesUnder(path.join(root, "src"), (candidate) => /\.(?:ts|tsx)$/.test(candidate));
+const sourceContents = await Promise.all(sourceFiles.map(async (file) => [file, await readFile(file, "utf8")]));
+for (const [file, source] of sourceContents) collectSourceKeys(source, file, sourceKeys, untranslated);
 
 if (untranslated.length)
   throw new Error(`Unmigrated static JSX text or attributes:\n${untranslated.map((entry) => `- ${entry}`).join("\n")}`);

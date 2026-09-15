@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { assert, describe, it } from "vitest";
 
 // Ported from script/probe/check-defense-skill.mjs.
 describe("defense-skill", () => {
@@ -20,16 +20,16 @@ describe("defense-skill", () => {
         weapons: ["thundercry", "stormbreaker"],
       })[0];
 
-    expect(defenseTimeline([]).effectiveCastTime === 0, "Defense must have zero cast time.").toBeTruthy();
-    expect(
+    assert(defenseTimeline([]).effectiveCastTime === 0, "Defense must have zero cast time.");
+    assert(
       !defenseTimeline([]).actionStates[0].buffs.some((effect) => effect.name === "Cadence"),
       "Defense must not apply Cadence without Exquisite Scenery.",
-    ).toBeTruthy();
+    );
     const cadenceState = defenseTimeline(["ExquisiteSceneryT0"]).actionStates[0].buffs;
-    expect(
+    assert(
       !cadenceState.some((effect) => effect.name === "Cadence"),
       "The applying action's pre-action snapshot must not contain Cadence.",
-    ).toBeTruthy();
+    );
     const build = (steps, innerWayConditions = ["ExquisiteSceneryT0"], innerWayRules = []) =>
       buildRotationTimeline({
         rotation: { name: "Periodic effect probe", steps },
@@ -68,26 +68,23 @@ describe("defense-skill", () => {
     ]);
     const defensePeriodicRow = followupTimeline.find((row) => row.kind === "periodic" && row.step.skill === "Cadence");
     const followupRow = followupTimeline.find((row) => row.id === "rotation-1");
-    expect(
-      defensePeriodicRow?.startTime === 0,
-      "Cadence must trigger immediately when Defense applies it.",
-    ).toBeTruthy();
-    expect(
+    assert(defensePeriodicRow?.startTime === 0, "Cadence must trigger immediately when Defense applies it.");
+    assert(
       followupRow.actionStates[0].buffs.some((effect) => effect.name === "Riposte") &&
         !followupRow.actionStates[0].buffs.some((effect) => effect.name === "Cadence"),
       "An immediate Cadence trigger must consume Cadence and grant Riposte before the next skill.",
-    ).toBeTruthy();
+    );
 
     const baseCooldownTimeline = build([
       { type: "skill", skill: "ApplyCadence" },
       { type: "event", event: "Delay", duration: 12 },
     ]);
-    expect(
+    assert(
       JSON.stringify(
         baseCooldownTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime),
       ) === JSON.stringify([0, 10]),
       "Riposte must start one ten-second follow-up attempt for each successfully converted Cadence stack.",
-    ).toBeTruthy();
+    );
 
     const refreshedTimeline = build([
       { type: "skill", skill: "ApplyCadence" },
@@ -95,12 +92,12 @@ describe("defense-skill", () => {
       { type: "skill", skill: "ApplyOneCadence" },
       { type: "event", event: "Delay", duration: 20 },
     ]);
-    expect(
+    assert(
       JSON.stringify(
         refreshedTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime),
       ) === JSON.stringify([0, 10, 20]),
       "Refreshing Cadence during Riposte cooldown must not consume it or restart the existing follow-up wait.",
-    ).toBeTruthy();
+    );
 
     const blockedApplyTimeline = build([
       { type: "skill", skill: "ApplyCadence" },
@@ -109,22 +106,22 @@ describe("defense-skill", () => {
       { type: "skill", skill: "Probe" },
     ]);
     const blockedApplyProbe = blockedApplyTimeline.find((row) => row.id === "rotation-3");
-    expect(
+    assert(
       blockedApplyProbe.actionStates[0].buffs.find((effect) => effect.name === "Cadence")?.stack === 2,
       "A cooldown-rejected Riposte application must not consume Cadence.",
-    ).toBeTruthy();
+    );
 
     const resumedTimeline = build([
       { type: "skill", skill: "ApplyOneCadence" },
       { type: "event", event: "Delay", duration: 12 },
       { type: "skill", skill: "ApplyOneCadence" },
     ]);
-    expect(
+    assert(
       JSON.stringify(
         resumedTimeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime),
       ) === JSON.stringify([0, 12]),
       "Cadence applied after an idle Riposte cooldown must restart the chain immediately.",
-    ).toBeTruthy();
+    );
 
     const t4Timeline = build(
       [
@@ -141,11 +138,11 @@ describe("defense-skill", () => {
         },
       ],
     );
-    expect(
+    assert(
       JSON.stringify(t4Timeline.filter((row) => row.step.skill === "RiposteTrigger").map((row) => row.startTime)) ===
         JSON.stringify([0, 5]),
       "Exquisite Scenery T4 must reduce both the Riposte cooldown and follow-up wait to five seconds.",
-    ).toBeTruthy();
+    );
 
     const avalancheTimeline = build([
       { type: "skill", skill: "Defense" },
@@ -154,22 +151,19 @@ describe("defense-skill", () => {
     ]);
     const avalanche = avalancheTimeline.find((row) => row.id === "rotation-1");
     const afterAvalanche = avalancheTimeline.find((row) => row.id === "rotation-2");
-    expect(
-      avalanche.effectiveCastTime === 1.766,
-      "Riposte must reduce Avalanche's cast time by 2 seconds.",
-    ).toBeTruthy();
+    assert(avalanche.effectiveCastTime === 1.766, "Riposte must reduce Avalanche's cast time by 2 seconds.");
     const avalancheDamageTimes = avalanche.actions
       .filter((action) => action.type === "damage")
       .map((action) => action.time);
-    expect(
+    assert(
       avalancheDamageTimes.length === 2 &&
         Math.abs(avalancheDamageTimes[0] - 0.93) < 1e-9 &&
         Math.abs(avalancheDamageTimes[1] - 1.766) < 1e-9,
       "Riposte must shift Avalanche's damage actions with its reduced cast time.",
-    ).toBeTruthy();
-    expect(
+    );
+    assert(
       !afterAvalanche.buffs.some((effect) => effect.name === "Riposte"),
       "Avalanche must consume Riposte when its cast starts.",
-    ).toBeTruthy();
+    );
   });
 });

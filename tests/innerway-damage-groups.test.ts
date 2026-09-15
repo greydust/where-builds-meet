@@ -23,10 +23,11 @@ describe("innerway-damage-groups", () => {
     const dots = await import("../data/dot/innerway.json");
     const buffs = await import("../data/buff/general.json");
     const rules = Object.entries(ways).flatMap(([source, way]) =>
-      Object.values(way.effect).flatMap((definition, tier) => [
-        ...(definition.effect ?? []).map((effect) => ({ ...effect, effect: effect.effect ?? effect, source, tier })),
-        ...(definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source, tier })),
-      ]),
+      Object.values(way.effect).flatMap((definition, tier) =>
+        (definition.effect ?? [])
+          .map((effect) => Object.assign({}, effect, { effect: effect.effect ?? effect, source, tier }))
+          .concat((definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source, tier }))),
+      ),
     );
     const timeline = {
       rotation: {
