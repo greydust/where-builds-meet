@@ -903,11 +903,10 @@ function calculateBreakdown(
           return total + (expectedStacks ?? trackedStacks);
         }, 0);
         const averageStacks = outputEntries.length > 0 ? totalStacks / outputEntries.length : 0;
-        return {
-          id,
-          averageStacks,
-          ...(isDebuff && definition.shared === true ? { timeCoverage: debuffTimeCoverage(id) } : {}),
-        };
+        return Object.assign(
+          { id, averageStacks },
+          isDebuff && definition.shared === true ? { timeCoverage: debuffTimeCoverage(id) } : {},
+        );
       })
       .filter((row) => row.averageStacks > 0 || (row.timeCoverage ?? 0) > 0)
       .sort(
@@ -1114,23 +1113,25 @@ function calculateBreakdown(
   return {
     skills: [...skills.values()]
       .filter((skill) => skill.damage > 0)
-      .map(({ tags: _tags, abrasionTotal, normalTotal, criticalTotal, affinityTotal, ...skill }) => ({
-        ...skill,
-        abrasionRate: skill.hits > 0 ? (abrasionTotal / skill.hits) * 100 : 0,
-        normalRate: skill.hits > 0 ? (normalTotal / skill.hits) * 100 : 0,
-        criticalRate: skill.hits > 0 ? (criticalTotal / skill.hits) * 100 : 0,
-        affinityRate: skill.hits > 0 ? (affinityTotal / skill.hits) * 100 : 0,
-        percentage: percentage(skill.damage),
-      }))
+      .map(({ tags: _tags, abrasionTotal, normalTotal, criticalTotal, affinityTotal, ...skill }) =>
+        Object.assign(skill, {
+          abrasionRate: skill.hits > 0 ? (abrasionTotal / skill.hits) * 100 : 0,
+          normalRate: skill.hits > 0 ? (normalTotal / skill.hits) * 100 : 0,
+          criticalRate: skill.hits > 0 ? (criticalTotal / skill.hits) * 100 : 0,
+          affinityRate: skill.hits > 0 ? (affinityTotal / skill.hits) * 100 : 0,
+          percentage: percentage(skill.damage),
+        }),
+      )
       .sort((left, right) => right.damage - left.damage || left.name.localeCompare(right.name)),
     healingSkills: [...healingSkills.values()]
       .filter((skill) => skill.healing > 0)
-      .map(({ tags: _tags, normalTotal, criticalTotal, ...skill }) => ({
-        ...skill,
-        normalRate: skill.heals > 0 ? (normalTotal / skill.heals) * 100 : 0,
-        criticalRate: skill.heals > 0 ? (criticalTotal / skill.heals) * 100 : 0,
-        percentage: healingPercentage(skill.healing),
-      }))
+      .map(({ tags: _tags, normalTotal, criticalTotal, ...skill }) =>
+        Object.assign(skill, {
+          normalRate: skill.heals > 0 ? (normalTotal / skill.heals) * 100 : 0,
+          criticalRate: skill.heals > 0 ? (criticalTotal / skill.heals) * 100 : 0,
+          percentage: healingPercentage(skill.healing),
+        }),
+      )
       .sort((left, right) => right.healing - left.healing || left.name.localeCompare(right.name)),
     casts: [...casts.values()]
       .filter((cast) => cast.damage > 0 || cast.buffedDamage > 0)
@@ -1179,24 +1180,28 @@ function calculateBreakdown(
       }, [])
       .map(({ totalCastTime, dpsTotal, dpsWithBuffTotal, dpsSamples, buffedDamage, ...group }) => {
         const damagePerVitality = group.vitalitySpent > 0 ? group.damage / group.vitalitySpent : undefined;
-        return {
-          ...group,
-          averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
-          averageDamage: group.casts > 0 ? group.damage / group.casts : 0,
-          ...(dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {}),
-          ...(damagePerVitality === undefined ? {} : { damagePerVitality }),
-          ...(buffedDamage > 0
-            ? {
-                averageDamageWithBuff: group.casts > 0 ? (group.damage + buffedDamage) / group.casts : 0,
-                damageWithBuff: group.damage + buffedDamage,
-                ...(dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {}),
-                ...(group.vitalitySpent > 0
+        return Object.assign(
+          group,
+          {
+            averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+            averageDamage: group.casts > 0 ? group.damage / group.casts : 0,
+          },
+          dpsSamples > 0 ? { averageDps: dpsTotal / dpsSamples } : {},
+          damagePerVitality === undefined ? {} : { damagePerVitality },
+          buffedDamage > 0
+            ? Object.assign(
+                {
+                  averageDamageWithBuff: group.casts > 0 ? (group.damage + buffedDamage) / group.casts : 0,
+                  damageWithBuff: group.damage + buffedDamage,
+                },
+                dpsSamples > 0 ? { averageDpsWithBuff: dpsWithBuffTotal / dpsSamples } : {},
+                group.vitalitySpent > 0
                   ? { damagePerVitalityWithBuff: (group.damage + buffedDamage) / group.vitalitySpent }
-                  : {}),
-              }
-            : {}),
-          percentage: percentage(group.damage),
-        };
+                  : {},
+              )
+            : {},
+          { percentage: percentage(group.damage) },
+        );
       })
       .sort(
         (left, right) =>
@@ -1241,13 +1246,17 @@ function calculateBreakdown(
         }
         return groups;
       }, [])
-      .map(({ totalCastTime, hpsTotal, hpsSamples, ...group }) => ({
-        ...group,
-        averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
-        averageHealing: group.casts > 0 ? group.healing / group.casts : 0,
-        ...(hpsSamples > 0 ? { averageHps: hpsTotal / hpsSamples } : {}),
-        percentage: healingPercentage(group.healing),
-      }))
+      .map(({ totalCastTime, hpsTotal, hpsSamples, ...group }) =>
+        Object.assign(
+          group,
+          {
+            averageCastTime: group.casts > 0 ? totalCastTime / group.casts : 0,
+            averageHealing: group.casts > 0 ? group.healing / group.casts : 0,
+          },
+          hpsSamples > 0 ? { averageHps: hpsTotal / hpsSamples } : {},
+          { percentage: healingPercentage(group.healing) },
+        ),
+      )
       .sort(
         (left, right) =>
           (right.averageHps ?? Number.NEGATIVE_INFINITY) - (left.averageHps ?? Number.NEGATIVE_INFINITY) ||
@@ -2043,7 +2052,7 @@ function timelineDamageEntries(
     }
     const invocationId = `replay-${listenerKey}-${sourceEntry.id}-${replayInvocation++}`;
     const rowOrder = replayOrder++;
-    const replayActions = (replaySkill.action as EditableObject[]).map((action) => ({ ...action }));
+    const replayActions = (replaySkill.action as EditableObject[]).map((action) => Object.assign({}, action));
     const replayRow: TimelineRow = {
       id: invocationId,
       kind: "trigger",
@@ -2191,12 +2200,14 @@ function timelineDamageEntries(
   );
   const resolvedSequence = damageEntries.map((entry) => {
     const resolvedRow = resolvedByEntry.get(entry);
-    return {
-      entry: stripTargetHPUpdater(entry),
-      breakdown: resolvedRow?.breakdown ?? emptyBreakdown(),
-      ...(resolvedRow?.expectedBuffStacks ? { expectedBuffStacks: resolvedRow.expectedBuffStacks } : {}),
-      ...(resolvedRow?.outcomeEffects ? { outcomeEffects: resolvedRow.outcomeEffects } : {}),
-    };
+    return Object.assign(
+      {
+        entry: stripTargetHPUpdater(entry),
+        breakdown: resolvedRow?.breakdown ?? emptyBreakdown(),
+      },
+      resolvedRow?.expectedBuffStacks ? { expectedBuffStacks: resolvedRow.expectedBuffStacks } : {},
+      resolvedRow?.outcomeEffects ? { outcomeEffects: resolvedRow.outcomeEffects } : {},
+    );
   });
   return { entries: resolvedSequence.map(({ entry }) => entry), resolvedSequence, seasonalVitality };
 }

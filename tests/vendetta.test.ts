@@ -23,11 +23,9 @@ describe("vendetta", () => {
           innerWayConditions: [],
           setupEffects: [],
           innerWayRules: Array.from({ length: tier + 1 }, (_, index) =>
-            (vendetta.effect["VendettaT" + index].effect ?? []).map((effect) => ({
-              ...effect,
-              source: "Vendetta",
-              tier: index,
-            })),
+            (vendetta.effect["VendettaT" + index].effect ?? []).map((effect) =>
+              Object.assign({}, effect, { source: "Vendetta", tier: index }),
+            ),
           ).flat(),
         },
         roll,
@@ -104,12 +102,9 @@ describe("vendetta", () => {
           weapons,
           innerWayConditions: [],
           innerWayRules: t6
-            ? vendetta.effect.VendettaT6.effect.map((effect) => ({
-                effect: {},
-                ...effect,
-                source: "Vendetta",
-                tier: 6,
-              }))
+            ? vendetta.effect.VendettaT6.effect.map((effect) =>
+                Object.assign({ effect: {} }, effect, { source: "Vendetta", tier: 6 }),
+              )
             : [],
           setupEffects,
         },

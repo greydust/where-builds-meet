@@ -118,7 +118,9 @@ export function migrateDrunkenPoetSequences(rotation: RotationRecord): RotationR
     const remappedTarget = remapDrunkenPoetTarget(target, anchor.component);
     if (step.event === "MartialArt") return step;
     return (
-      phase === "before" ? { ...step, before: remappedTarget } : { ...step, after: remappedTarget }
+      phase === "before"
+        ? Object.assign({}, step, { before: remappedTarget })
+        : Object.assign({}, step, { after: remappedTarget })
     ) as RotationStep;
   });
 

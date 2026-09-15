@@ -17,7 +17,7 @@ describe("nameless-spear-talents", () => {
       );
     };
     const effects = namelessSpear.talent[13].flatMap((talent) =>
-      (talent.effect ?? []).map((effect) => ({ ...effect, statStage: "talent" })),
+      (talent.effect ?? []).map((effect) => Object.assign({}, effect, { statStage: "talent" })),
     );
     const statResult = calculateStatsWithEffects(
       { ...emptyStats, momentum: 280, affinity: 0.25744, maxBellstrike: 459 },

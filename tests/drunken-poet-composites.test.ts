@@ -88,11 +88,9 @@ describe("drunken-poet-composites", () => {
       name: "Legacy Poet chain",
       steps: [
         { type: "event", event: "Buff", before: { action: 2 }, buff: "Intoxicated" },
-        ...[1, 2, 3, 4, 5].map((hit) => ({
-          type: "skill",
-          skill: `DrunkenPoet${hit}`,
-          ...(hit === 5 ? { causesBreak: true } : {}),
-        })),
+        ...[1, 2, 3, 4, 5].map((hit) =>
+          Object.assign({ type: "skill", skill: `DrunkenPoet${hit}` }, hit === 5 ? { causesBreak: true } : {}),
+        ),
         { type: "skill", skill: "LeapingToad" },
       ],
       start: { step: 3, action: 1 },

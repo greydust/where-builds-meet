@@ -575,10 +575,9 @@ describe("gear", () => {
       ...exportedBuildState,
       version: 1,
       gearItems: [legacyHengBlade],
-      builds: exportedBuildState.builds.map(({ setup: _setup, martialArts, ...entry }) => ({
-        ...entry,
-        weapons: martialArts,
-      })),
+      builds: exportedBuildState.builds.map(({ setup: _setup, martialArts, ...entry }) =>
+        Object.assign(entry, { weapons: martialArts }),
+      ),
     };
     const migratedTransfer = gear.mergeImportedBuildState(sharedBuildState, legacyTransfer);
     assert(

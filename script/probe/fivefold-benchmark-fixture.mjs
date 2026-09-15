@@ -7,15 +7,11 @@ export async function fivefoldBenchmarkBundle(server, count) {
   const way = innerWayDefinitionForSoloLevel(await load("/data/innerway/fivefold-bleed.json"), 17);
   const dots = await load("/data/dot/innerway.json");
   const { PiercingDamage } = await load("/data/skill/general.json");
-  const rules = Object.values(way.effect).flatMap((definition, tier) => [
-    ...(definition.effect ?? []).map((effect) => ({
-      ...effect,
-      effect: effect.effect ?? effect,
-      source: "FivefoldBleed",
-      tier,
-    })),
-    ...(definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source: "FivefoldBleed", tier })),
-  ]);
+  const rules = Object.values(way.effect).flatMap((definition, tier) =>
+    (definition.effect ?? [])
+      .map((effect) => Object.assign({}, effect, { effect: effect.effect ?? effect, source: "FivefoldBleed", tier }))
+      .concat((definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source: "FivefoldBleed", tier }))),
+  );
   const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 };
 
   const end = (count - 1) * 0.137 + 5;

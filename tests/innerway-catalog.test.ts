@@ -107,17 +107,21 @@ describe("innerway-catalog", () => {
       } = {},
     ) {
       const tiers = Object.values(echoes.effect).slice(0, tier + 1);
-      const rules = tiers.flatMap((definition, index) => [
-        ...(definition.effect ?? [])
+      const rules = tiers.flatMap((definition, index) =>
+        (definition.effect ?? [])
           .filter((effect) => !effect.rawStat)
-          .map((effect) => ({ ...effect, effect: effect.effect ?? effect, source: "EchoesOfOblivion", tier: index })),
-        ...(definition.trigger ?? []).map((trigger) => ({
-          trigger,
-          effect: {},
-          source: "EchoesOfOblivion",
-          tier: index,
-        })),
-      ]);
+          .map((effect) =>
+            Object.assign({}, effect, { effect: effect.effect ?? effect, source: "EchoesOfOblivion", tier: index }),
+          )
+          .concat(
+            (definition.trigger ?? []).map((trigger) => ({
+              trigger,
+              effect: {},
+              source: "EchoesOfOblivion",
+              tier: index,
+            })),
+          ),
+      );
       const rotation = {
         name: "Echoes probe",
         steps: [...(dodge ? [{ type: "skill", skill: dodgeSkill }] : []), { type: "skill", skill: "Probe" }],

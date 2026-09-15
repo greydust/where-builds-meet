@@ -13,20 +13,20 @@ describe("fivefold-bleed-grid", () => {
     const rules = (tier) =>
       Object.values(way.effect)
         .slice(0, tier + 1)
-        .flatMap((definition, index) => [
-          ...(definition.effect ?? []).map((effect) => ({
-            ...effect,
-            effect: effect.effect ?? effect,
-            source: "FivefoldBleed",
-            tier: index,
-          })),
-          ...(definition.trigger ?? []).map((trigger) => ({
-            trigger,
-            effect: {},
-            source: "FivefoldBleed",
-            tier: index,
-          })),
-        ]);
+        .flatMap((definition, index) =>
+          (definition.effect ?? [])
+            .map((effect) =>
+              Object.assign({}, effect, { effect: effect.effect ?? effect, source: "FivefoldBleed", tier: index }),
+            )
+            .concat(
+              (definition.trigger ?? []).map((trigger) => ({
+                trigger,
+                effect: {},
+                source: "FivefoldBleed",
+                tier: index,
+              })),
+            ),
+        );
     const inputFor = (times, end = 11, tier = 0) => ({
       rotation: {
         name: "Battle grid",

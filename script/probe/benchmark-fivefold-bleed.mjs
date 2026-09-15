@@ -36,15 +36,11 @@ try {
     expirationChecks++;
     return expirationProbability.apply(this, args);
   };
-  const rules = Object.values(way.effect).flatMap((definition, tier) => [
-    ...(definition.effect ?? []).map((effect) => ({
-      ...effect,
-      effect: effect.effect ?? effect,
-      source: "FivefoldBleed",
-      tier,
-    })),
-    ...(definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source: "FivefoldBleed", tier })),
-  ]);
+  const rules = Object.values(way.effect).flatMap((definition, tier) =>
+    (definition.effect ?? [])
+      .map((effect) => Object.assign({}, effect, { effect: effect.effect ?? effect, source: "FivefoldBleed", tier }))
+      .concat((definition.trigger ?? []).map((trigger) => ({ trigger, effect: {}, source: "FivefoldBleed", tier }))),
+  );
   for (const count of process.argv.slice(2).length ? process.argv.slice(2).map(Number) : [10, 25, 50]) {
     peakStates = tickChecks = expirationChecks = applications = 0;
     const end = (count - 1) * 0.137 + 5;

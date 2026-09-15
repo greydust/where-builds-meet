@@ -1036,9 +1036,8 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
       const castStart = elapsed;
       elapsed += baseSkillCastTime(skill);
       const actions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : [];
-      return [
-        { index, time: castStart - anchor, before: { action: "start" } as AttachedEventTarget },
-        ...actions.flatMap((action, actionIndex) => {
+      return [{ index, time: castStart - anchor, before: { action: "start" } as AttachedEventTarget }].concat(
+        actions.flatMap((action, actionIndex) => {
           const time = castStart + Number(action.time ?? 0) - anchor;
           const direct = { index, time, before: { action: actionIndex } as AttachedEventTarget };
           if (action.type !== "trigger" || typeof action.value !== "string") return [direct];
@@ -1046,16 +1045,15 @@ function migrateRotation(rotation: RotationRecord): RotationRecord {
           const triggeredActions = Array.isArray(triggered?.action) ? (triggered.action as EditableObject[]) : [];
           const triggerOrdinal =
             actions.slice(0, actionIndex + 1).filter((candidate) => candidate.type === "trigger").length - 1;
-          return [
-            direct,
-            ...triggeredActions.map((triggeredAction, triggeredActionIndex) => ({
+          return [direct].concat(
+            triggeredActions.map((triggeredAction, triggeredActionIndex) => ({
               index,
               time: time + Number(triggeredAction.time ?? 0),
               before: { trigger: triggerOrdinal, action: triggeredActionIndex } as AttachedEventTarget,
             })),
-          ];
+          );
         }),
-      ];
+      );
     });
     const attachments = new Map<number, RotationStep[]>();
     legacyEvents.forEach(({ step }) => {
@@ -3681,7 +3679,7 @@ function StatsTab({
                     value={row.tier}
                     onChange={(event) => {
                       const next = innerWays.map((item, itemIndex) =>
-                        itemIndex === index ? { ...item, tier: event.target.value } : item,
+                        itemIndex === index ? Object.assign({}, item, { tier: event.target.value }) : item,
                       );
                       onBuildSetupChange("innerWays", next);
                       onInnerWayChange();
@@ -6980,10 +6978,9 @@ function RotationEditorTab({
                         [key]: selections,
                       });
                       const rebuildTimeline = setSelectionChangesTimeline(buildSetup[key], selections, definitions);
-                      return {
-                        label: String(tier),
-                        setupEffects,
-                        ...(rebuildTimeline
+                      return Object.assign(
+                        { label: String(tier), setupEffects },
+                        rebuildTimeline
                           ? {
                               timeline: makeTimelineInput(
                                 rotationRecord,
@@ -6992,8 +6989,8 @@ function RotationEditorTab({
                                 setupEffects,
                               ),
                             }
-                          : {}),
-                      };
+                          : {},
+                      );
                     }),
                 ]),
             ),
@@ -7041,14 +7038,16 @@ function RotationEditorTab({
               const variantRules = innerWayEffectRules.filter((rule) => rule.source !== selected.innerWay);
               const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay);
               const setupEffects = baselineSetupEffects;
-              return {
-                label: definition?.name ?? selected.innerWay,
-                ...(definition?.altersTimeline
+              return Object.assign(
+                { label: definition?.name ?? selected.innerWay },
+                definition?.altersTimeline
                   ? { timeline: makeTimelineInput(rotationRecord, variantConditions, variantRules, setupEffects) }
-                  : {}),
-                innerWayRules: variantRules,
-                innerWayConditions: [...variantConditions, ...setupConditionsFor(setupEffects)],
-              };
+                  : {},
+                {
+                  innerWayRules: variantRules,
+                  innerWayConditions: [...variantConditions, ...setupConditionsFor(setupEffects)],
+                },
+              );
             })
           : [],
         setupComparisons: includeDiffs
@@ -7076,10 +7075,9 @@ function RotationEditorTab({
                 .map(([value]) => {
                   const setupEffects = selectedSetupEffects(settings, gearStatEffect, buildSetup, { script: value });
                   const rebuildTimeline = setupSelectionChangesTimeline(selectedScript, value, typedScriptDefinitions);
-                  return {
-                    label: value,
-                    setupEffects,
-                    ...(rebuildTimeline
+                  return Object.assign(
+                    { label: value, setupEffects },
+                    rebuildTimeline
                       ? {
                           timeline: makeTimelineInput(
                             rotationRecord,
@@ -7088,8 +7086,8 @@ function RotationEditorTab({
                             setupEffects,
                           ),
                         }
-                      : {}),
-                  };
+                      : {},
+                  );
                 }),
               divinecraft: Object.entries(typedDivinecraftDefinitions)
                 .filter(([value, definition]) => definition.available !== false && value !== selectedDivinecraft)
@@ -7102,10 +7100,9 @@ function RotationEditorTab({
                     value,
                     typedDivinecraftDefinitions,
                   );
-                  return {
-                    label: value,
-                    setupEffects,
-                    ...(rebuildTimeline
+                  return Object.assign(
+                    { label: value, setupEffects },
+                    rebuildTimeline
                       ? {
                           timeline: makeTimelineInput(
                             rotationRecord,
@@ -7114,8 +7111,8 @@ function RotationEditorTab({
                             setupEffects,
                           ),
                         }
-                      : {}),
-                  };
+                      : {},
+                  );
                 }),
               ...Object.fromEntries(
                 globalDebuffRows.map(({ key }) => [
@@ -8810,7 +8807,7 @@ export default function App() {
   );
   const buildSetup = useMemo<BuildSetup>(
     () => ({
-      innerWays: (buildSetupOverrides.innerWays ?? activeBuildSetup.innerWays).map((row) => ({ ...row })),
+      innerWays: (buildSetupOverrides.innerWays ?? activeBuildSetup.innerWays).map((row) => Object.assign({}, row)),
       weaponSets: { ...(buildSetupOverrides.weaponSets ?? activeBuildSetup.weaponSets) },
       armorSets: { ...(buildSetupOverrides.armorSets ?? activeBuildSetup.armorSets) },
       bowRingSet: buildSetupOverrides.bowRingSet ?? activeBuildSetup.bowRingSet,

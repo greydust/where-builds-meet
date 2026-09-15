@@ -943,39 +943,42 @@ function buildRotationTimelinePass(
       : Array.isArray(skill?.action)
         ? (skill.action as EditableObject[])
         : [];
-    const actions: EditableObject[] = sourceActions.map((action) => ({
-      ...action,
-      ...(step.type === "event" &&
-      (step.event === "Controlled" || step.event === "Exhausted") &&
-      action.type === "apply" &&
-      step.duration !== undefined
-        ? { duration: step.duration }
-        : {}),
-      ...(step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {}),
-      ...(step.type === "event" && step.event === "SelfHP" && action.type === "setHP"
-        ? "currentHP" in step && typeof step.currentHP === "number"
-          ? { currentHP: step.currentHP }
-          : { currentHPRatio: step.currentHPRatio }
-        : {}),
-      ...(step.type === "event" && step.event === "TakeDamage" && action.type === "takeDamage"
-        ? { damage: step.damage }
-        : {}),
-      ...(step.type === "event" && step.event === "HP" && action.type === "setTargetHP"
-        ? { targetHPRatio: step.targetHPRatio }
-        : {}),
-      ...(step.type === "event" && step.event === "Qi" && action.type === "setQi"
-        ? { targetQiRatio: step.targetQiRatio }
-        : {}),
-      ...(step.type === "event" && step.event === "Buff" && action.type === "apply"
-        ? { value: step.buff, stack: step.stack ?? 1 }
-        : {}),
-      ...(step.type === "event" && step.event === "Debuff" && action.type === "apply"
-        ? { value: step.debuff, stack: step.stack ?? 1 }
-        : {}),
-      ...(step.type === "event" && step.event === "MartialArt" && action.type === "switchMartialArt"
-        ? { martialArt: step.martialArt }
-        : {}),
-    }));
+    const actions: EditableObject[] = sourceActions.map((action) =>
+      Object.assign(
+        {},
+        action,
+        step.type === "event" &&
+          (step.event === "Controlled" || step.event === "Exhausted") &&
+          action.type === "apply" &&
+          step.duration !== undefined
+          ? { duration: step.duration }
+          : {},
+        step.type === "event" && step.event === "Move" && action.type === "move" ? { distance: step.distance } : {},
+        step.type === "event" && step.event === "SelfHP" && action.type === "setHP"
+          ? "currentHP" in step && typeof step.currentHP === "number"
+            ? { currentHP: step.currentHP }
+            : { currentHPRatio: step.currentHPRatio }
+          : {},
+        step.type === "event" && step.event === "TakeDamage" && action.type === "takeDamage"
+          ? { damage: step.damage }
+          : {},
+        step.type === "event" && step.event === "HP" && action.type === "setTargetHP"
+          ? { targetHPRatio: step.targetHPRatio }
+          : {},
+        step.type === "event" && step.event === "Qi" && action.type === "setQi"
+          ? { targetQiRatio: step.targetQiRatio }
+          : {},
+        step.type === "event" && step.event === "Buff" && action.type === "apply"
+          ? { value: step.buff, stack: step.stack ?? 1 }
+          : {},
+        step.type === "event" && step.event === "Debuff" && action.type === "apply"
+          ? { value: step.debuff, stack: step.stack ?? 1 }
+          : {},
+        step.type === "event" && step.event === "MartialArt" && action.type === "switchMartialArt"
+          ? { martialArt: step.martialArt }
+          : {},
+      ),
+    );
     // Fixed-time and Move events resolve before other rows at an equal timestamp.
     // After-action Qi attachments receive a causal order after their target action below.
     const rowOrder = step.type === "event" ? -((rotation.steps.length - rowIndex) * 1000) : rowIndex * 1000;
@@ -1004,11 +1007,12 @@ function buildRotationTimelinePass(
     if (expandedSkill?.isMultiAction)
       multiActionSegments.set(
         row.id,
-        expandedSkill.segments.map((segment) => ({
-          ...segment,
-          startOffset: segment.baseStartOffset,
-          effectiveCastTime: segment.baseCastTime,
-        })),
+        expandedSkill.segments.map((segment) =>
+          Object.assign({}, segment, {
+            startOffset: segment.baseStartOffset,
+            effectiveCastTime: segment.baseCastTime,
+          }),
+        ),
       );
     return row;
   };
@@ -1168,18 +1172,20 @@ function buildRotationTimelinePass(
   };
   const prepareTrackedEffects = (effects: TrackedEffect[]) => effects.map(prepareTrackedEffect);
   let buffs: TrackedEffect[] = prepareTrackedEffects(
-    (input.initialBuffs ?? []).map((effect) => ({
-      ...effect,
-      persistent: true,
-      expiresAt: undefined,
-    })),
+    (input.initialBuffs ?? []).map((effect) =>
+      Object.assign({}, effect, {
+        persistent: true,
+        expiresAt: undefined,
+      }),
+    ),
   );
   let debuffs: TrackedEffect[] = prepareTrackedEffects(
-    (input.initialDebuffs ?? []).map((effect) => ({
-      ...effect,
-      persistent: true,
-      expiresAt: undefined,
-    })),
+    (input.initialDebuffs ?? []).map((effect) =>
+      Object.assign({}, effect, {
+        persistent: true,
+        expiresAt: undefined,
+      }),
+    ),
   );
   let unconditionalDamageEffects = addUnconditionalDamageEffects(
     ...buffs
@@ -1274,10 +1280,12 @@ function buildRotationTimelinePass(
   );
   const resourceEventParameters = Object.fromEntries([...innerWayConditions].map((condition) => [condition, true]));
   const resourceEventRules = (input.resourceEvents ?? [])
-    .map((rule) => ({
-      ...rule,
-      amount: typeof rule.amount === "number" ? rule.amount : resolveSwitchValue(rule.amount, resourceEventParameters),
-    }))
+    .map((rule) =>
+      Object.assign({}, rule, {
+        amount:
+          typeof rule.amount === "number" ? rule.amount : resolveSwitchValue(rule.amount, resourceEventParameters),
+      }),
+    )
     .filter(
       (rule): rule is Omit<ResourceEventRule, "amount"> & { amount: number } =>
         typeof rule.resource === "string" &&
@@ -1671,11 +1679,14 @@ function buildRotationTimelinePass(
       if (tickTime < afterTime - 1e-6 || (!includeCurrentTime && Math.abs(tickTime - afterTime) <= 1e-6)) continue;
       const derivedId = nextDerivedOrder++;
       const derivedSortOrder = [...causalSortOrder, derivedId];
-      const actions = baseActions.map((action) => ({
-        ...action,
-        time: 0,
-        ...(tick.probability !== undefined ? { damageScale: tick.probability, hitProbability: tick.probability } : {}),
-      }));
+      const actions = baseActions.map((action) =>
+        Object.assign(
+          {},
+          action,
+          { time: 0 },
+          tick.probability !== undefined ? { damageScale: tick.probability, hitProbability: tick.probability } : {},
+        ),
+      );
       const row: TimelineRow = {
         id: `${isDot ? "dot" : "periodic"}-${derivedId}`,
         kind: isDot ? "dot" : "periodic",
@@ -3369,7 +3380,7 @@ function buildRotationTimelinePass(
   regenerateResources(timelineEndTime);
   for (const row of rows)
     row.actions = row.actions.map((action, index) =>
-      row.actionStates[index] ? action : { ...action, type: "inactive" },
+      row.actionStates[index] ? action : Object.assign({}, action, { type: "inactive" }),
     );
   // Describe elapsed waits without adding events or changing saved rotation steps.
   for (const [cast, delay] of cooldownDelayRows) {
@@ -3390,24 +3401,25 @@ function buildRotationTimelinePass(
     );
   const firstRow = sortedRows[0];
   if (firstRow) {
-    const groupRows: TimelineRow[] = [...damageGroups.values()].map((group, index) => ({
-      ...firstRow,
-      id: `innerway-${group.id}`,
-      kind: "damageGroup",
-      step: { type: "skill", skill: group.id },
-      skill: { name: group.name, action: [], tags: [] },
-      sourceRowId: undefined,
-      sourceDamageWeights: undefined,
-      rotationIndex: undefined,
-      skipped: false,
-      order: -1000 + index,
-      effectiveCastTime: 0,
-      actions: [],
-      actionStates: {},
-      buffs: [],
-      debuffs: [],
-      resourceConsumption: undefined,
-    }));
+    const groupRows: TimelineRow[] = [...damageGroups.values()].map((group, index) =>
+      Object.assign({}, firstRow, {
+        id: `innerway-${group.id}`,
+        kind: "damageGroup",
+        step: { type: "skill", skill: group.id },
+        skill: { name: group.name, action: [], tags: [] },
+        sourceRowId: undefined,
+        sourceDamageWeights: undefined,
+        rotationIndex: undefined,
+        skipped: false,
+        order: -1000 + index,
+        effectiveCastTime: 0,
+        actions: [],
+        actionStates: {},
+        buffs: [],
+        debuffs: [],
+        resourceConsumption: undefined,
+      }),
+    );
     sortedRows.unshift(...groupRows);
   }
   if (sortedRows[0]) {

@@ -5,6 +5,14 @@
     "correctness": "error"
   },
   "rules": {},
+  "overrides": [
+    {
+      "files": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "script/**/*.mjs"],
+      "rules": {
+        "oxc/no-map-spread": "error"
+      }
+    }
+  ],
   "ignorePatterns": ["public/", "dist/", "dist-preview/", "local/", ".agents/"],
   "env": {
     "builtin": true,
