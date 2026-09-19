@@ -1,6 +1,8 @@
 import { useEffect, useRef, type ReactNode, type SyntheticEvent } from "react"
 
-type ModalProps = {
+import styles from "./style.module.css"
+
+type DialogProps = {
   open: boolean
   onClose: () => void
   onCancel?: (event: SyntheticEvent<HTMLDialogElement, Event>) => void
@@ -9,7 +11,10 @@ type ModalProps = {
   children: ReactNode
 }
 
-export function Modal({ open, onClose, onCancel, className, label, children }: ModalProps) {
+// Self-contained primitive: behavior plus structure. Presentation is a scoped
+// variable API (`--modal-*`); visual variants live one level up and assign
+// those variables or add classes. Never reference project design tokens here.
+export function Dialog({ open, onClose, onCancel, className, label, children }: DialogProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null)
 
   useEffect(() => {
@@ -25,7 +30,13 @@ export function Modal({ open, onClose, onCancel, className, label, children }: M
   }
 
   return (
-    <dialog ref={dialogRef} className={className} aria-label={label} onCancel={onCancel} onClose={handleClose}>
+    <dialog
+      ref={dialogRef}
+      className={className ? `${styles.dialog} ${className}` : styles.dialog}
+      aria-label={label}
+      onCancel={onCancel}
+      onClose={handleClose}
+    >
       {children}
     </dialog>
   )

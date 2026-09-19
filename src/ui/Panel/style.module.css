@@ -1,0 +1,51 @@
+@layer ui {
+  .panel {
+    --panel-padding: 16px;
+    --panel-radius: 0.6875rem;
+    --panel-margin-block-end: 12px;
+    --panel-bg: oklch(22% 0.018 270deg / 92%);
+    --panel-border-color: oklch(32% 0.02 265deg);
+    --panel-shadow: 0 12px 30px oklch(0% 0 0deg / 25%);
+    --panel-content-min-inline-size: auto;
+
+    margin-block-end: var(--panel-margin-block-end);
+    padding: var(--panel-padding);
+    border: 1px solid var(--panel-border-color);
+    border-radius: var(--panel-radius);
+    background: var(--panel-bg);
+    box-shadow: var(--panel-shadow);
+  }
+
+  .panel > * {
+    min-inline-size: var(--panel-content-min-inline-size);
+  }
+
+  .heading {
+    --panel-heading-gap: 16px;
+    --panel-heading-margin-block-end: 18px;
+    --panel-title-size: 1.125rem;
+    --panel-muted-fg: oklch(72% 0.02 265deg);
+
+    display: flex;
+    min-inline-size: 0;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--panel-heading-gap);
+    margin-block-end: var(--panel-heading-margin-block-end);
+  }
+
+  .heading > * {
+    min-inline-size: var(--panel-content-min-inline-size);
+  }
+
+  .heading h2 {
+    margin-block-end: 0;
+    font-size: var(--panel-title-size);
+  }
+
+  .heading p {
+    margin: 5px 0 0;
+    color: var(--panel-muted-fg);
+  }
+}

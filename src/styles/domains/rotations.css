@@ -452,31 +452,16 @@
     color: var(--success);
   }
 
+  /* Content layout for the ui/Tooltip box: chrome and reveal live in the
+     primitive, theme values flow through its scoped variables. */
   .damage-breakdown-tooltip {
-    position: absolute;
-    inset-block-end: calc(100% + 8px);
-    inset-inline-start: 0;
-    z-index: 5;
+    --tooltip-bg: var(--surface);
+    --tooltip-fg: inherit;
+    --tooltip-border-color: var(--border);
+    --tooltip-shadow: 0 8px 22px var(--shadow-color);
+
     display: flex;
     gap: 12px;
-    inline-size: max-content;
-    max-inline-size: min(28rem, 80vw);
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    box-shadow: 0 8px 22px var(--shadow-color);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(3px);
-    transition:
-      opacity var(--transition-fast),
-      transform var(--transition-fast);
-  }
-
-  .damage-breakdown-wrap:hover .damage-breakdown-tooltip {
-    opacity: 1;
-    transform: translateY(0);
   }
 
   .damage-breakdown-part {
@@ -715,14 +700,13 @@
   }
 
   .effect-plate {
+    --chip-bg: oklch(from var(--primary) l c h / 0.12);
+    --chip-fg: var(--text);
+    --chip-border-color: oklch(from var(--primary) l c h / 0.42);
+
     position: relative;
     display: inline-block;
     max-inline-size: 100%;
-    padding: 3px 8px;
-    border: 1px solid oklch(from var(--primary) l c h / 0.42);
-    border-radius: var(--radius-pill);
-    background: oklch(from var(--primary) l c h / 0.12);
-    color: var(--text);
     line-height: 1.3;
     overflow-wrap: anywhere;
     white-space: normal;
@@ -730,38 +714,22 @@
   }
 
   .effect-plate-general-debuff {
-    border-color: var(--error-border);
-    background: var(--error-soft);
-    color: var(--error);
+    --chip-border-color: var(--error-border);
+    --chip-bg: var(--error-soft);
+    --chip-fg: var(--error);
   }
 
   .effect-plate-dot {
-    border-color: oklch(from var(--damage-bamboocut) l c h / 0.5);
-    background: oklch(from var(--damage-bamboocut) l c h / 0.16);
-    color: var(--damage-bamboocut);
+    --chip-border-color: oklch(from var(--damage-bamboocut) l c h / 0.5);
+    --chip-bg: oklch(from var(--damage-bamboocut) l c h / 0.16);
+    --chip-fg: var(--damage-bamboocut);
   }
 
   .effect-plate-tooltip {
-    position: absolute;
-    inset-inline-end: 0;
-    inset-block-end: calc(100% + 8px);
-    z-index: 6;
-    inline-size: max-content;
-    max-inline-size: min(360px, 70vw);
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    box-shadow: 0 8px 22px var(--shadow-color);
-    color: var(--text);
+    --tooltip-fg: var(--text);
+
     font-weight: 500;
     line-height: 1.35;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(3px);
-    transition:
-      opacity var(--transition-fast),
-      transform var(--transition-fast);
   }
 
   .effect-plate-tooltip strong,
@@ -772,11 +740,6 @@
   .effect-plate-tooltip strong {
     margin-block-end: 4px;
     white-space: nowrap;
-  }
-
-  .effect-plate:hover .effect-plate-tooltip {
-    opacity: 1;
-    transform: translateY(0);
   }
 
   .rotation-step-list {

@@ -1,4 +1,17 @@
 @layer components {
+  /* Application-level theme bridge for the ui/Dialog primitive: design tokens
+     flow into the primitive only through its scoped `--modal-*` variables.
+     The ui layer below provides literal fallbacks, so this rule only needs
+     the values that must follow the theme. */
+  dialog {
+    --modal-bg: var(--surface);
+    --modal-fg: var(--text);
+    --modal-border: var(--border);
+    --modal-radius: var(--radius-2xl);
+    --modal-shadow: 0 24px 70px var(--shadow-strong);
+    --modal-backdrop: var(--backdrop);
+  }
+
   .character-profile-dialog,
   .gear-editor-modal,
   .gear-ocr-dialog,

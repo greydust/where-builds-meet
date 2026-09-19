@@ -3,7 +3,7 @@ import { act } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { Modal } from "../src/ui/Modal"
+import { Dialog } from "../../src/ui/Dialog"
 
 // jsdom does not implement HTMLDialogElement.showModal/close; stub the missing
 // methods with matching open semantics so the effect under test can run.
@@ -16,7 +16,7 @@ function stubDialogMethods() {
   })
 }
 
-describe("Modal", () => {
+describe("Dialog", () => {
   let container: HTMLDivElement
   let root: Root
 
@@ -37,9 +37,9 @@ describe("Modal", () => {
   it("renders children with the accessible label", async () => {
     await act(async () => {
       root.render(
-        <Modal open onClose={vi.fn<() => void>()} label="Example dialog">
+        <Dialog open onClose={vi.fn<() => void>()} label="Example dialog">
           <button>Confirm</button>
-        </Modal>,
+        </Dialog>,
       )
     })
 
@@ -53,9 +53,9 @@ describe("Modal", () => {
     const onClose = vi.fn<() => void>()
     await act(async () => {
       root.render(
-        <Modal open onClose={onClose} label="Example dialog">
+        <Dialog open onClose={onClose} label="Example dialog">
           <button>Confirm</button>
-        </Modal>,
+        </Dialog>,
       )
     })
 

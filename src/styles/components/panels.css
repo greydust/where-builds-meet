@@ -78,33 +78,15 @@
     }
   }
 
-  .panel {
-    margin-block-end: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-3xl);
-    background: oklch(from var(--surface) l c h / 0.92);
-    box-shadow: 0 12px 30px var(--shadow-color);
-  }
-
-  .panel-heading {
-    display: flex;
-    min-inline-size: 0;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 16px;
-    margin-block-end: 18px;
-  }
-
-  .panel-heading h2 {
-    margin-block-end: 0;
-    font-size: 1.125rem;
-  }
-
-  .panel-heading p {
-    margin: 5px 0 0;
-    color: var(--text-muted);
+  /* Application-level theme bridge for the ui/Panel primitive: design tokens
+     flow into the primitive only through its scoped `--panel-*` variables.
+     Structural defaults (padding, radius, gaps) stay in the ui layer below
+     with literal fallbacks. */
+  :root {
+    --panel-bg: oklch(from var(--surface) l c h / 0.92);
+    --panel-border-color: var(--border);
+    --panel-shadow: 0 12px 30px var(--shadow-color);
+    --panel-muted-fg: var(--text-muted);
   }
 
   .setup-placeholder-panel {

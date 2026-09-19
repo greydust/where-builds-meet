@@ -104,7 +104,7 @@ src/
   App.tsx                         UI, data composition, and current orchestration
   BuildTab.tsx                    build orchestration, equipped slots, and inventory
   ui/                             generic, reusable, domain-agnostic UI primitives
-    Modal.tsx                     controlled native-dialog wrapper
+    Modal/                        controlled native-dialog wrapper (index + scoped CSS)
   components/                     application/domain-level components built on ui/
     GearEditor.tsx                gear add/edit presentation and local draft state
     GearOcrModal.tsx              gear screenshot import dialog
@@ -141,6 +141,44 @@ code. `src/components/` contains structural, application-level components that
 may know about game mechanics and compose primitives from `src/ui/`. The
 dependency direction is one-way: application code and domain components may
 import from `src/ui/`; `src/ui/` must never import from `src/components/`.
+
+### Primitive contract (`src/ui/<Name>/{index.tsx, style.module.css}`)
+
+Each primitive is self-contained: one folder per component holding behavior
+(`index.tsx`) and presentation (`style.module.css`). When `index.tsx` grows
+too large to stay readable, the folder has room for additional files (for
+example `types.ts`, `helpers.ts`, or subcomponents) — splitting a primitive
+across files inside its own folder is expected and preferred over growing a
+single file. A primitive renders
+arbitrary children, owns no game or application state, and imports nothing
+from `src/components/` or other application/domain code.
+
+Presentation is exposed as locally scoped CSS custom properties (for example
+`--modal-bg`, `--btn-border`). Variant classes assign variables only (for
+example `.button-warning { --btn-border: red; }`); they never restyle
+structure directly. Visual variants live one level above the primitive —
+in application or theme code — unless the variant changes component behavior.
+A primitive is behavior plus structure, not a theme.
+
+`src/ui/` is the bottom-most CSS `@layer` (`ui`, declared first in
+`src/styles/index.css`). It must not reference project design tokens:
+no `var(--primary)`, `var(--surface)`, `var(--border)`, or other `tokens.css`
+variables inside `src/ui/`. Structural defaults use literal fallbacks
+(`var(--modal-bg, oklch(...))`), and the application/theme layers assign
+token values to the primitive variables. The icon pack is
+`@tabler/icons-react`, imported per-glyph at call sites; no new hand-drawn
+SVGs are added.
+
+Lint hardening is scoped to the folder: `src/ui/.oxlintrc.json` enables the
+`suspicious` and `pedantic` categories on top of the root baseline through a
+nested oxlint config with `extends`; `src/ui/.stylelintrc.json` tracks
+upstream `stylelint-config-standard` with no local rule overrides so upstream
+updates produce minimal diffs.
+
+Icons never get a primitive: there is no `ui/Icon`. Call sites import
+`@tabler/icons-react` icons directly so bundling stays per-glyph; the
+`.tabler-icon` class in `styles/base.css` keeps them at `1em`. No new
+hand-drawn SVGs are added.
 
 ## Localization boundary
 

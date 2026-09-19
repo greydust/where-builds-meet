@@ -1,0 +1,5 @@
+@layer ui {
+  .tab {
+    cursor: pointer;
+  }
+}

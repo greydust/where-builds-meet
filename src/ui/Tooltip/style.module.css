@@ -1,0 +1,42 @@
+@layer ui {
+  .anchor {
+    display: contents;
+  }
+
+  .tooltip {
+    --tooltip-bg: oklch(22% 0.018 270deg);
+    --tooltip-fg: oklch(96% 0.005 270deg);
+    --tooltip-border-color: oklch(32% 0.02 265deg);
+    --tooltip-shadow: 0 8px 22px oklch(0% 0 0deg / 25%);
+
+    position: absolute;
+    inset-block-end: calc(100% + 8px);
+    inset-inline-start: 0;
+    z-index: 6;
+    inline-size: max-content;
+    max-inline-size: min(28rem, 80vw);
+    padding: 9px 11px;
+    border: 1px solid var(--tooltip-border-color);
+    border-radius: 0.4375rem;
+    background: var(--tooltip-bg);
+    color: var(--tooltip-fg);
+    box-shadow: var(--tooltip-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(3px);
+    transition:
+      opacity 120ms ease,
+      transform 120ms ease;
+  }
+
+  .align-end {
+    inset-inline: auto 0;
+    max-inline-size: min(360px, 70vw);
+  }
+
+  .anchor:hover .tooltip,
+  .anchor:focus-within .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

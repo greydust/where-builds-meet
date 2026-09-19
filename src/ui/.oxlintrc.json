@@ -1,0 +1,23 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "react",
+    "react-perf",
+    "oxc",
+    "import",
+    "jsx-a11y",
+    "vitest",
+    "promise"
+  ],
+  "categories": { "correctness": "error", "suspicious": "error", "pedantic": "error", "perf": "error" },
+  "rules": {
+    // react-in-jsx-scope must stay disabled.
+    // oxlint does not respect React 19's automatic JSX scope insertion, unlike eslint.
+    "react/react-in-jsx-scope": "off"
+  },
+  "env": { "builtin": true, "browser": true }
+}

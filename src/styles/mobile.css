@@ -9,6 +9,15 @@
     margin-inline: auto;
     padding-block: 0.75rem 1rem;
     overflow: visible;
+
+    /* Responsive values for the ui/Panel primitive flow through its scoped
+       variables, since the hashed module classes cannot be targeted here. */
+    --panel-margin-block-end: 0.65rem;
+    --panel-padding: 0.75rem;
+    --panel-radius: var(--radius-xl);
+    --panel-content-min-inline-size: 0;
+    --panel-heading-gap: 0.55rem;
+    --panel-heading-margin-block-end: 0.75rem;
   }
 
   .layout-mobile .page-header {
@@ -98,23 +107,12 @@
     padding-inline: 0.75rem;
   }
 
-  .layout-mobile .panel {
-    margin-block-end: 0.65rem;
-    padding: 0.75rem;
-    border-radius: var(--radius-xl);
-  }
-
   .layout-mobile :is(button, select, input:not([type="hidden"])) {
     min-block-size: 2.75rem;
   }
 
-  .layout-mobile :is(.panel, .panel-heading, .viewport-tab-content, .build-page, .rotation-table) > * {
+  .layout-mobile :is(.viewport-tab-content, .build-page, .rotation-table) > * {
     min-inline-size: 0;
-  }
-
-  .layout-mobile .panel-heading {
-    gap: 0.55rem;
-    margin-block-end: 0.75rem;
   }
 
   .layout-mobile .app-layout {

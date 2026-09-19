@@ -1,3 +1,4 @@
+import { IconArrowUp, IconEdit, IconPlus, IconPointFilled, IconX } from "@tabler/icons-react"
 import { nanoid } from "nanoid"
 import {
   useEffect,
@@ -64,8 +65,9 @@ import { dataText, gameText, t } from "./i18n"
 import { publishNotice, dismissNotice } from "./notices"
 import { createOfficialGearBookmarklet } from "./officialGearBookmarklet"
 import type { WeaponId } from "./types"
-import { Modal } from "./ui/Modal"
-import { UiIcon } from "./UiIcon"
+import { Button } from "./ui/Button"
+import { Dialog } from "./ui/Dialog"
+import { Panel, PanelHeading } from "./ui/Panel"
 
 function gearSlotLabel(slot: GearSlot) {
   return dataText(`system.gearSlot.${slot}`, gearData.slots[slot])
@@ -248,7 +250,7 @@ function RelayedIndicator({ item }: { item?: GearItem }) {
       aria-label={t("ui.buildTab.relayedGear")}
       title={t("ui.buildTab.relayedGear")}
     >
-      <UiIcon name="arrowUp" />
+      <IconArrowUp size="1em" aria-hidden />
     </span>
   ) : null
 }
@@ -313,19 +315,19 @@ export default function BuildTab({
   }
   if (!editingEntry)
     return (
-      <section className="panel build-manager-panel">
+      <Panel className="build-manager-panel">
         <div className="build-manager-layout">
           <aside className="build-list">
             <div className="build-list-heading">
               <span>{t("ui.buildTab.builds")}</span>
-              <button className="button button-secondary button-small" type="button" onClick={addBuild}>
+              <Button className="button-secondary button-small" type="button" onClick={addBuild}>
                 {t("ui.buildTab.newBuild")}
-              </button>
+              </Button>
             </div>
             <p className="array-editor-empty">{t("ui.buildTab.noBuildsMatchTheSelectedMartialArts")}</p>
           </aside>
         </div>
-      </section>
+      </Panel>
     )
   const inventory = resolveBuildInventory(editingEntry, buildState.gearItems, weapons)
   const setup = resolveBuildSetup(editingEntry)
@@ -482,14 +484,14 @@ export default function BuildTab({
   }
 
   return (
-    <section className="panel build-manager-panel">
+    <Panel className="build-manager-panel">
       <div className="build-manager-layout">
         <aside className="build-list">
           <div className="build-list-heading">
             <span>{t("ui.buildTab.builds")}</span>
-            <button className="button button-secondary button-small" type="button" onClick={addBuild}>
+            <Button className="button-secondary button-small" type="button" onClick={addBuild}>
               {t("ui.buildTab.newBuild")}
-            </button>
+            </Button>
           </div>
           <div className="build-list-entries">
             {listedEntries.map(entry => {
@@ -509,7 +511,7 @@ export default function BuildTab({
                       <strong>
                         {entry.id === buildState.activeBuildId && (
                           <i className="active-build-icon" title={t("ui.buildTab.activeBuild")}>
-                            <UiIcon name="active" />
+                            <IconPointFilled size="1em" aria-hidden />
                           </i>
                         )}
                         {buildEntryDisplayName(entry)}
@@ -533,7 +535,7 @@ export default function BuildTab({
                         removeBuild(entry.id)
                       }}
                     >
-                      <UiIcon name="close" />
+                      <IconX size="1em" aria-hidden />
                     </button>
                   )}
                 </div>
@@ -542,9 +544,9 @@ export default function BuildTab({
           </div>
           <div className="build-transfer-actions">
             <div>
-              <button className="button button-secondary button-small" type="button" onClick={exportBuilds}>
+              <Button className="button-secondary button-small" type="button" onClick={exportBuilds}>
                 {t("ui.buildTab.export")}
-              </button>
+              </Button>
               <label className="button button-secondary button-small build-import-button">
                 {t("ui.buildTab.import")}
                 <input
@@ -555,13 +557,13 @@ export default function BuildTab({
                 />
               </label>
             </div>
-            <button
-              className="button button-secondary button-small build-official-import-button"
+            <Button
+              className="button-secondary button-small build-official-import-button"
               type="button"
               onClick={openOfficialImport}
             >
               {t("ui.buildTab.importFromOfficial")}
-            </button>
+            </Button>
           </div>
         </aside>
         <div className="build-editor-content">
@@ -588,18 +590,18 @@ export default function BuildTab({
                       aria-label={t("ui.buildTab.editBuildName")}
                       onClick={() => setEditingName(true)}
                     >
-                      <UiIcon name="edit" />
+                      <IconEdit size="1em" aria-hidden />
                     </button>
                   ) : null}
                 </h3>
               )}
             </div>
             <div className="detail-active-actions">
-              <button className="button button-secondary button-small" type="button" onClick={duplicateBuild}>
+              <Button className="button-secondary button-small" type="button" onClick={duplicateBuild}>
                 {t("ui.app.duplicate")}
-              </button>
-              <button
-                className="button button-small detail-active-button"
+              </Button>
+              <Button
+                className="button-small detail-active-button"
                 type="button"
                 disabled={editingEntry.id === buildState.activeBuildId}
                 onClick={activateBuild}
@@ -607,7 +609,7 @@ export default function BuildTab({
                 {editingEntry.id === buildState.activeBuildId
                   ? t("ui.buildTab.activeBuildAction")
                   : t("ui.buildTab.makeActive")}
-              </button>
+              </Button>
             </div>
           </div>
           <BuildManagement
@@ -636,7 +638,7 @@ export default function BuildTab({
             aria-label={t("ui.buildTab.closeOfficialImport")}
             onClick={() => officialImportDialogRef.current?.close()}
           >
-            <UiIcon name="close" />
+            <IconX size="1em" aria-hidden />
           </button>
         </div>
         <ol className="official-import-steps">
@@ -668,25 +670,21 @@ export default function BuildTab({
           }}
         />
         <div className="official-import-actions">
-          <button
-            className="button button-secondary"
-            type="button"
-            onClick={() => officialImportDialogRef.current?.close()}
-          >
+          <Button className="button-secondary" type="button" onClick={() => officialImportDialogRef.current?.close()}>
             {t("ui.buildTab.cancel")}
-          </button>
-          <button
-            className="button button-primary"
+          </Button>
+          <Button
+            className="button-primary"
             type="button"
             disabled={!officialImportText.trim()}
             onClick={importFromOfficial}
           >
             {t("ui.buildTab.importGear")}
-          </button>
+          </Button>
         </div>
         <p className="official-import-privacy">{t("ui.buildTab.theBookmarkRunsOnlyOnTheOfficialDashboard")}</p>
       </dialog>
-    </section>
+    </Panel>
   )
 }
 
@@ -715,12 +713,12 @@ function BuildSetupPanel({
     definitions: typeof weaponSetDefinitions,
     entries: typeof availableWeaponSets,
   ) => (
-    <section className="panel setup-placeholder-panel build-setup-panel">
-      <div className="panel-heading">
+    <Panel className="setup-placeholder-panel build-setup-panel">
+      <PanelHeading>
         <div>
           <h2>{title}</h2>
         </div>
-      </div>
+      </PanelHeading>
       <div className="gear-set-list">
         {entries.map(([setName, definition]) => {
           const selectedTier = setup[key][setName] ?? 0
@@ -752,16 +750,16 @@ function BuildSetupPanel({
           )
         })}
       </div>
-    </section>
+    </Panel>
   )
   return (
     <div className="build-setup-column" aria-label={t("ui.buildTab.buildSetup")}>
-      <section className="panel setup-placeholder-panel build-setup-panel">
-        <div className="panel-heading">
+      <Panel className="setup-placeholder-panel build-setup-panel">
+        <PanelHeading>
           <div>
             <h2>{t("ui.buildTab.innerWays")}</h2>
           </div>
-        </div>
+        </PanelHeading>
         <div className="inner-way-list">
           {setup.innerWays.map((row, index) => (
             <div className="inner-way-row" key={index}>
@@ -811,16 +809,16 @@ function BuildSetupPanel({
             </div>
           ))}
         </div>
-      </section>
+      </Panel>
       {setPanel(t("ui.buildTab.weaponSet"), "weaponSets", weaponSetDefinitions, availableWeaponSets)}
       {availableArmorSets.length > 0 &&
         setPanel(t("ui.buildTab.armorSet"), "armorSets", armorSetDefinitions, availableArmorSets)}
-      <section className="panel setup-placeholder-panel build-setup-panel">
-        <div className="panel-heading">
+      <Panel className="setup-placeholder-panel build-setup-panel">
+        <PanelHeading>
           <div>
             <h2>{t("ui.buildTab.bowRingSet")}</h2>
           </div>
-        </div>
+        </PanelHeading>
         <div className="setup-option-list setup-option-list-wide">
           {Object.entries(bowRingSetDefinitions).map(([value, definition]) => (
             <button
@@ -835,13 +833,13 @@ function BuildSetupPanel({
             </button>
           ))}
         </div>
-      </section>
-      <section className="panel setup-placeholder-panel build-setup-panel">
-        <div className="panel-heading">
+      </Panel>
+      <Panel className="setup-placeholder-panel build-setup-panel">
+        <PanelHeading>
           <div>
             <h2>{t("ui.buildTab.arsenal")}</h2>
           </div>
-        </div>
+        </PanelHeading>
         <div className="setup-option-list setup-option-list-arsenal">
           {Object.entries(arsenalDefinitions).map(([value, definition]) => (
             <button
@@ -856,14 +854,14 @@ function BuildSetupPanel({
             </button>
           ))}
         </div>
-      </section>
-      <section className="panel setup-placeholder-panel build-setup-panel build-affix-summary-panel">
-        <div className="panel-heading">
+      </Panel>
+      <Panel className="setup-placeholder-panel build-setup-panel build-affix-summary-panel">
+        <PanelHeading>
           <div className="build-affix-summary-heading">
             <h2>{t("ui.buildTab.affixes")}</h2>
             <span>{t("ui.buildTab.affixTotal", { number: affixSummary.total })}</span>
           </div>
-        </div>
+        </PanelHeading>
         {affixSummary.affixes.length > 0 ? (
           <ol className="build-affix-summary-list">
             {affixSummary.affixes.map(({ key, count }) => (
@@ -876,7 +874,7 @@ function BuildSetupPanel({
         ) : (
           <p className="build-affix-summary-empty">{t("ui.buildTab.noAffixes")}</p>
         )}
-      </section>
+      </Panel>
     </div>
   )
 }
@@ -1073,8 +1071,8 @@ function BuildManagement({
           onChange={onSetupChange}
         />
         <div key="gear" className="build-management-grid">
-          <section className="panel build-equipped-panel">
-            <div className="panel-heading">
+          <Panel className="build-equipped-panel">
+            <PanelHeading>
               <div>
                 <h2>{t("ui.buildTab.equippedGear")}</h2>
                 <p>
@@ -1083,7 +1081,7 @@ function BuildManagement({
                     : t("ui.buildTab.selectASlotToEquipGearFromThe")}
                 </p>
               </div>
-            </div>
+            </PanelHeading>
             <div className="equipped-gear-grid">
               {gearSlots.map(slot => {
                 const item = equippedItems[slot]
@@ -1117,11 +1115,11 @@ function BuildManagement({
                 )
               })}
             </div>
-          </section>
+          </Panel>
 
           {!locked && (
-            <section className="panel build-inventory-panel">
-              <div className="panel-heading">
+            <Panel className="build-inventory-panel">
+              <PanelHeading>
                 <div>
                   <h2>{gearSlotLabel(selectedSlot)}</h2>
                   <p>
@@ -1129,7 +1127,7 @@ function BuildManagement({
                     {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
                   </p>
                 </div>
-              </div>
+              </PanelHeading>
               <div className="available-gear-grid">
                 {availableItems.map(item => (
                   <article
@@ -1159,8 +1157,8 @@ function BuildManagement({
                     </div>
                     <GearAttributes item={item} />
                     <div className="gear-card-actions">
-                      <button
-                        className="button button-primary button-small"
+                      <Button
+                        className="button-primary button-small"
                         type="button"
                         disabled={inventory.equipped[selectedSlot] === item.id}
                         onClick={() => equip(item)}
@@ -1168,16 +1166,12 @@ function BuildManagement({
                         {inventory.equipped[selectedSlot] === item.id
                           ? t("ui.buildTab.equippedGearStatus")
                           : t("ui.buildTab.equip")}
-                      </button>
-                      <button
-                        className="button button-secondary button-small"
-                        type="button"
-                        onClick={() => beginEdit(item)}
-                      >
+                      </Button>
+                      <Button className="button-secondary button-small" type="button" onClick={() => beginEdit(item)}>
                         {t("ui.buildTab.edit")}
-                      </button>
-                      <button
-                        className={`button button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`}
+                      </Button>
+                      <Button
+                        className={`button-small ${pendingDeleteId === item.id ? "button-danger" : "button-secondary"}`}
                         type="button"
                         aria-label={
                           pendingDeleteId === item.id ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")
@@ -1185,7 +1179,7 @@ function BuildManagement({
                         onClick={() => remove(item)}
                       >
                         {pendingDeleteId === item.id ? t("ui.buildTab.confirmDelete") : t("ui.buildTab.delete")}
-                      </button>
+                      </Button>
                     </div>
                   </article>
                 ))}
@@ -1197,16 +1191,16 @@ function BuildManagement({
                   data-testid="add-gear"
                 >
                   <span>
-                    <UiIcon name="plus" />
+                    <IconPlus size="1em" aria-hidden />
                   </span>
                   <strong>{t("ui.buildTab.addGear")}</strong>
                 </button>
               </div>
-            </section>
+            </Panel>
           )}
 
           {!locked && selected.definition && (
-            <Modal
+            <Dialog
               open={editing}
               onClose={cancelEditing}
               className="gear-editor-modal"
@@ -1231,7 +1225,7 @@ function BuildManagement({
                   onSave={save}
                 />
               )}
-            </Modal>
+            </Dialog>
           )}
         </div>
       </ResponsiveBuildOverview>

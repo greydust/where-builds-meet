@@ -1,0 +1,7 @@
+@layer ui {
+  .checkbox {
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    font: inherit;
+  }
+}

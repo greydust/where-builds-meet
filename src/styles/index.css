@@ -1,2 +1,2 @@
-/* The import order lives in main.tsx; layers make cascade precedence explicit. */
-@layer tokens, base, layout, components, utilities;
+/* The import order lives in main.tsx; layers make cascade precedence explicit. `ui` is bottom-most. */
+@layer ui, tokens, base, layout, components, utilities;

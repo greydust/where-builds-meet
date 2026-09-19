@@ -44,8 +44,12 @@
     font: inherit;
   }
 
-  .character-profile-controls .button {
+  .character-profile-controls button {
     flex: 0 0 auto;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 8px 10px;
     white-space: nowrap;
   }
@@ -68,7 +72,7 @@
     padding: 12px;
   }
 
-  .stats-panel .panel-heading {
+  .stats-panel .character-stats-heading {
     margin-block-end: 12px;
   }
 
@@ -394,6 +398,10 @@
     min-inline-size: 0;
     align-items: center;
     gap: 0.2rem;
+  }
+
+  .breakthrough-title h2 {
+    margin-block-end: 0;
   }
 
   .breakthrough-control {

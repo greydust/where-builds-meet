@@ -1,0 +1,28 @@
+@layer ui {
+  .dialog {
+    --modal-width: min(47.5rem, calc(100dvw - 2rem));
+    --modal-max-height: calc(100dvh - 3rem);
+    --modal-padding: 20px;
+    --modal-bg: oklch(22% 0.018 270deg);
+    --modal-fg: oklch(96% 0.005 270deg);
+    --modal-border: oklch(32% 0.02 265deg);
+    --modal-radius: 0.625rem;
+    --modal-shadow: 0 24px 70px oklch(0% 0 0deg / 62%);
+    --modal-backdrop: oklch(10% 0.015 265deg / 78%);
+
+    inline-size: var(--modal-width);
+    max-block-size: var(--modal-max-height);
+    overflow-y: auto;
+    border: 1px solid var(--modal-border);
+    border-radius: var(--modal-radius);
+    padding: var(--modal-padding);
+    background: var(--modal-bg);
+    color: var(--modal-fg);
+    box-shadow: var(--modal-shadow);
+  }
+
+  .dialog::backdrop {
+    background: var(--modal-backdrop);
+    backdrop-filter: blur(2px);
+  }
+}

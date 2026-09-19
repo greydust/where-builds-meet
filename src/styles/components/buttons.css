@@ -1,10 +1,21 @@
 @layer components {
+  /* Application-level theme for buttons: the ui/Button primitive owns
+     structure through the scoped `--btn-*` variables below, and the variant
+     classes assign those variables from design tokens. The ui layer provides
+     literal fallbacks, so this bridge only carries theme values. Raw
+     `<button class="button ...">` elements keep working through the same
+     seam while migration to `<Button>` is in progress. */
   .button {
+    --btn-padding: 10px 15px;
+    --btn-radius: var(--radius-lg);
+
     max-inline-size: 100%;
     min-inline-size: 0;
-    border: 1px solid transparent;
-    border-radius: var(--radius-lg);
-    padding: 10px 15px;
+    border: 1px solid var(--btn-border-color, transparent);
+    border-radius: var(--btn-radius);
+    padding: var(--btn-padding);
+    background: var(--btn-bg, transparent);
+    color: var(--btn-fg, inherit);
     cursor: pointer;
     font: inherit;
     font-weight: 650;
@@ -24,55 +35,56 @@
   }
 
   .button-primary {
-    background: var(--primary);
-    color: var(--primary-contrast);
+    --btn-bg: var(--primary);
+    --btn-fg: var(--primary-contrast);
   }
 
   .button-primary:hover:not(:disabled) {
-    background: var(--primary-hover);
+    --btn-bg: var(--primary-hover);
   }
 
   .button-secondary {
-    border-color: var(--border);
-    background: var(--surface);
-    color: var(--text);
+    --btn-border-color: var(--border);
+    --btn-bg: var(--surface);
+    --btn-fg: var(--text);
   }
 
   .button-secondary:hover:not(:disabled) {
-    border-color: var(--primary);
+    --btn-border-color: var(--primary);
   }
 
   .dev-mode-button[aria-pressed="true"] {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--primary-contrast);
+    --btn-border-color: var(--primary);
+    --btn-bg: var(--primary);
+    --btn-fg: var(--primary-contrast);
   }
 
   .dev-mode-button[aria-pressed="true"]:hover:not(:disabled) {
-    background: var(--primary-hover);
+    --btn-bg: var(--primary-hover);
   }
 
   .button-danger {
-    border-color: var(--error-border);
-    background: var(--error-soft);
-    color: var(--error);
+    --btn-border-color: var(--error-border);
+    --btn-bg: var(--error-soft);
+    --btn-fg: var(--error);
   }
 
   .button-danger:hover:not(:disabled) {
-    border-color: var(--error);
-    background: oklch(from var(--error) l c h / 0.22);
+    --btn-border-color: var(--error);
+    --btn-bg: oklch(from var(--error) l c h / 0.22);
   }
 
   .button-small {
-    padding: 5px 9px;
-    border-color: var(--border);
-    background: var(--surface-alt);
-    color: var(--text);
+    --btn-padding: 5px 9px;
+    --btn-border-color: var(--border);
+    --btn-bg: var(--surface-alt);
+    --btn-fg: var(--text);
+
     font-size: inherit;
   }
 
   .button-small:hover:not(:disabled) {
-    border-color: var(--primary);
+    --btn-border-color: var(--primary);
   }
 
   .icon-button {
@@ -110,9 +122,8 @@
     line-height: 1;
   }
 
-  .icon-button .ui-icon,
-  .stat-reset-button .ui-icon,
-  .start-marker .ui-icon {
+  .icon-button .tabler-icon,
+  .stat-reset-button .tabler-icon {
     display: block;
   }
 
