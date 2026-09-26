@@ -1,5 +1,7 @@
 @layer components {
   .field {
+    --stat-value-padding-inline-start: 7px;
+
     display: grid;
     grid-template-columns: minmax(0, 1fr) 112px;
     grid-template-rows: minmax(28px, auto) auto;
@@ -45,7 +47,8 @@
     min-inline-size: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 5px 24px 5px 7px;
+    padding-block: 5px;
+    padding-inline: var(--stat-value-padding-inline-start) 24px;
     background: var(--surface-alt);
     color: var(--text);
     line-height: 20px;

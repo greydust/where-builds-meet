@@ -80,7 +80,7 @@ data/
   debuff/         target effect and encounter-state definitions
   innerway/       cumulative tier rules and triggers
   martial-art/    weapon talent arrays
-  path.json       combat-path status, preset build group, icons, eligibility tags, and optional weapon locks
+  path.json       combat-path status, preset build group, eligibility tags, and optional weapon locks
   rotation/       bundled default rotations
   build/          bundled default build presets
   gear.json       gear slots, item bases, affix choices, and attunement source tags
@@ -111,6 +111,7 @@ src/
     persistence/                  storage keys, migrations, and application loaders
     results/                      shared calculation result presentation
     shell/                        eager notice and feature-boundary components
+  assets/                         source path icons transformed at build time
   features/                       feature UI and feature-local behavior
     analysis/                     breakdown presentation
     build/                        build, gear, OCR, and setup UI
@@ -152,8 +153,14 @@ public/
   divinecraft/                   static selector images copied into the build
   licenses/                      third-party notices copied into the build
   locales/                       generated per-locale runtime message JSON
-  paths/                         static combat-path icons copied into the build
 ```
+
+Combat-path icons live under `src/assets/path-icons/` and are imported with
+`vite-imagetools` using `?w=56&h=56&format=webp`; production builds emit
+optimized 56px WebP assets instead of copying the 512px PNG sources.
+`gameData/pathIcons.ts` binds one icon to each `PathId` and is the only place
+that names a source file, so `data/path.json` carries no image fields and the
+selector renders straight from the `PathId` it is already iterating.
 
 ## UI layering
 

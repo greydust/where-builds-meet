@@ -119,6 +119,7 @@
     grid-column: 2;
     align-self: start;
     min-inline-size: 0;
+    padding-inline-start: var(--stat-value-padding-inline-start);
     color: var(--primary);
     font-weight: 650;
     text-align: start;

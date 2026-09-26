@@ -251,6 +251,13 @@
     scroll-snap-type: inline proximity;
   }
 
+  .layout-mobile .build-list-create {
+    min-inline-size: 9rem;
+    flex: 0 0 auto;
+    border-inline-end: 1px solid var(--border-muted);
+    scroll-snap-align: start;
+  }
+
   .layout-mobile .build-list-item {
     min-inline-size: min(78vw, 15rem);
     border-inline-end: 1px solid var(--border-muted);
@@ -339,6 +346,13 @@
     display: flex;
     overflow-x: auto;
     scroll-snap-type: inline proximity;
+  }
+
+  .layout-mobile .rotation-list-create {
+    min-inline-size: 9rem;
+    flex: 0 0 auto;
+    border-inline-end: 1px solid var(--border-muted);
+    scroll-snap-align: start;
   }
 
   .layout-mobile .rotation-list-item {

@@ -53,6 +53,7 @@ import { type CharacterStats } from "../../types"
 import { Button } from "../../ui/Button"
 import { Panel, PanelHeading } from "../../ui/Panel"
 import { CalculatedStatField } from "./CalculatedStatField"
+import { StatPair } from "./StatPair"
 
 export function StatsTab({
   character,
@@ -468,7 +469,7 @@ export function StatsTab({
             </PanelHeading>
             <div className="stats-grid">
               {physicalRows.map(([left, right], index) => (
-                <div className="stat-row" key={left.key}>
+                <StatPair key={left.key}>
                   <CalculatedStatField
                     definition={left}
                     stats={stats}
@@ -525,10 +526,10 @@ export function StatsTab({
                     }
                     derivedUnit={index === 2 || index === 3 || index === 4 ? "%" : undefined}
                   />
-                </div>
+                </StatPair>
               ))}
               {martialRows.map(([left, right], index) => (
-                <div className="stat-row" key={left.key}>
+                <StatPair key={left.key}>
                   <CalculatedStatField
                     definition={left}
                     stats={stats}
@@ -569,9 +570,9 @@ export function StatsTab({
                       ] as number
                     }
                   />
-                </div>
+                </StatPair>
               ))}
-              <div className="stat-row">
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("minVoidAttack")}
                   compact
@@ -588,9 +589,9 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
+              </StatPair>
               {penetrationRows.map(([left, right]) => (
-                <div className="stat-row" key={left.key}>
+                <StatPair key={left.key}>
                   <CalculatedStatField
                     definition={left}
                     compact
@@ -607,9 +608,9 @@ export function StatsTab({
                     onStatChange={onStatChange}
                     onStatReset={onStatReset}
                   />
-                </div>
+                </StatPair>
               ))}
-              <div className="stat-row">
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("critDmgBonus")}
                   stats={stats}
@@ -631,8 +632,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("physDmgBonus")}
                   compact
@@ -649,8 +650,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("stonesplitDmgBonus")}
                   compact
@@ -667,8 +668,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("silkbindDmgBonus")}
                   compact
@@ -677,9 +678,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-                <span />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("allMartialArts")}
                   compact
@@ -696,8 +696,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 {selectedArtStats.map(definition => (
                   <CalculatedStatField
                     definition={definition}
@@ -709,9 +709,8 @@ export function StatsTab({
                     onStatReset={onStatReset}
                   />
                 ))}
-                {selectedArtStats.length === 1 && <span />}
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={statDefinition("singleTargetMysticDmgBoost")}
                   compact
@@ -728,9 +727,9 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
+              </StatPair>
               {showHealingStats ? (
-                <div className="stat-row">
+                <StatPair>
                   <CalculatedStatField
                     definition={statDefinition("criticalHealingBonus")}
                     compact
@@ -747,9 +746,9 @@ export function StatsTab({
                     onStatChange={onStatChange}
                     onStatReset={onStatReset}
                   />
-                </div>
+                </StatPair>
               ) : null}
-              <div className="stat-row">
+              <StatPair>
                 <CalculatedStatField
                   definition={maxHpStat}
                   compact
@@ -766,8 +765,8 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
-              <div className="stat-row">
+              </StatPair>
+              <StatPair>
                 <CalculatedStatField
                   definition={physicalDefenseStat}
                   compact
@@ -784,7 +783,7 @@ export function StatsTab({
                   onStatChange={onStatChange}
                   onStatReset={onStatReset}
                 />
-              </div>
+              </StatPair>
             </div>
           </Panel>
           <div className="character-secondary-stats">

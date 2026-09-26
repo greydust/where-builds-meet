@@ -1,7 +1,6 @@
 {
   "bellstrikeSplendor": {
     "name": "Splendor",
-    "icon": "splendor.png",
     "tag": "BellstrikeSplendor",
     "status": "plannerOnly",
     "buildGroup": "bellstrike-splendor",
@@ -12,7 +11,6 @@
   },
   "bellstrikeUmbra": {
     "name": "Umbra",
-    "icon": "umbra.png",
     "tag": "BellstrikeUmbra",
     "status": "plannerOnly",
     "buildGroup": "bellstrike-umbra",
@@ -23,7 +21,6 @@
   },
   "stonesplitMight": {
     "name": "Might",
-    "icon": "might.png",
     "tag": "StonesplitMight",
     "status": "available",
     "buildGroup": "stonesplit-might",
@@ -34,7 +31,6 @@
   },
   "stonesplitStrength": {
     "name": "Strength",
-    "icon": "strength.png",
     "tag": "StonesplitStrength",
     "status": "available",
     "buildGroup": "stonesplit-strength",
@@ -45,7 +41,6 @@
   },
   "silkbindJade": {
     "name": "Jade",
-    "icon": "jade.png",
     "tag": "SilkbindJade",
     "status": "plannerOnly",
     "buildGroup": "silkbind-jade",
@@ -56,7 +51,6 @@
   },
   "silkbindDeluge": {
     "name": "Deluge",
-    "icon": "deluge.png",
     "tag": "SilkbindDeluge",
     "status": "available",
     "buildGroup": "silkbind-deluge",
@@ -67,7 +61,6 @@
   },
   "bamboocutWind": {
     "name": "Wind",
-    "icon": "wind.png",
     "tag": "BamboocutWind",
     "status": "available",
     "buildGroup": "bamboocut-wind",
@@ -78,7 +71,6 @@
   },
   "bamboocutDust": {
     "name": "Dust",
-    "icon": "dust.png",
     "tag": "BamboocutDust",
     "status": "wip",
     "buildGroup": "bamboocut-dust",
@@ -89,7 +81,6 @@
   },
   "bamboocutKite": {
     "name": "Kite",
-    "icon": "kite.png",
     "tag": "BamboocutKite",
     "status": "available",
     "buildGroup": "bamboocut-kite",
@@ -100,7 +91,6 @@
   },
   "bamboocutDraught": {
     "name": "Draught",
-    "icon": "draught.png",
     "tag": "BamboocutDraught",
     "status": "plannerOnly",
     "buildGroup": "bamboocut-draught",

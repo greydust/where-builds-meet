@@ -5,7 +5,6 @@ import type { PathId } from "../contracts"
 
 export type PathDefinition = {
   name: string
-  icon?: string
   tag?: string
   status: "available" | "wip" | "devOnly" | "plannerOnly"
   buildGroup: string

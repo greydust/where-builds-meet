@@ -1,9 +1,11 @@
+import { IconBrandDiscord, IconBrandGithub } from "@tabler/icons-react"
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 
 import { settingsForPath } from "./application/characterComposition"
 import { calculateGlobalStatState } from "./application/characterComposition"
 import type { CalculatorSettings, LayoutMode, PathId, SetupSelections } from "./application/contracts"
 import { martialArtDefinitions } from "./application/gameData/martialArts"
+import { pathIcons } from "./application/gameData/pathIcons"
 import {
   defaultBuildIdForPath,
   defaultRotationIdForPath,
@@ -486,22 +488,25 @@ export default function App() {
           <p className="intro">{t("ui.app.buildSimulateAndOptimizeForWhereWindsMeet")}</p>
           <section className="path-selector" aria-label={t("ui.app.combatPath")}>
             <div className="path-selector-options">
-              {(Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).map(([value, definition]) => (
-                <button
-                  className={pathId === value ? "selected" : ""}
-                  type="button"
-                  key={value}
-                  aria-pressed={pathId === value}
-                  disabled={pathRequiresDev(definition) && !devMode}
-                  onClick={() => selectPath(value)}
-                >
-                  {definition.icon && <img src={`${import.meta.env.BASE_URL}paths/${definition.icon}`} alt="" />}
-                  <span>{gameText(definition.name)}</span>
-                  {definition.status !== "available" && (
-                    <Chip className="path-status-badge">{pathStatusLabel(definition)}</Chip>
-                  )}
-                </button>
-              ))}
+              {(Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).map(([value, definition]) => {
+                const icon = pathIcons[value]
+                return (
+                  <button
+                    className={pathId === value ? "selected" : ""}
+                    type="button"
+                    key={value}
+                    aria-pressed={pathId === value}
+                    disabled={pathRequiresDev(definition) && !devMode}
+                    onClick={() => selectPath(value)}
+                  >
+                    {icon && <img src={icon} alt="" />}
+                    <span>{gameText(definition.name)}</span>
+                    {definition.status !== "available" && (
+                      <Chip className="path-status-badge">{pathStatusLabel(definition)}</Chip>
+                    )}
+                  </button>
+                )
+              })}
             </div>
           </section>
         </div>
@@ -534,10 +539,12 @@ export default function App() {
           </div>
           <div className="project-links">
             <a href="https://discord.gg/UtqAw8HaXA" target="_blank" rel="noreferrer">
-              {t("ui.app.discord")}
+              <IconBrandDiscord size="1em" aria-hidden />
+              <span>{t("ui.app.discord")}</span>
             </a>
             <a href="https://github.com/greydust/where-builds-meet" target="_blank" rel="noreferrer">
-              {t("ui.app.github")}
+              <IconBrandGithub size="1em" aria-hidden />
+              <span>{t("ui.app.github")}</span>
             </a>
           </div>
         </div>
@@ -609,6 +616,7 @@ export default function App() {
                 buildGroup={typedPathDefinitions[pathId].buildGroup}
                 graduatedBuildIds={typedPathDefinitions[pathId].graduated}
                 devMode={devMode}
+                activeBuildDps={rotationMetrics?.dps}
                 buildState={effectiveBuildState}
                 onBuildStateChange={setBuildState}
                 onActiveBuildChange={activateBuildForPath}

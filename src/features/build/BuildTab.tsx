@@ -1,4 +1,4 @@
-import { IconArrowUp, IconEdit, IconPlus, IconPointFilled, IconX } from "@tabler/icons-react"
+import { IconArrowUp, IconCopy, IconEdit, IconPlus, IconPointFilled, IconX } from "@tabler/icons-react"
 import { nanoid } from "nanoid"
 import {
   useEffect,
@@ -88,6 +88,7 @@ type BuildTabProps = {
   buildGroup: string
   graduatedBuildIds: string[]
   devMode: boolean
+  activeBuildDps?: number
   buildState: BuildState
   onBuildStateChange: Dispatch<SetStateAction<BuildState>>
   onActiveBuildChange: (id: string) => void
@@ -262,6 +263,7 @@ export default function BuildTab({
   buildGroup,
   graduatedBuildIds,
   devMode,
+  activeBuildDps,
   buildState,
   onBuildStateChange,
   onActiveBuildChange,
@@ -289,11 +291,13 @@ export default function BuildTab({
     // React sanitizes javascript: href props; this trusted, generated bookmarklet must be assigned to the DOM.
     officialBookmarkletRef.current?.setAttribute("href", officialGearBookmarklet)
   }, [officialGearBookmarklet])
-  const listedEntries = buildState.entries.filter(
-    entry =>
-      (devMode || !buildEntryIsTestPreset(entry)) &&
-      (!entry.isDefault || buildEntryAvailableForPath(entry, buildGroup, weapons)),
-  )
+  const listedEntries = buildState.entries
+    .filter(
+      entry =>
+        (devMode || !buildEntryIsTestPreset(entry)) &&
+        (!entry.isDefault || buildEntryAvailableForPath(entry, buildGroup, weapons)),
+    )
+    .sort((left, right) => Number(left.isDefault === true) - Number(right.isDefault === true))
   const editingEntry = listedEntries.find(entry => entry.id === editingBuildId) ?? listedEntries[0]
   if (editingEntry && editingEntry.id !== editingBuildId) setEditingBuildId(editingEntry.id)
   function addBuild() {
@@ -330,6 +334,8 @@ export default function BuildTab({
         </div>
       </Panel>
     )
+  const showActiveBuildDps =
+    editingEntry.id === buildState.activeBuildId && activeBuildDps !== undefined && activeBuildDps > 0
   const inventory = resolveBuildInventory(editingEntry, buildState.gearItems, weapons)
   const setup = resolveBuildSetup(editingEntry)
   const usageCounts = new Map<string, number>()
@@ -490,11 +496,12 @@ export default function BuildTab({
         <aside className="build-list">
           <div className="build-list-heading">
             <span>{t("ui.buildTab.builds")}</span>
-            <Button variant="secondary" size="small" type="button" onClick={addBuild}>
-              {t("ui.buildTab.newBuild")}
-            </Button>
           </div>
           <div className="build-list-entries">
+            <Button className="build-list-create" variant="secondary" size="small" type="button" onClick={addBuild}>
+              <IconPlus size="1em" aria-hidden />
+              <span>{t("ui.buildTab.newBuild")}</span>
+            </Button>
             {listedEntries.map(entry => {
               const incompatible = !buildEntryAvailableForMartialArts(entry, weapons)
               return (
@@ -578,7 +585,7 @@ export default function BuildTab({
         </aside>
         <div className="build-editor-content">
           <div className="build-detail-heading">
-            <div>
+            <div className="build-detail-title">
               {editingName && !editingEntry.isDefault ? (
                 <input
                   ref={buildNameInputRef}
@@ -605,10 +612,23 @@ export default function BuildTab({
                   ) : null}
                 </h3>
               )}
+              {showActiveBuildDps ? (
+                <small className="build-detail-dps">
+                  ({formatNumber(Math.round(activeBuildDps))} {t("system.dps")})
+                </small>
+              ) : null}
             </div>
             <div className="detail-active-actions">
-              <Button variant="secondary" size="small" type="button" onClick={duplicateBuild}>
-                {t("ui.app.duplicate")}
+              <Button
+                className="build-duplicate-button"
+                aria-label={t("ui.app.duplicate")}
+                title={t("ui.app.duplicate")}
+                variant="secondary"
+                size="small"
+                type="button"
+                onClick={duplicateBuild}
+              >
+                <IconCopy size="1em" aria-hidden />
               </Button>
               <Button
                 className="detail-active-button"

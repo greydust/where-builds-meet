@@ -52,6 +52,7 @@
     "typescript": "^7.0.2",
     "typescript-classic": "npm:typescript@^5.9.2",
     "vite": "^8.3.0",
+    "vite-imagetools": "^12.0.1",
     "vitest": "^5.0.0"
   },
   "lint-staged": {

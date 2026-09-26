@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto"
 
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import { imagetools } from "vite-imagetools"
 
 const buildVersion = randomUUID()
 
@@ -11,6 +12,7 @@ export default defineConfig(({ command }) => ({
   optimizeDeps: { entries: ["index.html"] },
   plugins: [
     react(),
+    imagetools(),
     {
       name: "deployment-version",
       generateBundle() {

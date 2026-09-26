@@ -192,6 +192,7 @@
       display: inline-flex;
       min-block-size: 44px;
       align-items: center;
+      gap: 6px;
       color: var(--primary);
       font-weight: 700;
       text-decoration: none;
