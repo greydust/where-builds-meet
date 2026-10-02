@@ -7,6 +7,7 @@ import { build } from "esbuild"
 import { describe, it } from "vitest"
 
 import { retainAssets } from "../script/deploy/retain-assets.mjs"
+import { documentWithVisibility, urlOf, windowWithLifecycle } from "./helpers/domStubs"
 
 // Ported from script/probe/check-deployment-updates.mjs.
 describe("deployment-updates", () => {
@@ -15,16 +16,16 @@ describe("deployment-updates", () => {
     const originalFetch = globalThis.fetch
     const day = 24 * 60 * 60 * 1000
     const site = "https://example.test/where-builds-meet/"
-    let liveFiles = new Map()
-    const requested = []
-    globalThis.fetch = async url => {
-      const location = new URL(url)
+    let liveFiles = new Map<string, string>()
+    const requested: string[] = []
+    globalThis.fetch = async input => {
+      const location = new URL(urlOf(input))
       assert.equal(location.origin + location.pathname.split("/").slice(0, 2).join("/") + "/", site)
       requested.push(location.pathname)
       const body = liveFiles.get(location.pathname.slice("/where-builds-meet/".length))
       return new Response(body ?? "Not found", { status: body === undefined ? 404 : 200 })
     }
-    const createBuild = async (name, files) => {
+    const createBuild = async (name: string, files: Record<string, string>) => {
       const directory = path.join(temporary, name)
       await mkdir(path.join(directory, "assets"), { recursive: true })
       await writeFile(path.join(directory, "index.html"), name)
@@ -33,7 +34,7 @@ describe("deployment-updates", () => {
       )
       return directory
     }
-    const publish = async directory => {
+    const publish = async (directory: string) => {
       liveFiles = new Map([["asset-history.json", await readFile(path.join(directory, "asset-history.json"), "utf8")]])
       const assetFiles = await readdir(path.join(directory, "assets"))
       const assetContents = await Promise.all(
@@ -42,6 +43,20 @@ describe("deployment-updates", () => {
       for (const [file, content] of assetContents) liveFiles.set(`assets/${file}`, content)
     }
 
+    // Installed before the try so teardown can restore them unconditionally.
+
+    const navigations: string[] = []
+
+    const lifecycle = windowWithLifecycle({
+      href: `${site}?existing=1#rotation`,
+
+      onNavigate: url => navigations.push(url),
+
+      intervalMs: 60000,
+    })
+
+    const documentStub = documentWithVisibility()
+
     try {
       const previous = await createBuild("legacy", { "old-123.js": "legacy lazy chunk", "shared-123.js": "shared" })
       const first = await createBuild("first", { "new-456.js": "new chunk", "shared-123.js": "shared" })
@@ -49,7 +64,9 @@ describe("deployment-updates", () => {
       assert.equal(await readFile(path.join(first, "assets/old-123.js"), "utf8"), "legacy lazy chunk")
       assert.equal(await readFile(path.join(first, "index.html"), "utf8"), "first")
       await publish(first)
-      assert.deepEqual(JSON.parse(liveFiles.get("asset-history.json")).assets, {
+      const firstHistory = liveFiles.get("asset-history.json")
+      assert(firstHistory, "Publishing must record the asset history.")
+      assert.deepEqual(JSON.parse(firstHistory).assets, {
         "new-456.js": null,
         "shared-123.js": null,
         "old-123.js": 17 * day,
@@ -58,7 +75,9 @@ describe("deployment-updates", () => {
       const second = await createBuild("second", { "latest-789.js": "latest chunk", "shared-123.js": "shared" })
       await retainAssets({ dist: second, previous: "absent-archive", site, now: 12 * day })
       await publish(second)
-      const inventory = JSON.parse(liveFiles.get("asset-history.json")).assets
+      const secondHistory = liveFiles.get("asset-history.json")
+      assert(secondHistory, "Publishing must record the asset history.")
+      const inventory = JSON.parse(secondHistory).assets
       assert.equal(inventory["old-123.js"], 17 * day, "Subsequent releases must not extend retired assets' deadlines.")
       assert.equal(inventory["new-456.js"], 19 * day, "A replaced current asset receives seven days from replacement.")
       assert.equal(liveFiles.get("assets/old-123.js"), "legacy lazy chunk")
@@ -90,51 +109,33 @@ describe("deployment-updates", () => {
           __APP_VERSION__: JSON.stringify("running"),
         },
       })
-      const updates = await import(
+      const updates = (await import(
         `data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString("base64")}`
-      )
-      const windowEvents = new EventTarget()
-      const documentEvents = new EventTarget()
-      let periodicCheck
-      const navigations = []
-      globalThis.window = Object.assign(windowEvents, {
-        location: {
-          origin: "https://example.test",
-          href: site + "?existing=1#rotation",
-          replace: url => navigations.push(url),
-        },
-        setInterval: (callback, delay) => {
-          assert.equal(delay, 60000)
-          periodicCheck = callback
-          return 1
-        },
-        clearInterval: () => {
-          periodicCheck = undefined
-        },
-      })
-      globalThis.document = Object.assign(documentEvents, { visibilityState: "visible" })
+      )) as typeof import("../src/deploymentUpdates") & typeof import("../src/notices")
       let version = "running"
       let offline = false
       let checks = 0
-      globalThis.fetch = async (url, options) => {
+      globalThis.fetch = async (input, options) => {
         checks++
-        assert.equal(new URL(url).pathname, "/where-builds-meet/version.json")
+        assert(options, "The version check must be fetched with options.")
+        const location = new URL(urlOf(input))
+        assert.equal(location.pathname, "/where-builds-meet/version.json")
         assert.equal(options.cache, "no-store")
-        assert(new URL(url).searchParams.has("check"))
+        assert(location.searchParams.has("check"))
         if (offline) throw new Error("offline")
         return Response.json({ version })
       }
-      const flush = () => new Promise(resolve => setImmediate(resolve))
+      const flush = () => new Promise<void>(resolve => setImmediate(resolve))
       let notices = 0
       const unsubscribe = updates.subscribeToNotices(() => notices++)
       const stop = updates.startDeploymentUpdates()
       await flush()
       assert.equal(updates.getDeploymentUpdate(), "current")
       offline = true
-      await periodicCheck()
+      await lifecycle.runPeriodicCheck()
       assert.equal(updates.getDeploymentUpdate(), "current", "Offline checks must not announce a new deployment.")
       const importError = new TypeError("Failed to fetch dynamically imported module")
-      windowEvents.dispatchEvent(Object.assign(new Event("vite:preloadError"), { payload: importError }))
+      lifecycle.events.dispatchEvent(Object.assign(new Event("vite:preloadError"), { payload: importError }))
       await flush()
       assert.equal(updates.getDeploymentUpdate(), "load-error")
       assert(
@@ -144,33 +145,35 @@ describe("deployment-updates", () => {
       assert(!updates.isDeploymentImportError(new Error("unrelated")))
       offline = false
       version = "new-release"
-      windowEvents.dispatchEvent(new Event("online"))
+      lifecycle.events.dispatchEvent(new Event("online"))
       await flush()
       assert.equal(updates.getDeploymentUpdate(), "available")
       assert.equal(notices, 2)
-      await periodicCheck()
+      await lifecycle.runPeriodicCheck()
       assert.equal(notices, 2, "Repeated checks must not reannounce the same update.")
       updates.publishNotice({ id: "build-import", message: "Invalid build file", error: true })
       updates.publishNotice({ id: "rotation-transfer", message: "Imported rotation" })
       assert.equal(updates.getNotices().length, 3, "Independent notices must coexist with a deployment notice.")
       updates.publishNotice({ id: "build-import", message: "Corrected build file" })
       assert.equal(updates.getNotices().length, 3, "A source replaces its previous message without duplicating it.")
-      assert.equal(updates.getNotices().find(notice => notice.id === "build-import").message, "Corrected build file")
+      const corrected = updates.getNotices().find(notice => notice.id === "build-import")
+      assert(corrected, "The corrected notice must be the one still listed.")
+      assert.equal(corrected.message, "Corrected build file")
       updates.dismissNotice("build-import")
       assert.deepEqual(
         updates.getNotices().map(notice => notice.id),
         ["deployment", "rotation-transfer"],
       )
       updates.dismissNotice("deployment")
-      await periodicCheck()
+      await lifecycle.runPeriodicCheck()
       assert(
         !updates.getNotices().some(notice => notice.id === "deployment"),
         "Dismissed updates must not reappear every minute.",
       )
       assert.equal(navigations.length, 0, "Detecting a release or import error must never reload automatically.")
-      document.visibilityState = "hidden"
+      documentStub.setVisibility("hidden")
       const beforeHiddenCheck = checks
-      await periodicCheck()
+      await lifecycle.runPeriodicCheck()
       assert.equal(checks, beforeHiddenCheck)
       updates.reloadDeployment()
       assert.equal(navigations.length, 1)
@@ -180,13 +183,13 @@ describe("deployment-updates", () => {
       assert(reload.searchParams.has("app-reload"))
       stop()
       unsubscribe()
-      document.visibilityState = "visible"
-      windowEvents.dispatchEvent(new Event("focus"))
+      documentStub.setVisibility("visible")
+      lifecycle.events.dispatchEvent(new Event("focus"))
       assert.equal(checks, beforeHiddenCheck, "Cleanup must remove event listeners and timers.")
     } finally {
       globalThis.fetch = originalFetch
-      delete globalThis.window
-      delete globalThis.document
+      lifecycle.restore()
+      documentStub.restore()
       await rm(temporary, { recursive: true, force: true })
     }
   })

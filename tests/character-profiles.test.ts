@@ -1,5 +1,7 @@
 import { assert, describe, it } from "vitest"
 
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
 // Ported from script/probe/check-character-profiles.mjs.
 describe("character-profiles", () => {
   it("Character profile validation, matching, export, and collision-safe import checks passed", async () => {
@@ -21,7 +23,7 @@ describe("character-profiles", () => {
         buildSetup: { gearSets: { Cleftpeak: 2, RainWhisper: 2 }, bowRingSet: "Precision", arsenal: "Stonesplit" },
         food: "SimmeringFishSlices",
         divinecraft: "FireWater",
-        globalDebuffs: { phantomChime: true },
+        globalDebuffs: { ...defaultGlobalDebuffs, phantomChime: true },
       },
     ])
     assert(parsed.length === 1 && parsed[0].name === "Test Profile", "Profiles must load with a trimmed name.")

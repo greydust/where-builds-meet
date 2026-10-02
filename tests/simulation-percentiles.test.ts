@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest"
 
+import type { SimulationSummary } from "@/calculations/simulationCalculator"
 import { addCustomPercentile, loadCustomPercentiles } from "@/features/simulation/customPercentiles"
-import { resultRowsHeal, simulationResultRows, type SimulationSummary } from "@/features/simulation/simulationResults"
+import { resultRowsHeal, simulationResultRows } from "@/features/simulation/simulationResults"
 
 const storageKey = "wwm-simulation-percentiles-v1"
 

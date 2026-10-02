@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import type { CharacterStats } from "@/types"
+
 import generalBuffs from "../data/buff/general.json"
 import mystic from "../data/skill/mystic.json"
 import { calculateDamageBreakdown } from "../src/calculations/damage"
+import type { DamageAction, DamageContext } from "../src/calculations/damage"
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 import { emptyStats } from "../src/data/statDefinitions"
+import { asEffectDefinitions, asSkillRecords, skillActions } from "./helpers/shippedData"
 
 /** The base-animation route of skill 2300061: two collider markers inside one cast. */
 const LUNGE_TIME = 0.45096195999999994
@@ -22,10 +28,10 @@ const Observe: TimelineBuildInput["skills"][string] = {
 
 const input = (steps: RotationStep[], extra: Partial<TimelineBuildInput> = {}): TimelineBuildInput => ({
   rotation: { name: "Yaksha Rush", ping: 40, steps },
-  skills: { ...mystic, Observe },
+  skills: asSkillRecords({ ...mystic, Observe }),
   eventDefinitions: {},
   dots: {},
-  effectDefinitions: { ...generalBuffs },
+  effectDefinitions: asEffectDefinitions({ ...generalBuffs }),
   innerWayConditions: [],
   innerWayRules: [],
   setupEffects: [],
@@ -77,17 +83,17 @@ describe("Yaksha Rush", () => {
 
   it("routes both hits through the single-target mystic boost only", () => {
     const skillTags = mystic.YakshaRush.tags ?? []
-    const context = {
-      stats: { ...emptyStats, minPhys: 100, maxPhys: 100, singleTargetMysticDmgBoost: 0.1, areaMysticDmgBoost: 0.2 },
-      attunement: {
-        physicalPenetration: 0,
-        formlessPenetration: 0,
-        phalanxbaneChargedBoost: 0,
-        phalanxbaneMartialBoost: 0,
-        snowpartingChargedBoost: 0,
-        snowpartingVariedComboBoost: 0,
-        snowpartingMartialBoost: 0,
-      },
+    const probeStats: CharacterStats = {
+      ...emptyStats,
+      minPhys: 100,
+      maxPhys: 100,
+      singleTargetMysticDmgBoost: 0.1,
+      areaMysticDmgBoost: 0.2,
+    }
+    const context: DamageContext = {
+      stats: probeStats,
+      skillTags: [],
+      attunement: emptyAttunementStats,
       weapons: [],
       buffs: [],
       enemy: {
@@ -101,13 +107,17 @@ describe("Yaksha Rush", () => {
         bamboocutResistance: 0,
         judgementResistance: 0,
       },
-      derivedStats: {},
+      derivedStats: calculateDerivedStats(probeStats, 0),
       effects: [{ stat: {} }],
     }
     const total = (tags: string[]) =>
-      mystic.YakshaRush.action
+      skillActions(asSkillRecords(mystic).YakshaRush)
         .filter(action => action.type === "damage")
-        .reduce((sum, action) => sum + calculateDamageBreakdown(action, { ...context, skillTags: tags }).total, 0)
+        .reduce(
+          (sum, action) =>
+            sum + calculateDamageBreakdown(action as DamageAction, { ...context, skillTags: tags }).total,
+          0,
+        )
     const untagged = total(["Mystic"])
     expect(total(skillTags) / untagged).toBeCloseTo(1.1, 9)
   })

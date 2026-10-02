@@ -3,11 +3,13 @@ import { act, createElement } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { CalculatorSettings } from "@/application/contracts"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import { useGearComparison } from "@/features/build/useGearComparison"
 import { buildPresetInventory, defaultBuildPresets, type BuildEntry, type GearItem, type GearSlot } from "@/gear"
 
 import { dpsResolves, resetDpsMock } from "./helpers/dpsStoreMock"
+import { weaponPair } from "./helpers/weaponPair"
 
 /**
  * Which candidates a slot asks about changes on every scroll; what any one of them measures to does
@@ -57,7 +59,11 @@ function fixture(spares = 3) {
     id: `spare-${index}`,
     baseAffix: { ...worn.baseAffix, value: worn.baseAffix.value * (1 + (index + 1) / 10) },
   })
-  const settings = { weapons: [...preset.martialArts], breakthrough: "17", ping: 40 }
+  const settings = {
+    weapons: weaponPair(preset.martialArts),
+    breakthrough: "17",
+    ping: 40,
+  } satisfies CalculatorSettings
   return {
     worn,
     gearItems: [...inventory.items, ...Array.from({ length: spares }, (_, index) => spare(index))],

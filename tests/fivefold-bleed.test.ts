@@ -2,15 +2,26 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
+
+import type {
+  EffectDefinition,
+  SkillRecord,
+  TimelineBuildInput,
+  TimelineRow,
+} from "../src/calculations/rotationTimeline.ts"
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { actionNumber, rowWithId } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-fivefold-bleed.mjs.
 describe("fivefold-bleed", () => {
   it("Fivefold Bleed chance, atomic threshold bursts, fresh cadence, generic application rules, exhaustive expected-state and simulation checks passed", async () => {
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
-    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad(
-      "/src/calculations/rotationCalculator.ts",
-    )
+    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad<
+      typeof import("../src/calculations/rotationCalculator")
+    >("/src/calculations/rotationCalculator.ts")
     const { simulateRotation } = await import("../src/calculations/simulationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
@@ -19,8 +30,12 @@ describe("fivefold-bleed", () => {
     const way = innerWayDefinitionForSoloLevel((await import("../data/innerway/fivefold-bleed.json")).default, 17)
     const dots = (await import("../data/dot/innerway.json")).default
     // Retain exact-cadence regression coverage; the battle-grid probe tests the authored approximation.
-    const exactDots = structuredClone(dots)
-    delete exactDots.WeepingBlood.periodic.expectedTickAlignment
+    // One table serves as both the DOT definitions and the effect definitions here, so it is
+    // narrowed to what each of those reads.
+    const exactDots = structuredClone(dots) as Record<string, SkillRecord & EffectDefinition>
+    const weepingBlood = exactDots.WeepingBlood
+    assert(weepingBlood.periodic, "Weeping Blood must declare its tick cadence.")
+    delete weepingBlood.periodic.expectedTickAlignment
     const { PiercingDamage: piercingDefinition } = (await import("../data/skill/general.json")).default
     // Isolate independent application histories; the full feedback chain is tested
     // separately with the unmodified skill in check-fivefold-bleed-loops.mjs.
@@ -28,10 +43,11 @@ describe("fivefold-bleed", () => {
       ...piercingDefinition,
       tags: piercingDefinition.tags.filter(tag => tag !== "DirectDamage"),
     }
-    const rule = { source: "FivefoldBleed", tier: 0, effect: {}, trigger: way.effect.FivefoldBleedT0.trigger[0] }
-    const close = (actual, expected, message) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} != ${expected}`)
-    const inputFor = (times, tags = ["DirectDamage"]) => ({
+    const firstTierTrigger = way.effect.FivefoldBleedT0.trigger
+    assert(firstTierTrigger, "Fivefold Bleed T0 must declare its trigger.")
+    const rule = { source: "FivefoldBleed", tier: 0, effect: {}, trigger: firstTierTrigger[0] }
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
+    const inputFor = (times: number[], tags: string[] = ["DirectDamage"]): TimelineBuildInput => ({
       rotation: { name: "Bleed probe", steps: [{ type: "skill", skill: "Hits" }] },
       skills: {
         PiercingDamage,
@@ -50,8 +66,13 @@ describe("fivefold-bleed", () => {
       setupEffects: [],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
-    const ticks = rows => rows.filter(row => row.kind === "dot")
-    const times = rows => ticks(rows).map(row => Math.round(row.startTime * 100) / 100)
+    const skillDamage = (result: RotationSimulationBaseline, id: string) => {
+      const entry = result.metrics.breakdown.skills.find(skill => skill.id === id)
+      assert(entry, `Expected ${id} in the damage breakdown.`)
+      return entry
+    }
+    const ticks = (rows: TimelineRow[]) => rows.filter(row => row.kind === "dot")
+    const times = (rows: TimelineRow[]) => ticks(rows).map(row => Math.round(row.startTime * 100) / 100)
     const single = buildRotationTimeline(inputFor([0]), () => 0)
     assert.deepEqual(times(single), [1.01, 2.01, 3.01, 4.01])
     assert.equal(ticks(single)[0].actions[0].damageScale, 1)
@@ -68,7 +89,7 @@ describe("fivefold-bleed", () => {
       "DOT must not recursively proc the bleed.",
     )
     const capped = buildRotationTimeline(inputFor([0, 0.1, 0.2, 0.3, 0.4, 4.5]), () => 0)
-    const bursts = rows => rows.filter(row => row.step.skill === "PiercingDamage")
+    const bursts = (rows: TimelineRow[]) => rows.filter(row => row.step.skill === "PiercingDamage")
     assert.deepEqual(
       bursts(capped).map(row => row.startTime),
       [0.4],
@@ -112,7 +133,7 @@ describe("fivefold-bleed", () => {
         for (const row of ticks(rolled)) {
           const key = Math.round(row.startTime * 10000)
           const current = expectedTicks.get(key) ?? { stack: 0, probability: 0 }
-          current.stack += probability * row.actions[0].damageScale
+          current.stack += probability * actionNumber(row, "damageScale")
           current.probability += probability
           expectedTicks.set(key, current)
         }
@@ -125,18 +146,22 @@ describe("fivefold-bleed", () => {
       assert.equal(expected.length, expectedTicks.size)
       for (const row of expected) {
         const oracle = expectedTicks.get(Math.round(row.startTime * 10000))
-        close(row.actions[0].damageScale, oracle.stack, "Exact expected unscaled tick damage")
-        close(row.actions[0].hitProbability, oracle.probability, "Exact expected hit count")
+        assert(oracle, "Every expected tick must have an oracle entry.")
+        close(actionNumber(row, "damageScale"), oracle.stack, "Exact expected unscaled tick damage")
+        close(actionNumber(row, "hitProbability"), oracle.probability, "Exact expected hit count")
       }
-      const actualBursts = new Map()
+      const actualBursts = new Map<number, number>()
       for (const row of bursts(buildRotationTimeline(input))) {
         const key = Math.round(row.startTime * 10000)
-        actualBursts.set(key, (actualBursts.get(key) ?? 0) + row.actions[0].hitProbability)
-        close(row.actions[0].damageScale, row.actions[0].hitProbability, "One burst per threshold branch")
+        actualBursts.set(key, (actualBursts.get(key) ?? 0) + actionNumber(row, "hitProbability"))
+        close(actionNumber(row, "damageScale"), actionNumber(row, "hitProbability"), "One burst per threshold branch")
       }
       assert.equal(actualBursts.size, expectedBursts.size)
-      for (const [time, probability] of expectedBursts)
-        close(actualBursts.get(time), probability, "Exact expected burst count")
+      for (const [time, probability] of expectedBursts) {
+        const actual = actualBursts.get(time)
+        assert(actual !== undefined, `Every expected burst must occur at ${time}.`)
+        close(actual, probability, "Exact expected burst count")
+      }
     }
 
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, minSilkbind: 10000, maxSilkbind: 10000, precision: 1 }
@@ -151,11 +176,11 @@ describe("fivefold-bleed", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const bundle = {
+    const bundle: RotationSimulationBundle = {
       timeline: inputFor([0]),
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: ["panaceaFan", "soulshadeUmbrella"],
@@ -168,7 +193,7 @@ describe("fivefold-bleed", () => {
     const fiveHitBundle = { ...bundle, timeline: inputFor(Array(5).fill(0)) }
     const fiveHitExpected = calculateRotationBaseline(fiveHitBundle)
     close(
-      fiveHitExpected.metrics.breakdown.skills.find(skill => skill.id === "PiercingDamage").damage,
+      skillDamage(fiveHitExpected, "PiercingDamage").damage,
       100 * 0.1 ** 5,
       "Expected burst has only its physical coefficient",
     )
@@ -191,7 +216,7 @@ describe("fivefold-bleed", () => {
     const manual = buildRotationTimeline(manualInput)
     assert.equal(bursts(manual).length, 1, "Ordinary apply actions use the same threshold rule")
     assert.equal(ticks(manual).length, 0, "Ordinary applications cancel pending DOT ticks atomically")
-    assert.ok(manual.find(row => row.id === "rotation-0").actionStates[2].debuffs.has("WeepingBlood") === false)
+    assert.ok(rowWithId(manual, "rotation-0").actionStates[2].debuffs.has("WeepingBlood") === false)
     const generic = {
       ...manualInput,
       skills: {
@@ -208,8 +233,17 @@ describe("fivefold-bleed", () => {
       },
       dots: {},
       effectDefinitions: {
-        ThresholdBuff: { duration: 5, maxStack: 3, onMaxStack: { consume: "all", trigger: "Burst" } },
+        ThresholdBuff: {
+          duration: 5,
+          maxStack: 3,
+          onMaxStack: { consume: "all", trigger: "Burst" },
+        } satisfies EffectDefinition,
       },
+    }
+    const castDamage = (result: RotationSimulationBaseline, skillId: string) => {
+      const cast = result.metrics.breakdown.casts.find(candidate => candidate.skillId === skillId)
+      assert(cast, `Expected a cast breakdown for ${skillId}.`)
+      return cast.damage
     }
     const genericRows = buildRotationTimeline(generic)
     assert.equal(
@@ -217,23 +251,29 @@ describe("fivefold-bleed", () => {
       1,
       "Thresholds use the data-defined cap and skill, including overflow",
     )
-    assert.ok(genericRows.find(row => row.id === "rotation-0").actionStates[2].buffs.has("ThresholdBuff") === false)
+    const genericState = rowWithId(genericRows, "rotation-0").actionStates[2]
+    assert(genericState, "The opening cast must record its post-action state.")
+    assert.ok(genericState.buffs.has("ThresholdBuff") === false)
     const uncappedInput = inputFor([0, 0.1, 0.2, 0.3, 0.4, 4.5])
     const { onMaxStack: _threshold, ...ordinaryDot } = dots.WeepingBlood
-    uncappedInput.dots = { WeepingBlood: ordinaryDot }
+    assert(ordinaryDot.periodic, "Weeping Blood must declare its tick cadence.")
+    uncappedInput.dots = {
+      WeepingBlood: { ...ordinaryDot, periodic: { ...ordinaryDot.periodic, expectedTickAlignment: "battle" as const } },
+    }
     uncappedInput.effectDefinitions = uncappedInput.dots
     const ordinaryRows = buildRotationTimeline(uncappedInput, () => 0)
     assert.equal(bursts(ordinaryRows).length, 0)
     assert.ok(
-      ticks(ordinaryRows).every(
-        row => row.actions[0].damageScale === 1 && row.actionStates[0].debuffs.get("WeepingBlood")?.stack === 5,
-      ),
+      ticks(ordinaryRows).every(row => {
+        const state = row.actionStates[0]
+        return actionNumber(row, "damageScale") === 1 && state?.debuffs.get("WeepingBlood")?.stack === 5
+      }),
       "Effects without a threshold rule retain capped stacks without multiplying tick damage",
     )
     assert.equal(times(ordinaryRows).at(-1), 9.01, "Ordinary capped applications still refresh duration")
-    const bleed = baseline.metrics.breakdown.skills.find(skill => skill.id === "WeepingBlood")
-    close(bleed.damage, 4 * 2 * 0.1, "Expected physical-only damage")
-    close(bleed.hits, 4 * 0.1, "Expected tick count")
+    const bleedDamage = skillDamage(baseline, "WeepingBlood")
+    close(bleedDamage.damage, 4 * 2 * 0.1, "Expected physical-only damage")
+    close(bleedDamage.hits, 4 * 0.1, "Expected tick count")
     const splitCasts = calculateRotationBaseline({
       ...bundle,
       timeline: {
@@ -261,18 +301,10 @@ describe("fivefold-bleed", () => {
         },
       },
     })
+    close(castDamage(splitCasts, "First"), 100, "Earlier cast excludes Inner Way damage")
+    close(castDamage(splitCasts, "Second"), 100, "Refreshing cast excludes Inner Way damage")
     close(
-      splitCasts.metrics.breakdown.casts.find(cast => cast.skillId === "First").damage,
-      100,
-      "Earlier cast excludes Inner Way damage",
-    )
-    close(
-      splitCasts.metrics.breakdown.casts.find(cast => cast.skillId === "Second").damage,
-      100,
-      "Refreshing cast excludes Inner Way damage",
-    )
-    close(
-      splitCasts.metrics.breakdown.casts.find(cast => cast.skillId === "FivefoldBleed").damage,
+      castDamage(splitCasts, "FivefoldBleed"),
       0.09 * 8 + 0.09 * 8 + 0.01 * 12,
       "All refresh histories contribute to the shared Inner Way group",
     )
@@ -289,8 +321,10 @@ describe("fivefold-bleed", () => {
     const withProc = simulateRotation(bundle, 1, () => 0)
     close(withProc.runs[0].totalDamage, 108, "Simulation must include successful DOTs")
 
-    const system = (await import("../data/system.json")).default
-    const withResources = {
+    const system = (await import("../data/system.json")).default as {
+      resourceEvents: TimelineBuildInput["resourceEvents"]
+    }
+    const withResources: TimelineBuildInput = {
       ...bundle.timeline,
       initialResources: { Vitality: 0 },
       resourceMaximums: { Vitality: 100 },
@@ -299,14 +333,18 @@ describe("fivefold-bleed", () => {
       resourceEvents: system.resourceEvents,
     }
     const resourceRows = buildRotationTimeline(withResources)
+    const lastResourceRow = ticks(resourceRows).at(-1)
+    assert(lastResourceRow, "The resource rotation must produce at least one tick.")
     close(
-      ticks(resourceRows).at(-1).resources.Vitality,
+      lastResourceRow.resources.Vitality,
       2.1 + 2.1 * 0.1,
       "Expected base recovery shares its cooldown and weights accepted DOT recovery by tick probability",
     )
     const guaranteedResources = buildRotationTimeline(withResources, () => 0)
+    const lastGuaranteedRow = ticks(guaranteedResources).at(-1)
+    assert(lastGuaranteedRow, "The guaranteed resource rotation must produce at least one tick.")
     close(
-      ticks(guaranteedResources).at(-1).resources.Vitality,
+      lastGuaranteedRow.resources.Vitality,
       4.2,
       "Simulation resources must use concrete tick hits and the base recovery cooldown",
     )
@@ -335,7 +373,7 @@ describe("fivefold-bleed", () => {
     const dense = buildRotationTimeline(inputFor(Array.from({ length: 220 }, (_, index) => index * 0.037)))
     assert.ok(ticks(dense).length > 1000, "Dense rotations must retain the union of possible tick cadences")
     assert.ok(
-      ticks(dense).at(-1).startTime > 12,
+      (ticks(dense).at(-1)?.startTime ?? 0) > 12,
       "Expected branches must not truncate the timeline at the ordinary event budget",
     )
   })

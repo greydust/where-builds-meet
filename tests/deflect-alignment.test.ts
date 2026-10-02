@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
 
+import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+import { migrateAutomaticDelays } from "@/rotationEditing"
+
 import general from "../data/skill/general.json"
-import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
-import { migrateAutomaticDelays } from "../src/rotationEditing"
+import { asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const attack = (startTime: number): RotationStep => ({ type: "event", event: "TakeDamage", startTime, damage: 200 })
@@ -10,7 +12,7 @@ const end = (startTime: number): RotationStep => ({ type: "event", event: "Battl
 function input(steps: RotationStep[]): TimelineBuildInput {
   return {
     rotation: { name: "Deflect alignment", ping: 40, steps },
-    skills: { ...general, Lead: { castTime: 1, ignorePing: true, action: [] } },
+    skills: asSkillRecords({ ...general, Lead: { castTime: 1, ignorePing: true, action: [] } }),
     eventDefinitions: {
       TakeDamage: { action: [{ type: "takeDamage", time: 0 }] },
       BattleEnd: { action: [] },
@@ -97,7 +99,7 @@ describe("Successful Deflect attack alignment", () => {
     data.weapons = ["heavenwill"]
     data.martialArtState = { heavenwill: { weapon: "Gauntlet" } } as TimelineBuildInput["martialArtState"]
     data.skills.DeflectSuccessful = {
-      ...general.DeflectSuccessful,
+      ...asSkillRecords(general).DeflectSuccessful,
       modifier: [{ effect: { castTimeMultiplier: 0.5 } }],
     }
     const deflect = successful(buildRotationTimeline(data))[0]
@@ -108,7 +110,7 @@ describe("Successful Deflect attack alignment", () => {
   it("respects cooldown readiness and does not let a later reset bypass the attack wait", () => {
     const data = input([cast("DeflectSuccessful"), cast("DeflectSuccessful"), attack(0.1), attack(5), end(6)])
     data.skills.DeflectSuccessful = {
-      ...general.DeflectSuccessful,
+      ...asSkillRecords(general).DeflectSuccessful,
       cooldown: 10,
       action: [{ type: "trigger", value: "Reset", time: 0 }],
     }
@@ -139,7 +141,7 @@ describe("Successful Deflect attack alignment", () => {
       attack(5),
       end(6),
     ])
-    data.skills.DeflectSuccessful = { ...general.DeflectSuccessful, cooldown: 3 }
+    data.skills.DeflectSuccessful = { ...asSkillRecords(general).DeflectSuccessful, cooldown: 3 }
     expect(damage(buildRotationTimeline(data))).toEqual([0, 200, 0])
   })
   it("ends at the aligned response when no Battle End is specified", () => {

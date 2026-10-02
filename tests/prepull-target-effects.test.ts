@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest"
 import { rotationEventDefinitions } from "../src/application/gameData/rotationEffects"
 import { effectDefinitions } from "../src/application/gameData/skills"
 import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
+import { rowWithId } from "./helpers/timelineRows"
 
 // The fight-start anchor is the boundary for anything that goes on the target. A
 // prepull cast is a real rotation step that produces its own damage, so this is
@@ -102,11 +103,11 @@ describe("prepull target effects", () => {
         },
       },
     )
-    const anchored = timeline.find(row => row.id === "rotation-0")!
+    const anchored = rowWithId(timeline, "rotation-0")!
     // The fight opens on the anchored hit, not on the cast start and not on the earlier action.
     expect(timeline[0].battleStartTime).toBeCloseTo(anchored.startTime + 0.5, 8)
     // Row snapshots capture state at row start, so the following row shows what landed.
-    const after = timeline.find(row => row.id === "rotation-1")!
+    const after = rowWithId(timeline, "rotation-1")!
     expect(debuffNames(after)).toContain("Candlelight")
     expect(debuffNames(after)).not.toContain("FearfulBlade")
   })

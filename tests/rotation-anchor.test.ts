@@ -1,5 +1,9 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 // Ported from script/probe/check-rotation-anchor.mjs.
 describe("rotation-anchor", () => {
   it("Rotation start-anchor damage and hit-count checks passed", async () => {
@@ -9,15 +13,7 @@ describe("rotation-anchor", () => {
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
-    const attunement = {
-      physicalPenetration: 0,
-      formlessPenetration: 0,
-      phalanxbaneChargedBoost: 0,
-      phalanxbaneMartialBoost: 0,
-      snowpartingChargedBoost: 0,
-      snowpartingVariedComboBoost: 0,
-      snowpartingMartialBoost: 0,
-    }
+    const attunement = emptyAttunementStats
     const enemy = {
       name: "Probe",
       level: 1,
@@ -29,7 +25,7 @@ describe("rotation-anchor", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const timeline = {
+    const timeline: TimelineBuildInput = {
       rotation: { name: "Anchor probe", steps: [{ type: "skill", skill: "ProbeSkill" }] },
       skills: {
         ProbeSkill: {
@@ -52,7 +48,7 @@ describe("rotation-anchor", () => {
       setupEffects: [],
       weapons: [],
     }
-    const bundle = {
+    const bundle: RotationSimulationBundle = {
       timeline,
       startAnchor: { rowId: "rotation-0", actionIndex: 2 },
       stats,
@@ -67,7 +63,7 @@ describe("rotation-anchor", () => {
     }
     const result = calculateRotationSimulation(bundle)
     const cachedBaseline = calculateRotationBaseline(bundle)
-    const comparisonProgress = []
+    const comparisonProgress: Array<[number, number]> = []
     const cachedComparisons = calculateRotationComparisons(bundle, cachedBaseline, (completed, total) =>
       comparisonProgress.push([completed, total]),
     )
@@ -134,7 +130,7 @@ describe("rotation-anchor", () => {
       triggerTimeline.find(row => row.kind === "trigger")?.sourceRowId === "rotation-0",
       "Inner Way-triggered actions must retain their originating base skill row.",
     )
-    const durationTimeline = {
+    const durationTimeline: TimelineBuildInput = {
       rotation: { name: "Duration probe", steps: [{ type: "skill", skill: "DurationSkill" }] },
       skills: {
         DurationSkill: {
@@ -163,7 +159,7 @@ describe("rotation-anchor", () => {
         },
       },
     }
-    const durationBundle = {
+    const durationBundle: RotationSimulationBundle = {
       ...bundle,
       timeline: durationTimeline,
       startAnchor: { rowId: "rotation-0" },

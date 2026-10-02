@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import thundercry from "../data/martial-art/thundercry-blade.json"
+import { martialArtDefinitions } from "@/application/gameData/martialArts"
+
 import { calculateStatsWithEffects, resolveFormulaValue } from "../src/calculations/statEffects"
 import { martialArtEffectsForRank } from "../src/data/martialArtTalents"
 import { emptyStats } from "../src/data/statDefinitions"
 
-const effects = martialArtEffectsForRank({ thundercryBlade: thundercry }, ["thundercryBlade"], 13).filter(
+/** Rank 13's unconditional Thundercry talents. */
+const effects = martialArtEffectsForRank(martialArtDefinitions, ["thundercry"], 13).filter(
   effect => !("requirement" in effect),
 )
 

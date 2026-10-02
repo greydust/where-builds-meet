@@ -2,6 +2,17 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import type { RotationRecord, RotationStep, TimelineRow } from "@/calculations/rotationTimeline"
+
+import { castStep, delayStep } from "./helpers/rotationSteps"
+
+/** The single timeline row the spec reads for the ordered step at `index`. */
+function rowWithIndex(rows: readonly TimelineRow[], index: number): TimelineRow {
+  const row = rows.find(candidate => candidate.rotationIndex === index)
+  assert(row, `Expected a timeline row for rotation step ${index}.`)
+  return row
+}
+
 // Ported from script/probe/check-incremental-timeline.mjs.
 describe("incremental-timeline", () => {
   it("Incremental scheduling passed: live cooldown resets, no input waits, cast/Delay/Battle End cutoffs and migration anchors", async () => {
@@ -35,16 +46,10 @@ describe("incremental-timeline", () => {
         ],
       },
     }
-    const rotation = {
-      name: "Live reset",
-      steps: [
-        { type: "skill", skill: "Hit" },
-        { type: "skill", skill: "Hit" },
-      ],
-    }
+    const rotation: RotationRecord = { name: "Live reset", steps: [castStep("Hit"), castStep("Hit")] }
     const result = calculateEditorTimeline({ ...base, skills, rotation })
     assert.equal(result.rotation, rotation)
-    const second = result.timeline.find(row => row.rotationIndex === 1)
+    const second = rowWithIndex(result.timeline, 1)
     assert.equal(second.startTime, 3, "A delayed trigger must wake the next waiting skill when it clears cooldown")
     assert.equal(second.cooldownWait, 2)
     assert.equal(result.timeline[0].timelineEndTime, 4)
@@ -64,31 +69,28 @@ describe("incremental-timeline", () => {
       rotation: {
         name: "Waiting attachment",
         steps: [
-          rotation.steps[0],
+          castStep("Hit"),
           { type: "event", event: "Buff", buff: "ReadyBuff", before: { action: "start" } },
-          rotation.steps[1],
+          castStep("Hit"),
         ],
       },
     })
+    assert.equal(rowWithIndex(attached, 1).startTime, 3, "Before-start attachments wait until the cast becomes ready")
     assert.equal(
-      attached.find(row => row.rotationIndex === 1).startTime,
-      3,
-      "Before-start attachments wait until the cast becomes ready",
-    )
-    assert.equal(
-      attached.find(row => row.rotationIndex === 2).actionStates[0].buffs.get("ReadyBuff")?.stack,
+      rowWithIndex(attached, 2).actionStates[0].buffs.get("ReadyBuff")?.stack,
       1,
       "The attachment is still active at the accepted cast's hit",
     )
 
-    const build = steps => buildRotationTimeline({ ...base, skills, rotation: { name: "Cutoff", steps } })
-    const damageTimes = rows =>
+    const build = (steps: RotationStep[]) =>
+      buildRotationTimeline({ ...base, skills, rotation: { name: "Cutoff", steps } })
+    const damageTimes = (rows: TimelineRow[]) =>
       rows.flatMap(row =>
-        row.actions.flatMap(action => (action.type === "damage" ? [row.startTime + action.time] : [])),
+        row.actions.flatMap(action => (action.type === "damage" ? [row.startTime + Number(action.time ?? 0)] : [])),
       )
-    const tail = { type: "skill", skill: "Tail" }
+    const tail = castStep("Tail")
     assert.deepEqual(damageTimes(build([tail])), [1], "Cast-end damage resolves, delayed tail does not")
-    assert.deepEqual(damageTimes(build([tail, { type: "event", event: "Delay", duration: 1 }])), [1, 2])
+    assert.deepEqual(damageTimes(build([tail, delayStep(1)])), [1, 2])
     assert.deepEqual(damageTimes(build([tail, { type: "event", event: "BattleEnd", startTime: 3 }])), [1, 2])
     assert.deepEqual(
       damageTimes(build([tail, { type: "event", event: "BattleEnd", startTime: 1 }])),
@@ -107,7 +109,7 @@ describe("incremental-timeline", () => {
       stopped,
     )
     assert.equal(
-      displayed.find(row => row.rotationIndex === 2).actions.length,
+      rowWithIndex(displayed, 2).actions.length,
       0,
       "Unreached input remains editable without expanded actions",
     )
@@ -120,8 +122,10 @@ describe("incremental-timeline", () => {
       resourceRegeneration: { Energy: 1 },
       rotation: { name: "Quiet cast tail", steps: [{ type: "event", event: "Delay", duration: 3 }] },
     })
+    const tailRow = resourceTail[0]
+    assert(tailRow?.timelineResourceSummary, "The tail row must carry its resource summary.")
     assert.equal(
-      resourceTail[0].timelineResourceSummary.Energy.final,
+      tailRow.timelineResourceSummary.Energy.final,
       3,
       "Passive regeneration includes the final quiet cast/Delay tail",
     )
@@ -131,12 +135,8 @@ describe("incremental-timeline", () => {
       cooldownPolicy: "skip",
       rotation: { ...rotation, steps: [...rotation.steps, tail] },
     })
-    assert(skipped.find(row => row.rotationIndex === 1).skipped)
-    assert.equal(
-      skipped.find(row => row.rotationIndex === 2).startTime,
-      1,
-      "Skipping an unavailable cast advances the ordered cursor",
-    )
+    assert(rowWithIndex(skipped, 1).skipped)
+    assert.equal(rowWithIndex(skipped, 2).startTime, 1, "Skipping an unavailable cast advances the ordered cursor")
     assert.throws(
       () =>
         buildRotationTimeline({
@@ -156,7 +156,16 @@ describe("incremental-timeline", () => {
         steps: [{ type: "event", event: "BattleEnd", startTime: 7 }],
       },
     })
-    assert.equal(timedOnly.filter(row => row.step.automatic === "targetAttack").length, 2)
+    assert.equal(
+      timedOnly.filter(
+        row =>
+          row.step.type === "event" &&
+          row.step.event === "TakeDamage" &&
+          "automatic" in row.step &&
+          row.step.automatic === "targetAttack",
+      ).length,
+      2,
+    )
     const legacy = {
       name: "Legacy",
       steps: [
@@ -166,10 +175,13 @@ describe("incremental-timeline", () => {
         tail,
       ],
       start: { step: 3, action: 0 },
-    }
+    } satisfies RotationRecord
     const migrated = migrateAutomaticDelays(legacy)
+    assert(migrated.start, "The migrated rotation must keep its anchor.")
     assert.equal(migrated.start.step, 2)
-    assert.equal(migrated.steps[1].buff, "Example")
+    const buffStep = migrated.steps[1]
+    assert(buffStep?.type === "event" && buffStep.event === "Buff", "The anchored Buff event must survive migration.")
+    assert.equal(buffStep.buff, "Example")
     assert.equal(migrated.steps[2], tail)
     assert.equal(migrateAutomaticDelays(migrated), migrated)
     assert.deepEqual(

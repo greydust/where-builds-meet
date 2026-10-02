@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest"
 
+import type { EditableObject } from "@/calculations/rotationTimeline"
+
 import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
 
 describe("periodic effect lifecycle", () => {
-  function build(followUp, periodicTags = ["DOT"]) {
+  function build(followUp: EditableObject, periodicTags: string[] = ["DOT"]) {
     const pulse = {
       duration: 3,
       maxStack: 1,

@@ -1,8 +1,13 @@
 import { describe, expect, it } from "vitest"
 
-import windBuffs from "../data/buff/bamboocut-wind.json"
-import infernal from "../data/skill/infernal-twinblades.json"
-import mortal from "../data/skill/mortal-rope-dart.json"
+import windBuffsJson from "../data/buff/bamboocut-wind.json"
+const windBuffs = asEffectDefinitions(windBuffsJson)
+import infernalJson from "../data/skill/infernal-twinblades.json"
+const infernal = asSkillRecords(infernalJson)
+
+import mortalJson from "../data/skill/mortal-rope-dart.json"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+const mortal = asSkillRecords(mortalJson)
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })

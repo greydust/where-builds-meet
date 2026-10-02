@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+
 // Ported from script/probe/check-default-rotation.mjs.
 describe("default-rotation", () => {
   it("Infinite Vitality default rotation sequence and calculation checks passed", async () => {
@@ -34,8 +39,8 @@ describe("default-rotation", () => {
     }
     const result = calculateRotationBaseline({
       timeline: {
-        rotation: { ...rotation, targetType: "Dummy" },
-        skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
+        rotation: { ...rotation, targetType: "Dummy" } as RotationRecord,
+        skills: asSkillRecords({ ...snowparting, ...phalanxbane, ...mystic, ...general }),
         eventDefinitions: {
           Qi: {
             name: "Qi",
@@ -48,8 +53,8 @@ describe("default-rotation", () => {
           Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }] },
           BattleEnd: { name: "Battle End", castTime: 0, action: [] },
         },
-        dots,
-        effectDefinitions: { ...mysticBuffs, ...generalBuffs, ...dots },
+        dots: asSkillRecords(dots),
+        effectDefinitions: asEffectDefinitions({ ...mysticBuffs, ...generalBuffs, ...dots }),
         innerWayConditions: [],
         innerWayRules: [],
         setupEffects: [],
@@ -57,7 +62,7 @@ describe("default-rotation", () => {
       },
       startAnchor: { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, enemy.judgementResistance),
       weapons: ["snowparting", "phalanxbane"],

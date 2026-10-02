@@ -10,18 +10,27 @@ import { rotationBundleFingerprint } from "@/calculations/calculationFingerprint
 import { normalizePing, resolvePing } from "@/calculations/combatDefaults"
 import {
   buildRotationTimeline,
+  type RotationStep,
   type SkillRecord,
   type TimelineBuildInput,
-  type RotationStep,
 } from "@/calculations/rotationTimeline"
+import type { RotationEntry } from "@/rotationTransfer"
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries } from "@/rotationTransfer"
+
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const hit: SkillRecord = { castTime: 1, action: [{ type: "damage", time: 1, phyCoef: 1 }] }
 const step = (skill: string): RotationStep => ({ type: "skill", skill })
-function input(skills: Record<string, SkillRecord>, steps: RotationStep[], ping = 40): TimelineBuildInput {
+/**
+ * A ping probe over a skills table.
+ *
+ * The tables come straight off the shipped JSON, so each record keeps the shape
+ * TypeScript inferred for its own file rather than the one the timeline declares.
+ */
+function input(skills: unknown, steps: RotationStep[], ping = 40): TimelineBuildInput {
   return {
     rotation: { name: "Ping", ping, steps },
-    skills,
+    skills: asSkillRecords(skills),
     eventDefinitions: {},
     dots: {},
     effectDefinitions: {},
@@ -154,7 +163,7 @@ describe("ping scheduling", () => {
 
   it.each([false, true])("charges Poet per selected action (initial Intoxicated: %s)", intoxicated => {
     const data = input(mystic, [step("DrunkenPoet5HitsCancel")])
-    data.effectDefinitions = mysticBuffs
+    data.effectDefinitions = asEffectDefinitions(mysticBuffs)
     data.initialResources = { Vitality: 100 }
     data.resourceMaximums = { Vitality: 100 }
     if (intoxicated) data.initialBuffs = [{ name: "Intoxicated", stack: 1 }]
@@ -227,7 +236,7 @@ describe("ping settings and persistence", () => {
   })
 
   it.each([undefined, 0, 87.5])("round-trips rotation ping %s through persistence and transfer", ping => {
-    const entries = [
+    const entries: RotationEntry[] = [
       { id: "ping", martialArts: ["snowparting"], rotation: { name: "Ping", ping, steps: [step("Hit")] } },
     ]
     const stored = JSON.parse(serializeRotationEntries(entries))

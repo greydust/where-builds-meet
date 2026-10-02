@@ -5,6 +5,7 @@ import { assert, afterEach, beforeEach, expect, it, vi } from "vitest"
 
 import App from "@/App"
 import type { EditorTimelineResult } from "@/calculations/editorTimeline"
+import type { RotationStep } from "@/calculations/rotationTimeline"
 import { initializeI18n } from "@/i18n"
 
 import english from "../public/locales/en.json"
@@ -128,7 +129,7 @@ it("adds a timed Hellfire event, edits signed amounts, and saves it", async () =
   expect(
     dpsBundles("editorTimeline").some(bundle =>
       bundle.timeline.rotation.steps.some(
-        step => step.type === "event" && step.event === "Hellfire" && step.amount === 25,
+        (step: RotationStep) => step.type === "event" && step.event === "Hellfire" && step.amount === 25,
       ),
     ),
   ).toBe(true)

@@ -9,7 +9,9 @@ import { probeLoad } from "./helpers/probe-loader.js"
 // needs that canonical row or the selector silently falls back to English.
 describe("innerway-canonical-names", () => {
   it("gives every registered Inner Way a canonical translation row", async () => {
-    const { innerWayDefinitions } = await probeLoad("/src/data/innerWayDefinitions.ts")
+    const { innerWayDefinitions } = await probeLoad<typeof import("../src/data/innerWayDefinitions")>(
+      "/src/data/innerWayDefinitions.ts",
+    )
     const catalog = await readFile(new URL("../locales/translations.csv", import.meta.url), "utf8")
     const rows = new Map(
       catalog

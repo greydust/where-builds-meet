@@ -4,4 +4,8 @@
 // (`/src/...`, `/data/...`); this helper lives in tests/helpers/, two levels
 // below the root like the former script/probe/ checks did relative to theirs,
 // so a `../..` prefix resolves them.
-export const probeLoad = (path: string) => import(/* @vite-ignore */ `../..${path}`)
+//
+// The module is named by the caller: a computed specifier resolves to `any`, and
+// everything a spec destructured from here was unchecked until each one said
+// which module it meant.
+export const probeLoad = <M>(path: string): Promise<M> => import(/* @vite-ignore */ `../..${path}`) as Promise<M>

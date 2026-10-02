@@ -1,12 +1,19 @@
 import { describe, expect, it } from "vitest"
 
-import windBuffs from "../data/buff/bamboocut-wind.json"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
+import windBuffsJson from "../data/buff/bamboocut-wind.json"
+const windBuffs = asEffectDefinitions(windBuffsJson)
 import sets from "../data/gear-set.json"
-import infernal from "../data/skill/infernal-twinblades.json"
-import mortal from "../data/skill/mortal-rope-dart.json"
+import infernalJson from "../data/skill/infernal-twinblades.json"
+const infernal = asSkillRecords(infernalJson)
+import mortalJson from "../data/skill/mortal-rope-dart.json"
+const mortal = asSkillRecords(mortalJson)
+
 import { calculateRotationBaseline, type RotationSimulationBundle } from "../src/calculations/rotationCalculator"
 import type { RotationStep } from "../src/calculations/rotationTimeline"
 import { emptyStats } from "../src/data/statDefinitions"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 function bundle(judgementResistance: number): RotationSimulationBundle {
@@ -39,7 +46,7 @@ function bundle(judgementResistance: number): RotationSimulationBundle {
       judgementResistance,
     },
     weapons: ["infernalTwinblades", "mortalRopeDart"],
-    attunement: {},
+    attunement: emptyAttunementStats,
     statPriority: [],
     attunementPriority: [],
     innerWayPriority: [],

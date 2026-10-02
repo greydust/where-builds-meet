@@ -1,11 +1,15 @@
 import { expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
 import buffs from "../data/buff/stonesplit-strength.json"
 import skills from "../data/skill/thundercry-blade.json"
 import { calculateDamageBreakdown } from "../src/calculations/damage"
 import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
 import { emptyStats } from "../src/data/statDefinitions"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { rowCasting } from "./helpers/timelineRows"
 it.each([
   ["Avalanche", 1.85, 1.545, [0.318, 1]],
   ["Avalanche1", 2, 0.318, [0.318]],
@@ -23,12 +27,12 @@ it.each([
           { type: "skill", skill: "Observe" },
         ],
       },
-      skills: {
+      skills: asSkillRecords({
         ...skills,
         Prepare: { castTime: 0, action: [{ type: "apply", target: "self", value: "Riposte", time: 0 }] },
         Observe: { castTime: 0, action: [] },
-      },
-      effectDefinitions: buffs,
+      }),
+      effectDefinitions: asEffectDefinitions(buffs),
       eventDefinitions: {},
       dots: {},
       weapons: ["thundercry"],
@@ -47,7 +51,7 @@ it.each([
       expect(slow.actionStates[i + 1]).toBeDefined()
     }
     expect(slow.startTime).toBeCloseTo(fast.startTime + releaseDuration + 0.04)
-    expect(timeline.find(row => row.step.skill === "Observe")!.startTime).toBeCloseTo(
+    expect(rowCasting(timeline, "Observe")!.startTime).toBeCloseTo(
       slow.startTime + releaseDuration + chargeDuration + 0.04,
     )
   },
@@ -56,7 +60,7 @@ it("resolves Avalanche hit damage from the corrected datamined coefficients and 
   const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, minStonesplit: 1000, maxStonesplit: 1000, precision: 1 }
   const context = {
     stats,
-    attunement: {},
+    attunement: emptyAttunementStats,
     weapons: ["thundercry" as const],
     skillTags: skills.Avalanche.tags,
     buffs: [],

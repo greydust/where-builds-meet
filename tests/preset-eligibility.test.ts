@@ -3,11 +3,21 @@ import path from "node:path"
 
 import { assert, describe, it } from "vitest"
 
+import type { PathId } from "@/application/contracts"
+import { typedPathDefinitions } from "@/application/gameData/paths"
+import type { PathDefinition } from "@/application/gameData/paths"
+import { gearData, statRollsForLevel } from "@/gear"
+import type { BuildPreset, BuildPresetGear, GearSlot } from "@/gear"
+
+// The build and rotation presets share the fields this spec reads; only a build
+// preset carries gear, so the shared shape is the intersection of the two.
+type PresetPayload = Pick<BuildPreset, "id" | "martialArts" | "relayed" | "test"> & Partial<Pick<BuildPreset, "gear">>
+
 // Ported from script/probe/check-preset-eligibility.mjs.
 describe("preset-eligibility", () => {
   it("Preset eligibility consistency checks passed", async () => {
-    const readJson = async file => JSON.parse(await readFile(file, "utf8"))
-    const collectJsonFiles = async root => {
+    const readJson = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, "utf8")) as T
+    const collectJsonFiles = async (root: string): Promise<string[]> => {
       const entries = await readdir(root, { withFileTypes: true })
       const nested = await Promise.all(
         entries.map(async entry => {
@@ -18,7 +28,7 @@ describe("preset-eligibility", () => {
       )
       return nested.flat()
     }
-    const assertUniqueMartialArts = (definition, file) => {
+    const assertUniqueMartialArts = (definition: PresetPayload, file: string) => {
       assert(
         Array.isArray(definition.martialArts) && definition.martialArts.length >= 2,
         `${file} must declare at least two eligible martial arts.`,
@@ -29,13 +39,11 @@ describe("preset-eligibility", () => {
       )
     }
 
-    const paths = await readJson("data/path.json")
-    const statCaps = await readJson("data/stat.json")
-    const gearData = await readJson("data/gear.json")
-    const lockedMartialArts = new Set()
+    const paths = typedPathDefinitions
+    const lockedMartialArts = new Set<string>()
     const allowedStatuses = new Set(["available", "wip", "devOnly", "plannerOnly"])
-    const pathByBuildGroup = new Map()
-    for (const [pathId, definition] of Object.entries(paths)) {
+    const pathByBuildGroup = new Map<string, { pathId: PathId; definition: PathDefinition }>()
+    for (const [pathId, definition] of Object.entries(paths) as Array<[PathId, PathDefinition]>) {
       assert(allowedStatuses.has(definition.status), `Path ${pathId} must declare a recognized status.`)
       assert(
         typeof definition.buildGroup === "string" && definition.buildGroup,
@@ -57,12 +65,12 @@ describe("preset-eligibility", () => {
 
     const buildFiles = await collectJsonFiles("data/build")
     const rotationFiles = await collectJsonFiles("data/rotation")
-    const presetMartialArts = new Set()
-    const buildPresetIds = new Set()
-    const buildsById = new Map()
-    const rotationsById = new Map()
+    const presetMartialArts = new Set<string>()
+    const buildPresetIds = new Set<string>()
+    const buildsById = new Map<string, { definition: PresetPayload; file: string; buildGroup?: string }>()
+    const rotationsById = new Map<string, { definition: PresetPayload; file: string }>()
     const presetPayloads = await Promise.all(
-      [...buildFiles, ...rotationFiles].map(async file => [file, await readJson(file)] as const),
+      [...buildFiles, ...rotationFiles].map(async file => [file, await readJson<PresetPayload>(file)] as const),
     )
     for (const [file, definition] of presetPayloads) {
       assertUniqueMartialArts(definition, file)
@@ -129,16 +137,19 @@ describe("preset-eligibility", () => {
           graduateBuild.definition.relayed !== true,
           `Path ${pathId}'s graduate build ${graduateBuild.definition.id} cannot be relayed.`,
         )
-        for (const [slot, gear] of Object.entries(graduateBuild.definition.gear ?? {})) {
+        for (const [slot, gear] of Object.entries(graduateBuild.definition.gear ?? {}) as [
+          GearSlot,
+          BuildPresetGear,
+        ][]) {
           assert(gear.relayed !== true, `Path ${pathId}'s graduate ${slot} cannot be relayed.`)
-          const affixCaps = statCaps[String(gear.level)]?.affix
+          const affixCaps = statRollsForLevel(gear.level)?.affix
           assert(affixCaps, `Path ${pathId}'s graduate ${slot} has unsupported gear level ${gear.level}.`)
           const gearDefinition = gearData.gear[gear.definitionId]
           assert(
             gearDefinition?.slots.includes(slot),
             `Path ${pathId}'s graduate ${slot} uses an invalid gear definition.`,
           )
-          const allowedAffixes = category => {
+          const allowedAffixes = (category: "baseAffixes" | "additionalAffixes") => {
             const options = gearDefinition[category]
             const relayOnly = new Set(options[`${gear.level}Relayed`] ?? [])
             const standard = (options[String(gear.level)] ?? []).filter(key => !relayOnly.has(key))

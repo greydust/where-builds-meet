@@ -1,5 +1,7 @@
 import { assert, describe, it } from "vitest"
 
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+
 // Ported from script/probe/check-worker-batch-supersession.mjs.
 describe("worker-batch-supersession", () => {
   it("runs independent batches in parallel and keeps each worker's baseline cache separate", async () => {
@@ -16,25 +18,28 @@ describe("worker-batch-supersession", () => {
     const workers: FakeWorker[] = []
     // A request whose bundle is marked `hold` stays in flight, which is how a test
     // keeps one worker busy while another picks up the next request.
-    let respondWhen: (message: any) => boolean = () => true
+    let respondWhen: (message: WorkerMessage) => boolean = () => true
+
+    /** The request a fake worker receives; the spec reads its mode, cache key and bundle. */
+    type WorkerMessage = { id: string; mode: string; cacheKey?: string; baseline?: unknown; bundle: { hold?: boolean } }
 
     class FakeWorker {
-      listeners = new Map()
-      messages: any[] = []
+      listeners = new Map<string, Array<(event: unknown) => void>>()
+      messages: WorkerMessage[] = []
       terminated = false
 
       constructor() {
         workers.push(this)
       }
 
-      addEventListener(type, listener) {
+      addEventListener(type: string, listener: (event: unknown) => void) {
         const listeners = this.listeners.get(type) ?? []
         listeners.push(listener)
         this.listeners.set(type, listeners)
       }
 
-      postMessage(message) {
-        this.messages.push(message)
+      postMessage(message: WorkerMessage) {
+        this.messages.push(message as WorkerMessage)
         const settle = () => {
           if (this.terminated || !respondWhen(message)) return
           for (const listener of this.listeners.get("message") ?? []) {
@@ -53,6 +58,8 @@ describe("worker-batch-supersession", () => {
     const held: Array<() => void> = []
     globalThis.Worker = FakeWorker as unknown as typeof Worker
 
+    // A request bundle the fake workers accept. `hold` is a marker only these
+    // stubs read; the transport passes the request through without inspecting it.
     const bundle = {
       duration: 1,
       baseline: [],
@@ -60,10 +67,11 @@ describe("worker-batch-supersession", () => {
       attunementPriority: [],
       innerWayPriority: [],
       setupComparisons: {},
-    }
-    const holdingBundle = { ...bundle, hold: true }
+    } as unknown as RotationSimulationBundle
+    const holdingBundle = { ...bundle, hold: true } as RotationSimulationBundle
     const cachedBaseline = { metrics, timeline: [], anchorTime: 0, duration: 1, actionBreakdowns: {}, baseline: [] }
-    const sent = (predicate: (message: any) => boolean) => workers.flatMap(worker => worker.messages).filter(predicate)
+    const sent = (predicate: (message: WorkerMessage) => boolean) =>
+      workers.flatMap(worker => worker.messages).filter(predicate)
 
     try {
       const { disposeCalculationWorkers, dispatchCalculation } =

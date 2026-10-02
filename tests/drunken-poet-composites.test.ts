@@ -1,8 +1,16 @@
 import { describe, expect, it } from "vitest"
 
+import type { RotationRecord, RotationStep, TrackedEffect } from "@/calculations/rotationTimeline"
+import { buildRotationTimeline } from "@/calculations/rotationTimeline"
+
 import mysticBuffs from "../data/buff/mystic.json"
 import mysticSkills from "../data/skill/mystic.json"
-import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
+import { isClose } from "./helpers/floatEquality"
+
+/** The action an attached event names, when the step is one. */
+function attachedActionOf(step: RotationStep | undefined) {
+  return step && "before" in step ? step.before.action : undefined
+}
 
 // Ported from script/probe/check-drunken-poet-composites.mjs.
 describe("drunken-poet-composites", () => {
@@ -12,7 +20,7 @@ describe("drunken-poet-composites", () => {
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
     const { migrateDrunkenPoetSequences } = await import("../src/rotationEditing.ts")
     const { normalizeStartAction } = await import("../src/application/rotationCatalog.ts")
-    const closeTo = (actual, expected) => Math.abs((actual ?? Number.NaN) - expected) < 1e-9
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const componentTimes = [0.58, 0.436, 0.55, 0.6, 0.5382]
     const compositeIds = [
       "DrunkenPoet1Hit",
@@ -21,7 +29,7 @@ describe("drunken-poet-composites", () => {
       "DrunkenPoet4Hits",
       "DrunkenPoet5HitsCancel",
     ]
-    const timelineFor = (skillId, initialBuffs = []) =>
+    const timelineFor = (skillId: string, initialBuffs: TrackedEffect[] = []) =>
       buildRotationTimeline({
         rotation: { name: `${skillId} probe`, steps: [{ type: "skill", skill: skillId }] },
         skills,
@@ -85,27 +93,30 @@ describe("drunken-poet-composites", () => {
       row => row.step.type === "skill" && row.step.skill === "DrunkenPoet5HitsCancel",
     )
     expect(
-      expiringPoet?.actions.filter(action => action.type === "damage" && action.type !== "inactive").length === 2,
+      expiringPoet?.actions.filter(action => action.type === "damage").length === 2,
       "Each Poet component must recheck Intoxicated and stop the remaining chain after it expires.",
     ).toBeTruthy()
 
-    const migrated = migrateDrunkenPoetSequences({
+    const legacyChain: RotationRecord = {
       name: "Legacy Poet chain",
       steps: [
         { type: "event", event: "Buff", before: { action: 2 }, buff: "Intoxicated" },
-        ...[1, 2, 3, 4, 5].map(hit =>
-          Object.assign({ type: "skill", skill: `DrunkenPoet${hit}` }, hit === 5 ? { causesBreak: true } : {}),
+        ...[1, 2, 3, 4, 5].map((hit): RotationStep =>
+          hit === 5
+            ? { type: "skill", skill: `DrunkenPoet${hit}`, causesBreak: true }
+            : { type: "skill", skill: `DrunkenPoet${hit}` },
         ),
         { type: "skill", skill: "LeapingToad" },
       ],
       start: { step: 3, action: 1 },
-    })
+    }
+    const migrated = migrateDrunkenPoetSequences(legacyChain)
     expect(
       migrated.steps.length === 3 && migrated.steps[1]?.skill === "DrunkenPoet5HitsCancel",
       "A persisted five-stage Poet chain must migrate to one composite without disturbing neighboring steps.",
     ).toBeTruthy()
     expect(
-      migrated.steps[0]?.before?.action === 6,
+      attachedActionOf(migrated.steps[0]) === 6,
       "An event attached to legacy Poet 1 must retain its action anchor after migration.",
     ).toBeTruthy()
     expect(
@@ -113,7 +124,7 @@ describe("drunken-poet-composites", () => {
       "A fight-start anchor inside a legacy Poet chain must retain its component action after migration.",
     ).toBeTruthy()
     expect(
-      migrated.steps[1]?.causesBreak === true,
+      migrated.steps[1]?.type === "skill" && migrated.steps[1].causesBreak === true,
       "A break marker on legacy Poet 5 must move to the composite.",
     ).toBeTruthy()
 
@@ -143,14 +154,16 @@ it("cancels Poet on its fifth hit while preserving earlier hits and per-componen
     initialResources: { Vitality: 100 },
     resourceMaximums: { Vitality: 100 },
   })
-  const poet = rows.find(row => row.rotationIndex === 0)!
-  const hits = poet.actions.filter(action => action.type === "damage")
+  const poet = rows.find(row => row.rotationIndex === 0)
+  expect(poet, "The composite must own the first rotation row.").toBeTruthy()
+  const hits = (poet?.actions ?? []).filter(action => action.type === "damage")
   expect(hits).toHaveLength(5)
   expect(Number(hits[0].time)).toBeCloseTo(1.1499, 8)
   expect(Number(hits[1].time)).toBeCloseTo(1.6055, 8)
   expect(Number(hits[2].time)).toBeCloseTo(2.1803, 8)
   expect(Number(hits[3].time)).toBeCloseTo(2.83909, 8)
   expect(Number(hits[4].time)).toBeCloseTo(3.5702, 8)
-  expect(poet.effectiveCastTime).toBeCloseTo(3.5702, 8)
-  expect(rows.find(row => row.rotationIndex === 1)!.startTime).toBeCloseTo(3.6102, 8)
+  expect(poet?.effectiveCastTime).toBeCloseTo(3.5702, 8)
+  const following = rows.find(row => row.rotationIndex === 1)
+  expect(following?.startTime).toBeCloseTo(3.6102, 8)
 })

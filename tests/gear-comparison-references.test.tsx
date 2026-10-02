@@ -3,12 +3,14 @@ import { act, createElement } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { CalculatorSettings } from "@/application/contracts"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import { buildMeasurement } from "@/calculations/rotationCalculationBundle"
 import { useGearComparison } from "@/features/build/useGearComparison"
 import { buildPresetInventory, defaultBuildPresets, type BuildEntry, type GearItem, type GearSlot } from "@/gear"
 
 import { dpsDispatches, dpsRequests, dpsResolves, resetDpsMock } from "./helpers/dpsStoreMock"
+import { weaponPair } from "./helpers/weaponPair"
 
 /**
  * A candidate is weighed against the item its slot already has, and the reference has to be the
@@ -49,17 +51,22 @@ function world() {
     id: "spare-helmet",
     baseAffix: { ...worn.baseAffix, value: worn.baseAffix.value * 1.5 },
   }
-  const settings = { weapons: [...preset.martialArts], breakthrough: "17", ping: 40 }
+  const settings = {
+    weapons: weaponPair(preset.martialArts),
+    breakthrough: "17",
+    ping: 40,
+  } satisfies CalculatorSettings
+  const probeBuild: BuildEntry = {
+    id: "probe",
+    name: "Probe",
+    martialArts: [...preset.martialArts],
+    equipped: { ...inventory.equipped },
+  }
   return {
     worn,
     spare,
     gearItems: [...inventory.items, spare],
-    build: {
-      id: "probe",
-      name: "Probe",
-      martialArts: [...preset.martialArts],
-      equipped: { ...inventory.equipped },
-    } satisfies BuildEntry,
+    build: probeBuild,
     context: {
       environment: {
         pathId: "stonesplitStrength" as const,

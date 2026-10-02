@@ -1,19 +1,27 @@
 import { describe, expect, it } from "vitest"
 
+import {
+  buildRotationTimeline,
+  type InnerWayEffectRule,
+  type RotationStep,
+  type TimelineBuildInput,
+} from "@/calculations/rotationTimeline"
+
 import buffs from "../data/buff/bamboocut-wind.json"
 import echoes from "../data/innerway/echoes-of-oblivion.json"
 import vendetta from "../data/innerway/vendetta.json"
 import infernal from "../data/skill/infernal-twinblades.json"
 import mortal from "../data/skill/mortal-rope-dart.json"
-import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
+import { asEffectDefinitions, asSkillRecords, skillActions } from "./helpers/shippedData"
+import { rowCasting } from "./helpers/timelineRows"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const delay = (duration: number): RotationStep => ({ type: "event", event: "Delay", duration })
 function input(steps: RotationStep[], tier = -1): TimelineBuildInput {
   return {
     rotation: { name: "Enhanced Rodent Rampage", ping: 0, steps },
-    skills: { ...mortal, ...infernal },
-    effectDefinitions: buffs,
+    skills: asSkillRecords({ ...mortal, ...infernal }),
+    effectDefinitions: asEffectDefinitions(buffs),
     eventDefinitions: {},
     dots: {},
     innerWayConditions: [],
@@ -21,8 +29,10 @@ function input(steps: RotationStep[], tier = -1): TimelineBuildInput {
     weapons: ["mortalRopeDart", "infernalTwinblades"],
     innerWayRules: Array.from({ length: tier + 1 }, (_, index) => {
       const definition = vendetta.effect[`VendettaT${index}` as keyof typeof vendetta.effect]
-      return ("effect" in definition ? definition.effect : []).map(effect =>
-        Object.assign({}, effect, { source: "Vendetta", tier: index }),
+      // A tier entry that only raises a cap carries a modify rule and the empty
+      // effect sheet the app's own inner-way builder gives a rule without one.
+      return ("effect" in definition ? definition.effect : []).map((effect): InnerWayEffectRule =>
+        Object.assign({ effect: {} }, effect, { source: "Vendetta", tier: index }),
       )
     }).flat(),
     initialResources: { Hellfire: 0 },
@@ -59,7 +69,7 @@ for (const sampled of [false, true]) {
       const coordinated = rows.filter(row => row.step.skill === "Rodent" && row.startTime < 0.4)
       expect(coordinated).toHaveLength(1)
       expect(coordinated[0].startTime).toBeCloseTo(0.25)
-      expect(coordinated[0].sourceRowId).toBe(rows.find(row => row.step.skill === "Second")!.id)
+      expect(coordinated[0].sourceRowId).toBe(rowCasting(rows, "Second")!.id)
     })
 
     it("preserves partial progress beyond the old expiry when the parent refreshes", () => {
@@ -161,11 +171,13 @@ for (const sampled of [false, true]) {
       ]
       // Use damage-free out-of-range FA5 actions so Hellfire only measures Rodent income.
       data.skills.InfernalFlamelashLight5Cancel = {
-        ...infernal.InfernalFlamelashLight5Cancel,
-        action: infernal.InfernalFlamelashLight5Cancel.action.filter(action => action.type === "trigger"),
+        ...asSkillRecords(infernal).InfernalFlamelashLight5Cancel,
+        action: skillActions(asSkillRecords(infernal).InfernalFlamelashLight5Cancel).filter(
+          action => action.type === "trigger",
+        ),
       }
       const rows = build(data)
-      const returnedAt = rows.find(row => row.step.skill === "MoveIn")!.startTime
+      const returnedAt = rowCasting(rows, "MoveIn")!.startTime
       const times = rodentTimes(rows)
       expect(times).toHaveLength(2)
       expect(times[0]).toBeCloseTo(returnedAt + 0.5)

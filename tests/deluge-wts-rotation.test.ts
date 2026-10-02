@@ -1,9 +1,16 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationRecord, TimelineBuildInput } from "@/calculations/rotationTimeline"
+import type { EnemyProfile } from "@/types"
+
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { rowWithId } from "./helpers/timelineRows"
+
 // Ported from script/probe/check-deluge-wts-rotation.mjs.
 describe("deluge-wts-rotation", () => {
   it("Deluge WTS sequence and standard dummy-attack schedule verified", async () => {
-    const rotation = (await import("../data/rotation/silkbind-deluge/dummy-1-min-wts.json")).default
+    const rotation = (await import("../data/rotation/silkbind-deluge/dummy-1-min-wts.json")).default as RotationRecord
     const panacea = (await import("../data/skill/panacea-fan.json")).default
     const soulshade = (await import("../data/skill/soulshade-umbrella.json")).default
     const mystic = (await import("../data/skill/mystic.json")).default
@@ -20,33 +27,35 @@ describe("deluge-wts-rotation", () => {
     const { calculateHealingAttackSnapshot } = await import("../src/calculations/healing.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const timelineInput = {
+    const timelineInput: TimelineBuildInput = {
       rotation,
-      skills: { ...panacea, ...soulshade, ...mystic, ...general },
-      eventDefinitions: {
+      skills: asSkillRecords({ ...panacea, ...soulshade, ...mystic, ...general }),
+      eventDefinitions: asSkillRecords({
         TakeDamage: { name: "Take Damage", castTime: 0, action: [{ type: "takeDamage", time: 0 }], tags: ["Event"] },
         BattleEnd: { name: "Battle End", castTime: 0, action: [], tags: ["Event"] },
-      },
-      dots,
-      effectDefinitions: {
+      }),
+      dots: asSkillRecords(dots),
+      effectDefinitions: asEffectDefinitions({
         ...mysticBuffs,
         ...generalBuffs,
         ...delugeBuffs,
         ...mysticDebuffs,
         ...generalDebuffs,
         ...dots,
-      },
+      }),
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     }
     const timeline = buildRotationTimeline(timelineInput)
-    const anchorRow = timeline.find(row => row.id === `rotation-${rotation.start.step}`)!
-    const anchorTime = anchorRow.startTime + Number(anchorRow.actions[rotation.start.action]?.time ?? 0)
+    // The preset anchors on the first step, and no action index, so the anchor is
+    // the row's own start time.
+    const anchorRow = rowWithId(timeline, `rotation-${rotation.start?.step ?? 0}`)
+    const anchorTime = anchorRow.startTime
     for (const preset of [
       rotation,
-      (await import("../data/rotation/silkbind-deluge/dummy-1-min-wts-team.json")).default,
+      (await import("../data/rotation/silkbind-deluge/dummy-1-min-wts-team.json")).default as RotationRecord,
     ]) {
       const rows = buildRotationTimeline({ ...timelineInput, rotation: preset })
       assert(
@@ -67,12 +76,16 @@ describe("deluge-wts-rotation", () => {
       row =>
         row.step.type === "event" &&
         row.step.event === "TakeDamage" &&
-        row.step.automatic !== "targetAttack" &&
+        !("automatic" in row.step && row.step.automatic === "targetAttack") &&
         row.startTime - anchorTime < 60,
     )
     assert(manualAttackRows.length === 0, "The preset must not invent manual Take Damage events.")
     const automaticAttackRows = timeline.filter(
-      row => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "targetAttack",
+      row =>
+        row.step.type === "event" &&
+        row.step.event === "TakeDamage" &&
+        "automatic" in row.step &&
+        row.step.automatic === "targetAttack",
     )
     assert(
       automaticAttackRows.length === 20 &&
@@ -86,15 +99,28 @@ describe("deluge-wts-rotation", () => {
       "Every requested Successful Deflect must occur before the one-minute battle end.",
     )
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, minSilkbind: 500, maxSilkbind: 500, precision: 1 }
+    const weapons = ["panaceaFan", "soulshadeUmbrella"] as const
+    const enemy: EnemyProfile = {
+      name: "Probe",
+      level: 96,
+      defense: 0,
+      physicalResistance: 0,
+      bellstrikeResistance: 0,
+      stonesplitResistance: 0,
+      silkbindResistance: 0,
+      bamboocutResistance: 0,
+      judgementResistance: 0,
+    }
+    const voidStats = { ...stats, minVoidAttack: 100, maxVoidAttack: 200 }
     const voidSnapshot = calculateHealingAttackSnapshot({
-      stats: { ...stats, minVoidAttack: 100, maxVoidAttack: 200 },
-      derivedStats: calculateDerivedStats({ ...stats, minVoidAttack: 100, maxVoidAttack: 200 }, 0, {}, [
-        "panaceaFan",
-        "soulshadeUmbrella",
-      ]),
+      stats: voidStats,
+      attunement: emptyAttunementStats,
+      skillTags: [],
+      weapons: [...weapons],
+      buffs: [],
+      derivedStats: calculateDerivedStats(voidStats, 0, {}, [...weapons]),
       effects: [],
-      enemy: { judgementResistance: 0 },
-      weapons: ["panaceaFan", "soulshadeUmbrella"],
+      enemy,
     })
     assert(
       Math.abs(voidSnapshot.averageSilkbindAttack - 650) < 1e-9,
@@ -106,60 +132,26 @@ describe("deluge-wts-rotation", () => {
       resourceMaximums: { Vitality: 100 },
       maxHP: 100000,
     }
-    const baseline = calculateRotationBaseline({
-      timeline: timelineBundle,
-      startAnchor: { rowId: "rotation-0" },
-      stats,
-      attunement: {},
-      enemy: {
-        name: "Probe",
-        level: 96,
-        defense: 0,
-        physicalResistance: 0,
-        bellstrikeResistance: 0,
-        stonesplitResistance: 0,
-        silkbindResistance: 0,
-        bamboocutResistance: 0,
-        judgementResistance: 0,
-        setupEffects: [],
-        weapons: ["panaceaFan", "soulshadeUmbrella"],
-      },
-      derivedStats: calculateDerivedStats(stats, 0),
-      weapons: ["panaceaFan", "soulshadeUmbrella"],
-      statPriority: [],
-      attunementPriority: [],
-      innerWayPriority: [],
-      setupComparisons: {},
-    })
-    const groupResult = groupSize =>
+    const simulate = (bundle: TimelineBuildInput) =>
       calculateRotationBaseline({
-        timeline: { ...timelineBundle, rotation: { ...rotation, groupSize } },
+        timeline: bundle,
         startAnchor: { rowId: "rotation-0" },
         stats,
-        attunement: {},
-        enemy: {
-          name: "Probe",
-          level: 96,
-          defense: 0,
-          physicalResistance: 0,
-          bellstrikeResistance: 0,
-          stonesplitResistance: 0,
-          silkbindResistance: 0,
-          bamboocutResistance: 0,
-          judgementResistance: 0,
-          setupEffects: [],
-          weapons: ["panaceaFan", "soulshadeUmbrella"],
-        },
+        attunement: emptyAttunementStats,
+        enemy,
         derivedStats: calculateDerivedStats(stats, 0),
-        weapons: ["panaceaFan", "soulshadeUmbrella"],
+        weapons: [...weapons],
         statPriority: [],
         attunementPriority: [],
         innerWayPriority: [],
         setupComparisons: {},
       })
+    const baseline = simulate(timelineBundle)
+    const groupResult = (groupSize: 1 | 5 | 10) => simulate({ ...timelineBundle, rotation: { ...rotation, groupSize } })
     const teamBaseline = groupResult(5)
     const groupBaseline = groupResult(10)
-    const qiBladeHits = result => result.metrics.breakdown.skills.find(skill => skill.id === "QiBlade")?.hits ?? 0
+    const qiBladeHits = (result: ReturnType<typeof simulate>) =>
+      result.metrics.breakdown.skills.find(skill => skill.id === "QiBlade")?.hits ?? 0
     assert(
       baseline.metrics.totalHealing < teamBaseline.metrics.totalHealing &&
         teamBaseline.metrics.totalHealing < groupBaseline.metrics.totalHealing,

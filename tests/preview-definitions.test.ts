@@ -8,8 +8,10 @@ import {
   previewCatalog,
 } from "@/application/gameData/previews"
 import { buildRotationTimeline, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+import type { SkillRecord, TrackedEffect } from "@/calculations/rotationTimeline"
 import { resolveSkillCalculationDefinitions } from "@/skillOverrides"
-import type { SkillRecord } from "@/skillOverrides"
+
+import { skillActions } from "./helpers/shippedData"
 
 /**
  * A preview is an overlay on the shipped data. What is worth pinning is that it changes only
@@ -100,16 +102,26 @@ describe("preview definitions", () => {
   })
 
   it("keeps Frost-Clad Night T4's Inner Passion gate and adds the soldier as an alternative tag", () => {
-    const shippedT4 = shipped.innerWayDefinitions.FrostCladNight.effect.FrostCladNightT4.effect[0]
-    const previewT4 = preview.innerWayDefinitions.FrostCladNight.effect.FrostCladNightT4.effect[0]
+    // The T4 entry's effect sheet and requirement groups, which is what carries the Inner Passion gate.
+    const t4Entry = (definitions: typeof shipped) => {
+      const tier = definitions.innerWayDefinitions.FrostCladNight?.effect.FrostCladNightT4
+      const [entry] = tier?.effect ?? []
+      const gate = entry?.requirement as { operand?: unknown[] }[] | undefined
+      assert(gate, "Frost-Clad Night T4 must declare its Inner Passion gate.")
+      return entry
+    }
+    const shippedT4 = t4Entry(shipped)
+    const previewT4 = t4Entry(preview)
     expect(previewT4.effect).toEqual(shippedT4.effect)
-    expect(previewT4.requirement[0].operand).toEqual([
+    const shippedGate = shippedT4.requirement as { operand?: unknown[] }[]
+    const previewGate = previewT4.requirement as { operand?: unknown[] }[]
+    expect(previewGate[0]?.operand).toEqual([
       { target: "skillTag", value: "SnowbreakSpring" },
       { target: "skillTag", value: "AnxiSoldierSnowbreakSpring" },
     ])
     // The second AND group is the Inner Passion / T6-and-Exhausted gate and is unchanged, so
     // the enhanced soldier's own 40% is not granted a second time through the Inner Way.
-    expect(previewT4.requirement[1]).toEqual(shippedT4.requirement[1])
+    expect(previewGate[1]).toEqual(shippedGate[1])
   })
 
   it("routes the previewed Inner Way into the rules a calculation reads", () => {
@@ -131,9 +143,9 @@ describe("preview definitions", () => {
       },
     ])
     // The parent keeps only the soldier trigger, so the hit itself belongs to the sub-action.
-    expect(qq.action?.every(action => (action as { type: string }).type === "trigger")).toBe(true)
+    expect(skillActions(qq).every(action => action.type === "trigger")).toBe(true)
     const soul = preview.skillMaps.Phalanxbane.PhalanxbaneQSoul as SkillRecord
-    const damage = soul.action?.find(action => (action as { type: string }).type === "damage") as {
+    const damage = skillActions(soul).find(action => action.type === "damage") as {
       phyCoef: number
       phyBonus: number
       attrCoef: number
@@ -144,8 +156,8 @@ describe("preview definitions", () => {
     // decides its window instead of accumulating on whatever was left. The duration is a
     // property of the action, so the Steadfast Devotion condition sits on the action as two
     // complementary applies; exactly one of them can pass.
-    const guardApplies = (soul.action ?? []).filter(
-      action => (action as { type: string }).type === "apply" && (action as { value?: string }).value === "IronGuard",
+    const guardApplies = skillActions(soul).filter(
+      action => action.type === "apply" && action.value === "IronGuard",
     ) as Array<{ duration: number; stack?: number }>
     expect(guardApplies.map(apply => apply.duration).sort((a, b) => a - b)).toEqual([30, 40])
     expect(guardApplies.every(apply => apply.stack === 1)).toBe(true)
@@ -174,7 +186,7 @@ describe("preview definitions", () => {
       })
       let widest = 0
       for (const row of timeline) {
-        const guard = (row.buffs as Map<string, { appliedAt?: number; expiresAt?: number }>).get("IronGuard")
+        const guard = (row.buffs.get("IronGuard") ?? {}) as { appliedAt?: number; expiresAt?: number }
         if (guard?.appliedAt === undefined || guard.expiresAt === undefined) continue
         widest = Math.max(widest, guard.expiresAt - guard.appliedAt)
       }
@@ -220,7 +232,7 @@ describe("preview definitions", () => {
     // Both requirements are frozen at skill start, because VC consumes Inner Passion on the
     // same timestamp its triggers land on and would otherwise read the state it just changed.
     const vc = preview.skillMaps.Snowparting.SnowpartingHeavyVC as SkillRecord
-    const triggers = (vc.action ?? []).filter(action => (action as { type: string }).type === "trigger") as Array<{
+    const triggers = skillActions(vc).filter(action => action.type === "trigger") as Array<{
       value: string
       requirement: { resolveAt?: string; operand?: unknown[] }
     }>
@@ -259,7 +271,18 @@ describe("preview definitions", () => {
         ],
       }),
       innerWayConditions: ["FrostCladNightT0", "FrostCladNightT1", "SteadfastDevotionT0", "SteadfastDevotionT1"],
-      initialBuffs: [{ name: "InnerPassion", stack: 1, remainingTime: 12, maxStack: 4 }],
+      // An initial buff is applied persistent with no expiry, so a partial lifetime is
+      // expressed as an apply action carrying the remaining seconds, not as a field on
+      // the initial buff.
+      initialBuffs: [{ name: "InnerPassion", stack: 1, maxStack: 4 } satisfies TrackedEffect],
+      setupEffects: [
+        {
+          trigger: {
+            event: "battleStart",
+            action: { type: "apply", target: "self", value: "InnerPassion", duration: 12, time: 0 },
+          },
+        },
+      ],
     })
       .filter(row => /AnxiSoldierSnowbreakSpring/.test(String(row.step.skill ?? "")))
       .map(row => String(row.step.skill))
@@ -276,16 +299,16 @@ describe("preview definitions", () => {
     // which is a different record from AnxiSoldierGeneralsBaneStab — the soldier it triggers,
     // which shares that display name and touches no Dread effect at all.
     const extendOf = (record: SkillRecord) =>
-      record.action?.find(
-        action => (action as { type: string }).type === "extend" && (action as { value?: string }).value === "Dread",
-      ) as { duration: number } | undefined
+      skillActions(record).find(action => action.type === "extend" && action.value === "Dread") as
+        | { duration: number }
+        | undefined
     const shippedStab = shipped.skillMaps.Snowparting.SnowpartingQStab as SkillRecord
     const previewStab = preview.skillMaps.Snowparting.SnowpartingQStab as SkillRecord
     expect(extendOf(shippedStab)?.duration).toBe(6)
     expect(extendOf(previewStab)?.duration).toBe(10)
     // Only the duration moved, so the hits the castable deals are unchanged.
-    expect(previewStab.action?.filter(action => (action as { type: string }).type === "damage")).toEqual(
-      shippedStab.action?.filter(action => (action as { type: string }).type === "damage"),
+    expect(skillActions(previewStab).filter(action => action.type === "damage")).toEqual(
+      skillActions(shippedStab).filter(action => action.type === "damage"),
     )
     expect(extendOf(shipped.skillMaps.Snowparting.AnxiSoldierGeneralsBaneStab as SkillRecord)).toBeUndefined()
     expect(extendOf(preview.skillMaps.Snowparting.AnxiSoldierGeneralsBaneStab as SkillRecord)).toBeUndefined()

@@ -2,13 +2,18 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { InnerWayEffectRule } from "@/calculations/rotationTimeline"
+import { requirementsPass } from "@/calculations/rotationTimeline"
+
 import battleAnthem from "../data/innerway/battle-anthem.json"
 import namelessSpear from "../data/martial-art/nameless-spear.json"
 import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
-import { requirementsPass } from "../src/calculations/rotationTimeline"
 import { effectState } from "../src/calculations/trackedEffectState"
 import { emptyStats } from "../src/data/statDefinitions"
+import { assertClose } from "./helpers/floatEquality"
+import { rankTalentEffects } from "./helpers/shippedData"
 
 const weaponIds = ["namelessSword", "namelessSpear"] as never[]
 
@@ -28,12 +33,12 @@ describe("splendor-endurance", () => {
     }
     // Mirrors innerWayEffectRulesFor: a tier entry's inner effect becomes the rule
     // effect, and selecting a tier includes every tier below it.
-    const rules = tier => {
-      const collected: { effect: Record<string, unknown>; source: string; tier: number }[] = []
+    /** The tier effects as the shipped file carries them. */
+    const tiers = battleAnthem.effect as Record<string, { effect?: Array<{ effect?: Record<string, unknown> }> }>
+    const rules = (tier: number): InnerWayEffectRule[] => {
+      const collected: InnerWayEffectRule[] = []
       for (let current = 0; current <= tier; current += 1) {
-        const definition = battleAnthem.effect[`BattleAnthemT${current}`] as {
-          effect?: { effect?: Record<string, unknown> }[]
-        }
+        const definition = tiers[`BattleAnthemT${current}`]
         for (const item of definition.effect ?? [])
           if (item?.effect) collected.push({ effect: item.effect, source: "BattleAnthem", tier: current })
       }
@@ -82,7 +87,7 @@ describe("splendor-endurance", () => {
         derivedStats: calculateDerivedStats(stats, 0),
         enemy,
         weapons: weaponIds,
-        attunement: {},
+        attunement: emptyAttunementStats,
         startAnchor: { rowId: "rotation-0" },
         statPriority: [],
         attunementPriority: [],
@@ -92,8 +97,7 @@ describe("splendor-endurance", () => {
 
     // Endurance is seeded from its maximum, so T6's spending segment resolves 0
     // rather than failing to resolve at all.
-    const close = (actual: number, expected: number, message: string) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} !== ${expected}`)
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
     // T0 and T4 are both cumulative flat Charged bonuses, so T6 adds its segment on top.
     // The segment reads Endurance currently below its maximum, not a running total of spend.
     close(run(6, 0).metrics.totalDamage, 115, "A full meter leaves only the flat T0 and T4 bonuses")
@@ -110,13 +114,14 @@ describe("splendor-endurance", () => {
     close(run(4, 30).metrics.totalDamage, 115, "T4 alone grants its own 15% without the T6 spending segment")
 
     // The below-60% branch of Affinity DMG Up is now a real, satisfiable condition.
-    const affinityRule = namelessSpear.talent[13]
-      .flatMap(talent => talent.effect ?? [])
-      .find(rule => (rule.effect as { affinityDmgBonus?: unknown })?.affinityDmgBonus)
-    assert.ok(affinityRule?.requirement, "Nameless Spear Affinity DMG Up must declare a requirement")
+    const affinityRule = rankTalentEffects(namelessSpear.talent[13]).find(
+      rule => rule.effect && "affinityDmgBonus" in rule.effect,
+    )
+    const affinityRequirement = affinityRule?.requirement
+    assert.ok(affinityRequirement, "Nameless Spear Affinity DMG Up must declare a requirement")
     const passes = (endurancePercentage: number | undefined) =>
       requirementsPass(
-        affinityRule.requirement,
+        affinityRequirement,
         effectState([]),
         effectState([]),
         [],

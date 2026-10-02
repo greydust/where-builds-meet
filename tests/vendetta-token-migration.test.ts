@@ -35,6 +35,7 @@ describe("Vendetta Token target migration", () => {
   })
 
   it("preserves customized definitions and retargets stored actions and conditions", () => {
+    const requirementOf = (modifier: unknown) => (modifier as { requirement: unknown }).requirement
     const legacy = {
       version: 3,
       overrides: {
@@ -59,7 +60,7 @@ describe("Vendetta Token target migration", () => {
       value: "VendettaToken",
       time: 0.4,
     })
-    expect(result.Mortal?.BladeboundThreadCancel.modifier?.[0].requirement).toEqual([
+    expect(requirementOf(result.Mortal?.BladeboundThreadCancel.modifier?.[0])).toEqual([
       { target: "target", value: "VendettaToken" },
     ])
     expect(deserializeSkillOverrides(JSON.parse(serializeSkillOverrides(result)))).toEqual(result)

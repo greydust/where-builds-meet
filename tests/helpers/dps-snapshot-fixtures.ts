@@ -1,5 +1,7 @@
 import { readdir, readFile } from "node:fs/promises"
 
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
 import type { buildPresetRotationBundle } from "../../src/application/graduation"
 import { resolvePing } from "../../src/calculations/combatDefaults"
 import type { RotationRecord } from "../../src/calculations/rotationTimeline"
@@ -18,15 +20,7 @@ export const dpsSnapshotEnvironment = {
   food: "SimmeringFishSlices",
   divinecraft: "Fire",
   script: "None",
-  globalDebuffs: {
-    phantomChime: false,
-    qiImbalance: false,
-    soulShaken: false,
-    vulnerable: false,
-    fearfulBlade: false,
-    qingyisCharm: "none" as const,
-    floatingGrace: "none" as const,
-  },
+  globalDebuffs: { ...defaultGlobalDebuffs },
 }
 export async function loadDpsSnapshotFixtures() {
   const paths = JSON.parse(await readFile(new URL("path.json", dataRoot), "utf8"))

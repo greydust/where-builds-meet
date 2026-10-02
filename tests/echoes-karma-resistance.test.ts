@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { EditableObject, InnerWayEffectRule, TrackedEffect } from "@/calculations/rotationTimeline"
+
 import buffs from "../data/buff/bamboocut-wind.json"
 import debuffs from "../data/debuff/bamboocut-wind.json"
 import echoes from "../data/innerway/echoes-of-oblivion.json"
@@ -8,6 +11,7 @@ import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
 import { emptyStats } from "../src/data/statDefinitions"
 import type { WeaponId } from "../src/types"
+import { asEffectDefinitions } from "./helpers/shippedData"
 
 const weapons: WeaponId[] = ["infernalTwinblades", "mortalRopeDart"]
 const stats = {
@@ -33,18 +37,30 @@ const enemy = {
   bamboocutResistance: 20,
   judgementResistance: 0.2,
 }
-function entry(tier: number, resistance: number, karma = true, tags = ["DirectDamage", "InfernalTwinblades", "Light"]) {
+/** A rule that only carries a trigger: the empty sheet the app's own builder gives it. */
+const noEffect: EditableObject = {}
+
+function entry(
+  tier: number,
+  resistance: number,
+  karma = true,
+  tags: string[] = ["DirectDamage", "InfernalTwinblades", "Light"],
+) {
   const tiers = Object.values(echoes.effect).slice(0, tier + 1)
   const rules = tiers.flatMap((definition, index) =>
     ((definition as { effect?: Record<string, unknown>[] }).effect ?? [])
       .filter(effect => !effect.rawStat)
-      .map(effect =>
-        Object.assign({}, effect, { effect: effect.effect ?? effect, source: "EchoesOfOblivion", tier: index }),
+      .map<InnerWayEffectRule>(effect =>
+        Object.assign({}, effect, {
+          effect: (effect.effect as EditableObject | undefined) ?? effect,
+          source: "EchoesOfOblivion",
+          tier: index,
+        }),
       )
       .concat(
-        ((definition as { trigger?: Record<string, unknown>[] }).trigger ?? []).map(trigger => ({
+        ((definition as { trigger?: Record<string, unknown>[] }).trigger ?? []).map<InnerWayEffectRule>(trigger => ({
           trigger,
-          effect: {},
+          effect: noEffect,
           source: "EchoesOfOblivion",
           tier: index,
         })),
@@ -54,20 +70,20 @@ function entry(tier: number, resistance: number, karma = true, tags = ["DirectDa
     timeline: {
       rotation: { name: "Karma scope", ping: 0, steps: [{ type: "skill", skill: "Probe" }] },
       skills: { Probe: { castTime: 0.2, tags, action: [{ type: "damage", phyCoef: 1, attrCoef: 1, time: 0.1 }] } },
-      effectDefinitions: { ...buffs, ...debuffs },
+      effectDefinitions: asEffectDefinitions({ ...buffs, ...debuffs }),
       dots: {},
       eventDefinitions: {},
       innerWayRules: rules,
       innerWayConditions: Object.keys(echoes.effect).slice(0, tier + 1),
       setupEffects: [],
       weapons,
-      initialDebuffs: karma ? [{ name: "Karma", stack: 1 }] : [],
+      initialDebuffs: karma ? [{ name: "Karma", stack: 1 } satisfies TrackedEffect] : [],
     },
     stats,
-    derivedStats: calculateDerivedStats(stats, enemy.judgementResistance, weapons),
+    derivedStats: calculateDerivedStats(stats, enemy.judgementResistance, undefined, weapons),
     enemy: { ...enemy, bamboocutResistance: resistance },
     weapons,
-    attunement: {},
+    attunement: emptyAttunementStats,
     startAnchor: { rowId: "rotation-0" },
     statPriority: [],
     attunementPriority: [],

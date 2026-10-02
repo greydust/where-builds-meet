@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
 import { effectState } from "../src/calculations/trackedEffectState"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { asEffectDefinitions } from "./helpers/shippedData"
+import { rowWithId } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-script.mjs.
 describe("setup timeline selection", () => {
@@ -25,7 +29,9 @@ describe("setup timeline selection", () => {
 
 describe("script", () => {
   it("Script thresholds, absolute self HP, Take Damage, and Revelry checks passed", async () => {
-    const { buildRotationTimeline, requirementsPass } = await probeLoad("/src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline, requirementsPass } = await probeLoad<
+      typeof import("../src/calculations/rotationTimeline")
+    >("/src/calculations/rotationTimeline.ts")
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
@@ -85,15 +91,15 @@ describe("script", () => {
         TakeDamage: { name: "Take Damage", castTime: 0, action: [{ type: "takeDamage", time: 0 }], tags: ["Event"] },
       },
       dots: {},
-      effectDefinitions: generalBuffs,
+      effectDefinitions: asEffectDefinitions(generalBuffs),
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [scripts.Revelry.effect],
       weapons: [],
       maxHP: 1000,
     })
-    const hit = timeline.find(row => row.id === "rotation-2")
-    const takeDamageRow = timeline.find(row => row.id === "rotation-1")
+    const hit = rowWithId(timeline, "rotation-2")
+    const takeDamageRow = rowWithId(timeline, "rotation-1")
     expect(
       takeDamageRow?.sourceRowId === hit?.id && takeDamageRow?.startTime === 1,
       "Take Damage must remain attached to its selected skill action.",
@@ -129,7 +135,7 @@ describe("script", () => {
         },
         eventDefinitions: {},
         dots: {},
-        effectDefinitions: generalBuffs,
+        effectDefinitions: asEffectDefinitions(generalBuffs),
         innerWayConditions: [],
         innerWayRules: [],
         setupEffects: [scripts.Insight.effect],
@@ -138,7 +144,7 @@ describe("script", () => {
       },
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy: {
         name: "Probe",
         level: 96,

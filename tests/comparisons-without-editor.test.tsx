@@ -121,7 +121,7 @@ afterEach(async () => {
 
 async function settle() {
   await Array.from({ length: 25 }).reduce(
-    previous => previous.then(() => act(async () => vi.advanceTimersByTimeAsync(400))),
+    (previous: Promise<unknown>) => previous.then(() => act(async () => vi.advanceTimersByTimeAsync(400))),
     Promise.resolve(),
   )
 }

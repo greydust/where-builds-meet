@@ -2,16 +2,28 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "../src/calculations/rotationCalculator.ts"
+import type {
+  EditableObject,
+  InnerWayEffectRule,
+  SkillRecord,
+  TimelineBuildInput,
+} from "../src/calculations/rotationTimeline.ts"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { castStep } from "./helpers/rotationSteps"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { rowWithId } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-innerway-damage-groups.mjs.
 describe("innerway-damage-groups", () => {
   it("Inner Way ownership, unchanged damage/timing, grouped totals, zero-proc headers, expansion isolation, and sampled ownership verified", async () => {
     const { calculateRotationBaseline, calculateSimulatedRotationRun, calculateRotationComparisons } =
       await import("../src/calculations/rotationCalculator.ts")
-    const { buildRotationTimeline, mergeCalculatedTimelineState } = await probeLoad(
-      "/src/calculations/rotationTimeline.ts",
-    )
+    const { buildRotationTimeline, mergeCalculatedTimelineState } = await probeLoad<
+      typeof import("../src/calculations/rotationTimeline")
+    >("/src/calculations/rotationTimeline.ts")
     const { buildTimelineDisplayEntries } = await import("../src/rotationDisplay.ts")
     const { compactInnerWayResults } = await import("../src/calculations/compactInnerWayResults.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
@@ -21,21 +33,35 @@ describe("innerway-damage-groups", () => {
       FivefoldBleed: innerWayDefinitionForSoloLevel(await import("../data/innerway/fivefold-bleed.json"), 17),
       MoraleChant: innerWayDefinitionForSoloLevel(await import("../data/innerway/morale-chant.json"), 17),
     }
-    const general = await import("../data/skill/general.json")
-    const dots = await import("../data/dot/innerway.json")
-    const buffs = await import("../data/buff/general.json")
-    const rules = Object.entries(ways).flatMap(([source, way]) =>
+    const general = asSkillRecords((await import("../data/skill/general.json")).default)
+    const dots = asSkillRecords((await import("../data/dot/innerway.json")).default)
+    const buffs = asEffectDefinitions((await import("../data/buff/general.json")).default)
+    const noEffect: EditableObject = {}
+    const rules: InnerWayEffectRule[] = Object.entries(ways).flatMap(([source, way]) =>
       Object.values(way.effect).flatMap((definition, tier) =>
         (definition.effect ?? [])
-          .map(effect => Object.assign({}, effect, { effect: effect.effect ?? effect, source, tier }))
-          .concat((definition.trigger ?? []).map(trigger => ({ trigger, effect: {}, source, tier }))),
+          .map((effect): InnerWayEffectRule =>
+            Object.assign({ effect: noEffect }, effect, {
+              effect: (effect.effect ?? effect) as EditableObject,
+              source,
+              tier: Number(tier),
+            }),
+          )
+          .concat(
+            (definition.trigger ?? []).map((trigger): InnerWayEffectRule => ({
+              trigger,
+              effect: noEffect,
+              source,
+              tier: Number(tier),
+            })),
+          ),
       ),
     )
-    const timeline = {
+    const timeline: TimelineBuildInput = {
       rotation: {
         name: "Independent Inner Ways",
         steps: [
-          ...Array.from({ length: 6 }, () => ({ type: "skill", skill: "Hit" })),
+          ...Array.from({ length: 6 }, () => castStep("Hit")),
           { type: "event", event: "BattleEnd", startTime: 12 },
         ],
       },
@@ -53,10 +79,10 @@ describe("innerway-damage-groups", () => {
       weapons: [],
     }
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
-    const bundle = {
+    const bundle: RotationSimulationBundle = {
       timeline,
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy: {
         name: "Probe",
         level: 96,
@@ -94,21 +120,21 @@ describe("innerway-damage-groups", () => {
     }
     for (const id of ["FivefoldBleed", "MoraleChant"]) {
       const cast = result.metrics.breakdown.casts.find(item => item.skillId === id)
-      assert.ok(cast?.damage > 0, `${id} collects damage: ${JSON.stringify(result.metrics.breakdown.casts)}`)
+      assert(cast && cast.damage > 0, `${id} collects damage: ${JSON.stringify(result.metrics.breakdown.casts)}`)
       const sum = result.timeline
         .filter(row => row.sourceRowId === `innerway-${id}`)
         .reduce(
           (total, row) =>
             total +
             row.actions.reduce(
-              (value, action, index) => value + (result.actionBreakdowns[`${row.id}:${index}`]?.total ?? 0),
+              (value, _action, index) => value + (result.actionBreakdowns[`${row.id}:${index}`]?.total ?? 0),
               0,
             ),
           0,
         )
       assert.ok(Math.abs(cast.damage - sum) < 1e-8, `${id} totals match its actions exactly once`)
     }
-    const strip = definitions =>
+    const strip = (definitions: Record<string, SkillRecord>) =>
       Object.fromEntries(
         Object.entries(definitions).map(([id, { damageGroup: _damageGroup, ...definition }]) => [id, definition]),
       )
@@ -127,7 +153,7 @@ describe("innerway-damage-groups", () => {
     )
     assert.equal(result.duration, ungrouped.duration)
     const compacted = compactInnerWayResults(result)
-    const totalPublishedDamage = value =>
+    const totalPublishedDamage = (value: RotationSimulationBaseline) =>
       Object.values(value.actionBreakdowns).reduce((sum, item) => sum + item.total, 0)
     assert.ok(Math.abs(totalPublishedDamage(compacted) - totalPublishedDamage(result)) < 1e-8)
     assert.strictEqual(compacted.metrics, result.metrics, "Publication does not recalculate or alter metrics")
@@ -139,8 +165,9 @@ describe("innerway-damage-groups", () => {
     )
     assert.ok(burst)
     const fixture = structuredClone(result)
-    const fixtureRow = fixture.timeline.find(row => row.id === burst.id)
+    const fixtureRow = rowWithId(fixture.timeline, burst.id)
     const fixtureEntry = fixture.baseline.find(entry => entry.id === `${burst.id}:0`)
+    assert(fixtureEntry, "The resolved burst must have a recorded damage entry.")
     const duplicate = structuredClone(fixtureRow)
     duplicate.id = "equivalent-burst"
     for (const row of [fixtureRow, duplicate]) {
@@ -148,8 +175,11 @@ describe("innerway-damage-groups", () => {
       row.actions[0].hitProbability = Number(burst.actions[0].hitProbability ?? 1) / 2
     }
     const half = structuredClone(fixture.actionBreakdowns[`${burst.id}:0`])
-    for (const channel of ["physical", "bellstrike", "stonesplit", "silkbind", "bamboocut", "total"]) half[channel] /= 2
-    for (const source of Object.keys(half.buffedDamageBySource ?? {})) half.buffedDamageBySource[source] /= 2
+    for (const channel of ["physical", "bellstrike", "stonesplit", "silkbind", "bamboocut", "total"] as const)
+      half[channel] /= 2
+    // A burst with no source buff records no per-source split; halving starts from zero.
+    const halfSources = half.buffedDamageBySource ?? {}
+    for (const source of Object.keys(halfSources)) halfSources[source] /= 2
     fixture.actionBreakdowns[`${burst.id}:0`] = half
     fixture.actionBreakdowns[`${duplicate.id}:0`] = structuredClone(half)
     fixture.timeline.push(duplicate)
@@ -164,14 +194,15 @@ describe("innerway-damage-groups", () => {
       !displayed.some(row => row.id === duplicate.id),
       "Structural rows cannot reintroduce merged contributions",
     )
-    assert.deepEqual(
-      displayed.find(row => row.id === burst.id).actions,
-      combined.timeline.find(row => row.id === burst.id).actions,
-    )
+    assert.deepEqual(rowWithId(displayed, burst.id).actions, rowWithId(combined.timeline, burst.id).actions)
     for (const change of ["time", "context"]) {
       const distinct = structuredClone(fixture)
-      if (change === "time") distinct.timeline.find(row => row.id === duplicate.id).startTime += 0.1
-      else distinct.baseline.find(entry => entry.id === `${duplicate.id}:0`).context.distance = 99
+      if (change === "time") rowWithId(distinct.timeline, duplicate.id).startTime += 0.1
+      else {
+        const entry = distinct.baseline.find(candidate => candidate.id === `${duplicate.id}:0`)
+        assert(entry?.context, "The duplicate burst must carry a damage context.")
+        entry.context.distance = 99
+      }
       assert.ok(
         compactInnerWayResults(distinct).timeline.some(row => row.id === duplicate.id),
         `${change} differences must not merge`,
@@ -214,7 +245,7 @@ describe("innerway-damage-groups", () => {
       const actions = chronological.filter(entry => entry.kind === "action")
       assert.equal(
         actions.length,
-        expanded.filter(entry => entry.kind === "action" && visibleGroups.includes(entry.row.sourceRowId)).length,
+        expanded.filter(entry => entry.kind === "action" && visibleGroups.includes(entry.row.sourceRowId ?? "")).length,
       )
       assert.equal(actions.length, 0, "Inner Way actions have no display entries")
       assert.equal(new Set(actions.map(entry => `${entry.row.id}:${entry.actionIndex}`)).size, actions.length)

@@ -1,7 +1,10 @@
 import { assert, describe, expect, it } from "vitest"
 
+import { defaultSkillMaps } from "@/application/gameData/skills"
+
 import buffs from "../data/buff/bamboocut-kite.json"
-import skills from "../data/skill/heavenwill-gauntlets.json"
+
+const skills = defaultSkillMaps.Heavenwill
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const delay = (duration: number): RotationStep => ({ type: "event", event: "Delay", duration })

@@ -4,12 +4,14 @@ import { execFileSync } from "node:child_process"
 import { build } from "esbuild"
 import { describe, it } from "vitest"
 
-import { ExpectedPeriodicTracker as Current } from "../src/calculations/outcomeTriggeredBuffs"
+import { ExpectedPeriodicTracker as Current, type MaxStackAction } from "../src/calculations/outcomeTriggeredBuffs"
 import {
   mergePeriodicLists,
   mergeTinyPeriodicEntries,
   periodicStateListFactory,
+  type PeriodicStateList,
 } from "../src/calculations/periodicStateLists"
+import { assertClose } from "./helpers/floatEquality"
 
 // Ported from script/probe/check-periodic-state-storage.mjs. The reference
 // model is committed source loaded from git history; shallow checkouts
@@ -26,8 +28,17 @@ function referenceAvailable() {
   }
 }
 
-const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-11, `${a} != ${b}`)
-const threshold = { consume: "all", trigger: "Burst" }
+const close = (a: number, b: number) => assertClose(a, b, 1e-11)
+const threshold: MaxStackAction = { consume: "all", trigger: "Burst" }
+
+/**
+ * The public surface of the tracker both the current and the reference model expose.
+ *
+ * The reference is loaded from a committed revision and compiled at runtime, so it
+ * carries no static type; the current tracker's method names are the dispatch keys
+ * and its results are what the reference is checked against.
+ */
+type TrackerMethodName = keyof Current
 let seed = 20260908
 const random = () => {
   seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0
@@ -50,11 +61,11 @@ async function loadReferenceTracker() {
 
 describe("periodic-state-storage", () => {
   it("storage list operations", async () => {
-    for (const storage of ["packed", "indexed"]) {
+    for (const storage of ["packed", "indexed"] as const) {
       const createList = periodicStateListFactory(storage)
       const a = createList(),
         b = createList()
-      const read = list => {
+      const read = (list: PeriodicStateList) => {
         const rows = []
         for (let i = list.head; i >= 0; i = list.next(i)) rows.push([list.expires[i], list.mass[i]])
         return rows
@@ -161,20 +172,22 @@ describe("periodic-state-storage", () => {
 
   it.skipIf(!referenceAvailable())("matches the committed reference model", async () => {
     const { ExpectedPeriodicTracker: Reference } = await loadReferenceTracker()
-    for (const storage of ["packed", "indexed"])
+    for (const storage of ["packed", "indexed"] as const)
       for (const origin of [undefined, 0, 0.05])
         for (let trial = 0; trial < 12; trial++) {
           const expected = new Reference(1, 1.01, origin)
           const actual = new Current(1, 1.01, origin, storage)
-          const both = (method, ...args) => {
-            const left = expected[method](...args),
-              right = actual[method](...args)
-            if (typeof left === "number") close(left, right)
+          const both = (method: TrackerMethodName, ...args: unknown[]) => {
+            const left = expected[method](...args)
+            const right = (actual as unknown as Record<TrackerMethodName, (...callArgs: unknown[]) => unknown>)[method](
+              ...args,
+            )
+            if (typeof left === "number") close(left, right as number)
             return left
           }
           let time = 0,
             serial = 0
-          const followup = (branch, owner, at, guaranteed) => {
+          const followup = (branch: string, owner: string, at: number, guaranteed: boolean) => {
             both("apply", at, 0.15, 5, 5, 1, owner, threshold, `nested-${serial++}`, branch)
             if (guaranteed) both("apply", at, 1, 5, 5, 1, owner, threshold, `nested-${serial++}`, branch)
             both("releaseBranch", branch)

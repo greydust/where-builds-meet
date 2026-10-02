@@ -12,7 +12,7 @@ The app is built with React, TypeScript, and Vite. It is fully client-side: game
 
 Requirements:
 
-- Node.js `20.19+` or `22.12+`
+- Node.js `24+`
 - npm
 
 ```bash

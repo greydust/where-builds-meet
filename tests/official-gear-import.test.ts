@@ -1,20 +1,22 @@
 import { assert, describe, it } from "vitest"
 
+import type { OfficialProfileMap } from "@/officialGearImport"
+
 // Ported from script/probe/check-official-gear-import.mjs.
 describe("official-gear-import", () => {
   it("Official dashboard gear parsing and additive build import checks passed", async () => {
     const importer = await import("../src/officialGearImport.ts")
     const bookmarklet = await import("../src/officialGearBookmarklet.ts")
     const gear = await import("../src/gear.ts")
-    const affixMap = (await import("../data/official/affix-map.json")).default
+    const affixMap = (await import("../data/official/affix-map.json")).default as Record<string, string>
     assert(
       bookmarklet.officialGearBookmarklet.startsWith("javascript:"),
       "The dashboard exporter must be a draggable JavaScript bookmark.",
     )
     new Function(decodeURIComponent(bookmarklet.officialGearBookmarklet.slice("javascript:".length)))
-    const statId = key => Object.keys(affixMap).find(id => affixMap[id] === key)
-    const row = (key, value) => ({ equipmentDetails: [statId(key), value, 5, 0, true] })
-    const weaponRows = art => [
+    const statId = (key: string) => Object.keys(affixMap).find(id => affixMap[id] === key)
+    const row = (key: string, value: number) => ({ equipmentDetails: [statId(key), value, 5, 0, true] })
+    const weaponRows = (art: string) => [
       row("minPhys", 53),
       row("minPhys", 60),
       row("agility", 40),
@@ -38,7 +40,11 @@ describe("official-gear-import", () => {
       row("maxStonesplit", 36.2),
       row("phalanxbaneChargedBoost", 5),
     ]
-    const detail = (baseAttrs, baseAffixes, extra = {}) => ({ exVo: { ...extra, baseAttrs, baseAffixes } })
+    const detail = (
+      baseAttrs: Record<string, number>,
+      baseAffixes: ReturnType<typeof row>[],
+      extra: Record<string, number> = {},
+    ) => ({ exVo: { ...extra, baseAttrs, baseAffixes } })
     const pasted = {
       source: "wwm-dashboard",
       v: 1,
@@ -67,9 +73,9 @@ describe("official-gear-import", () => {
       merged.importedGearCount === 8 && merged.importedBuildCount === 1,
       "Official gear must pass the normal build validation pipeline.",
     )
-    const build = merged.state.entries[0]
+    const build = merged.state.entries[0]!
     assert(
-      Object.keys(build.equipped).length === 8 && build.name === "Probe Character Import",
+      Object.keys(build.equipped ?? {}).length === 8 && build.name === "Probe Character Import",
       "The imported build must equip every imported piece under the character import name.",
     )
     assert(
@@ -104,7 +110,7 @@ describe("official-gear-import", () => {
         tier96Purple.warnings.length === 0,
       "Current Tier 96 base stats and relaying marker must import without a fallback.",
     )
-    const actualRow = (id, value) => ({ equipmentDetails: [id, value, 0.94, 3, true] })
+    const actualRow = (id: number, value: number) => ({ equipmentDetails: [id, value, 0.94, 3, true] })
     const dashboardShape = importer.parseOfficialGearExport(
       {
         source: "wwm-dashboard",
@@ -215,7 +221,7 @@ describe("official-gear-import", () => {
     for (const [label, parsed, arsenal] of [
       ["Kite", kiteSetupShape, "Bamboocut"],
       ["Deluge", delugeTestingSetupShape, "Silkbind"],
-    ]) {
+    ] as Array<[string, typeof kiteSetupShape, string]>) {
       assert(
         parsed.exportValue.builds[0].setup.arsenal === arsenal,
         `A ${label} import must select the ${arsenal} arsenal that covers its path's attribute.`,
@@ -263,10 +269,10 @@ describe("official-gear-import", () => {
       "A Dust import must select the Bamboocut arsenal that covers its path's attribute.",
     )
     // The official ID tables are only useful while every value they carry resolves.
-    const profileMap = (await import("../data/official/profile-map.json")).default
+    const profileMap = (await import("../data/official/profile-map.json")).default as OfficialProfileMap
     const { innerWayDefinitions } = await import("../src/data/innerWayDefinitions.ts")
     const { typedPathDefinitions } = await import("../src/application/gameData/paths.ts")
-    const arsenals = Object.keys((await import("../data/arsenal.json")).default)
+    const arsenals = Object.keys((await import("../data/arsenal.json")).default) as string[]
     for (const [id, entry] of Object.entries(profileMap.innerWays)) {
       if (!entry.innerWay) continue
       assert.ok(
@@ -274,10 +280,11 @@ describe("official-gear-import", () => {
         `Official Inner Way ${id} must resolve to a registered definition, not ${entry.innerWay}.`,
       )
     }
-    for (const [table, field, definitions] of [
+    const setTables: Array<["weaponSets" | "armorSets", "weaponSet" | "armorSet", Record<string, object>]> = [
       ["weaponSets", "weaponSet", gear.weaponSetDefinitions],
       ["armorSets", "armorSet", gear.armorSetDefinitions],
-    ]) {
+    ]
+    for (const [table, field, definitions] of setTables) {
       for (const [id, entry] of Object.entries(profileMap[table])) {
         assert.ok(
           entry[field] in definitions,
@@ -329,9 +336,9 @@ describe("official-gear-import", () => {
     assert(
       JSON.stringify(mightDashboardShape.weapons) === JSON.stringify(["thundercry", "stormbreaker"]) &&
         JSON.stringify(mightBuild.martialArts) === JSON.stringify(["thundercry", "stormbreaker"]) &&
-        mightItems.get(mightBuild.equipped.leftWeapon)?.definitionId === "moBlade" &&
-        mightItems.get(mightBuild.equipped.rightWeapon)?.definitionId === "spear" &&
-        mightItems.get(mightBuild.equipped.helmet)?.attunement?.key === "thundercryChargedBoost",
+        mightItems.get(mightBuild.equipped.leftWeapon!)?.definitionId === "moBlade" &&
+        mightItems.get(mightBuild.equipped.rightWeapon!)?.definitionId === "spear" &&
+        mightItems.get(mightBuild.equipped.helmet!)?.attunement?.key === "thundercryChargedBoost",
       "Official Might IDs must import as left Thundercry Blade, right Stormbreaker Spear, and Thundercry Charged armor.",
     )
     const reversedMightDashboardShape = importer.parseOfficialGearExport(
@@ -355,17 +362,18 @@ describe("official-gear-import", () => {
     assert(
       JSON.stringify(reversedMightDashboardShape.weapons) === JSON.stringify(["thundercry", "stormbreaker"]) &&
         JSON.stringify(reversedMightBuild.martialArts) === JSON.stringify(["thundercry", "stormbreaker"]) &&
-        reversedMightItems.get(reversedMightBuild.equipped.leftWeapon)?.definitionId === "moBlade" &&
-        reversedMightItems.get(reversedMightBuild.equipped.rightWeapon)?.definitionId === "spear",
+        reversedMightItems.get(reversedMightBuild.equipped.leftWeapon!)?.definitionId === "moBlade" &&
+        reversedMightItems.get(reversedMightBuild.equipped.rightWeapon!)?.definitionId === "spear",
       "Official Might imports must classify the path before assigning reversed main/sub weapons to canonical slots.",
     )
-    for (const [statId, expectedKey] of [
+    const mightAttunementIds: Array<[number, string]> = [
       [280201, "thundercryShieldBoost"],
       [280202, "thundercryChargedBoost"],
       [280203, "thundercrySpecialBoost"],
       [280204, "stormbreakerChargedBoost"],
       [280205, "stormbreakerSpecialBoost"],
-    ]) {
+    ]
+    for (const [statId, expectedKey] of mightAttunementIds) {
       const parsedAttunement = importer.parseOfficialGearExport(
         {
           roleName: `Might Attunement ${statId}`,
@@ -421,7 +429,7 @@ describe("official-gear-import", () => {
     const dashboardBuild = dashboardShape.exportValue.builds[0]
     const dashboardItems = new Map(dashboardShape.exportValue.gearItems.map(item => [item.id, item]))
     assert(
-      dashboardItems.get(dashboardBuild.equipped.rightWeapon)?.definitionId === "moBlade",
+      dashboardItems.get(dashboardBuild.equipped.rightWeapon!)?.definitionId === "moBlade",
       "A dashboard Mo Blade must be equipped in the matching current weapon slot.",
     )
     const unattunedWeapon = importer.parseOfficialGearExport(
@@ -528,8 +536,8 @@ describe("official-gear-import", () => {
       "Repeated official imports must reuse exactly matching shared gear while creating a new build.",
     )
     assert(
-      secondOfficialMerge.state.entries[1].equipped.leftWeapon ===
-        firstOfficialMerge.state.entries[0].equipped.leftWeapon,
+      secondOfficialMerge.state.entries[1]!.equipped!.leftWeapon! ===
+        firstOfficialMerge.state.entries[0]!.equipped!.leftWeapon!,
       "A reused gear item must be referenced by the new build.",
     )
   })

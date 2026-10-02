@@ -1,36 +1,60 @@
-import { assert, describe, it } from "vitest"
+import assert from "node:assert/strict"
 
+import { describe, it } from "vitest"
+
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { EditableObject, InnerWayEffectRule, TimelineBuildInput } from "@/calculations/rotationTimeline"
+import type { InnerWayTierEffect } from "@/data/innerWayDefinitions"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { asEffectDefinitions } from "./helpers/shippedData"
 
 // Ported from script/probe/check-seasonal-edge.mjs.
 describe("seasonal-edge", () => {
   it("Seasonal Edge chance branches, proc window, damage, simulation, and Vitality range checks passed", async () => {
-    const { calculateRotationBaseline, calculateRotationDamageSequence } = await probeLoad(
-      "/src/calculations/rotationCalculator.ts",
-    )
+    const { calculateRotationBaseline, calculateRotationDamageSequence } = await probeLoad<
+      typeof import("../src/calculations/rotationCalculator")
+    >("/src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { buildRotationTimeline, mergeCalculatedTimelineState } = await probeLoad(
-      "/src/calculations/rotationTimeline.ts",
-    )
-    const { seasonalEdgeEffectFor, seasonalEdgeWindows } = await probeLoad("/src/calculations/seasonalEdge.ts")
+    const { buildRotationTimeline, mergeCalculatedTimelineState } = await probeLoad<
+      typeof import("../src/calculations/rotationTimeline")
+    >("/src/calculations/rotationTimeline.ts")
+    const { seasonalEdgeEffectFor, seasonalEdgeWindows } = await probeLoad<
+      typeof import("../src/calculations/seasonalEdge")
+    >("/src/calculations/seasonalEdge.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const generalBuffs = (await import("../data/buff/general.json")).default
     const seasonalDefinition = (await import("../data/innerway/seasonal-edge.json")).default
-    const closeTo = (actual, expected, message, tolerance = 1e-8) => {
-      assert(Math.abs(actual - expected) <= tolerance, `${message}: expected ${expected}, received ${actual}`)
-    }
+    const closeTo = (actual: number, expected: number, message: string, tolerance = 1e-8) =>
+      assertClose(actual, expected, tolerance, message)
 
     const trigger = seasonalDefinition.effect.SeasonalEdgeT0.trigger[0]
-    const rule = { source: "SeasonalEdge", tier: 0, effect: {}, trigger }
-    const rulesThroughTier = tier => [
+    const noStatEffect: EditableObject = {}
+    const rule: InnerWayEffectRule = { source: "SeasonalEdge", tier: 0, effect: noStatEffect, trigger }
+    const seasonalTier = (tier: number) =>
+      (seasonalDefinition.effect as Record<string, InnerWayTierEffect | undefined>)[`SeasonalEdgeT${tier}`]
+    /**
+     * Read a record out of an authored tier, or nothing when it is not one. A
+     * tier's fields are read as `unknown`, so going from that to a record the
+     * rule can hold needs one assertion; it is stated here rather than at each
+     * field below.
+     */
+    const asAuthoredRecord = (value: unknown): EditableObject | undefined =>
+      typeof value === "object" && value !== null && !Array.isArray(value) ? (value as EditableObject) : undefined
+
+    /** A tier either names a stat directly or carries a nested effect record. */
+    const statEffectOf = (entry: EditableObject): EditableObject =>
+      entry.stat ? { stat: entry.stat } : (asAuthoredRecord(entry.effect) ?? noStatEffect)
+    const rulesThroughTier = (tier: number): InnerWayEffectRule[] => [
       rule,
       ...Array.from({ length: tier }, (_, index) => index + 1).flatMap(currentTier =>
-        (seasonalDefinition.effect[`SeasonalEdgeT${currentTier}`].effect ?? []).map(effect => ({
+        (seasonalTier(currentTier)?.effect ?? []).map((effect: EditableObject) => ({
           source: "SeasonalEdge",
           tier: currentTier,
-          effect: effect.stat ? { stat: effect.stat } : (effect.effect ?? {}),
-          target: effect.target,
-          modify: effect.modify,
+          effect: statEffectOf(effect),
+          target: typeof effect.target === "string" ? effect.target : undefined,
+          modify: asAuthoredRecord(effect.modify),
         })),
       ),
     ]
@@ -46,7 +70,7 @@ describe("seasonal-edge", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const timeline = {
+    const timeline: TimelineBuildInput = {
       rotation: {
         name: "Seasonal Edge probe",
         steps: [
@@ -79,7 +103,7 @@ describe("seasonal-edge", () => {
       },
       eventDefinitions: {},
       dots: {},
-      effectDefinitions: generalBuffs,
+      effectDefinitions: asEffectDefinitions(generalBuffs),
       innerWayConditions: ["SeasonalEdgeT0"],
       innerWayRules: [rule],
       setupEffects: [],
@@ -87,9 +111,14 @@ describe("seasonal-edge", () => {
       initialResources: { Vitality: 10 },
       resourceMaximums: { Vitality: 100 },
     }
-    const t1 = seasonalEdgeEffectFor(rulesThroughTier(1), generalBuffs)
+    const effectThroughTier = (tier: number) => {
+      const effect = seasonalEdgeEffectFor(rulesThroughTier(tier), asEffectDefinitions(generalBuffs))
+      assert(effect, `Seasonal Edge T${tier} must resolve an effect from its own rules.`)
+      return effect
+    }
+    const t1 = effectThroughTier(1)
     closeTo(t1.duration, 12, "T1 must extend the shared season duration from eight to twelve seconds")
-    const t3 = seasonalEdgeEffectFor(rulesThroughTier(3), generalBuffs)
+    const t3 = effectThroughTier(3)
     closeTo(
       t3.outcomes.filter(outcome => outcome.buffs.length === 2).reduce((total, outcome) => total + outcome.weight, 0),
       0.3,
@@ -97,10 +126,10 @@ describe("seasonal-edge", () => {
     )
     if (t3.outcomes.some(outcome => new Set(outcome.buffs).size !== outcome.buffs.length))
       throw new Error("T3 must roll its second season without replacement.")
-    const t4 = seasonalEdgeEffectFor(rulesThroughTier(4), generalBuffs)
+    const t4 = effectThroughTier(4)
     if (!t4.additionalSkills.includes("SereneBreeze"))
       throw new Error("T4 must allow Serene Breeze to trigger Seasonal Edge.")
-    const t6 = seasonalEdgeEffectFor(rulesThroughTier(6), generalBuffs)
+    const t6 = effectThroughTier(6)
     if (t6.outcomes.some(outcome => outcome.buffs.includes("Frost")))
       throw new Error("T6 must remove Frost from every possible outcome.")
     closeTo(
@@ -129,7 +158,7 @@ describe("seasonal-edge", () => {
       timeline,
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],
@@ -155,24 +184,26 @@ describe("seasonal-edge", () => {
     )
     const cooldownPlate = result.timeline[1].buffs.get("SeasonalEdgeCooldown")
     if (!cooldownPlate) throw new Error("Seasonal Edge must expose its deterministic cooldown as a timeline buff.")
-    closeTo(cooldownPlate.expiresAt, 31, "Seasonal Edge cooldown must expire 30 seconds after the trigger")
+    closeTo(cooldownPlate.expiresAt ?? 0, 31, "Seasonal Edge cooldown must expire 30 seconds after the trigger")
     if (
       Object.values(result.actionBreakdowns).some(
         breakdown => breakdown.expectedBuffStacks?.SeasonalEdgeCooldown !== undefined,
       )
     )
       throw new Error("Seasonal Edge cooldown must not be represented as a probability-weighted buff plate.")
-    const mysticState = result.timeline[3].actionStates[1]
+    const mysticState = result.timeline[3]!.actionStates[1]!
+    const vitalityRange = mysticState.resourceRanges?.Vitality
+    assert(vitalityRange, "A consumed resource must carry its range.")
+    const closeRange = (field: "minimum" | "maximum" | "expected") => {
+      const value = vitalityRange[field]
+      assert(value !== undefined, `A resource range must carry its ${field}.`)
+      return value
+    }
     closeTo(mysticState.resources.Vitality, -10, "Vitality consumption must be allowed below zero")
-    closeTo(mysticState.resourceRanges.Vitality.minimum, -10, "The Vitality lower bound must exclude Yield")
-    if (!(mysticState.resourceRanges.Vitality.maximum > -10))
+    closeTo(closeRange("minimum"), -10, "The Vitality lower bound must exclude Yield")
+    if (!(closeRange("maximum") > -10))
       throw new Error("The Vitality upper bound must include possible Yield regeneration.")
-    if (
-      !(
-        mysticState.resourceRanges.Vitality.expected > mysticState.resourceRanges.Vitality.minimum &&
-        mysticState.resourceRanges.Vitality.expected < mysticState.resourceRanges.Vitality.maximum
-      )
-    )
+    if (!(closeRange("expected") > closeRange("minimum") && closeRange("expected") < closeRange("maximum")))
       throw new Error("Expected Vitality must probability-weight Yield between its lower and upper bounds.")
     closeTo(
       result.mysticVitalityDamageScale,
@@ -195,7 +226,7 @@ describe("seasonal-edge", () => {
       },
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],
@@ -210,8 +241,11 @@ describe("seasonal-edge", () => {
     )
       throw new Error("Healing-triggered Vitality must improve expected Mystic damage while deficit branches remain.")
     const displayedTimeline = mergeCalculatedTimelineState(buildRotationTimeline(timeline), result.timeline)
+    const displayedMysticState = displayedTimeline[3]!.actionStates[1]!
+    const displayedVitality = displayedMysticState.resourceRanges?.Vitality
+    assert(displayedVitality, "The displayed Vitality consumption must carry its range.")
     closeTo(
-      displayedTimeline[3].actionStates[1].resourceRanges.Vitality.minimum,
+      displayedVitality.minimum ?? 0,
       -10,
       "Calculated Vitality bounds must survive the editor's structural-timeline merge",
     )

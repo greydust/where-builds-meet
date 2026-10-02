@@ -11,6 +11,19 @@ export type AttunementTagFilter = {
 
 type AttunementDefinition = { effect?: AttunementTagFilter & { stat?: Record<string, number> } }
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>
+
+/**
+ * Every attunement bonus at zero, keyed like `AttunementStats`.
+ *
+ * `matchingAttunementEntries` reads the keys off the object it is given, so an
+ * absent bonus simply never matches. A caller that wants "no attunement" still
+ * needs every key present to satisfy the type, and the shipped table carries
+ * exactly those keys, so the zero value is derived from it.
+ */
+export const emptyAttunementStats = Object.fromEntries(
+  Object.keys(attunementDefinitions).map(key => [key, 0]),
+) as AttunementStats
+
 type AttunementMatch = { key: keyof AttunementStats; stat: Record<string, number> | undefined }
 const attunementMatchCache = new WeakMap<AttunementStats, Map<string, readonly AttunementMatch[]>>()
 

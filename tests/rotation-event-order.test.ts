@@ -1,5 +1,8 @@
 import { assert, describe, it } from "vitest"
 
+import type { RotationStep } from "@/calculations/rotationTimeline"
+import type { RotationAttachmentTarget } from "@/rotationEditing"
+
 // Ported from script/probe/check-rotation-event-order.mjs.
 describe("rotation-event-order", () => {
   it("Rotation event ordering checks passed", async () => {
@@ -12,7 +15,7 @@ describe("rotation-event-order", () => {
       resolveAttachmentTargetIndex,
     } = await import("../src/rotationEditing.ts")
     const target = { action: 0 }
-    const steps = [
+    const steps: RotationStep[] = [
       { type: "event", event: "Move", before: target, distance: 3 },
       { type: "event", event: "Buff", before: target, buff: "Cadence" },
       { type: "event", event: "Debuff", before: target, debuff: "Vulnerable" },
@@ -27,7 +30,7 @@ describe("rotation-event-order", () => {
     assert(movedDown?.movedIndex === 2, "The middle event should move below its same-target sibling.")
     assert(movedDown?.steps[2]?.event === "Buff", "Downward reordering should preserve the event itself.")
 
-    const afterEventSteps = [
+    const afterEventSteps: RotationStep[] = [
       { type: "event", event: "Qi", after: target, targetQiRatio: 0 },
       { type: "event", event: "Buff", before: target, buff: "Cadence" },
       { type: "skill", skill: "Avalanche" },
@@ -37,7 +40,7 @@ describe("rotation-event-order", () => {
       "Before- and after-action events must remain separate ordering groups.",
     )
 
-    const takeDamageSteps = [
+    const takeDamageSteps: RotationStep[] = [
       { type: "event", event: "Qi", before: target, targetQiRatio: 0 },
       { type: "event", event: "Buff", before: target, buff: "Cadence" },
       { type: "event", event: "TakeDamage", startTime: 1, damage: 100 },
@@ -49,7 +52,7 @@ describe("rotation-event-order", () => {
       "Attached events must share and reorder within a fixed-time Take Damage anchor.",
     )
     const dragonTarget = { action: 8 }
-    const dragonEventsAcrossTakeDamage = [
+    const dragonEventsAcrossTakeDamage: RotationStep[] = [
       { type: "event", event: "Buff", before: dragonTarget, buff: "SurgingWaves" },
       { type: "event", event: "SelfHP", before: dragonTarget, currentHPRatio: 0.2 },
       { type: "event", event: "TakeDamage", startTime: 1, damage: 1 },
@@ -60,11 +63,11 @@ describe("rotation-event-order", () => {
       "Take Damage must not split events targeting an action that only the following skill provides.",
     )
 
-    const afterStartSteps = [
+    const afterStartSteps: RotationStep[] = [
       { type: "event", event: "Qi", after: { action: "start" }, targetQiRatio: 0 },
       { type: "skill", skill: "NoActionAnchor" },
     ]
-    const afterStartTargets = [
+    const afterStartTargets: RotationAttachmentTarget[] = [
       { sourceRowId: "rotation-1", sourceStepIndex: 1, target: { action: "start" }, time: 4, order: 1000 },
       { sourceRowId: "rotation-2", sourceStepIndex: 2, target: { action: 0 }, time: 5, order: 2000 },
     ]
@@ -74,13 +77,7 @@ describe("rotation-event-order", () => {
       "An after-start attachment must resolve to the start target instead of jumping to the first damage action.",
     )
 
-    const fixedQi = {
-      type: "event" as const,
-      event: "Qi" as const,
-      before: { action: 0 },
-      startTime: 3,
-      targetQiRatio: 0,
-    }
+    const fixedQi: RotationStep = { type: "event", event: "Qi", before: { action: 0 }, startTime: 3, targetQiRatio: 0 }
     assert.equal(isRuntimeAttachedEvent(fixedQi), false, "Fixed metadata must not own runtime attachment behavior.")
     assert.deepEqual(
       normalizeRotationStart({ step: 0 }, [fixedQi, { type: "skill", skill: "Probe" }]),
@@ -112,12 +109,14 @@ describe("rotation-event-order", () => {
     const movedFixedQi = moveEventToAttachmentTarget(
       [fixedQi, { type: "skill", skill: "First" }, { type: "skill", skill: "Second" }],
       0,
-      afterStartTargets[0],
+      afterStartTargets[0]!,
       "before",
     )
+    const movedQi = movedFixedQi?.steps[0]
     assert.equal(movedFixedQi?.movedIndex, 0)
-    assert.equal(movedFixedQi?.steps[0].event, "Qi")
-    assert.deepEqual(movedFixedQi?.steps[0].before, { action: "start" })
-    assert(!Object.hasOwn(movedFixedQi!.steps[0], "startTime"))
+    assert(movedQi, "Moving a fixed event must leave it as the first step.")
+    assert.equal("event" in movedQi && movedQi.event, "Qi")
+    assert.deepEqual("before" in movedQi ? movedQi.before : undefined, { action: "start" })
+    assert(!Object.hasOwn(movedQi, "startTime"))
   })
 })

@@ -1,5 +1,16 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type {
+  RotationDamageEntry,
+  RotationSimulationBaseline,
+  RotationSimulationBundle,
+} from "@/calculations/rotationCalculator"
+import type { EditableObject, InnerWayEffectRule } from "@/calculations/rotationTimeline"
+
+import { isClose } from "./helpers/floatEquality"
+import { castStep, delayStep } from "./helpers/rotationSteps"
+
 // Ported from script/probe/check-damage-replay.mjs.
 describe("damage-replay", () => {
   it("Damage-event replay checks passed", async () => {
@@ -7,7 +18,27 @@ describe("damage-replay", () => {
     const { simulateRotation } = await import("../src/calculations/simulationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-7
+    const closeTo = (actual: number | undefined, expected: number) => isClose(actual, expected, 1e-7)
+    // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
+    const noEffect: EditableObject = {}
+    // Every resolved action carries the time it landed at; the replay windows compare against it.
+    const timelineTimeOf = (entry: RotationDamageEntry) => {
+      assert(typeof entry.timelineTime === "number", "A resolved damage action must carry its timeline time.")
+      return entry.timelineTime
+    }
+    // A resolved action's id, which is how its breakdown is looked up.
+    const at = (entry: RotationDamageEntry) => {
+      assert(entry.id, "A resolved damage action must have an id.")
+      return entry.id
+    }
+    // A resolved action's breakdown total, which every comparison here divides or sums.
+    const totalOf = (result: RotationSimulationBaseline, entry: RotationDamageEntry) =>
+      result.actionBreakdowns[at(entry)].total
+    // A replay entry is the nested action a delayed trigger resolved.
+    const replayOf = (entry: RotationDamageEntry) => {
+      assert(entry.replay, "A replayed action must carry the replay it came from.")
+      return entry.replay
+    }
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
       name: "Replay probe",
@@ -52,7 +83,7 @@ describe("damage-replay", () => {
       Wait: { name: "Wait", castTime: 18, action: [], modifier: [], tags: ["General"] },
       ReplayProbe: replaySkill,
     }
-    const listenerRule = {
+    const listenerRule: InnerWayEffectRule = {
       requirement: [
         { target: "skillTag", value: "Charged" },
         { target: "target", value: "HeavensMight" },
@@ -66,21 +97,22 @@ describe("damage-replay", () => {
         ],
         action: { type: "trigger", value: "ReplayProbe", parameter: { damage: "event.damage" } },
       },
-      effect: {},
+      // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
+      effect: noEffect,
       source: "ReplayProbeInnerWay",
       tier: 6,
     }
-    const createBundle = (withHeavensMight = true) => {
+    const createBundle = (withHeavensMight = true): RotationSimulationBundle => {
       const timeline = {
         rotation: {
           name: "Damage replay probe",
           targetHP: 10000,
           steps: [
-            ...(withHeavensMight ? [{ type: "skill", skill: "ApplyHeavensMight" }] : []),
-            { type: "skill", skill: "ChargedProbe" },
-            { type: "skill", skill: "Wait" },
-            { type: "skill", skill: "ChargedProbe" },
-            { type: "event", event: "Delay", duration: 5 },
+            ...(withHeavensMight ? [castStep("ApplyHeavensMight")] : []),
+            castStep("ChargedProbe"),
+            castStep("Wait"),
+            castStep("ChargedProbe"),
+            delayStep(5),
           ],
         },
         skills,
@@ -96,7 +128,7 @@ describe("damage-replay", () => {
         timeline,
         startAnchor: { rowId: withHeavensMight ? "rotation-0" : "rotation-0" },
         stats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         enemy,
         derivedStats: calculateDerivedStats(stats, 0),
         weapons: [],
@@ -107,11 +139,16 @@ describe("damage-replay", () => {
       }
     }
 
-    const sourceDamage = (result, replay) => {
+    const sourceDamage = (result: RotationSimulationBaseline, replay: RotationDamageEntry) => {
       const source = result.baseline
         .filter(entry => !entry.replay && entry.action.type === "damage")
-        .find(entry => entry.timelineTime > replay.timelineTime - 4 && entry.timelineTime < replay.timelineTime)
-      return result.actionBreakdowns[source.id].total
+        .find(
+          entry =>
+            (entry.timelineTime ?? 0) > timelineTimeOf(replay) - 4 &&
+            (entry.timelineTime ?? 0) < timelineTimeOf(replay),
+        )
+      assert(source, "Every replay must have a source damage action in the preceding four seconds.")
+      return totalOf(result, source)
     }
     const result = calculateRotationBaseline(createBundle())
     const healingBundle = createBundle()
@@ -134,20 +171,17 @@ describe("damage-replay", () => {
       replayEntries.length === 6,
       "The 18-second listener cooldown must allow only the first hit of each separated Charged cast to replay.",
     )
-    const firstSource = result.actionBreakdowns[normalEntries[0].id].total
-    const firstReplayTotal = replayEntries
-      .slice(0, 3)
-      .reduce((total, entry) => total + result.actionBreakdowns[entry.id].total, 0)
+    const firstSource = totalOf(result, normalEntries[0])
+    const firstReplayTotal = replayEntries.slice(0, 3).reduce((total, entry) => total + totalOf(result, entry), 0)
     assert(closeTo(firstReplayTotal, firstSource * 0.4), "Replay actions must deal exactly 40% of the source hit.")
-    const firstCastDamage =
-      result.actionBreakdowns[normalEntries[0].id].total + result.actionBreakdowns[normalEntries[1].id].total
+    const firstCastDamage = totalOf(result, normalEntries[0]) + totalOf(result, normalEntries[1])
     assert(
       closeTo(normalEntries[2].context.targetHPRatio, 1 - (firstCastDamage + firstReplayTotal) / 10000),
       "Delayed replay ticks must reduce target HP before later ordinary damage is evaluated.",
     )
     assert(
       replayEntries.every(entry => {
-        const breakdown = result.actionBreakdowns[entry.id]
+        const breakdown = result.actionBreakdowns[at(entry)]
         return !breakdown.outcomeRates && breakdown.physical === breakdown.total
       }),
       "Replay damage must bypass outcomes and every normal damage channel calculation.",
@@ -194,15 +228,16 @@ describe("damage-replay", () => {
       const actual = calculateRotationBaseline(bundle)
       for (const entry of actual.baseline.filter(entry => entry.replay)) {
         const source = sourceDamage(actual, entry)
-        const enabled = active.length === 2 && entry.timelineTime < 20
+        const enabled = active.length === 2 && timelineTimeOf(entry) < 20
         assert(
-          closeTo(actual.actionBreakdowns[entry.id].total, source * entry.replay.coef * (enabled ? 1.2 : 1)),
+          closeTo(totalOf(actual, entry), source * replayOf(entry).coef * (enabled ? 1.2 : 1)),
           "Wildstride requires both debuffs at replay time, caps at one stack, and ignores normal multipliers.",
         )
       }
       const normal = actual.baseline.find(entry => !entry.replay)
+      assert(normal, "The probe must resolve at least one ordinary damage action.")
       assert(
-        closeTo(actual.actionBreakdowns[normal.id].total, firstSource * (active.includes("Strayhunt") ? 1.02 : 1)),
+        closeTo(totalOf(actual, normal), firstSource * (active.includes("Strayhunt") ? 1.02 : 1)),
         "Wildstride must not amplify ordinary source damage.",
       )
       const sampled = simulateRotation(bundle, 2, () => 0.5)
@@ -218,7 +253,7 @@ describe("damage-replay", () => {
     for (const entry of maintained.baseline.filter(entry => entry.replay)) {
       const source = sourceDamage(maintained, entry)
       assert(
-        closeTo(maintained.actionBreakdowns[entry.id].total, source * entry.replay.coef * 1.2),
+        closeTo(totalOf(maintained, entry), source * replayOf(entry).coef * 1.2),
         "Global Wildstride and Strayhunt remain active beyond their manual durations.",
       )
     }

@@ -1,22 +1,30 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import {
+  buildRotationTimeline,
+  type EditableObject,
+  type RotationStep,
+  type TimelineBuildInput,
+} from "@/calculations/rotationTimeline"
+
 import mechanismBuffs from "../data/buff/mechanism.json"
 import mechanismSkills from "../data/skill/mechanism.json"
-import { buildRotationTimeline, type RotationStep } from "../src/calculations/rotationTimeline"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const lightning = { type: "skill", skill: "SummonLightning" } as const
 const hit = { type: "skill", skill: "Hit" } as const
 
-function timelineFor(steps: RotationStep[], setupEffects: unknown[] = []) {
+function timelineFor(steps: RotationStep[], setupEffects: EditableObject[] = []): TimelineBuildInput {
   return {
     rotation: { name: "Mechanism probe", ping: 0, steps },
-    skills: {
+    skills: asSkillRecords({
       ...mechanismSkills,
       Hit: { name: "Hit", castTime: 1, action: [{ type: "damage", phyCoef: 1, attrCoef: 1, time: 1 }] },
-    },
+    }),
     eventDefinitions: { BattleEnd: { action: [] }, Delay: { action: [] } },
     dots: {},
-    effectDefinitions: mechanismBuffs,
+    effectDefinitions: asEffectDefinitions(mechanismBuffs),
     innerWayConditions: [],
     innerWayRules: [],
     setupEffects,
@@ -65,11 +73,11 @@ describe("Summon Lightning", () => {
       calculateRotationBaseline({
         timeline: timelineFor(
           [...lead, hit],
-          extraDamageEffects.map(effect => ({ effect })),
+          extraDamageEffects.map((effect): EditableObject => ({ effect })),
         ),
         startAnchor: { rowId: `rotation-${lead.length}` },
         stats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         enemy,
         derivedStats: calculateDerivedStats(stats, 0),
         weapons: [],

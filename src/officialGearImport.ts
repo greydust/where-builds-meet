@@ -13,6 +13,7 @@ import {
   gearDefinitionForSlot,
   normalizeBuildSetup,
   sameWeaponPair,
+  type BuildSetup,
   type GearItem,
   type GearLevel,
   type GearRarity,
@@ -32,13 +33,14 @@ type OfficialGearPiece = {
 }
 
 const officialAffixMap = officialAffixMapJson as Record<string, string>
-const officialProfileMap = officialProfileMapJson as {
+export type OfficialProfileMap = {
   martialArts: Record<string, { name: string; weapon?: WeaponId }>
   innerWays: Record<string, { name: string; innerWay?: string }>
   weaponSets: Record<string, { weaponSet: string }>
   armorSets: Record<string, { armorSet: string }>
   bowRingSets: Record<string, { bowRingSet: string }>
 }
+const officialProfileMap = officialProfileMapJson as OfficialProfileMap
 const officialImportMap = officialImportMapJson as {
   baseAttributeKeys: Record<string, string>
   baseStats: Record<string, Partial<Record<string, Partial<Record<"legendary" | "epic", Record<string, number>>>>>>
@@ -227,8 +229,22 @@ function canonicalPathDefinition(importedWeapons: [WeaponId, WeaponId]) {
   )
 }
 
+/** The export payload this module produces, ready for `mergeImportedBuildState`. */
+export type OfficialGearExportValue = {
+  format: typeof buildExportFormat
+  version: 7
+  gearItems: GearItem[]
+  builds: Array<{
+    id: string
+    name: string
+    martialArts: WeaponId[]
+    equipped: Partial<Record<GearSlot, string>>
+    setup: BuildSetup
+  }>
+}
+
 export type OfficialGearImport = {
-  exportValue: unknown
+  exportValue: OfficialGearExportValue
   roleName: string
   gearCount: number
   weapons: [WeaponId, WeaponId]

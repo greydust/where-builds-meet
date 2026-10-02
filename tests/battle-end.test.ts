@@ -1,12 +1,15 @@
 import { assert, describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+
 // Ported from script/probe/check-battle-end.mjs.
 describe("battle-end", () => {
   it("Fight-relative event timing, Battle End cutoff checks passed", async () => {
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const damage = time => ({ type: "damage", phyCoef: 1, attrCoef: 1, phyBonus: 0, attrBonus: 0, time })
+    const damage = (time: number) => ({ type: "damage", phyCoef: 1, attrCoef: 1, phyBonus: 0, attrBonus: 0, time })
     const skills = {
       Prefight: {
         name: "Prefight",
@@ -50,7 +53,7 @@ describe("battle-end", () => {
     }
     const result = calculateRotationBaseline({
       timeline: {
-        rotation,
+        rotation: rotation as RotationRecord,
         skills,
         eventDefinitions: {
           Exhausted: { name: "Exhausted", castTime: 0, action: [] },
@@ -65,7 +68,7 @@ describe("battle-end", () => {
       },
       startAnchor: { rowId: "rotation-1", actionIndex: 0 },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, enemy.judgementResistance),
       weapons: ["snowparting", "phalanxbane"],
@@ -76,12 +79,14 @@ describe("battle-end", () => {
     })
     const exhausted = result.timeline.find(row => row.step.type === "event" && row.step.event === "Exhausted")
     const battleEnd = result.timeline.find(row => row.step.type === "event" && row.step.event === "BattleEnd")
+    assert(exhausted, "The probe must schedule its Exhausted event.")
+    assert(battleEnd, "The probe must schedule its Battle End event.")
     assert(
-      Math.abs(exhausted.startTime - result.anchorTime - 2) < 1e-9,
+      Math.abs((exhausted?.startTime ?? 0) - result.anchorTime - 2) < 1e-9,
       "Exhausted must remain two seconds after the dynamically shifted fight start.",
     )
     assert(
-      Math.abs(battleEnd.startTime - result.anchorTime - 2.5) < 1e-9,
+      Math.abs((battleEnd?.startTime ?? 0) - result.anchorTime - 2.5) < 1e-9,
       "Battle End must remain 2.5 seconds after the dynamically shifted fight start.",
     )
     assert(

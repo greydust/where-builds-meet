@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 
+import type { RotationEntry } from "../src/rotationTransfer.ts"
+
 // Ported from script/probe/check-rotation-transfer.mjs.
 describe("rotation-transfer", () => {
   it("Rotation export and import checks passed", async () => {
@@ -14,13 +16,13 @@ describe("rotation-transfer", () => {
       "A universal martial-art list saved before Draught must expand to include the new pair.",
     ).toBeTruthy()
 
-    const defaultEntry = {
+    const defaultEntry: RotationEntry = {
       id: "dummy-1-min",
       isDefault: true,
       martialArts: ["snowparting", "phalanxbane"],
       rotation: { name: "Default", steps: [{ type: "skill", skill: "SnowpartingQStab" }] },
     }
-    const customEntry = {
+    const customEntry: RotationEntry = {
       id: "custom-rotation",
       martialArts: ["snowparting", "phalanxbane"],
       rotation: {
@@ -44,7 +46,7 @@ describe("rotation-transfer", () => {
         start: { step: 8, action: 1 },
       },
     }
-    const current = [defaultEntry, customEntry]
+    const current: RotationEntry[] = [defaultEntry, customEntry]
     const serialized = JSON.parse(transfer.serializeRotationEntries(current))
     expect(
       serialized.length === 1 && serialized[0].id === customEntry.id && !("isDefault" in serialized[0]),
@@ -70,14 +72,15 @@ describe("rotation-transfer", () => {
     ).toBeTruthy()
     expect(merged.importedIds[0] !== customEntry.id, "A colliding imported rotation ID must be remapped.").toBeTruthy()
     const imported = merged.entries.find(entry => entry.id === merged.importedIds[0])
+    const importedStart = imported?.rotation.start
     expect(
       imported?.rotation.steps.length === 10 &&
         imported.rotation.targetHP === 123456 &&
         imported.rotation.targetType === "DummyAttack" &&
         imported.rotation.groupSize === 5 &&
         imported.rotation.infiniteVitality === true &&
-        imported.rotation.start.step === 8 &&
-        imported.rotation.start.action === 1,
+        importedStart?.step === 8 &&
+        importedStart.action === 1,
       "Rotation steps and start anchor must survive export and import.",
     ).toBeTruthy()
 
@@ -134,11 +137,17 @@ describe("rotation-transfer", () => {
       imported?.martialArts.join(",") === "snowparting,phalanxbane",
       "Rotation martial-art eligibility tags must survive export and import.",
     ).toBeTruthy()
+    const firstImportedStep = imported?.rotation.steps[0]
+    const firstImportedBefore =
+      firstImportedStep && "before" in firstImportedStep ? firstImportedStep.before : undefined
     expect(
-      imported?.rotation.steps[0].event === "Move" &&
-        imported.rotation.steps[0].before.trigger === 0 &&
-        imported.rotation.steps[0].before.action === 1 &&
-        imported.rotation.steps[0].distance === 0,
+      firstImportedStep?.type === "event" &&
+        firstImportedStep.event === "Move" &&
+        firstImportedBefore?.trigger === 0 &&
+        firstImportedBefore.action === 1 &&
+        firstImportedStep.type === "event" &&
+        firstImportedStep.event === "Move" &&
+        firstImportedStep.distance === 0,
       "Attached event targets must survive export and import.",
     ).toBeTruthy()
     expect(
@@ -259,7 +268,9 @@ describe("rotation-transfer", () => {
       "Legacy Auto HP import must drop the flag while retaining manual HP events and the anchored skill.",
     ).toBeTruthy()
     const migratedExport = JSON.parse(transfer.exportRotationEntries(automaticHPImport.entries))
-    const migratedRotation = migratedExport.rotations.find(entry => entry.id === automaticHPImport.importedIds[0])
+    const migratedRotation = migratedExport.rotations.find(
+      (entry: { id: string }) => entry.id === automaticHPImport.importedIds[0],
+    )
     expect(migratedRotation.rotation).toEqual(automaticHPRotation)
     expect(Object.hasOwn(migratedRotation.rotation, "autoHP")).toBe(false)
 
@@ -283,8 +294,10 @@ describe("rotation-transfer", () => {
       entry => entry.id === legacyExhaustedImport.importedIds[0],
     )?.rotation.steps[0]
     expect(
-      legacyExhausted?.event === "Qi" &&
+      legacyExhausted?.type === "event" &&
+        legacyExhausted.event === "Qi" &&
         legacyExhausted.targetQiRatio === 0 &&
+        "after" in legacyExhausted &&
         legacyExhausted.after?.action === 3 &&
         !("before" in legacyExhausted),
       "Legacy Exhausted attachments must migrate to after-action Qi depletion.",

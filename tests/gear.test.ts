@@ -4,13 +4,20 @@ import { build } from "esbuild"
 import ts from "typescript-classic"
 import { assert, describe, it } from "vitest"
 
+import type { GearItem } from "@/gear"
+
+import { setupOf, weaponsOf, type ExportedBuildPayload, type SerializedBuildPayload } from "./helpers/buildStatePayload"
+import { readOnlyStorage, windowOverGlobalStorage } from "./helpers/domStubs"
+import { rowWithId } from "./helpers/timelineRows"
+import { weaponPair } from "./helpers/weaponPair"
+
 // Ported from script/probe/check-gear.mjs.
 describe("gear", () => {
   it("Gear inventory, equipped-effect, and persistence checks passed", async () => {
     // The build typechecks with TypeScript 7, whose package no longer exposes the
     // classic compiler API. These build-tool scripts keep using it via alias.
 
-    const loadBundledModule = async entryPoint => {
+    const loadBundledModule = async (entryPoint: string) => {
       const bundled = await build({
         entryPoints: [entryPoint],
         bundle: true,
@@ -27,10 +34,24 @@ describe("gear", () => {
     const gear = await import("../src/gear.ts")
     const damage = await loadBundledModule("./src/calculations/damage.ts")
     const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts")
+    const maxRoll = (...args: Parameters<typeof gear.maxGearRoll>) => {
+      const roll = gear.maxGearRoll(...args)
+      assert(roll !== undefined, `No affix or attunement cap for ${String(args[0])}.`)
+      return roll
+    }
+    const clampRoll = (...args: Parameters<typeof gear.clampGearRoll>) => {
+      const clamped = gear.clampGearRoll(...args)
+      assert(clamped !== undefined, `No clamped roll for ${String(args[0])}.`)
+      return clamped
+    }
     const breakthroughProfiles = (await import("../data/breakthrough.json")).default
 
     const gearAffixSummary = gear.summarizeGearAffixes([
       {
+        id: "agility-helmet",
+        definitionId: "helmet",
+        level: 96,
+        rarity: "Gold",
         baseAffix: { key: "agility", value: 1 },
         additionalAffixes: [
           { key: "agility", value: 1 },
@@ -39,6 +60,10 @@ describe("gear", () => {
         attunement: { key: "agility", value: 1 },
       },
       {
+        id: "minphys-helmet",
+        definitionId: "helmet",
+        level: 96,
+        rarity: "Gold",
         baseAffix: { key: "minPhys", value: 1 },
         additionalAffixes: [{ key: "agility", value: 1 }],
         attunement: { key: "minPhys", value: 1 },
@@ -77,9 +102,11 @@ describe("gear", () => {
       true,
     )
     const attunementType = damageSource.statements.find(
-      node => ts.isTypeAliasDeclaration(node) && node.name.text === "AttunementStats",
+      (node): node is ts.TypeAliasDeclaration =>
+        ts.isTypeAliasDeclaration(node) && node.name.text === "AttunementStats",
     )
-    assert(attunementType && ts.isTypeLiteralNode(attunementType.type), "AttunementStats must expose its input fields.")
+    assert(attunementType, "AttunementStats must be declared as a type alias.")
+    assert(ts.isTypeLiteralNode(attunementType.type), "AttunementStats must expose its input fields as a literal.")
     const attunementStatKeys = new Set(attunementType.type.members.map(member => member.name?.getText(damageSource)))
 
     assert(
@@ -92,7 +119,7 @@ describe("gear", () => {
         .every(
           ([, definition]) =>
             (definition.effect.stat.attunementDMGBonus === 1 || definition.effect.stat.healingBonus === 1) &&
-            definition.effect.tags.length > 0,
+            (definition.effect.tags?.length ?? 0) > 0,
         ),
       "Active armor attunements must target tagged damage or healing bonuses.",
     )
@@ -183,22 +210,25 @@ describe("gear", () => {
       presetId: preset.id,
       martialArts: [...preset.martialArts],
     }
-    const matchingPresetItem = {
+    const presetAttunement = presetLeftWeapon.attunement
+    assert(presetAttunement, "Preset gear must carry the attunement its definition allows.")
+    const matchingPresetItem: GearItem = {
       ...presetLeftWeapon,
       id: "existing-preset-match",
       baseAffix: { ...presetLeftWeapon.baseAffix },
-      additionalAffixes: presetLeftWeapon.additionalAffixes.map(affix => ({ ...affix })),
-      attunement: { ...presetLeftWeapon.attunement },
+      additionalAffixes: presetLeftWeapon.additionalAffixes.map(affix => Object.assign({}, affix)),
+      attunement: { ...presetAttunement },
     }
     const presetDuplicateState = gear.duplicateBuildState(
       { entries: [presetEntry], activeBuildId: preset.id, gearItems: [matchingPresetItem] },
       preset.id,
       { id: "preset-copy", name: "Preset Copy" },
     )
-    const presetCopy = presetDuplicateState.entries.find(entry => entry.id === "preset-copy")
+    const presetCopy = rowWithId(presetDuplicateState.entries, "preset-copy")
     assert(
       presetCopy &&
         !presetCopy.isDefault &&
+        presetCopy.equipped &&
         presetCopy.equipped.leftWeapon === matchingPresetItem.id &&
         presetDuplicateState.gearItems.length === presetInventory.items.length &&
         JSON.stringify(presetCopy.setup) === JSON.stringify(gear.resolveBuildSetup(presetEntry)),
@@ -208,16 +238,17 @@ describe("gear", () => {
       id: "custom-copy",
       name: "Custom Copy",
     })
-    const customCopy = customDuplicateState.entries.find(entry => entry.id === "custom-copy")
+    const customCopy = rowWithId(customDuplicateState.entries, "custom-copy")
     assert(
       customCopy &&
+        customCopy.equipped &&
         JSON.stringify(customCopy.equipped) === JSON.stringify(presetCopy.equipped) &&
         JSON.stringify(customCopy.setup) === JSON.stringify(presetCopy.setup) &&
         customDuplicateState.gearItems.length === presetDuplicateState.gearItems.length,
       "Duplicating a custom build must reuse every equipped item and copy all setup selections without adding gear.",
     )
     assert(
-      Math.abs(gear.maxGearRoll("minPhys", "affix", true) - gear.maxGearRoll("minPhys", "affix", false) * 0.94) < 1e-9,
+      Math.abs(maxRoll("minPhys", "affix", true) - maxRoll("minPhys", "affix", false) * 0.94) < 1e-9,
       "Level 96 Relayed Max must use 94% of the affix roll.",
     )
     const normalWeaponAffixes = gear.affixOptionsForGearDefinition(
@@ -243,30 +274,26 @@ describe("gear", () => {
       "Tier 96 relayed weapons must expose every min/max attribute attack.",
     )
     assert(
-      gear.maxGearRoll("maxBellstrike", "affix", true, 96) === gear.maxGearRoll("maxVoidAttack", "affix", true, 96),
+      maxRoll("maxBellstrike", "affix", true, 96) === maxRoll("maxVoidAttack", "affix", true, 96),
       "Relayed attribute attack must share the Tier 96 Void Attack roll.",
     )
     assert(
-      gear.clampGearRoll("minPhys", 1e6, "affix", false) === gear.maxGearRoll("minPhys", "affix", false),
+      clampRoll("minPhys", 1e6, "affix", false) === maxRoll("minPhys", "affix", false),
       "Normal affix input must clamp to its level roll.",
     )
     assert(
       Math.abs(
-        gear.clampGearRoll("minPhys", gear.maxGearRoll("minPhys", "affix", false), "affix", true) -
-          gear.maxGearRoll("minPhys", "affix", true),
+        clampRoll("minPhys", maxRoll("minPhys", "affix", false), "affix", true) - maxRoll("minPhys", "affix", true),
       ) < 1e-9,
       "Enabling Relayed must clamp an existing affix to 94%.",
     )
     assert(
-      gear.clampGearRoll("physicalPenetration", 1e6, "attunement", true) ===
-        gear.maxGearRoll("physicalPenetration", "attunement", true),
+      clampRoll("physicalPenetration", 1e6, "attunement", true) === maxRoll("physicalPenetration", "attunement", true),
       "Relayed attunement input must retain its full cap.",
     )
-    assert(gear.clampGearRoll("minPhys", 60, "affix", true) === 60, "Values below the cap must remain unchanged.")
+    assert(clampRoll("minPhys", 60, "affix", true) === 60, "Values below the cap must remain unchanged.")
     assert(
-      Math.abs(
-        gear.maxGearRoll("minPhys", "affix", true, 91) - gear.maxGearRoll("minPhys", "affix", false, 91) * 0.94,
-      ) < 1e-9,
+      Math.abs(maxRoll("minPhys", "affix", true, 91) - maxRoll("minPhys", "affix", false, 91) * 0.94) < 1e-9,
       "Level 91 relayed affixes must use 94% of the level 91 roll.",
     )
     const emptyPreset = gear.defaultBuildPresets.find(candidate => candidate.id === "empty")
@@ -295,7 +322,7 @@ describe("gear", () => {
       "The dev empty build must match every weapon pair.",
     )
 
-    const hengBlade = {
+    const hengBlade: GearItem = {
       id: "test-heng",
       definitionId: "hengBlade",
       level: 96,
@@ -310,7 +337,7 @@ describe("gear", () => {
       attunement: { key: "physicalPenetration", value: 11 },
     }
     const inventory = { items: [hengBlade], equipped: { leftWeapon: hengBlade.id } }
-    const effects = gear.calculateEquippedGearEffects(inventory, ["snowparting", "phalanxbane"])
+    const effects = gear.calculateEquippedGearEffects(inventory, weaponPair(["snowparting", "phalanxbane"]))
     const baseOnlyInventory = gear.parseGearInventory({
       items: [{ ...hengBlade, id: "base-only", additionalAffixes: [], attunement: undefined }],
       equipped: { leftWeapon: "base-only" },
@@ -333,10 +360,10 @@ describe("gear", () => {
     assert(effects.stats.hengBladeDmgBoost === 0.062, "Art of Heng was not applied.")
     assert(effects.attunement.physicalPenetration === 11, "Gear attunement was not applied.")
 
-    const incompatible = gear.calculateEquippedGearEffects(inventory, ["phalanxbane", "snowparting"])
+    const incompatible = gear.calculateEquippedGearEffects(inventory, weaponPair(["phalanxbane", "snowparting"]))
     assert(Object.keys(incompatible.stats).length === 0, "An incompatible weapon item should not affect the build.")
     const movedInventory = { items: [hengBlade], equipped: { rightWeapon: hengBlade.id } }
-    const movedEffects = gear.calculateEquippedGearEffects(movedInventory, ["phalanxbane", "snowparting"])
+    const movedEffects = gear.calculateEquippedGearEffects(movedInventory, weaponPair(["phalanxbane", "snowparting"]))
     assert(
       movedEffects.stats.minPhys === 65,
       "A slotless weapon item must be reusable in the compatible opposite weapon position.",
@@ -355,29 +382,23 @@ describe("gear", () => {
       items: [duplicatedItem],
       equipped: { leftWeapon: duplicatedItem.id },
     })
-    globalThis.localStorage = { getItem: key => (key === gear.legacyGearStorageKey ? duplicateInventoryJson : null) }
+    globalThis.localStorage = readOnlyStorage(key =>
+      key === gear.legacyGearStorageKey ? duplicateInventoryJson : null,
+    )
     const loaded = gear.loadGearInventory()
     assert(loaded.items.length === 0, "Persisted duplicate additional affixes should be rejected.")
 
     const relayedHengBlade = { ...hengBlade, relayed: true }
-    globalThis.localStorage = {
-      getItem: key =>
-        key === gear.legacyGearStorageKey
-          ? JSON.stringify({ items: [relayedHengBlade], equipped: { leftWeapon: relayedHengBlade.id } })
-          : null,
-    }
+    globalThis.localStorage = readOnlyStorage(key =>
+      key === gear.legacyGearStorageKey
+        ? JSON.stringify({ items: [relayedHengBlade], equipped: { leftWeapon: relayedHengBlade.id } })
+        : null,
+    )
     const loadedRelayed = gear.loadGearInventory()
     assert(loadedRelayed.items[0]?.relayed === true, "Relayed metadata must survive persisted gear validation.")
 
     // The persistence boundary reads browser storage through window.
-    globalThis.window = {
-      get localStorage() {
-        return globalThis.localStorage
-      },
-      get sessionStorage() {
-        return globalThis.sessionStorage
-      },
-    }
+    globalThis.window = windowOverGlobalStorage()
 
     const legacyHengBlade = { ...hengBlade, slot: "leftWeapon" }
     const legacyInventoryJson = JSON.stringify({
@@ -390,22 +411,21 @@ describe("gear", () => {
       { innerWay: "SteadfastDevotion", tier: "T6" },
       { innerWay: "ThroatPiercingArt", tier: "T6" },
     ]
-    globalThis.sessionStorage = {
-      getItem: key =>
-        key === "wwm-inner-way-session-v1"
-          ? JSON.stringify(legacyInnerWays)
-          : key === "wwm-gear-set-session-v1"
-            ? JSON.stringify({ Cleftpeak: 2, RainWhisper: 2 })
-            : key === "wwm-bow-ring-set-session-v1"
-              ? "Critical"
-              : key === "wwm-arsenal-session-v1"
-                ? "General"
-                : null,
-    }
-    globalThis.localStorage = { getItem: key => (key === gear.legacyGearStorageKey ? legacyInventoryJson : null) }
+    globalThis.sessionStorage = readOnlyStorage(key =>
+      key === "wwm-inner-way-session-v1"
+        ? JSON.stringify(legacyInnerWays)
+        : key === "wwm-gear-set-session-v1"
+          ? JSON.stringify({ Cleftpeak: 2, RainWhisper: 2 })
+          : key === "wwm-bow-ring-set-session-v1"
+            ? "Critical"
+            : key === "wwm-arsenal-session-v1"
+              ? "General"
+              : null,
+    )
+    globalThis.localStorage = readOnlyStorage(key => (key === gear.legacyGearStorageKey ? legacyInventoryJson : null))
     const migratedBuildState = gear.loadBuildState()
     assert(
-      migratedBuildState.entries[0].isDefault === true && migratedBuildState.entries[0].inventory === undefined,
+      migratedBuildState.entries[0].isDefault === true && migratedBuildState.entries[0].equipped === undefined,
       "Default builds must not persist real gear.",
     )
     assert(
@@ -418,7 +438,7 @@ describe("gear", () => {
     )
     assert(
       migratedBuildState.gearItems.length === 1 &&
-        migratedBuildState.entries.find(entry => entry.id === "migrated-build")?.equipped.leftWeapon === hengBlade.id,
+        migratedBuildState.entries.find(entry => entry.id === "migrated-build")?.equipped?.leftWeapon === hengBlade.id,
       "Legacy single-inventory gear must migrate into shared storage.",
     )
     assert(!("slot" in migratedBuildState.gearItems[0]), "Legacy weapon slots must be removed during migration.")
@@ -434,7 +454,7 @@ describe("gear", () => {
         .innerWay === "BreakingPoint",
       "Legacy Inner Way selections must migrate into custom builds.",
     )
-    const migratedSerialized = JSON.parse(gear.serializeBuildState(migratedBuildState))
+    const migratedSerialized = JSON.parse(gear.serializeBuildState(migratedBuildState)) as SerializedBuildPayload
     assert(
       migratedSerialized.entries.length === 1 && migratedSerialized.entries.every(entry => !("isDefault" in entry)),
       "Bundled default builds must not be persisted.",
@@ -452,24 +472,23 @@ describe("gear", () => {
         inventory: { items: [legacyHengBlade], equipped: { leftWeapon: legacyHengBlade.id } },
       },
     ]
-    globalThis.localStorage = {
-      getItem: key =>
-        key === gear.buildListStorageKey
-          ? JSON.stringify(legacyBuildList)
-          : key === gear.activeBuildStorageKey
-            ? "legacy-b"
-            : null,
-    }
+    globalThis.localStorage = readOnlyStorage(key =>
+      key === gear.buildListStorageKey
+        ? JSON.stringify(legacyBuildList)
+        : key === gear.activeBuildStorageKey
+          ? "legacy-b"
+          : null,
+    )
     const migratedPerBuildState = gear.loadBuildState()
-    const migratedA = migratedPerBuildState.entries.find(entry => entry.id === "legacy-a")
-    const migratedB = migratedPerBuildState.entries.find(entry => entry.id === "legacy-b")
+    const migratedA = rowWithId(migratedPerBuildState.entries, "legacy-a")
+    const migratedB = rowWithId(migratedPerBuildState.entries, "legacy-b")
     assert(
       migratedPerBuildState.gearItems.length === 2,
       "Every legacy per-build item must be preserved in shared storage.",
     )
     assert(
-      migratedA?.equipped.leftWeapon &&
-        migratedB?.equipped.leftWeapon &&
+      migratedA?.equipped?.leftWeapon &&
+        migratedB?.equipped?.leftWeapon &&
         migratedA.equipped.leftWeapon !== migratedB.equipped.leftWeapon,
       "Legacy gear ID collisions must be remapped without changing either loadout.",
     )
@@ -492,26 +511,25 @@ describe("gear", () => {
         },
       ],
     }
-    globalThis.localStorage = {
-      getItem: key =>
-        key === gear.buildListStorageKey
-          ? JSON.stringify(sharedBuildPayload)
-          : key === gear.activeBuildStorageKey
-            ? "shared-b"
-            : null,
-    }
+    globalThis.localStorage = readOnlyStorage(key =>
+      key === gear.buildListStorageKey
+        ? JSON.stringify(sharedBuildPayload)
+        : key === gear.activeBuildStorageKey
+          ? "shared-b"
+          : null,
+    )
     const sharedBuildState = gear.loadBuildState()
-    const sharedA = sharedBuildState.entries.find(entry => entry.id === "shared-a")
-    const sharedB = sharedBuildState.entries.find(entry => entry.id === "shared-b")
+    const sharedA = rowWithId(sharedBuildState.entries, "shared-a")
+    const sharedB = rowWithId(sharedBuildState.entries, "shared-b")
     assert(
       sharedBuildState.gearItems.length === 1 &&
-        sharedA?.equipped.leftWeapon === hengBlade.id &&
-        sharedB?.equipped.leftWeapon === hengBlade.id &&
-        sharedA?.martialArts.join(",") === "snowparting,phalanxbane" &&
+        sharedA?.equipped?.leftWeapon === hengBlade.id &&
+        sharedB?.equipped?.leftWeapon === hengBlade.id &&
+        weaponsOf(sharedA).join(",") === "snowparting,phalanxbane" &&
         !("weapons" in sharedA),
       "Shared gear must remain reusable while legacy build weapon tags migrate to martialArts.",
     )
-    const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState))
+    const serializedBuildState = JSON.parse(gear.serializeBuildState(sharedBuildState)) as SerializedBuildPayload
     assert(
       serializedBuildState.version === 8 &&
         serializedBuildState.gearItems.length === 1 &&
@@ -522,12 +540,12 @@ describe("gear", () => {
             entry.setup?.innerWays?.length === 4 &&
             entry.setup?.weaponSets &&
             entry.setup?.armorSets &&
-            entry.martialArts?.length >= 2 &&
+            weaponsOf(entry).length >= 2 &&
             !("weapons" in entry),
         ),
       "Build persistence must include Inner Ways, setup, and martial-art eligibility in the shared-inventory schema.",
     )
-    const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState))
+    const exportedBuildState = JSON.parse(gear.exportBuildState(sharedBuildState)) as ExportedBuildPayload
     assert(
       exportedBuildState.format === gear.buildExportFormat &&
         exportedBuildState.version === 7 &&
@@ -538,7 +556,7 @@ describe("gear", () => {
             entry.setup?.innerWays?.length === 4 &&
             entry.setup?.weaponSets &&
             entry.setup?.armorSets &&
-            entry.martialArts?.length >= 2 &&
+            weaponsOf(entry).length >= 2 &&
             !("weapons" in entry),
         ),
       "Build export must include Inner Ways, setup, and martial-art eligibility with slotless weapons.",
@@ -555,32 +573,33 @@ describe("gear", () => {
     const firstImportedBuild = mergedImport.state.entries.find(entry => entry.id === mergedImport.importedBuildIds[0])
     const secondImportedBuild = mergedImport.state.entries.find(entry => entry.id === mergedImport.importedBuildIds[1])
     assert(
-      firstImportedBuild?.equipped.leftWeapon &&
-        firstImportedBuild.equipped.leftWeapon === secondImportedBuild?.equipped.leftWeapon &&
+      firstImportedBuild?.equipped?.leftWeapon &&
+        firstImportedBuild.equipped.leftWeapon === secondImportedBuild?.equipped?.leftWeapon &&
         firstImportedBuild.equipped.leftWeapon !== hengBlade.id,
       "Imported builds must share the same remapped gear without colliding with existing IDs.",
     )
     assert(
-      firstImportedBuild.setup.bowRingSet === sharedA.setup.bowRingSet &&
-        firstImportedBuild.setup.arsenal === sharedA.setup.arsenal,
+      setupOf(firstImportedBuild).bowRingSet === setupOf(sharedA).bowRingSet &&
+        setupOf(firstImportedBuild).arsenal === setupOf(sharedA).arsenal,
       "Imported builds must preserve their setup selections.",
     )
     const legacyTransfer = {
       ...exportedBuildState,
       version: 1,
       gearItems: [legacyHengBlade],
-      builds: exportedBuildState.builds.map(({ setup: _setup, martialArts, ...entry }) =>
-        Object.assign(entry, { weapons: martialArts }),
+      builds: exportedBuildState.builds.map(({ setup: _setup, ...entry }) =>
+        Object.assign(entry, { weapons: entry.martialArts }),
       ),
     }
     const migratedTransfer = gear.mergeImportedBuildState(sharedBuildState, legacyTransfer)
+    const importedItem = migratedTransfer.state.gearItems.at(-1)
+    assert(importedItem, "Importing a build must append its remapped gear.")
     assert(
       migratedTransfer.importedGearCount === 1 &&
-        !("slot" in migratedTransfer.state.gearItems.at(-1)) &&
-        migratedTransfer.state.entries.find(entry => entry.id === migratedTransfer.importedBuildIds[0]).martialArts
-          .length === 2 &&
-        migratedTransfer.state.entries.find(entry => entry.id === migratedTransfer.importedBuildIds[0]).setup
-          .arsenal === gear.defaultBuildSetup.arsenal,
+        !("slot" in importedItem) &&
+        weaponsOf(rowWithId(migratedTransfer.state.entries, migratedTransfer.importedBuildIds[0]!)).length === 2 &&
+        setupOf(rowWithId(migratedTransfer.state.entries, migratedTransfer.importedBuildIds[0]!)).arsenal ===
+          gear.defaultBuildSetup.arsenal,
       "Version 1 exports must migrate weapon gear, legacy weapons eligibility, and missing setup data.",
     )
     let invalidImportRejected = false
@@ -646,6 +665,6 @@ describe("gear", () => {
       "Area Mystic bonus did not apply only to its matching tag.",
     )
 
-    delete globalThis.window
+    Reflect.deleteProperty(globalThis, "window")
   })
 })

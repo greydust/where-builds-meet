@@ -2,12 +2,16 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import type { MaxStackAction } from "@/calculations/outcomeTriggeredBuffs"
+
+import { assertClose } from "./helpers/floatEquality"
+
 // Ported from script/probe/check-periodic-state-merging.mjs.
 describe("periodic-state-merging", () => {
   it("periodic-state-merging checks", async () => {
     const { ExpectedPeriodicTracker } = await import("../src/calculations/outcomeTriggeredBuffs.ts")
-    const threshold = { consume: "all", trigger: "Burst" }
-    const close = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-15, `${actual} != ${expected}`)
+    const threshold: MaxStackAction = { consume: "all", trigger: "Burst" }
+    const close = (actual: number, expected: number) => assertClose(actual, expected, 1e-15)
     const fixture = ({
       origin = 0,
       mass = 5e-7,

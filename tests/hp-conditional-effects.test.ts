@@ -1,4 +1,8 @@
+import assert from "node:assert/strict"
+
 import { describe, expect, it } from "vitest"
+
+import { emptyAttunementStats } from "@/calculations/attunementStats"
 
 import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
@@ -65,7 +69,7 @@ describe("HP-conditional effects", () => {
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],
-      attunement: {},
+      attunement: emptyAttunementStats,
       statPriority: [],
       attunementPriority: [],
       innerWayPriority: [],
@@ -73,17 +77,21 @@ describe("HP-conditional effects", () => {
     })
     const samples = [1, 3, 5].map(index => ({
       damage: result.actionBreakdowns[`rotation-${index}:0`],
-      healing: result.actionBreakdowns[`rotation-${index}:1`].healing!,
+      healing: result.actionBreakdowns[`rotation-${index}:1`].healing,
     }))
-    for (const index of [0, 2]) {
-      expect(samples[index].damage.outcomeRates.critical).toBeCloseTo(0.3)
-      expect(samples[index].healing.criticalRate).toBeCloseTo(0.3)
-      expect(samples[index].damage.total).toBeCloseTo(124)
-      expect(samples[index].healing.total).toBeCloseTo(127)
+    for (const [index, sample] of [
+      [0, samples[0]],
+      [2, samples[2]],
+    ] as const) {
+      assert(sample?.damage && sample.healing, `Sample ${index} must resolve both a hit and a heal.`)
+      expect(sample.damage.outcomeRates?.critical).toBeCloseTo(0.3)
+      expect(sample.healing?.criticalRate).toBeCloseTo(0.3)
+      expect(sample.damage.total).toBeCloseTo(124)
+      expect(sample.healing?.total).toBeCloseTo(127)
     }
-    expect(samples[1].damage.outcomeRates.critical).toBeCloseTo(0.1)
-    expect(samples[1].healing.criticalRate).toBeCloseTo(0.1)
-    expect(samples[1].damage.total).toBeCloseTo(105)
-    expect(samples[1].healing.total).toBeCloseTo(105)
+    expect(samples[1]?.damage.outcomeRates?.critical).toBeCloseTo(0.1)
+    expect(samples[1]?.healing?.criticalRate).toBeCloseTo(0.1)
+    expect(samples[1]?.damage.total).toBeCloseTo(105)
+    expect(samples[1]?.healing?.total).toBeCloseTo(105)
   })
 })

@@ -54,8 +54,9 @@ describe("segment boundary modes", () => {
       expect(stats.maxPhys).toBe(mode === "LowerBoundInclusive" ? 4 : 0)
       const overrides = { Buff: { Probe: { effect: [{ effect: { dmgBonus: { ...segment, mode } } }] } } }
       const saved = deserializeSkillOverrides(JSON.parse(serializeSkillOverrides(overrides)))
-      const reloaded = saved.Buff!.Probe.effect![0] as { effect: { dmgBonus: unknown } }
-      expect(resolveSegmentValue(reloaded.effect.dmgBonus, { distance: 5 })).toBe(
+      const reloaded = (saved.Buff?.Probe.effect as Array<{ effect: { dmgBonus: unknown } }> | undefined)?.[0]
+      expect(reloaded, "The saved Probe override must keep its first effect.").toBeDefined()
+      expect(resolveSegmentValue(reloaded?.effect.dmgBonus, { distance: 5 })).toBe(
         mode === "LowerBoundInclusive" ? 0.034 : 0.032,
       )
     },

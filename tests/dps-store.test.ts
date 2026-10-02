@@ -44,6 +44,10 @@ describe("dps-store", () => {
   it("runs one worker job per distinct calculation and serves repeats from the result", async () => {
     const { useDpsStore, dispatched } = await loadStore()
     const store = () => useDpsStore.getState()
+    // Read through a call so each comparison sees a plain number: asserting on
+    // `dispatched.length` twice would otherwise narrow the first check's literal
+    // into the second and report the later count as an impossible comparison.
+    const jobs = () => dispatched.length
     let builds = 0
     const build = () => {
       builds += 1
@@ -53,13 +57,13 @@ describe("dps-store", () => {
     const first = await store().ensure({ kind: "baseline", cacheKey: "a", build })
     const second = await store().ensure({ kind: "baseline", cacheKey: "a", build })
 
-    assert(dispatched.length === 1, `A repeated calculation dispatched ${dispatched.length} jobs.`)
+    assert(jobs() === 1, `A repeated calculation dispatched ${jobs()} jobs.`)
     assert(builds === 1, `A repeated calculation built its bundle ${builds} times.`)
     assert(first === second, "A repeated calculation did not return the held result.")
     assert(store().peek("baseline", "a") === first, "The held result was not readable without scheduling.")
 
     await store().ensure({ kind: "baseline", cacheKey: "b", build })
-    assert(dispatched.length === 2, "A distinct calculation reused another fingerprint's job.")
+    assert(jobs() === 2, "A distinct calculation reused another fingerprint's job.")
     assert(store().peek("baseline", "a") === first, "A new calculation evicted an unrelated held result.")
     store().reset()
   })

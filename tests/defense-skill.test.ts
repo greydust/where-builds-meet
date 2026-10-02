@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest"
 
-import buffs from "../data/buff/stonesplit-strength.json"
-import general from "../data/skill/general.json"
-import might from "../data/skill/thundercry-blade.json"
+import buffsJson from "../data/buff/stonesplit-strength.json"
+const buffs = asEffectDefinitions(buffsJson)
+import generalJson from "../data/skill/general.json"
+const general = asSkillRecords(generalJson)
+import mightJson from "../data/skill/thundercry-blade.json"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+const might = asSkillRecords(mightJson)
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 import { exportRotationEntries, mergeImportedRotationEntries } from "../src/rotationTransfer"
 
@@ -77,7 +81,11 @@ describe("held Defense", () => {
     const data = input([cast(1.1), attack(1), attack(1), end(3 * cooldown + 2)])
     if (tier4) {
       data.innerWayConditions.push("ExquisiteSceneryT4")
-      data.innerWayRules = [{ source: "ExquisiteScenery", tier: 4, target: "Riposte", modify: { cooldown: 5 } }]
+      data.innerWayRules = [
+        // The tier only lowers Riposte's cooldown, so it carries a modify rule and the
+        // empty effect sheet the app's own inner-way builder gives a rule without one.
+        { source: "ExquisiteScenery", tier: 4, target: "Riposte", modify: { cooldown: 5 }, effect: {} },
+      ]
     }
     const rows = buildRotationTimeline(data)
     expect(skillRows(rows, "RiposteTrigger").map(row => row.startTime)).toEqual(tier4 ? [1, 6, 11] : [1, 11])

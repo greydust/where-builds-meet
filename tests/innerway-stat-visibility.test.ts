@@ -2,6 +2,11 @@ import { readdir, readFile } from "node:fs/promises"
 
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { AttunementStats } from "@/calculations/damage"
+import type { InnerWayDefinition } from "@/data/innerWayDefinitions"
+import type { CharacterStats } from "@/types"
+
 import { probeLoad } from "./helpers/probe-loader.js"
 
 // Ported from script/probe/check-innerway-stat-visibility.mjs.
@@ -12,7 +17,9 @@ describe("innerway-stat-visibility", () => {
     const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
     const { calculateHealingBreakdown } = await import("../src/calculations/healing.ts")
     const { resolveAttunementStats } = await import("../src/calculations/attunementStats.ts")
-    const { innerWayDefinitions, innerWayDefinitionForSoloLevel } = await probeLoad("/src/data/innerWayDefinitions.ts")
+    const { innerWayDefinitions, innerWayDefinitionForSoloLevel } = await probeLoad<
+      typeof import("../src/data/innerWayDefinitions")
+    >("/src/data/innerWayDefinitions.ts")
     const visibleStats = new Set(allStatDefinitions.map(({ key }) => key))
     const innerWayFiles = (await readdir("data/innerway")).filter(fileName => fileName.endsWith(".json"))
 
@@ -25,13 +32,16 @@ describe("innerway-stat-visibility", () => {
       "Physical Resistance must remain available to calculations but hidden from Character Stats.",
     )
 
-    const physicalPenetrationOutput = (physicalPenetration, calculate) => {
+    const physicalPenetrationOutput = (
+      physicalPenetration: number,
+      calculate: typeof calculateDamageBreakdown | typeof calculateHealingBreakdown,
+    ) => {
       const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1, physicalPenetration }
       return calculate(
         { type: calculate === calculateHealingBreakdown ? "heal" : "damage", phyCoef: 1, attrCoef: 1 },
         {
           stats,
-          attunement: {},
+          attunement: emptyAttunementStats,
           skillTags: [],
           weapons: [],
           buffs: [],
@@ -65,10 +75,12 @@ describe("innerway-stat-visibility", () => {
       innerWayFiles.map(async fileName => [fileName, await readFile(`data/innerway/${fileName}`, "utf8")] as const),
     )
     for (const [fileName, source] of innerWaySources) {
-      const definition = innerWayDefinitionForSoloLevel(JSON.parse(source), 17)
-      const id = Object.keys(definition.effect)[0].replace(/T0$/, "")
+      const definition = innerWayDefinitionForSoloLevel(JSON.parse(source) as InnerWayDefinition, 17)
+      const [firstTierId] = Object.keys(definition.effect)
+      assert(firstTierId, `${fileName} must declare a tier effect.`)
+      const id = firstTierId.replace(/T0$/, "")
       assert(
-        innerWayDefinitions[id]?.name === definition.name,
+        (innerWayDefinitions as Record<string, InnerWayDefinition>)[id]?.name === definition.name,
         `${fileName} must be registered under its tier ID prefix.`,
       )
       for (const tier of [2, 5]) {
@@ -85,7 +97,7 @@ describe("innerway-stat-visibility", () => {
               stat === "physicalPenetration" ||
                 stat === "formlessPenetration" ||
                 stat === "physicalResistance" ||
-                visibleStats.has(stat),
+                visibleStats.has(stat as keyof CharacterStats),
               `${definition.name} T${tier} stat ${stat} must be visible in its Stats-page section.`,
             )
           }
@@ -93,7 +105,11 @@ describe("innerway-stat-visibility", () => {
       }
     }
 
-    const attunementDefaults = { physicalPenetration: 0, formlessPenetration: 0 }
+    const attunementDefaults: AttunementStats = {
+      ...emptyAttunementStats,
+      physicalPenetration: 0,
+      formlessPenetration: 0,
+    }
     const resolvedAttunement = resolveAttunementStats(
       attunementDefaults,
       { physicalPenetration: 10 },

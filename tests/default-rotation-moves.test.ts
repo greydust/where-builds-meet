@@ -1,6 +1,9 @@
 import { assert, describe, expect, it } from "vitest"
 
+import type { RotationRecord, TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 import { probeLoad } from "./helpers/probe-loader.js"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 // Ported from script/probe/check-default-rotation-moves.mjs.
 describe("default-rotation-moves", () => {
@@ -21,19 +24,19 @@ describe("default-rotation-moves", () => {
     const stonesplitDebuffs = (await import("../data/debuff/stonesplit-strength.json")).default
     const dots = (await import("../data/dot/mystic.json")).default
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
-    const skills = { ...snowparting, ...phalanxbane, ...mystic, ...general }
-    const effectDefinitions = {
+    const skills = asSkillRecords({ ...snowparting, ...phalanxbane, ...mystic, ...general })
+    const effectDefinitions = asEffectDefinitions({
       ...mysticBuffs,
       ...generalBuffs,
       ...stonesplitBuffs,
       ...generalDebuffs,
       ...stonesplitDebuffs,
       ...dots,
-    }
+    })
     const conditions = ["FrostCladNight", "MoraleChant", "SteadfastDevotion", "ThroatPiercingArt"].flatMap(name =>
       Array.from({ length: 7 }, (_, tier) => `${name}T${tier}`),
     )
-    const eventDefinitions = {
+    const eventDefinitions: TimelineBuildInput["eventDefinitions"] = {
       Qi: {
         name: "Qi",
         castTime: 0,
@@ -46,13 +49,15 @@ describe("default-rotation-moves", () => {
       BattleEnd: { name: "Battle End", castTime: 0, action: [], tags: ["Event"] },
       Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }], tags: ["Event"] },
     }
-    const loadedRotations = await Promise.all(rotationPaths.map(async path => (await probeLoad(path)).default))
+    const loadedRotations = (await Promise.all(
+      rotationPaths.map(async path => (await probeLoad<{ default: RotationRecord }>(path)).default),
+    )) as RotationRecord[]
     for (const rotation of loadedRotations) {
       const timeline = buildRotationTimeline({
         rotation,
         skills,
         eventDefinitions,
-        dots,
+        dots: asSkillRecords(dots),
         effectDefinitions,
         innerWayConditions: conditions,
         innerWayRules: [],

@@ -85,7 +85,17 @@ async function loadStore() {
 const bundle = { timeline: { rotation: { name: "Sweep", steps: [] } }, weapons: [] } as never
 const baselineResult = { metrics: { dps: 1, breakdown: {} } } as never
 
-async function sweep(useDpsStore: any, variantCount: number, keyFor: (index: number) => string) {
+/** The comparison result the sweep reads: the DPS each variant resolved with. */
+type SweepResult = { metrics: { dps: number } }
+
+async function sweep(
+  // The store is loaded per test, so its hook type is not available at module scope;
+  // only the comparison result each ensure settles is named here.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  useDpsStore: any,
+  variantCount: number,
+  keyFor: (index: number) => string,
+): Promise<SweepResult[]> {
   const store = () => useDpsStore.getState()
   const rotationKey = "rotation-fingerprint"
   await store().ensure({ kind: "baseline", cacheKey: rotationKey, build: () => bundle })
@@ -102,9 +112,9 @@ async function sweep(useDpsStore: any, variantCount: number, keyFor: (index: num
             baseline: () => baselineResult,
             priority: 350,
           })
-          .then(result => [...results, result]),
+          .then((result: SweepResult) => [...results, result]),
       ),
-    Promise.resolve([] as Promise<unknown>[]),
+    Promise.resolve([] as Array<Promise<SweepResult>>),
   )
 }
 

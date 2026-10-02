@@ -2,14 +2,20 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { AttunementStats, DamageContext } from "@/calculations/damage"
+import type { CharacterStats, WeaponId } from "@/types"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { asTalentEffects } from "./helpers/shippedData"
 
 // Ported from script/probe/check-draught-innerways.mjs.
 describe("draught-innerways", () => {
   it("Draught tier progression, damage/healing channels, and attunement override checks passed", async () => {
-    const { innerWayEntriesForTag, innerWayDefinitionForSoloLevel } = await probeLoad(
-      "/src/data/innerWayDefinitions.ts",
-    )
+    const { innerWayEntriesForTag, innerWayDefinitionForSoloLevel } = await probeLoad<
+      typeof import("../src/data/innerWayDefinitions")
+    >("/src/data/innerWayDefinitions.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
@@ -28,11 +34,15 @@ describe("draught-innerways", () => {
       crit: 0.1,
       critDmgBonus: 0.5,
     }
-    const context = (stats, weapons, attunement = {}) => ({
+    const context = (
+      stats: CharacterStats,
+      weapons: WeaponId[],
+      attunement: Partial<AttunementStats> = {},
+    ): DamageContext => ({
       stats,
       derivedStats: calculateDerivedStats(stats, 0, {}, weapons),
       weapons,
-      attunement,
+      attunement: { ...emptyAttunementStats, ...attunement },
       effects: [],
       buffs: [],
       skillTags: [],
@@ -48,18 +58,22 @@ describe("draught-innerways", () => {
         judgementResistance: 0,
       },
     })
-    const close = (actual, expected, message) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} !== ${expected}`)
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
     const draught = new Map(
       innerWayEntriesForTag("BamboocutDraught").map(([id, definition]) => [
         id,
         innerWayDefinitionForSoloLevel(definition, 17),
       ]),
     )
-    for (const id of ["Eonpour", "Skyspeak", "Mistwing", "Volutefit"]) {
-      assert.ok(draught.has(id), `${id} must be selectable on Draught`)
+    /** The Draught inner way with `id`, named when it is not selectable. */
+    const draughtOf = (id: string) => {
       const definition = draught.get(id)
-      const damage = []
+      assert.ok(definition, `${id} must be selectable on Draught`)
+      return definition
+    }
+    for (const id of ["Eonpour", "Skyspeak", "Mistwing", "Volutefit"]) {
+      const definition = draughtOf(id)
+      const damage: number[] = []
       for (let tier = 0; tier <= 6; tier++) {
         const effects = Array.from(
           { length: tier + 1 },
@@ -78,12 +92,15 @@ describe("draught-innerways", () => {
       for (const tier of [1, 3, 4, 6])
         close(damage[tier], damage[tier - 1], `${id} T${tier} must preserve the previous tier's output`)
     }
-    const penetration = calculateStatsWithEffects(base, draught.get("Volutefit").effect.VolutefitT5.effect, 0).stats
-      .formlessPenetration
+    const penetration = calculateStatsWithEffects(
+      base,
+      asTalentEffects(draughtOf("Volutefit").effect.VolutefitT5.effect),
+      0,
+    ).stats.formlessPenetration
     for (const weapons of [
       ["skystrikeGauntlets", "rivenTwinblades"],
       ["panaceaFan", "soulshadeUmbrella"],
-    ]) {
+    ] as Array<WeaponId[]>) {
       for (const calculate of [calculateDamageBreakdown, calculateHealingBreakdown]) {
         const action = {
           type: calculate === calculateHealingBreakdown ? "heal" : "damage",
@@ -97,7 +114,7 @@ describe("draught-innerways", () => {
       }
     }
     const attunement = resolveAttunementStats(
-      { formlessPenetration: 0 },
+      { ...emptyAttunementStats },
       { formlessPenetration: 10 },
       { formlessPenetration: 20 },
       { formlessPenetration: penetration },

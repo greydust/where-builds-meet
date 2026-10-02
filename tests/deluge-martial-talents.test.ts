@@ -2,25 +2,34 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { martialArtDefinitions } from "@/application/gameData/martialArts"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { DamageBreakdown } from "@/calculations/damage"
+import type { StatFormula } from "@/calculations/statEffects"
+
 import { effectState } from "../src/calculations/trackedEffectState"
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { asTalentEffects } from "./helpers/shippedData"
 
 // Ported from script/probe/check-deluge-martial-talents.mjs.
 describe("deluge-martial-talents", () => {
   it("Deluge talents: datamined stats, healing caps/tag gating, Mystic bonus, and conditional Mystic Precision passed", async () => {
-    const close = (actual, expected, message) =>
-      assert(Math.abs(actual - expected) < 1e-9, `${message}: ${actual} != ${expected}`)
-    const panacea = (await import("../data/martial-art/panacea-fan.json")).default
-    const soulshade = (await import("../data/martial-art/soulshade-umbrella.json")).default
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-9, message)
     const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
-    const { calculateStatsWithEffects, resolveFormulaValue } = await probeLoad("/src/calculations/statEffects.ts")
+    const { calculateStatsWithEffects, resolveFormulaValue } = await probeLoad<
+      typeof import("../src/calculations/statEffects")
+    >("/src/calculations/statEffects.ts")
     const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { requirementsPass } = await import("../src/calculations/rotationTimeline.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const arts = { panaceaFan: panacea, soulshadeUmbrella: soulshade }
-    for (const weapon of Object.keys(arts)) {
-      const effects = martialArtEffectsForRank(arts, [weapon], 13).filter(e => !e.requirement)
+    const arts = {
+      panaceaFan: martialArtDefinitions.panaceaFan,
+      soulshadeUmbrella: martialArtDefinitions.soulshadeUmbrella,
+    }
+    for (const weapon of Object.keys(arts) as Array<keyof typeof arts>) {
+      const effects = asTalentEffects(martialArtEffectsForRank(arts, [weapon], 13)).filter(e => !e.requirement)
       const stats = calculateStatsWithEffects({ ...emptyStats, agility: 280, minSilkbind: 230 }, effects, 0).stats
       close(stats.minSilkbind, 328, "Attribute talent enters raw minimum")
       close(stats.maxSilkbind, 196, "Attribute talent enters raw maximum")
@@ -36,9 +45,11 @@ describe("deluge-martial-talents", () => {
           break
       }
     }
-    const effectsFor = (weapons, tags) =>
-      martialArtEffectsForRank(arts, weapons, 13)
-        .filter(e => requirementsPass(e.requirement, effectState([]), effectState([]), tags, new Set(), weapons))
+    const effectsFor = (weapons: Array<keyof typeof arts>, tags: string[]) =>
+      asTalentEffects(martialArtEffectsForRank(arts, weapons, 13))
+        .filter(e =>
+          requirementsPass(e.requirement, effectState([]), effectState([]), tags, new Set<string>(), weapons),
+        )
         .map(e => e.effect ?? e)
     for (const [minPhys, bonus] of [
       [0, 0.05],
@@ -49,14 +60,20 @@ describe("deluge-martial-talents", () => {
       for (const [weapon, tag, otherTag, key] of [
         ["panaceaFan", "Heavy", "Light", "healingBonus"],
         ["soulshadeUmbrella", "Special", "Heavy", "criticalHealingBonus"],
-      ]) {
-        const value = tags =>
+      ] as Array<[keyof typeof arts, string, string, string]>) {
+        const value = (tags: string[]) =>
           effectsFor([weapon], tags).reduce((sum, e) => {
-            switch (typeof e[key]) {
+            const sheet = e[key] as number | { formula?: StatFormula }
+            switch (typeof sheet) {
               case "number":
-                return sum + e[key]
-              case "object":
-                return sum + (e[key]?.formula ? resolveFormulaValue(e[key].formula, { minPhys }) : 0)
+                return sum + sheet
+              case "object": {
+                if (!sheet) return sum
+                const { formula } = sheet as { formula?: StatFormula }
+                if (!formula) return sum
+                // An unresolvable source contributes nothing rather than NaN.
+                return sum + (resolveFormulaValue(formula, { minPhys }) ?? 0)
+              }
               default:
                 return sum
             }
@@ -77,20 +94,25 @@ describe("deluge-martial-talents", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const damage = (weapons, tags = ["Mystic"], includePrecision = true) =>
+    const damage = (weapons: Array<keyof typeof arts>, tags: string[] = ["Mystic"], includePrecision = true) =>
       calculateDamageBreakdown(
         { phyCoef: 1 },
         {
           stats,
           derivedStats: calculateDerivedStats(stats, 0),
           enemy,
-          attunement: {},
+          attunement: emptyAttunementStats,
           weapons,
           skillTags: tags,
           buffs: [],
           effects: effectsFor(weapons, tags).filter(effect => includePrecision || !effect.convert),
         },
       )
+    const outcomeRates = (breakdown: DamageBreakdown) => {
+      const rates = breakdown.outcomeRates
+      assert(rates, "A damage breakdown must resolve its outcome rates.")
+      return rates
+    }
     const alone = damage(["soulshadeUmbrella"])
     const paired = damage(["soulshadeUmbrella", "panaceaFan"])
     close(
@@ -98,11 +120,11 @@ describe("deluge-martial-talents", () => {
       1.2,
       "Paired Mystic damage bonus remains 20% independently of Precision",
     )
-    close(paired.outcomeRates.abrasion, 0, "Mystic Precision removes Abrasion with both martial arts equipped")
-    close(paired.outcomeRates.normal, 1, "Mystic Precision transfers Abrasion probability to Normal")
-    close(damage(["panaceaFan"]).outcomeRates.abrasion, 0.2, "Panacea alone does not grant Mystic Precision")
+    close(outcomeRates(paired).abrasion, 0, "Mystic Precision removes Abrasion with both martial arts equipped")
+    close(outcomeRates(paired).normal, 1, "Mystic Precision transfers Abrasion probability to Normal")
+    close(outcomeRates(damage(["panaceaFan"])).abrasion, 0.2, "Panacea alone does not grant Mystic Precision")
     close(
-      damage(["soulshadeUmbrella", "panaceaFan"], ["Light"]).outcomeRates.abrasion,
+      outcomeRates(damage(["soulshadeUmbrella", "panaceaFan"], ["Light"])).abrasion,
       0.2,
       "Mystic Precision does not affect non-Mystic attacks",
     )

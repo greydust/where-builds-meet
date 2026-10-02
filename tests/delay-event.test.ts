@@ -1,5 +1,8 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationRecord, TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 // Ported from script/probe/check-delay-event.mjs.
 describe("delay-event", () => {
   it("Sequential Delay timing, modifier shifting, and trailing duration checks passed", async () => {
@@ -31,9 +34,9 @@ describe("delay-event", () => {
         { type: "skill", skill: "FollowUp" },
       ],
       start: { step: 0, action: 0 },
-    }
-    const timelineInput = {
-      rotation,
+    } as RotationRecord
+    const timelineInput: TimelineBuildInput = {
+      rotation: rotation as RotationRecord,
       skills,
       eventDefinitions: { Delay: { name: "Delay", castTime: 0, action: [], tags: ["Event"] } },
       dots: {},
@@ -71,12 +74,12 @@ describe("delay-event", () => {
         { type: "event", event: "Delay", duration: 3 },
       ],
       start: { step: 0, action: 0 },
-    }
+    } as RotationRecord
     const result = calculateRotationBaseline({
       timeline: { ...timelineInput, rotation: trailingRotation },
       startAnchor: { rowId: "rotation-0", actionIndex: 0 },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],

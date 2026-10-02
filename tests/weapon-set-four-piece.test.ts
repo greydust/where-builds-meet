@@ -2,28 +2,39 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
-import { probeLoad } from "./helpers/probe-loader"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { EffectDefinition, EditableObject, RotationStep, SkillRecord } from "@/calculations/rotationTimeline"
+import { weaponSetDefinitions } from "@/gear"
+import type { CharacterStats, WeaponId } from "@/types"
 
-const cast = skill => ({ type: "skill", skill })
-const delay = duration => ({ type: "event", event: "Delay", duration })
-const close = (actual, expected, message) =>
-  assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} !== ${expected}`)
+import { assertClose } from "./helpers/floatEquality"
+import { probeLoad } from "./helpers/probe-loader"
+import { castStep, delayStep } from "./helpers/rotationSteps"
+import { rowCasting } from "./helpers/timelineRows"
+const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
 
 describe("weapon-set-four-piece", () => {
   it("checks conditional set behavior and simulation", async () => {
-    const load = async path => (await probeLoad(path)).default
-    const sets = await load("/data/gear-set.json")
-    const general = await load("/data/skill/general.json")
-    const generalBuffs = await load("/data/buff/general.json")
-    const strengthBuffs = await load("/data/buff/stonesplit-strength.json")
-    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad(
-      "/src/calculations/rotationCalculator.ts",
+    const load = async <T>(path: string): Promise<T> => (await probeLoad<{ default: T }>(path)).default
+    const sets = weaponSetDefinitions
+    const general = await load<Record<string, SkillRecord>>("/data/skill/general.json")
+    const generalBuffs = await load<Record<string, EffectDefinition>>("/data/buff/general.json")
+    const strengthBuffs = await load<Record<string, EffectDefinition>>("/data/buff/stonesplit-strength.json")
+    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad<
+      typeof import("../src/calculations/rotationCalculator")
+    >("/src/calculations/rotationCalculator.ts")
+    const { buildRotationTimeline } = await probeLoad<typeof import("../src/calculations/rotationTimeline")>(
+      "/src/calculations/rotationTimeline.ts",
     )
-    const { buildRotationTimeline } = await probeLoad("/src/calculations/rotationTimeline.ts")
-    const { calculateStatsWithEffects } = await probeLoad("/src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await probeLoad("/src/calculations/effectiveStats.ts")
-    const { emptyStats } = await probeLoad("/src/data/statDefinitions.ts")
-    const weapons = ["infernalTwinblades", "mortalRopeDart"]
+    const { calculateStatsWithEffects } = await probeLoad<typeof import("../src/calculations/statEffects")>(
+      "/src/calculations/statEffects.ts",
+    )
+    const { calculateDerivedStats } = await probeLoad<typeof import("../src/calculations/effectiveStats")>(
+      "/src/calculations/effectiveStats.ts",
+    )
+    const { emptyStats } = await probeLoad<typeof import("../src/data/statDefinitions")>("/src/data/statDefinitions.ts")
+    const weapons: WeaponId[] = ["infernalTwinblades", "mortalRopeDart"]
     const baseStats = {
       ...emptyStats,
       minPhys: 100,
@@ -45,22 +56,30 @@ describe("weapon-set-four-piece", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const effectsFor = (name, tier) => {
+    type BundleOptions = {
+      tags?: string[]
+      prep?: EditableObject[]
+      action?: EditableObject
+      steps?: RotationStep[]
+      stats?: Partial<CharacterStats>
+      castTime?: number
+    }
+    const effectsFor = (name: string, tier: number) => {
       const value = sets[name].options[tier].effect
       return Array.isArray(value) ? value : [value]
     }
     const bundle = (
-      name,
-      tier,
+      name: string,
+      tier: number,
       {
         tags = ["DirectDamage"],
         prep = [],
         action = { type: "damage", phyCoef: 1, attrCoef: 1 },
-        steps = [cast("Probe")],
+        steps = [castStep("Probe")],
         stats: override = {},
         castTime = 1,
-      } = {},
-    ) => {
+      }: BundleOptions = {},
+    ): RotationSimulationBundle => {
       const setupEffects = effectsFor(name, tier)
       const stats = calculateStatsWithEffects({ ...baseStats, ...override }, setupEffects, 0).stats
       return {
@@ -89,18 +108,23 @@ describe("weapon-set-four-piece", () => {
         derivedStats: calculateDerivedStats(stats, 0),
         enemy,
         weapons,
-        attunement: {},
+        attunement: emptyAttunementStats,
         statPriority: [],
         attunementPriority: [],
         innerWayPriority: [],
         setupComparisons: {},
       }
     }
-    const run = (name, tier, options) => calculateRotationBaseline(bundle(name, tier, options))
-    const damage = result => Object.values(result.actionBreakdowns).at(-1)
-    const hp = ratio => ({ type: "setTargetHP", targetHPRatio: ratio, time: 0 })
-    const qi = ratio => ({ type: "setQi", targetQiRatio: ratio, time: 0 })
-    const debuff = value => ({ type: "apply", target: "target", value, time: 0 })
+    const run = (name: string, tier: number, options?: BundleOptions): RotationSimulationBaseline =>
+      calculateRotationBaseline(bundle(name, tier, options))
+    const damage = (result: RotationSimulationBaseline) => {
+      const last = Object.values(result.actionBreakdowns).at(-1)
+      assert(last, "A rotation that cast must have an action breakdown.")
+      return last
+    }
+    const hp = (ratio: number): EditableObject => ({ type: "setTargetHP", targetHPRatio: ratio, time: 0 })
+    const qi = (ratio: number): EditableObject => ({ type: "setQi", targetQiRatio: ratio, time: 0 })
+    const debuff = (value: string): EditableObject => ({ type: "apply", target: "target", value, time: 0 })
     for (const [ratio, bonus] of [
       [0.5, 0],
       [0.5001, 0.05],
@@ -113,7 +137,7 @@ describe("weapon-set-four-piece", () => {
       [0.75, 0.1],
       [1, 0.1],
     ]) {
-      const options = { prep: [hp(ratio)] }
+      const options: BundleOptions = { prep: [hp(ratio)] }
       close(
         damage(run("SwayingHeights", 4, options)).total / damage(run("SwayingHeights", 2, options)).total,
         1 + bonus,
@@ -134,8 +158,8 @@ describe("weapon-set-four-piece", () => {
         [[qi(0.8), debuff("BoneCorrosion")], true],
         [[qi(0.8), debuff("QiImbalance")], true],
         [[qi(0.3999), debuff("BoneCorrosion"), debuff("QiImbalance")], true],
-      ]) {
-        const options = { tags, prep }
+      ] as Array<[EditableObject[], boolean]>) {
+        const options: BundleOptions = { tags, prep }
         const before = damage(run("Swallowcall", 2, options))
         const after = damage(run("Swallowcall", 4, options))
         const multiplier = matches ? 1.12 * (lowQi ? 1.06 : 1) : 1
@@ -176,43 +200,45 @@ describe("weapon-set-four-piece", () => {
         "Rain Whisper does not boost noncritical healing",
       )
     }
-    const deflectOptions = {
+    const deflectOptions: BundleOptions = {
       steps: [
-        cast("DeflectSuccessful"),
-        cast("Probe"),
+        castStep("DeflectSuccessful"),
+        castStep("Probe"),
         { type: "event", event: "TakeDamage", startTime: 0.1, damage: 200 },
       ],
     }
     for (const roll of [undefined, () => 0.5]) {
       const selected = buildRotationTimeline(bundle("Cleftpeak", 4, deflectOptions).timeline, roll)
-      const hit = selected.find(row => row.step.skill === "Probe").actionStates[0]
-      assert.equal(hit.buffs.get("Cleftpeak").stack, 5, "Successful Deflect immediately grants five stacks")
+      const hit = rowCasting(selected, "Probe").actionStates[0]
+      const deflectBuff = hit.buffs.get("Cleftpeak")
+      assert(deflectBuff, "A successful Deflect must apply the set buff.")
+      assert.equal(deflectBuff.stack, 5, "Successful Deflect immediately grants five stacks")
       for (const [tier, skill] of [
         [2, "DeflectSuccessful"],
         [4, "Deflect"],
-      ]) {
+      ] as Array<[number, string]>) {
         const rows = buildRotationTimeline(
-          bundle("Cleftpeak", tier, { steps: [cast(skill), cast("Probe")] }).timeline,
+          bundle("Cleftpeak", tier, { steps: [castStep(skill), castStep("Probe")] }).timeline,
           roll,
         )
         assert.ok(
-          !rows.find(row => row.step.skill === "Probe").actionStates[0].buffs.has("Cleftpeak"),
+          !rowCasting(rows, "Probe").actionStates[0].buffs.has("Cleftpeak"),
           "Ordinary Deflect and two-piece selection grant no stacks before damage",
         )
       }
       const expired = buildRotationTimeline(
         bundle("Cleftpeak", 4, {
           steps: [
-            cast("DeflectSuccessful"),
-            delay(5),
-            cast("Probe"),
+            castStep("DeflectSuccessful"),
+            delayStep(5),
+            castStep("Probe"),
             { type: "event", event: "TakeDamage", startTime: 0.1, damage: 200 },
           ],
         }).timeline,
         roll,
       )
       assert.ok(
-        !expired.find(row => row.step.skill === "Probe").actionStates[0].buffs.has("Cleftpeak"),
+        !rowCasting(expired, "Probe").actionStates[0].buffs.has("Cleftpeak"),
         "Deflect stacks expire after five seconds",
       )
     }
@@ -221,18 +247,24 @@ describe("weapon-set-four-piece", () => {
       ["ThundercryBlade", 0.13],
       ["VernalUmbrella", 0.13],
       ["HeavenwillGauntlets", 0.05],
-    ]) {
-      const options = { ...deflectOptions, tags: ["DirectDamage", "Light", "VariedCombo", tag] }
+    ] as Array<[string, number]>) {
+      const options: BundleOptions = { ...deflectOptions, tags: ["DirectDamage", "Light", "VariedCombo", tag] }
       close(
         damage(run("Cleftpeak", 4, options)).total / damage(run("Cleftpeak", 2, options)).total,
         1 + bonus,
         "Cleftpeak varied-combo bonus is limited to the named martial arts",
       )
     }
-    const simulatedOptions = { tags: ["DirectDamage", "Light"], prep: [qi(0.39)] }
-    const sampled = tier => calculateSimulatedRotationRun(bundle("Swallowcall", tier, simulatedOptions), () => 0.5)
+    const simulatedOptions: BundleOptions = { tags: ["DirectDamage", "Light"], prep: [qi(0.39)] }
+    const finalSampledTotal = (tier: number) => {
+      const last = sampled(tier).resolvedSequence.at(-1)
+      assert(last, "A sampled run must resolve at least one action.")
+      return last.breakdown.total
+    }
+    const sampled = (tier: number) =>
+      calculateSimulatedRotationRun(bundle("Swallowcall", tier, simulatedOptions), () => 0.5)
     close(
-      sampled(4).resolvedSequence.at(-1).breakdown.total / sampled(2).resolvedSequence.at(-1).breakdown.total,
+      finalSampledTotal(4) / finalSampledTotal(2),
       1.12 * 1.06,
       "Simulation applies the same Swallowcall multipliers",
     )

@@ -1,5 +1,7 @@
 import { assert, describe, expect, it } from "vitest"
 
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
 import paths from "../data/path.json"
 import regularFire from "../data/rotation/silkbind-deluge/dummy-1-min-regular-fire.json"
 import smolder from "../data/rotation/silkbind-deluge/dummy-1-min-smolder.json"
@@ -26,15 +28,7 @@ describe("Deluge Qi timing", () => {
         food: "SimmeringFishSlices",
         divinecraft: "Fire",
         script: "None",
-        globalDebuffs: {
-          phantomChime: false,
-          qiImbalance: false,
-          soulShaken: false,
-          vulnerable: false,
-          fearfulBlade: false,
-          qingyisCharm: "none",
-          floatingGrace: "none",
-        },
+        globalDebuffs: { ...defaultGlobalDebuffs },
         skillOverrides: {},
         previewId: null,
       },

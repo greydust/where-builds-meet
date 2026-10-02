@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 
-import generalBuffs from "../data/buff/general.json"
-import general from "../data/skill/general.json"
+import generalBuffsJson from "../data/buff/general.json"
+const generalBuffs = asEffectDefinitions(generalBuffsJson)
+import generalJson from "../data/skill/general.json"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+const general = asSkillRecords(generalJson)
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 
 function input(steps: RotationStep[], targetType?: "Dummy" | "DummyAttack" | "Boss"): TimelineBuildInput {
@@ -91,12 +94,13 @@ describe("Rising Momentum", () => {
   )
 
   it("supplies the cumulative 2% per stack through ten stacks", () => {
-    const definition = generalBuffs.RisingMomentum
+    const definition = asEffectDefinitions(generalBuffs).RisingMomentum
     expect(definition.duration).toBe(5)
     expect(definition.maxStack).toBe(10)
-    expect(definition.stackEffects).toHaveLength(10)
-    expect(definition.stackEffects.map(entry => entry[0].effect.dmgBonus)).toEqual([
-      0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2,
-    ])
+    const stacks = definition.stackEffects ?? []
+    expect(stacks).toHaveLength(10)
+    expect(stacks.map(entry => (entry[0] as { effect?: { dmgBonus?: number } } | undefined)?.effect?.dmgBonus)).toEqual(
+      [0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2],
+    )
   })
 })
