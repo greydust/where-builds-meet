@@ -82,6 +82,11 @@ queue and reference resolved source damage. Collectors retain those results for
 final aggregation; they never reconstruct or replay combat. Only event-invariant
 variants may reuse stored action snapshots. Probability trackers remain effect-local.
 
+Inner Way `damageOutcome` triggers require live traversal for comparisons, including
+stat and attunement changes. Battle Anthem's outcome-dependent Endurance recovery
+changes later payments and missing-Endurance bonuses; reusing the baseline meter
+while recalculating outcomes cannot reproduce that feedback.
+
 The internal clock begins at the first ordered item. Battle start is recorded once
 as `battleStartTime` (`-1` until detected). Detection activates battle-relative
 encounter events, passive regeneration, the practice target's declared attack

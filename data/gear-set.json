@@ -154,7 +154,7 @@
   },
   "Jadeware": {
     "name": "Jadeware",
-    "altersTimeline": false,
+    "altersTimeline": true,
     "tags": [
       "BellstrikeSplendor",
       "BellstrikeUmbra",
@@ -166,7 +166,18 @@
     "options": {
       "0": { "name": "0", "effect": {} },
       "2": { "name": "2", "effect": { "rawStat": { "maxPhys": 77.8 } } },
-      "4": { "name": "4", "effect": { "rawStat": { "maxPhys": 77.8 } } }
+      "4": {
+        "name": "4",
+        "effect": {
+          "rawStat": { "maxPhys": 77.8 },
+          "trigger": {
+            "event": "skillStart",
+            "requirement": [{ "target": "skillTag", "value": "MartialArt" }],
+            "cooldown": 12,
+            "action": { "type": "apply", "target": "self", "value": "Jadeware", "stack": 1, "reapply": true }
+          }
+        }
+      }
     }
   },
   "SwiftGale": {

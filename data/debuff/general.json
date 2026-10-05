@@ -22,15 +22,5 @@
     "refresh": true
   },
   "Immobilized": { "name": "Immobilized", "badgeColor": "red", "maxStack": 1, "showCoverage": true },
-  "Airborne": { "name": "Airborne", "badgeColor": "red", "maxStack": 1, "showCoverage": true },
-  "Disarm": {
-    "name": "Disarm",
-    "badgeColor": "red",
-    "shortName": "Dis",
-    "description": "Increases general damage bonus against the target by 200% for 11 seconds.",
-    "duration": 11,
-    "maxStack": 1,
-    "shared": true,
-    "effect": [{ "effect": { "dmgBonus": 2 } }]
-  }
+  "Airborne": { "name": "Airborne", "badgeColor": "red", "maxStack": 1, "showCoverage": true }
 }

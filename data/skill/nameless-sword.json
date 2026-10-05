@@ -60,6 +60,7 @@
         "type": "consumeResource",
         "value": "Endurance",
         "amount": 20,
+        "resourceCostTags": [],
         "time": 0,
         "requirement": [
           { "target": "self", "value": "Shield" },
@@ -84,7 +85,7 @@
     "castTime": 0.85,
     "endurance": { "regeneration": 0.001 },
     "action": [
-      { "type": "consumeResource", "value": "Endurance", "amount": 20, "time": 0 },
+      { "type": "consumeResource", "value": "Endurance", "amount": 20, "resourceCostTags": [], "time": 0 },
       {
         "type": "damage",
         "phyCoef": 1.30656,

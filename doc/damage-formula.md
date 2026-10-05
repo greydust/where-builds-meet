@@ -953,15 +953,21 @@ time. Exhausted alone does not satisfy this condition.
 ## Splendor outcome and spending effects
 
 Sword Morph's sword-energy bonus is additive with other damage bonuses:
-`min(0.30, 0.015 * enduranceSpent)`. The input is actual direct Endurance paid by
-that cast, excluding its charging drain. Insufficient Endurance reduces the bonus.
+`min(0.30, 0.015 * enduranceSpent)`. The input is the paid fraction of the
+authored direct cost before cost modifiers, excluding its charging drain.
+Paying all 16 Endurance of a discounted 20-Endurance release therefore credits
+20 for the bonus. A partial payment credits the same fraction of the original
+cost; a discount alone does not reduce damage. Actual meter spending remains
+separate in `resourceConsumption`; `baseResourceConsumption` supplies the bonus.
 
 Resource costs resolve as `baseCost * (1 + sum(resourceCostBonus)) *
 product(resourceCostMultiplier)`, with the additive factor floored at zero.
 Requirement-gated charge modifiers share the additive category: Battle Anthem
 T4 adds 0.10 and upgraded Endless Gale subtracts 0.10. Endless Gale's general
 reduction multiplies separately by 0.8, so the full setup pays 16/s for a 20/s
-charge. The same matching rules apply to direct Endurance spending. Rate windows
+charge. Direct resource actions may override their matching tags with
+`resourceCostTags`. Sword Morph's extra release payment uses an empty list so
+general reductions apply but charge-specific modifiers do not. Rate windows
 split at buff expiry so a reduction ending mid-charge changes the remaining cost.
 
 Battle Anthem T3 tracks a probability distribution of its 12-second proc cooldown.
@@ -977,3 +983,17 @@ or leaving Exhausted during a cast affects the actual hit state.
 Insightful Strike's HP-conditional damage bonus and DOT bonus are weighted only
 with the Concentration-active outcome branch. Battle Anthem T6's missing-Endurance
 bonus is restricted to Charged hits.
+
+While Concentration is active and self HP is at or below 75%, Insightful Strike
+recovers 1.5% of the resolved outgoing damage. Expected mode weights the active
+branch's damage by its pre-hit Concentration probability; it does not leech from
+the inactive branch or the hit that first activates Concentration. Recovery caps
+at maximum HP and is direct self recovery, not a healing skill, so it does not
+generate healing-skill overheal or HPS entries.
+
+For an incoming hit, Concentration has a 5% chance to reduce damage by 40%.
+Expected mode uses `damage * (1 - concentrationProbability * 0.05 * 0.40)`;
+sampled mode rolls the proc only while Concentration is active. Avoided hits
+remain zero and do not roll mitigation. Both effects share the existing Focus
+tracker, including expiry between outgoing hits. Expected HP remains a single
+mean meter, so later HP-threshold rules do not retain a joint HP distribution.

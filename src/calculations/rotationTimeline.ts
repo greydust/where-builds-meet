@@ -267,6 +267,8 @@ export type TimelineRow = {
   enduranceLost: number
   /** Gross resource costs from accepted actions on this resolved row. */
   resourceConsumption?: ResourceState
+  /** Paid fraction of each authored cost, before cost modifiers; excludes rate drains. */
+  baseResourceConsumption?: ResourceState
   resourceRanges?: ResourceRangeState
   currentMartialArt?: WeaponId
   currentWeapon?: WeaponFamily
@@ -519,6 +521,7 @@ export type EffectDefinition = {
   action?: unknown[]
   periodic?: PeriodicEffect
   recording?: { event: "damage"; requirement?: unknown; action: { type: "trigger"; value: string } }
+  incomingDamageReduction?: { chance: number; reduction: number }
   accumulator?: {
     threshold?: number | { physical: number; silkbind: number }
     event?: string
@@ -601,10 +604,14 @@ export type TimelineActionResolverFactory = (
   | {
       healing?: ResolvedHealingState
       damage?: number
+      selfRecovery?: number
       outcomeRates?: Record<string, number>
       accumulatorThreshold?: number
     }
-  | undefined) & { onCastEnd?: (row: TimelineRow) => void }
+  | undefined) & {
+  onCastEnd?: (row: TimelineRow) => void
+  resolveIncomingDamage?: (damage: number, time: number) => number
+}
 
 export type ResourceEventRule = {
   event: "damage" | "takeDamage"
@@ -1698,7 +1705,13 @@ export function buildRotationTimeline(
       typeof originalAction.value === "string"
         ? {
             ...originalAction,
-            amount: originalAction.amount * resourceCostMultiplier(originalAction.value, tags, currentTimelineTime),
+            amount:
+              originalAction.amount *
+              resourceCostMultiplier(
+                originalAction.value,
+                Array.isArray(originalAction.resourceCostTags) ? (originalAction.resourceCostTags as string[]) : tags,
+                currentTimelineTime,
+              ),
           }
         : originalAction
     if (
@@ -1719,6 +1732,14 @@ export function buildRotationTimeline(
       row.resourceConsumption = {
         ...row.resourceConsumption,
         [action.value]: (row.resourceConsumption?.[action.value] ?? 0) + spent,
+      }
+      const baseSpent =
+        typeof originalAction.amount === "number"
+          ? originalAction.amount * (requested > 0 ? spent / requested : 1)
+          : spent
+      row.baseResourceConsumption = {
+        ...row.baseResourceConsumption,
+        [action.value]: (row.baseResourceConsumption?.[action.value] ?? 0) + baseSpent,
       }
     }
     if (infiniteResources.has(action.value)) return true
@@ -3170,6 +3191,7 @@ export function buildRotationTimeline(
             actions: [],
             actionStates: {},
             resourceConsumption: undefined,
+            baseResourceConsumption: undefined,
           },
         }
         automaticDelayRows.push(delay)
@@ -4283,7 +4305,9 @@ export function buildRotationTimeline(
       // This lets zero-damage manual events activate responses.
       activeResponses.forEach(response => queueAttackResponse(response.row, event.time, event.sortOrder))
       const incomingDamage = Math.max(0, action.damage)
-      const resolvedDamage = activeResponses.length ? 0 : incomingDamage
+      const resolvedDamage = activeResponses.length
+        ? 0
+        : (resolveAction?.resolveIncomingDamage?.(incomingDamage, event.time) ?? incomingDamage)
       action.damage = resolvedDamage
       // A manually authored zero-damage event is still a Take Damage event. A
       // positive attack that a defense avoids remains excluded from damage-taken
@@ -4316,6 +4340,7 @@ export function buildRotationTimeline(
       continue
     }
     if (action.type === "damage") {
+      if ((resolvedAction?.selfRecovery ?? 0) > 0) setCurrentHP(currentHP + resolvedAction!.selfRecovery!)
       if ((resolvedAction?.damage ?? 0) > 0) {
         for (const rule of damageListeners) {
           const listener = rule.listen!
@@ -4659,6 +4684,7 @@ export function buildRotationTimeline(
         buffs: effectState(),
         debuffs: effectState(),
         resourceConsumption: undefined,
+        baseResourceConsumption: undefined,
       }),
     )
     sortedRows.unshift(...groupRows)

@@ -32,7 +32,7 @@ const enemy = {
   bamboocutResistance: 0,
   judgementResistance: 0,
 }
-function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, exhausted = false) {
+function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, exhausted = false, gale = false) {
   const rotation: RotationRecord = { name: "Test", steps: skills.map(skill => ({ type: "skill", skill })) }
   return calculateRotationBaseline({
     timeline: {
@@ -45,7 +45,10 @@ function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, e
       weapons: [...weapons],
       innerWayConditions: [...innerWayConditionsFor(ways, undefined, "bellstrikeSplendor")],
       innerWayRules: innerWayEffectRulesFor(ways, 21, "bellstrikeSplendor"),
-      initialBuffs: [{ name: "Shield", stack: 1, appliedAt: 0 }],
+      initialBuffs: [
+        { name: "Shield", stack: 1, appliedAt: 0 },
+        ...(gale ? [{ name: "EndlessGale", stack: 1, appliedAt: 0 }] : []),
+      ],
       initialDebuffs: exhausted ? [{ name: "Exhausted", stack: 1, appliedAt: 0 }] : [],
       initialResources: { Endurance: endurance },
       resourceMaximums: { Endurance: 200 },
@@ -141,8 +144,33 @@ describe("Splendor Inner Way behavior", () => {
     if (upgraded) ways.push({ innerWay: "MountainsMight", tier: "T0" })
     const result = run(ways, [...(gale ? ["QiankunsLockCancel"] : []), "VagrantSword2"], 200)
     const charged = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "VagrantSword2")!
-    expect(charged.resourceConsumption?.Endurance).toBeCloseTo(cost, 8)
-    expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(2 * cost - 0.001, 6)
+    const releaseCost = gale ? 16 : 20
+    expect(charged.resourceConsumption?.Endurance).toBeCloseTo(releaseCost, 8)
+    expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(cost + releaseCost - 0.001, 6)
+  })
+
+  it("preserves the full release bonus when Gale discounts its payment", () => {
+    const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
+    const plain = run(ways, ["VagrantSword2"])
+    const discounted = run(ways, ["QiankunsLockCancel", "VagrantSword2"])
+    expect(plain.timeline[0].resourceConsumption?.Endurance).toBe(20)
+    expect(discounted.timeline[1].resourceConsumption?.Endurance).toBe(16)
+    expect(discounted.metrics.totalDamage).toBe(plain.metrics.totalDamage)
+  })
+
+  it("credits a partial discounted payment proportionally instead of granting the full bonus", () => {
+    const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
+    const plain = run(ways, ["VagrantSword2"], 30)
+    // Account for the charge's 0.001 regeneration when leaving the same paid fraction.
+    const discounted = run(ways, ["VagrantSword2"], 23.9998, false, true)
+    expect(discounted.timeline[0].resourceConsumption!.Endurance).toBeCloseTo(
+      plain.timeline[0].resourceConsumption!.Endurance * 0.8,
+      8,
+    )
+    expect(discounted.metrics.totalDamage).toBeCloseTo(plain.metrics.totalDamage, 8)
+    expect(discounted.metrics.totalDamage).toBeLessThan(
+      run(ways, ["VagrantSword2"], 200, false, true).metrics.totalDamage,
+    )
   })
 
   it("grants Insightful Strike's HP bonus only after Concentration activates", () => {

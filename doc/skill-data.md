@@ -636,8 +636,9 @@ below keeps cross-cutting blockers and outstanding skill evidence.
   no authored skill spends Endurance yet. Those effects therefore read zero:
   Battle Anthem T6, and every Wildfire Spark tier. Wildfire Spark T3 additionally
   needs a dedicated cumulative accumulator, which is not a general parameter.
-- Damage-based HP drain/leech remains unmodeled, including Insightful Strike
-  and Wind attacks. Song of Tang HP drain is intentionally ignored by user instruction.
+- Wind attack HP drain/leech remains unmodeled. Insightful Strike uses its
+  Concentration tracker for damage-based HP recovery. Song of Tang HP drain is
+  intentionally ignored by user instruction.
 - Blade Momentum and Battle Will retain confirmed starting values but no
   generation, spending, or caps. Do not treat their current fixed state as a
   completed resource model.
@@ -773,7 +774,11 @@ Remaining mechanics:
   Wildfire Spark T3 still needs its cumulative accumulator.
 - Sword Morph T0 scales sword-energy damage by 1.5% per directly spent Endurance,
   capped at 30%. The dynamic `enduranceSpent` value excludes the charging rate
-  and uses actual spending when the meter cannot pay the full amount. T1 opens
+  and credits the paid fraction of the undiscounted release cost. General cost
+  reductions do not reduce this bonus: paying 16 under Endless Gale counts as
+  the full 20. The release action uses `resourceCostTags: []` to exclude
+  charge-specific cost modifiers. Insufficient Endurance still reduces the
+  credited payment proportionally. T1 opens
   the out-of-combat route; T4 sustains its five-second window. T3 removes Abrasion
   on sword energy against Exhausted and guarantees Affinity on the third wave.
   Shadow Step is not authored, so its T1 window trigger remains absent. T6's
@@ -800,8 +805,10 @@ bonus applies only to Charged damage. Charge-specific cost modifiers add: T4's +
 
 Insightful Strike T1's damage/leech rules and T6's DOT bonus belong to
 Concentration, not to permanent effects. The outcome-state tracker includes the
-conditional damage rules only in its active branch. HP leech and incoming-damage
-mitigation remain unsupported; neither is exercised by this non-attacking dummy.
+conditional damage rules only in its active branch. At or below 75% HP, its
+damage-based recovery updates self HP after each eligible hit. The same tracker
+resolves incoming-damage reduction, including expiry between outgoing hits.
+Neither HP effect is exercised by the full-HP, non-attacking dummy.
 
 ### Endless Gale naming
 

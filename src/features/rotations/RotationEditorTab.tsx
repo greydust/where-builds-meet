@@ -150,6 +150,19 @@ function renderedRowFor(container: HTMLElement, key: string): HTMLElement | null
   return null
 }
 
+function rotationUsesEndurance(timeline: readonly TimelineRow[]): boolean {
+  return timeline.some(
+    row =>
+      (row.timelineResourceSummary?.Endurance?.consumed ?? 0) > 0 ||
+      row.actions.some(
+        action =>
+          action.value === "Endurance" &&
+          typeof action.type === "string" &&
+          ["consumeResource", "addResource", "setResource"].includes(action.type),
+      ),
+  )
+}
+
 export function RotationEditorTab({
   character,
   pathId,
@@ -1205,6 +1218,7 @@ export function RotationEditorTab({
     settings.weapons.includes("infernalTwinblades") ||
     rotation.steps.some(step => step.type === "event" && step.event === "Hellfire")
   const showHeavensWillColumn = settings.weapons.includes("heavenwill") && settings.weapons.includes("skygrasp")
+  const showEnduranceColumn = rotationUsesEndurance(timeline)
   const showVitalityColumn = useMemo(
     () =>
       rotation.steps.some(step => {
@@ -1214,29 +1228,18 @@ export function RotationEditorTab({
       }),
     [calculationDefinitions, rotation.steps],
   )
-  const stateColumns = useMemo(
-    () =>
-      [
-        showDistanceColumn ? "minmax(0, 0.7fr)" : "",
-        showSelfHPColumn ? "minmax(0, 0.65fr)" : "",
-        showTargetHPColumn ? "minmax(0, 0.65fr)" : "",
-        showQiColumn ? "minmax(0, 0.65fr)" : "",
-        showHellfireColumn ? "minmax(0, 0.7fr)" : "",
-        showHeavensWillColumn ? "minmax(0, 0.9fr)" : "",
-        showVitalityColumn ? "minmax(0, 0.7fr)" : "",
-      ]
-        .filter(Boolean)
-        .join(" "),
-    [
-      showDistanceColumn,
-      showSelfHPColumn,
-      showTargetHPColumn,
-      showQiColumn,
-      showHellfireColumn,
-      showHeavensWillColumn,
-      showVitalityColumn,
-    ],
-  )
+  const stateColumns = [
+    showDistanceColumn ? "minmax(0, 0.7fr)" : "",
+    showSelfHPColumn ? "minmax(0, 0.65fr)" : "",
+    showTargetHPColumn ? "minmax(0, 0.65fr)" : "",
+    showQiColumn ? "minmax(0, 0.65fr)" : "",
+    showHellfireColumn ? "minmax(0, 0.7fr)" : "",
+    showHeavensWillColumn ? "minmax(0, 0.9fr)" : "",
+    showVitalityColumn ? "minmax(0, 0.7fr)" : "",
+    showEnduranceColumn ? "minmax(0, 0.7fr)" : "",
+  ]
+    .filter(Boolean)
+    .join(" ")
   const rotationTableStyle = useMemo(
     () => ({ "--rotation-state-columns": stateColumns }) as CSSProperties,
     [stateColumns],
@@ -2035,6 +2038,7 @@ export function RotationEditorTab({
                   {showHellfireColumn && <span>{t("system.resource.hellfire")}</span>}
                   {showHeavensWillColumn && <span>{t("system.resource.heavensWill")}</span>}
                   {showVitalityColumn && <span>{t("system.resource.vitality")}</span>}
+                  {showEnduranceColumn && <span>{t("system.resource.endurance")}</span>}
                   <span className="rotation-damage-heading">{t("ui.app.damage")}</span>
                   <span>{t("ui.app.buff")}</span>
                   <span>{t("ui.app.debuff")}</span>
@@ -2070,6 +2074,7 @@ export function RotationEditorTab({
                             {showHellfireColumn && <span aria-hidden="true" />}
                             {showHeavensWillColumn && <span aria-hidden="true" />}
                             {showVitalityColumn && <span aria-hidden="true" />}
+                            {showEnduranceColumn && <span aria-hidden="true" />}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {formatThroughput(damage)}
                             </span>
@@ -2717,6 +2722,11 @@ export function RotationEditorTab({
                                   : formatResourceRange(row.resources.Vitality ?? 0, row.resourceRanges?.Vitality)}
                               </span>
                             )}
+                            {showEnduranceColumn && (
+                              <span data-mobile-label={t("system.resource.endurance")}>
+                                {formatResourceRange(row.resources.Endurance ?? 0, row.resourceRanges?.Endurance)}
+                              </span>
+                            )}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
                                 step.event === "MartialArt" ? (
@@ -3053,6 +3063,14 @@ export function RotationEditorTab({
                                           actionState?.resources.Vitality ?? row.resources.Vitality ?? 0,
                                           actionState?.resourceRanges?.Vitality ?? row.resourceRanges?.Vitality,
                                         )}
+                                  </span>
+                                )}
+                                {showEnduranceColumn && (
+                                  <span data-mobile-label={t("system.resource.endurance")}>
+                                    {formatResourceRange(
+                                      actionState?.resources.Endurance ?? row.resources.Endurance ?? 0,
+                                      actionState?.resourceRanges?.Endurance ?? row.resourceRanges?.Endurance,
+                                    )}
                                   </span>
                                 )}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>

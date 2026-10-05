@@ -24,7 +24,7 @@ import {
   ExpectedInsightfulStrikeTracker,
   SimulatedInsightfulStrikeTracker,
   insightfulStrikeDirectAffinityBonus,
-  insightfulStrikeDamageBonus,
+  insightfulStrikeConditionalBonus,
   insightfulStrikeEffectFor,
   type InsightfulStrikeEffect,
 } from "./insightfulStrike"
@@ -344,6 +344,7 @@ export type ResolvedRotationDamage = {
   entry: RotationDamageEntry
   breakdown: RotationActionBreakdown
   accumulatorThreshold?: number
+  selfRecovery?: number
   expectedBuffStacks?: Record<string, number>
   outcomeEffects?: UnconditionalDamageEffects
   expectedConcentration?: {
@@ -359,6 +360,10 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
   const expectedInsightfulStrike = random ? undefined : new ExpectedInsightfulStrikeTracker()
   const simulatedInsightfulStrike = random ? new SimulatedInsightfulStrikeTracker() : undefined
   const simulatedSeasons = new Map<string, string>()
+  const concentrationAt = (effect: InsightfulStrikeEffect, time: number) =>
+    random
+      ? Number(simulatedInsightfulStrike!.concentrationActive(effect, outcomeBuffTick(time)))
+      : expectedInsightfulStrike!.expectedConcentration(effect, outcomeBuffTick(time))
   const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
     const tick = outcomeBuffTick(entry.timelineTime)
     const expectedBuffStacks: Record<string, number> = {}
@@ -401,7 +406,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
       expectedBuffStacks.Concentration = concentrationProbability
       concentrationEffects = {
         affinityDmgBonus: entry.insightfulStrike.affinityDamageBonus,
-        dmgBonus: insightfulStrikeDamageBonus(
+        dmgBonus: insightfulStrikeConditionalBonus(
           entry.insightfulStrike,
           {
             selfHPPercentage: (entry.context.currentHPRatio ?? 1) * 100,
@@ -524,9 +529,23 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
           )
       }
     }
+    const leech =
+      entry.insightfulStrike && entry.action.type === "damage" && !entry.replay
+        ? insightfulStrikeConditionalBonus(
+            entry.insightfulStrike,
+            {
+              selfHPPercentage: (entry.context.currentHPRatio ?? 1) * 100,
+              targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+            },
+            entry.context.skillTags,
+            "leechRules",
+          )
+        : 0
+    const selfRecovery = leech * (concentrationProbability ?? 0) * (activeBreakdown ?? breakdown).total
     return {
       entry,
       breakdown,
+      ...(selfRecovery > 0 ? { selfRecovery } : {}),
       ...(Object.keys(expectedBuffStacks).length ? { expectedBuffStacks, outcomeEffects } : {}),
       ...(!random && concentrationProbability !== undefined
         ? {
@@ -539,7 +558,16 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
         : {}),
     }
   }
-  return { resolve }
+  return {
+    resolve,
+    resolveIncomingDamage: (damage: number, time: number, effect: InsightfulStrikeEffect | undefined) => {
+      if (!effect?.incomingDamageReduction || damage <= 0) return damage
+      const { chance, reduction } = effect.incomingDamageReduction
+      const probability = concentrationAt(effect, time) * chance
+      const proc = random ? Number(probability > 0 && random() < probability) : probability
+      return damage * (1 - proc * reduction)
+    },
+  }
 }
 
 export function calculateRotationDamageSequence(
@@ -1780,7 +1808,7 @@ function createTimelineEntryBuilder(
       currentHPRatio: actionState.currentHPRatio,
       targetHPRatio: actionState.targetHPRatio,
       enduranceLost: actionState.enduranceLost ?? row.enduranceLost,
-      enduranceSpent: row.resourceConsumption?.Endurance ?? 0,
+      enduranceSpent: row.baseResourceConsumption?.Endurance ?? row.resourceConsumption?.Endurance ?? 0,
       isDot: row.kind === "dot",
       expectedEffects: "expectedEffects" in actionState ? actionState.expectedEffects : undefined,
     }
@@ -1971,6 +1999,10 @@ function resolveCombatTimeline(
       collectAttribution,
     )
     const resolver = createRotationDamageResolver(random)
+    const insightfulStrike = insightfulStrikeEffectFor(
+      overrides.innerWayRules ?? passInput.innerWayRules ?? [],
+      passInput.effectDefinitions,
+    )
     const resolveAction = (row: TimelineRow, actionIndex: number) => {
       const startedAt = import.meta.env.DEV ? startCalculationPhase() : 0
       const entry = entriesForAction(row, actionIndex)[0]
@@ -1987,6 +2019,7 @@ function resolveCombatTimeline(
       return {
         accumulatorThreshold: result.accumulatorThreshold,
         damage: result.breakdown.total,
+        selfRecovery: result.selfRecovery,
         outcomeRates: result.breakdown.outcomeRates,
         ...(result.breakdown.healing
           ? {
@@ -2002,6 +2035,8 @@ function resolveCombatTimeline(
     }
     return Object.assign(resolveAction, {
       onCastEnd: seasonalEdge ? (row: TimelineRow) => appendSeasonalEdgeWindow(windows, row, seasonalEdge) : undefined,
+      resolveIncomingDamage: (damage: number, time: number) =>
+        resolver.resolveIncomingDamage(damage, time, insightfulStrike),
     })
   })
   const { anchorTime } = timelineTiming(timeline, startAnchor)
@@ -2179,7 +2214,11 @@ export function calculateRotationComparisons(
         baselineResult.compactedInnerWayResults ||
         timelineInput.rotation.targetHP,
       ) ||
-      timelineInput.innerWayRules.some(rule => rule.listen?.event === "damage") ||
+      // Outcome-triggered resource gains change later spending and damage bonuses.
+      // Re-evaluating damage against the baseline meter is not a valid comparison.
+      timelineInput.innerWayRules.some(
+        rule => rule.listen?.event === "damage" || rule.trigger?.event === "damageOutcome",
+      ) ||
       baselineResult.timeline.some(row =>
         row.actions.some(
           action =>

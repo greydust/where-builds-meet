@@ -106,10 +106,10 @@
       "level": 96,
       "rarity": "Gold",
       "relayed": true,
-      "baseAffix": { "key": "affinity", "value": 0.04136 },
+      "baseAffix": { "key": "power", "value": 46.436 },
       "additionalAffixes": [
         { "key": "maxPhys", "value": 73.132 },
-        { "key": "momentum", "value": 46.436 },
+        { "key": "affinity", "value": 0.04136 },
         { "key": "vsBossDmg", "value": 0.03008 },
         { "key": "power", "value": 46.436 }
       ],

@@ -101,7 +101,7 @@
   "data.debuff.bellstrikeSplendor.QiImbalance.shortName": "진기불균형",
   "data.debuff.general.Controlled.name": "제어",
   "data.debuff.general.Controlled.shortName": "제어",
-  "data.debuff.general.Disarm.shortName": "붕괴",
+  "data.debuff.mechanism.Disarm.shortName": "붕괴",
   "data.debuff.mystic.LesserToadVenom.name": "하급 두꺼비 독",
   "data.debuff.mystic.LesserToadVenom.shortName": "하급 독",
   "data.debuff.mystic.ToadVenom.name": "두꺼비 독",

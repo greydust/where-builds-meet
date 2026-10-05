@@ -22,6 +22,8 @@ export type InsightfulStrikeEffect = {
   affinityDamageBonus: number
   directAffinityRules: DirectAffinityRule[]
   damageBonusRules?: { value: number; requirement?: unknown }[]
+  leechRules?: { value: number; requirement?: unknown }[]
+  incomingDamageReduction?: { chance: number; reduction: number }
 }
 
 type FocusDistribution = Map<number, Map<number, number>>
@@ -79,12 +81,13 @@ export function insightfulStrikeDirectAffinityBonus(effect: InsightfulStrikeEffe
   )
 }
 
-export function insightfulStrikeDamageBonus(
+export function insightfulStrikeConditionalBonus(
   effect: InsightfulStrikeEffect,
   state: RequirementState,
   tags: string[],
+  kind: "damageBonusRules" | "leechRules" = "damageBonusRules",
 ): number {
-  return (effect.damageBonusRules ?? []).reduce(
+  return (effect[kind] ?? []).reduce(
     (total, rule) =>
       requirementsPass(rule.requirement, new Map(), new Map(), tags, new Set(), [], {}, state)
         ? total + rule.value
@@ -165,6 +168,12 @@ export function insightfulStrikeEffectFor(
         const effect = (wrapper.effect ?? wrapper) as EditableObject
         return typeof effect.dmgBonus === "number" ? [{ value: effect.dmgBonus, requirement: wrapper.requirement }] : []
       }),
+      leechRules: (concentration.effect ?? []).flatMap(rule => {
+        const wrapper = rule as EditableObject
+        const effect = (wrapper.effect ?? wrapper) as EditableObject
+        return typeof effect.leech === "number" ? [{ value: effect.leech, requirement: wrapper.requirement }] : []
+      }),
+      incomingDamageReduction: concentration.incomingDamageReduction,
     }
   }
   return undefined
