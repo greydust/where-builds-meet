@@ -21,6 +21,7 @@ export type InsightfulStrikeEffect = {
   concentrationDurationTicks: number
   affinityDamageBonus: number
   directAffinityRules: DirectAffinityRule[]
+  damageBonusRules?: { value: number; requirement?: unknown }[]
 }
 
 type FocusDistribution = Map<number, Map<number, number>>
@@ -72,6 +73,20 @@ export function insightfulStrikeDirectAffinityBonus(effect: InsightfulStrikeEffe
   return effect.directAffinityRules.reduce(
     (total, rule) =>
       requirementsPass(rule.requirement, new Map(), new Map(), [], new Set(), [], {}, state)
+        ? total + rule.value
+        : total,
+    0,
+  )
+}
+
+export function insightfulStrikeDamageBonus(
+  effect: InsightfulStrikeEffect,
+  state: RequirementState,
+  tags: string[],
+): number {
+  return (effect.damageBonusRules ?? []).reduce(
+    (total, rule) =>
+      requirementsPass(rule.requirement, new Map(), new Map(), tags, new Set(), [], {}, state)
         ? total + rule.value
         : total,
     0,
@@ -145,6 +160,11 @@ export function insightfulStrikeEffectFor(
       concentrationDurationTicks: outcomeBuffTick(concentration.duration),
       affinityDamageBonus: effectAffinityDamageBonus(concentration),
       directAffinityRules: effectDirectAffinityRules(concentration),
+      damageBonusRules: (concentration.effect ?? []).flatMap(rule => {
+        const wrapper = rule as EditableObject
+        const effect = (wrapper.effect ?? wrapper) as EditableObject
+        return typeof effect.dmgBonus === "number" ? [{ value: effect.dmgBonus, requirement: wrapper.requirement }] : []
+      }),
     }
   }
   return undefined

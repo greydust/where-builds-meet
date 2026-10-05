@@ -27,7 +27,7 @@ export function resolveMultiplyValue(value: unknown, parameters: DynamicParamete
       ? parameters[definition.param2]
       : finiteNumber(definition.param2)
   return typeof left === "number" && Number.isFinite(left) && typeof right === "number" && Number.isFinite(right)
-    ? left * right
+    ? Math.min(typeof definition.max === "number" ? definition.max : Infinity, left * right)
     : undefined
 }
 

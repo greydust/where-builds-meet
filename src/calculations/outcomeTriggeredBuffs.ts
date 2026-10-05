@@ -452,3 +452,27 @@ export class ExpectedPeriodicTracker {
     return result
   }
 }
+
+/** Cooldown readiness distribution for outcome-dependent resource procs. */
+export class OutcomeCooldownTracker {
+  private readiness = new Map<number, number>([[-Infinity, 1]])
+
+  resolve(time: number, probability: number, cooldown: number): number {
+    const chance = outcomeProbability(probability)
+    const next = new Map<number, number>()
+    const add = (readyAt: number, weight: number) => {
+      if (weight > 0) next.set(readyAt, (next.get(readyAt) ?? 0) + weight)
+    }
+    let proc = 0
+    for (const [readyAt, weight] of this.readiness) {
+      if (readyAt > time) add(readyAt, weight)
+      else {
+        proc += weight * chance
+        add(-Infinity, weight * (1 - chance))
+        add(time + cooldown, weight * chance)
+      }
+    }
+    this.readiness = next
+    return proc
+  }
+}

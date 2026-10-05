@@ -2,9 +2,9 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
-import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
-import { emptyStats } from "../src/data/statDefinitions"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
+import { emptyStats } from "@/data/statDefinitions"
 
 const weaponIds = ["namelessSword", "namelessSpear"] as never[]
 
@@ -23,12 +23,19 @@ const enemy = {
 
 describe("vagrant-sword-charge-variants", () => {
   it("runs the three charge phases and swaps the shooting variant under Sword Morph", async () => {
-    const { defaultSkillMaps, defaultEditorMaps } = await import("../src/application/gameData/skills")
-    const run = (tiers: string[], shielded: boolean, holdSeconds = 5) =>
+    const { defaultSkillMaps, defaultEditorMaps } = await import("@/application/gameData/skills")
+    const run = (
+      tiers: string[],
+      shielded: boolean,
+      holdSeconds = 5,
+      prepull = false,
+      followupGap: number | undefined = undefined,
+    ) =>
       calculateRotationBaseline({
         timeline: {
           rotation: {
             name: "Vagrant Sword",
+            ...(prepull ? { start: { step: 0, action: 1 } } : {}),
             steps: shielded
               ? [
                   { type: "skill", skill: "RaiseShield" },
@@ -37,6 +44,12 @@ describe("vagrant-sword-charge-variants", () => {
                 ]
               : [
                   { type: "skill", skill: "VagrantSword2" },
+                  ...(followupGap === undefined
+                    ? []
+                    : Array.from({ length: 3 }, () => [
+                        { type: "event" as const, event: "Delay" as const, duration: followupGap },
+                        { type: "skill" as const, skill: "VagrantSword2" },
+                      ]).flat()),
                   { type: "event", event: "Delay", duration: holdSeconds },
                 ],
           },
@@ -65,7 +78,7 @@ describe("vagrant-sword-charge-variants", () => {
         enemy,
         weapons: weaponIds,
         attunement: {},
-        startAnchor: { rowId: "rotation-0" },
+        startAnchor: { rowId: "rotation-0", ...(prepull ? { actionIndex: 1 } : {}) },
         statPriority: [],
         attunementPriority: [],
         innerWayPriority: [],
@@ -106,6 +119,42 @@ describe("vagrant-sword-charge-variants", () => {
     // An unshielded release stays on the single wave even with the Inner Way selected.
     assert.equal(threeWaves(run(["SwordMorphT0"], false)).length, 0, "Sword Morph needs the Qi shield active")
 
+    assert.equal(threeWaves(run(["SwordMorphT0"], false, 5, true)).length, 0)
+    assert.equal(
+      threeWaves(run(["SwordMorphT0", "SwordMorphT1"], false, 5, true)).length,
+      3,
+      "T1 releases all three waves when the opening hit starts battle",
+    )
+    assert.equal(
+      threeWaves(run(["SwordMorphT0", "SwordMorphT1"], false)).length,
+      0,
+      "T1 does not bypass the shield requirement in combat",
+    )
+
+    const prepullMorph = run(["SwordMorphT0", "SwordMorphT1"], false, 5, true)
+    assert.equal(
+      prepullMorph.timeline[0].timelineResourceSummary?.Endurance?.consumed,
+      20,
+      "The opener pays the release cost; passive charge drain starts only in combat",
+    )
+
+    const chainingTiers = ["SwordMorphT0", "SwordMorphT1", "SwordMorphT4"]
+    assert.equal(
+      threeWaves(run(chainingTiers, false, 5, true, 0)).length,
+      12,
+      "T4 refreshes the window across subsequent three-wave casts",
+    )
+    assert.equal(
+      threeWaves(run(["SwordMorphT0", "SwordMorphT1"], false, 5, true, 0)).length,
+      3,
+      "Without T4 the next unshielded cast is a single wave",
+    )
+    assert.equal(
+      threeWaves(run(chainingTiers, false, 5, true, 5)).length,
+      3,
+      "An expired window cannot empower the next cast",
+    )
+
     const morphed = run(["SwordMorphT0"], true)
     assert.equal(
       singleWave(morphed).length,
@@ -125,7 +174,7 @@ describe("vagrant-sword-charge-variants", () => {
   })
 
   it("drains and regenates Endurance across the authored charge phases", async () => {
-    const { defaultSkillMaps, defaultEditorMaps } = await import("../src/application/gameData/skills")
+    const { defaultSkillMaps, defaultEditorMaps } = await import("@/application/gameData/skills")
     const endurance = (tiers: string[], shielded: boolean) => {
       const result = calculateRotationBaseline({
         timeline: {

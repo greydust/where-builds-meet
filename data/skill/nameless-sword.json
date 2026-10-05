@@ -5,12 +5,29 @@
     "castTime": 0,
     "subAction": [
       "VagrantSwordPreCharge",
-      "VagrantSwordCharge",
+      {
+        "value": "VagrantSwordCharge",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "EnergySurge" }] }]
+      },
       {
         "value": "VagrantSwordShootThree",
         "requirement": [
-          { "target": "self", "value": "Shield" },
-          { "target": "self", "value": "SwordMorphT0" }
+          { "target": "self", "value": "SwordMorphT0" },
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "Shield" },
+              [
+                { "target": "self", "value": "SwordMorphT1" },
+                { "operator": "not", "operand": [{ "target": "battleStarted" }] }
+              ],
+              [
+                { "target": "self", "value": "SwordMorphT4" },
+                { "target": "self", "value": "SwordMorphWindow" }
+              ],
+              { "target": "self", "value": "EnergySurge" }
+            ]
+          }
         ],
         "fallback": "VagrantSwordShootSingle"
       }
@@ -67,16 +84,7 @@
     "castTime": 0.85,
     "endurance": { "regeneration": 0.001 },
     "action": [
-      {
-        "type": "consumeResource",
-        "value": "Endurance",
-        "amount": 20,
-        "time": 0,
-        "requirement": [
-          { "target": "self", "value": "Shield" },
-          { "target": "self", "value": "SwordMorphT0" }
-        ]
-      },
+      { "type": "consumeResource", "value": "Endurance", "amount": 20, "time": 0 },
       {
         "type": "damage",
         "phyCoef": 1.30656,
@@ -99,7 +107,30 @@
         "attrCoef": 1.829184,
         "phyBonus": 506.24,
         "attrBonus": 276.08,
-        "time": 0.755
+        "time": 0.755,
+        "modifier": [
+          {
+            "requirement": [
+              { "target": "self", "value": "SwordMorphT3" },
+              { "target": "target", "value": "Exhausted" }
+            ],
+            "effect": { "GuaranteedAffinity": true }
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SwordMorphWindow",
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordMorphT4" }]
+      },
+      { "type": "consume", "target": "self", "value": "EnergySurge", "stack": "all", "time": 0 },
+      {
+        "type": "trigger",
+        "value": "SwordMorphEnergySurge",
+        "time": 0.85,
+        "requirement": [{ "target": "self", "value": "SwordMorphT6" }]
       }
     ],
     "modifier": [],
@@ -132,5 +163,17 @@
     "tags": ["MartialArts", "MartialArt", "Sword", "NamelessSword", "DauntingStrike"],
     "martialArt": "namelessSword",
     "weapon": "Sword"
+  },
+  "SwordMorphEnergySurge": {
+    "name": "Energy Surge",
+    "castTime": 0,
+    "cooldown": 20,
+    "tags": ["General", "Triggered"],
+    "action": [
+      { "type": "addResource", "value": "Endurance", "amount": 20, "time": 0 },
+      { "type": "apply", "target": "self", "value": "EnergySurge", "time": 0 },
+      { "type": "consume", "target": "self", "value": "EnergySurgeRecovery", "stack": "all", "time": 0 },
+      { "type": "apply", "target": "self", "value": "EnergySurgeRecovery", "stack": 8, "time": 0 }
+    ]
   }
 }

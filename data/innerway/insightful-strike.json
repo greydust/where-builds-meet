@@ -17,12 +17,19 @@
     "InsightfulStrikeT1": {
       "effect": [
         {
-          "requirement": [{ "target": "selfHPPercentage", "comparison": ">", "amount": 75 }],
-          "effect": { "dmgBonus": 0.015 }
-        },
-        {
-          "requirement": [{ "target": "selfHPPercentage", "comparison": "<=", "amount": 75 }],
-          "effect": { "leech": 0.015 }
+          "target": "Concentration",
+          "modify": {
+            "effect": [
+              {
+                "requirement": [{ "target": "selfHPPercentage", "comparison": ">", "amount": 75 }],
+                "effect": { "dmgBonus": 0.015 }
+              },
+              {
+                "requirement": [{ "target": "selfHPPercentage", "comparison": "<=", "amount": 75 }],
+                "effect": { "leech": 0.015 }
+              }
+            ]
+          }
         }
       ]
     },
@@ -107,16 +114,23 @@
     "InsightfulStrikeT6": {
       "effect": [
         {
-          "requirement": [
-            {
-              "operator": "or",
-              "operand": [
-                { "target": "skillTag", "value": "DOT" },
-                { "target": "skillTag", "value": "DOTEmpowered" }
-              ]
-            }
-          ],
-          "effect": { "dmgBonus": 0.1 }
+          "target": "Concentration",
+          "modify": {
+            "effect": [
+              {
+                "requirement": [
+                  {
+                    "operator": "or",
+                    "operand": [
+                      { "target": "skillTag", "value": "DOT" },
+                      { "target": "skillTag", "value": "DOTEmpowered" }
+                    ]
+                  }
+                ],
+                "effect": { "dmgBonus": 0.1 }
+              }
+            ]
+          }
         }
       ]
     }

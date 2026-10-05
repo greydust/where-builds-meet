@@ -949,3 +949,31 @@ At maximum Yi River stacks, Morale Chant T6 triggers one bonus attack, or two
 separate hits against a Controlled target, on the same 10-second cooldown.
 The second hit uses the ordinary damage pipeline and checks Controlled at hit
 time. Exhausted alone does not satisfy this condition.
+
+## Splendor outcome and spending effects
+
+Sword Morph's sword-energy bonus is additive with other damage bonuses:
+`min(0.30, 0.015 * enduranceSpent)`. The input is actual direct Endurance paid by
+that cast, excluding its charging drain. Insufficient Endurance reduces the bonus.
+
+Resource costs resolve as `baseCost * (1 + sum(resourceCostBonus)) *
+product(resourceCostMultiplier)`, with the additive factor floored at zero.
+Requirement-gated charge modifiers share the additive category: Battle Anthem
+T4 adds 0.10 and upgraded Endless Gale subtracts 0.10. Endless Gale's general
+reduction multiplies separately by 0.8, so the full setup pays 16/s for a 20/s
+charge. The same matching rules apply to direct Endurance spending. Rate windows
+split at buff expiry so a reduction ending mid-charge changes the remaining cost.
+
+Battle Anthem T3 tracks a probability distribution of its 12-second proc cooldown.
+Expected-mode Endurance gains are probability-weighted; sampled mode uses the
+resolved hit outcome. Expected Endurance is a shared mean meter, not a joint
+distribution of every possible resource value and outcome history.
+
+Against Exhausted targets, Sword Morph T3 removes Abrasion from sword-energy
+hits by resolving their rates with full precision; its third wave forces Affinity.
+The third-wave condition is a per-action modifier evaluated at the hit, so entering
+or leaving Exhausted during a cast affects the actual hit state.
+
+Insightful Strike's HP-conditional damage bonus and DOT bonus are weighted only
+with the Concentration-active outcome branch. Battle Anthem T6's missing-Endurance
+bonus is restricted to Charged hits.

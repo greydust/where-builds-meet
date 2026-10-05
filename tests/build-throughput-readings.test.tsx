@@ -40,7 +40,7 @@ dpsResolves("throughput", async request => {
  * the same resolver the game does and a fixture that skipped that would test nothing.
  */
 function fixture() {
-  const preset = defaultBuildPresets[0]
+  const preset = defaultBuildPresets.find(build => build.id === "pure-fully-relayed-min")!
   const inventory = buildPresetInventory(preset)
   const worn = inventory.items.find(item => item.id === inventory.equipped.helmet)!
   const plain: GearItem = {

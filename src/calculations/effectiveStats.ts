@@ -1,4 +1,5 @@
-import type { CharacterStats, WeaponId } from "../types"
+import type { CharacterStats, WeaponId } from "@/types"
+
 import { DIRECT_CRIT_RATE_CAP } from "./statCaps"
 
 // Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
@@ -83,7 +84,7 @@ export function calculateRates(
     directAffinity: number
     finalAffinity?: number
   },
-  options: { GuaranteedCrit?: boolean; SteadfastGuaranteedCrit?: boolean } = {},
+  options: { GuaranteedCrit?: boolean; GuaranteedAffinity?: boolean; SteadfastGuaranteedCrit?: boolean } = {},
 ): RateCalculation {
   const clampRate = (value: number) => Math.min(1, Math.max(0, value))
   const baseDirectCrit = Math.min(DIRECT_CRIT_RATE_CAP, Math.max(0, input.directCrit))
@@ -92,6 +93,19 @@ export function calculateRates(
     finalAffinity + baseDirectCrit + input.effectiveCrit <= 1
       ? (input.effectiveCrit + baseDirectCrit) * input.effectivePrecision
       : (1 - finalAffinity) * input.effectivePrecision
+  if (options.GuaranteedAffinity === true) {
+    return {
+      effectivePrecision: input.effectivePrecision,
+      effectiveCrit: input.effectiveCrit,
+      effectiveAffinity: input.effectiveAffinity,
+      finalAffinity: 1,
+      finalCrit: 0,
+      abrasionRate: 0,
+      normalRate: 0,
+      critRate: 0,
+      affinityRate: 1,
+    }
+  }
   if (options.GuaranteedCrit === true) {
     return {
       effectivePrecision: input.effectivePrecision,

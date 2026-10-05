@@ -3,7 +3,14 @@
   "altersTimeline": true,
   "tags": ["BellstrikeSplendor"],
   "effect": {
-    "SwordMorphT0": {},
+    "SwordMorphT0": {
+      "effect": [
+        {
+          "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+          "effect": { "dmgBonus": { "function": "multiply", "param1": "enduranceSpent", "param2": 0.015, "max": 0.3 } }
+        }
+      ]
+    },
     "SwordMorphT1": {},
     "SwordMorphT2": {
       "effect": [
@@ -39,7 +46,17 @@
         }
       ]
     },
-    "SwordMorphT3": {},
+    "SwordMorphT3": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "SwordEnergy" },
+            { "target": "target", "value": "Exhausted" }
+          ],
+          "effect": { "NoAbrasion": true }
+        }
+      ]
+    },
     "SwordMorphT4": {},
     "SwordMorphT5": { "effect": [{ "rawStat": { "directAffinity": 0.023 } }] },
     "SwordMorphT6": {}
