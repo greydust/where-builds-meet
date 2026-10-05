@@ -3,6 +3,8 @@
     "name": "Qiankun's Lock [Cancel]",
     "shortName": "Spear Q [Cancel]",
     "castTime": 0,
+    "cooldown": 12,
+    "cooldownGroup": "QiankunsLock",
     "action": [
       { "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0 },
       {
@@ -23,6 +25,8 @@
     "name": "Qiankun's Lock",
     "shortName": "Spear Q",
     "castTime": 0.7,
+    "cooldown": 12,
+    "cooldownGroup": "QiankunsLock",
     "action": [
       { "type": "damage", "phyCoef": 0.57317, "attrCoef": 0.57317, "phyBonus": 160, "attrBonus": 87, "time": 0.294 },
       { "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0.7 },

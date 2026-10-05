@@ -327,6 +327,8 @@
   "data.event.Hellfire.name": "Event: Add Hellfire",
   "data.food.None.name": "None",
   "data.food.SimmeringFishSlices.name": "Simmering Fish Slices",
+  "data.food.SimmeringFishSlices.title": "Physical Attack",
+  "data.food.SwallowsAgility.name": "Swallow’s Agility",
   "data.gear.affixes.hengBladeDmgBoost.name": "Art of Heng",
   "data.gear.affixes.moBladeDmgBoost.name": "Art of Mo",
   "data.gear.affixes.precision.name": "Precision",

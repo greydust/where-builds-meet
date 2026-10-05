@@ -11,6 +11,8 @@ import {
 import type { SetupSelections } from "@/application/contracts"
 import {
   breakthroughProfile,
+  foodAvailableForPath,
+  foodSelectionForPath,
   typedArmorSetDefinitions,
   typedArsenalDefinitions,
   typedBowRingSetDefinitions,
@@ -119,7 +121,7 @@ export function buildRotationComparisonBundle(
         ),
       )
     : {}
-  const selectedFood = currentFood
+  const selectedFood = foodSelectionForPath(currentFood, pathId)
   const selectedScript = currentScript
   const selectedDivinecraft = currentDivinecraft
   return {
@@ -181,8 +183,15 @@ export function buildRotationComparisonBundle(
             .filter(value => value !== buildSetup.bowRingSet)
             .map(value => ({ label: value, setupEffects: setupEffectsForRotation({ bowRingSet: value }) })),
           food: Object.keys(typedFoodDefinitions)
-            .filter(value => value !== selectedFood)
-            .map(value => ({ label: value, setupEffects: setupEffectsForRotation({ food: value }) })),
+            .filter(value => value !== selectedFood && foodAvailableForPath(value, pathId))
+            .map(value => {
+              const setupEffects = setupEffectsForRotation({ food: value })
+              const rebuildTimeline = setupSelectionChangesTimeline(selectedFood, value, typedFoodDefinitions)
+              return Object.assign(
+                { label: value, setupEffects },
+                rebuildTimeline ? { timeline: makeTimelineInput(subject.rotation, { setupEffects }) } : {},
+              )
+            }),
           script: Object.entries(typedScriptDefinitions)
             .filter(([value]) => value !== selectedScript)
             .map(([value]) => {

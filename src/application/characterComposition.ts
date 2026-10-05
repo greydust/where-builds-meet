@@ -27,6 +27,7 @@ import {
   breakthroughProfile,
   bowRingSetEffectFor,
   divinecraftEffectFor,
+  foodSelectionForPath,
   scriptEffectFor,
   systemStatEffects,
   typedArmorSetDefinitions,
@@ -183,7 +184,7 @@ export function selectedSetupEffects(
     weaponSets: overrides.weaponSets ?? buildSetup.weaponSets,
     armorSets: overrides.armorSets ?? buildSetup.armorSets,
   }
-  const foodEffect = typedFoodDefinitions[overrides.food ?? selections.food]?.effect ?? {}
+  const foodEffect = typedFoodDefinitions[foodSelectionForPath(overrides.food ?? selections.food, pathId)]?.effect ?? {}
   const divinecraftEffect = divinecraftEffectFor(
     overrides.divinecraft ?? selections.divinecraft,
     overrides.divinecraftDamage ?? true,

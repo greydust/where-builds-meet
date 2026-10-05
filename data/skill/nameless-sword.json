@@ -150,6 +150,7 @@
   "DauntingStrikeCancel": {
     "name": "Daunting Strike [Cancel]",
     "shortName": "Sword Q",
+    "cooldown": 12,
     "castTime": 0,
     "action": [
       {

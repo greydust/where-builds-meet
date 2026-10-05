@@ -2,6 +2,14 @@
   "None": { "name": "None", "effect": { "stat": {} } },
   "SimmeringFishSlices": {
     "name": "Simmering Fish Slices",
-    "effect": { "effectiveStat": { "minPhys": 120, "maxPhys": 240 } }
+    "effect": { "effectiveStat": { "minPhys": 120, "maxPhys": 240 } },
+    "title": "Physical Attack"
+  },
+  "SwallowsAgility": {
+    "name": "Swallow’s Agility",
+    "title": "Endurance",
+    "paths": ["bellstrikeSplendor", "bellstrikeUmbra"],
+    "altersTimeline": true,
+    "effect": { "stat": { "maxEndurance": 20 } }
   }
 }

@@ -1,18 +1,19 @@
-import arsenalDefinitions from "../../../data/arsenal.json"
-import bowRingSetDefinitions from "../../../data/bow-ring-set.json"
-import breakthroughProfiles from "../../../data/breakthrough.json"
-import divinecraftDefinitions from "../../../data/divinecraft.json"
-import foodDefinitions from "../../../data/food.json"
-import scriptDefinitions from "../../../data/script.json"
-import systemStats from "../../../data/system.json"
-import { DEFAULT_PING_MS } from "../../calculations/combatDefaults"
-import type { EditableObject, ResourceEventRule } from "../../calculations/rotationTimeline"
-import type { EffectiveStatEffectContainer, StatEffectContainer } from "../../calculations/statEffects"
-import type { BaseAttributeData } from "../../data/baseAttributeEffects"
-import { createBaseAttributeEffects } from "../../data/baseAttributeEffects"
-import { armorSetDefinitions, weaponSetDefinitions, type SetDefinition } from "../../gear"
-import type { EnemyProfile } from "../../types"
-import type { CalculatorSettings } from "../contracts"
+import arsenalDefinitions from "@gamedata/arsenal.json"
+import bowRingSetDefinitions from "@gamedata/bow-ring-set.json"
+import breakthroughProfiles from "@gamedata/breakthrough.json"
+import divinecraftDefinitions from "@gamedata/divinecraft.json"
+import foodDefinitions from "@gamedata/food.json"
+import scriptDefinitions from "@gamedata/script.json"
+import systemStats from "@gamedata/system.json"
+
+import type { CalculatorSettings, PathId } from "@/application/contracts"
+import { DEFAULT_PING_MS } from "@/calculations/combatDefaults"
+import type { EditableObject, ResourceEventRule } from "@/calculations/rotationTimeline"
+import type { EffectiveStatEffectContainer, StatEffectContainer } from "@/calculations/statEffects"
+import type { BaseAttributeData } from "@/data/baseAttributeEffects"
+import { createBaseAttributeEffects } from "@/data/baseAttributeEffects"
+import { armorSetDefinitions, weaponSetDefinitions, type SetDefinition } from "@/gear"
+import type { EnemyProfile } from "@/types"
 
 export type SetupEffect = StatEffectContainer &
   EffectiveStatEffectContainer & {
@@ -79,7 +80,17 @@ export type GearSetOption = { name: string; effect?: SetupEffect | SetupEffect[]
 export type GearSetDefinition = Omit<SetDefinition, "options"> & { options: Record<string, GearSetOption> }
 export const typedWeaponSetDefinitions = weaponSetDefinitions as Record<string, GearSetDefinition>
 export const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDefinition>
-export const typedFoodDefinitions = foodDefinitions as Record<string, ArsenalDefinition>
+export type FoodDefinition = ArsenalDefinition & { title?: string; paths?: PathId[]; altersTimeline?: boolean }
+export const typedFoodDefinitions = foodDefinitions as Record<string, FoodDefinition>
+
+export function foodAvailableForPath(value: string, pathId: PathId) {
+  const definition = typedFoodDefinitions[value]
+  return Boolean(definition && (!definition.paths || definition.paths.includes(pathId)))
+}
+
+export function foodSelectionForPath(value: string, pathId: PathId) {
+  return foodAvailableForPath(value, pathId) ? value : "None"
+}
 export type DivinecraftDefinition = ArsenalDefinition & {
   description: string
   image?: string

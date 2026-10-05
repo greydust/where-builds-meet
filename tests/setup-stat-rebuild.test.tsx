@@ -135,7 +135,7 @@ it("rebuilds food stats before publishing DPS and restores the cached original o
   expect(localStorage.getItem("wwm-food-session-v1")).toBe("None")
 
   const dispatchesBeforeReturn = dpsDispatches("baseline").length
-  await choose("Food", "Simmering Fish Slices")
+  await choose("Food", "Physical Attack")
   expect(dpsDispatches("baseline")).toHaveLength(dispatchesBeforeReturn)
   expect(useRotationStore.getState().result!.metrics.dps).toBeCloseTo(fishDps, 8)
 })

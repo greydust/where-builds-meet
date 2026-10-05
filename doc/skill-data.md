@@ -699,6 +699,10 @@ The remaining Sword and Spear actions, including charge tier 1, are deliberately
 absent. The proposed rotation does not require them; author additional actions
 only when a rotation needs them.
 
+Spear Q and Sword Q each have a 12-second skill cooldown. Spear Q and its
+cancel share `QiankunsLock` readiness; Sword Q has its own cooldown. Early
+rotation casts wait automatically without storing explicit Delay steps.
+
 ### Vagrant Sword charge tiers
 
 The export describes charge tier 2 (`202011021`) as two mutually exclusive
@@ -978,3 +982,12 @@ and Burn and Bury slow/Breath-hold are intentionally ignored by user instruction
 
 Towline T6 refreshes/settles target Soulbreak only at distance <= 15m.
 Its self Soul Return refresh and Burn and Bury damage bonus are not range-gated.
+
+### Food choices
+
+Food titles describe their role; the food name is shown underneath. Physical
+Attack (Simmering Fish Slices) retains its effective +120/+240 Physical Attack.
+Endurance (Swallow’s Agility) is available only for Splendor and Umbra and adds
+20 to `maxEndurance` through the shared stat pipeline. A saved unavailable food
+is treated as None without deleting the saved choice. Comparisons involving
+Endurance food rebuild combat with the variant’s starting Endurance and capacity.

@@ -1970,6 +1970,27 @@ function resolveCombatTimeline(
   procRoll?: (key: string) => number,
   collectAttribution = true,
 ) {
+  // Setup variants retain the baseline input but must start with their own Endurance capacity.
+  const sheet = variantStatState(
+    state,
+    overrides.setupEffects ?? input.setupEffects,
+    overrides.innerWayRules ?? input.innerWayRules,
+    overrides,
+  )
+  const enduranceDelta = sheet.stats.maxEndurance - state.stats.maxEndurance
+  if (enduranceDelta !== 0) {
+    input = {
+      ...input,
+      initialResources:
+        input.initialResources?.Endurance === undefined
+          ? input.initialResources
+          : { ...input.initialResources, Endurance: input.initialResources.Endurance + enduranceDelta },
+      resourceMaximums:
+        input.resourceMaximums?.Endurance === undefined
+          ? input.resourceMaximums
+          : { ...input.resourceMaximums, Endurance: input.resourceMaximums.Endurance + enduranceDelta },
+    }
+  }
   const resolvedActions = new Map<string, ResolvedRotationDamage>()
   const seasonalEdge = seasonalEdgeEffectFor(overrides.innerWayRules ?? input.innerWayRules, input.effectDefinitions)
   const windows: SeasonalEdgeWindow[] = []

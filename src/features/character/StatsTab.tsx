@@ -18,6 +18,8 @@ import { artStatByWeaponFamily, martialArtDefinitions } from "@/application/game
 import { typedPathDefinitions } from "@/application/gameData/paths"
 import {
   breakthroughProfile,
+  foodAvailableForPath,
+  foodSelectionForPath,
   scriptDisplayOrder,
   divinecraftDisplayOrder,
   typedArmorSetDefinitions,
@@ -106,7 +108,8 @@ export function StatsTab({
   const { stats, derivedStats, displayedAttunementStats: attunementStats, buildSetup, settings } = character
   const showHealingStats = pathId === "silkbindDeluge"
   const breakthrough = breakthroughProfile(settings)
-  const { food, script, divinecraft } = character.setupSelections
+  const { script, divinecraft } = character.setupSelections
+  const food = foodSelectionForPath(character.setupSelections.food, pathId)
   const globalDebuffs = useLoadoutStore(state => state.globalDebuffs)
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({})
   const [newProfileName, setNewProfileName] = useState("")
@@ -1116,16 +1119,24 @@ export function StatsTab({
               </div>
             </PanelHeading>
             <ButtonGroup>
-              {Object.entries(typedFoodDefinitions).map(([value, definition]) => (
-                <ButtonGroupOption
-                  key={value}
-                  label={gameText(definition.name)}
-                  selected={food === value}
-                  onClick={() => onSetupSelectionChange("food", value)}
-                >
-                  {setupStatus("food", value, food === value)}
-                </ButtonGroupOption>
-              ))}
+              {Object.entries(typedFoodDefinitions)
+                .filter(([value]) => foodAvailableForPath(value, pathId))
+                .map(([value, definition]) => (
+                  <ButtonGroupOption
+                    key={value}
+                    label={gameText(definition.title ?? definition.name)}
+                    selected={food === value}
+                    onClick={() => onSetupSelectionChange("food", value)}
+                  >
+                    {definition.title && (
+                      <>
+                        {gameText(definition.name)}
+                        <br />
+                      </>
+                    )}
+                    {setupStatus("food", value, food === value)}
+                  </ButtonGroupOption>
+                ))}
             </ButtonGroup>
           </Panel>
           <Panel className="setup-placeholder-panel">

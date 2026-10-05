@@ -12,7 +12,7 @@ function bundle(
   pieces: 0 | 2 | 4,
   actions: EditableObject[],
   steps: RotationStep[] = [
-    { type: "skill", skill: "DauntingStrikeCancel" },
+    { type: "skill", skill: "QiankunsLockCancel" },
     { type: "skill", skill: "Probe" },
   ],
 ): RotationSimulationBundle {
@@ -29,6 +29,7 @@ function bundle(
       skills: {
         ...allSkillDefinitions,
         Probe: { name: "Probe", castTime: 1, tags: ["DirectDamage", "Light"], action: actions },
+        MartialArtProbe: { name: "Martial Art probe", castTime: 0, tags: ["MartialArt"] },
         NineSeconds: { name: "Nine seconds", castTime: 9, tags: [] },
         TwoSeconds: { name: "Two seconds", castTime: 2, tags: [] },
       },
@@ -80,6 +81,28 @@ describe("Jadeware four-piece", () => {
   })
 
   it.each([
+    ["QiankunsLock", "QiankunsLockCancel"],
+    ["QiankunsLockCancel", "QiankunsLock"],
+    ["DauntingStrikeCancel", "DauntingStrikeCancel"],
+  ])("waits twelve seconds between %s and %s and reactivates Jadeware", (first, second) => {
+    const result = calculateRotationBaseline(
+      bundle(
+        4,
+        [hit(0.5)],
+        [
+          { type: "skill", skill: first },
+          { type: "skill", skill: second },
+          { type: "skill", skill: "Probe" },
+        ],
+      ),
+    )
+    const firstRow = result.timeline.find(row => row.id === "rotation-0")!
+    const secondRow = result.timeline.find(row => row.id === "rotation-1")!
+    expect(secondRow.startTime - firstRow.startTime).toBeCloseTo(12, 8)
+    expect(result.timeline.find(row => row.id === "rotation-2")!.actionStates[0].buffs.has("Jadeware")).toBe(true)
+  })
+
+  it.each([
     { ratio: 1, expected: 0.2 },
     { ratio: 0.9999, expected: 0.275 },
     { ratio: 0.4, expected: 0.275 },
@@ -109,13 +132,13 @@ describe("Jadeware four-piece", () => {
         4,
         [hit(0.5)],
         [
-          { type: "skill", skill: "DauntingStrikeCancel" },
+          { type: "skill", skill: "MartialArtProbe" },
           { type: "skill", skill: "NineSeconds" },
-          { type: "skill", skill: "DauntingStrikeCancel" },
+          { type: "skill", skill: "MartialArtProbe" },
           { type: "skill", skill: "TwoSeconds" },
-          { type: "skill", skill: "DauntingStrikeCancel" },
+          { type: "skill", skill: "MartialArtProbe" },
           { type: "skill", skill: "Probe" },
-          { type: "skill", skill: "DauntingStrikeCancel" },
+          { type: "skill", skill: "MartialArtProbe" },
           { type: "skill", skill: "Probe" },
         ],
       ),
