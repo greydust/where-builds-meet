@@ -4,9 +4,9 @@
     "tag": "BellstrikeSplendor",
     "status": "wip",
     "buildGroup": "bellstrike-splendor",
-    "defaultBuild": "empty",
+    "defaultBuild": "splendor-fully-relayed",
     "graduated": ["empty"],
-    "defaultRotation": "empty",
+    "defaultRotation": "dummy-1-min-81-waves",
     "lockedWeapons": ["namelessSword", "namelessSpear"],
     "arsenal": "Bellstrike"
   },

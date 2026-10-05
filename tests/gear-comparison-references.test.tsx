@@ -31,7 +31,7 @@ dpsResolves("throughput", async request => {
 })
 
 const slot: GearSlot = "helmet"
-const preset = defaultBuildPresets[0]
+const preset = defaultBuildPresets.find(build => build.id === "pure-fully-relayed-min")!
 
 /** The crit the sheet resolved to, which is what a swap of a crit affix has to move. */
 function critOf(current: ReturnType<typeof world>, build: BuildEntry) {

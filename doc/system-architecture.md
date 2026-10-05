@@ -569,6 +569,9 @@ before any of them runs. Prepull damage and self effects are
 unaffected; only the target is unreachable. A `battleStarted` requirement is
 available to data that needs the same distinction for a self effect, such as a
 hit counter, because a self effect is not gated automatically.
+Conditional sub-action selection reads the current battle-start lifecycle state,
+not the previous action's row. A release before its anchored first hit can thus
+select an out-of-combat route and retain it once the hit opens combat.
 
 A target's `attackPattern` array declares its generated Take Damage events. Each
 entry is `{ firstDelay, interval, count, damage }`: the first occurrence lands

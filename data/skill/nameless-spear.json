@@ -3,7 +3,17 @@
     "name": "Qiankun's Lock [Cancel]",
     "shortName": "Spear Q [Cancel]",
     "castTime": 0,
-    "action": [{ "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0 }],
+    "action": [
+      { "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0 },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 30,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "MountainsMightT3" }]
+      },
+      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 }
+    ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "NamelessSpear", "QiankunsLock"],
     "martialArt": "namelessSpear",
@@ -15,7 +25,15 @@
     "castTime": 0.7,
     "action": [
       { "type": "damage", "phyCoef": 0.57317, "attrCoef": 0.57317, "phyBonus": 160, "attrBonus": 87, "time": 0.294 },
-      { "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0.7 }
+      { "type": "apply", "target": "self", "value": "EndlessGale", "stack": 1, "reapply": true, "time": 0.7 },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 30,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "MountainsMightT3" }]
+      },
+      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "NamelessSpear", "QiankunsLock"],

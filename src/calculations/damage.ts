@@ -1,4 +1,5 @@
-import type { CharacterStats, EnemyProfile, WeaponId } from "../types"
+import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
+
 import { resolveActionStatContext } from "./actionStats"
 import { matchingAttunementEntries } from "./attunementStats"
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
@@ -127,6 +128,8 @@ export type DamageContext = {
   targetHPRatio?: number
   /** Current Endurance below its maximum, exposed to the `enduranceLost` dynamic value. */
   enduranceLost?: number
+  /** Direct Endurance spent by this cast, excluding its charging rate. */
+  enduranceSpent?: number
   isDot?: boolean
   expectedEffects?: Array<Array<{ probability: number; effects: Record<string, unknown>[] }>>
 }
@@ -197,6 +200,7 @@ function calculateDamageBreakdownInternal(
       targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
       missingTargetHPPercentage: (1 - (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO)) * 100,
       enduranceLost: context.enduranceLost,
+      enduranceSpent: context.enduranceSpent,
     }
     const multiplied = resolveMultiplyValue(value, dynamicParameters)
     if (multiplied !== undefined) {
@@ -443,16 +447,31 @@ function calculateDamageBreakdownInternal(
   )
   const convertedRateStats =
     conversionEffects.length > 0 ? applyStatConversions(rateStats, conversionEffects) : rateStats
+  const GuaranteedAffinity = effects.some(effect => effect.GuaranteedAffinity === true)
+  const NoAbrasion = effects.some(effect => effect.NoAbrasion === true)
   const GuaranteedCrit = effects.some(effect => effect.GuaranteedCrit === true)
   const SteadfastGuaranteedCrit =
     effects.some(effect => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"))
-  const calculatedRates = calculateRates(convertedRateStats, { GuaranteedCrit, SteadfastGuaranteedCrit })
+  const calculatedRates = calculateRates(
+    NoAbrasion ? { ...convertedRateStats, effectivePrecision: 1 } : convertedRateStats,
+    { GuaranteedCrit, GuaranteedAffinity, SteadfastGuaranteedCrit },
+  )
   const convertedRates =
     conversionEffects.length > 0 ? applyStatConversions(calculatedRates, conversionEffects) : calculatedRates
-  const normalRates = GuaranteedCrit
-    ? { ...convertedRates, finalCrit: 1, critRate: 1, abrasionRate: 0, normalRate: 0, affinityRate: 0 }
-    : convertedRates
+  const normalRates = GuaranteedAffinity
+    ? {
+        ...convertedRates,
+        finalAffinity: 1,
+        finalCrit: 0,
+        critRate: 0,
+        abrasionRate: 0,
+        normalRate: 0,
+        affinityRate: 1,
+      }
+    : GuaranteedCrit
+      ? { ...convertedRates, finalCrit: 1, critRate: 1, abrasionRate: 0, normalRate: 0, affinityRate: 0 }
+      : convertedRates
   // The healing and Divinecraft routes cannot roll every outcome, so they replace the normal rates.
   const rateRoute = restrictedRateRouteFor(action.rateRoute)
   const rates = rateRoute ? restrictedOutcomeRates(rateRoute, rateStats) : normalRates

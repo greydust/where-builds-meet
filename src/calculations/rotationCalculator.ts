@@ -1,6 +1,8 @@
-import attunementJson from "../../data/attunement.json"
-import { emptyStats } from "../data/statDefinitions"
-import type { CharacterStats, EnemyProfile, WeaponId } from "../types"
+import attunementJson from "@gamedata/attunement.json"
+
+import { emptyStats } from "@/data/statDefinitions"
+import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
+
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import { DEFAULT_TARGET_HP_RATIO, normalizeEnemyCount, resolveTargetType } from "./combatDefaults"
 import {
@@ -22,6 +24,7 @@ import {
   ExpectedInsightfulStrikeTracker,
   SimulatedInsightfulStrikeTracker,
   insightfulStrikeDirectAffinityBonus,
+  insightfulStrikeDamageBonus,
   insightfulStrikeEffectFor,
   type InsightfulStrikeEffect,
 } from "./insightfulStrike"
@@ -396,7 +399,17 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
         : (schedule?.[entry.id ?? ""]?.Concentration ??
           expectedInsightfulStrike!.expectedConcentration(entry.insightfulStrike, tick))
       expectedBuffStacks.Concentration = concentrationProbability
-      concentrationEffects = { affinityDmgBonus: entry.insightfulStrike.affinityDamageBonus }
+      concentrationEffects = {
+        affinityDmgBonus: entry.insightfulStrike.affinityDamageBonus,
+        dmgBonus: insightfulStrikeDamageBonus(
+          entry.insightfulStrike,
+          {
+            selfHPPercentage: (entry.context.currentHPRatio ?? 1) * 100,
+            targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+          },
+          entry.context.skillTags,
+        ),
+      }
       concentrationDirectAffinity = insightfulStrikeDirectAffinityBonus(entry.insightfulStrike, {
         selfHPPercentage: (entry.context.currentHPRatio ?? 1) * 100,
         targetHPPercentage: (entry.context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
@@ -1607,6 +1620,10 @@ function createTimelineEntryBuilder(
       targetQiPercentage: actionState.targetQiRatio * 100,
       targetType: resolveTargetType(input.rotation),
     }
+    const componentModifiers = row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects
+    const modifierCacheKey = Array.isArray(action.modifier)
+      ? [...componentModifiers, ...action.modifier]
+      : componentModifiers
     const effectsForState = (
       currentBuffs: typeof buffs,
       currentDebuffs: typeof debuffs,
@@ -1619,7 +1636,7 @@ function createTimelineEntryBuilder(
         currentResources,
         currentRequirementState,
         skillStaticEffects,
-        row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects,
+        modifierCacheKey,
         () => {
           const effectStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
           const activeSetupEffects = dynamicSetupEffects
@@ -1721,6 +1738,20 @@ function createTimelineEntryBuilder(
             ...activeInnerWayEffects,
             ...activeTrackedEffects,
             ...(row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects),
+            ...(Array.isArray(action.modifier) ? action.modifier : [])
+              .filter((modifier: EditableObject) =>
+                requirementsPass(
+                  modifier.requirement,
+                  currentBuffs,
+                  currentDebuffs,
+                  skillTags,
+                  conditions,
+                  state.weapons,
+                  currentResources,
+                  currentRequirementState,
+                ),
+              )
+              .map((modifier: EditableObject) => modifier.effect as EditableObject),
           ]
           if (import.meta.env.DEV) finishCalculationPhase("effectResolution", effectStartedAt)
           return resolvedEffects
@@ -1749,6 +1780,7 @@ function createTimelineEntryBuilder(
       currentHPRatio: actionState.currentHPRatio,
       targetHPRatio: actionState.targetHPRatio,
       enduranceLost: actionState.enduranceLost ?? row.enduranceLost,
+      enduranceSpent: row.resourceConsumption?.Endurance ?? 0,
       isDot: row.kind === "dot",
       expectedEffects: "expectedEffects" in actionState ? actionState.expectedEffects : undefined,
     }
@@ -1955,6 +1987,7 @@ function resolveCombatTimeline(
       return {
         accumulatorThreshold: result.accumulatorThreshold,
         damage: result.breakdown.total,
+        outcomeRates: result.breakdown.outcomeRates,
         ...(result.breakdown.healing
           ? {
               healing: {

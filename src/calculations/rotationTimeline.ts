@@ -1,4 +1,5 @@
-import type { WeaponFamily, WeaponId } from "../types"
+import type { WeaponFamily, WeaponId } from "@/types"
+
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import {
   bossDefinitionFor,
@@ -12,6 +13,7 @@ import {
 import { resolveSegmentValue, resolveSwitchValue, type SwitchValue } from "./dynamicValues"
 import {
   ExpectedPeriodicTracker,
+  OutcomeCooldownTracker,
   nextBattlePeriodicTick,
   outcomeProbability,
   maxStackActionFor,
@@ -595,9 +597,14 @@ export type TimelineActionResolverFactory = (
 ) => ((
   row: TimelineRow,
   actionIndex: number,
-) => { healing?: ResolvedHealingState; damage?: number; accumulatorThreshold?: number } | undefined) & {
-  onCastEnd?: (row: TimelineRow) => void
-}
+) =>
+  | {
+      healing?: ResolvedHealingState
+      damage?: number
+      outcomeRates?: Record<string, number>
+      accumulatorThreshold?: number
+    }
+  | undefined) & { onCastEnd?: (row: TimelineRow) => void }
 
 export type ResourceEventRule = {
   event: "damage" | "takeDamage"
@@ -1606,6 +1613,7 @@ export function buildRotationTimeline(
     to: number
     regeneration?: number
     consumption?: number
+    skillTags?: string[]
   }> = []
   /** Resource regeneration stays at zero until this time after a direct spend. */
   const regenSuppressedUntil = new Map<string, number>()
@@ -1647,7 +1655,52 @@ export function buildRotationTimeline(
         resourceEventCooldowns.set(ruleIndex, time + rule.cooldown)
     })
   }
-  const applyResourceAction = (action: EditableObject, row: TimelineRow) => {
+  const resourceCostMultiplier = (resource: string, tags: string[], time: number) => {
+    const activeBuffs = filterTrackedEffects(buffs, buff => buff.expiresAt === undefined || buff.expiresAt > time)
+    const rules = [
+      ...setupEffects,
+      ...innerWayRules.map(rule => ({ ...rule.effect, requirement: rule.requirement })),
+      ...Array.from(activeBuffs.values()).flatMap(buff =>
+        effectsForTrackedEffect(buff.stack, getModifiedEffectDefinition(buff.name, activeBuffs, debuffs, tags)),
+      ),
+    ]
+    let multiplier = 1
+    let bonus = 0
+    for (const candidate of rules) {
+      const rule = candidate as EditableObject
+      const effect = (rule.effect ?? rule) as EditableObject
+      const factors = effect.resourceCostMultiplier as Record<string, number> | undefined
+      const bonuses = effect.resourceCostBonus as Record<string, number> | undefined
+      const factor = factors?.[resource]
+      const additive = bonuses?.[resource]
+      if (
+        !requirementsPass(
+          rule.requirement,
+          activeBuffs,
+          debuffs,
+          tags,
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        )
+      )
+        continue
+      if (typeof factor === "number") multiplier *= Math.max(0, factor)
+      if (typeof additive === "number") bonus += additive
+    }
+    return multiplier * Math.max(0, 1 + bonus)
+  }
+  const applyResourceAction = (originalAction: EditableObject, row: TimelineRow, tags = row.skill?.tags ?? []) => {
+    const action =
+      originalAction.type === "consumeResource" &&
+      typeof originalAction.amount === "number" &&
+      typeof originalAction.value === "string"
+        ? {
+            ...originalAction,
+            amount: originalAction.amount * resourceCostMultiplier(originalAction.value, tags, currentTimelineTime),
+          }
+        : originalAction
     if (
       (action.type !== "setResource" && action.type !== "addResource" && action.type !== "consumeResource") ||
       typeof action.value !== "string" ||
@@ -1658,7 +1711,11 @@ export function buildRotationTimeline(
     )
       return false
     if (action.type === "consumeResource") {
-      const spent = action.amount === "all" ? Math.max(0, resources[action.value] ?? 0) : action.amount
+      const requested = action.amount === "all" ? Math.max(0, resources[action.value] ?? 0) : Number(action.amount)
+      const spent =
+        action.value === "Vitality" || infiniteResources.has(action.value)
+          ? requested
+          : Math.min(requested, Math.max(0, resources[action.value] ?? 0))
       row.resourceConsumption = {
         ...row.resourceConsumption,
         [action.value]: (row.resourceConsumption?.[action.value] ?? 0) + spent,
@@ -1725,6 +1782,7 @@ export function buildRotationTimeline(
       return
     resourceRateWindows.push({
       resource: "Endurance",
+      skillTags: skill?.tags ?? [],
       from: startTime,
       to: startTime + duration,
       ...(typeof regeneration === "number" && Number.isFinite(regeneration) ? { regeneration } : {}),
@@ -1739,6 +1797,10 @@ export function buildRotationTimeline(
       // suppression deadline is an event time, so it splits too and the
       // suppression test below is exact within each piece.
       const boundaries = new Set<number>()
+      for (const buff of buffs.values()) {
+        if (buff.expiresAt !== undefined && buff.expiresAt > from && buff.expiresAt < time)
+          boundaries.add(buff.expiresAt)
+      }
       for (const window of resourceRateWindows) {
         if (window.from > from && window.from < time) boundaries.add(window.from)
         if (window.to > from && window.to < time) boundaries.add(window.to)
@@ -1761,7 +1823,11 @@ export function buildRotationTimeline(
               window => window.resource === name && window.from <= spanStart && spanStart < window.to,
             )
             const override = active.findLast(window => window.regeneration !== undefined)?.regeneration
-            const drain = active.reduce((total, window) => total + (window.consumption ?? 0), 0)
+            const drain = active.reduce(
+              (total, window) =>
+                total + (window.consumption ?? 0) * resourceCostMultiplier(name, window.skillTags ?? [], spanStart),
+              0,
+            )
             const rate = override ?? resourceRegeneration[name] ?? 0
             const suppressed = (regenSuppressedUntil.get(name) ?? Number.NEGATIVE_INFINITY) > spanStart
             if (rate <= 0 && drain <= 0) return next
@@ -1814,10 +1880,20 @@ export function buildRotationTimeline(
       { triggerIndex: setupEffects.length + setupTriggerIndex + index, trigger, owner },
     ])
   })
+  const outcomeResourceCooldowns = new Map<InnerWayEffectRule, OutcomeCooldownTracker>()
   const innerWayTriggerStates = new Map<InnerWayEffectRule, { hits: number[]; readyAt: number }>()
   innerWayRules.forEach(rule => {
     const triggerEvent = rule.trigger?.event ?? "damage"
-    if (triggerEvent === "damageOutcome" || typeof triggerEvent !== "string") return
+    if (typeof triggerEvent !== "string") return
+    if (triggerEvent === "damageOutcome") {
+      const actions = Array.isArray(rule.trigger?.action) ? rule.trigger.action : [rule.trigger?.action]
+      if (
+        !actions.every(
+          action => action && typeof action === "object" && (action as EditableObject).type === "addResource",
+        )
+      )
+        return
+    }
     innerWayTriggersByEvent.set(triggerEvent, [...(innerWayTriggersByEvent.get(triggerEvent) ?? []), rule])
   })
   const skillCooldownGroups = Object.fromEntries(
@@ -3114,7 +3190,9 @@ export function buildRotationTimeline(
             innerWayConditions,
             weapons,
             resources,
-            requirementState(),
+            // Component selection occurs before its actions; the previous action's
+            // row cannot determine whether this release is still prepull.
+            { ...requirementState(), battleStarted: !hasUsableStart || battleStartTime >= 0 },
           )
         if (choiceKey) subActionChoices.set(choiceKey, primaryPasses)
       }
@@ -3418,7 +3496,7 @@ export function buildRotationTimeline(
       currentWeapon = input.martialArtState?.[currentMartialArt]?.weapon
       continue
     }
-    if (applyResourceAction(action, event.row)) continue
+    if (applyResourceAction(action, event.row, skillTags)) continue
     if (action.type === "consume") {
       const targetEffects = action.target === "target" ? debuffs : buffs
       const valueObject =
@@ -3759,7 +3837,7 @@ export function buildRotationTimeline(
       const hitProbability = typeof action.hitProbability === "number" ? action.hitProbability : 1
       if (triggerAction.type === "addResource" && typeof triggerAction.amount === "number" && hitProbability !== 1)
         triggerAction = { ...triggerAction, amount: triggerAction.amount * hitProbability }
-      if (applyResourceAction(triggerAction, event.row)) return
+      if (applyResourceAction(triggerAction, event.row, skillTags)) return
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         if (triggerAction.seconds === undefined) cooldowns[triggerAction.value] = event.time
         clearSkillCooldown(
@@ -4093,7 +4171,10 @@ export function buildRotationTimeline(
         }
       })
     }
-    const runInnerWayTriggers = (triggerEvent: "damage" | "heal" | "takeDamage", row?: TimelineRow) => {
+    const runInnerWayTriggers = (
+      triggerEvent: "damage" | "heal" | "takeDamage" | "damageOutcome",
+      row?: TimelineRow,
+    ) => {
       ;(innerWayTriggersByEvent.get(triggerEvent) ?? []).forEach(rule => {
         const requirement = rule.requirement ?? rule.trigger?.requirement
         if (
@@ -4117,6 +4198,22 @@ export function buildRotationTimeline(
           : rule.trigger?.action && typeof rule.trigger.action === "object"
             ? [rule.trigger.action]
             : []
+        if (triggerEvent === "damageOutcome") {
+          const outcomes = Array.isArray(rule.trigger?.outcome) ? rule.trigger.outcome : [rule.trigger?.outcome]
+          const probability = outcomes.reduce<number>(
+            (total, outcome) => total + (resolvedAction?.outcomeRates?.[String(outcome)] ?? 0),
+            0,
+          )
+          let tracker = outcomeResourceCooldowns.get(rule)
+          if (!tracker) outcomeResourceCooldowns.set(rule, (tracker = new OutcomeCooldownTracker()))
+          const proc = tracker.resolve(event.time, probability, Number(rule.trigger?.cooldown ?? 0))
+          if (proc > 0)
+            for (const action of triggerActions) {
+              const resourceAction = action as EditableObject
+              applyTriggerAction({ ...resourceAction, amount: Number(resourceAction.amount) * proc }, "innerWay")
+            }
+          return
+        }
         const hitWindow = rule.trigger?.hitWindow as { count: number; seconds: number } | undefined
         const triggerCooldown = rule.trigger?.cooldown
         let triggerState: { hits: number[]; readyAt: number } | undefined
@@ -4281,6 +4378,7 @@ export function buildRotationTimeline(
       const triggerStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
       runEffectTriggers("damage")
       runInnerWayTriggers("damage", event.row)
+      runInnerWayTriggers("damageOutcome", event.row)
       runEffectTriggers("damage", true)
       if (procRoll || action.hitProbability === undefined) accumulateEventValue("damage", 1)
       if (event.row.expectedBranch) {

@@ -3,9 +3,26 @@
     "name": "Endless Gale",
     "shortName": "Gale",
     "description": "Applied by Nameless Spear's Martial Art Skill Qiankun's Lock. Mountain's Might T0 sets its duration to 10 seconds and T4 grants Direct Affinity Rate while it is active.",
-    "duration": 10,
+    "duration": 5,
     "maxStack": 1,
-    "effect": [],
+    "effect": [{ "effect": { "resourceCostMultiplier": { "Endurance": 0.8 } } }],
     "refresh": true
+  },
+  "SwordMorphWindow": { "name": "Sword Morph Window", "duration": 5, "maxStack": 1, "hidden": true, "refresh": true },
+  "EnergySurge": { "name": "Energy Surge", "duration": 5, "maxStack": 1, "refresh": true },
+  "EnergySurgeRecovery": {
+    "name": "Energy Surge Recovery",
+    "duration": 20,
+    "maxStack": 8,
+    "hidden": true,
+    "refresh": true,
+    "trigger": {
+      "event": "damage",
+      "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+      "action": [
+        { "type": "consume", "target": "self", "value": "EnergySurgeRecovery", "stack": 1 },
+        { "type": "clearCD", "value": "SwordMorphEnergySurge", "seconds": 1 }
+      ]
+    }
   }
 }

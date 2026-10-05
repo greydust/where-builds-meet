@@ -669,21 +669,34 @@ below keeps cross-cutting blockers and outstanding skill evidence.
 ### Bellstrike Splendor
 
 Splendor is `wip`, not `available`: it has talent, Inner Way, attunement, and
-skill data, but no build, rotation, or DPS snapshot. Its path status is not
-proof that any timing is verified.
+skill data and the proposed `dummy-1-min-81-waves` rotation, but no preset build
+or accepted DPS snapshot. Its path status is not proof that any timing is verified.
+
+`Dummy 1 min 81 waves` preserves the user-proposed sequence: 27 tier-2 Vagrant
+Sword casts, with battle start on the first cast's first damage hit (after its
+Endurance-spend action). It starts at 12 m and reasserts 12 m on Flute Full's
+last direct hit. The target is the non-attacking dummy, with the standard preset ping of 40 ms. Qi break is attached after wave 3 of the Vagrant cast immediately before the
+second full Qiankun's Lock (the 11th Vagrant cast). The last Spear Q is a cancel.
+Battle ends at 60 seconds relative to the first-hit battle anchor. No
+additional movement is inferred. Qi 60% and 40% thresholds use proportional timing before the break, as approved by the user.
+The production calculation verifies 81 waves before the cutoff: all 27 casts
+use the three-wave route, which requires Sword Morph and either Shield, the T1
+out-of-combat exception, or the T4 follow-up window.
+The Fully Relayed preset equips Sword Morph, Mountain's Might, Battle Anthem, and Insightful Strike at T6, Jadeware, and Affinity bow/ring. Its fixed core is 12 max Physical, 8 Momentum, 2 All Martial Arts, 1 Art of Sword, and 2 vs Boss rolls. Comparing all legal Power/Affinity fills and offensive armor bases gives 6 Affinity and 9 Power rolls; optimization rebuilds the live timeline for each candidate.
 
 Only the skills the Inner Ways reference are authored, at the user's direction:
 
 | Skill                                    | ID        | Scope                                                         |
 | ---------------------------------------- | --------- | ------------------------------------------------------------- |
 | `QiankunsLock`                           | 20102101  | Nameless Spear Martial Art Skill; applies Endless Gale        |
-| `VagrantSword`                           | 20201102  | Nameless Sword charge tier 1; Charged **and Heavy**           |
+| `QiankunsLockCancel`                     | 20102101  | Zero-time cancel; applies Endless Gale without damage         |
 | `VagrantSword2`                          | 202011021 | Nameless Sword charge tier 2; three phases, two shot variants |
 | `VagrantSwordShootSingle` / `ShootThree` | —         | The two charge-tier-2 release variants                        |
 | `DauntingStrikeCancel`                   | 20201101  | Nameless Sword Martial Art Skill, zero cast time, no damage   |
 
-The remaining Sword and Spear actions are deliberately absent. Author them when
-a Splendor rotation exists, not before.
+The remaining Sword and Spear actions, including charge tier 1, are deliberately
+absent. The proposed rotation does not require them; author additional actions
+only when a rotation needs them.
 
 ### Vagrant Sword charge tiers
 
@@ -705,10 +718,16 @@ out of: a 0.2s pre-charge with no Endurance setting, a 1.0s charging phase, and
 a 0.85s shooting phase, totalling the 2.05s cast. The shooting sub-action is
 itself a `value`/`fallback` choice between the two release variants, so there is
 no wrapper between the cast and its phases. Sword Morph T0 with the Qi shield
-active picks the three-wave variant; otherwise the single wave runs. Only the
+active picks the three-wave variant. T1 also permits this route out of combat,
+using a negated `battleStarted` requirement; the release is selected before its
+first hit opens battle and retains all three waves. Both routes pay the extra
+20 Endurance at release. T4 also permits the route while `SwordMorphWindow` is
+active. Each three-wave release applies or refreshes this hidden, one-stack buff
+at release start for five seconds; a single-wave release cannot refresh it.
+Otherwise the single wave runs. Only the
 three-wave variant carries `SwordEnergy`, which is the skill tag the Nameless
-Sword talents match on, so the single wave must not carry it. Charge tier 1 has
-no `timings` block at all, so its cast time stays 0.
+Sword talents match on, so the single wave must not carry it. Charge tier 1
+is not authored.
 
 ### Endurance rates
 
@@ -743,21 +762,46 @@ has no setting; charging drains 20/s for its 1.0s; whichever release variant run
 holds 0.001/s for its 0.85s; and the base 10/s returns after 2.05s. Both release
 variants declare the Sword Morph spend, which only resolves on the three-wave
 route, and that direct spend is what suppresses the 10/s for the following 1.2
-seconds.
+seconds. Passive rates begin at battle start in the current simulator, so the
+opening pre-combat charge does not drain Endurance; its direct release spend
+still applies.
 
-Two source gaps block the remaining mechanics:
+Remaining mechanics:
 
-- **No Endurance costs exist anywhere in the export.** Wildfire Spark and
-  Battle Anthem T6 scale off consumed Endurance, so they resolve to zero, and
-  nothing can test a low-Endurance state. Supply costs before treating those
-  tiers as verified.
-- Sword Morph's per-tier additions cannot be evaluated. T1 and T4 relax the
-  trigger with being out of combat or a five-second window after Shadow Step's
-  sword energy, neither of which is a modelled state. T3 needs the third wave
-  to be a guaranteed Affinity hit and there is no `GuaranteedAffinity`
-  equivalent to `GuaranteedCrit`. T6's Energy Surge needs a cooldown reduced by
-  a first-hit count. Only T0's release route and T5's Direct Affinity Rate are
-  live; T0's extra-Endurance damage scaling also waits on costs.
+- The export lacks Endurance costs; Vagrant Sword has separately authored costs.
+  Battle Anthem T6 and the low-Endurance Spear condition can now resolve.
+  Wildfire Spark T3 still needs its cumulative accumulator.
+- Sword Morph T0 scales sword-energy damage by 1.5% per directly spent Endurance,
+  capped at 30%. The dynamic `enduranceSpent` value excludes the charging rate
+  and uses actual spending when the meter cannot pay the full amount. T1 opens
+  the out-of-combat route; T4 sustains its five-second window. T3 removes Abrasion
+  on sword energy against Exhausted and guarantees Affinity on the third wave.
+  Shadow Step is not authored, so its T1 window trigger remains absent. T6's
+  Energy Surge restores 20 Endurance at the end of a three-wave release and grants a five-second buff that skips the next charge. Its 20-second cooldown is reduced by one second on each subsequent sword-energy hit, up to eight times, using a hidden stack budget.
+
+Damage actions may declare `modifier` using the same requirement/effect structure
+as skill modifiers. These resolve against each hit's live state, and participate
+in the effect cache identity, so a third-hit modifier cannot leak into earlier
+hits. `GuaranteedAffinity` forces the Affinity outcome; `NoAbrasion` resolves
+rates with full precision while preserving Affinity and Critical inputs.
+
+Mountain's Might T1 applies Qi Imbalance on damaging Splendor Martial Art hits;
+the existing Sword Q cancel application remains. Spear Q and its cancel restore
+30 Endurance, increased to 60 at T3. T6 restores 8 Endurance on charged hits
+against Qi Imbalance, with one shared two-second cooldown. Non-boss Moving
+Mountain is outside the current practice-target model: every target is a boss.
+
+Battle Anthem T3 restores 10 Endurance on a Critical or Affinity charged hit,
+with a shared 12-second cooldown. The live damage resolver exposes outcome rates;
+resource-only `damageOutcome` triggers track a distribution of cooldown readiness
+in expected mode and concrete outcomes in sampled mode. Expected resource gains
+enter the shared meter as probability-weighted amounts. T6's missing-Endurance
+bonus applies only to Charged damage. Charge-specific cost modifiers add: T4's +0.10 and Mountain's Might's -0.10 cancel before Endless Gale's general 0.8 multiplier. Vagrant's base 20/s drain therefore becomes 16/s with all three active.
+
+Insightful Strike T1's damage/leech rules and T6's DOT bonus belong to
+Concentration, not to permanent effects. The outcome-state tracker includes the
+conditional damage rules only in its active branch. HP leech and incoming-damage
+mitigation remain unsupported; neither is exercised by this non-attacking dummy.
 
 ### Endless Gale naming
 
@@ -765,7 +809,9 @@ The export renders one buff under two names: `Endless Gale` in the Nameless
 Spear talent and Mountain's Might T0, and `Long Wind` in Mountain's Might T4. The
 correct name is **Endless Gale**, it is the buff Qiankun's Lock applies, and the
 user confirmed `Long Wind` is a mistranslation of that same buff rather than a
-second effect. Store it as `EndlessGale` only; do not add a `LongWind` alias. T4
+second effect. Store it as `EndlessGale` only; do not add a `LongWind` alias.
+Its base duration is 5 seconds with a maximum of one stack; Mountain's Might T0
+sets the duration to 10 seconds. T4
 is therefore reachable and grants 3% Direct Affinity Rate while it is active —
 the source splits that into 1.5% plus 1.5% against bosses, and the boss role is
 implicit because both dummies count as a boss.

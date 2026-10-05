@@ -1,6 +1,6 @@
 {
   "name": "Battle Anthem",
-  "altersTimeline": false,
+  "altersTimeline": true,
   "tags": ["StonesplitMight", "BellstrikeSplendor"],
   "effect": {
     "BattleAnthemT0": {
@@ -41,9 +41,25 @@
         }
       ]
     },
-    "BattleAnthemT3": {},
+    "BattleAnthemT3": {
+      "trigger": [
+        {
+          "event": "damageOutcome",
+          "outcome": ["critical", "affinity"],
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "cooldown": 12,
+          "action": [{ "type": "addResource", "value": "Endurance", "amount": 10 }]
+        }
+      ]
+    },
     "BattleAnthemT4": {
-      "effect": [{ "requirement": [{ "target": "skillTag", "value": "Charged" }], "effect": { "dmgBonus": 0.05 } }]
+      "effect": [
+        { "requirement": [{ "target": "skillTag", "value": "Charged" }], "effect": { "dmgBonus": 0.05 } },
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "resourceCostBonus": { "Endurance": 0.1 } }
+        }
+      ]
     },
     "BattleAnthemT5": { "effect": [{ "rawStat": { "affinityDmgBonus": 0.052 } }] },
     "BattleAnthemT6": {
@@ -56,7 +72,8 @@
               "param2": [10, 20, 30, 40, 50],
               "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1]
             }
-          }
+          },
+          "requirement": [{ "target": "skillTag", "value": "Charged" }]
         }
       ]
     }

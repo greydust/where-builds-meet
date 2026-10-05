@@ -126,6 +126,31 @@
       "totalDamage": 4161701.0300843767,
       "duration": 60.00000000000001
     },
+    "bellstrikeSplendor/dummy-1-min-81-waves": {
+      "fixture": {
+        "build": "splendor-fully-relayed",
+        "rotation": "dummy-1-min-81-waves",
+        "martialArts": ["namelessSword", "namelessSpear"],
+        "breakthrough": "17",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none"
+        }
+      },
+      "dps": 50860.355261645964,
+      "totalDamage": 3051621.315698758,
+      "duration": 60
+    },
     "silkbindDeluge/dummy-1-min-regular-fire": {
       "fixture": {
         "build": "deluge-fully-relayed-min-ew",

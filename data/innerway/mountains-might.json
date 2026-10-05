@@ -3,8 +3,42 @@
   "altersTimeline": true,
   "tags": ["BellstrikeSplendor"],
   "effect": {
-    "MountainsMightT0": { "effect": [{ "target": "EndlessGale", "modify": { "duration": 10 } }] },
-    "MountainsMightT1": {},
+    "MountainsMightT0": {
+      "effect": [
+        { "target": "EndlessGale", "modify": { "duration": 10 } },
+        {
+          "requirement": [
+            { "target": "self", "value": "EndlessGale" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "Charged" },
+                { "target": "skillTag", "value": "Sprint" }
+              ]
+            }
+          ],
+          "effect": { "resourceCostBonus": { "Endurance": -0.1 } }
+        }
+      ]
+    },
+    "MountainsMightT1": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "skillTag", "value": "MartialArt" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "NamelessSword" },
+                { "target": "skillTag", "value": "NamelessSpear" }
+              ]
+            }
+          ],
+          "action": [{ "type": "apply", "target": "target", "value": "QiImbalance" }]
+        }
+      ]
+    },
     "MountainsMightT2": {
       "effect": [
         {
@@ -70,6 +104,18 @@
       "effect": [{ "requirement": [{ "target": "self", "value": "EndlessGale" }], "stat": { "directAffinity": 0.03 } }]
     },
     "MountainsMightT5": { "effect": [{ "rawStat": { "bellstrikePenetration": 6 } }] },
-    "MountainsMightT6": {}
+    "MountainsMightT6": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "skillTag", "value": "Charged" },
+            { "target": "target", "value": "QiImbalance" }
+          ],
+          "cooldown": 2,
+          "action": [{ "type": "addResource", "value": "Endurance", "amount": 8 }]
+        }
+      ]
+    }
   }
 }
