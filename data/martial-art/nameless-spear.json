@@ -21,6 +21,7 @@
         "name": "Max Endurance Up",
         "effect": [
           { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
           {
             "stat": {
               "maxEndurance": {

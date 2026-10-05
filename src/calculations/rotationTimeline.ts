@@ -19,6 +19,7 @@ import {
   maxStackActionFor,
   type MaxStackAction,
 } from "./outcomeTriggeredBuffs"
+import { regenerateResource, type ResourceRegenerationBonus } from "./resourceRegeneration"
 import {
   trackedEffectMetadata,
   effectKey,
@@ -1613,6 +1614,12 @@ export function buildRotationTimeline(
       ([, delay]) => typeof delay === "number" && Number.isFinite(delay) && delay > 0,
     ),
   )
+  const resourceRegenerationBonuses = new Map(
+    setupEffects.flatMap(effect => {
+      const bonus = effect.resourceRegenerationBonus as ResourceRegenerationBonus | undefined
+      return bonus ? [[bonus.resource, bonus] as const] : []
+    }),
+  )
   /** Absolute-time rate overrides contributed by casts currently in progress. */
   const resourceRateWindows: Array<{
     resource: string
@@ -1620,7 +1627,6 @@ export function buildRotationTimeline(
     to: number
     regeneration?: number
     consumption?: number
-    skillTags?: string[]
   }> = []
   /** Resource regeneration stays at zero until this time after a direct spend. */
   const regenSuppressedUntil = new Map<string, number>()
@@ -1789,7 +1795,8 @@ export function buildRotationTimeline(
   /**
    * Register a cast's Endurance rates for the span the cast itself covers. A
    * composite skill's phases are separate sub-skills, each of which registers its
-   * own span, so the window needs no authored start or end.
+   * own span, so the window needs no authored start or end. Consumption cost
+   * modifiers are snapshotted here; direct release payments resolve separately.
    */
   const registerEnduranceRates = (skill: SkillRecord | undefined, startTime: number, duration: number) => {
     const rates = skill?.endurance
@@ -1803,11 +1810,12 @@ export function buildRotationTimeline(
       return
     resourceRateWindows.push({
       resource: "Endurance",
-      skillTags: skill?.tags ?? [],
       from: startTime,
       to: startTime + duration,
       ...(typeof regeneration === "number" && Number.isFinite(regeneration) ? { regeneration } : {}),
-      ...(typeof consumption === "number" && Number.isFinite(consumption) ? { consumption } : {}),
+      ...(typeof consumption === "number" && Number.isFinite(consumption)
+        ? { consumption: consumption * resourceCostMultiplier("Endurance", skill?.tags ?? [], startTime) }
+        : {}),
     })
   }
   const regenerateResources = (time: number) => {
@@ -1844,16 +1852,22 @@ export function buildRotationTimeline(
               window => window.resource === name && window.from <= spanStart && spanStart < window.to,
             )
             const override = active.findLast(window => window.regeneration !== undefined)?.regeneration
-            const drain = active.reduce(
-              (total, window) =>
-                total + (window.consumption ?? 0) * resourceCostMultiplier(name, window.skillTags ?? [], spanStart),
-              0,
-            )
+            const drain = active.reduce((total, window) => total + (window.consumption ?? 0), 0)
             const rate = override ?? resourceRegeneration[name] ?? 0
             const suppressed = (regenSuppressedUntil.get(name) ?? Number.NEGATIVE_INFINITY) > spanStart
             if (rate <= 0 && drain <= 0) return next
             const before = next[name] ?? 0
-            const after = clampResource(name, before + ((suppressed ? 0 : rate) - drain) * elapsed)
+            const after = clampResource(
+              name,
+              regenerateResource(
+                before,
+                elapsed,
+                suppressed ? 0 : rate,
+                drain,
+                resourceMaximums[name],
+                resourceRegenerationBonuses.get(name),
+              ),
+            )
             if (after > before) recordResourceChange(name, before, after, "regenerate")
             if (after < before) recordResourceChange(name, before, after, "consume")
             return Object.assign(next, { [name]: after })

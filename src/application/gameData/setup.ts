@@ -8,6 +8,7 @@ import systemStats from "@gamedata/system.json"
 
 import type { CalculatorSettings, PathId } from "@/application/contracts"
 import { DEFAULT_PING_MS } from "@/calculations/combatDefaults"
+import type { ResourceRegenerationBonus } from "@/calculations/resourceRegeneration"
 import type { EditableObject, ResourceEventRule } from "@/calculations/rotationTimeline"
 import type { EffectiveStatEffectContainer, StatEffectContainer } from "@/calculations/statEffects"
 import type { BaseAttributeData } from "@/data/baseAttributeEffects"
@@ -22,6 +23,7 @@ export type SetupEffect = StatEffectContainer &
     /** One reactive rule, or several that each react to their own event. */
     trigger?: EditableObject | EditableObject[]
     buffDurationBonus?: number
+    resourceRegenerationBonus?: ResourceRegenerationBonus
     target?: string
     modify?: EditableObject
   }

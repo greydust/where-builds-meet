@@ -146,21 +146,29 @@ describe("Splendor Inner Way behavior", () => {
   })
 
   it.each([
-    { gale: false, upgraded: false, cost: 26.4 },
-    { gale: true, upgraded: false, cost: 21.12 },
-    { gale: true, upgraded: true, cost: 19.2 },
-  ])("charges $cost Endurance with Gale=$gale, upgraded=$upgraded", ({ gale, upgraded, cost }) => {
-    const ways: BuildSetup["innerWays"] = [
-      { innerWay: "SwordMorph", tier: "T0" },
-      { innerWay: "BattleAnthem", tier: "T4" },
-    ]
-    if (upgraded) ways.push({ innerWay: "MountainsMight", tier: "T0" })
-    const result = run(ways, [...(gale ? ["QiankunsLockCancel"] : []), "VagrantSword2"], 200)
-    const charged = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "VagrantSword2")!
-    const releaseCost = gale ? 16 : 20
-    expect(charged.resourceConsumption?.Endurance).toBeCloseTo(releaseCost, 8)
-    expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(cost + releaseCost - 0.0012, 6)
-  })
+    { tier: "T4", gale: false, upgraded: false, cost: 26.4 },
+    { tier: "T4", gale: true, upgraded: false, cost: 21.12 },
+    { tier: "T4", gale: true, upgraded: true, cost: 19.2 },
+    { tier: "T5", gale: false, upgraded: false, cost: 26.4 },
+    { tier: "T5", gale: true, upgraded: true, cost: 19.2 },
+    { tier: "T6", gale: false, upgraded: false, cost: 24 },
+    { tier: "T6", gale: true, upgraded: false, cost: 19.2 },
+    { tier: "T6", gale: true, upgraded: true, cost: 17.28 },
+  ] as const)(
+    "charges $cost Endurance at $tier with Gale=$gale, upgraded=$upgraded",
+    ({ tier, gale, upgraded, cost }) => {
+      const ways: BuildSetup["innerWays"] = [
+        { innerWay: "SwordMorph", tier: "T0" },
+        { innerWay: "BattleAnthem", tier },
+      ]
+      if (upgraded) ways.push({ innerWay: "MountainsMight", tier: "T0" })
+      const result = run(ways, [...(gale ? ["QiankunsLockCancel"] : []), "VagrantSword2"], 200)
+      const charged = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "VagrantSword2")!
+      const releaseCost = gale ? 16 : 20
+      expect(charged.resourceConsumption?.Endurance).toBeCloseTo(releaseCost, 8)
+      expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(cost + releaseCost - 0.0012, 6)
+    },
+  )
 
   it("preserves the full release bonus when Gale discounts its payment", () => {
     const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]

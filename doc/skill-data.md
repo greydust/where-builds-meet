@@ -765,11 +765,26 @@ may hold rates for the span of its own cast:
 "endurance": { "regeneration": 0.001, "consumption": 20 }
 ```
 
+Permanent setup effects may declare `resourceRegenerationBonus` with `resource`,
+`belowRatio`, and `bonus`. Nameless Spear's rank-13 talent uses Endurance, `0.3`,
+and `0.2`: natural regeneration is 20% faster strictly below 30% of the current
+maximum. This multiplies the active natural rate, including a cast's regeneration
+override, but never direct `addResource` restores such as Spear Q, Mountain's Might,
+Battle Anthem, or Energy Surge. Suppressed regeneration remains zero. The rate
+integrator splits at threshold crossings in either direction, alongside the existing
+cast and suppression boundaries; the bonus does not multiply consumption rates.
+
 There are no authored start or end times. A skill's rates cover exactly its
 cast, and a composite carries none itself: each sub-action owns the phase it
 covers, so a charge's timings and its Endurance follow from the same structure. A
 `value`/`fallback` variant carries its own rates, so whichever release variant is
 selected holds the shooting phase's regeneration.
+
+Consumption-rate modifiers are snapshotted at the owning phase's start, not the
+composite parent's start. Vagrant Sword's 0.2-second pre-charge remains free;
+the following charging phase fixes its drain rate for all 1.2 seconds even if
+Endless Gale expires or is gained midway. Direct `consumeResource` actions stay
+live: Sword Morph evaluates its extra 20-Endurance cost when the release starts.
 
 `regeneration` replaces the base rate and `consumption` drains on top of it, so
 the two never merge into one net figure. `system.json.resourceSpendRegenDelay`
@@ -827,7 +842,14 @@ with a shared 12-second cooldown. The live damage resolver exposes outcome rates
 resource-only `damageOutcome` triggers track a distribution of cooldown readiness
 in expected mode and concrete outcomes in sampled mode. Expected resource gains
 enter the shared meter as probability-weighted amounts. T6's missing-Endurance
-bonus applies only to Charged damage. Charge-specific cost modifiers add: T4's +0.10 and Mountain's Might's -0.10 cancel before Endless Gale's general 0.8 multiplier. Vagrant's base 20/s drain therefore becomes 16/s with all three active.
+bonus applies only to Charged damage. The user confirmed that T6 removes the
+10% charge-cost increase despite the description. The T4 cost rule therefore
+requires T6 to be absent, preserving the increase at T4–T5 without changing
+the damage bonuses or recovery trigger. At T4–T5, +0.10 and Mountain's Might's
+-0.10 cancel before Endless Gale's general 0.8 multiplier. At T6, only the
+-0.10 remains: Vagrant's base 20/s drain becomes 14.4/s, or 17.28 Endurance
+over its 1.2-second charging phase. Without Gale it costs 24. The separate
+Sword Morph release payment remains 16 with Gale or 20 without it.
 
 Insightful Strike T1's damage/leech rules and T6's DOT bonus belong to
 Concentration, not to permanent effects. The outcome-state tracker includes the

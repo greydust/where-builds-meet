@@ -619,6 +619,13 @@ published total damage and DPS. Action breakdowns and the Rotation Editor keep
 their original calculated values; the UI does not independently derive or
 apply this correction.
 
+Permanent setup `resourceRegenerationBonus` entries are consumed by the existing
+natural-resource integration loop. `calculations/resourceRegeneration.ts` splits
+constant-rate spans at a fraction-of-cap threshold, including crossings caused
+by simultaneous drain. Direct resource actions remain separate. Comparisons
+with these bonuses rebuild the timeline because a changed resource maximum can
+move the threshold and alter subsequent spending and damage.
+
 Current martial art and physical weapon are timeline state as well. They start
 from the left equipped martial art, change automatically at the start of each
 castable `MartialArts` skill from that skill's data fields, and remain unchanged

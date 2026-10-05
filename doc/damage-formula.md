@@ -952,6 +952,13 @@ time. Exhausted alone does not satisfy this condition.
 
 ## Splendor outcome and spending effects
 
+Nameless Spear increases natural Endurance regeneration by 20% strictly below
+30% of maximum Endurance. The regeneration calculation uses the current cap and
+splits spans when the meter crosses that threshold. Direct skill and Inner Way
+restores are unchanged, and post-spend regeneration suppression still applies.
+The extra natural recovery can change later Sword Morph payments and Battle
+Anthem's missing-Endurance bonus, so comparisons with this talent rebuild combat.
+
 Sword Morph's sword-energy bonus is additive with other damage bonuses:
 `min(0.30, 0.015 * enduranceSpent)`. The input is the paid fraction of the
 authored direct cost before cost modifiers, excluding its charging drain.
@@ -963,12 +970,20 @@ separate in `resourceConsumption`; `baseResourceConsumption` supplies the bonus.
 Resource costs resolve as `baseCost * (1 + sum(resourceCostBonus)) *
 product(resourceCostMultiplier)`, with the additive factor floored at zero.
 Requirement-gated charge modifiers share the additive category: Battle Anthem
-T4 adds 0.10 and upgraded Endless Gale subtracts 0.10. Endless Gale's general
-reduction multiplies separately by 0.8, so the full setup pays 16/s for a 20/s
-charge. Direct resource actions may override their matching tags with
+T4–T5 add 0.10 and upgraded Endless Gale subtracts 0.10. Per user-confirmed
+game behavior, Battle Anthem T6 removes that cost increase despite its description;
+its damage bonuses and Endurance restore remain active. Endless Gale's general
+reduction multiplies separately by 0.8. With Mountain's Might and Gale, a 20/s
+charge therefore costs 16/s at T4–T5 and 14.4/s at T6 (17.28 over 1.2 seconds).
+Without Gale, T6 costs the base 20/s (24 over 1.2 seconds).
+Direct resource actions may override their matching tags with
 `resourceCostTags`. Sword Morph's extra release payment uses an empty list so
-general reductions apply but charge-specific modifiers do not. Rate windows
-split at buff expiry so a reduction ending mid-charge changes the remaining cost.
+general reductions apply but charge-specific modifiers do not. A charge snapshots
+its consumption-rate modifiers when the charging phase starts, after pre-charge.
+Gaining or losing Endless Gale during that phase does not change its drain.
+Sword Morph's separate 20-Endurance payment resolves at release start using the
+then-active modifiers, so Gale expiring mid-charge preserves the discounted
+charge but leaves an undiscounted release payment.
 
 Battle Anthem T3 tracks a probability distribution of its 12-second proc cooldown.
 Expected-mode Endurance gains are probability-weighted; sampled mode uses the

@@ -2240,6 +2240,8 @@ export function calculateRotationComparisons(
       timelineInput.innerWayRules.some(
         rule => rule.listen?.event === "damage" || rule.trigger?.event === "damageOutcome",
       ) ||
+      // Resource caps move natural-regeneration thresholds and later spending.
+      timelineInput.setupEffects.some(effect => effect.resourceRegenerationBonus) ||
       baselineResult.timeline.some(row =>
         row.actions.some(
           action =>

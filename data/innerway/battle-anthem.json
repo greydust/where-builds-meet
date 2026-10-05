@@ -56,7 +56,10 @@
       "effect": [
         { "requirement": [{ "target": "skillTag", "value": "Charged" }], "effect": { "dmgBonus": 0.05 } },
         {
-          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "requirement": [
+            { "target": "skillTag", "value": "Charged" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "BattleAnthemT6" }] }
+          ],
           "effect": { "resourceCostBonus": { "Endurance": 0.1 } }
         }
       ]
