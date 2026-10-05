@@ -1,7 +1,7 @@
 {
   "name": "Dummy 1 Min 81 Waves",
   "martialArts": ["namelessSword", "namelessSpear"],
-  "ping": 40,
+  "ping": 15,
   "targetType": "Dummy",
   "eventTimeReference": "battleStart",
   "start": { "step": 4, "action": 1 },

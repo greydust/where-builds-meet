@@ -132,7 +132,7 @@
         "rotation": "dummy-1-min-81-waves",
         "martialArts": ["namelessSword", "namelessSpear"],
         "breakthrough": "17",
-        "ping": 40,
+        "ping": 15,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -147,8 +147,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 54518.52862757465,
-      "totalDamage": 3271111.7176544787,
+      "dps": 56852.71033762636,
+      "totalDamage": 3411162.6202575816,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-regular-fire": {

@@ -112,12 +112,12 @@ describe("vagrant-sword-charge-variants", () => {
     assert.equal(plainWaves.length, 1, "Without Sword Morph the shooting phase is a single wave")
     assert.equal(threeWaves(plain).length, 0, "No sword energy without Sword Morph")
 
-    // The three phases are the whole cast: 0.2 pre-charge, 1.0 charge, 0.85 shoot.
+    // The three phases are the whole cast: 0.2 pre-charge, 1.2 charge, 0.85 shoot.
     // Identify the row by its own skill tag rather than a display name.
     const cast = plain.timeline.find(row =>
       Object.values(row.actionSkillTags ?? {}).some(tags => tags.includes("VagrantSword")),
     )
-    assert.equal(cast?.effectiveCastTime, 2.05, "The three sub-actions must total the full 2.05s cast")
+    assert.equal(cast?.effectiveCastTime, 2.25, "The three sub-actions must total the full 2.25s cast")
 
     // An unshielded release stays on the single wave even with the Inner Way selected.
     assert.equal(threeWaves(run(["SwordMorphT0"], false)).length, 0, "Sword Morph needs the Qi shield active")
@@ -228,16 +228,16 @@ describe("vagrant-sword-charge-variants", () => {
     const close = (actual: number | undefined, expected: number, message: string) =>
       assert.ok(isClose(actual, expected, 0.05), `${message}: ${actual} != ${expected}`)
 
-    // Only the charging phase drains, at 20/s for its 1.0s cast. Nothing else
-    // spends Endurance, so the meter refills at the base 10/s from 2.05s.
+    // Only the charging phase drains, at 20/s for its 1.2s cast. Nothing else
+    // spends Endurance, so the meter refills at the base 10/s from 2.25s.
     const plain = endurance([], false)
-    close(plain.end?.consumed, 20, "The charging phase drains 20 Endurance")
-    close(plain.end?.final, 100, "An unspent release refills at the base 10/s")
+    close(plain.end?.consumed, 24, "The charging phase drains 24 Endurance")
+    close(plain.end?.final, 96, "Two seconds at base regeneration recover 20 of the 24 Endurance spent")
 
     // Sword Morph spends 20 more at the release, and that direct spend suppresses
-    // the 10/s for 1.2 seconds: 60 Endurance, idle until 2.4, then 10/s to 4.05.
+    // the 10/s for 1.2 seconds: 56 Endurance, idle until 2.6, then 10/s to 4.25.
     const morphed = endurance(["SwordMorphT0"], true)
-    close(morphed.end?.consumed, 40, "Sword Morph adds 20 Endurance at the release")
-    close(morphed.end?.final, 76.5, "The 1.2s suppression leaves the meter 1.5s short of a full refill")
+    close(morphed.end?.consumed, 44, "Sword Morph adds 20 Endurance at the release")
+    close(morphed.end?.final, 72.5, "The 1.2s suppression leaves the meter 1.5s short of a full refill")
   })
 })

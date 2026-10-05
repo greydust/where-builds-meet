@@ -66,6 +66,19 @@ function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, e
   })
 }
 
+it("Daunting Strike cancel lands the flying sword and applies Qi Imbalance on hit", () => {
+  const plain = run([], ["DauntingStrikeCancel", "ShadowStepCancel"])
+  const empowered = run([{ innerWay: "MountainsMight", tier: "T1" }], ["DauntingStrikeCancel", "ShadowStepCancel"])
+  const row = empowered.timeline[0]
+  expect(row.effectiveCastTime).toBeCloseTo(0.293)
+  expect(row.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual([0.293])
+  expect(empowered.actionBreakdowns[row.id + ":0"].total).toBeGreaterThan(0)
+  expect(row.actionStates[0].debuffs.has("QiImbalance")).toBe(false)
+  expect(empowered.timeline[1].startTime).toBeCloseTo(0.293)
+  expect(empowered.timeline[1].debuffs.get("QiImbalance")?.appliedAt).toBeCloseTo(0.293)
+  expect(plain.timeline[1].debuffs.has("QiImbalance")).toBe(false)
+})
+
 describe("Splendor Inner Way behavior", () => {
   it("guarantees only the third wave's Affinity and removes Abrasion against Exhausted", () => {
     const result = run([{ innerWay: "SwordMorph", tier: "T3" }], ["VagrantSword2"], 200, true)
@@ -99,14 +112,14 @@ describe("Splendor Inner Way behavior", () => {
 
   it("scales sword-energy damage from the actual extra Endurance paid", () => {
     const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
-    const noExtra = run(ways, ["VagrantSword2"], 20)
-    const partial = run(ways, ["VagrantSword2"], 30)
-    const full = run(ways, ["VagrantSword2"], 40)
+    const noExtra = run(ways, ["VagrantSword2"], 24)
+    const partial = run(ways, ["VagrantSword2"], 34)
+    const full = run(ways, ["VagrantSword2"], 44)
     expect(partial.metrics.totalDamage / noExtra.metrics.totalDamage).toBeCloseTo(
-      (1 + 10.001 * 0.015) / (1 + 0.001 * 0.015),
+      (1 + 10.0012 * 0.015) / (1 + 0.0012 * 0.015),
       8,
     )
-    expect(full.metrics.totalDamage / noExtra.metrics.totalDamage).toBeCloseTo(1.3 / (1 + 0.001 * 0.015), 8)
+    expect(full.metrics.totalDamage / noExtra.metrics.totalDamage).toBeCloseTo(1.3 / (1 + 0.0012 * 0.015), 8)
   })
 
   it("restores Battle Anthem Endurance on a guaranteed Affinity hit", () => {
@@ -133,9 +146,9 @@ describe("Splendor Inner Way behavior", () => {
   })
 
   it.each([
-    { gale: false, upgraded: false, cost: 22 },
-    { gale: true, upgraded: false, cost: 17.6 },
-    { gale: true, upgraded: true, cost: 16 },
+    { gale: false, upgraded: false, cost: 26.4 },
+    { gale: true, upgraded: false, cost: 21.12 },
+    { gale: true, upgraded: true, cost: 19.2 },
   ])("charges $cost Endurance with Gale=$gale, upgraded=$upgraded", ({ gale, upgraded, cost }) => {
     const ways: BuildSetup["innerWays"] = [
       { innerWay: "SwordMorph", tier: "T0" },
@@ -146,7 +159,7 @@ describe("Splendor Inner Way behavior", () => {
     const charged = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "VagrantSword2")!
     const releaseCost = gale ? 16 : 20
     expect(charged.resourceConsumption?.Endurance).toBeCloseTo(releaseCost, 8)
-    expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(cost + releaseCost - 0.001, 6)
+    expect(result.timeline[0].timelineResourceSummary!.Endurance.consumed).toBeCloseTo(cost + releaseCost - 0.0012, 6)
   })
 
   it("preserves the full release bonus when Gale discounts its payment", () => {
@@ -161,8 +174,8 @@ describe("Splendor Inner Way behavior", () => {
   it("credits a partial discounted payment proportionally instead of granting the full bonus", () => {
     const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
     const plain = run(ways, ["VagrantSword2"], 30)
-    // Account for the charge's 0.001 regeneration when leaving the same paid fraction.
-    const discounted = run(ways, ["VagrantSword2"], 23.9998, false, true)
+    // Account for the charge's 0.0012 regeneration when leaving the same paid fraction.
+    const discounted = run(ways, ["VagrantSword2"], 23.99976, false, true)
     expect(discounted.timeline[0].resourceConsumption!.Endurance).toBeCloseTo(
       plain.timeline[0].resourceConsumption!.Endurance * 0.8,
       8,
@@ -196,9 +209,9 @@ describe("Splendor Inner Way behavior", () => {
       200,
     )
     const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
-    expect(casts[0].effectiveCastTime).toBeCloseTo(2.05, 8)
+    expect(casts[0].effectiveCastTime).toBeCloseTo(2.25, 8)
     expect(casts[1].effectiveCastTime).toBeCloseTo(1.05, 8)
-    expect(casts[2].effectiveCastTime).toBeCloseTo(2.05, 8)
+    expect(casts[2].effectiveCastTime).toBeCloseTo(2.25, 8)
     const grants = result.timeline.filter(
       row => row.step.type === "skill" && row.step.skill === "SwordMorphEnergySurge" && !row.skipped,
     )

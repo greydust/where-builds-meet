@@ -22,7 +22,13 @@
                 { "operator": "not", "operand": [{ "target": "battleStarted" }] }
               ],
               [
-                { "target": "self", "value": "SwordMorphT4" },
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "self", "value": "SwordMorphT1" },
+                    { "target": "self", "value": "SwordMorphT4" }
+                  ]
+                },
                 { "target": "self", "value": "SwordMorphWindow" }
               ],
               { "target": "self", "value": "EnergySurge" }
@@ -35,20 +41,23 @@
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword"],
     "martialArt": "namelessSword",
-    "weapon": "Sword"
+    "weapon": "Sword",
+    "ignorePing": true
   },
   "VagrantSwordPreCharge": {
     "name": "Vagrant Sword [Pre-charge]",
     "shortName": "Sword Pre-charge",
     "castTime": 0.2,
-    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"]
+    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "ignorePing": true
   },
   "VagrantSwordCharge": {
     "name": "Vagrant Sword [Charging]",
     "shortName": "Sword Charging",
-    "castTime": 1,
+    "castTime": 1.2,
     "endurance": { "regeneration": 0.001, "consumption": 20 },
-    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"]
+    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "ignorePing": true
   },
   "VagrantSwordShootSingle": {
     "name": "Vagrant Sword [Single Wave]",
@@ -77,7 +86,8 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"]
+    "tags": ["DirectDamage", "MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "ignorePing": true
   },
   "VagrantSwordShootThree": {
     "name": "Vagrant Sword [Three Waves]",
@@ -145,24 +155,26 @@
       "VagrantSword",
       "SwordEnergy",
       "SubAction"
-    ]
+    ],
+    "ignorePing": true
   },
   "DauntingStrikeCancel": {
     "name": "Daunting Strike [Cancel]",
     "shortName": "Sword Q",
     "cooldown": 12,
-    "castTime": 0,
+    "castTime": 0.293,
     "action": [
       {
-        "type": "apply",
-        "target": "target",
-        "value": "QiImbalance",
-        "time": 0,
-        "requirement": [{ "target": "self", "value": "MountainsMightT1" }]
+        "type": "damage",
+        "phyCoef": 1.025314,
+        "attrCoef": 1.025314,
+        "phyBonus": 283.6,
+        "attrBonus": 154.6,
+        "time": 0.293
       }
     ],
     "modifier": [],
-    "tags": ["MartialArts", "MartialArt", "Sword", "NamelessSword", "DauntingStrike"],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Sword", "NamelessSword", "DauntingStrike"],
     "martialArt": "namelessSword",
     "weapon": "Sword"
   },
@@ -177,5 +189,25 @@
       { "type": "consume", "target": "self", "value": "EnergySurgeRecovery", "stack": "all", "time": 0 },
       { "type": "apply", "target": "self", "value": "EnergySurgeRecovery", "stack": 8, "time": 0 }
     ]
+  },
+  "ShadowStepCancel": {
+    "name": "Shadow Step [Cancel]",
+    "shortName": "Sword E",
+    "castTime": 0.287,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 20, "time": 0 },
+      { "type": "damage", "phyCoef": 1.76747, "attrCoef": 1.76747, "phyBonus": 490, "attrBonus": 267, "time": 0.287 },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SwordMorphWindow",
+        "time": 0.287,
+        "requirement": [{ "target": "self", "value": "SwordMorphT1" }]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Special", "Sword", "NamelessSword", "ShadowStep", "SwordEnergy"],
+    "martialArt": "namelessSword",
+    "weapon": "Sword"
   }
 }

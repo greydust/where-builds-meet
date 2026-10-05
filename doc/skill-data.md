@@ -693,7 +693,7 @@ Only the skills the Inner Ways reference are authored, at the user's direction:
 | `QiankunsLockCancel`                     | 20102101  | Zero-time cancel; applies Endless Gale without damage         |
 | `VagrantSword2`                          | 202011021 | Nameless Sword charge tier 2; three phases, two shot variants |
 | `VagrantSwordShootSingle` / `ShootThree` | —         | The two charge-tier-2 release variants                        |
-| `DauntingStrikeCancel`                   | 20201101  | Nameless Sword Martial Art Skill, zero cast time, no damage   |
+| `DauntingStrikeCancel`                   | 20201101  | Flying-sword hit and cancel at 0.293s; 20% of source damage   |
 
 The remaining Sword and Spear actions, including charge tier 1, are deliberately
 absent. The proposed rotation does not require them; author additional actions
@@ -704,6 +704,10 @@ cancel share `QiankunsLock` readiness; Sword Q has its own cooldown. Early
 rotation casts wait automatically without storing explicit Delay steps.
 
 ### Vagrant Sword charge tiers
+
+Vagrant Sword ignores ping on its parent and every sub-action: pre-charge,
+charging, and both release variants. Input latency adds no delay to the cast
+or any phase or hit, including the charge skipped by Energy Surge.
 
 The export describes charge tier 2 (`202011021`) as two mutually exclusive
 "Full charge" routes, and `normalDescriptions.terms` supplies each wave's
@@ -719,16 +723,20 @@ one route. Both variants repeat the parent's `Charged` and `Heavy` tags so
 attunement matching resolves on the component that deals the hit.
 
 The cast is three sub-actions that the timing and the Endurance rates both fall
-out of: a 0.2s pre-charge with no Endurance setting, a 1.0s charging phase, and
-a 0.85s shooting phase, totalling the 2.05s cast. The shooting sub-action is
+out of: a 0.2s pre-charge with no Endurance setting, a 1.2s charging phase, and
+a 0.85s shooting phase, totalling the 2.25s cast. The shooting sub-action is
 itself a `value`/`fallback` choice between the two release variants, so there is
 no wrapper between the cast and its phases. Sword Morph T0 with the Qi shield
 active picks the three-wave variant. T1 also permits this route out of combat,
 using a negated `battleStarted` requirement; the release is selected before its
 first hit opens battle and retains all three waves. Both routes pay the extra
-20 Endurance at release. T4 also permits the route while `SwordMorphWindow` is
-active. Each three-wave release applies or refreshes this hidden, one-stack buff
-at release start for five seconds; a single-wave release cannot refresh it.
+20 Endurance at release. Shadow Step [Cancel] spends 20 Endurance at cast start,
+lands its single hit and ends at 0.287s (user-confirmed), and applies the
+five-second `SwordMorphWindow` on that hit with T1. Its level-100 damage comes
+from source skill `20201110`; it carries `Special` and `SwordEnergy`.
+T1 or T4 permits the three-wave route while this hidden, one-stack window is
+active. At T4, each three-wave release applies or refreshes it at release start
+for five seconds; a single-wave release cannot refresh it.
 Otherwise the single wave runs. Only the
 three-wave variant carries `SwordEnergy`, which is the skill tag the Nameless
 Sword talents match on, so the single wave must not carry it. Charge tier 1
@@ -763,8 +771,8 @@ construction: a window starts and ends at a sub-action boundary, and a spend
 happens at an event.
 
 Vagrant Sword's charge tier 2 is the only authored consumer. The pre-charge
-has no setting; charging drains 20/s for its 1.0s; whichever release variant runs
-holds 0.001/s for its 0.85s; and the base 10/s returns after 2.05s. Both release
+has no setting; charging drains 20/s for its 1.2s; whichever release variant runs
+holds 0.001/s for its 0.85s; and the base 10/s returns after 2.25s. Both release
 variants declare the Sword Morph spend, which only resolves on the three-wave
 route, and that direct spend is what suppresses the 10/s for the following 1.2
 seconds. Passive rates begin at battle start in the current simulator, so the
@@ -785,7 +793,7 @@ Remaining mechanics:
   credited payment proportionally. T1 opens
   the out-of-combat route; T4 sustains its five-second window. T3 removes Abrasion
   on sword energy against Exhausted and guarantees Affinity on the third wave.
-  Shadow Step is not authored, so its T1 window trigger remains absent. T6's
+  Shadow Step opens the same five-second window at T1. T6's
   Energy Surge restores 20 Endurance at the end of a three-wave release and grants a five-second buff that skips the next charge. Its 20-second cooldown is reduced by one second on each subsequent sword-energy hit, up to eight times, using a hidden stack budget.
 
 Damage actions may declare `modifier` using the same requirement/effect structure
@@ -795,7 +803,7 @@ hits. `GuaranteedAffinity` forces the Affinity outcome; `NoAbrasion` resolves
 rates with full precision while preserving Affinity and Critical inputs.
 
 Mountain's Might T1 applies Qi Imbalance on damaging Splendor Martial Art hits;
-the existing Sword Q cancel application remains. Spear Q and its cancel restore
+Sword Q cancel uses this same hit trigger. Spear Q and its cancel restore
 30 Endurance, increased to 60 at T3. T6 restores 8 Endurance on charged hits
 against Qi Imbalance, with one shared two-second cooldown. Non-boss Moving
 Mountain is outside the current practice-target model: every target is a boss.
@@ -827,11 +835,11 @@ is therefore reachable and grants 3% Direct Affinity Rate while it is active —
 the source splits that into 1.5% plus 1.5% against bosses, and the boss role is
 implicit because both dummies count as a boss.
 
-Mountain's Might T1's Qi Imbalance rides on the no-op `DauntingStrike [Cancel]`
-rather than a trigger, because a trigger needs a damage action and the cancel
-variant deliberately deals none. This matches the existing QQ pattern, where
-skill actions carry `requirement: [{ target: "self", value: "<InnerWay>T<n>" }]`
-and the Inner Way tier stays an empty condition key.
+Daunting Strike [Cancel] ends on its initial flying-sword hit at 0.293s.
+Its damage uses 0.2 times source skill `20201101` at level 100; the two
+Relentless Chase follow-ups are excluded. Mountain's Might T1 applies Qi
+Imbalance through the shared Martial Art damage trigger at the hit, replacing
+the former explicit cast-start application.
 
 ### Wind dummy rotation behavior
 
