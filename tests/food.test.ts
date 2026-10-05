@@ -13,7 +13,7 @@ import { buildRotationComparisonBundle } from "@/calculations/rotationComparison
 
 import { loadDpsSnapshotFixtures } from "./helpers/dps-snapshot-fixtures"
 
-async function foodSubject(food: string, pathId: PathId = "bellstrikeSplendor") {
+async function foodSubject(enduranceFood: string, pathId: PathId = "bellstrikeSplendor", food = "SimmeringFishSlices") {
   const entry = (await loadDpsSnapshotFixtures()).find(row => row.pathId === "bellstrikeSplendor")!
   const settings = {
     weapons: entry.fixture.martialArts,
@@ -24,7 +24,7 @@ async function foodSubject(food: string, pathId: PathId = "bellstrikeSplendor") 
     environment: {
       pathId,
       settings,
-      setupSelections: { food, script: "None", divinecraft: "Fire" },
+      setupSelections: { food, enduranceFood, script: "None", divinecraft: "Fire" },
       skillOverrides: {},
       previewId: null,
       globalDebuffs: entry.fixture.globalDebuffs,
@@ -52,24 +52,42 @@ describe("food selection and Endurance", () => {
     const bundle = buildRotationCalculationBundle(food)
     expect(bundle.timeline.initialResources?.Endurance).toBe(food.build.stats.maxEndurance)
     expect(bundle.timeline.resourceMaximums?.Endurance).toBe(food.build.stats.maxEndurance)
-    const options = buildRotationComparisonBundle(none).setupComparisons.food.map(row => row.label)
+    const options = buildRotationComparisonBundle(none).setupComparisons.enduranceFood.map(row => row.label)
     expect(options.includes("SwallowsAgility")).toBe(allowed)
   })
 
   it.each([
-    ["SimmeringFishSlices", "SwallowsAgility"],
-    ["SwallowsAgility", "SimmeringFishSlices"],
+    ["None", "SwallowsAgility"],
+    ["SwallowsAgility", "None"],
   ])("compares %s to %s using the replacement Endurance pool", async (from, to) => {
     const bundle = buildRotationComparisonBundle(await foodSubject(from))
-    const replacement = bundle.setupComparisons.food.find(row => row.label === to)!
+    const replacement = bundle.setupComparisons.enduranceFood.find(row => row.label === to)!
     expect(replacement.timeline).toBeDefined()
     bundle.statPriority = []
     bundle.attunementPriority = []
     bundle.innerWayPriority = []
-    bundle.setupComparisons = { food: [replacement] }
+    bundle.setupComparisons = { enduranceFood: [replacement] }
     const baseline = calculateRotationBaseline(bundle)
     const actual = calculateRotationBaseline(buildRotationCalculationBundle(await foodSubject(to)))
-    const comparison = calculateRotationComparisons(bundle, baseline).setupComparisons.food[0]
+    const comparison = calculateRotationComparisons(bundle, baseline).setupComparisons.enduranceFood[0]
     expect(comparison.dpsDifference).toBeCloseTo(actual.metrics.dps - baseline.metrics.dps, 8)
   })
+})
+
+it("compares Physical Attack independently while preserving Endurance food", async () => {
+  const subject = await foodSubject("SwallowsAgility")
+  const bundle = buildRotationComparisonBundle(subject)
+  const replacement = bundle.setupComparisons.food.find(row => row.label === "None")!
+  expect(replacement.timeline).toBeUndefined()
+  bundle.statPriority = []
+  bundle.attunementPriority = []
+  bundle.innerWayPriority = []
+  bundle.setupComparisons = { food: [replacement] }
+  const baseline = calculateRotationBaseline(bundle)
+  const withoutFish = await foodSubject("SwallowsAgility", "bellstrikeSplendor", "None")
+  expect(withoutFish.build.stats.maxEndurance).toBe(subject.build.stats.maxEndurance)
+  const actual = calculateRotationBaseline(buildRotationCalculationBundle(withoutFish))
+  expect(actual.metrics.dps).toBeLessThan(baseline.metrics.dps)
+  const comparison = calculateRotationComparisons(bundle, baseline).setupComparisons.food[0]
+  expect(comparison.dpsDifference).toBeCloseTo(actual.metrics.dps - baseline.metrics.dps, 8)
 })

@@ -7,6 +7,7 @@ import { defaultSettings } from "@/application/gameData/setup"
 import {
   divinecraftStorageKey,
   foodStorageKey,
+  enduranceFoodStorageKey,
   globalDebuffStorageKey,
   pathStorageKey,
   scriptStorageKey,
@@ -15,6 +16,7 @@ import {
 import {
   loadDivinecraft,
   loadFood,
+  loadEnduranceFood,
   loadScript,
   loadSelectedPath,
   loadSettings,
@@ -71,7 +73,12 @@ export type LoadoutStore = {
   setGlobalDebuffs: <K extends keyof GlobalDebuffState>(key: K, value: GlobalDebuffState[K]) => void
 }
 
-const setupStorageKey = { food: foodStorageKey, script: scriptStorageKey, divinecraft: divinecraftStorageKey } as const
+const setupStorageKey = {
+  enduranceFood: enduranceFoodStorageKey,
+  food: foodStorageKey,
+  script: scriptStorageKey,
+  divinecraft: divinecraftStorageKey,
+} as const
 
 const setupSelectionKeys = Object.keys(setupStorageKey) as Array<keyof SetupSelections>
 
@@ -89,13 +96,18 @@ const persistSettings = (settings: CalculatorSettings) =>
 const loadLoadout = (devMode: boolean) => {
   const pathId = loadSelectedPath(devMode)
   const settings = settingsForPath(loadSettings(), pathId)
-  const setupSelections: SetupSelections = { food: loadFood(), script: loadScript(), divinecraft: loadDivinecraft() }
+  const setupSelections: SetupSelections = {
+    food: loadFood(),
+    enduranceFood: loadEnduranceFood(),
+    script: loadScript(),
+    divinecraft: loadDivinecraft(),
+  }
   const globalDebuffs = loadGlobalDebuffs()
   // These were written on mount by the effects this store replaces, which is what migrates a
   // legacy weapon pair and normalises a stored path.
   setPersistentItem(pathStorageKey, pathId)
   persistSettings(settings)
-  for (const key of setupSelectionKeys) setPersistentItem(setupStorageKey[key], setupSelections[key])
+  for (const key of setupSelectionKeys) setPersistentItem(setupStorageKey[key], setupSelections[key] ?? "None")
   setPersistentItem(globalDebuffStorageKey, JSON.stringify(globalDebuffs))
   return { pathId, settings, setupSelections, globalDebuffs }
 }
@@ -103,7 +115,12 @@ const loadLoadout = (devMode: boolean) => {
 export const useLoadoutStore = create<LoadoutStore>()((set, get) => ({
   pathId: "stonesplitStrength",
   settings: { ...defaultSettings },
-  setupSelections: { food: defaultSetup.food, script: "None", divinecraft: defaultSetup.divinecraft },
+  setupSelections: {
+    food: defaultSetup.food,
+    enduranceFood: "None",
+    script: "None",
+    divinecraft: defaultSetup.divinecraft,
+  },
   globalDebuffs: { ...defaultGlobalDebuffs },
 
   initialise: devMode => set(loadLoadout(devMode)),
@@ -120,7 +137,7 @@ export const useLoadoutStore = create<LoadoutStore>()((set, get) => ({
   },
 
   setSetupSelection: (key, value) => {
-    setPersistentItem(setupStorageKey[key], value)
+    setPersistentItem(setupStorageKey[key], value ?? "None")
     set({ setupSelections: { ...get().setupSelections, [key]: value } })
   },
 

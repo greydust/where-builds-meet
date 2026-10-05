@@ -12,6 +12,7 @@ import type { SetupSelections } from "@/application/contracts"
 import {
   breakthroughProfile,
   foodAvailableForPath,
+  foodCategories,
   foodSelectionForPath,
   typedArmorSetDefinitions,
   typedArsenalDefinitions,
@@ -60,7 +61,7 @@ export function buildRotationComparisonBundle(
   const { settings, setupSelections, pathId } = subject
   const { buildSetup, gearStatEffect, baseStats: rawCharacterStats, attunement: attunementStats } = subject.build
   const currentGlobalDebuffs = subject.globalDebuffs
-  const { food: currentFood, script: currentScript, divinecraft: currentDivinecraft } = setupSelections
+  const { script: currentScript, divinecraft: currentDivinecraft } = setupSelections
   const innerWayEffectRules = innerWayEffectRulesFor(
     buildSetup.innerWays,
     breakthroughProfile(settings).soloLevel,
@@ -121,7 +122,6 @@ export function buildRotationComparisonBundle(
         ),
       )
     : {}
-  const selectedFood = foodSelectionForPath(currentFood, pathId)
   const selectedScript = currentScript
   const selectedDivinecraft = currentDivinecraft
   return {
@@ -182,16 +182,24 @@ export function buildRotationComparisonBundle(
           bowRingSet: Object.keys(typedBowRingSetDefinitions)
             .filter(value => value !== buildSetup.bowRingSet)
             .map(value => ({ label: value, setupEffects: setupEffectsForRotation({ bowRingSet: value }) })),
-          food: Object.keys(typedFoodDefinitions)
-            .filter(value => value !== selectedFood && foodAvailableForPath(value, pathId))
-            .map(value => {
-              const setupEffects = setupEffectsForRotation({ food: value })
-              const rebuildTimeline = setupSelectionChangesTimeline(selectedFood, value, typedFoodDefinitions)
-              return Object.assign(
-                { label: value, setupEffects },
-                rebuildTimeline ? { timeline: makeTimelineInput(subject.rotation, { setupEffects }) } : {},
-              )
+          ...Object.fromEntries(
+            foodCategories.map(({ key }) => {
+              const selectedFood = foodSelectionForPath(setupSelections[key], pathId, key)
+              return [
+                key,
+                Object.keys(typedFoodDefinitions)
+                  .filter(value => value !== selectedFood && foodAvailableForPath(value, pathId, key))
+                  .map(value => {
+                    const setupEffects = setupEffectsForRotation({ [key]: value })
+                    const rebuildTimeline = setupSelectionChangesTimeline(selectedFood, value, typedFoodDefinitions)
+                    return Object.assign(
+                      { label: value, setupEffects },
+                      rebuildTimeline ? { timeline: makeTimelineInput(subject.rotation, { setupEffects }) } : {},
+                    )
+                  }),
+              ]
             }),
+          ),
           script: Object.entries(typedScriptDefinitions)
             .filter(([value]) => value !== selectedScript)
             .map(([value]) => {

@@ -69,12 +69,12 @@
     { "type": "skill", "skill": "SnowpartingSpecial" },
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
     { "type": "skill", "skill": "SnowpartingQStab" },
-    { "type": "event", "event": "Qi", "before": { "action": 0 }, "targetQiRatio": 0.5999 },
     { "type": "skill", "skill": "PhalanxbaneQ" },
     { "type": "skill", "skill": "SnowpartingConversion" },
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
     { "type": "skill", "skill": "SnowpartingLightCharged" },
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
+    { "type": "event", "event": "Qi", "startTime": 59.29892899, "targetQiRatio": 0.5999 },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ],
   "ping": 40

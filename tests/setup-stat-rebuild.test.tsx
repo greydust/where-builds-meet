@@ -9,6 +9,7 @@ import { calculateEditorTimeline } from "@/calculations/editorTimeline"
 import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
 import type { ResolvedStats } from "@/calculations/statEffects"
 import { initializeI18n } from "@/i18n"
+import { useLoadoutStore } from "@/stores/loadoutStore"
 import { useRotationStore } from "@/stores/rotationStore"
 
 import english from "../public/locales/en.json"
@@ -135,7 +136,7 @@ it("rebuilds food stats before publishing DPS and restores the cached original o
   expect(localStorage.getItem("wwm-food-session-v1")).toBe("None")
 
   const dispatchesBeforeReturn = dpsDispatches("baseline").length
-  await choose("Food", "Physical Attack")
+  await choose("Food", "Simmering Fish Slices")
   expect(dpsDispatches("baseline")).toHaveLength(dispatchesBeforeReturn)
   expect(useRotationStore.getState().result!.metrics.dps).toBeCloseTo(fishDps, 8)
 })
@@ -206,4 +207,33 @@ it("rebuilds edited stats and preserves final-value overrides across food change
   expect(latestBundle().stats.minPhys).toBe(target)
   expect(useRotationStore.getState().result!.metrics.dps).toBeLessThan(fishDps)
   expect(JSON.parse(localStorage.getItem("wwm-stat-overrides-v1")!).minPhys).toBe(target)
+})
+
+it("migrates legacy Endurance food and keeps both food controls independent", async () => {
+  localStorage.setItem("wwm-path-session-v1", "bellstrikeSplendor")
+  localStorage.setItem("wwm-food-session-v1", "SwallowsAgility")
+  await act(async () => root.render(<App />))
+  await settle()
+  expect(useLoadoutStore.getState().setupSelections).toMatchObject({ food: "None", enduranceFood: "SwallowsAgility" })
+  expect(localStorage.getItem("wwm-food-session-v1")).toBe("None")
+  expect(localStorage.getItem("wwm-endurance-food-session-v1")).toBe("SwallowsAgility")
+  await choose("Food", "Simmering Fish Slices")
+  expect(useLoadoutStore.getState().setupSelections).toMatchObject({
+    food: "SimmeringFishSlices",
+    enduranceFood: "SwallowsAgility",
+  })
+  const heading = [...container.querySelectorAll("h3")].find(node => node.textContent?.startsWith("Endurance"))!
+  const none = [...heading.parentElement!.querySelectorAll("button")].find(node =>
+    node.textContent?.startsWith("None"),
+  )!
+  await act(async () => none.click())
+  expect(useLoadoutStore.getState().setupSelections).toMatchObject({
+    food: "SimmeringFishSlices",
+    enduranceFood: "None",
+  })
+  await act(async () => useLoadoutStore.getState().initialise(false))
+  expect(useLoadoutStore.getState().setupSelections).toMatchObject({
+    food: "SimmeringFishSlices",
+    enduranceFood: "None",
+  })
 })

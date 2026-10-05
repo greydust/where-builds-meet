@@ -28,6 +28,7 @@ import {
   bowRingSetEffectFor,
   divinecraftEffectFor,
   foodSelectionForPath,
+  foodCategories,
   scriptEffectFor,
   systemStatEffects,
   typedArmorSetDefinitions,
@@ -184,7 +185,13 @@ export function selectedSetupEffects(
     weaponSets: overrides.weaponSets ?? buildSetup.weaponSets,
     armorSets: overrides.armorSets ?? buildSetup.armorSets,
   }
-  const foodEffect = typedFoodDefinitions[foodSelectionForPath(overrides.food ?? selections.food, pathId)]?.effect ?? {}
+  const foodEffects = foodCategories.map(({ key }) =>
+    Object.assign(
+      {},
+      typedFoodDefinitions[foodSelectionForPath(overrides[key] ?? selections[key], pathId, key)]?.effect,
+      { statStage: "food" as const },
+    ),
+  )
   const divinecraftEffect = divinecraftEffectFor(
     overrides.divinecraft ?? selections.divinecraft,
     overrides.divinecraftDamage ?? true,
@@ -204,7 +211,7 @@ export function selectedSetupEffects(
     bowRingSetEffectFor(selectedBuildSetup.bowRingSet),
     ...setEffectsFor(selectedBuildSetup.weaponSets, typedWeaponSetDefinitions, settings, pathId),
     ...setEffectsFor(selectedBuildSetup.armorSets, typedArmorSetDefinitions, settings, pathId),
-    { ...foodEffect, statStage: "food" as const },
+    ...foodEffects,
     scriptEffect,
     divinecraftEffect,
     gearStatEffect,

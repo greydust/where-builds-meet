@@ -85,7 +85,7 @@
     { "type": "event", "event": "Move", "before": { "trigger": 0, "action": 0 }, "distance": 6 },
     { "type": "event", "event": "Move", "before": { "trigger": 1, "action": 0 }, "distance": 4 },
     { "type": "event", "event": "Move", "before": { "action": 3 }, "distance": 2 },
-    { "type": "event", "event": "Qi", "before": { "action": 3 }, "targetQiRatio": 0.5999 },
+    { "type": "event", "event": "Qi", "startTime": 56.312166667, "targetQiRatio": 0.5999 },
     { "type": "skill", "skill": "PhalanxbaneHeavyCharged3" },
     { "type": "event", "event": "Move", "before": { "trigger": 0, "action": 0 }, "distance": 6 },
     { "type": "event", "event": "Move", "before": { "trigger": 1, "action": 0 }, "distance": 4 },
@@ -95,7 +95,6 @@
     { "type": "skill", "skill": "SnowpartingConversion" },
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
     { "type": "skill", "skill": "SnowpartingLightCharged" },
-    { "type": "event", "event": "Qi", "before": { "action": "start" }, "targetQiRatio": 0.3999 },
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ],

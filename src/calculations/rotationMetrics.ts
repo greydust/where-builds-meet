@@ -120,6 +120,7 @@ export const rotationCalculationCategories = [
   "script",
   "divinecraft",
   "food",
+  "enduranceFood",
 ] as const
 export type RotationCalculationCategory = (typeof rotationCalculationCategories)[number]
 /**

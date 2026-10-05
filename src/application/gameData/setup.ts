@@ -80,16 +80,30 @@ export type GearSetOption = { name: string; effect?: SetupEffect | SetupEffect[]
 export type GearSetDefinition = Omit<SetDefinition, "options"> & { options: Record<string, GearSetOption> }
 export const typedWeaponSetDefinitions = weaponSetDefinitions as Record<string, GearSetDefinition>
 export const typedArmorSetDefinitions = armorSetDefinitions as Record<string, GearSetDefinition>
-export type FoodDefinition = ArsenalDefinition & { title?: string; paths?: PathId[]; altersTimeline?: boolean }
+export const foodCategories = [
+  { key: "food", title: "Physical Attack" },
+  { key: "enduranceFood", title: "Endurance" },
+] as const
+export type FoodCategory = (typeof foodCategories)[number]["key"]
+export type FoodDefinition = ArsenalDefinition & {
+  title?: string
+  category?: FoodCategory
+  paths?: PathId[]
+  altersTimeline?: boolean
+}
 export const typedFoodDefinitions = foodDefinitions as Record<string, FoodDefinition>
 
-export function foodAvailableForPath(value: string, pathId: PathId) {
+export function foodAvailableForPath(value: string, pathId: PathId, category?: FoodCategory) {
   const definition = typedFoodDefinitions[value]
-  return Boolean(definition && (!definition.paths || definition.paths.includes(pathId)))
+  return Boolean(
+    definition &&
+    (!category || value === "None" || definition.category === category) &&
+    (!definition.paths || definition.paths.includes(pathId)),
+  )
 }
 
-export function foodSelectionForPath(value: string, pathId: PathId) {
-  return foodAvailableForPath(value, pathId) ? value : "None"
+export function foodSelectionForPath(value: string = "None", pathId: PathId, category?: FoodCategory) {
+  return foodAvailableForPath(value, pathId, category) ? value : "None"
 }
 export type DivinecraftDefinition = ArsenalDefinition & {
   description: string

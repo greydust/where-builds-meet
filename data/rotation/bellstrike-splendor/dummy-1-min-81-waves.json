@@ -48,8 +48,10 @@
     { "type": "skill", "skill": "VagrantSword2" },
     { "type": "skill", "skill": "VagrantSword2" },
     { "type": "skill", "skill": "VagrantSword2" },
-    { "event": "Qi", "startTime": 8.4528, "type": "event", "targetQiRatio": 0.5999 },
-    { "event": "Qi", "startTime": 12.6792, "type": "event", "targetQiRatio": 0.3999 },
+    { "event": "Qi", "startTime": 8.6892, "type": "event", "targetQiRatio": 0.5999 },
+    { "event": "Qi", "startTime": 13.0338, "type": "event", "targetQiRatio": 0.3999 },
+    { "type": "event", "event": "Qi", "startTime": 44.4122, "targetQiRatio": 0.5999 },
+    { "type": "event", "event": "Qi", "startTime": 48.7568, "targetQiRatio": 0.3999 },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ]
 }

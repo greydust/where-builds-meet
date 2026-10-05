@@ -313,7 +313,12 @@ export function RotationEditorTab({
   }, [activeRotationId])
   const rotationLocked = editingEntry?.isDefault === true
   const editingRotationDisplayName = (rotationLocked ? gameText(rotation.name) : rotation.name) || "Unnamed Rotation"
-  const { food: currentFood, script: currentScript, divinecraft: currentDivinecraft } = setupSelections
+  const {
+    food: currentFood,
+    enduranceFood: currentEnduranceFood,
+    script: currentScript,
+    divinecraft: currentDivinecraft,
+  } = setupSelections
   const calculationContextKey = useMemo(
     () =>
       calculationFingerprint({
@@ -327,6 +332,7 @@ export function RotationEditorTab({
         gearStatEffect,
         buildSetup,
         food: currentFood,
+        enduranceFood: currentEnduranceFood,
         script: currentScript,
         divinecraft: currentDivinecraft,
         globalDebuffs,
@@ -344,6 +350,7 @@ export function RotationEditorTab({
       gearStatEffect,
       buildSetup,
       currentFood,
+      currentEnduranceFood,
       currentScript,
       currentDivinecraft,
       globalDebuffs,
@@ -1457,6 +1464,7 @@ export function RotationEditorTab({
       breakthrough: settings.breakthrough,
       globalDebuffs,
       food: currentFood,
+      enduranceFood: currentEnduranceFood,
       script: currentScript,
       divinecraft: currentDivinecraft,
       graduatedBuildIds: typedPathDefinitions[pathId].graduated,
@@ -2238,7 +2246,10 @@ export function RotationEditorTab({
                         ? attachedEventSiblingIndex(rotation.steps, row.rotationIndex, 1)
                         : -1
                     const eventStartTime =
-                      isFixedTime && "startTime" in authoredStep && typeof authoredStep.startTime === "number"
+                      isFixedTime &&
+                      !isGeneratedEvent &&
+                      "startTime" in authoredStep &&
+                      typeof authoredStep.startTime === "number"
                         ? authoredStep.startTime
                         : isAttachedEvent && attachedTargetIndex >= 0
                           ? (availableAttachmentTargets[attachedTargetIndex]?.time ?? startTime) - anchorTime

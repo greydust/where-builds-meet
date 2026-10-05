@@ -123,6 +123,7 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
       breakthrough: measurement.environment.settings.breakthrough,
       globalDebuffs: measurement.environment.globalDebuffs,
       food: measurement.environment.setupSelections.food,
+      enduranceFood: measurement.environment.setupSelections.enduranceFood,
       script: measurement.environment.setupSelections.script,
       divinecraft: measurement.environment.setupSelections.divinecraft,
       graduatedBuildIds: typedPathDefinitions[pathId].graduated,

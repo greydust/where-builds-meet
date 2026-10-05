@@ -32,6 +32,7 @@ export type GraduationEnvironment = {
   rotation: RotationRecord
   breakthrough: string
   globalDebuffs: GlobalDebuffState
+  enduranceFood?: string
   food: string
   script: string
   divinecraft: string
@@ -53,6 +54,7 @@ export function graduationEnvironmentFingerprint(
     breakthrough: environment.breakthrough,
     globalDebuffs: environment.globalDebuffs,
     food: environment.food,
+    enduranceFood: environment.enduranceFood,
     script: environment.script,
     divinecraft: environment.divinecraft,
     graduatedBuildIds,
@@ -94,7 +96,12 @@ export function buildPresetRotationBundle(
     settings,
     gearStatEffect,
     buildSetup,
-    { food: environment.food, divinecraft: environment.divinecraft, script: environment.script },
+    {
+      food: environment.food,
+      enduranceFood: environment.enduranceFood,
+      divinecraft: environment.divinecraft,
+      script: environment.script,
+    },
     pathId,
     { divinecraftDamage: environment.rotation.divinecraftDamage },
     preview,

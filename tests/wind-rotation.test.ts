@@ -1,14 +1,15 @@
 import assert from "node:assert/strict"
 
+import windBuffs from "@gamedata/buff/bamboocut-wind.json"
+import rotation from "@gamedata/rotation/bamboocut-wind/wind-dummy-1-min-infinite-vitality.json"
 import { describe, expect, it } from "vitest"
 
-import windBuffs from "../data/buff/bamboocut-wind.json"
-import rotation from "../data/rotation/bamboocut-wind/wind-dummy-1-min-infinite-vitality.json"
-import { buildPresetRotationBundle } from "../src/application/graduation"
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
-import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
-import type { RotationRecord } from "../src/calculations/rotationTimeline"
-import { emptyStats } from "../src/data/statDefinitions"
+import { buildPresetRotationBundle } from "@/application/graduation"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+import { emptyStats } from "@/data/statDefinitions"
+
 import { dpsSnapshotEnvironment } from "./helpers/dps-snapshot-fixtures"
 import { rowCasting } from "./helpers/timelineRows"
 
@@ -167,13 +168,14 @@ describe("Wind dummy preset", () => {
     const breakTime = qiRows[2].startTime - fightStart
     expect(breakTime).toBeCloseTo(21.062, 2)
     const recoveryTime = breakTime + 10
-    const nextBreak = 61
+    const nextBreak = 65
+    const immunityEnd = recoveryTime + 4
     const expectedTimes = [
       breakTime * 0.4,
       breakTime * 0.6,
       breakTime,
-      recoveryTime + (nextBreak - recoveryTime) * 0.4,
-      recoveryTime + (nextBreak - recoveryTime) * 0.6,
+      immunityEnd + (nextBreak - immunityEnd) * 0.4,
+      immunityEnd + (nextBreak - immunityEnd) * 0.6,
     ]
     const ratios = [0.5999, 0.3999, 0, 0.5999, 0.3999]
     qiRows.forEach((row, index) => {

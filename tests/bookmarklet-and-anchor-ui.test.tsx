@@ -163,3 +163,94 @@ it("moves an after-start Qi event to the adjacent action instead of the first da
   expect(movedQi).toMatchObject({ after: { action: "start" } })
   expect(movedQi).not.toHaveProperty("startTime")
 })
+
+it("shows generated attacks relative to battle start and round-trips every manual event clock", async () => {
+  const events: RotationStep[] = [
+    { type: "event", event: "TakeDamage", startTime: 1, damage: 20 },
+    { type: "event", event: "SelfHP", startTime: 1, currentHP: 1000 },
+    { type: "event", event: "HP", startTime: 1, targetHPRatio: 0.9 },
+    { type: "event", event: "Qi", startTime: 1, targetQiRatio: 0.9 },
+    { type: "event", event: "Move", startTime: 1, distance: 2 },
+    { type: "event", event: "Buff", startTime: 1, buff: "Shield", stack: 1 },
+    { type: "event", event: "Debuff", startTime: 1, debuff: "QiImbalance", stack: 1 },
+    { type: "event", event: "Hellfire", startTime: 1, amount: 1 },
+    { type: "event", event: "Controlled", startTime: 1, duration: 1 },
+    { type: "event", event: "ShieldBroken", startTime: 1 },
+    { type: "event", event: "BattleEnd", startTime: 8 },
+  ]
+  localStorage.setItem("wwm-path-session-v1", "silkbindDeluge")
+  localStorage.setItem("wwm-active-rotation-by-path-v1", JSON.stringify({ silkbindDeluge: "event-clocks" }))
+  localStorage.setItem(
+    "wwm-rotation-list-session-v1",
+    JSON.stringify([
+      {
+        id: "event-clocks",
+        martialArts: ["panaceaFan", "soulshadeUmbrella"],
+        rotation: {
+          name: "Event clocks",
+          ping: 0,
+          targetType: "DummyAttack",
+          eventTimeReference: "battleStart",
+          start: { step: 1, action: 0 },
+          steps: [{ type: "event", event: "Delay", duration: 2 }, { type: "skill", skill: "SereneBreeze" }, ...events],
+        },
+      },
+    ]),
+  )
+  await act(async () => root.render(<App />))
+  await openRotationEditorTab(container, () => click("Rotation Editor"))
+  await act(async () => vi.advanceTimersByTimeAsync(300))
+  const generatedRows = [...container.querySelectorAll<HTMLElement>(".rotation-take-damage-event-row")].filter(
+    row => !row.querySelector("input.rotation-event-time"),
+  )
+  expect(generatedRows).toHaveLength(2)
+  for (const row of generatedRows)
+    expect(row.querySelector('[data-mobile-label="Start Time"]')?.textContent).toBe("5.5s")
+  for (let index = 0; index < events.length; index++) {
+    const steps = dpsBundles("editorTimeline").at(-1)!.timeline.rotation.steps
+    const stepIndex = steps.findIndex(
+      (step: RotationStep) => step.type === "event" && step.event === events[index].event,
+    )
+    const timeInput = container.querySelector<HTMLInputElement>(
+      `[data-rotation-step-index="${stepIndex}"] input.rotation-event-time`,
+    )!
+    expect(timeInput).not.toBeNull()
+    let expectedTime = 1
+    switch (events[index].event) {
+      case "Move":
+        expectedTime = 0
+        break
+      case "BattleEnd":
+        expectedTime = 8
+        break
+    }
+    expect(Number(timeInput.value)).toBe(expectedTime)
+    const time = index === events.length - 1 ? 9 : 1.25
+    // Each edit depends on the previous render and must commit before the next input.
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(timeInput, String(time))
+      timeInput.dispatchEvent(new Event("input", { bubbles: true }))
+    })
+    // Each edit depends on the previous render and must commit before the next input.
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      timeInput.dispatchEvent(new FocusEvent("focusout", { bubbles: true }))
+      await vi.advanceTimersByTimeAsync(200)
+    })
+    const latest = dpsBundles("editorTimeline").at(-1)!.timeline.rotation
+    expect(latest.eventTimeReference).toBe("battleStart")
+    expect(latest.steps[stepIndex].startTime).toBe(time)
+  }
+  await click("Save")
+  const saved = JSON.parse(localStorage.getItem("wwm-rotation-list-session-v1")!).find(
+    (entry: { id: string }) => entry.id === "event-clocks",
+  )
+  expect(
+    events.map(
+      event =>
+        saved.rotation.steps.find((step: RotationStep) => step.type === "event" && step.event === event.event)
+          .startTime,
+    ),
+  ).toEqual([...events.slice(0, -1).map(() => 1.25), 9])
+})

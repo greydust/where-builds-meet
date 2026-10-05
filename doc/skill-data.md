@@ -577,6 +577,10 @@ Only ordered or live-attached rows can be selected as a fight-start anchor; fixe
 rows are not valid starts. Preserve attachment indexes and fight-start anchors when
 editing/migrating data.
 Generated waits and periodic rows are never authored rotation steps.
+All editor event timestamps are shown and entered relative to battle start.
+Authored fixed-time events already store that reference; generated target attacks
+carry simulation-absolute times and must subtract the battle anchor for display.
+Changing the anchor preserves authored battle-relative event offsets.
 
 Without Battle End, the final ordered item determines cutoff, including its
 same-time causal follow-ups. A trailing explicit Delay extends combat. With
@@ -590,8 +594,14 @@ it removes no HP. Target HP is depleted only when the rotation supplies maximum
 `targetHP`; otherwise it stays at the implicit state unless explicitly set. Qi
 depletion is authored rather than calculated. A preset's Qi events read as repeating
 ramps of `0.5999`, `0.3999`, `0`; the `0` event applies Exhausted, and its expiry is
-the only thing that refills the meter, so a following ramp restarts one Exhausted
-duration after the previous `0`. A rotation may stop its last ramp early, but every
+the only thing that refills the meter. The target is then immune to Qi damage
+for four seconds (user-confirmed). A following depletion ramp starts after both the Exhausted
+duration and that immunity window. Presets preserve each ramp's depletion gaps
+by shifting its thresholds four seconds later per preceding Exhausted window.
+Might retains its original hit-attached Qi timings by user instruction.
+Shifted hit attachments become battle-relative timestamps; thresholds at or
+beyond Battle End are omitted. This is authored encounter timing, not an
+automatic Qi-damage calculation or a restriction on custom editor events. A rotation may stop its last ramp early, but every
 authored event must fall inside the fight. Move events use nonnegative whole-meter
 distances, including zero meters. Initial distance is one meter.
 
@@ -676,10 +686,14 @@ or accepted DPS snapshot. Its path status is not proof that any timing is verifi
 `Dummy 1 min 81 waves` preserves the user-proposed sequence: 27 tier-2 Vagrant
 Sword casts, with battle start on the first cast's first damage hit (after its
 Endurance-spend action). It starts at 12 m and reasserts 12 m on Flute Full's
-last direct hit. The target is the non-attacking dummy, with the standard preset ping of 40 ms. Qi break is attached after wave 3 of the Vagrant cast immediately before the
+last direct hit. The target is the non-attacking dummy, with preset ping of 15 ms. Qi break is attached after wave 3 of the Vagrant cast immediately before the
 second full Qiankun's Lock (the 11th Vagrant cast). The last Spear Q is a cancel.
 Battle ends at 60 seconds relative to the first-hit battle anchor. No
-additional movement is inferred. Qi 60% and 40% thresholds use proportional timing before the break, as approved by the user.
+additional movement is inferred. The break resolves at 21.723s after battle start.
+Qi 60% and 40% thresholds retain proportional timing at 8.6892s and 13.0338s.
+After Exhausted ends at 31.723s, Qi damage immunity lasts until 35.723s.
+The same depletion rate places the next 60% and 40% thresholds at 44.4122s
+and 48.7568s. No second break is authored.
 The production calculation verifies 81 waves before the cutoff: all 27 casts
 use the three-wave route, which requires Sword Morph and either Shield, the T1
 out-of-combat exception, or the T4 follow-up window.
@@ -880,13 +894,16 @@ raised by the stage rows. The exhaust therefore sits on the sixth throw's
 forward hit of the second Scarlet Spin, and a second proportional ramp follows
 the first Exhausted window without reaching a second exhaust.
 
-The second ramp's spacing is measured from the exhaust's expiry, so re-authoring
+The second ramp's spacing is measured from the end of the four-second Qi
+damage immunity after the exhaust's expiry, so re-authoring
 the exhaust moves its steps twice: once by the exhaust's own shift and once by
 whatever change the first ramp's shape took. Shortening the four-hit release
 moved the whole downstream timeline 0.2209835277 s earlier, so the first ramp
 shifted by that much and the second by twice it. The 100% Phantom Chime variant
 places its own exhaust on the fifth forward hit of its second Scarlet Spin and
 stops there; it keeps the same two ramp gaps so the exhaust lands on that hit.
+The regular variant now crosses 60% Qi at 51.2362s after recovery immunity;
+its shifted 40% threshold would fall at 60.722s and is omitted after Battle End.
 
 Out of scope by user instruction: Fading Crimson, Tokens of Gratitude, Song of
 Tang HP drain, and Tenacity damage. These are exclusions rather than gaps, so
@@ -993,8 +1010,12 @@ Its self Soul Return refresh and Burn and Bury damage bonus are not range-gated.
 
 ### Food choices
 
-Food titles describe their role; the food name is shown underneath. Physical
-Attack (Simmering Fish Slices) retains its effective +120/+240 Physical Attack.
+Food has two independent categories, each with its own None option. Physical
+Attack offers Simmering Fish Slices (+120/+240 effective Physical Attack), while
+Endurance offers Swallow’s Agility (巧燕). Both can be active together.
+The persisted `food` selection holds Physical Attack; `enduranceFood` holds
+Endurance. Legacy Swallow’s Agility selections migrate to Endurance with Physical
+Attack set to None, preserving the previous effects.
 Endurance (Swallow’s Agility) is available only for Splendor and Umbra and adds
 20 to `maxEndurance` through the shared stat pipeline. A saved unavailable food
 is treated as None without deleting the saved choice. Comparisons involving

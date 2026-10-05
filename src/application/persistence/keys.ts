@@ -13,6 +13,7 @@ export const settingsStorageKey = "wwm-settings-session-v1"
 export const arsenalStorageKey = "wwm-arsenal-session-v1"
 export const bowRingSetStorageKey = "wwm-bow-ring-set-session-v1"
 export const gearSetStorageKey = "wwm-gear-set-session-v1"
+export const enduranceFoodStorageKey = "wwm-endurance-food-session-v1"
 export const foodStorageKey = "wwm-food-session-v1"
 export const divinecraftStorageKey = "wwm-divinecraft-session-v1"
 export const scriptStorageKey = "wwm-script-session-v1"
@@ -49,6 +50,7 @@ export const applicationStorageKeys = new Set([
   bowRingSetStorageKey,
   gearSetStorageKey,
   foodStorageKey,
+  enduranceFoodStorageKey,
   divinecraftStorageKey,
   scriptStorageKey,
   pathStorageKey,

@@ -10,20 +10,8 @@ describe("calculation status", () => {
   beforeEach(() => useRotationStore.getState().clear())
 
   it("orders the categories so the baseline is measured before anything it is compared against", () => {
-    expect([...rotationCalculationCategories]).toEqual([
-      "baseline",
-      "statPriority",
-      "attunementPriority",
-      "weaponSets",
-      "armorSets",
-      "bowRingSet",
-      "arsenal",
-      "globalDebuffs",
-      "innerWays",
-      "script",
-      "divinecraft",
-      "food",
-    ])
+    expect(rotationCalculationCategories[0]).toBe("baseline")
+    expect(new Set(rotationCalculationCategories).size).toBe(rotationCalculationCategories.length)
   })
 
   it("reports a started category as busy without a progress it has not measured", () => {

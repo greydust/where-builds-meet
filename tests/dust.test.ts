@@ -1,5 +1,6 @@
 import assert from "node:assert/strict"
 
+import buffsJson from "@gamedata/buff/bamboocut-dust.json"
 import { describe, expect, it } from "vitest"
 
 import type { PathId } from "@/application/contracts"
@@ -9,45 +10,44 @@ import type { PathDefinition } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { weaponSetDefinitions } from "@/gear"
 import { defaultGlobalDebuffs } from "@/globalDebuffs"
-
-import buffsJson from "../data/buff/bamboocut-dust.json"
 const buffs = asEffectDefinitions(buffsJson)
-import mysticBuffsJson from "../data/buff/mystic.json"
+import mysticBuffsJson from "@gamedata/buff/mystic.json"
 const mysticBuffs = asEffectDefinitions(mysticBuffsJson)
-import debuffsJson from "../data/debuff/bamboocut-dust.json"
+import debuffsJson from "@gamedata/debuff/bamboocut-dust.json"
 const debuffs = asEffectDefinitions(debuffsJson)
 
-import light from "../data/innerway/light-anew.json"
-import phantom from "../data/innerway/phantom-rally.json"
-import song from "../data/innerway/song-of-tang.json"
-import towline from "../data/innerway/towline-sweep.json"
-import pathData from "../data/path.json"
-import dustPhantomChimeRotation from "../data/rotation/bamboocut-dust/dust-dummy-1-min-100pc.json"
-import defaultDustRotation from "../data/rotation/bamboocut-dust/dust-dummy-1-min.json"
-import umbrellaJson from "../data/skill/everspring-umbrella.json"
+import light from "@gamedata/innerway/light-anew.json"
+import phantom from "@gamedata/innerway/phantom-rally.json"
+import song from "@gamedata/innerway/song-of-tang.json"
+import towline from "@gamedata/innerway/towline-sweep.json"
+import pathData from "@gamedata/path.json"
+import dustPhantomChimeRotation from "@gamedata/rotation/bamboocut-dust/dust-dummy-1-min-100pc.json"
+import defaultDustRotation from "@gamedata/rotation/bamboocut-dust/dust-dummy-1-min.json"
+import umbrellaJson from "@gamedata/skill/everspring-umbrella.json"
 const umbrella = asSkillRecords(umbrellaJson)
-import generalJson from "../data/skill/general.json"
+import generalJson from "@gamedata/skill/general.json"
 const general = asSkillRecords(generalJson)
-import mysticJson from "../data/skill/mystic.json"
+import mysticJson from "@gamedata/skill/mystic.json"
 const mystic = asSkillRecords(mysticJson)
-import ropeJson from "../data/skill/unfettered-rope-dart.json"
+import ropeJson from "@gamedata/skill/unfettered-rope-dart.json"
 const rope = asSkillRecords(ropeJson)
-import { innerWayConditionsFor, innerWayEffectRulesFor } from "../src/application/characterComposition"
-import { buildPresetRotationBundle } from "../src/application/graduation"
+import { innerWayConditionsFor, innerWayEffectRulesFor } from "@/application/characterComposition"
+import { buildPresetRotationBundle } from "@/application/graduation"
 import {
   calculateRotationBaseline,
   type RotationDamageEntry,
   type RotationSimulationBundle,
-} from "../src/calculations/rotationCalculator"
+} from "@/calculations/rotationCalculator"
 import {
   buildRotationTimeline,
   TIMELINE_TIME_EPSILON,
   type InnerWayEffectRule,
   type EditableObject,
-} from "../src/calculations/rotationTimeline"
-import type { RotationRecord, RotationStep, SkillRecord, TimelineRow } from "../src/calculations/rotationTimeline"
-import { martialArtEffectsForRank } from "../src/data/martialArtTalents"
-import { emptyStats } from "../src/data/statDefinitions"
+} from "@/calculations/rotationTimeline"
+import type { RotationRecord, RotationStep, SkillRecord, TimelineRow } from "@/calculations/rotationTimeline"
+import { martialArtEffectsForRank } from "@/data/martialArtTalents"
+import { emptyStats } from "@/data/statDefinitions"
+
 import { castStep, delayStep } from "./helpers/rotationSteps"
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 // Select the stage rows separately from their Resonance attacks.
@@ -458,7 +458,7 @@ describe("Dust mechanics", () => {
       .sort((left, right) => left.startTime - right.startTime)
 
     expect(qiRows.map(row => (row.step as { targetQiRatio: number }).targetQiRatio)).toEqual([
-      0.5999, 0.3999, 0, 0.5999, 0.3999,
+      0.5999, 0.3999, 0, 0.5999,
     ])
     // The exhaust is the third step, and it must coincide with the forward hit.
     const exhaust = qiRows[2]
@@ -466,17 +466,17 @@ describe("Dust mechanics", () => {
     // That hit is therefore resolved against an exhausted target.
     expect(sixthOfSecondCast.actionStates[forwardHitIndex(sixthOfSecondCast)]?.debuffs.has("Exhausted")).toBe(true)
     // The window closes one Exhausted duration later, and the second ramp restarts
-    // from there, reusing the first ramp's spacing.
+    // after four seconds of Qi immunity, reusing the first ramp's spacing.
     const expiry = [...timeline]
       .flatMap(row => Object.values(row.actionStates ?? {}))
       .map(state => state.debuffs.get("Exhausted")?.expiresAt)
       .find(value => value !== undefined)!
     const firstRampOffsets = qiRows.slice(0, 3).map(row => row.startTime - battleStart)
-    const secondRampOffsets = qiRows.slice(3).map(row => row.startTime - expiry)
+    const secondRampOffsets = qiRows.slice(3).map(row => row.startTime - expiry - 4)
     secondRampOffsets.forEach((offset, index) => expect(offset).toBeCloseTo(firstRampOffsets[index], 6))
     // The second ramp deliberately stops short of a second exhaust: mirroring the
     // full first span would place it past BattleEnd, where it could never fire.
-    expect(qiRows).toHaveLength(5)
+    expect(qiRows).toHaveLength(4)
   })
 
   it("registers the Dust 100% Phantom Chime rotation as the path default", () => {

@@ -19,6 +19,7 @@ import { typedPathDefinitions } from "@/application/gameData/paths"
 import {
   breakthroughProfile,
   foodAvailableForPath,
+  foodCategories,
   foodSelectionForPath,
   scriptDisplayOrder,
   divinecraftDisplayOrder,
@@ -109,7 +110,6 @@ export function StatsTab({
   const showHealingStats = pathId === "silkbindDeluge"
   const breakthrough = breakthroughProfile(settings)
   const { script, divinecraft } = character.setupSelections
-  const food = foodSelectionForPath(character.setupSelections.food, pathId)
   const globalDebuffs = useLoadoutStore(state => state.globalDebuffs)
   const [attunementDrafts, setAttunementDrafts] = useState<Partial<Record<keyof AttunementStats, string>>>({})
   const [newProfileName, setNewProfileName] = useState("")
@@ -1115,29 +1115,32 @@ export function StatsTab({
             <PanelHeading>
               <div>
                 <h2>{t("ui.app.food")}</h2>
-                <CalculationStatus category="food" />
               </div>
             </PanelHeading>
-            <ButtonGroup>
-              {Object.entries(typedFoodDefinitions)
-                .filter(([value]) => foodAvailableForPath(value, pathId))
-                .map(([value, definition]) => (
-                  <ButtonGroupOption
-                    key={value}
-                    label={gameText(definition.title ?? definition.name)}
-                    selected={food === value}
-                    onClick={() => onSetupSelectionChange("food", value)}
-                  >
-                    {definition.title && (
-                      <>
-                        {gameText(definition.name)}
-                        <br />
-                      </>
-                    )}
-                    {setupStatus("food", value, food === value)}
-                  </ButtonGroupOption>
-                ))}
-            </ButtonGroup>
+            {foodCategories.map(({ key, title }) => {
+              const selected = foodSelectionForPath(character.setupSelections[key], pathId, key)
+              return (
+                <div key={key}>
+                  <h3>
+                    {gameText(title)} <CalculationStatus category={key} />
+                  </h3>
+                  <ButtonGroup>
+                    {Object.entries(typedFoodDefinitions)
+                      .filter(([value]) => foodAvailableForPath(value, pathId, key))
+                      .map(([value, definition]) => (
+                        <ButtonGroupOption
+                          key={value}
+                          label={gameText(definition.name)}
+                          selected={selected === value}
+                          onClick={() => onSetupSelectionChange(key, value)}
+                        >
+                          {setupStatus(key, value, selected === value)}
+                        </ButtonGroupOption>
+                      ))}
+                  </ButtonGroup>
+                </div>
+              )
+            })}
           </Panel>
           <Panel className="setup-placeholder-panel">
             <PanelHeading>

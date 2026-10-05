@@ -1,22 +1,25 @@
-import defaultSetup from "../../../data/default-setup.json"
-import { resolvePing } from "../../calculations/combatDefaults"
-import { getPersistentItem } from "../../persistentStorage"
-import { parseJson } from "../../schemas/json"
-import { settingsSchema } from "../../schemas/storage"
-import type { CalculatorSettings, LayoutMode, PathId } from "../contracts"
-import { isWeaponId } from "../gameData/martialArts"
-import { pathRequiresDev, typedPathDefinitions } from "../gameData/paths"
+import defaultSetup from "@gamedata/default-setup.json"
+
+import type { CalculatorSettings, LayoutMode, PathId } from "@/application/contracts"
+import { isWeaponId } from "@/application/gameData/martialArts"
+import { pathRequiresDev, typedPathDefinitions } from "@/application/gameData/paths"
 import {
   defaultBreakthrough,
   defaultSettings,
   typedDivinecraftDefinitions,
   typedFoodDefinitions,
   typedScriptDefinitions,
-} from "../gameData/setup"
+} from "@/application/gameData/setup"
+import { resolvePing } from "@/calculations/combatDefaults"
+import { getPersistentItem } from "@/persistentStorage"
+import { parseJson } from "@/schemas/json"
+import { settingsSchema } from "@/schemas/storage"
+
 import {
   developmentModeStorageKey,
   divinecraftStorageKey,
   foodStorageKey,
+  enduranceFoodStorageKey,
   layoutPreviewStorageKey,
   pathStorageKey,
   scriptStorageKey,
@@ -52,7 +55,13 @@ export function loadSelectedPath(devMode = loadDevMode()): PathId {
 
 export function loadFood() {
   const saved = getPersistentItem(foodStorageKey)
-  return saved && typedFoodDefinitions[saved] ? saved : defaultSetup.food
+  if (!saved || !typedFoodDefinitions[saved]) return defaultSetup.food
+  return typedFoodDefinitions[saved].category === "enduranceFood" ? "None" : saved
+}
+
+export function loadEnduranceFood() {
+  const saved = getPersistentItem(enduranceFoodStorageKey) ?? getPersistentItem(foodStorageKey)
+  return saved && typedFoodDefinitions[saved]?.category === "enduranceFood" ? saved : "None"
 }
 
 export function loadDivinecraft() {

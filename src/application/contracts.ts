@@ -1,8 +1,8 @@
-import type { AttunementStats } from "../calculations/damage"
-import type { DerivedStats } from "../calculations/effectiveStats"
-import type { StatEffectContainer } from "../calculations/statEffects"
-import type { BuildSetup } from "../gear"
-import type { CharacterStats, EnemyProfile, WeaponId } from "../types"
+import type { AttunementStats } from "@/calculations/damage"
+import type { DerivedStats } from "@/calculations/effectiveStats"
+import type { StatEffectContainer } from "@/calculations/statEffects"
+import type { BuildSetup } from "@/gear"
+import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
 
 export type CalculatorSettings = { weapons: [WeaponId, WeaponId]; breakthrough: string; ping: number }
 export type LayoutMode = "pc" | "mobile"
@@ -19,7 +19,7 @@ export type PathId =
   | "bamboocutDust"
   | "bamboocutDraught"
 
-export type SetupSelections = { food: string; script: string; divinecraft: string }
+export type SetupSelections = { food: string; enduranceFood?: string; script: string; divinecraft: string }
 
 export type CharacterState = {
   stats: CharacterStats
