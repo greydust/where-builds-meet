@@ -3,25 +3,37 @@ import { readFile, readdir } from "node:fs/promises"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { EditableObject } from "@/calculations/rotationTimeline"
+
+/** The breakthrough profiles as the shipped file names the fields this spec reads. */
+type BreakthroughProfiles = Record<string, { name: string; martialArtTalentRank: number }>
+
+/** One shipped martial-art file, as the coverage check reads it. */
+type MartialArtOnDisk = { name: string; talent: Array<Array<{ name: string; effect?: EditableObject[] }>> }
+
 // Ported from script/probe/check-martial-art-talent-ranks.mjs.
 describe("martial-art-talent-ranks", () => {
   it("Talent ranks: configured data coverage, independent selection, deduplication, raw-stat formulas, worker damage, and timeline changes passed", async () => {
-    const readJson = async path => JSON.parse(await readFile(path, "utf8"))
+    const readJson = async (path: string) => JSON.parse(await readFile(path, "utf8")) as unknown
 
     const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const profiles = await readJson("data/breakthrough.json")
-    const arts = await Promise.all(
+    const profiles = Object.values((await readJson("data/breakthrough.json")) as BreakthroughProfiles)
+    const arts = (await Promise.all(
       (await readdir("data/martial-art"))
         .filter(file => file.endsWith(".json"))
         .map(file => readJson(`data/martial-art/${file}`)),
-    )
+    )) as MartialArtOnDisk[]
     for (const art of arts) {
-      assert(art.talent.every(Array.isArray), `${art.name} must have a talent array at every rank slot`)
-      for (const profile of Object.values(profiles))
+      assert(
+        art.talent.every((rank: unknown) => Array.isArray(rank)),
+        `${art.name} must have a talent array at every rank slot`,
+      )
+      for (const profile of profiles)
         assert(
           Array.isArray(art.talent[profile.martialArtTalentRank]),
           `${art.name} must define the rank selected by breakthrough ${profile.name}`,
@@ -53,7 +65,8 @@ describe("martial-art-talent-ranks", () => {
       },
     }
     const before = structuredClone(definitions)
-    const selected = rank => martialArtEffectsForRank(definitions, ["infernalTwinblades", "infernalTwinblades"], rank)
+    const selected = (rank: number) =>
+      martialArtEffectsForRank(definitions, ["infernalTwinblades", "infernalTwinblades"], rank)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const results = [0, 1, 2, 3].map(rank => {
       const setupEffects = selected(rank)
@@ -94,7 +107,7 @@ describe("martial-art-talent-ranks", () => {
           bamboocutResistance: 0,
           judgementResistance: 0,
         },
-        attunement: { physicalPenetration: 0, formlessPenetration: 0 },
+        attunement: emptyAttunementStats,
         weapons: [],
         statPriority: [],
         attunementPriority: [],
@@ -117,12 +130,13 @@ describe("martial-art-talent-ranks", () => {
 
     const gauntlets = arts.find(art => art.name === "Heavenwill Gauntlets")
     const rope = arts.find(art => art.name === "Skygrasp Rope Dart")
+    assert(gauntlets && rope, "Both martial arts the attribute check reads must exist on disk.")
     const current = { heavenwill: gauntlets, skygrasp: rope }
-    for (const profile of Object.values(profiles)) {
+    for (const profile of profiles) {
       const effects = martialArtEffectsForRank(current, ["heavenwill", "skygrasp"], profile.martialArtTalentRank)
       const sheet = calculateStatsWithEffects(
         { ...emptyStats, minBamboocut: 100, maxBamboocut: 200 },
-        effects.filter(effect => !effect.requirement),
+        effects.filter(effect => !("requirement" in effect && effect.requirement)),
         0,
         ["heavenwill", "skygrasp"],
       )

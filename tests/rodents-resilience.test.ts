@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest"
 
+import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 import buffs from "../data/buff/bamboocut-wind.json"
 import infernal from "../data/skill/infernal-twinblades.json"
 import mortal from "../data/skill/mortal-rope-dart.json"
-import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const input = (steps: RotationStep[]): TimelineBuildInput => ({
   rotation: { name: "RD charge", ping: 40, steps },
-  skills: {
+  skills: asSkillRecords({
     ...mortal,
     ...infernal,
     Observe: { ignorePing: true, castTime: 0, action: [{ type: "trigger", value: "Observation", time: 0 }] },
@@ -17,8 +19,8 @@ const input = (steps: RotationStep[]): TimelineBuildInput => ({
       tags: ["Triggered"],
       action: [1.539, 1.541].map(time => ({ type: "damage", time, phyCoef: 1 })),
     },
-  },
-  effectDefinitions: buffs,
+  }),
+  effectDefinitions: asEffectDefinitions(buffs),
   eventDefinitions: {},
   dots: {},
   innerWayConditions: [],

@@ -4,15 +4,16 @@ import effects from "../data/debuff/bamboocut-kite.json"
 import skills from "../data/skill/heavenwill-gauntlets.json"
 import { buildRotationTimeline, type TimelineBuildInput, type RotationStep } from "../src/calculations/rotationTimeline"
 import { migrateAutomaticDelays } from "../src/rotationEditing"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 function input(skill = "VileCondemnedEnd4"): TimelineBuildInput {
   return {
     rotation: { name: "Readiness", ping: 40, steps: [cast(skill)] },
-    skills: structuredClone(skills),
+    skills: structuredClone(asSkillRecords(skills)),
     eventDefinitions: {},
     dots: {},
-    effectDefinitions: effects,
+    effectDefinitions: asEffectDefinitions(effects),
     innerWayConditions: ["SoaringHighT0", "SoaringHighT6"],
     innerWayRules: [],
     setupEffects: [],
@@ -94,6 +95,8 @@ describe("Vile Condemned pre-charge readiness", () => {
     data.innerWayRules = [
       {
         source: "SoaringHighT3",
+        tier: 3,
+        effect: {},
         trigger: {
           requirement: [{ target: "skillTag", value: "Falcon" }],
           action: [{ type: "consume", target: "self", value: "VileCondemnedEndCooldown", stack: "all" }],

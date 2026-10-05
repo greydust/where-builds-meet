@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest"
 
 import App from "@/App"
 import { calculateEditorTimeline } from "@/calculations/editorTimeline"
+import type { RotationStep } from "@/calculations/rotationTimeline"
 import { initializeI18n } from "@/i18n"
 
 import english from "../public/locales/en.json"
@@ -156,7 +157,9 @@ it("moves an after-start Qi event to the adjacent action instead of the first da
     await vi.advanceTimersByTimeAsync(200)
   })
   const latestBundle = dpsBundles("editorTimeline").at(-1)!
-  const movedQi = latestBundle.timeline.rotation.steps.find(step => step.type === "event" && step.event === "Qi")
+  const movedQi = latestBundle.timeline.rotation.steps.find(
+    (step: RotationStep) => step.type === "event" && step.event === "Qi",
+  )
   expect(movedQi).toMatchObject({ after: { action: "start" } })
   expect(movedQi).not.toHaveProperty("startTime")
 })

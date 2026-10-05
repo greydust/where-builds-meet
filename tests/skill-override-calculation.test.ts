@@ -1,10 +1,31 @@
 import { assert, describe, it } from "vitest"
 
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { EditableObject, EffectDefinition, PeriodicEffect } from "@/calculations/rotationTimeline"
+import type { EditorCategory, SkillCategory, SkillMap, SkillOverrides } from "@/skillOverrides"
+
+import { castStep } from "./helpers/rotationSteps"
+import { rowCasting } from "./helpers/timelineRows"
+
 // Ported from script/probe/check-skill-override-calculation.mjs.
 describe("skill-override-calculation", () => {
   it("Skill override calculation and fingerprint checks passed", async () => {
     const { resolveSkillCalculationDefinitions } = await import("@/skillOverrides.ts")
     const { deserializeSkillOverrides, serializeSkillOverrides } = await import("@/skillOverrides.ts")
+    // Overrides nest by category, skill and field, and every level is optional, so
+    // the readers below say which level was missing rather than reading through it.
+    const overrideSkill = (overrides: SkillOverrides, category: EditorCategory, skill: string): SkillMap[number] => {
+      const entry = overrides[category]?.[skill]
+      assert(entry, `Expected a ${category} override for ${skill}.`)
+      return entry
+    }
+    const overridePeriodic = (overrides: SkillOverrides, skill: string) => {
+      const periodic = overrideSkill(overrides, "DOT", skill).periodic
+      assert(periodic, `Expected the ${skill} override to carry its cadence.`)
+      // A cadence carries untyped actions, and the legacy schema also had a
+      // stack-damage flag this spec asserts is gone.
+      return periodic as PeriodicEffect & { stackDamage?: unknown; action?: EditableObject[] }
+    }
     const migrated = deserializeSkillOverrides({
       General: {
         Legacy: {
@@ -16,7 +37,7 @@ describe("skill-override-calculation", () => {
         },
       },
     })
-    const migratedActions = migrated.General.Legacy.action
+    const migratedActions = overrideSkill(migrated, "General", "Legacy").action as EditableObject[]
     assert(
       !(
         migratedActions[0].attrCoef !== 2 ||
@@ -25,10 +46,12 @@ describe("skill-override-calculation", () => {
       ),
       "Legacy overrides must preserve old coefficients without overwriting explicit zero.",
     )
-    const physicalOnly = { DOT: { Bleed: { periodic: { action: [{ type: "damage", phyCoef: 0.02 }] } } } }
+    const physicalOnly: SkillOverrides = {
+      DOT: { Bleed: { periodic: { action: [{ type: "damage", phyCoef: 0.02 }] } } },
+    }
     const reloaded = deserializeSkillOverrides(JSON.parse(serializeSkillOverrides(physicalOnly)))
     assert(
-      reloaded.DOT.Bleed.periodic.action[0].attrCoef === undefined,
+      overridePeriodic(reloaded, "Bleed").action?.[0].attrCoef === undefined,
       "New physical-only overrides must remain physical-only after saving and reloading.",
     )
     const oldStacked = deserializeSkillOverrides({
@@ -39,24 +62,40 @@ describe("skill-override-calculation", () => {
     })
     assert(
       !(
-        oldStacked.DOT.Bleed.periodic.stackDamage !== undefined ||
-        oldStacked.DOT.Bleed.periodic.tickOnExpire !== false ||
-        oldStacked.DOT.Bleed.periodic.action[0].attrCoef !== undefined
+        overridePeriodic(oldStacked, "Bleed").stackDamage !== undefined ||
+        overridePeriodic(oldStacked, "Bleed").tickOnExpire !== false ||
+        overridePeriodic(oldStacked, "Bleed").action?.[0].attrCoef !== undefined
       ),
       "Old stack-damage overrides must preserve expiration behavior and physical-only coefficients, but drop stack scaling.",
     )
     const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const { rotationBundleFingerprint } = await import("@/calculations/calculationFingerprint.ts")
-    const defaults = {
+    const { emptyAttunementStats } = await import("@/calculations/attunementStats.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    // Only the categories this probe overrides carry skills; the rest are the empty
+    // maps the calculator takes, which is what the app supplies for them too.
+    const defaults: Record<SkillCategory, SkillMap> = {
       Snowparting: { Attack: { name: "Attack", castTime: 1, action: [{ type: "damage", time: 1 }] } },
       Phalanxbane: {},
       Thundercry: {},
       Stormbreaker: {},
+      Heavenwill: {},
+      Skygrasp: {},
+      Panacea: {},
+      Soulshade: {},
+      Infernal: {},
+      Mortal: {},
+      Everspring: {},
+      Unfettered: {},
+      NamelessSword: {},
+      NamelessSpear: {},
       Mystic: {},
       General: {},
+      Mechanism: {},
     }
-    const defaultDots = { Burning: { duration: 4, periodic: { interval: 1 } } }
-    const defaultEffects = {
+    const defaultDots: SkillMap = { Burning: { duration: 4, periodic: { interval: 1 } } }
+    const defaultEffects: Record<string, EffectDefinition> = {
       Power: { duration: 5, effect: [{ stat: { minPhys: 1 } }] },
       Weakness: { duration: 5, effect: [{ dmgBonus: 0.01 }] },
       ...defaultDots,
@@ -76,9 +115,11 @@ describe("skill-override-calculation", () => {
       "DOT overrides did not reach both calculation maps.",
     )
 
-    const timelineFor = definitions =>
+    const probeSteps = () => [castStep("Attack")]
+    type ResolvedDefinitions = ReturnType<typeof resolveSkillCalculationDefinitions>
+    const timelineFor = (definitions: ResolvedDefinitions) =>
       buildRotationTimeline({
-        rotation: { name: "Probe", steps: [{ type: "skill", skill: "Attack" }] },
+        rotation: { name: "Probe", steps: probeSteps() },
         skills: definitions.skills,
         dots: definitions.dots,
         effectDefinitions: definitions.effectDefinitions,
@@ -89,17 +130,44 @@ describe("skill-override-calculation", () => {
         weapons: ["snowparting"],
       })
     assert(
-      !(timelineFor(baseline)[0].effectiveCastTime !== 1 || timelineFor(modified)[0].effectiveCastTime !== 2),
+      !(
+        rowCasting(timelineFor(baseline), "Attack").effectiveCastTime !== 1 ||
+        rowCasting(timelineFor(modified), "Attack").effectiveCastTime !== 2
+      ),
       "Skill overrides did not change the generated calculation timeline.",
     )
 
-    const bundleFor = definitions => ({
+    const bundleFor = (definitions: ResolvedDefinitions): RotationSimulationBundle => ({
       weapons: ["snowparting"],
+      startAnchor: { rowId: "rotation-0" },
+      stats: emptyStats,
+      derivedStats: calculateDerivedStats(emptyStats, 0, {}, ["snowparting"]),
+      attunement: emptyAttunementStats,
+      enemy: {
+        name: "Fingerprint probe",
+        level: 96,
+        defense: 0,
+        physicalResistance: 0,
+        bellstrikeResistance: 0,
+        stonesplitResistance: 0,
+        silkbindResistance: 0,
+        bamboocutResistance: 0,
+        judgementResistance: 0,
+      },
+      statPriority: [],
+      attunementPriority: [],
+      innerWayPriority: [],
+      setupComparisons: {},
       timeline: {
-        rotation: { name: "Probe", steps: [{ type: "skill", skill: "Attack" }] },
+        rotation: { name: "Probe", steps: probeSteps() },
         skills: definitions.skills,
         dots: definitions.dots,
         effectDefinitions: definitions.effectDefinitions,
+        eventDefinitions: {},
+        innerWayConditions: [],
+        innerWayRules: [],
+        setupEffects: [],
+        weapons: [],
       },
     })
     assert(

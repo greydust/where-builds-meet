@@ -1,5 +1,7 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
 // Ported from script/probe/check-skill-static-effect-aggregation.mjs.
 describe("skill-static-effect-aggregation", () => {
   it("Skill-static effect aggregation checks passed", async () => {
@@ -19,10 +21,16 @@ describe("skill-static-effect-aggregation", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
+    /** One row the benchmark reports: the phase it timed and how many calls it saw. */
+    type BenchmarkRow = { phase: string; calls: number }
     const originalTable = console.table
-    let benchmarkRows = []
+    let benchmarkRows: BenchmarkRow[] = []
     console.table = rows => {
-      benchmarkRows = rows
+      benchmarkRows = rows.filter((row: unknown): row is BenchmarkRow => {
+        if (typeof row !== "object" || row === null) return false
+        const candidate = row as Partial<BenchmarkRow>
+        return typeof candidate.phase === "string" && typeof candidate.calls === "number"
+      })
     }
     const result = withCalculationBenchmark("skill-static aggregation probe", () =>
       calculateRotationBaseline({
@@ -71,7 +79,7 @@ describe("skill-static-effect-aggregation", () => {
         },
         startAnchor: { rowId: "rotation-0" },
         stats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         enemy,
         derivedStats: calculateDerivedStats(stats, 0),
         weapons: [],

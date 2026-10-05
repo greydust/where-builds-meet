@@ -2,39 +2,67 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type {
+  ResolvedRotationDamage,
+  RotationSimulationBaseline,
+  RotationSimulationBundle,
+} from "@/calculations/rotationCalculator"
+import type {
+  EditableObject,
+  EffectDefinition,
+  InnerWayEffectRule,
+  SkillRecord,
+  TimelineBuildInput,
+  TimelineRow,
+} from "@/calculations/rotationTimeline"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+import { actionNumber, rowCasting } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-fivefold-bleed-tiers.mjs.
 describe("fivefold-bleed-tiers", () => {
   it("Fivefold Bleed T1/T2 scaling and T3 expiration, refresh, removal, duplicate-schedule, and exhaustive probability checks passed", async () => {
-    const load = file => probeLoad(file)
+    const load = <M>(file: string): Promise<M> => probeLoad<M>(file)
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
-    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await load(
-      "/src/calculations/rotationCalculator.ts",
-    )
+    const { calculateRotationBaseline, calculateSimulatedRotationRun } = await load<
+      typeof import("../src/calculations/rotationCalculator")
+    >("/src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const { innerWayDefinitionForSoloLevel } = await import("../src/data/innerWayDefinitions.ts")
     const way = innerWayDefinitionForSoloLevel((await import("../data/innerway/fivefold-bleed.json")).default, 17)
-    const dots = (await import("../data/dot/innerway.json")).default
+    const dots = (await import("../data/dot/innerway.json")).default as Record<string, SkillRecord & EffectDefinition>
     const { PiercingDamage: piercingDefinition } = (await import("../data/skill/general.json")).default
     // Keep the original independent-history oracle; full feedback is tested separately.
+    // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
+    const noEffect: EditableObject = {}
     const PiercingDamage = {
       ...piercingDefinition,
       tags: piercingDefinition.tags.filter(tag => tag !== "DirectDamage"),
     }
-    const rulesFor = tier =>
+    const rulesFor = (tier: number): InnerWayEffectRule[] =>
       Array.from({ length: tier + 1 }, (_, index) => {
         const definition = way.effect[`FivefoldBleedT${index}`]
         return (definition.effect ?? [])
-          .map(effect =>
-            Object.assign({}, effect, { effect: effect.effect ?? effect, source: "FivefoldBleed", tier: index }),
+          .map((effect): InnerWayEffectRule =>
+            Object.assign({}, effect, {
+              effect: (effect.effect ?? effect) as EditableObject,
+              source: "FivefoldBleed",
+              tier: index,
+            }),
           )
           .concat(
-            (definition.trigger ?? []).map(trigger => ({ trigger, effect: {}, source: "FivefoldBleed", tier: index })),
+            (definition.trigger ?? []).map((trigger): InnerWayEffectRule => ({
+              trigger,
+              effect: noEffect,
+              source: "FivefoldBleed",
+              tier: index,
+            })),
           )
       }).flat()
-    const inputFor = (tier, times = [0]) => ({
+    const inputFor = (tier: number, times: number[] = [0]): TimelineBuildInput => ({
       rotation: { name: "Tier probe", steps: [{ type: "skill", skill: "Hits" }] },
       skills: {
         PiercingDamage,
@@ -65,12 +93,12 @@ describe("fivefold-bleed-tiers", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const bundleFor = timeline => ({
+    const bundleFor = (timeline: TimelineBuildInput): RotationSimulationBundle => ({
       timeline,
       startAnchor: { rowId: "rotation-0" },
       stats,
       enemy,
-      attunement: {},
+      attunement: emptyAttunementStats,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: timeline.weapons,
       statPriority: [],
@@ -78,11 +106,20 @@ describe("fivefold-bleed-tiers", () => {
       innerWayPriority: [],
       setupComparisons: {},
     })
-    const close = (actual, expected, message) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} != ${expected}`)
-    const bursts = rows => rows.filter(row => row.step.skill === "PiercingDamage")
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
+    const bursts = (rows: TimelineRow[]) => rows.filter(row => row.step.skill === "PiercingDamage")
+    const skillEntry = (result: RotationSimulationBaseline, id: string) => {
+      const entry = result.metrics.breakdown.skills.find(skill => skill.id === id)
+      assert(entry, `Expected ${id} in the damage breakdown.`)
+      return entry
+    }
+    const skillResult = (run: { resolvedSequence: ResolvedRotationDamage[] }, id: string) => {
+      const result = run.resolvedSequence.find(({ entry }) => entry.context.skillTags.includes(id))
+      assert(result, `Expected a resolved action for ${id}.`)
+      return result.breakdown
+    }
     const criticalStats = { ...stats, crit: 0.4, critDmgBonus: 0.5 }
-    const criticalBaseline = tier =>
+    const criticalBaseline = (tier: number) =>
       calculateRotationBaseline({
         ...bundleFor(inputFor(tier)),
         stats: criticalStats,
@@ -93,6 +130,7 @@ describe("fivefold-bleed-tiers", () => {
       const result = criticalBaseline(tier)
       for (const before of tier4Critical.metrics.breakdown.skills) {
         const after = result.metrics.breakdown.skills.find(skill => skill.id === before.id)
+        assert(after, `T${tier} must break down ${before.id} the same way T4 did.`)
         close(
           after.damage / before.damage,
           (1 + 0.4 * 0.535) / (1 + 0.4 * 0.5),
@@ -100,20 +138,14 @@ describe("fivefold-bleed-tiers", () => {
         )
       }
     }
-    const burstDamage = tier =>
-      calculateRotationBaseline(bundleFor(inputFor(tier, Array(5).fill(0)))).metrics.breakdown.skills.find(
-        skill => skill.id === "PiercingDamage",
-      ).damage
+    const burstDamage = (tier: number) =>
+      skillEntry(calculateRotationBaseline(bundleFor(inputFor(tier, Array(5).fill(0)))), "PiercingDamage").damage
     const originalTrigger = JSON.stringify(way.effect.FivefoldBleedT0.trigger)
     for (const tier of [0, 1, 2, 3, 4, 5, 6, 0]) {
       const input = inputFor(tier)
       const probability = tier >= 4 ? 0.15 : 0.1
       const result = calculateRotationBaseline(bundleFor(input))
-      close(
-        result.metrics.breakdown.skills.find(skill => skill.id === "WeepingBlood").hits,
-        4 * probability,
-        `T${tier} expected chance`,
-      )
+      close(skillEntry(result, "WeepingBlood").hits, 4 * probability, `T${tier} expected chance`)
       const simulated = calculateSimulatedRotationRun(bundleFor(input), () => 0.125)
       assert.equal(
         simulated.resolvedSequence.filter(({ entry }) => entry.context.isDot).length,
@@ -140,25 +172,35 @@ describe("fivefold-bleed-tiers", () => {
     close(burstDamage(2), 262.3 * 0.1 ** 5, "T2 adds 62.3 Max Physical through the shared stat pipeline")
     const natural = calculateRotationBaseline(bundleFor(inputFor(3)))
     close(
-      natural.metrics.breakdown.skills.find(skill => skill.id === "PiercingDamage").damage,
+      skillEntry(natural, "PiercingDamage").damage,
       262.3 * 0.1 * 0.2,
       "T3 weights natural expiration and its chance separately",
     )
-    close(bursts(natural.timeline)[0].startTime, 5, "Expiration fires without a later attack")
+    close(
+      rowCasting(bursts(natural.timeline), "PiercingDamage").startTime,
+      5,
+      "Expiration fires without a later attack",
+    )
     const rolled = calculateSimulatedRotationRun(bundleFor(inputFor(3)), () => 0.05)
     close(
-      rolled.resolvedSequence.find(({ entry }) => entry.context.skillTags.includes("PiercingDamage")).breakdown.total,
+      skillResult(rolled, "PiercingDamage").total,
       (100 + 62.3 * 0.05) * 2,
       "Expiration burst receives T1 and T2 in simulations",
     )
 
-    const manual = (...actions) => {
+    const manual = (...actions: EditableObject[]) => {
       const input = inputFor(3)
       input.innerWayRules = input.innerWayRules.filter(rule => !rule.trigger)
       input.skills.Hits.action = actions
       return input
     }
-    const apply = (time, stack = 1) => ({ type: "apply", target: "target", value: "WeepingBlood", time, stack })
+    const apply = (time: number, stack = 1): EditableObject => ({
+      type: "apply",
+      target: "target",
+      value: "WeepingBlood",
+      time,
+      stack,
+    })
     assert.equal(
       bursts(buildRotationTimeline(manual(apply(0, 3)), () => 0.19)).length,
       1,
@@ -197,7 +239,9 @@ describe("fivefold-bleed-tiers", () => {
     )
     const boundaryExpected = bursts(buildRotationTimeline(inputFor(3, [0, 5])))
     close(
-      boundaryExpected.filter(row => row.startTime === 5).reduce((sum, row) => sum + row.actions[0].hitProbability, 0),
+      boundaryExpected
+        .filter(row => row.startTime === 5)
+        .reduce((sum, row) => sum + actionNumber(row, "hitProbability"), 0),
       0.02,
       "Expected expiration survives a same-time direct hit",
     )

@@ -14,6 +14,7 @@ import {
 } from "@/application/gearScope"
 import { placeholderSelectionId } from "@/application/persistence/pathSelection"
 import { defaultBuildPresets, type BuildEntry, type BuildState, type GearItem } from "@/gear"
+import type { WeaponId } from "@/types"
 
 const pathA: PathId = "stonesplitStrength"
 const pathB: PathId = "bamboocutWind"
@@ -30,7 +31,8 @@ const item = (id: string): GearItem => ({
   additionalAffixes: [],
 })
 
-const userBuild = (id: string, weapons: BuildEntry["martialArts"] = ["snowparting", "phalanxbane"]): BuildEntry => ({
+const pair: [WeaponId, WeaponId] = ["snowparting", "phalanxbane"]
+const userBuild = (id: string, weapons: BuildEntry["martialArts"] = pair): BuildEntry => ({
   id,
   name: id,
   martialArts: weapons,
@@ -127,13 +129,7 @@ describe("gear scope", () => {
     const testPreset = defaultBuildPresets.find(preset => preset.test)
     assert(testPreset, "The game data must ship a test preset for this to mean anything.")
     const scope = privateScope()
-    const input = {
-      buildState: buildState([]),
-      scope,
-      pathId: pathA,
-      buildGroup: groupA,
-      weapons: ["snowparting", "phalanxbane"] as [string, string],
-    }
+    const input = { buildState: buildState([]), scope, pathId: pathA, buildGroup: groupA, weapons: pair }
     const production = visibleBuilds({ ...input, devMode: false })
     const development = visibleBuilds({ ...input, devMode: true })
     assert(!production.some(entry => entry.id === testPreset.id), "A test preset must not reach production.")
@@ -160,10 +156,7 @@ describe("gear scope", () => {
 
   it("confines a private build to the path it was placed on, weapons matching or not", () => {
     const scope = privateScope({ buildIdsByPath: { [pathA]: ["private-build"] } })
-    const matching = {
-      buildState: buildState([userBuild("private-build")]),
-      weapons: ["snowparting", "phalanxbane"] as const,
-    }
+    const matching = { buildState: buildState([userBuild("private-build")]), weapons: pair }
     const onItsOwnPath = visibleBuilds({ ...matching, scope, pathId: pathA, buildGroup: groupA, devMode: false })
     assert(
       onItsOwnPath.some(entry => entry.id === "private-build"),

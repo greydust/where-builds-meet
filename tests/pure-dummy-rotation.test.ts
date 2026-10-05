@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+
 // Ported from script/probe/check-pure-dummy-rotation.mjs.
 describe("pure-dummy-rotation", () => {
   it("Pure Dummy 1 min calculation checks passed", async () => {
@@ -32,8 +37,8 @@ describe("pure-dummy-rotation", () => {
     }
     const result = calculateRotationBaseline({
       timeline: {
-        rotation,
-        skills: { ...snowparting, ...phalanxbane, ...mystic, ...general },
+        rotation: rotation as RotationRecord,
+        skills: asSkillRecords({ ...snowparting, ...phalanxbane, ...mystic, ...general }),
         eventDefinitions: {
           Qi: {
             name: "Qi",
@@ -52,15 +57,15 @@ describe("pure-dummy-rotation", () => {
           Move: { name: "Move", castTime: 0, action: [{ type: "move", time: 0 }] },
           BattleEnd: { name: "Battle End", castTime: 0, action: [] },
         },
-        dots,
-        effectDefinitions: {
+        dots: asSkillRecords(dots),
+        effectDefinitions: asEffectDefinitions({
           ...mysticBuffs,
           ...generalBuffs,
           ...stonesplitBuffs,
           ...generalDebuffs,
           ...stonesplitDebuffs,
           ...dots,
-        },
+        }),
         innerWayConditions: [],
         innerWayRules: [],
         setupEffects: [],
@@ -68,7 +73,7 @@ describe("pure-dummy-rotation", () => {
       },
       startAnchor: { rowId: `rotation-${rotation.start.step}`, actionIndex: rotation.start.action },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, enemy.judgementResistance),
       weapons: ["snowparting", "phalanxbane"],

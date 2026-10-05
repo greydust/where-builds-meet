@@ -10,7 +10,12 @@ import {
   mergeComparisonCategory,
 } from "@/application/comparison"
 import { resolveComparisonCategory, resolveComparisonMetrics } from "@/application/resolveRotationMetrics"
-import type { RotationSimulationBundle, RotationSimulationVariant } from "@/calculations/rotationCalculator"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type {
+  RotationSimulationBaseline,
+  RotationSimulationBundle,
+  RotationSimulationVariant,
+} from "@/calculations/rotationCalculator"
 import type { RotationMetrics } from "@/calculations/rotationMetrics"
 import { emptyRotationBreakdown } from "@/calculations/rotationMetrics"
 
@@ -49,7 +54,7 @@ const bundle = {
   timeline: { rotation: {} },
   startAnchor: { rowId: "r0" },
   stats: {},
-  attunement: {},
+  attunement: emptyAttunementStats,
   enemy: {},
   statPriority: statVariants,
   attunementPriority: [],
@@ -82,7 +87,8 @@ function registerWorker({ reversed = true }: { reversed?: boolean } = {}) {
   for (const [index, variant] of statVariants.entries()) variantIndex.set(variant.label, index)
   dpsResolves("comparisons", async request => {
     const dispatched = request.build()
-    const variant = dispatched.statPriority[0] ?? Object.values(dispatched.setupComparisons)[0]?.[0]
+    const setupVariants = Object.values(dispatched.setupComparisons).flat()
+    const variant: RotationSimulationVariant | undefined = dispatched.statPriority[0] ?? setupVariants[0]
     const index = variantIndex.get(variant?.label ?? "") ?? 0
     if (reversed) await new Promise(done => setTimeout(done, (statVariants.length - index) * 5))
     else await Promise.resolve()
@@ -108,7 +114,13 @@ function registerWorker({ reversed = true }: { reversed?: boolean } = {}) {
   })
 }
 
-const baseline = { metrics: baseMetrics() } as never
+/**
+ * The precomputed baseline the sweep folds categories into.
+ *
+ * The store hands this to a worker rather than reading it here, so only the metrics
+ * are populated; the rest of the result is what a worker would fill in.
+ */
+const baseline = { metrics: baseMetrics() } as RotationSimulationBaseline
 const resolution = { bundle, baselineKey: "fp", baseline: () => baseline }
 
 /** The sweep as it was written: one dispatch at a time, folding each category into the last. */
@@ -128,9 +140,12 @@ async function resolveSequentially() {
       // oxlint-disable-next-line no-await-in-loop
       const result = (await useDpsStore
         .getState()
-        .ensure({ kind: "comparisons", cacheKey: `fp:${variant.key}`, build: () => variant.bundle, baseline })) as {
-        metrics: RotationMetrics
-      }
+        .ensure({
+          kind: "comparisons",
+          cacheKey: `fp:${variant.key}`,
+          build: () => variant.bundle,
+          baseline: () => baseline,
+        })) as { metrics: RotationMetrics }
       results.push(result.metrics)
     }
     merged = combineComparisonVariantMetrics(merged, results, category)

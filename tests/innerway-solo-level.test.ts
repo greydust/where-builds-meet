@@ -2,19 +2,24 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
 
 // Ported from script/probe/check-innerway-solo-level.mjs.
 describe("innerway-solo-level", () => {
   it("Inner Way Solo Level selection, raw-stat formulas, overrides, and production worker bundle checks passed", async () => {
-    const { innerWayDefinitionForSoloLevel, innerWayDefinitions } = await probeLoad("/src/data/innerWayDefinitions.ts")
-    const { calculateStatsWithEffects, calculateStatsWithOverrides } = await probeLoad(
-      "/src/calculations/statEffects.ts",
-    )
+    const { innerWayDefinitionForSoloLevel, innerWayDefinitions } = await probeLoad<
+      typeof import("../src/data/innerWayDefinitions")
+    >("/src/data/innerWayDefinitions.ts")
+    const { calculateStatsWithEffects, calculateStatsWithOverrides } = await probeLoad<
+      typeof import("../src/calculations/statEffects")
+    >("/src/calculations/statEffects.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
-    const close = (actual, expected, message) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} !== ${expected}`)
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
     const definition = {
       name: "Level probe",
       tags: [],
@@ -36,7 +41,7 @@ describe("innerway-solo-level", () => {
         ],
       },
     }
-    const effects = (level, rank) => [
+    const effects = (level: number, rank: number) => [
       ...Object.values(innerWayDefinitionForSoloLevel(definition, level).effect).flatMap(tier => tier.effect ?? []),
       ...martialArtEffectsForRank(talents, ["skystrikeGauntlets"], rank),
     ]
@@ -92,7 +97,7 @@ describe("innerway-solo-level", () => {
 
     const { buildPresetRotationBundle } = await import("../src/application/graduation")
     const path = (await import("../data/path.json")).default.bamboocutKite
-    const build = breakthrough =>
+    const build = (breakthrough: string) =>
       buildPresetRotationBundle(
         {
           pathId: "bamboocutKite",
@@ -102,22 +107,25 @@ describe("innerway-solo-level", () => {
           food: "None",
           divinecraft: "None",
           script: "None",
-          globalDebuffs: {},
+          globalDebuffs: defaultGlobalDebuffs,
           skillOverrides: {},
           previewId: null,
         },
         path.defaultBuild,
       )
     const bundles = ["16", "17"].map(build)
-    const t2Rules = bundle => bundle.timeline.innerWayRules.filter(rule => rule.tier === 2 && rule.effect.rawStat)
+    const t2Rules = (bundle: RotationSimulationBundle) =>
+      bundle.timeline.innerWayRules.filter(rule => rule.tier === 2 && "rawStat" in rule.effect)
+    const [lowerBreakthrough, higherBreakthrough] = bundles
+    assert(lowerBreakthrough && higherBreakthrough, "Both breakthroughs must build a preset bundle.")
     assert.notDeepEqual(
-      t2Rules(bundles[0]),
-      t2Rules(bundles[1]),
+      t2Rules(lowerBreakthrough),
+      t2Rules(higherBreakthrough),
       "The production preset worker bundle must resolve the selected Solo Level",
     )
     assert.deepEqual(
-      bundles[0].timeline.setupEffects.filter(effect => effect.statStage === "talent"),
-      bundles[1].timeline.setupEffects.filter(effect => effect.statStage === "talent"),
+      lowerBreakthrough.timeline.setupEffects.filter(effect => effect.statStage === "talent"),
+      higherBreakthrough.timeline.setupEffects.filter(effect => effect.statStage === "talent"),
       "Breakthroughs with the same talent rank must retain identical martial-art talents",
     )
   })

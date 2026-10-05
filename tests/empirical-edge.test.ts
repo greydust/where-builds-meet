@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 
+import type { TimelineRow } from "@/calculations/rotationTimeline"
+
 import { effectState } from "../src/calculations/trackedEffectState"
 import { probeLoad } from "./helpers/probe-loader.js"
 
@@ -9,7 +11,9 @@ describe("empirical-edge", () => {
     const empiricalEdge = (await import("../data/innerway/empirical-edge.json")).default
     const kiteBuffs = (await import("../data/buff/bamboocut-kite.json")).default
     const { innerWayDefinitions } = await import("../src/data/innerWayDefinitions.ts")
-    const { buildRotationTimeline, requirementsPass } = await probeLoad("/src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline, requirementsPass } = await probeLoad<
+      typeof import("../src/calculations/rotationTimeline")
+    >("/src/calculations/rotationTimeline.ts")
 
     expect(
       innerWayDefinitions.EmpiricalEdge === empiricalEdge,
@@ -17,7 +21,9 @@ describe("empirical-edge", () => {
     ).toBeTruthy()
     const trigger = empiricalEdge.effect.EmpiricalEdgeT0.trigger[0]
 
-    const cognition = kiteBuffs.Cognition
+    /** One Cognition stack entry: a gate plus the sheet it unlocks. */
+    type CognitionStack = { requirement?: unknown; effect: Record<string, number> }
+    const cognition = kiteBuffs.Cognition as unknown as { stackEffects: CognitionStack[][] }
 
     const penetrationFields = [
       "physicalPenetration",
@@ -26,7 +32,7 @@ describe("empirical-edge", () => {
       "silkbindPenetration",
       "bamboocutPenetration",
     ]
-    const resolvedPenetration = (tags, conditions = []) =>
+    const resolvedPenetration = (tags: string[], conditions: string[] = []) =>
       cognition.stackEffects[4]
         .filter(effect =>
           requirementsPass(effect.requirement, effectState([]), effectState([]), tags, new Set(conditions)),
@@ -46,7 +52,7 @@ describe("empirical-edge", () => {
     for (const tags of [
       ["MartialArtEffect", "HeavenwillGauntlets", "Falcon"],
       ["MartialArtEffect", "VileCondemned"],
-    ]) {
+    ] as string[][]) {
       const penetration = resolvedPenetration(tags)
       expect(penetration.bamboocutPenetration).toBeGreaterThan(martialArtPenetration.bamboocutPenetration)
       const t6Penetration = resolvedPenetration(tags, ["EmpiricalEdgeT6"])
@@ -84,7 +90,9 @@ describe("empirical-edge", () => {
       weapons: ["heavenwill", "skygrasp"],
     })
     const row = timeline.find(candidate => candidate.id === "rotation-0")
-    const cognitionStackAt = actionIndex => row.actionStates[actionIndex].buffs.get("Cognition")?.stack ?? 0
+    expect(row, "The Cognition probe must schedule its rotation row.").toBeTruthy()
+    const cognitionStackAt = (actionIndex: number) =>
+      (row as TimelineRow).actionStates[actionIndex]?.buffs.get("Cognition")?.stack ?? 0
     expect(
       [0, 1, 1, 2].every((stack, index) => cognitionStackAt(index) === stack),
       "Cognition must apply after damage and reject reapplications during its one-second cooldown.",

@@ -1,5 +1,9 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
+import { isClose } from "./helpers/floatEquality"
+
 // Ported from script/probe/check-defense-resistance-effects.mjs.
 describe("defense-resistance-effects", () => {
   it("Enemy defense, Physical Resistance, and Qingyi's Charm checks passed", async () => {
@@ -7,7 +11,7 @@ describe("defense-resistance-effects", () => {
       await import("../src/calculations/damage.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1 }
     const enemy = {
       name: "Probe",
@@ -22,7 +26,7 @@ describe("defense-resistance-effects", () => {
     }
     const baseContext = {
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       skillTags: [],
       weapons: [],
       buffs: [],
@@ -30,7 +34,7 @@ describe("defense-resistance-effects", () => {
       derivedStats: calculateDerivedStats(stats, 0),
       effects: [],
     }
-    const damage = effects =>
+    const damage = (effects: Record<string, unknown>[]) =>
       calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, { ...baseContext, effects }).physical
     const baseline = damage([])
     const reducedDefense = damage([{ defenseBonus: -0.06 }])

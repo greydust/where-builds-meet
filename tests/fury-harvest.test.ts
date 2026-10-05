@@ -2,7 +2,11 @@ import { readFile } from "node:fs/promises"
 
 import { describe, expect, it } from "vitest"
 
+import type { InnerWayEffectRule, TimelineBuildInput, TimelineRow } from "@/calculations/rotationTimeline"
+
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { asEffectDefinitions } from "./helpers/shippedData"
+import { actionStateAt } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-fury-harvest.mjs.
 describe("fury-harvest", () => {
@@ -10,15 +14,17 @@ describe("fury-harvest", () => {
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
     const generalSkills = JSON.parse(await readFile("data/skill/general.json", "utf8"))
     const mysticSkills = JSON.parse(await readFile("data/skill/mystic.json", "utf8"))
-    const generalBuffs = JSON.parse(await readFile("data/buff/general.json", "utf8"))
-    const furyHarvest = JSON.parse(await readFile("data/innerway/fury-harvest.json", "utf8"))
+    const generalBuffs = asEffectDefinitions(JSON.parse(await readFile("data/buff/general.json", "utf8")))
+    const furyHarvest = JSON.parse(await readFile("data/innerway/fury-harvest.json", "utf8")) as {
+      effect: Record<string, { trigger?: Array<{ target?: string; action?: unknown[] }> }>
+    }
     const system = JSON.parse(await readFile("data/system.json", "utf8"))
 
     const activeTier = 5
     const activeTiers = Array.from({ length: activeTier + 1 }, (_, tier) => furyHarvest.effect[`FuryHarvestT${tier}`])
 
-    const innerWayRules = activeTiers.flatMap((definition, tier) =>
-      (definition.trigger ?? []).map(trigger => ({
+    const innerWayRules: InnerWayEffectRule[] = activeTiers.flatMap((definition, tier) =>
+      (definition.trigger ?? []).map<InnerWayEffectRule>(trigger => ({
         trigger: { ...trigger, target: trigger.target ?? "self", action: trigger.action ?? [] },
         effect: {},
         source: "FuryHarvest",
@@ -26,6 +32,12 @@ describe("fury-harvest", () => {
       })),
     )
     const innerWayConditions = Array.from({ length: activeTier + 1 }, (_, tier) => `FuryHarvestT${tier}`)
+    /** The final row the builder scheduled. */
+    const lastRow = (rows: TimelineRow[]) => {
+      const row = rows.at(-1)
+      expect(row, "The builder must schedule a final row.").toBeTruthy()
+      return row!
+    }
     const timeline = buildRotationTimeline({
       rotation: {
         name: "Fury Harvest vitality probe",
@@ -71,20 +83,21 @@ describe("fury-harvest", () => {
     })
 
     expect(
-      timeline.at(-1).actionStates[0].resources.Vitality === 14.1,
-      `Dodge and deflect grant 8 total; base damage recovery grants 2.1 and incoming damage retains its ordinary 4; actual ${timeline.at(-1).actionStates[0].resources.Vitality}.`,
+      actionStateAt(lastRow(timeline), 0).resources.Vitality === 14.1,
+      `Dodge and deflect grant 8 total; base damage recovery grants 2.1 and incoming damage retains its ordinary 4; actual ${lastRow(timeline).actionStates[0].resources.Vitality}.`,
     ).toBeTruthy()
 
-    const recoveryInput = {
+    const recoveryInput: TimelineBuildInput = {
       rotation: { name: "Base recovery cooldown", steps: [{ type: "skill", skill: "Hits" }] },
       skills: {
         Hits: {
           name: "Hits",
           castTime: 4,
           tags: ["DirectDamage"],
-          action: [0, 0, 0.5, 1.999, 2, 2.1, 4]
-            .map(time => ({ type: "damage", phyCoef: 1, time }))
-            .concat([{ type: "setResource", value: "Observed", amount: 1, time: 4 }]),
+          action: [
+            ...[0, 0, 0.5, 1.999, 2, 2.1, 4].map(time => ({ type: "damage", phyCoef: 1, time })),
+            { type: "setResource", value: "Observed", amount: 1, time: 4 },
+          ],
         },
       },
       dots: {},
@@ -98,8 +111,11 @@ describe("fury-harvest", () => {
       resourceMaximums: { Vitality: 40 },
       resourceEvents: system.resourceEvents,
     }
-    const recovery = input =>
-      buildRotationTimeline(input).find(row => row.step.skill === "Hits").actionStates[7].resources.Vitality
+    const recovery = (input: TimelineBuildInput) => {
+      const hits = buildRotationTimeline(input).find(row => row.step.skill === "Hits")
+      expect(hits, "The recovery probe must schedule its Hits skill.").toBeTruthy()
+      return actionStateAt(hits!, 7).resources.Vitality
+    }
     expect(
       recovery(recoveryInput) === 6.3,
       "Only the recovery events at 0, 2 and 4 seconds grant 2.1; intervening hits grant nothing.",
@@ -153,12 +169,13 @@ describe("fury-harvest", () => {
     })
     const dragonHead = turnaroundTimeline.find(row => row.step.type === "skill" && row.step.skill === "DragonHeadTide")
     const burstingNine = turnaroundTimeline.find(row => row.step.type === "skill" && row.step.skill === "BurstingNine")
+    expect(dragonHead && burstingNine, "Turnaround must be scheduled against both Mystic casts.").toBeTruthy()
     expect(
-      dragonHead.actionStates[2].resources.Vitality === 30,
+      actionStateAt(dragonHead!, 2).resources.Vitality === 30,
       "Turnaround from the preceding Mystic must cap an 80-Vitality skill's refund at 10.",
     ).toBeTruthy()
     expect(
-      burstingNine.actionStates[2].resources.Vitality === 10 && turnaroundTimeline.at(-1).resources.Vitality === 10,
+      actionStateAt(burstingNine!, 2).resources.Vitality === 10 && turnaroundTimeline.at(-1)?.resources.Vitality === 10,
       "Turnaround must expire five seconds after its last refresh and stop refunding later Mystic casts.",
     ).toBeTruthy()
   })

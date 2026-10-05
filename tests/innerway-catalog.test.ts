@@ -2,7 +2,16 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { AttunementStats, DamageContext } from "@/calculations/damage"
+import type { RotationSimulationBaseline } from "@/calculations/rotationCalculator"
+import type { EditableObject, InnerWayEffectRule, TimelineBuildInput } from "@/calculations/rotationTimeline"
+import type { CharacterStats, WeaponId } from "@/types"
+
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { assertClose } from "./helpers/floatEquality"
+import { castStep } from "./helpers/rotationSteps"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 // Ported from script/probe/check-innerway-catalog.mjs.
 describe("innerway-catalog", () => {
@@ -15,9 +24,9 @@ describe("innerway-catalog", () => {
     const { resolveAttunementStats } = await import("../src/calculations/attunementStats.ts")
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const echoes = await import("../data/innerway/echoes-of-oblivion.json")
-    const buffs = await import("../data/buff/bamboocut-wind.json")
-    const debuffs = await import("../data/debuff/bamboocut-wind.json")
-    const general = await import("../data/skill/general.json")
+    const buffs = asEffectDefinitions((await import("../data/buff/bamboocut-wind.json")).default)
+    const debuffs = asEffectDefinitions((await import("../data/debuff/bamboocut-wind.json")).default)
+    const general = asSkillRecords((await import("../data/skill/general.json")).default)
     const stats = {
       ...emptyStats,
       minPhys: 100,
@@ -43,18 +52,17 @@ describe("innerway-catalog", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const context = (resolvedStats, weapons) => ({
+    const context = (resolvedStats: CharacterStats, weapons: WeaponId[]): DamageContext => ({
       stats: resolvedStats,
-      derivedStats: calculateDerivedStats(resolvedStats, 0, weapons),
+      derivedStats: calculateDerivedStats(resolvedStats, 0, {}, weapons),
       enemy,
       weapons,
       effects: [],
       buffs: [],
       skillTags: [],
-      attunement: {},
+      attunement: emptyAttunementStats,
     })
-    const close = (actual, expected, message) =>
-      assert.ok(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} !== ${expected}`)
+    const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
     const boosted = calculateStatsWithEffects(
       stats,
       [{ rawStat: { physicalHealingBonus: 0.025, formlessPenetration: 6 } }],
@@ -65,12 +73,12 @@ describe("innerway-catalog", () => {
       [["thundercry", "stormbreaker"], "stonesplit"],
       [["panaceaFan", "soulshadeUmbrella"], "silkbind"],
       [["infernalTwinblades", "mortalRopeDart"], "bamboocut"],
-    ]) {
+    ] as Array<[WeaponId[], string]>) {
       const base = calculateDamageBreakdown({ type: "damage", phyCoef: 1, attrCoef: 1 }, context(stats, weapons))
       const result = calculateDamageBreakdown({ type: "damage", phyCoef: 1, attrCoef: 1 }, context(boosted, weapons))
       const attuned = calculateDamageBreakdown(
         { type: "damage", phyCoef: 1, attrCoef: 1 },
-        { ...context(stats, weapons), attunement: { formlessPenetration: 6 } },
+        { ...context(stats, weapons), attunement: { ...emptyAttunementStats, formlessPenetration: 6 } },
       )
       close(result.total, attuned.total, `${channel} raw Formless Penetration must match attunement penetration`)
       assert.ok(result.total > base.total, `${channel} Formless Penetration must improve output`)
@@ -83,7 +91,8 @@ describe("innerway-catalog", () => {
         "Formless Penetration must affect healing only on a Silkbind path",
       )
     }
-    const defaults = { physicalPenetration: 0, formlessPenetration: 0 }
+    // The app's own zero sheet, with the two penetration bonuses this spec varies.
+    const defaults: AttunementStats = { ...emptyAttunementStats, physicalPenetration: 0, formlessPenetration: 0 }
     const displayed = resolveAttunementStats(defaults, { formlessPenetration: 10 }, {}, { formlessPenetration: 6 })
     close(displayed.displayed.formlessPenetration, 16, "Display must include the raw stat bonus")
     close(displayed.calculation.formlessPenetration, 10, "Calculation must exclude the already-applied raw stat bonus")
@@ -94,8 +103,10 @@ describe("innerway-catalog", () => {
       { formlessPenetration: 6 },
     )
     close(overridden.calculation.formlessPenetration + 6, 20, "Final attunement override must remain exact")
+    // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
+    const noEffect: EditableObject = {}
     function run(
-      tier,
+      tier: number,
       {
         dodge = false,
         both = true,
@@ -104,29 +115,42 @@ describe("innerway-catalog", () => {
         enemyDefense = 0,
         dodgeSkill = "PerfectDodge",
         actions,
+      }: {
+        dodge?: boolean
+        both?: boolean
+        durationBonus?: number
+        tags?: string[]
+        enemyDefense?: number
+        dodgeSkill?: string
+        actions?: EditableObject[]
       } = {},
     ) {
-      const tiers = Object.values(echoes.effect).slice(0, tier + 1)
-      const rules = tiers.flatMap((definition, index) =>
+      // The tier table this probe walks, narrowed to the effect and trigger lists it reads.
+      const tiers = Object.values(echoes.effect).slice(0, tier + 1) as Array<{
+        effect?: EditableObject[]
+        trigger?: EditableObject[]
+      }>
+      const rules = tiers.flatMap((definition, index): InnerWayEffectRule[] =>
         (definition.effect ?? [])
           .filter(effect => !effect.rawStat)
           .map(effect =>
-            Object.assign({}, effect, { effect: effect.effect ?? effect, source: "EchoesOfOblivion", tier: index }),
+            Object.assign({}, effect, {
+              effect: (effect.effect ?? effect) as EditableObject,
+              source: "EchoesOfOblivion",
+              tier: index,
+            }),
           )
           .concat(
             (definition.trigger ?? []).map(trigger => ({
               trigger,
-              effect: {},
+              effect: noEffect,
               source: "EchoesOfOblivion",
               tier: index,
             })),
           ),
       )
-      const rotation = {
-        name: "Echoes probe",
-        steps: [...(dodge ? [{ type: "skill", skill: dodgeSkill }] : []), { type: "skill", skill: "Probe" }],
-      }
-      const timeline = {
+      const rotation = { name: "Echoes probe", steps: [...(dodge ? [castStep(dodgeSkill)] : []), castStep("Probe")] }
+      const timeline: TimelineBuildInput = {
         rotation,
         skills: withImmediateAttacks({
           ...general,
@@ -162,7 +186,7 @@ describe("innerway-catalog", () => {
         derivedStats: calculateDerivedStats(stats, 0),
         enemy: { ...enemy, defense: enemyDefense },
         weapons: [],
-        attunement: {},
+        attunement: emptyAttunementStats,
         startAnchor: { rowId: "rotation-0" },
         statPriority: [],
         attunementPriority: [],
@@ -185,9 +209,11 @@ describe("innerway-catalog", () => {
       "Existing dodge duration bonuses must extend Samsara",
     )
     const row = active.timeline.find(row => row.skill?.name === "Probe")
-    const activeStates = row.actions.flatMap((action, index) =>
-      action.type === "damage" ? [row.actionStates[index].buffs.has("Samsara")] : [],
-    )
+    assert(row, "The probe rotation must resolve a Probe cast.")
+    const activeStates = row.actions.flatMap((action, index) => {
+      const state = row.actionStates[index]
+      return action.type === "damage" && state ? [state.buffs.has("Samsara")] : []
+    })
     assert.deepEqual(
       activeStates,
       [false, true, true, false, false, false],
@@ -214,12 +240,12 @@ describe("innerway-catalog", () => {
       "Cancelled Perfect Dodge must also grant Samsara",
     )
 
-    const markStates = result => {
-      const row = result.timeline.find(row => row.skill?.name === "Probe")
+    const markStates = (result: RotationSimulationBaseline) => {
+      const row = result.timeline.find(row => row.skill?.name === "Probe")!
       return row.actions.flatMap((action, index) => (action.type === "heal" ? [row.actionStates[index]] : []))
     }
     const lightTags = ["DirectDamage", "InfernalTwinblades", "Light"]
-    const markSequence = (tier, flamelash, tags = lightTags) =>
+    const markSequence = (tier: number, flamelash: boolean, tags: string[] = lightTags) =>
       run(tier, {
         tags,
         actions: [
@@ -238,7 +264,7 @@ describe("innerway-catalog", () => {
       [5, true, ["Karma"]],
       [6, true, ["Sin", "Karma"]],
       [6, false, ["Sin"]],
-    ]) {
+    ] as Array<[number, boolean, string[]]>) {
       const states = markStates(markSequence(tier, flamelash))
       states.forEach((state, index) => {
         assert.deepEqual(
@@ -250,7 +276,7 @@ describe("innerway-catalog", () => {
         )
         for (const mark of state.debuffs.values()) {
           assert.equal(mark.stack, 1, "Repeated applications must cap at one stack")
-          close(mark.expiresAt, index === 0 ? 3.1 : 4, "Marks must expire three seconds after the latest hit")
+          close(mark.expiresAt ?? 0, index === 0 ? 3.1 : 4, "Marks must expire three seconds after the latest hit")
         }
       })
       assert.equal(

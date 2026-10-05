@@ -4,6 +4,7 @@ import { createWorker, OEM, PSM } from "tesseract.js"
 import { assert, describe, it } from "vitest"
 
 import { inferGearLevelAndRarity, parseGearOcrTsv } from "../src/gearOcr"
+import type { GearOcrResult } from "../src/gearOcr"
 
 // Ported from script/probe/check-gear-ocr.mjs. Screenshot recognition needs
 // the gitignored local/OCR fixtures; the pure parsing checks always run.
@@ -11,17 +12,30 @@ const moBladeImage = "local/OCR/mo blade.png"
 const helmetImage = "local/OCR/helmet.png"
 const screenshotsPresent = existsSync(moBladeImage) && existsSync(helmetImage)
 
+const tsvOf = (page: { tsv: string | null }) => {
+  assert(page.tsv, "Tesseract was asked for TSV and must return it.")
+  return page.tsv
+}
+const baseAffixOf = (result: GearOcrResult) => {
+  assert(result.baseAffix, "The recognized gear must carry a base affix.")
+  return result.baseAffix
+}
+const attunementOf = (result: GearOcrResult) => {
+  assert(result.attunement, "The recognized gear must carry an attunement.")
+  return result.attunement
+}
+
 describe("gear-ocr", () => {
   it.skipIf(!screenshotsPresent)("recognizes gear screenshots", async () => {
     // Tesseract's Node adapter writes its decompressed model to cachePath; keep that cache in ignored local/.
     const worker = await createWorker("eng", OEM.LSTM_ONLY, { langPath: "public/ocr", cachePath: "local" })
     try {
-      const recognize = async (path, width, height) => {
+      const recognize = async (path: string, width: number, height: number) => {
         await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK, preserve_interword_spaces: "1" })
         const metadata = await worker.recognize(path, {}, { text: true, tsv: true })
         await worker.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT, preserve_interword_spaces: "1" })
         const positioned = await worker.recognize(path, {}, { text: true, tsv: true })
-        return parseGearOcrTsv(positioned.data.tsv, `${metadata.data.text}\n${positioned.data.text}`, width, height)
+        return parseGearOcrTsv(tsvOf(positioned.data), `${metadata.data.text}\n${positioned.data.text}`, width, height)
       }
 
       const moBlade = await recognize("local/OCR/mo blade.png", 583, 797)
@@ -30,7 +44,7 @@ describe("gear-ocr", () => {
         "Mo Blade metadata was not recognized.",
       )
       assert(
-        moBlade.baseAffix.key === "maxPhys" && moBlade.baseAffix.value === 55,
+        baseAffixOf(moBlade).key === "maxPhys" && baseAffixOf(moBlade).value === 55,
         "Mo Blade base affix was not recognized.",
       )
       assert(
@@ -43,21 +57,22 @@ describe("gear-ocr", () => {
         "Mo Blade percentage values were not converted to ratios.",
       )
       assert(
-        moBlade.attunement.key === "physicalPenetration" && moBlade.attunement.value === 10,
+        attunementOf(moBlade).key === "physicalPenetration" && attunementOf(moBlade).value === 10,
         "Mo Blade attunement was not recognized.",
       )
 
       await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK, preserve_interword_spaces: "1" })
       const moBladeBlock = await worker.recognize("local/OCR/mo blade.png", {}, { text: true, tsv: true })
-      const moBladeFallback = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 797)
+      const moBladeFallback = parseGearOcrTsv(tsvOf(moBladeBlock.data), moBladeBlock.data.text, 583, 797)
       assert(
-        moBladeFallback.additionalAffixes.length === 4 && moBladeFallback.attunement.key === "physicalPenetration",
+        moBladeFallback.additionalAffixes.length === 4 && attunementOf(moBladeFallback).key === "physicalPenetration",
         "The block-layout fallback must recognize all six Mo Blade rows.",
       )
-      const moBladeDifferentCrop = parseGearOcrTsv(moBladeBlock.data.tsv, moBladeBlock.data.text, 583, 2000)
+      const moBladeDifferentCrop = parseGearOcrTsv(tsvOf(moBladeBlock.data), moBladeBlock.data.text, 583, 2000)
       assert(
         moBladeDifferentCrop.additionalAffixes.map(affix => affix.key).join(",") ===
-          "moBladeDmgBoost,maxPhys,crit,maxVoidAttack" && moBladeDifferentCrop.attunement.key === "physicalPenetration",
+          "moBladeDmgBoost,maxPhys,crit,maxVoidAttack" &&
+          attunementOf(moBladeDifferentCrop).key === "physicalPenetration",
         "Affix row recognition must not depend on the screenshot height.",
       )
 
@@ -67,7 +82,7 @@ describe("gear-ocr", () => {
         "Helmet metadata was not recognized.",
       )
       assert(
-        helmet.baseAffix.key === "precision" && Math.abs(helmet.baseAffix.value - 0.075) < 1e-9,
+        baseAffixOf(helmet).key === "precision" && Math.abs(baseAffixOf(helmet).value - 0.075) < 1e-9,
         "Helmet base affix was not recognized.",
       )
       assert(
@@ -79,7 +94,7 @@ describe("gear-ocr", () => {
         "Helmet numeric values were not recognized.",
       )
       assert(
-        helmet.attunement.key === "phalanxbaneChargedBoost" && Math.abs(helmet.attunement.value - 0.054) < 1e-9,
+        attunementOf(helmet).key === "phalanxbaneChargedBoost" && Math.abs(attunementOf(helmet).value - 0.054) < 1e-9,
         "Helmet attunement was not recognized.",
       )
     } finally {

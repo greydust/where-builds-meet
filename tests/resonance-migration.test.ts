@@ -1,6 +1,8 @@
 import { expect, it } from "vitest"
 
-import { deserializeSkillOverrides, serializeSkillOverrides } from "../src/skillOverrides"
+import { deserializeSkillOverrides, serializeSkillOverrides } from "@/skillOverrides"
+
+import { skillActions } from "./helpers/shippedData"
 
 it("preserves customized shared Resonance damage and routes across migration and reload", () => {
   const overrides = deserializeSkillOverrides({
@@ -16,14 +18,17 @@ it("preserves customized shared Resonance damage and routes across migration and
     },
   })
   const skills = overrides.Everspring!
+  /** The first action of `skillId`, as the migrated override records it. */
+  const firstAction = (skillId: string) => skillActions(skills[skillId])[0]
+  const tagsOf = (skillId: string) => skills[skillId]?.tags ?? []
   expect(skills.Resonance.action).toEqual(skills.BubblesResonance.action)
-  expect(skills.BubblesResonance.action?.[0].phyCoef).toBe(7)
-  expect(skills.Resonance.tags).toContain("MartialArt")
-  expect(skills.BubblesResonance.tags).toEqual(expect.arrayContaining(["Heavy", "Charged"]))
-  expect(skills.BubblesResonance.tags).not.toContain("MartialArt")
-  expect(skills.BubblesPhantomUmbrellaSummon.action?.[0].value).toBe("BubblesResonance")
-  expect(skills.DreamwroughtBubblesRelease.action?.[0].value).toBe("BubblesPhantomUmbrellaSummon")
-  expect(skills.PhantomUmbrellaSummon.action?.[0]).not.toHaveProperty("inheritTags")
+  expect(firstAction("BubblesResonance").phyCoef).toBe(7)
+  expect(tagsOf("Resonance")).toContain("MartialArt")
+  expect(tagsOf("BubblesResonance")).toEqual(expect.arrayContaining(["Heavy", "Charged"]))
+  expect(tagsOf("BubblesResonance")).not.toContain("MartialArt")
+  expect(firstAction("BubblesPhantomUmbrellaSummon").value).toBe("BubblesResonance")
+  expect(firstAction("DreamwroughtBubblesRelease").value).toBe("BubblesPhantomUmbrellaSummon")
+  expect(firstAction("PhantomUmbrellaSummon")).not.toHaveProperty("inheritTags")
   expect(deserializeSkillOverrides(JSON.parse(serializeSkillOverrides(overrides)))).toEqual(overrides)
 })
 

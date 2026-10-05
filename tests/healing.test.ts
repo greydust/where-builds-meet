@@ -1,11 +1,21 @@
 import { describe, expect, it } from "vitest"
 
-import mysticBuffs from "../data/buff/mystic.json"
-import delugeBuffs from "../data/buff/silkbind-deluge.json"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { DamageContext } from "@/calculations/damage"
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
+
+import mysticBuffsJson from "../data/buff/mystic.json"
+const mysticBuffs = asEffectDefinitions(mysticBuffsJson)
+import delugeBuffsJson from "../data/buff/silkbind-deluge.json"
+const delugeBuffs = asEffectDefinitions(delugeBuffsJson)
 import royalRemedy from "../data/innerway/royal-remedy.json"
-import mysticSkills from "../data/skill/mystic.json"
-import panaceaFanSkills from "../data/skill/panacea-fan.json"
-import soulshadeUmbrellaSkills from "../data/skill/soulshade-umbrella.json"
+import mysticSkillsJson from "../data/skill/mystic.json"
+const mysticSkills = asSkillRecords(mysticSkillsJson)
+import panaceaFanSkillsJson from "../data/skill/panacea-fan.json"
+const panaceaFanSkills = asSkillRecords(panaceaFanSkillsJson)
+import soulshadeUmbrellaSkillsJson from "../data/skill/soulshade-umbrella.json"
+const soulshadeUmbrellaSkills = asSkillRecords(soulshadeUmbrellaSkillsJson)
 import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { calculateHealingAttackSnapshot, calculateHealingBreakdown } from "../src/calculations/healing"
 import {
@@ -15,10 +25,15 @@ import {
 } from "../src/calculations/rotationCalculator"
 import { buildRotationTimeline, mergeCalculatedTimelineState } from "../src/calculations/rotationTimeline"
 import { emptyStats } from "../src/data/statDefinitions"
+import { isClose } from "./helpers/floatEquality"
+import { castStep } from "./helpers/rotationSteps"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { rowCasting } from "./helpers/timelineRows"
+import { rowWithId } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-healing.mjs. The probe stops at the first
 // failure, so this port keeps the same fail-fast order inside one test.
-const closeTo = (actual: number, expected: number) => Math.abs(actual - expected) < 1e-8
+const closeTo = (actual: number | undefined, expected: number) => isClose(actual, expected, 1e-8)
 
 describe("healing", () => {
   it("verifies healing formula, self-HP restoration, World to Sword overheal, periodic healing, Royal Remedy, totals, HPS, and breakdown sorting", () => {
@@ -49,7 +64,7 @@ describe("healing", () => {
     const derivedStats = calculateDerivedStats(stats, 0)
     const martialStats = { ...stats, allMartialArts: 0.05, fanDmgBoost: 0.06, umbrellaDmgBoost: 0.07 }
     const action = { type: "heal", phyCoef: 1, silkbindCoef: 1, phyBonus: 10, attrBonus: 20 }
-    const context = {
+    const context: DamageContext = {
       stats: martialStats,
       derivedStats: calculateDerivedStats(martialStats, 0),
       enemy,
@@ -57,7 +72,7 @@ describe("healing", () => {
       skillTags: ["Heal", "Heavy", "MartialArts", "Fan", "PanaceaFan"],
       buffs: [],
       effects: [{ physicalPenetration: 10 }, { healingBonus: 0.1 }, { criticalHealingBonus: 0.2 }],
-      attunement: { physicalPenetration: 20, panaceaMartialHealingBoost: 0.1 },
+      attunement: { ...emptyAttunementStats, physicalPenetration: 20, panaceaMartialHealingBoost: 0.1 },
     }
     const healing = calculateHealingBreakdown(action, context)
     const physicalOnlyHealing = calculateHealingBreakdown({ type: "heal", phyCoef: 1 }, context)
@@ -102,12 +117,12 @@ describe("healing", () => {
     const soulshadeSpecialBaseline = calculateHealingBreakdown(action, {
       ...context,
       skillTags: ["Heal", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"],
-      attunement: {},
+      attunement: emptyAttunementStats,
     })
     const soulshadeSpecialAttunement = calculateHealingBreakdown(action, {
       ...context,
       skillTags: ["Heal", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"],
-      attunement: { soulshadeSpecialHealingBoost: 0.06 },
+      attunement: { ...emptyAttunementStats, soulshadeSpecialHealingBoost: 0.06 },
     })
     expect(
       closeTo(soulshadeSpecialAttunement.total / soulshadeSpecialBaseline.total, 1.28 / 1.22),
@@ -150,14 +165,8 @@ describe("healing", () => {
       "Healing must resolve only Normal and Critical outcomes using Critical Rate times Effective Precision.",
     ).toBeTruthy()
 
-    const healingTimeline = {
-      rotation: {
-        name: "Healing timeline probe",
-        steps: [
-          { type: "skill", skill: "SmallerHeal" },
-          { type: "skill", skill: "LargerHeal" },
-        ],
-      },
+    const healingTimeline: TimelineBuildInput = {
+      rotation: { name: "Healing timeline probe", steps: [castStep("SmallerHeal"), castStep("LargerHeal")] },
       skills: {
         SmallerHeal: {
           name: "Smaller Heal",
@@ -182,11 +191,11 @@ describe("healing", () => {
       setupEffects: [],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     }
-    const baselineInput = {
+    const baselineInput: RotationSimulationBundle = {
       timeline: healingTimeline,
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats,
       weapons: ["panaceaFan", "soulshadeUmbrella"],
@@ -229,8 +238,8 @@ describe("healing", () => {
       result.metrics.breakdown.healingCasts.map(row => row.skillId).join(",") === "LargerHeal,SmallerHeal",
       "Healing casts must be grouped and sorted independently by average HPS.",
     ).toBeTruthy()
-    const healingBySkill = (calculation, skillId) =>
-      calculation.metrics.breakdown.healingSkills.find(row => row.id === skillId)?.healing ?? 0
+    const healingBySkill = (calculation: RotationSimulationBaseline, skillId: string) =>
+      rowWithId(calculation.metrics.breakdown.healingSkills, skillId)?.healing ?? 0
     expect(
       closeTo(healingBySkill(royalRemedyResult, "SmallerHeal"), healingBySkill(result, "SmallerHeal") * 1.1) &&
         closeTo(healingBySkill(royalRemedyResult, "LargerHeal"), healingBySkill(result, "LargerHeal")),
@@ -255,8 +264,14 @@ describe("healing", () => {
     const attunementPriorityResult = calculateRotationSimulation({
       ...baselineInput,
       attunementPriority: [
-        { label: "Smaller healing attunement", attunement: { panaceaMartialHealingBoost: 0.05 } },
-        { label: "Larger healing attunement", attunement: { panaceaMartialHealingBoost: 0.1 } },
+        {
+          label: "Smaller healing attunement",
+          attunement: { ...emptyAttunementStats, panaceaMartialHealingBoost: 0.05 },
+        },
+        {
+          label: "Larger healing attunement",
+          attunement: { ...emptyAttunementStats, panaceaMartialHealingBoost: 0.1 },
+        },
       ],
     })
     expect(
@@ -269,7 +284,11 @@ describe("healing", () => {
     ).toBeTruthy()
     const setupComparisonResult = calculateRotationSimulation({
       ...baselineInput,
-      setupComparisons: { healingSetup: [{ label: "Healing setup", attunement: { panaceaMartialHealingBoost: 0.1 } }] },
+      setupComparisons: {
+        healingSetup: [
+          { label: "Healing setup", attunement: { ...emptyAttunementStats, panaceaMartialHealingBoost: 0.1 } },
+        ],
+      },
     })
     const healingSetup = setupComparisonResult.metrics.setupComparisons.healingSetup[0]
     expect(
@@ -291,15 +310,11 @@ describe("healing", () => {
     ).toBeTruthy()
 
     const royalRemedyT1 = royalRemedy.effect.RoyalRemedyT1.trigger[0]
-    const fanQVitality = skillId => {
+    const fanQVitality = (skillId: string) => {
       const timeline = buildRotationTimeline({
         rotation: {
           name: `${skillId} Royal Remedy T1 probe`,
-          steps: [
-            { type: "skill", skill: skillId },
-            { type: "skill", skill: "Wait" },
-            { type: "skill", skill: "Observe" },
-          ],
+          steps: [castStep(skillId), castStep("Wait"), castStep("Observe")],
         },
         skills: {
           [skillId]: panaceaFanSkills[skillId],
@@ -334,10 +349,7 @@ describe("healing", () => {
     const morningDrizzleTimeline = buildRotationTimeline({
       rotation: {
         name: "Morning Drizzle periodic healing probe",
-        steps: [
-          { type: "skill", skill: "MorningDrizzle" },
-          { type: "skill", skill: "Wait" },
-        ],
+        steps: [castStep("MorningDrizzle"), castStep("Wait")],
       },
       skills: { MorningDrizzle: panaceaFanSkills.MorningDrizzle, Wait: { name: "Wait", castTime: 6, action: [] } },
       eventDefinitions: {},
@@ -358,11 +370,7 @@ describe("healing", () => {
     const refreshedMorningDrizzleTimeline = buildRotationTimeline({
       rotation: {
         name: "Morning Drizzle refresh probe",
-        steps: [
-          { type: "skill", skill: "MorningDrizzle" },
-          { type: "skill", skill: "MorningDrizzle" },
-          { type: "skill", skill: "Wait" },
-        ],
+        steps: [castStep("MorningDrizzle"), castStep("MorningDrizzle"), castStep("Wait")],
       },
       skills: { MorningDrizzle: panaceaFanSkills.MorningDrizzle, Wait: { name: "Wait", castTime: 6, action: [] } },
       eventDefinitions: {},
@@ -386,10 +394,7 @@ describe("healing", () => {
       rotation: {
         name: "Team Endless Cloud Morning Drizzle probe",
         groupSize: 5,
-        steps: [
-          { type: "skill", skill: "EndlessCloud" },
-          { type: "skill", skill: "Wait" },
-        ],
+        steps: [castStep("EndlessCloud"), castStep("Wait")],
       },
       skills: { EndlessCloud: panaceaFanSkills.EndlessCloud, Wait: { name: "Wait", castTime: 6, action: [] } },
       eventDefinitions: {},
@@ -413,10 +418,7 @@ describe("healing", () => {
       rotation: {
         name: "Morning Drizzle recipient replacement probe",
         groupSize: 5,
-        steps: [
-          ...Array.from({ length: 6 }, () => ({ type: "skill", skill: "MorningDrizzle" })),
-          { type: "skill", skill: "Observe" },
-        ],
+        steps: [...Array.from({ length: 6 }, () => castStep("MorningDrizzle")), castStep("Observe")],
       },
       skills: {
         MorningDrizzle: panaceaFanSkills.MorningDrizzle,
@@ -430,11 +432,10 @@ describe("healing", () => {
       setupEffects: [],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
-    const replacementObservation = replacedMorningDrizzleTimeline.find(
-      row => row.step.type === "skill" && row.step.skill === "Observe",
+    const replacementObservation = rowCasting(replacedMorningDrizzleTimeline, "Observe")
+    const replacedCopies = Array.from(replacementObservation.buffs.values()).filter(
+      buff => buff.name === "MorningDrizzle",
     )
-    const replacedCopies =
-      Array.from(replacementObservation?.buffs.values()).filter(buff => buff.name === "MorningDrizzle") ?? []
     expect(
       replacedCopies.length === 5 &&
         closeTo(replacedCopies.find(buff => buff.playerRecipientIndex === 0)?.appliedAt, 4.3625) &&
@@ -442,13 +443,10 @@ describe("healing", () => {
       "A full player-target buff roster must replace the copy with the least remaining duration.",
     ).toBeTruthy()
 
-    const echoesTimelineInput = {
+    const echoesTimelineInput: TimelineBuildInput = {
       rotation: {
         name: "Echoes of a Thousand Plants periodic healing probe",
-        steps: [
-          { type: "skill", skill: "EchoesOfAThousandPlants" },
-          { type: "skill", skill: "Wait" },
-        ],
+        steps: [castStep("EchoesOfAThousandPlants"), castStep("Wait")],
       },
       skills: {
         EchoesOfAThousandPlants: soulshadeUmbrellaSkills.EchoesOfAThousandPlants,
@@ -480,16 +478,16 @@ describe("healing", () => {
           eventTimeReference: "battleStart",
           start: { step: 0 },
           steps: [
-            { type: "skill", skill: "EchoesOfAThousandPlants" },
+            castStep("EchoesOfAThousandPlants"),
             { type: "event", event: "BattleEnd", startTime: 5 },
-            { type: "skill", skill: "Wait" },
+            castStep("Wait"),
           ],
         },
         eventDefinitions: { BattleEnd: { name: "Battle End", castTime: 0, action: [] } },
       },
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats,
       weapons: ["panaceaFan", "soulshadeUmbrella"],
@@ -516,11 +514,7 @@ describe("healing", () => {
       ...echoesTimelineInput,
       rotation: {
         name: "Floating Grace consumes Echoes probe",
-        steps: [
-          { type: "skill", skill: "EchoesOfAThousandPlants" },
-          { type: "skill", skill: "FloatingGrace" },
-          { type: "skill", skill: "Wait" },
-        ],
+        steps: [castStep("EchoesOfAThousandPlants"), castStep("FloatingGrace"), castStep("Wait")],
       },
       skills: {
         EchoesOfAThousandPlants: soulshadeUmbrellaSkills.EchoesOfAThousandPlants,
@@ -535,14 +529,14 @@ describe("healing", () => {
       "Casting Floating Grace must consume Echoes of a Thousand Plants before its pending healing ticks resolve.",
     ).toBeTruthy()
 
-    const worldToSwordBundle = {
+    const worldToSwordBundle: RotationSimulationBundle = {
       timeline: {
         rotation: {
           name: "World to Sword overheal probe",
           steps: [
-            { type: "skill", skill: "WorldToSword" },
-            { type: "skill", skill: "IncomingHit" },
-            { type: "skill", skill: "OverflowHeal" },
+            castStep("WorldToSword"),
+            castStep("IncomingHit"),
+            castStep("OverflowHeal"),
             { type: "event", event: "Delay", duration: 1 },
           ],
         },
@@ -578,7 +572,7 @@ describe("healing", () => {
       },
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats,
       weapons: ["panaceaFan", "soulshadeUmbrella"],
@@ -587,7 +581,7 @@ describe("healing", () => {
       innerWayPriority: [],
       setupComparisons: {},
     }
-    const groupHealingContext = {
+    const groupHealingContext: DamageContext = {
       stats,
       derivedStats,
       enemy,
@@ -595,7 +589,7 @@ describe("healing", () => {
       skillTags: ["Heal"],
       buffs: [],
       effects: [],
-      attunement: {},
+      attunement: emptyAttunementStats,
     }
     const groupHealingThreshold = (() => {
       const snapshot = calculateHealingAttackSnapshot(groupHealingContext)
@@ -613,17 +607,14 @@ describe("healing", () => {
       attrBonus: 0,
       time: 0.1,
     }
-    const groupHealingBundle = groupSize => ({
+    const groupHealingBundle = (groupSize: number): RotationSimulationBundle => ({
       ...worldToSwordBundle,
       timeline: {
         ...worldToSwordBundle.timeline,
         rotation: {
           name: `Group healing ${groupSize}`,
-          groupSize,
-          steps: [
-            { type: "skill", skill: "WorldToSword" },
-            { type: "skill", skill: "GroupHeal" },
-          ],
+          groupSize: groupSize as 1 | 5 | 10,
+          steps: [castStep("WorldToSword"), castStep("GroupHeal")],
         },
         skills: {
           WorldToSword: mysticSkills.WorldToSword,
@@ -640,14 +631,15 @@ describe("healing", () => {
         closeTo(raidGroupHealing.metrics.totalHealing, soloGroupHealing.metrics.totalHealing * 10),
       "A group heal must report one healing copy for every recipient in the rotation group.",
     ).toBeTruthy()
-    const groupHealCount = result => result.metrics.breakdown.healingSkills.find(row => row.id === "GroupHeal")?.heals
+    const groupHealCount = (result: RotationSimulationBaseline) =>
+      result.metrics.breakdown.healingSkills.find(row => row.id === "GroupHeal")?.heals
     expect(
       groupHealCount(soloGroupHealing) === 1 &&
         groupHealCount(teamGroupHealing) === 5 &&
         groupHealCount(raidGroupHealing) === 10,
       "A group heal's breakdown must count one heal for every recipient.",
     ).toBeTruthy()
-    const groupQiBladeCount = result =>
+    const groupQiBladeCount = (result: RotationSimulationBaseline) =>
       result.timeline.filter(row => row.kind === "trigger" && row.step.type === "skill" && row.step.skill === "QiBlade")
         .length
     const buffedThresholdResult = calculateRotationBaseline({
@@ -656,10 +648,7 @@ describe("healing", () => {
         ...worldToSwordBundle.timeline,
         rotation: {
           name: "Buffed WTS threshold probe",
-          steps: [
-            { type: "skill", skill: "WorldToSword" },
-            { type: "skill", skill: "RawThresholdHeal" },
-          ],
+          steps: [castStep("WorldToSword"), castStep("RawThresholdHeal")],
         },
         skills: {
           WorldToSword: mysticSkills.WorldToSword,
@@ -700,10 +689,7 @@ describe("healing", () => {
         rotation: {
           name: "Single-target teammate WTS probe",
           groupSize: 5,
-          steps: [
-            { type: "skill", skill: "WorldToSword" },
-            { type: "skill", skill: "ApplyPlayerHeal" },
-          ],
+          steps: [castStep("WorldToSword"), castStep("ApplyPlayerHeal")],
         },
         skills: {
           WorldToSword: mysticSkills.WorldToSword,
@@ -742,11 +728,9 @@ describe("healing", () => {
       qiBlades.length === 2 && closeTo(qiBlades[1].startTime - qiBlades[0].startTime, 0.3),
       "Expected overhealing must retain threshold credit during cooldown and launch queued Qi Blades 0.3 seconds apart.",
     ).toBeTruthy()
-    const overflowHealRow = worldToSwordResult.timeline.find(
-      row => row.step.type === "skill" && row.step.skill === "OverflowHeal",
-    )
+    const overflowHealRow = rowCasting(worldToSwordResult.timeline, "OverflowHeal")
     expect(
-      overflowHealRow?.actionStates[1]?.currentHP === 1000,
+      overflowHealRow.actionStates[1]?.currentHP === 1000,
       "Healing must restore missing self HP before later healing is counted entirely as overhealing.",
     ).toBeTruthy()
     expect(
@@ -757,11 +741,9 @@ describe("healing", () => {
       buildRotationTimeline(worldToSwordBundle.timeline),
       worldToSwordResult.timeline,
     )
-    const mergedOverflowHealRow = mergedWorldToSwordTimeline.find(
-      row => row.step.type === "skill" && row.step.skill === "OverflowHeal",
-    )
+    const mergedOverflowHealRow = rowCasting(mergedWorldToSwordTimeline, "OverflowHeal")
     expect(
-      mergedOverflowHealRow?.actionStates[1]?.currentHP === 1000 &&
+      mergedOverflowHealRow.actionStates[1]?.currentHP === 1000 &&
         mergedOverflowHealRow.currentHPRatio === overflowHealRow.currentHPRatio &&
         mergedOverflowHealRow.actionStates[1]?.buffs.get("WorldToSword")?.remainingTriggers === 19,
       "The editor timeline must retain calculated self-HP restoration and finite buff-trigger progress when it merges worker results.",
@@ -773,10 +755,10 @@ describe("healing", () => {
         rotation: {
           name: "World to Sword trigger-limit probe",
           steps: [
-            { type: "skill", skill: "WorldToSword" },
-            { type: "skill", skill: "TwentyOverflowHeals" },
-            { type: "skill", skill: "WaitForBlades" },
-            { type: "skill", skill: "Observe" },
+            castStep("WorldToSword"),
+            castStep("TwentyOverflowHeals"),
+            castStep("WaitForBlades"),
+            castStep("Observe"),
           ],
         },
         skills: {
@@ -815,11 +797,7 @@ describe("healing", () => {
         ...worldToSwordBundle.timeline,
         rotation: {
           name: "Ordinary self-healing probe",
-          steps: [
-            { type: "skill", skill: "IncomingHit" },
-            { type: "skill", skill: "OverflowHeal" },
-            { type: "skill", skill: "Observe" },
-          ],
+          steps: [castStep("IncomingHit"), castStep("OverflowHeal"), castStep("Observe")],
         },
         skills: { ...worldToSwordBundle.timeline.skills, Observe: { name: "Observe", castTime: 0, action: [] } },
         effectDefinitions: {},
@@ -840,10 +818,10 @@ describe("healing", () => {
       rotation: {
         name: "Fan QQ automatic Echoes probe",
         steps: [
-          { type: "skill", skill: "EndlessCloud" },
-          { type: "skill", skill: "EndlessCloudCancel" },
+          castStep("EndlessCloud"),
+          castStep("EndlessCloudCancel"),
           { type: "event", event: "Delay", duration: 30 },
-          { type: "skill", skill: "EndlessCloud" },
+          castStep("EndlessCloud"),
         ],
       },
       skills: { ...panaceaFanSkills, ...soulshadeUmbrellaSkills },

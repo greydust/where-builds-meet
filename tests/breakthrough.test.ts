@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 
+import type { StatEffectContainer } from "@/calculations/statEffects"
+
 describe("breakthrough", () => {
   it("replaces profile bonuses and applies shared attribute conversions", async () => {
     const { createBaseAttributeEffects } = await import("../src/data/baseAttributeEffects.ts")
@@ -14,7 +16,8 @@ describe("breakthrough", () => {
       agility: {},
       momentum: {},
     })
-    const calculate = profile => calculateStatsWithEffects(emptyStats, [...conversions, profile], 0).stats
+    const calculate = (profile: StatEffectContainer) =>
+      calculateStatsWithEffects(emptyStats, [...conversions, profile], 0).stats
     const first = calculate(profiles[0])
     const second = calculate(profiles[1])
     expect(first.power).toBe(10)

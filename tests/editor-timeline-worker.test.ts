@@ -2,6 +2,29 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { EditorTimelineResult } from "@/calculations/editorTimeline"
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { RotationRecord, RotationStep, TimelineBuildInput, TimelineRow } from "@/calculations/rotationTimeline"
+import type { TransportResult } from "@/calculations/rotationWorkerTransport"
+import type { EditorRevision } from "@/editorTimelinePreview"
+
+import { castStep } from "./helpers/rotationSteps"
+import { rowWithId } from "./helpers/timelineRows"
+
+/** The single timeline row the spec reads for the ordered step at `index`. */
+function rowWithIndex(rows: readonly TimelineRow[], index: number): TimelineRow {
+  const row = rows.find(candidate => candidate.rotationIndex === index)
+  assert(row, `Expected a timeline row for rotation step ${index}.`)
+  return row
+}
+
+/** An editor-timeline dispatch answers an editor timeline, not any other result. */
+function editorResult(result: TransportResult): EditorTimelineResult {
+  assert("fingerprint" in result, "An editor-timeline dispatch must resolve an editor timeline result.")
+  return result
+}
+
 // Ported from script/probe/check-editor-timeline-worker.mjs.
 describe("editor-timeline-worker", () => {
   it("Editor timeline worker probe passed: live cooldown waits, stable authored input, anchors, pending edits, stale-result rejection, and baseline reuse", async () => {
@@ -11,15 +34,12 @@ describe("editor-timeline-worker", () => {
       const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
       const { emptyStats } = await import("@/data/statDefinitions.ts")
       const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
-      const rotation = {
+      const rotation: RotationRecord = {
         name: "Async editor",
         start: { step: 1 },
-        steps: [
-          { type: "skill", skill: "Hit" },
-          { type: "skill", skill: "Hit" },
-        ],
+        steps: [castStep("Hit"), castStep("Hit")],
       }
-      const input = {
+      const input: TimelineBuildInput = {
         rotation,
         skills: { Hit: { castTime: 1, cooldown: 10, action: [{ type: "damage", time: 0, phyCoef: 1, attrCoef: 0 }] } },
         eventDefinitions: {},
@@ -32,13 +52,14 @@ describe("editor-timeline-worker", () => {
       }
       const resolved = calculateEditorTimeline(input)
       assert.equal(resolved.rotation, rotation)
+      assert(resolved.rotation.start, "The editor timeline must keep the authored anchor.")
       assert.equal(resolved.rotation.start.step, 1)
-      assert.equal(resolved.timeline.find(row => row.rotationIndex === 1).startTime, 10)
+      assert.equal(rowWithIndex(resolved.timeline, 1).startTime, 10)
       assert.deepEqual(calculateEditorTimeline({ ...input, rotation: resolved.rotation }).rotation, resolved.rotation)
 
       const draft = {
         ...resolved.rotation,
-        steps: [resolved.rotation.steps[1], { type: "skill", skill: "New" }, resolved.rotation.steps[0]],
+        steps: [resolved.rotation.steps[1], castStep("New"), resolved.rotation.steps[0]],
       }
       const pending = pendingEditorTimeline({ ...input, rotation: draft }, resolved)
       assert.deepEqual(
@@ -50,18 +71,21 @@ describe("editor-timeline-worker", () => {
         resolved.timeline.map(row => row.startTime),
       )
       assert.ok(
-        pending.some(row => row.step.automatic === "cooldown"),
+        pending.some(
+          row => row.step.type === "event" && row.step.event === "Delay" && row.step.automatic === "cooldown",
+        ),
         "Generated waits remain mounted",
       )
-      assert.equal(pending.find(row => row.id === "rotation-0").rotationIndex, 2)
-      assert.equal(pending.find(row => row.id === "rotation-1").rotationIndex, 0)
+      assert.equal(rowWithId(pending, "rotation-0").rotationIndex, 2)
+      assert.equal(rowWithId(pending, "rotation-1").rotationIndex, 0)
       assert.ok(
         pending.every(row => !row.pendingCalculation),
         "Keep chronological display order",
       )
-      const changed = { ...rotation.steps[0], skill: "New" }
-      const changedAgain = { ...changed, skill: "Newest" }
-      const replacements = new WeakMap([
+      // Each edit is a distinct object, because the preview tracks them by identity.
+      const changed = castStep("New")
+      const changedAgain = castStep("Newest")
+      const replacements = new WeakMap<RotationStep, RotationStep>([
         [rotation.steps[0], changed],
         [changed, changedAgain],
       ])
@@ -71,23 +95,19 @@ describe("editor-timeline-worker", () => {
         replacements,
       )
       assert.equal(
-        edited.find(row => row.id === "rotation-0").rotationIndex,
+        rowWithId(edited, "rotation-0").rotationIndex,
         0,
         "Repeated edits keep targeting the same draft step",
       )
       assert.equal(
-        edited.find(row => row.id === "rotation-1").rotationIndex,
+        rowWithId(edited, "rotation-1").rotationIndex,
         undefined,
         "Deleted rows cannot edit a different step",
       )
-      assert.equal(
-        edited.find(row => row.id === "rotation-0").step.skill,
-        "Hit",
-        "Display changes atomically on completion",
-      )
+      assert.equal(rowWithId(edited, "rotation-0").step.skill, "Hit", "Display changes atomically on completion")
       const initial = pendingEditorTimeline({ ...input, rotation: draft })
       assert.ok(initial.every(row => row.pendingCalculation && row.actions.length === 0))
-      const revision = { id: "a", context: "build", rotation }
+      const revision: EditorRevision = { id: "a", context: "build", rotation }
       assert.ok(sameEditorRevision(revision, { ...revision }))
       for (const changed of [{ rotation: structuredClone(rotation) }, { id: "b" }, { context: "new build" }]) {
         assert.equal(sameEditorRevision(revision, { ...revision, ...changed }), false)
@@ -105,13 +125,13 @@ describe("editor-timeline-worker", () => {
         bamboocutResistance: 0,
         judgementResistance: 0,
       }
-      const bundle = {
+      const bundle: RotationSimulationBundle = {
         timeline: { ...input, rotation: resolved.rotation },
         startAnchor: { rowId: "rotation-0" },
         stats,
         derivedStats: calculateDerivedStats(stats, 0),
         enemy,
-        attunement: { physicalPenetration: 0, formlessPenetration: 0 },
+        attunement: emptyAttunementStats,
         weapons: [],
         statPriority: [],
         attunementPriority: [],
@@ -120,26 +140,35 @@ describe("editor-timeline-worker", () => {
       }
       assert.ok(calculateRotationBaseline(bundle).duration > 0)
 
-      const workers = []
+      const workers: ControlledWorker[] = []
+      /** The job the transport last posted, and whether it has been terminated. */
+      type PendingMessage = { id: string }
       class ControlledWorker {
-        listeners = new Map()
+        listeners = new Map<string, (event: MessageEvent) => void>()
+        message: PendingMessage | undefined
+        terminated = false
         constructor() {
           workers.push(this)
         }
-        addEventListener(type, listener) {
+        addEventListener(type: string, listener: (event: MessageEvent) => void) {
           this.listeners.set(type, listener)
         }
-        postMessage(message) {
+        postMessage(message: PendingMessage) {
           this.message = message
         }
         terminate() {
           this.terminated = true
         }
-        reply(result) {
-          this.listeners.get("message")({ data: { id: this.message.id, editorTimeline: result } })
+        reply(result: EditorTimelineResult) {
+          const listener = this.listeners.get("message")
+          assert(listener, "The transport must listen for this worker's messages.")
+          assert(this.message, "The transport must post a job before a reply is delivered.")
+          listener({ data: { id: this.message.id, editorTimeline: result } } as MessageEvent)
         }
       }
-      globalThis.Worker = ControlledWorker
+      // A browser global is not buildable by hand in a spec; the double implements the
+      // three members the transport uses.
+      globalThis.Worker = ControlledWorker as unknown as typeof Worker
       const client = await import("@/calculations/rotationWorkerTransport.ts")
       let currentRevision = revision
       let accepted
@@ -154,7 +183,7 @@ describe("editor-timeline-worker", () => {
       assert.ok(!workers[0].terminated, "An idle prepared-timeline worker should survive batch supersession")
       const second = client.dispatchCalculation({ mode: "editorTimeline", bundle, key: "editor:a" })
       workers[0].reply({ ...resolved, fingerprint: "latest" })
-      assert.equal((await second).fingerprint, "latest")
+      assert.equal(editorResult(await second).fingerprint, "latest")
       const obsolete = client.dispatchCalculation({ mode: "editorTimeline", bundle, key: "editor:a" })
       const rejected = assert.rejects(obsolete, /superseded/)
       client.cancelCalculation("editor:a")
@@ -163,10 +192,10 @@ describe("editor-timeline-worker", () => {
       workers[0].reply({ ...resolved, fingerprint: "cancelled" })
       workers[1].reply({ ...resolved, fingerprint: "replacement" })
       await rejected
-      assert.equal((await replacement).fingerprint, "replacement")
+      assert.equal(editorResult(await replacement).fingerprint, "replacement")
       client.disposeCalculationWorkers()
     } finally {
-      delete globalThis.Worker
+      Reflect.deleteProperty(globalThis, "Worker")
     }
   })
 })

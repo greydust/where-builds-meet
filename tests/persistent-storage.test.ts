@@ -6,6 +6,7 @@ import {
   removePersistentItem,
   setPersistentItem,
 } from "../src/persistentStorage"
+import { windowWithStorage } from "./helpers/domStubs"
 
 // Ported from script/probe/check-persistent-storage.mjs: the probe's
 // MemoryStorage stand-ins become plain Maps behind the Storage interface.
@@ -44,7 +45,7 @@ describe("persistent storage migration", () => {
   beforeEach(() => {
     localStorage = new MemoryStorage()
     firstTabStorage = new MemoryStorage()
-    globalThis.window = { localStorage, sessionStorage: firstTabStorage } as Window & typeof globalThis
+    globalThis.window = windowWithStorage({ localStorage, sessionStorage: firstTabStorage })
   })
 
   it("migrates a legacy session value to local storage on read", () => {

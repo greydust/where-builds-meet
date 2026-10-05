@@ -1,6 +1,8 @@
 import { assert, it, expect } from "vitest"
 
-import skills from "../data/skill/skygrasp-rope-dart.json"
+import { defaultSkillMaps } from "@/application/gameData/skills"
+
+const skills = defaultSkillMaps.Skygrasp
 import { buildRotationTimeline, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 it.each([
   { skill: "SnaringLashCancel", duration: 0.365, hitTimes: [0.405] },

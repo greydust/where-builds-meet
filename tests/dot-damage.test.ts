@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { DamageContext } from "@/calculations/damage"
+import type { EditableObject } from "@/calculations/rotationTimeline"
+
+/** One Soul-Shaken stack rule as this spec reads it: a gate plus its damage sheet. */
+type StackRule = { requirement?: unknown; effect?: EditableObject }
+
 import { effectState } from "../src/calculations/trackedEffectState"
+import { isClose } from "./helpers/floatEquality"
 
 // Ported from script/probe/check-dot-damage.mjs.
 describe("dot-damage", () => {
@@ -10,8 +18,10 @@ describe("dot-damage", () => {
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const { requirementsPass } = await import("../src/calculations/rotationTimeline.ts")
-    const soulShaken = (await import("../data/debuff/bellstrike-umbra.json")).default.SoulShaken
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    const soulShaken = (await import("../data/debuff/bellstrike-umbra.json")).default.SoulShaken as {
+      stackEffects: StackRule[][]
+    }
+    const closeTo = (actual: number | undefined, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, minBellstrike: 100, maxBellstrike: 100, precision: 1 }
     const enemy = {
       name: "Probe",
@@ -26,7 +36,7 @@ describe("dot-damage", () => {
     }
     const baseContext = {
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       skillTags: [],
       weapons: [],
       buffs: [],
@@ -34,7 +44,7 @@ describe("dot-damage", () => {
       derivedStats: calculateDerivedStats(stats, 0),
       effects: [],
     }
-    const damage = (effects, isDot, skillTags = []) =>
+    const damage = (effects: EditableObject[], isDot: boolean, skillTags: string[] = []) =>
       calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, { ...baseContext, skillTags, effects, isDot })
     const baselineDirect = damage([], false)
     const physicalOnly = calculateDamageBreakdown({ phyCoef: 0.02 }, { ...baseContext, isDot: true })
@@ -106,7 +116,7 @@ describe("dot-damage", () => {
       [["Other", "DOT", "HighBleed"], 1.75],
       [["HeavenQuakerSpear", "DOT"], 1.5],
       [["Other", "DOT"], 1.25],
-    ]) {
+    ] as Array<[string[], number]>) {
       const selected = fifthStack
         .filter(rule => requirementsPass(rule.requirement, effectState([]), effectState([]), tags, new Set()))
         .map(rule => rule.effect ?? rule)
@@ -123,9 +133,9 @@ describe("dot-damage", () => {
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, minBellstrike: 100, maxBellstrike: 100, precision: 1 }
-    const context = {
+    const context: DamageContext = {
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       skillTags: [],
       weapons: ["strategicSword"],
       buffs: [],

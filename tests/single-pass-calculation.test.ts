@@ -1,4 +1,10 @@
+import nodeAssert from "node:assert/strict"
+
 import { assert, afterEach, describe, expect, it, vi } from "vitest"
+
+import type { CalculatorSettings } from "@/application/contracts"
+import type { AttunementStats } from "@/calculations/damage"
+import type { CharacterStats } from "@/types"
 
 import { attunementAvailableForSettings } from "../src/application/characterComposition"
 import { buildPresetRotationBundle } from "../src/application/graduation"
@@ -11,6 +17,7 @@ import {
 import * as scheduler from "../src/calculations/rotationTimeline"
 import { attunementData, defaultBuildPresets, maxGearRoll } from "../src/gear"
 import { loadDpsSnapshotFixtures, dpsSnapshotEnvironment } from "./helpers/dps-snapshot-fixtures"
+import { weaponPair } from "./helpers/weaponPair"
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -22,7 +29,8 @@ async function windBundle(way: "MoraleChant" | "FivefoldBleed" = "MoraleChant") 
     entry => entry.id === "bamboocutWind/wind-dummy-1-min-infinite-vitality",
   )!
   const preset = defaultBuildPresets.find(build => build.id === fixture.fixture.build)!
-  const selection = preset.setup.innerWays.find(selection => selection.innerWay === "MoraleChant")!
+  const selection = preset.setup?.innerWays.find(selection => selection.innerWay === "MoraleChant")
+  if (!selection) throw new Error(`Expected ${preset.id} to select Morale Chant.`)
   const original = selection.innerWay
   try {
     selection.innerWay = way
@@ -94,20 +102,23 @@ describe("single-pass calculation", () => {
         ],
       }
       bundle.startAnchor = { rowId: "rotation-0" }
-      const settings = { weapons: bundle.weapons, breakthrough: "17", ping: 40 }
-      bundle.statPriority = ["minPhys", "crit", "affinity"].map(key => ({
+      const settings: CalculatorSettings = { weapons: weaponPair(bundle.weapons), breakthrough: "17", ping: 40 }
+      const baseStats = bundle.baseStats
+      nodeAssert(baseStats, "The preset bundle must carry its base stats.")
+      bundle.statPriority = (["minPhys", "crit", "affinity"] as Array<keyof CharacterStats>).map(key => ({
         label: key,
-        stats: { ...bundle.baseStats!, [key]: bundle.baseStats![key] + (key === "minPhys" ? 10 : 0.01) },
+        stats: { ...baseStats, [key]: baseStats[key] + (key === "minPhys" ? 10 : 0.01) },
       }))
-      bundle.attunementPriority = Object.keys(attunementData)
-        .filter(key => attunementAvailableForSettings(key, "bamboocutWind", settings))
-        .map(key => ({
-          label: key,
-          attunement: {
-            ...bundle.attunement,
-            [key]: bundle.attunement[key] + maxGearRoll(key, "attunement", false, bundle.enemy.level)!,
-          },
-        }))
+      const available = Object.keys(attunementData).filter(key =>
+        attunementAvailableForSettings(key, "bamboocutWind", settings),
+      ) as Array<keyof AttunementStats>
+      bundle.attunementPriority = available.map(key => ({
+        label: key,
+        attunement: {
+          ...bundle.attunement,
+          [key]: bundle.attunement[key] + maxGearRoll(key, "attunement", false, bundle.enemy.level)!,
+        },
+      }))
       const baseline = calculateRotationBaseline(bundle)
       expect(baseline.metrics.breakdown.skills.find(skill => skill.id === "Rodent")?.damage).toBeGreaterThan(0)
       const observed = observeTraversals()

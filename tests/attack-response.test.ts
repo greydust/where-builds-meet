@@ -10,6 +10,7 @@ import mystic from "../data/skill/mystic.json"
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 import { migrateDefenseActionAnchors } from "../src/rotationEditing"
 import { exportRotationEntries, mergeImportedRotationEntries } from "../src/rotationTransfer"
+import { asEffectDefinitions, asSkillRecords, rankTalentEffects } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const attack = (startTime: number, damage = 200): RotationStep => ({
@@ -21,13 +22,13 @@ const attack = (startTime: number, damage = 200): RotationStep => ({
 const end = (startTime: number): RotationStep => ({ type: "event", event: "BattleEnd", startTime })
 const input = (steps: RotationStep[]): TimelineBuildInput => ({
   rotation: { name: "Attack response", ping: 40, steps },
-  skills: {
+  skills: asSkillRecords({
     ...general,
     ...mystic,
     Follow: { castTime: 1, action: [0.06, 0.36, 0.47].map(time => ({ type: "damage", phyCoef: 1, time })) },
-  },
+  }),
   eventDefinitions: { TakeDamage: { action: [{ type: "takeDamage", time: 0 }] }, BattleEnd: { action: [] } },
-  effectDefinitions: { ...kiteBuffs, ...windBuffs, ...mysticBuffs, ...generalBuffs },
+  effectDefinitions: asEffectDefinitions({ ...kiteBuffs, ...windBuffs, ...mysticBuffs, ...generalBuffs }),
   dots: {},
   innerWayConditions: ["Etherwrath4P", "BreakingPointT6", "Cleftpeak4P"],
   innerWayRules: [],
@@ -181,7 +182,7 @@ describe("attack response windows", () => {
     const data = input([cast("Charged"), cast("PerfectDodgeCancel"), cast("Charged"), attack(5), end(6)])
     data.rotation.ping = 0
     data.skills.Charged = { castTime: 0, cooldown: 20, cooldownGroup: "AddledMind", action: [] }
-    data.setupEffects = infernal.talent[13].flatMap(entry => entry.effect ?? [])
+    data.setupEffects = rankTalentEffects(infernal.talent[13])
     const rows = buildRotationTimeline(data)
     expect(rowsFor(rows, "Charged").map(row => row.startTime)).toEqual([0, 5])
   })

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 
+import type { RotationRecord, SkillRecord, TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { actionStateAt, rowCasting } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-etherwrath.mjs.
 describe("etherwrath", () => {
@@ -46,7 +50,7 @@ describe("etherwrath", () => {
       modifier: [],
       tags: ["DirectDamage"],
     }
-    const timelineInput = (rotation, skills) => ({
+    const timelineInput = (rotation: RotationRecord, skills: Record<string, SkillRecord>): TimelineBuildInput => ({
       rotation,
       skills: withImmediateAttacks(skills),
       eventDefinitions: {},
@@ -60,9 +64,9 @@ describe("etherwrath", () => {
     const stackingTimeline = buildRotationTimeline(
       timelineInput({ name: "Stacking probe", steps: [{ type: "skill", skill: "Hit" }] }, { Hit: hit }),
     )
-    const stackingRow = stackingTimeline.find(row => row.step.skill === "Hit")
+    const stackingRow = rowCasting(stackingTimeline, "Hit")
     expect(
-      stackingRow.actionStates[5].buffs.get("Etherwrath")?.stack === 5,
+      actionStateAt(stackingRow, 5).buffs.get("Etherwrath")?.stack === 5,
       "The sixth damage action must see the five stacks granted by the previous five hits.",
     ).toBeTruthy()
     const dodgeTimeline = buildRotationTimeline(
@@ -77,7 +81,7 @@ describe("etherwrath", () => {
         { PerfectDodgeCancel: generalSkills.PerfectDodgeCancel, Observe: observe },
       ),
     )
-    const dodgeObserver = dodgeTimeline.find(row => row.step.skill === "Observe")
+    const dodgeObserver = rowCasting(dodgeTimeline, "Observe")
     expect(
       dodgeObserver.actionStates[0].buffs.get("Etherwrath")?.stack === 5,
       "Perfect Dodge must apply five Etherwrath stacks directly.",
@@ -109,17 +113,17 @@ describe("etherwrath", () => {
       },
       { Start: directAndDot, Watch: watch },
     )
-    dotInput.dots = dots
-    dotInput.effectDefinitions = { ...kiteBuffs, ...dots }
+    dotInput.dots = asSkillRecords(dots)
+    dotInput.effectDefinitions = asEffectDefinitions({ ...kiteBuffs, ...dots })
     const dotTimeline = buildRotationTimeline(dotInput)
-    const watched = dotTimeline.find(row => row.step.skill === "Watch")
+    const watched = rowCasting(dotTimeline, "Watch")
     const activeStack = watched.actionStates[0].buffs.get("Etherwrath")
     expect(
       activeStack?.stack === 1 && activeStack.expiresAt === 8,
       "A DOT tick must neither add nor refresh Etherwrath stacks.",
     ).toBeTruthy()
     expect(
-      !watched.actionStates[1].buffs.has("Etherwrath"),
+      !actionStateAt(watched, 1).buffs.has("Etherwrath"),
       "DOT and untagged damage must not keep Etherwrath alive.",
     ).toBeTruthy()
     const dotOnly = buildRotationTimeline({

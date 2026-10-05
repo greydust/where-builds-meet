@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
 import innerWay from "../data/innerway/frost-clad-night.json"
 import skills from "../data/skill/snowparting-blade.json"
 import { calculateDamageBreakdown } from "../src/calculations/damage"
@@ -59,7 +61,7 @@ describe("Snowbreak Spring base damage", () => {
       }
       const context = {
         stats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         skillTags: skill.tags,
         weapons: ["snowparting"] as WeaponId[],
         buffs: [],

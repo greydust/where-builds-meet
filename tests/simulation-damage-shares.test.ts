@@ -1,10 +1,14 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { RotationStep } from "@/calculations/rotationTimeline"
+import type { CharacterStats } from "@/types"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
 
-const closeTo = (actual: number, expected: number, message: string) => {
-  assert(Math.abs(actual - expected) <= 1e-8, `${message} (${actual} !== ${expected})`)
-}
+const closeTo = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
 
 const enemy = {
   name: "Damage share probe",
@@ -37,13 +41,13 @@ const shareStats = {
   affinityDmgBonus: 1,
 }
 
-const createBundle = async (tags: string[] = []) => {
-  const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-  const { emptyStats } = await import("../src/data/statDefinitions.ts")
-  const stats = { ...emptyStats, ...shareStats }
+const createBundle = async (tags: string[] = []): Promise<RotationSimulationBundle> => {
+  const { calculateDerivedStats } = await import("@/calculations/effectiveStats")
+  const { emptyStats } = await import("@/data/statDefinitions")
+  const stats: CharacterStats = { ...emptyStats, ...shareStats }
   return {
     timeline: {
-      rotation: { name: "Damage share probe", steps: rolls.map(() => ({ type: "skill", skill: "Hit" })) },
+      rotation: { name: "Damage share probe", steps: rolls.map((): RotationStep => ({ type: "skill", skill: "Hit" })) },
       skills: { Hit: { name: "Hit", castTime: 1, tags, action: [{ type: "damage", time: 1, phyCoef: 1 }] } },
       eventDefinitions: {},
       dots: {},
@@ -55,7 +59,7 @@ const createBundle = async (tags: string[] = []) => {
     },
     startAnchor: { rowId: "rotation-0" },
     stats,
-    attunement: {},
+    attunement: emptyAttunementStats,
     enemy,
     derivedStats: calculateDerivedStats(stats, 0),
     weapons: [],
@@ -68,7 +72,9 @@ const createBundle = async (tags: string[] = []) => {
 
 describe("simulation damage shares", () => {
   it("Outcome shares must measure damage rather than hit count", async () => {
-    const { simulateRotation } = await probeLoad("/src/calculations/simulationCalculator.ts")
+    const { simulateRotation } = await probeLoad<typeof import("../src/calculations/simulationCalculator")>(
+      "/src/calculations/simulationCalculator.ts",
+    )
     const bundle = await createBundle()
     let draws = 0
     const run = simulateRotation(bundle, 1, () => {
@@ -91,12 +97,19 @@ describe("simulation damage shares", () => {
   })
 
   it("A Mystic Vitality deficit must scale the shares and their denominator together", async () => {
-    const { simulateRotation } = await probeLoad("/src/calculations/simulationCalculator.ts")
+    const { simulateRotation } = await probeLoad<typeof import("../src/calculations/simulationCalculator")>(
+      "/src/calculations/simulationCalculator.ts",
+    )
     const bundle = await createBundle(["Mystic"])
-    bundle.timeline.skills.Hit.action = [
-      { type: "consumeResource", value: "Vitality", amount: 20, time: 0 },
-      { type: "damage", time: 1, phyCoef: 1 },
-    ]
+    bundle.timeline.skills.Hit = {
+      name: "Hit",
+      castTime: 1,
+      tags: ["Mystic"],
+      action: [
+        { type: "consumeResource", value: "Vitality", amount: 20, time: 0 },
+        { type: "damage", time: 1, phyCoef: 1 },
+      ],
+    }
     bundle.timeline.initialResources = { Vitality: 40 }
     let draws = 0
     const run = simulateRotation(bundle, 1, () => rolls[draws++] ?? 0).results.best

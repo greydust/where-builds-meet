@@ -104,56 +104,45 @@ export type SkillRecord = {
   weapon?: WeaponFamily
 }
 export type AttachedEventTarget = { action: number | "start"; trigger?: number }
-export type RotationStep =
-  | { type: "skill"; skill?: string; duration?: number; causesBreak?: boolean; condition?: string }
-  | { type: "event"; event: "Exhausted"; after: AttachedEventTarget; duration?: number; startTime?: number }
-  | { type: "event"; event: "Exhausted"; before: AttachedEventTarget; duration?: number; startTime?: number }
-  | { type: "event"; event: "Move"; before: AttachedEventTarget; distance: number; startTime?: number }
-  | {
-      type: "event"
-      event: "SelfHP"
-      before: AttachedEventTarget
-      currentHP: number
-      currentHPRatio?: number
-      startTime?: number
-    }
-  | {
-      type: "event"
-      event: "SelfHP"
-      before: AttachedEventTarget
-      currentHPRatio: number
-      currentHP?: number
-      startTime?: number
-    }
-  | { type: "event"; event: "SelfHP"; startTime: number; currentHP: number; currentHPRatio?: number }
-  | { type: "event"; event: "SelfHP"; startTime: number; currentHPRatio: number; currentHP?: number }
-  | { type: "event"; event: "TakeDamage"; startTime: number; damage: number; automatic?: "targetAttack" }
-  | { type: "event"; event: "Hellfire"; startTime: number; amount: number }
+/** Every event step also reads as carrying no skill, so `step.skill` stays a total read across
+    `RotationStep` and a step can be filtered by name; only the skill variant may set it. */
+type RotationEventStep =
+  | { event: "Exhausted"; after: AttachedEventTarget; duration?: number; startTime?: number }
+  | { event: "Exhausted"; before: AttachedEventTarget; duration?: number; startTime?: number }
+  | { event: "Move"; before: AttachedEventTarget; distance: number; startTime?: number }
+  | { event: "SelfHP"; before: AttachedEventTarget; currentHP: number; currentHPRatio?: number; startTime?: number }
+  | { event: "SelfHP"; before: AttachedEventTarget; currentHPRatio: number; currentHP?: number; startTime?: number }
+  | { event: "SelfHP"; startTime: number; currentHP: number; currentHPRatio?: number }
+  | { event: "SelfHP"; startTime: number; currentHPRatio: number; currentHP?: number }
+  | { event: "TakeDamage"; startTime: number; damage: number; automatic?: "targetAttack" }
+  | { event: "Hellfire"; startTime: number; amount: number }
   // Accepted only at persistence/import boundaries and migrated to startTime.
-  | { type: "event"; event: "TakeDamage"; before: AttachedEventTarget; damage: number; startTime?: number }
-  | { type: "event"; event: "HP"; before: AttachedEventTarget; targetHPRatio: number; startTime?: number }
-  | { type: "event"; event: "HP"; startTime: number; targetHPRatio: number; automatic?: true }
-  | { type: "event"; event: "Qi"; before: AttachedEventTarget; targetQiRatio: number; startTime?: number }
-  | { type: "event"; event: "Qi"; after: AttachedEventTarget; targetQiRatio: number; startTime?: number }
-  | { type: "event"; event: "Qi"; startTime: number; targetQiRatio: number }
-  | { type: "event"; event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number; startTime?: number }
-  | { type: "event"; event: "Buff"; startTime: number; buff: string; stack?: number }
-  | { type: "event"; event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number; startTime?: number }
-  | { type: "event"; event: "Debuff"; startTime: number; debuff: string; stack?: number }
+  | { event: "TakeDamage"; before: AttachedEventTarget; damage: number; startTime?: number }
+  | { event: "HP"; before: AttachedEventTarget; targetHPRatio: number; startTime?: number }
+  | { event: "HP"; startTime: number; targetHPRatio: number; automatic?: true }
+  | { event: "Qi"; before: AttachedEventTarget; targetQiRatio: number; startTime?: number }
+  | { event: "Qi"; after: AttachedEventTarget; targetQiRatio: number; startTime?: number }
+  | { event: "Qi"; startTime: number; targetQiRatio: number }
+  | { event: "Buff"; before: AttachedEventTarget; buff: string; stack?: number; startTime?: number }
+  | { event: "Buff"; startTime: number; buff: string; stack?: number }
+  | { event: "Debuff"; before: AttachedEventTarget; debuff: string; stack?: number; startTime?: number }
+  | { event: "Debuff"; startTime: number; debuff: string; stack?: number }
   | {
-      type: "event"
       event: "MartialArt"
       before: AttachedEventTarget & { action: "start"; trigger?: undefined }
       martialArt: WeaponId
     }
-  | { type: "event"; event: "Delay"; duration: number; automatic?: "cooldown" | "attack" | "requirement" }
-  | { type: "event"; event: "Controlled"; before: AttachedEventTarget; duration?: number; startTime?: number }
-  | { type: "event"; event: "ShieldBroken"; before: AttachedEventTarget; startTime?: number }
-  | { type: "event"; event: "BattleEnd"; before: AttachedEventTarget; startTime?: number }
-  | { type: "event"; event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
-  | { type: "event"; event: "Exhausted"; startTime: number; duration?: number }
-  | { type: "event"; event: "Move"; startTime: number; distance: number }
-  | { type: "event"; event: "Hellfire"; before: AttachedEventTarget; amount: number; startTime?: number }
+  | { event: "Delay"; duration: number; automatic?: "cooldown" | "attack" | "requirement" }
+  | { event: "Controlled"; before: AttachedEventTarget; duration?: number; startTime?: number }
+  | { event: "ShieldBroken"; before: AttachedEventTarget; startTime?: number }
+  | { event: "BattleEnd"; before: AttachedEventTarget; startTime?: number }
+  | { event: "Controlled" | "BattleEnd" | "ShieldBroken"; startTime: number; duration?: number }
+  | { event: "Exhausted"; startTime: number; duration?: number }
+  | { event: "Move"; startTime: number; distance: number }
+  | { event: "Hellfire"; before: AttachedEventTarget; amount: number; startTime?: number }
+export type RotationStep =
+  | { type: "skill"; skill?: string; event?: undefined; duration?: number; causesBreak?: boolean; condition?: string }
+  | ({ type: "event"; skill?: undefined } & RotationEventStep)
 
 export function isFixedTimeEvent(
   step: RotationStep | undefined,

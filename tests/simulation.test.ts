@@ -1,5 +1,9 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
+
 import { probeLoad } from "./helpers/probe-loader.js"
 
 // Ported from script/probe/check-simulation.mjs.
@@ -9,9 +13,9 @@ describe("simulation", () => {
       await import("../src/calculations/damage.ts")
     const { calculateHealingBreakdown, calculateSimulatedHealingBreakdown } =
       await import("../src/calculations/healing.ts")
-    const { selectSimulationPercentile, simulateRotation } = await probeLoad(
-      "/src/calculations/simulationCalculator.ts",
-    )
+    const { selectSimulationPercentile, simulateRotation } = await probeLoad<
+      typeof import("../src/calculations/simulationCalculator")
+    >("/src/calculations/simulationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 200, precision: 1 }
@@ -28,7 +32,7 @@ describe("simulation", () => {
     }
     const context = {
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       skillTags: [],
       weapons: [],
       buffs: [],
@@ -59,7 +63,7 @@ describe("simulation", () => {
       "Simulation mode must apply the full -8% to +8% healing fluctuation without changing expected healing.",
     )
 
-    const timeline = {
+    const timeline: TimelineBuildInput = {
       rotation: { name: "Simulation probe", steps: [{ type: "skill", skill: "ProbeSkill" }] },
       skills: { ProbeSkill: { name: "Probe Skill", castTime: 1, tags: [], action: [action] } },
       eventDefinitions: {},
@@ -70,11 +74,11 @@ describe("simulation", () => {
       setupEffects: [],
       weapons: [],
     }
-    const bundle = {
+    const bundle: RotationSimulationBundle = {
       timeline,
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: context.derivedStats,
       weapons: [],
@@ -85,7 +89,7 @@ describe("simulation", () => {
     }
     let seed = 123456789
     const random = () => (seed = (1664525 * seed + 1013904223) >>> 0) / 4294967296
-    let finalProgress
+    let finalProgress: { completed: number; total: number } | undefined
     const summary = simulateRotation(bundle, 101, random, (completed, total) => {
       finalProgress = { completed, total }
     })

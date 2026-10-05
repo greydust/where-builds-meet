@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    /* Tests are the one place that runs in Node, so they need Node's globals on top of
+       the browser ones the app already declares. jsdom-environment specs rely on DOM. */
+    "types": ["node", "vite/client"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Customization */
+    "allowJs": false,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Import aliases, as tsconfig.app.json defines them. */
+    "paths": { "@/*": ["./src/*"], "@gamedata/*": ["./data/*"] },
+
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  /* `src` is listed as roots, not just reached through the tests' imports: the
+     vite-imagetools asset specifiers (`*.png?w=..&format=webp`) only match the
+     ambient declarations in vite/client when their importer is a program root. */
+  "include": ["src", "tests"]
+}

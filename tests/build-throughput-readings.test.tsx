@@ -3,12 +3,14 @@ import { act, createElement } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
+import type { CalculatorSettings } from "@/application/contracts"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import type { ThroughputReading } from "@/calculations/rotationWorkerTransport"
 import { useBuildThroughputs, type ThroughputTarget } from "@/features/build/useBuildThroughputs"
 import { buildPresetInventory, defaultBuildPresets, type BuildEntry, type GearItem } from "@/gear"
 
 import { dpsRequests, dpsResolves, resetDpsMock } from "./helpers/dpsStoreMock"
+import { weaponPair } from "./helpers/weaponPair"
 
 /**
  * A reading is only worth showing while it still describes what is on screen. The hook therefore
@@ -53,7 +55,7 @@ function fixture() {
     id: "probe-strong",
     baseAffix: { ...worn.baseAffix, value: worn.baseAffix.value * 2 },
   }
-  const settings = { weapons: [...preset.martialArts], breakthrough: "17", ping: 40 }
+  const settings: CalculatorSettings = { weapons: weaponPair(preset.martialArts), breakthrough: "17", ping: 40 }
   return {
     gearItems: [...inventory.items, plain, strong],
     build: (id: string, helmet?: string): BuildEntry => ({

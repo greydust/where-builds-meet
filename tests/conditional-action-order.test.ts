@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
+import { rowCasting } from "./helpers/timelineRows"
 
 describe("conditional action ordering", () => {
   it.each([false, true])("applies a conditional debuff after its triggering hit (enabled=%s)", enabled => {
@@ -32,7 +33,7 @@ describe("conditional action ordering", () => {
       setupEffects: [],
       weapons: [],
     })
-    const row = timeline.find(row => row.step.skill === "Probe")!
+    const row = rowCasting(timeline, "Probe")!
     const hits = row.actions.flatMap((action, index) => (action.type === "damage" ? [row.actionStates[index]] : []))
     expect(hits).toHaveLength(2)
     expect(hits[0].debuffs.has("Mark")).toBe(false)
@@ -90,7 +91,7 @@ describe("conditional action ordering", () => {
       initialResources: { Charge: 0 },
       resourceMaximums: { Charge: 1 },
     })
-    const row = timeline.find(row => row.step.skill === "Observe")!
+    const row = rowCasting(timeline, "Observe")!
     expect(row.actionStates[0].resources.Charge).toBe(0)
     expect(row.actionStates[1].resources.Charge).toBe(expected)
   })

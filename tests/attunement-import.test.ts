@@ -2,18 +2,26 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { AttunementStats, DamageContext } from "@/calculations/damage"
+import type { SkillRecord } from "@/calculations/rotationTimeline"
+
+import { assertClose } from "./helpers/floatEquality"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+import { skillActions } from "./helpers/shippedData"
+import { weaponPair } from "./helpers/weaponPair"
+
 // Ported from script/probe/check-attunement-import.mjs.
 describe("attunement-import", () => {
   it("attunement-import checks", async () => {
-    const close = (actual, expected, label) =>
-      assert(Number.isFinite(actual) && Math.abs(actual - expected) < 1e-9, `${label}: ${actual} != ${expected}`)
+    const close = (actual: number, expected: number, label: string) => assertClose(actual, expected, 1e-9, label)
     const { parseOfficialGearExport } = await import("../src/officialGearImport.ts")
     const { mergeImportedBuildState, calculateEquippedGearEffects, maxGearRoll } = await import("../src/gear.ts")
     const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
     const { calculateHealingBreakdown } = await import("../src/calculations/healing.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const cases = [
+    const cases: Array<[number, string]> = [
       [279551, "driftcleaveDeepdazeBoost"],
       [279552, "skystrikeSpecialBoost"],
       [279553, "skystrikeMartialBoost"],
@@ -92,10 +100,14 @@ describe("attunement-import", () => {
         assert.equal(item.attunement?.key, key, `Official ID ${id} resolves to its attunement`)
         close(item.attunement.value, 0.047, `Official ID ${id} preserves its roll`)
         const equipped = calculateEquippedGearEffects(
-          { items: merged.state.gearItems, equipped: merged.state.entries[0].equipped },
-          ["snowparting", "phalanxbane"],
+          { items: merged.state.gearItems, equipped: merged.state.entries[0].equipped ?? {} },
+          weaponPair(["snowparting", "phalanxbane"]),
         )
-        close(equipped.attunement[key], 0.047, `Official ID ${id} reaches equipped calculation inputs`)
+        close(
+          equipped.attunement[key as keyof typeof equipped.attunement] ?? 0,
+          0.047,
+          `Official ID ${id} reaches equipped calculation inputs`,
+        )
         imported.set(id, equipped.attunement)
       }
     }
@@ -120,9 +132,9 @@ describe("attunement-import", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const context = (attunement, skillTags) => ({
+    const context = (attunement: Partial<AttunementStats>, skillTags: string[]): DamageContext => ({
       stats,
-      attunement,
+      attunement: { ...emptyAttunementStats, ...attunement },
       skillTags,
       weapons: [],
       buffs: [],
@@ -130,9 +142,9 @@ describe("attunement-import", () => {
       derivedStats: calculateDerivedStats(stats, 0),
       effects: [],
     })
-    const damage = (attunement, tags) =>
+    const damage = (attunement: Partial<AttunementStats>, tags: string[]) =>
       calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, context(attunement, tags)).total
-    const matchingCases = [
+    const matchingCases: Array<[number, string[]]> = [
       [279551, ["Deepdaze"]],
       [279552, ["SkystrikeGauntlets", "Special"]],
       [279553, ["SkystrikeGauntlets", "MartialArt"]],
@@ -164,7 +176,9 @@ describe("attunement-import", () => {
       [280505, ["MortalRopeDart", "Rodent"]],
     ]
     for (const [id, tags] of matchingCases) {
-      const key = cases.find(([candidate]) => candidate === id)[1]
+      const match = cases.find(([candidate]) => candidate === id)
+      assert(match, `Expected imported case ${id} to resolve to an attunement key.`)
+      const key = match[1]
       const maxRoll = maxGearRoll(key, "attunement", false, 96)
       close(
         damage({ [key]: maxRoll }, tags) / damage({}, tags),
@@ -181,7 +195,7 @@ describe("attunement-import", () => {
         )
       }
     }
-    for (const buffs of [[], ["InebriateDeepdaze"]]) {
+    for (const buffs of [[], ["InebriateDeepdaze"]] as string[][]) {
       for (const tags of [
         ["Deepdaze"],
         ["SkystrikeGauntlets", "Deepdaze"],
@@ -189,7 +203,7 @@ describe("attunement-import", () => {
         ["SkystrikeGauntlets"],
         ["RivenTwinblades"],
         ["InebriateDeepdaze"],
-      ]) {
+      ] as string[][]) {
         const baseline = calculateDamageBreakdown({ phyCoef: 1 }, { ...context({}, tags), buffs }).total
         const boosted = calculateDamageBreakdown(
           { phyCoef: 1 },
@@ -223,7 +237,7 @@ describe("attunement-import", () => {
       [279753, ["HeavenwillGauntlets", "Heavy"], false],
       [279753, ["HeavenwillGauntlets", "VariedCombo"], false],
       [279753, ["Light", "VariedCombo"], false],
-    ]) {
+    ] as Array<[number, string[], boolean]>) {
       close(damage(imported.get(id), tags) / damage({}, tags), matches ? 1.047 : 1, `${id}: ${tags.join(" + ")}`)
     }
     for (const id of [280201]) {
@@ -246,15 +260,15 @@ describe("attunement-import", () => {
       [280403, ["PanaceaFan", "Heavy"]],
       [280404, ["SoulshadeUmbrella", "MartialArt"]],
       [280405, ["SoulshadeUmbrella", "Special"]],
-    ]) {
-      const healing = attunement =>
+    ] as Array<[number, string[]]>) {
+      const healing = (attunement: Partial<AttunementStats>) =>
         calculateHealingBreakdown({ phyCoef: 1, silkbindCoef: 1 }, context(attunement, tags)).total
       close(healing(imported.get(id)) / healing({}), 1.047, `Imported ${id} retains existing healing behavior`)
       close(damage(imported.get(id), tags), damage({}, tags), `Healing attunement ${id} does not boost damage`)
     }
-    const panacea = (await import("../data/skill/panacea-fan.json")).default
-    const soulshade = (await import("../data/skill/soulshade-umbrella.json")).default
-    const delugeBuffs = (await import("../data/buff/silkbind-deluge.json")).default
+    const panacea = asSkillRecords((await import("../data/skill/panacea-fan.json")).default)
+    const soulshade = asSkillRecords((await import("../data/skill/soulshade-umbrella.json")).default)
+    const delugeBuffs = asEffectDefinitions((await import("../data/buff/silkbind-deluge.json")).default)
     for (const [id, skills, supported] of [
       [
         280401,
@@ -262,9 +276,15 @@ describe("attunement-import", () => {
         new Set(["CloudburstHealing", "CloudburstHealingCancel", "EndlessCloud", "EndlessCloudCancel"]),
       ],
       [280404, soulshade, new Set(["FloatingGrace"])],
-    ]) {
-      for (const [skillId, definition] of [...Object.entries(skills), ...Object.entries(delugeBuffs)]) {
-        for (const action of definition.action ?? []) {
+    ] as Array<[number, Record<string, SkillRecord>, Set<string>]>) {
+      for (const [skillId, definition] of [
+        ...Object.entries(skills),
+        ...Object.entries(delugeBuffs).map(([id, effect]): [string, SkillRecord] => [
+          id,
+          { ...effect, action: effect.action ?? [] },
+        ]),
+      ] as Array<[string, SkillRecord]>) {
+        for (const action of skillActions(definition)) {
           if (action.type !== "heal") continue
           const tags = definition.tags ?? []
           const baseline = calculateHealingBreakdown(action, context({}, tags)).total

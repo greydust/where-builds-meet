@@ -1,6 +1,9 @@
 import { assert, describe, expect, it } from "vitest"
 
+import type { InnerWayEffectRule, SkillRecord } from "@/calculations/rotationTimeline"
+
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 // Ported from script/probe/check-breaking-point.mjs.
 describe("breaking-point", () => {
@@ -10,34 +13,42 @@ describe("breaking-point", () => {
     const breakingPoint = (await import("../data/innerway/breaking-point.json")).default
     const generalSkills = (await import("../data/skill/general.json")).default
 
-    const hit = {
+    const hit: SkillRecord = {
       name: "Breaking Point probe hit",
       castTime: 1,
       action: [{ type: "damage", phyCoef: 1, attrCoef: 1, time: 0.5 }],
       modifier: [],
       tags: ["DirectDamage"],
     }
-    const exhausted = {
+    const exhausted: SkillRecord = {
       name: "Exhausted",
       castTime: 0,
       action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
       tags: ["Event"],
     }
     const triggerDefinition = breakingPoint.effect.BreakingPointT0.trigger[0]
-    const triggerRule = {
+    const triggerRule: InnerWayEffectRule = {
       requirement: triggerDefinition.requirement,
       trigger: { target: triggerDefinition.target, action: triggerDefinition.action },
       effect: {},
       source: "BreakingPoint",
       tier: 0,
     }
-    const maxStackRule = { ...breakingPoint.effect.BreakingPointT4.effect[0], source: "BreakingPoint", tier: 4 }
-    const stackStarts = (hitCount, highTier) => {
+    // The T4 tier only raises Disintegration's cap, so it carries a modify rule and the
+    // empty effect sheet the app's own inner-way builder gives a rule without one.
+    const maxStackRule: InnerWayEffectRule = {
+      ...breakingPoint.effect.BreakingPointT4.effect[0],
+      effect: {},
+      source: "BreakingPoint",
+      tier: 4,
+    }
+    const exhaustion = { name: "Exhausted", duration: 100, maxStack: 1 }
+    const stackStarts = (hitCount: number, highTier: boolean) => {
       const timeline = buildRotationTimeline({
         rotation: {
           name: "Breaking Point stacking probe",
           steps: [
-            ...Array.from({ length: hitCount }, () => ({ type: "skill", skill: "Hit" })),
+            ...Array.from({ length: hitCount }, () => ({ type: "skill" as const, skill: "Hit" })),
             { type: "event", event: "Exhausted", startTime: 0 },
           ],
           eventTimeReference: "battleStart",
@@ -45,7 +56,7 @@ describe("breaking-point", () => {
         skills: { Hit: hit },
         eventDefinitions: { Exhausted: exhausted },
         dots: {},
-        effectDefinitions: { ...buffs, Exhausted: { name: "Exhausted", duration: 100, maxStack: 1 } },
+        effectDefinitions: asEffectDefinitions({ ...buffs, Exhausted: exhaustion }),
         innerWayConditions: Array.from({ length: highTier ? 5 : 1 }, (_, tier) => `BreakingPointT${tier}`),
         innerWayRules: highTier ? [triggerRule, maxStackRule] : [triggerRule],
         setupEffects: [],
@@ -67,7 +78,7 @@ describe("breaking-point", () => {
       const secondDodge = firstDodge === "PerfectDodge" ? "PerfectDodgeCancel" : "PerfectDodge"
       const firstCastTime = firstDodge === "PerfectDodge" ? 0.5 : 0
       const secondCastTime = secondDodge === "PerfectDodge" ? 0.5 : 0
-      const runDodgeProbe = tier =>
+      const runDodgeProbe = (tier: number) =>
         buildRotationTimeline({
           rotation: {
             name: "Breaking Point dodge cooldown probe",
@@ -87,13 +98,13 @@ describe("breaking-point", () => {
             eventTimeReference: "battleStart",
           },
           skills: withImmediateAttacks({
-            ...generalSkills,
+            ...asSkillRecords(generalSkills),
             Hit: hit,
             Observe: { name: "Observe", castTime: 0, action: [], tags: [] },
           }),
           eventDefinitions: { Exhausted: exhausted },
           dots: {},
-          effectDefinitions: { ...buffs, Exhausted: { name: "Exhausted", duration: 100, maxStack: 1 } },
+          effectDefinitions: asEffectDefinitions({ ...buffs, Exhausted: exhaustion }),
           innerWayConditions: Array.from({ length: tier + 1 }, (_, index) => `BreakingPointT${index}`),
           innerWayRules: [triggerRule, maxStackRule],
           setupEffects: [],
@@ -102,8 +113,10 @@ describe("breaking-point", () => {
           resourceMaximums: { Vitality: 40 },
         })
       const timeline = runDodgeProbe(6)
+      const finalObservation = timeline.findLast(row => row.step.skill === "Observe")
+      assert(finalObservation, "The dodge probe must observe the buff plate after its final dodge.")
       assert(
-        timeline.findLast(row => row.step.skill === "Observe")!.resources.Vitality === 9,
+        finalObservation.resources.Vitality === 9,
         "All three dodges must grant Vitality even when the BP T6 proc is on cooldown.",
       )
       const observedStacks = timeline
@@ -114,7 +127,7 @@ describe("breaking-point", () => {
         "Dodge must share only the T6 proc cooldown, permit normal stacks during it, and proc again at 15 seconds.",
       ).toBeTruthy()
       const dodges = timeline.filter(
-        row => row.kind === "rotation" && [firstDodge, secondDodge].includes(row.step.skill),
+        row => row.kind === "rotation" && [firstDodge, secondDodge].includes(row.step.skill ?? ""),
       )
       expect(
         JSON.stringify(dodges.map(row => row.startTime)) === JSON.stringify([0, 4, 15]),

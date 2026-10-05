@@ -1407,7 +1407,7 @@ export function RotationEditorTab({
     if (editorTimelineReady) return
     const requested: EditorRevision = { id: editingRotationId, context: calculationContextKey, rotation }
     let cancelled = false
-    let timer: ReturnType<typeof window.setTimeout>
+    let timer: number
     const current = () => !cancelled
     const run = async () => {
       try {

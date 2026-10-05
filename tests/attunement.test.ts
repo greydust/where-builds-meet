@@ -1,5 +1,20 @@
 import { assert, describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { AttunementStats } from "@/calculations/damage"
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { EditableObject, SkillRecord } from "@/calculations/rotationTimeline"
+
+import { isClose } from "./helpers/floatEquality"
+import { castStep } from "./helpers/rotationSteps"
+import { asSkillRecords } from "./helpers/shippedData"
+import { rowCasting } from "./helpers/timelineRows"
+
+// A skill record carries its actions untyped; these specs read them as editable objects.
+function skillActions(record: SkillRecord): EditableObject[] {
+  return (record.action ?? []) as EditableObject[]
+}
+
 // Ported from script/probe/check-attunement.mjs.
 describe("attunement", () => {
   it("Attunement tag and standalone multiplier checks passed", async () => {
@@ -7,8 +22,8 @@ describe("attunement", () => {
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const thundercrySkills = (await import("../data/skill/thundercry-blade.json")).default
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    const thundercrySkills = asSkillRecords((await import("../data/skill/thundercry-blade.json")).default)
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
       name: "Attunement probe",
@@ -21,7 +36,10 @@ describe("attunement", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const baseAttunement = {
+    // The zero sheet the app publishes, so the comparisons below vary one bonus at a
+    // time without restating all fifty-odd fields.
+    const baseAttunement: AttunementStats = {
+      ...emptyAttunementStats,
       physicalPenetration: 0,
       formlessPenetration: 0,
       phalanxbaneChargedBoost: 0,
@@ -31,7 +49,7 @@ describe("attunement", () => {
       snowpartingMartialBoost: 0,
       thundercryChargedBoost: 0,
     }
-    const damage = (attunement, skillTags) =>
+    const damage = (attunement: AttunementStats, skillTags: string[]) =>
       calculateDamageBreakdown(
         { phyCoef: 1, attrCoef: 1 },
         {
@@ -81,9 +99,9 @@ describe("attunement", () => {
       "A weapon attunement without skill-match tags must apply to its penetration channel.",
     )
 
-    const cleaveBundle = attunement => ({
+    const cleaveBundle = (attunement: AttunementStats): RotationSimulationBundle => ({
       timeline: {
-        rotation: { name: "Thundercry attunement probe", steps: [{ type: "skill", skill: "StonebreakerCleave" }] },
+        rotation: { name: "Thundercry attunement probe", steps: [castStep("StonebreakerCleave")] },
         skills: {
           StonebreakerCleave: thundercrySkills.StonebreakerCleave,
           StonebreakerQuake: thundercrySkills.StonebreakerQuake,
@@ -109,11 +127,8 @@ describe("attunement", () => {
     })
     const cleaveBaseline = calculateRotationBaseline(cleaveBundle(baseAttunement))
     const cleaveBoosted = calculateRotationBaseline(cleaveBundle({ ...baseAttunement, thundercryChargedBoost: 0.06 }))
-    const damageBySkill = (result, skillId) => {
-      const row = result.timeline.find(candidate => candidate.step.skill === skillId)
-      if (!row) throw new Error(`Missing ${skillId} timeline row.`)
-      return result.actionBreakdowns[`${row.id}:0`]?.total ?? 0
-    }
+    const damageBySkill = (result: RotationSimulationBaseline, skillId: string) =>
+      result.actionBreakdowns[`${rowCasting(result.timeline, skillId).id}:0`]?.total ?? 0
     assert(
       closeTo(
         damageBySkill(cleaveBoosted, "StonebreakerCleave") / damageBySkill(cleaveBaseline, "StonebreakerCleave"),
@@ -133,7 +148,7 @@ describe("attunement", () => {
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const rope = (await import("../data/skill/unfettered-rope-dart.json")).default
+    const rope = asSkillRecords((await import("../data/skill/unfettered-rope-dart.json")).default)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
       name: "Attunement probe",
@@ -146,9 +161,9 @@ describe("attunement", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const bundle = attunement => ({
+    const bundle = (attunement: AttunementStats): RotationSimulationBundle => ({
       timeline: {
-        rotation: { name: "Unfettered attunement probe", steps: [{ type: "skill", skill: "PiercingDart4Hits" }] },
+        rotation: { name: "Unfettered attunement probe", steps: [castStep("PiercingDart4Hits")] },
         skills: rope,
         eventDefinitions: {},
         dots: {},
@@ -170,16 +185,16 @@ describe("attunement", () => {
       setupComparisons: {},
     })
     const sweepIds = new Set(
-      Object.keys(rope).filter(id => (rope[id].action ?? []).some(action => action.type === "damage")),
+      Object.keys(rope).filter(id => skillActions(rope[id]).some(action => action.type === "damage")),
     )
-    const sweepTotal = attunement => {
+    const sweepTotal = (attunement: AttunementStats) => {
       const result = calculateRotationBaseline(bundle(attunement))
-      const sweeps = result.timeline.filter(row => row.kind === "trigger" && sweepIds.has(row.step.skill))
+      const sweeps = result.timeline.filter(row => row.kind === "trigger" && sweepIds.has(row.step.skill ?? ""))
       expect(sweeps).toHaveLength(4)
       return sweeps.reduce((sum, row) => sum + (result.actionBreakdowns[`${row.id}:0`]?.total ?? 0), 0)
     }
-    const base = sweepTotal({})
-    const boosted = sweepTotal({ unfetteredChargedBoost: 0.06 })
+    const base = sweepTotal(emptyAttunementStats)
+    const boosted = sweepTotal({ ...emptyAttunementStats, unfetteredChargedBoost: 0.06 })
     assert(base > 0, "Piercing Dart must deal damage through its triggered sweep components.")
     expect(boosted / base).toBeCloseTo(1.06, 9)
   })
@@ -187,14 +202,14 @@ describe("attunement", () => {
   it("triggered damage components inherit their parent's skill categories", async () => {
     const { allSkillDefinitions } = await import("../src/application/gameData/skills.ts")
     const skillCategories = ["Charged", "Special", "MartialArt", "Light", "Heavy", "VariedCombo", "Pursuit"]
-    const missing = []
+    const missing: string[] = []
     for (const [id, skill] of Object.entries(allSkillDefinitions)) {
-      for (const action of skill.action ?? []) {
+      for (const action of skillActions(skill)) {
         if (action.type !== "trigger" || typeof action.value !== "string") continue
         const component = allSkillDefinitions[action.value]
         if (!component) continue
         const componentTags = component.tags ?? []
-        const dealsDamage = (component.action ?? []).some(entry => entry.type === "damage" || entry.type === "heal")
+        const dealsDamage = skillActions(component).some(entry => entry.type === "damage" || entry.type === "heal")
         if (!dealsDamage) continue
         // MartialArtEffect marks a separate
         // summoned attack that is deliberately not categorised by the skill that raised it.

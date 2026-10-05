@@ -3,16 +3,57 @@ import { readFile } from "node:fs/promises"
 
 import { describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBaseline } from "@/calculations/rotationCalculator"
+import type {
+  EditableObject,
+  EffectDefinition,
+  RotationStep,
+  SkillRecord,
+  TimelineBuildInput,
+  TimelineRow,
+} from "@/calculations/rotationTimeline"
+import type { CharacterStats } from "@/types"
+
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { assertClose } from "./helpers/floatEquality"
+import { castStep, delayStep } from "./helpers/rotationSteps"
+import { rowCasting } from "./helpers/timelineRows"
+
+/** The shipped talent table, narrowed to the rank the spec drives. */
+type MartialArtTalentInput = {
+  name: string
+  weapon: string
+  talent: Array<Array<{ name: string; effect?: EditableObject[] }>>
+}
+
+/** The effect the named rank-13 talent declares. */
+function talentEffect(talent: MartialArtTalentInput, name: string): EditableObject[] {
+  const entry = talent.talent[13]?.find(candidate => candidate.name === name)
+  assert(entry?.effect, `Expected rank 13 to declare the ${name} talent.`)
+  return entry.effect
+}
+
+/** The last row a rotation produced, which the cooldown and charge checks time. */
+function lastRow(rows: readonly TimelineRow[]): TimelineRow {
+  const row = rows.at(-1)
+  assert(row, "Expected the rotation to produce at least one row.")
+  return row
+}
+
+/** The single timeline row the spec reads for the ordered step at `index`. */
+function rowWithIndex(rows: readonly TimelineRow[], index: number): TimelineRow {
+  const row = rows.find(candidate => candidate.rotationIndex === index)
+  assert(row, `Expected a timeline row for rotation step ${index}.`)
+  return row
+}
 
 // Ported from script/probe/check-infernal-twinblades-talents.mjs.
 describe("infernal-twinblades-talents", () => {
   it("Infernal Twinblades: rank-13 stat scaling, conditional Flamelash damage, status lifecycle, attribute channels, dodge durations, and charge reset passed", async () => {
-    const readJson = async path => JSON.parse(await readFile(path, "utf8"))
-    const cast = skill => ({ type: "skill", skill })
-    const delay = duration => ({ type: "event", event: "Delay", duration })
-    const close = (actual, expected, message) =>
-      assert(Math.abs(actual - expected) < 1e-8, `${message}: ${actual} != ${expected}`)
+    const readJson = async <T>(path: string): Promise<T> => JSON.parse(await readFile(path, "utf8"))
+    const close = (actual: number | undefined, expected: number, message: string) =>
+      assertClose(actual, expected, 1e-8, message)
 
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
     const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
@@ -21,12 +62,12 @@ describe("infernal-twinblades-talents", () => {
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const general = await readJson("data/skill/general.json")
-    const talent = await readJson("data/martial-art/infernal-twinblades.json")
-    const effects = {
-      ...(await readJson("data/buff/bamboocut-kite.json")),
-      ...(await readJson("data/buff/bamboocut-wind.json")),
-      ...(await readJson("data/buff/mystic.json")),
+    const general = await readJson<Record<string, SkillRecord>>("data/skill/general.json")
+    const talent = await readJson<MartialArtTalentInput>("data/martial-art/infernal-twinblades.json")
+    const effects: Record<string, EffectDefinition> = {
+      ...(await readJson<Record<string, EffectDefinition>>("data/buff/bamboocut-kite.json")),
+      ...(await readJson<Record<string, EffectDefinition>>("data/buff/bamboocut-wind.json")),
+      ...(await readJson<Record<string, EffectDefinition>>("data/buff/mystic.json")),
       Existing: { duration: 10 },
       Direct: { duration: 10 },
       Indirect: { duration: 10 },
@@ -35,7 +76,13 @@ describe("infernal-twinblades-talents", () => {
       NoRefresh: { duration: 10, refresh: false, maxStack: 5 },
       Enemy: { duration: 10 },
     }
-    const apply = (value, extra = {}) => ({ type: "apply", target: "self", value, time: 0, ...extra })
+    const apply = (value: string, extra: EditableObject = {}): EditableObject => ({
+      type: "apply",
+      target: "self",
+      value,
+      time: 0,
+      ...extra,
+    })
     const skills = {
       ...general,
       // Deliberately long, ordinary cooldown isolates the reset from future charge semantics.
@@ -71,45 +118,75 @@ describe("infernal-twinblades-talents", () => {
       EmptyDodge: { castTime: 0, tags: ["PerfectDodge"], action: [] },
     }
     const setupEffects = martialArtEffectsForRank({ infernalTwinblades: talent }, ["infernalTwinblades"], 13)
-    const build = (steps, extra = {}) =>
-      buildRotationTimeline({
-        rotation: { name: "Infernal Twinblades talent probe", steps },
-        skills: withImmediateAttacks(skills),
-        effectDefinitions: effects,
-        eventDefinitions: {},
-        dots: {},
-        innerWayConditions: ["Etherwrath4P", "BreakingPointT6", "Mystery"],
-        innerWayRules: [],
-        setupEffects,
-        weapons: ["infernalTwinblades"],
-        ...extra,
-      })
-    const observed = rows => rows.filter(row => row.step.skill === "Observe")
-    const buff = (row, name) => row.buffs.get(name)
+    const build = (
+      steps: RotationStep[],
+      extra: Partial<TimelineBuildInput> = {},
+      procRoll?: (key: string) => number,
+    ): TimelineRow[] =>
+      buildRotationTimeline(
+        {
+          rotation: { name: "Infernal Twinblades talent probe", steps },
+          skills: withImmediateAttacks(skills),
+          effectDefinitions: effects,
+          eventDefinitions: {},
+          dots: {},
+          innerWayConditions: ["Etherwrath4P", "BreakingPointT6", "Mystery"],
+          innerWayRules: [],
+          setupEffects,
+          weapons: ["infernalTwinblades"],
+          ...extra,
+        },
+        procRoll,
+      )
+    const observed = (rows: TimelineRow[]) => rows.filter(row => row.step.skill === "Observe")
+    const buff = (row: TimelineRow | undefined, name: string) => {
+      assert(row, "Expected the probe to produce an Observe row.")
+      return row.buffs.get(name)
+    }
+    /** The expiry a buff must carry, in seconds from now. */
+    const expiresAtOf = (row: TimelineRow | undefined, name: string) => {
+      const tracked = buff(row, name)
+      assert(tracked, `Expected ${name} to be applied to the observed cast.`)
+      return tracked.expiresAt
+    }
+    /** The expiry a debuff must carry; target-applied effects land in the debuff map. */
+    const debuffExpiresAtOf = (row: TimelineRow | undefined, name: string) => {
+      assert(row, "Expected the probe to produce an Observe row.")
+      const tracked = row.debuffs.get(name)
+      assert(tracked, `Expected ${name} to be applied to the target.`)
+      return tracked.expiresAt
+    }
+    /** The declared duration of a shipped effect, which the scaling compares against. */
+    const durationOf = (name: string) => {
+      const duration = effects[name].duration
+      assert(typeof duration === "number", `Expected ${name} to declare a duration.`)
+      return duration
+    }
 
     for (const dodge of ["PerfectDodge", "PerfectDodgeCancel"]) {
       for (const enabled of [false, true]) {
-        const [row] = observed(build([cast(dodge), cast("Observe")], { setupEffects: enabled ? setupEffects : [] }))
+        const [row] = observed(
+          build([castStep(dodge), castStep("Observe")], { setupEffects: enabled ? setupEffects : [] }),
+        )
         for (const name of ["Etherwrath", "Disintegration", "MysteryDMGBoost"]) {
-          close(buff(row, name).expiresAt, effects[name].duration * (enabled ? 1.4 : 1), `${dodge} ${name} duration`)
+          close(expiresAtOf(row, name), durationOf(name) * (enabled ? 1.4 : 1), `${dodge} ${name} duration`)
         }
       }
     }
     for (const procRoll of [undefined, () => 0.25]) {
       const rows = build(
         [
-          cast("Ordinary"),
-          delay(1),
-          cast("ProbeDodge"),
-          delay(1),
-          cast("Observe"),
-          cast("Extend"),
-          cast("Observe"),
-          delay(11),
-          cast("Observe"),
+          castStep("Ordinary"),
+          delayStep(1),
+          castStep("ProbeDodge"),
+          delayStep(1),
+          castStep("Observe"),
+          castStep("Extend"),
+          castStep("Observe"),
+          delayStep(11),
+          castStep("Observe"),
         ],
         {
-          procRoll,
           setupEffects: [
             ...setupEffects,
             {
@@ -121,45 +198,43 @@ describe("infernal-twinblades-talents", () => {
             },
           ],
         },
+        procRoll,
       )
       const [first, extended, later] = observed(rows)
-      close(buff(first, "Direct").expiresAt, 8, "Explicit application duration is scaled once")
+      close(expiresAtOf(first, "Direct"), 8, "Explicit application duration is scaled once")
       close(
-        buff(first, "Indirect").expiresAt,
+        expiresAtOf(first, "Indirect"),
         16,
         "Nested triggered buff inherits original cast tags across damage ownership",
       )
-      close(buff(first, "Listener").expiresAt, 16, "On-damage trigger application inherits the same buff source")
-      close(buff(first, "Existing").expiresAt, 10, "Unrelated active buff is unchanged")
-      close(buff(first, "NoRefresh").expiresAt, 10, "Non-refreshing stack application preserves expiry")
-      assert.equal(buff(first, "Permanent").expiresAt, undefined)
-      close(first.debuffs.get("Enemy").expiresAt, 11, "Debuffs are unchanged")
-      close(buff(extended, "Direct").expiresAt, 10, "Explicit extensions are not multiplied")
+      close(expiresAtOf(first, "Listener"), 16, "On-damage trigger application inherits the same buff source")
+      close(expiresAtOf(first, "Existing"), 10, "Unrelated active buff is unchanged")
+      close(expiresAtOf(first, "NoRefresh"), 10, "Non-refreshing stack application preserves expiry")
+      assert.equal(buff(first, "Permanent")?.expiresAt, undefined)
+      close(debuffExpiresAtOf(first, "Enemy"), 11, "Debuffs are unchanged")
+      close(expiresAtOf(extended, "Direct"), 10, "Explicit extensions are not multiplied")
       assert(!buff(later, "Existing") && !buff(later, "Direct"), "Ordinary expirations still remove buffs")
       assert(
         buff(later, "Indirect") && buff(later, "Listener"),
         "Extended indirect buffs remain active past base expiry",
       )
-      assert.deepEqual(
-        rows.find(row => row.step.skill === "NestedHelper").skill.tags,
-        ["Triggered"],
-        "Buff origin does not alter damage tags",
-      )
+      const nestedTags = rowCasting(rows, "NestedHelper").skill?.tags
+      assert.deepEqual(nestedTags, ["Triggered"], "Buff origin does not alter damage tags")
     }
 
     const resetRows = build([
-      cast("AddledMind"),
-      cast("PerfectDodgeCancel"),
-      cast("AddledMind"),
-      delay(29),
-      cast("PerfectDodge"),
-      cast("Observe"),
-      delay(0.5),
-      cast("PerfectDodgeCancel"),
-      cast("AddledMind"),
-      delay(1),
-      cast("PerfectDodgeCancel"),
-      cast("AddledMind"),
+      castStep("AddledMind"),
+      castStep("PerfectDodgeCancel"),
+      castStep("AddledMind"),
+      delayStep(29),
+      castStep("PerfectDodge"),
+      castStep("Observe"),
+      delayStep(0.5),
+      castStep("PerfectDodgeCancel"),
+      castStep("AddledMind"),
+      delayStep(1),
+      castStep("PerfectDodgeCancel"),
+      castStep("AddledMind"),
     ])
     assert.deepEqual(
       resetRows.filter(row => row.step.skill === "AddledMind").map(row => row.startTime),
@@ -167,31 +242,29 @@ describe("infernal-twinblades-talents", () => {
       "Reset is immediate, shared across dodge variants, and available exactly at 30 seconds",
     )
     close(
-      buff(observed(resetRows)[0], "Etherwrath").expiresAt,
-      29 + effects.Etherwrath.duration * 1.4,
+      expiresAtOf(observed(resetRows)[0], "Etherwrath"),
+      29 + durationOf("Etherwrath") * 1.4,
       "Duration bonus remains active during reset cooldown",
     )
-    const unenhanced = build([cast("AddledMind"), cast("PerfectDodgeCancel"), cast("AddledMind")], { setupEffects: [] })
-    assert.equal(unenhanced.at(-1).startTime, 100, "Without talent a dodge cannot reset the skill")
-    const empty = build([cast("AddledMind"), cast("EmptyDodge"), cast("AddledMind")])
-    assert.equal(empty.at(-1).startTime, 0, "Success trigger restores a charge when the incoming hit is avoided")
+    const unenhanced = build([castStep("AddledMind"), castStep("PerfectDodgeCancel"), castStep("AddledMind")], {
+      setupEffects: [],
+    })
+    assert.equal(lastRow(unenhanced).startTime, 100, "Without talent a dodge cannot reset the skill")
+    const empty = build([castStep("AddledMind"), castStep("EmptyDodge"), castStep("AddledMind")])
+    assert.equal(lastRow(empty).startTime, 0, "Success trigger restores a charge when the incoming hit is avoided")
     assert.deepEqual(
-      empty.find(row => row.step.skill === "EmptyDodge").actions,
+      rowCasting(empty, "EmptyDodge").actions,
       [{ type: "takeDamage", damage: 0, time: 0 }],
       "Only the fixture incoming hit is displayed; the response event stays internal",
     )
-    const waiting = build([cast("AddledMind"), cast("AddledMind")], {
+    const waiting = build([castStep("AddledMind"), castStep("AddledMind")], {
       skills: withImmediateAttacks({
         ...skills,
         AddledMind: { ...skills.AddledMind, action: [{ type: "trigger", value: "DelayedDodge", time: 0 }] },
         DelayedDodge: { castTime: 0, action: [{ type: "trigger", value: "PerfectDodgeCancel", time: 5 }] },
       }),
     })
-    assert.equal(
-      waiting.find(row => row.rotationIndex === 1).startTime,
-      5,
-      "Triggered dodge wakes a pending cast before its old cooldown",
-    )
+    assert.equal(rowWithIndex(waiting, 1).startTime, 5, "Triggered dodge wakes a pending cast before its old cooldown")
 
     const unconditional = setupEffects.filter(effect => !effect.requirement)
     for (const [agility, bonus] of [
@@ -232,15 +305,28 @@ describe("infernal-twinblades-talents", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const calculate = (minPhys, active, extra = {}) => {
+    const calculate = (
+      minPhys: number,
+      active: boolean,
+      extra: { stats?: Partial<CharacterStats>; timeline?: Partial<TimelineBuildInput> } = {},
+    ): RotationSimulationBaseline => {
       const stats = { ...emptyStats, agility: 280, minPhys, maxPhys: 2000, precision: 1, crit: 1, ...extra.stats }
       return calculateRotationBaseline({
         timeline: {
           rotation: {
             name: "Flamelash",
             steps: [
-              ...(active ? [{ type: "event", event: "Buff", before: { action: "start" }, buff: "Flamelash" }] : []),
-              cast("Hit"),
+              ...(active
+                ? [
+                    {
+                      type: "event",
+                      event: "Buff",
+                      before: { action: "start" },
+                      buff: "Flamelash",
+                    } satisfies RotationStep,
+                  ]
+                : []),
+              castStep("Hit"),
             ],
           },
           skills: {
@@ -265,7 +351,7 @@ describe("infernal-twinblades-talents", () => {
         stats,
         derivedStats: calculateDerivedStats(stats, 0),
         enemy,
-        attunement: {},
+        attunement: emptyAttunementStats,
         weapons: ["infernalTwinblades"],
         statPriority: [],
         attunementPriority: [],
@@ -281,7 +367,9 @@ describe("infernal-twinblades-talents", () => {
     ]) {
       const ordinary = calculate(minPhys, false)
       const enhanced = calculate(minPhys, true)
-      const criticalRate = Object.values(ordinary.actionBreakdowns)[0].outcomeRates.critical
+      const ordinaryBreakdown = Object.values(ordinary.actionBreakdowns)[0]
+      assert(ordinaryBreakdown?.outcomeRates, "A damaging action must report its outcome rates.")
+      const criticalRate = ordinaryBreakdown.outcomeRates.critical
       close(
         enhanced.metrics.totalDamage - ordinary.metrics.totalDamage,
         ((minPhys + 73.92 + 2000) / 2) * criticalRate * bonus,
@@ -298,15 +386,15 @@ describe("infernal-twinblades-talents", () => {
         rotation: {
           name: "Flamelash lifecycle",
           steps: [
-            cast("Hit"),
-            cast("Enter"),
-            cast("Hit"),
-            delay(1),
-            cast("Hit"),
-            cast("Enter"),
-            cast("Hit"),
-            cast("Exit"),
-            cast("Hit"),
+            castStep("Hit"),
+            castStep("Enter"),
+            castStep("Hit"),
+            delayStep(1),
+            castStep("Hit"),
+            castStep("Enter"),
+            castStep("Hit"),
+            castStep("Exit"),
+            castStep("Hit"),
           ],
         },
         skills: {
@@ -344,11 +432,11 @@ describe("infernal-twinblades-talents", () => {
         stats: attributeStats,
         derivedStats: calculateDerivedStats(attributeStats, 0, {}, ["infernalTwinblades"]),
         enemy,
-        attunement: {},
+        attunement: emptyAttunementStats,
         skillTags: ["MartialArts", "InfernalTwinblades"],
         weapons: ["infernalTwinblades"],
         buffs: [],
-        effects: talent.talent[13].find(entry => entry.name === "Attr. Attack DMG Up").effect,
+        effects: talentEffect(talent, "Attr. Attack DMG Up"),
       },
     )
     close(attributeDamage.bellstrike, 100, "Non-primary attribute damage is retained")

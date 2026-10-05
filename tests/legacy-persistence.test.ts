@@ -4,6 +4,7 @@ import { loadAttunementStats } from "../src/application/persistence/attunements"
 import { loadPathSelectionIds } from "../src/application/persistence/pathSelection"
 import { loadRotationEntries } from "../src/application/persistence/rotations"
 import { loadStats } from "../src/application/persistence/stats"
+import { windowWithStorage } from "./helpers/domStubs"
 
 class MemoryStorage implements Storage {
   #values = new Map<string, string>()
@@ -40,11 +41,11 @@ describe("legacy persistence adapters", () => {
   beforeEach(() => {
     localStorage = new MemoryStorage()
     sessionStorage = new MemoryStorage()
-    globalThis.window = { localStorage, sessionStorage } as Window & typeof globalThis
+    globalThis.window = windowWithStorage({ localStorage, sessionStorage })
   })
 
   afterEach(() => {
-    delete globalThis.window
+    Reflect.deleteProperty(globalThis, "window")
   })
 
   it("translates the legacy character-stat representation before loading it", () => {

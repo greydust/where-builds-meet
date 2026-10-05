@@ -1,17 +1,20 @@
+import divinecraftDots from "@gamedata/dot/divinecraft.json"
 import { describe, expect, it } from "vitest"
 
-import divinecraftDots from "../data/dot/divinecraft.json"
-import { divinecraftEffectFor, typedDivinecraftDefinitions } from "../src/application/gameData/setup"
-import { effectDefinitions, defaultSkillMaps, dotDefinitions } from "../src/application/gameData/skills"
-import { normalizeRotation } from "../src/application/rotationCatalog"
-import { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } from "../src/calculations/damage"
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
-import { restrictedOutcomeRates } from "../src/calculations/rateRoutes"
-import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
-import { emptyStats } from "../src/data/statDefinitions"
-import { resolveSkillCalculationDefinitions } from "../src/skillOverrides"
+import { divinecraftEffectFor, typedDivinecraftDefinitions } from "@/application/gameData/setup"
+import { effectDefinitions, defaultSkillMaps, dotDefinitions } from "@/application/gameData/skills"
+import { normalizeRotation } from "@/application/rotationCatalog"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } from "@/calculations/damage"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import { restrictedOutcomeRates } from "@/calculations/rateRoutes"
+import { buildRotationTimeline, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+import { emptyStats } from "@/data/statDefinitions"
+import { resolveSkillCalculationDefinitions } from "@/skillOverrides"
 
-const closeTo = (actual: number, expected: number) => Math.abs(actual - expected) < 1e-9
+import { isClose } from "./helpers/floatEquality"
+
+const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
 
 // A flat physical/attribute range makes the average attack observable: it is the
 // midpoint, and the simulator's uniform roll inside the range is visible without it.
@@ -38,7 +41,7 @@ const flatEnemy = {
 }
 const baseContext = {
   stats: rangedStats,
-  attunement: {},
+  attunement: emptyAttunementStats,
   skillTags: [],
   weapons: [],
   buffs: [],
@@ -368,7 +371,7 @@ function divinecraftRules(effect: unknown): DivinecraftRule[] {
  * applied by the final hit can run out its own lifetime instead of being cut off
  * by the end of the rotation.
  */
-function divinecraftTimelineInput(options: { steps?: number } = {}) {
+function divinecraftTimelineInput(options: { steps?: number } = {}): TimelineBuildInput {
   const resolved = resolveSkillCalculationDefinitions(defaultSkillMaps, effectDefinitions, dotDefinitions, {})
   const count = options.steps ?? 8
   return {
@@ -388,6 +391,7 @@ function divinecraftTimelineInput(options: { steps?: number } = {}) {
     effectDefinitions: resolved.effectDefinitions,
     innerWayConditions: [],
     innerWayRules: [],
+    setupEffects: [],
     weapons: [],
   }
 }

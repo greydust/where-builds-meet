@@ -1,10 +1,13 @@
 import { assert, describe, expect, it } from "vitest"
 
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
 import regular from "../data/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json"
 import bp from "../data/rotation/bamboocut-kite/dummy-1-min-iv-bp.json"
 import { buildPresetRotationBundle } from "../src/application/graduation"
 import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
 import type { RotationRecord } from "../src/calculations/rotationTimeline"
+import { rowWithId } from "./helpers/timelineRows"
 
 export function calculateKite(rotation: RotationRecord, build: string) {
   const bundle = buildPresetRotationBundle(
@@ -16,15 +19,7 @@ export function calculateKite(rotation: RotationRecord, build: string) {
       food: "SimmeringFishSlices",
       divinecraft: "Fire",
       script: "None",
-      globalDebuffs: {
-        phantomChime: false,
-        qiImbalance: false,
-        soulShaken: false,
-        vulnerable: false,
-        fearfulBlade: false,
-        qingyisCharm: "none",
-        floatingGrace: "none",
-      },
+      globalDebuffs: { ...defaultGlobalDebuffs },
       skillOverrides: {},
       previewId: null,
     },
@@ -90,7 +85,8 @@ it("Kite BP's final Qi break follows Soaring Spin and enables the last VC reset"
   const qi = result.timeline.find(
     row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
   )!
-  const spin = result.timeline.find(row => row.id === qi.sourceRowId)!
+  assert(qi.sourceRowId, "The Qi event must name the row it follows.")
+  const spin = rowWithId(result.timeline, qi.sourceRowId)
   expect(spin.step).toMatchObject({ type: "skill", skill: "SoaringSpin2" })
   const firstHit = spin.actions.findIndex(action => action.type === "damage")
   expect(qi.startTime).toBeCloseTo(spin.startTime + Number(spin.actions[firstHit].time), 8)

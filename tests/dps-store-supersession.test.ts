@@ -122,12 +122,12 @@ describe("calculation store supersession", () => {
       fresh,
       (async () => {
         // Each variant is a separate worker job, so keep answering until the sweep ends.
-        await Array.from({ length: variants.length * 2 }).reduce(previous => {
+        await Array.from({ length: variants.length * 2 }).reduce((previous: Promise<void>) => {
           return previous.then(async () => {
             await settle()
             workers.filter(worker => !worker.terminated).forEach(worker => worker.flush())
           })
-        }, Promise.resolve())
+        }, Promise.resolve() as Promise<void>)
         return { rejected: "the replacement sweep never finished" } as const
       })(),
     ])
@@ -135,7 +135,7 @@ describe("calculation store supersession", () => {
     assert.equal(freshOutcome.length, variants.length, "The replacement sweep did not finish every variant.")
     assert.deepEqual(
       variants.map(key => store().entry("comparisons", key)?.status),
-      variants.map(() => "ready"),
+      variants.map((): "ready" => "ready"),
       "A variant in the replacement sweep did not settle as ready.",
     )
     const abandonedResult = await abandoned

@@ -55,11 +55,23 @@ import wildfireSurge from "../../data/innerway/wildfire-surge.json"
 import windBeneathWings from "../../data/innerway/wind-beneath-wings.json"
 import wolfchasersArt from "../../data/innerway/wolfchasers-art.json"
 
+/**
+ * A tier's authored effect, as the data files carry it. The rule that applies it
+ * supplies `source` and `tier` around this, which is what `InnerWayEffectRule`
+ * adds. Solo Level tables live under `rawStat` until they are resolved.
+ */
+export type InnerWayTierEffect = {
+  trigger?: Record<string, unknown>[]
+  effect?: Record<string, unknown>[]
+  listen?: Record<string, unknown>[]
+  [key: string]: unknown
+}
+
 export type InnerWayDefinition = {
   name: string
   tags?: string[]
   altersTimeline: boolean
-  effect: Record<string, unknown>
+  effect: Record<string, InnerWayTierEffect>
 }
 
 export const innerWayDefinitions = {
@@ -139,7 +151,7 @@ export function innerWayDefinitionForSoloLevel(definition: InnerWayDefinition, s
   if (!Number.isInteger(soloLevel) || soloLevel < 0) throw new RangeError("Invalid Solo Level: " + soloLevel)
   const effect = Object.fromEntries(
     Object.entries(definition.effect).map(([id, value]) => {
-      const tier = value as { effect?: Record<string, unknown>[] }
+      const tier = value as InnerWayTierEffect
       if (!tier.effect) return [id, tier]
       return [
         id,

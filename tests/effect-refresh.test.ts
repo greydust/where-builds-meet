@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+
 import { calculateDerivedStats } from "../src/calculations/effectiveStats"
 import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
 import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
 import { emptyStats } from "../src/data/statDefinitions"
+import { rowCasting } from "./helpers/timelineRows"
 
 describe("effect lifecycle", () => {
   it.each([
@@ -33,7 +36,7 @@ describe("effect lifecycle", () => {
       setupEffects: [],
       weapons: [],
     })
-    const row = timeline.find(row => row.step.skill === "Probe")!
+    const row = rowCasting(timeline, "Probe")!
     const stacks = row.actions.flatMap((action, index) =>
       action.type === "damage" ? [row.actionStates[index].buffs.get("Stacking")?.stack ?? 0] : [],
     )
@@ -100,7 +103,7 @@ describe("effect lifecycle", () => {
         enemy,
         derivedStats: calculateDerivedStats(stats, 0),
         weapons: [],
-        attunement: {},
+        attunement: emptyAttunementStats,
         statPriority: [],
         attunementPriority: [],
         innerWayPriority: [],

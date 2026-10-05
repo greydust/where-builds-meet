@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest"
 
-import generalBuffs from "../data/buff/general.json"
-import mysticBuffs from "../data/buff/mystic.json"
-import mysticDebuffs from "../data/debuff/mystic.json"
-import mystic from "../data/skill/mystic.json"
+import generalBuffsJson from "../data/buff/general.json"
+const generalBuffs = asEffectDefinitions(generalBuffsJson)
+import mysticBuffsJson from "../data/buff/mystic.json"
+const mysticBuffs = asEffectDefinitions(mysticBuffsJson)
+import mysticDebuffsJson from "../data/debuff/mystic.json"
+import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
+const mysticDebuffs = asEffectDefinitions(mysticDebuffsJson)
+import mysticJson from "../data/skill/mystic.json"
+const mystic = asSkillRecords(mysticJson)
 import { buildRotationTimeline, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
 
 function castWithFollowup(skill: string, intoxicated = false) {

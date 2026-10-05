@@ -50,7 +50,8 @@ it("imports the reported affixless dashboard setup without fabricating gear", ()
   expect(merged.state.entries[0].name).toBe("greydust Import")
   expect(merged.state.entries[0].equipped).toEqual({})
   expect(merged.state.entries[0].martialArts).toEqual(["infernalTwinblades", "mortalRopeDart"])
-  expect(merged.state.entries[0].setup.innerWays.find(item => item.innerWay === "MoraleChant")).toBeDefined()
+  const moraleChant = merged.state.entries[0].setup?.innerWays.find(item => item.innerWay === "MoraleChant")
+  expect(moraleChant).toBeDefined()
 })
 
 it("keeps valid gear in its original slot when earlier pieces are unusable", () => {
@@ -71,7 +72,7 @@ it("keeps valid gear in its original slot when earlier pieces are unusable", () 
   expect(item.baseAffix).toEqual({ key: "minPhys", value: 53 })
   expect(item.additionalAffixes).toEqual([{ key: "agility", value: 40 }])
   expect(merged.state.entries[0].equipped).toEqual({ rightWeapon: item.id })
-  expect(merged.state.entries[0].setup.armorSets.Formbend).toBe(2)
+  expect(merged.state.entries[0].setup?.armorSets.Formbend).toBe(2)
   expect(parsed.warnings).toHaveLength(5)
 })
 

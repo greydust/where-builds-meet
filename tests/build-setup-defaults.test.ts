@@ -1,25 +1,13 @@
 import { assert, describe, it } from "vitest"
 
+import { windowWithStorage, writableStorage } from "./helpers/domStubs"
+
 // Ported from script/probe/check-build-setup-defaults.mjs.
 describe("build-setup-defaults", () => {
   it("Build-sourced setup defaults and one-time legacy migration checks passed", async () => {
-    const createStorage = () => {
-      const values = new Map()
-      return {
-        values,
-        get length() {
-          return values.size
-        },
-        getItem: key => values.get(key) ?? null,
-        key: index => [...values.keys()][index] ?? null,
-        setItem: (key, value) => values.set(key, String(value)),
-        removeItem: key => values.delete(key),
-        clear: () => values.clear(),
-      }
-    }
-    const localStorage = createStorage()
-    const sessionStorage = createStorage()
-    globalThis.window = { localStorage, sessionStorage }
+    const localStorage = writableStorage()
+    const sessionStorage = writableStorage()
+    globalThis.window = windowWithStorage({ localStorage, sessionStorage })
     globalThis.localStorage = localStorage
     globalThis.sessionStorage = sessionStorage
 
@@ -54,9 +42,8 @@ describe("build-setup-defaults", () => {
         "The standalone gear-set session must migrate to weaponSets when the unified override has never been saved.",
       )
     } finally {
-      delete globalThis.window
-      delete globalThis.localStorage
-      delete globalThis.sessionStorage
+      for (const global of ["window", "localStorage", "sessionStorage"] as const)
+        Reflect.deleteProperty(globalThis, global)
     }
   })
 })

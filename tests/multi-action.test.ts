@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest"
 
-import phalanxbaneSkills from "../data/skill/phalanxbane-blade.json" with { type: "json" }
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type {
+  EditableObject,
+  EffectDefinition,
+  RotationRecord,
+  SkillRecord,
+  TrackedEffect,
+} from "@/calculations/rotationTimeline"
+
+import phalanxbaneSkillsJson from "../data/skill/phalanxbane-blade.json" with { type: "json" }
+import { isClose } from "./helpers/floatEquality"
+import { castStep } from "./helpers/rotationSteps"
+import { asSkillRecords } from "./helpers/shippedData"
+import { rowWithId } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-multi-action.mjs.
 describe("multi-action", () => {
@@ -8,7 +22,7 @@ describe("multi-action", () => {
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const closeTo = (left, right) => Math.abs(left - right) < 1e-6
+    const closeTo = (left: number | undefined, right: number) => isClose(left, right, 1e-6)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
       name: "Probe",
@@ -21,7 +35,14 @@ describe("multi-action", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const bundle = (skills, rotation, setupEffects = [], effectDefinitions = {}, initialBuffs = []) => ({
+    const phalanxbaneSkills = asSkillRecords(phalanxbaneSkillsJson)
+    const bundle = (
+      skills: Record<string, SkillRecord>,
+      rotation: RotationRecord,
+      setupEffects: EditableObject[] = [],
+      effectDefinitions: Record<string, EffectDefinition> = {},
+      initialBuffs: TrackedEffect[] = [],
+    ): RotationSimulationBundle => ({
       timeline: {
         rotation,
         skills,
@@ -36,7 +57,7 @@ describe("multi-action", () => {
       },
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],
@@ -100,19 +121,13 @@ describe("multi-action", () => {
     const generic = calculateRotationBaseline(
       bundle(
         genericSkills,
-        {
-          name: "Multi-action probe",
-          steps: [
-            { type: "skill", skill: "Composite" },
-            { type: "skill", skill: "Following" },
-          ],
-        },
+        { name: "Multi-action probe", steps: [castStep("Composite"), castStep("Following")] },
         [{ requirement: [{ target: "skillTag", value: "SpecialTag" }], effect: { dmgBonus: 0.25 } }],
         { Ready: { name: "Ready", duration: 10, maxStack: 1, effect: [] } },
       ),
     )
-    const compositeRow = generic.timeline.find(row => row.id === "rotation-0")
-    const followingRow = generic.timeline.find(row => row.id === "rotation-1")
+    const compositeRow = rowWithId(generic.timeline, "rotation-0")
+    const followingRow = rowWithId(generic.timeline, "rotation-1")
     expect(compositeRow && followingRow, "The composite and following rotation rows must exist.").toBeTruthy()
     expect(
       closeTo(compositeRow.effectiveCastTime, 2) && closeTo(followingRow.startTime, 2),
@@ -120,8 +135,8 @@ describe("multi-action", () => {
     ).toBeTruthy()
     expect(
       compositeRow.actions.length === 2 &&
-        closeTo(compositeRow.actions[0].time, 1) &&
-        closeTo(compositeRow.actions[1].time, 2),
+        closeTo(Number(compositeRow.actions[0]?.time), 1) &&
+        closeTo(Number(compositeRow.actions[1]?.time), 2),
       "Sub-action actions must be flattened into the parent skill at their effective times.",
     ).toBeTruthy()
     expect(
@@ -173,14 +188,11 @@ describe("multi-action", () => {
     }
     const conditionalRotation = {
       name: "Conditional sub-action probe",
-      steps: [
-        { type: "skill", skill: "ConditionalComposite" },
-        { type: "skill", skill: "ConditionalFollowing" },
-      ],
+      steps: [castStep("ConditionalComposite"), castStep("ConditionalFollowing")],
     }
     const chooseLongDefinition = { ChooseLong: { name: "Choose long", duration: 10, maxStack: 1, effect: [] } }
     const fallbackResult = calculateRotationBaseline(bundle(conditionalSkills, conditionalRotation))
-    const fallbackRow = fallbackResult.timeline.find(row => row.id === "rotation-0")
+    const fallbackRow = rowWithId(fallbackResult.timeline, "rotation-0")
     const fallbackFollowing = fallbackResult.timeline.find(row => row.id === "rotation-1")
     expect(
       fallbackRow?.effectiveCastTime === 1 && fallbackFollowing?.startTime === 1,
@@ -238,7 +250,7 @@ describe("multi-action", () => {
         tags: ["SubAction"],
       },
     }
-    const sequenceRotation = { name: "Sequence probe", steps: [{ type: "skill", skill: "SequenceComposite" }] }
+    const sequenceRotation = { name: "Sequence probe", steps: [castStep("SequenceComposite")] }
     const primarySequence = calculateRotationBaseline(
       bundle(
         sequenceSkills,
@@ -307,13 +319,9 @@ describe("multi-action", () => {
     }
     const startBoundRotation = {
       name: "Start-bound consume probe",
-      steps: [
-        { type: "skill", skill: "Primer" },
-        { type: "skill", skill: "BoundComposite" },
-        { type: "skill", skill: "Inspect" },
-      ],
+      steps: [castStep("Primer"), castStep("BoundComposite"), castStep("Inspect")],
     }
-    const startBoundDefinitions = innerPassionDuration => ({
+    const startBoundDefinitions = (innerPassionDuration: number): Record<string, EffectDefinition> => ({
       InnerPassion: { name: "Inner Passion", duration: innerPassionDuration, maxStack: 1, effect: [] },
       ChargeEnhancement: { name: "Charge Enhancement", duration: 10, maxStack: 1, effect: [] },
     })
@@ -357,13 +365,7 @@ describe("multi-action", () => {
     const fastBurning = calculateRotationBaseline(
       bundle(
         { ...phalanxbaneSkills, BurningPrimer: burningPrimer },
-        {
-          name: "Fast Burning Heart probe",
-          steps: [
-            { type: "skill", skill: "BurningPrimer" },
-            { type: "skill", skill: "PhalanxbaneHeavyCharged2" },
-          ],
-        },
+        { name: "Fast Burning Heart probe", steps: [castStep("BurningPrimer"), castStep("PhalanxbaneHeavyCharged2")] },
         [],
         burningDefinitions,
       ),
@@ -396,10 +398,7 @@ describe("multi-action", () => {
         },
         {
           name: "Slow Burning Heart probe",
-          steps: [
-            { type: "skill", skill: "SteadfastPrimer" },
-            { type: "skill", skill: "PhalanxbaneHeavyCharged2" },
-          ],
+          steps: [castStep("SteadfastPrimer"), castStep("PhalanxbaneHeavyCharged2")],
         },
         [],
         burningDefinitions,
@@ -422,14 +421,11 @@ describe("multi-action", () => {
     const phalanxbane = calculateRotationBaseline(
       bundle(phalanxbaneSkills, {
         name: "Phalanxbane multi-action probe",
-        steps: [
-          { type: "skill", skill: "PhalanxbaneHeavyCharged1" },
-          { type: "skill", skill: "PhalanxbaneQ" },
-        ],
+        steps: [castStep("PhalanxbaneHeavyCharged1"), castStep("PhalanxbaneQ")],
       }),
     )
-    const charged = phalanxbane.timeline.find(row => row.id === "rotation-0")
-    const afterCharged = phalanxbane.timeline.find(row => row.id === "rotation-1")
+    const charged = rowWithId(phalanxbane.timeline, "rotation-0")
+    const afterCharged = rowWithId(phalanxbane.timeline, "rotation-1")
     expect(charged && afterCharged, "The Phalanxbane charged and following rows must exist.").toBeTruthy()
     expect(
       closeTo(charged.effectiveCastTime, 1.4375) && closeTo(afterCharged.startTime, 1.4375),

@@ -1,7 +1,7 @@
 import previewManifest from "@gamedata/preview/previews.json"
 
 import type { EffectDefinition } from "@/calculations/rotationTimeline"
-import { innerWayDefinitions, type InnerWayDefinition } from "@/data/innerWayDefinitions"
+import { innerWayDefinitions, type InnerWayDefinition, type InnerWayTierEffect } from "@/data/innerWayDefinitions"
 import type { SkillCategory, SkillMap } from "@/skillOverrides"
 import type { WeaponId } from "@/types"
 
@@ -32,7 +32,7 @@ type PreviewOverlay = {
   skillMaps: Partial<Record<SkillCategory, SkillMap>>
   effectDefinitions: Record<string, EffectDefinition>
   dotDefinitions: SkillMap
-  innerWayTiers: Record<string, Record<string, unknown>>
+  innerWayTiers: Record<string, Record<string, InnerWayTierEffect>>
   martialArtDefinitions: Partial<Record<WeaponId, MartialArtDefinition>>
 }
 

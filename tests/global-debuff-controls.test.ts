@@ -1,5 +1,12 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { EditableObject, RotationStep, SkillRecord, TrackedEffect } from "@/calculations/rotationTimeline"
+import type { CharacterStats } from "@/types"
+
+import { isClose } from "./helpers/floatEquality"
+import { asEffectDefinitions } from "./helpers/shippedData"
+
 // Ported from script/probe/check-global-debuff-controls.mjs.
 describe("global-debuff-controls", () => {
   it("Global debuff control and conditional-effect checks passed", async () => {
@@ -18,7 +25,7 @@ describe("global-debuff-controls", () => {
     const innerWayDebuffs = (await import("../data/debuff/innerway.json")).default
     const draughtDebuffs = (await import("../data/debuff/bamboocut-draught.json")).default
     const scripts = (await import("../data/script.json")).default
-    const effectDefinitions = {
+    const effectDefinitions = asEffectDefinitions({
       ...draughtDebuffs,
       ...delugeBuffs,
       ...generalDebuffs,
@@ -28,8 +35,8 @@ describe("global-debuff-controls", () => {
       ...umbraDebuffs,
       ...dustDebuffs,
       ...innerWayDebuffs,
-    }
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    })
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1 }
     const enemy = {
       name: "Probe",
@@ -42,13 +49,13 @@ describe("global-debuff-controls", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const exhaustedEvent = {
+    const exhaustedEvent: SkillRecord = {
       name: "Exhausted",
       castTime: 0,
       action: [{ type: "apply", target: "target", value: "Exhausted", stack: 1, time: 0 }],
       tags: ["Event"],
     }
-    const hit = (tags = [], appliesFearful = false) => ({
+    const hit = (tags: string[] = [], appliesFearful = false): SkillRecord => ({
       name: "Hit",
       castTime: 1,
       action: [
@@ -58,17 +65,17 @@ describe("global-debuff-controls", () => {
       tags,
     })
     const result = (
-      initialDebuffs,
-      tags = [],
+      initialDebuffs: TrackedEffect[] = [],
+      tags: string[] = [],
       exhausted = false,
       appliesFearful = false,
-      initialBuffs = [],
-      nextStats = stats,
-      setupEffects = [],
-    ) => {
+      initialBuffs: TrackedEffect[] = [],
+      nextStats: CharacterStats = stats,
+      setupEffects: EditableObject[] = [],
+    ): number => {
       // Exhausted is a target debuff, so the fight has to start on the event
       // that applies it. Nothing reaches the target during prepull.
-      const steps = exhausted
+      const steps: RotationStep[] = exhausted
         ? [
             { type: "skill", skill: "Hit" },
             { type: "event", event: "Exhausted", startTime: 0 },
@@ -90,7 +97,7 @@ describe("global-debuff-controls", () => {
         },
         startAnchor: { rowId: "rotation-0" },
         stats: nextStats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         enemy,
         derivedStats: calculateDerivedStats(nextStats, 0),
         weapons: [],

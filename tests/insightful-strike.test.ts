@@ -1,6 +1,18 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationDamageEntry, RotationSimulationBaseline } from "@/calculations/rotationCalculator"
+import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
+
+import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
+
+/** The Affinity rate the fifth hit resolved, named when it resolved none. */
+function affinityOnFifthHit(baseline: RotationSimulationBaseline) {
+  const rates = baseline.actionBreakdowns["rotation-0:4"].outcomeRates
+  assert(rates, "The fifth Insightful Strike hit must resolve its outcome rates.")
+  return rates.affinity
+}
 
 // Ported from script/probe/check-insightful-strike.mjs.
 describe("insightful-strike", () => {
@@ -11,18 +23,17 @@ describe("insightful-strike", () => {
       insightfulStrikeDirectAffinityBonus,
       insightfulStrikeEffectFor,
     } = await import("../src/calculations/insightfulStrike.ts")
-    const { calculateRotationBaseline, calculateRotationDamageSequence } = await probeLoad(
-      "/src/calculations/rotationCalculator.ts",
-    )
+    const { calculateRotationBaseline, calculateRotationDamageSequence } = await probeLoad<
+      typeof import("../src/calculations/rotationCalculator")
+    >("/src/calculations/rotationCalculator.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const { outcomeBuffTick } = await import("../src/calculations/outcomeTriggeredBuffs.ts")
     const concentration = (await import("../data/buff/bellstrike-umbra.json")).default.Concentration
     const insightfulStrikeDefinition = (await import("../data/innerway/insightful-strike.json")).default
 
-    const closeTo = (actual, expected, message, tolerance = 1e-9) => {
-      assert(Math.abs(actual - expected) <= tolerance, `${message}: expected ${expected}, received ${actual}`)
-    }
+    const closeTo = (actual: number, expected: number, message: string, tolerance = 1e-9) =>
+      assertClose(actual, expected, tolerance, message)
     const rule = {
       source: "InsightfulStrike",
       tier: 0,
@@ -115,7 +126,7 @@ describe("insightful-strike", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const timeline = {
+    const timeline: TimelineBuildInput = {
       rotation: { name: "Insightful Strike probe", steps: [{ type: "skill", skill: "Probe" }] },
       skills: {
         Probe: {
@@ -142,7 +153,7 @@ describe("insightful-strike", () => {
       timeline,
       startAnchor: { rowId: "rotation-0" },
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(stats, 0),
       weapons: [],
@@ -151,7 +162,9 @@ describe("insightful-strike", () => {
       innerWayPriority: [],
       setupComparisons: {},
     })
-    const concentrations = result.baseline.map(entry => result.expectedOutcomeBuffSchedule[entry.id]?.Concentration)
+    const concentrations = result.baseline.map((entry: RotationDamageEntry) =>
+      entry.id ? result.expectedOutcomeBuffSchedule[entry.id]?.Concentration : undefined,
+    )
     assert(
       JSON.stringify(concentrations) === JSON.stringify([0, 0, 0, 0, 1]),
       `Concentration must begin after the fourth hit and affect the fifth; received ${concentrations}.`,
@@ -167,7 +180,7 @@ describe("insightful-strike", () => {
       timeline,
       startAnchor: { rowId: "rotation-0" },
       stats: probabilisticStats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(probabilisticStats, 0),
       weapons: [],
@@ -184,7 +197,7 @@ describe("insightful-strike", () => {
       },
       startAnchor: { rowId: "rotation-0" },
       stats: probabilisticStats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       enemy,
       derivedStats: calculateDerivedStats(probabilisticStats, 0),
       weapons: [],
@@ -193,8 +206,8 @@ describe("insightful-strike", () => {
       innerWayPriority: [],
       setupComparisons: {},
     })
-    const t0FifthAffinity = probabilisticT0.actionBreakdowns["rotation-0:4"].outcomeRates.affinity
-    const t3FifthAffinity = probabilisticT3.actionBreakdowns["rotation-0:4"].outcomeRates.affinity
+    const t0FifthAffinity = affinityOnFifthHit(probabilisticT0)
+    const t3FifthAffinity = affinityOnFifthHit(probabilisticT3)
     closeTo(
       t3FifthAffinity - t0FifthAffinity,
       0.001875,

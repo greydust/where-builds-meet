@@ -18,20 +18,22 @@ describe("worker-recovery", () => {
     let workersCreated = 0
 
     class RecoveringWorker {
-      listeners = new Map()
+      listeners = new Map<string, Array<(event: unknown) => void>>()
+      /** Which worker this is; the first one fails to load, as a real one would. */
+      instance: number
 
       constructor() {
         workersCreated += 1
         this.instance = workersCreated
       }
 
-      addEventListener(type, listener) {
+      addEventListener(type: string, listener: (event: unknown) => void) {
         const listeners = this.listeners.get(type) ?? []
         listeners.push(listener)
         this.listeners.set(type, listeners)
       }
 
-      postMessage(message) {
+      postMessage(message: { id: string }) {
         queueMicrotask(() => {
           const type = this.instance === 1 ? "error" : "message"
           const event =
@@ -43,12 +45,12 @@ describe("worker-recovery", () => {
       terminate() {}
     }
 
-    globalThis.Worker = RecoveringWorker
+    globalThis.Worker = RecoveringWorker as unknown as typeof Worker
 
     try {
-      const { disposeCalculationWorkers, dispatchCalculation } = await probeLoad(
-        "/src/calculations/rotationWorkerTransport.ts",
-      )
+      const { disposeCalculationWorkers, dispatchCalculation } = await probeLoad<
+        typeof import("../src/calculations/rotationWorkerTransport")
+      >("/src/calculations/rotationWorkerTransport.ts")
       const result = (await dispatchCalculation({
         mode: "baseline",
         key: "recovery",
@@ -63,7 +65,7 @@ describe("worker-recovery", () => {
       assert(workersCreated === 2, `Expected one replacement worker, but created ${workersCreated}.`)
       disposeCalculationWorkers()
     } finally {
-      delete globalThis.Worker
+      Reflect.deleteProperty(globalThis, "Worker")
     }
   })
 })

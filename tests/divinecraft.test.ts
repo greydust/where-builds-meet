@@ -2,10 +2,30 @@ import { existsSync } from "node:fs"
 
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { DamageContext } from "@/calculations/damage"
+import type { EditableObject } from "@/calculations/rotationTimeline"
+
+/**
+ * One Divinecraft as the shipped file carries it.
+ *
+ * Each Divinecraft's effect is a different shape — an HP bonus, a trigger list, a
+ * resource grant — so TypeScript infers a union no single consumer declares. The
+ * damage pipeline and the timeline both take the effect as an untyped object.
+ */
+type Divinecraft = { name: string; description: string; image?: string; effect: EditableObject }
+
 // Ported from script/probe/check-divinecraft.mjs.
 describe("divinecraft", () => {
   it("Divinecraft damage and healing-triggered Vitality checks passed", async () => {
-    const definitions = (await import("../data/divinecraft.json")).default
+    const definitions = (await import("../data/divinecraft.json")).default as Record<string, Divinecraft>
+
+    /** The Divinecraft with `id`, named when the shipped file has no such entry. */
+    function divinecraftOf(id: string) {
+      const definition = definitions[id]
+      assert(definition, `Expected the shipped file to declare Divinecraft ${id}.`)
+      return definition
+    }
 
     const damage = await import("../src/calculations/damage.ts")
     const timelineCalculation = await import("../src/calculations/rotationTimeline.ts")
@@ -18,17 +38,9 @@ describe("divinecraft", () => {
     }
 
     const stats = { ...statDefinitions.emptyStats, minPhys: 100, maxPhys: 100 }
-    const context = {
+    const context: DamageContext = {
       stats,
-      attunement: {
-        physicalPenetration: 0,
-        formlessPenetration: 0,
-        phalanxbaneChargedBoost: 0,
-        phalanxbaneMartialBoost: 0,
-        snowpartingChargedBoost: 0,
-        snowpartingVariedComboBoost: 0,
-        snowpartingMartialBoost: 0,
-      },
+      attunement: emptyAttunementStats,
       weapons: ["snowparting"],
       skillTags: [],
       buffs: [],
@@ -46,8 +58,8 @@ describe("divinecraft", () => {
       derivedStats: effectiveStats.calculateDerivedStats(stats, 0),
       effects: [],
     }
-    const damageFor = id =>
-      damage.calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, { ...context, effects: [definitions[id].effect] })
+    const damageFor = (id: string) =>
+      damage.calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, { ...context, effects: [divinecraftOf(id).effect] })
         .total
     const baseline = damage.calculateDamageBreakdown({ phyCoef: 1, attrCoef: 1 }, context).total
     assert(
@@ -79,7 +91,7 @@ describe("divinecraft", () => {
       "Stored Qi damage must remain inert until implemented.",
     )
 
-    const vitalityAfterHeals = id => {
+    const vitalityAfterHeals = (id: string) => {
       const timeline = timelineCalculation.buildRotationTimeline({
         rotation: {
           name: `${id} healing trigger probe`,
@@ -106,20 +118,23 @@ describe("divinecraft", () => {
         effectDefinitions: {},
         innerWayConditions: [],
         innerWayRules: [],
-        setupEffects: [definitions[id].effect],
+        setupEffects: [divinecraftOf(id).effect],
         weapons: [],
         initialResources: { Vitality: 0 },
         resourceMaximums: { Vitality: 100 },
       })
-      return timeline.find(row => row.step.type === "skill" && row.step.skill === "Observe")?.resources.Vitality
+      const observe = timeline.find(row => row.step.type === "skill" && row.step.skill === "Observe")
+      assert(observe, `${id} must schedule the observing skill the Vitality grant lands on.`)
+      return observe.resources.Vitality
     }
 
-    ;[
+    const healingTriggered: Array<[string, number]> = [
       ["FireWater", 2.4],
       ["WaterFire", 3],
       ["WaterPoison", 3],
       ["PoisonWater", 2.4],
-    ].forEach(([id, expected]) => {
+    ]
+    healingTriggered.forEach(([id, expected]) => {
       assert(
         Math.abs(vitalityAfterHeals(id) - expected) < 1e-9,
         `${id} must grant Vitality on the first heal and again at each three-second cooldown boundary.`,

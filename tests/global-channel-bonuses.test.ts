@@ -1,12 +1,17 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { CharacterStats } from "@/types"
+
+import { isClose } from "./helpers/floatEquality"
+
 // Ported from script/probe/check-global-channel-bonuses.mjs.
 describe("global-channel-bonuses", () => {
   it("Global HP and Bellstrike channel bonus formula checks passed", async () => {
     const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = {
       ...emptyStats,
       minPhys: 100,
@@ -30,7 +35,7 @@ describe("global-channel-bonuses", () => {
     }
     const baseContext = {
       stats,
-      attunement: {},
+      attunement: emptyAttunementStats,
       skillTags: [],
       weapons: [],
       buffs: [],
@@ -38,7 +43,7 @@ describe("global-channel-bonuses", () => {
       derivedStats: calculateDerivedStats(stats, 0),
       effects: [],
     }
-    const damage = (effects, nextStats = stats) =>
+    const damage = (effects: Record<string, unknown>[], nextStats: CharacterStats = stats) =>
       calculateDamageBreakdown(
         { phyCoef: 1, attrCoef: 1 },
         { ...baseContext, stats: nextStats, derivedStats: calculateDerivedStats(nextStats, 0), effects },

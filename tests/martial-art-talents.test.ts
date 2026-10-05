@@ -3,41 +3,51 @@ import { readFile, readdir } from "node:fs/promises"
 
 import { describe, it } from "vitest"
 
+import { martialArtDefinitions } from "@/application/gameData/martialArts"
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { DamageBreakdown } from "@/calculations/damage"
+import type { RotationSimulationBaseline } from "@/calculations/rotationCalculator"
+import type { FormulaStatValue, StatEffectValues } from "@/calculations/statEffects"
+import type { CharacterStats, EnemyProfile } from "@/types"
+
+import type {
+  EditableObject,
+  EffectDefinition,
+  ResourceState,
+  SkillRecord,
+  TimelineBuildInput,
+  TimelineRow,
+  RotationStep,
+} from "../src/calculations/rotationTimeline.ts"
+import type { StatKey, WeaponId } from "../src/types.ts"
 import { withImmediateAttacks } from "./helpers/attack-response-fixtures"
+import { assertClose } from "./helpers/floatEquality"
+import { castStep, delayStep } from "./helpers/rotationSteps"
 
 // Ported from script/probe/check-martial-art-talents.mjs.
 describe("martial-art-talents", () => {
   it("All martial arts: conversions, raw attributes, thresholds, tag isolation, conditional damage, and talent triggers passed", async () => {
-    const read = async path => JSON.parse(await readFile(path, "utf8"))
-    const close = (actual, expected, label) =>
-      assert(Number.isFinite(actual) && Math.abs(actual - expected) < 1e-8, `${label}: ${actual} != ${expected}`)
+    const read = async <T>(path: string): Promise<T> => JSON.parse(await readFile(path, "utf8"))
+    const close = (actual: number | undefined, expected: number, label: string) =>
+      assertClose(actual, expected, 1e-8, label)
     const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
     const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
     const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const mapping = (await read("data/official/profile-map.json")).martialArts
-    const system = await read("data/system.json")
-    const martialArtFiles = await readdir("data/martial-art")
-    const martialArtPayloads = await Promise.all(
-      martialArtFiles.map(async filename => [filename, await read(`data/martial-art/${filename}`)] as const),
-    )
-    const arts = {}
-    for (const [, art] of martialArtPayloads) {
-      const identity = Object.values(mapping).find(m => m.name.toLowerCase() === art.name.toLowerCase())
-      arts[identity.weapon] = art
-    }
+    const system = await read<{ initialResources: ResourceState }>("data/system.json")
+    const arts = martialArtDefinitions
     const effectDirectories = ["buff", "debuff"]
     const effectFiles = await Promise.all(
       effectDirectories.map(async dir => [dir, await readdir(`data/${dir}`)] as const),
     )
-    const effectPayloads = await Promise.all(
+    const effectPayloads: Array<readonly [string, string, Record<string, EffectDefinition>]> = await Promise.all(
       effectFiles.flatMap(([dir, files]) =>
         files.map(async file => [dir, file, await read(`data/${dir}/${file}`)] as const),
       ),
     )
-    const effectDefinitions = {}
+    const effectDefinitions: Record<string, EffectDefinition> = {}
     for (const [, , payload] of effectPayloads) Object.assign(effectDefinitions, payload)
     const baseCases = [
       ["strategicSword", "power", "affinity", 0.000152, 0.04256],
@@ -62,7 +72,7 @@ describe("martial-art-talents", () => {
         "everspring",
         "skystrikeGauntlets",
       ].map(w => [w, "agility", "minPhys", 0.264, 73.92]),
-    ]
+    ] as Array<[WeaponId, StatKey, StatKey, number, number]>
     for (const [weapon, source, target, rate, cap] of baseCases) {
       for (const amount of [0, 140, 280, 560]) {
         const effects = martialArtEffectsForRank(arts, [weapon], 13).filter(e => !e.requirement)
@@ -70,20 +80,29 @@ describe("martial-art-talents", () => {
         close(stats[target], Math.min(amount * rate, cap), `${weapon} base-stat conversion`)
       }
     }
-    for (const weapon of Object.keys(arts)) {
-      const effect = martialArtEffectsForRank(arts, [weapon], 13).filter(e => e.rawStat)
+    type RawStatConversion = { rawStat?: StatEffectValues; stat?: StatEffectValues; statStage: "talent" }
+    const isRawStatConversion = (
+      effect: RawStatConversion,
+    ): effect is RawStatConversion & { stat: Partial<Record<StatKey, FormulaStatValue>> } =>
+      Boolean(effect.rawStat && effect.stat)
+    for (const weapon of Object.keys(arts) as WeaponId[]) {
+      const effect = martialArtEffectsForRank(arts, [weapon], 13).filter(isRawStatConversion)
       const sheet = calculateStatsWithEffects(emptyStats, effect, 0, [weapon])
       const raw = Object.entries(sheet.rawStats).filter(
         ([key, value]) => value && /^(min|max)(Bellstrike|Stonesplit|Silkbind|Bamboocut)$/.test(key),
-      )
+      ) as Array<[StatKey, number]>
       for (const amount of [100, 1000]) {
         const base = { ...emptyStats }
         for (const [key] of raw) base[key] = amount
         const scaled = calculateStatsWithEffects(base, effect, 0, [weapon])
-        for (const [key, value] of Object.entries(effect[0].stat)) {
-          const maximumInput = value.formula.source.startsWith("max")
+        const converted = effect[0]
+        assert(converted, "A raw-stat conversion must exist for this martial art.")
+        for (const [key, value] of Object.entries(converted.stat)) {
+          const target = key as StatKey
+          const source = value.formula.source as StatKey
+          const maximumInput = source.startsWith("max")
           let rate
-          switch (key.endsWith("Penetration")) {
+          switch (target.endsWith("Penetration")) {
             case true:
               rate = maximumInput ? 0.0336 : 0.0672
               break
@@ -92,14 +111,14 @@ describe("martial-art-talents", () => {
               break
           }
           close(
-            scaled.stats[key],
-            Math.min((amount + sheet.rawStats[value.formula.source]) * rate, key.endsWith("Penetration") ? 22 : 0.11),
+            scaled.stats[target],
+            Math.min((amount + sheet.rawStats[source]) * rate, key.endsWith("Penetration") ? 22 : 0.11),
             `${weapon} attribute conversion includes raw talent and caps`,
           )
         }
       }
     }
-    const talentEffects = (weapon, name) =>
+    const talentEffects = (weapon: WeaponId, name: string) =>
       martialArtEffectsForRank(
         {
           [weapon]: {
@@ -109,6 +128,11 @@ describe("martial-art-talents", () => {
         [weapon],
         13,
       )
+    const outcomeRate = (damage: DamageBreakdown, rate: "critical" | "abrasion") => {
+      assert(damage.outcomeRates, "A damaging action must report its outcome rates.")
+      return damage.outcomeRates[rate]
+    }
+    const criticalRate = (damage: DamageBreakdown) => outcomeRate(damage, "critical")
     const enemy = {
       name: "Probe",
       level: 96,
@@ -120,7 +144,16 @@ describe("martial-art-talents", () => {
       bamboocutResistance: 0,
       judgementResistance: 0,
     }
-    const run = (weapon, name, tags, options = {}) => {
+    const run = (
+      weapon: WeaponId,
+      name: string,
+      tags: string[],
+      options: {
+        stats?: Partial<CharacterStats>
+        timeline?: Partial<TimelineBuildInput>
+        enemy?: Partial<EnemyProfile>
+      } = {},
+    ): { result: RotationSimulationBaseline; damage: DamageBreakdown } => {
       const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1, ...options.stats }
       const result = calculateRotationBaseline({
         timeline: {
@@ -140,7 +173,7 @@ describe("martial-art-talents", () => {
         stats,
         derivedStats: calculateDerivedStats(stats, 0),
         enemy: { ...enemy, ...options.enemy },
-        attunement: {},
+        attunement: emptyAttunementStats,
         weapons: [weapon],
         statPriority: [],
         attunementPriority: [],
@@ -152,12 +185,12 @@ describe("martial-art-talents", () => {
     for (const [weapon, name, resource] of [
       ["skygrasp", "Heaven's Will DMG Boost", "HeavensWill"],
       ["snowparting", "Critical DMG Up", "BladeMomentum"],
-    ]) {
+    ] as Array<[WeaponId, string, string]>) {
       for (const amount of [0, 1, 1.01]) {
         const stats = { crit: 0.6 }
         const { damage } = run(weapon, name, [], { stats, timeline: { initialResources: { [resource]: amount } } })
         let expected = 1000
-        if (amount > 1) expected *= weapon === "skygrasp" ? 1.09 : 1 + damage.outcomeRates.critical * 0.21
+        if (amount > 1) expected *= weapon === "skygrasp" ? 1.09 : 1 + criticalRate(damage) * 0.21
         close(damage.physical, expected, `${weapon} strict one-bar threshold`)
       }
     }
@@ -171,11 +204,11 @@ describe("martial-art-talents", () => {
       for (const [weapon, name, tags] of [
         ["inkwellFan", "Heavy Attack Pursuit Enhancement", ["MoonShatterSpring"]],
         ["vernalUmbrella", "Trajectory Calculation Enhancement", ["VernalUmbrella", "Ballistic"]],
-      ]) {
+      ] as Array<[WeaponId, string, string[]]>) {
         const { damage } = run(weapon, name, tags, { stats: { minPhys, crit: 1 } })
         close(
           damage.physical,
-          ((minPhys + 1000) / 2) * (1 + damage.outcomeRates.critical * Math.min(15, Math.floor(minPhys / 50)) * 0.024),
+          ((minPhys + 1000) / 2) * (1 + criticalRate(damage) * Math.min(15, Math.floor(minPhys / 50)) * 0.024),
           `${weapon} 50-point damage steps`,
         )
         close(
@@ -205,27 +238,30 @@ describe("martial-art-talents", () => {
           eventDefinitions: { Qi: { action: [{ type: "setQi", time: 0 }] } },
         },
       })
-      close(damage.outcomeRates.critical, qi < 30 ? 0.3 : 0, "Low-Qi critical chance threshold")
+      close(criticalRate(damage), qi < 30 ? 0.3 : 0, "Low-Qi critical chance threshold")
       close(damage.physical, qi < 30 ? 1080 : 1000, "Low-Qi HP damage threshold")
     }
     for (const [weapon, name, tags] of [
       ["thundercry", "Charge Calculation Enhancement", ["ThundercryBlade", "Charged"]],
       ["heavenwill", "Perfect Dodge Enhancement", ["VileCondemned"]],
-    ]) {
+    ] as Array<[WeaponId, string, string[]]>) {
       close(
-        run(weapon, name, tags, { stats: { precision: 0.7 } }).damage.outcomeRates.abrasion,
+        outcomeRate(run(weapon, name, tags, { stats: { precision: 0.7 } }).damage, "abrasion"),
         0,
         `${weapon} supported no-Abrasion conversion`,
       )
       close(
-        run(weapon, name, ["Other", "Charged"], { stats: { precision: 0.7 } }).damage.outcomeRates.abrasion,
+        outcomeRate(run(weapon, name, ["Other", "Charged"], { stats: { precision: 0.7 } }).damage, "abrasion"),
         0.3,
         `${weapon} no cross-weapon conversion`,
       )
     }
     close(
-      run("thundercry", "Charge Critical Hit Enhancement", ["ThundercryBlade", "Charged"], { stats: { maxHp: 90000 } })
-        .damage.outcomeRates.critical,
+      criticalRate(
+        run("thundercry", "Charge Critical Hit Enhancement", ["ThundercryBlade", "Charged"], {
+          stats: { maxHp: 90000 },
+        }).damage,
+      ),
       0.24,
       "Thundercry fixed and scaling Critical Rate",
     )
@@ -256,9 +292,12 @@ describe("martial-art-talents", () => {
       1000,
       "Iron Guard absence removes bonus",
     )
-    const cast = skill => ({ type: "skill", skill })
-    const delay = duration => ({ type: "event", event: "Delay", duration })
-    const timeline = (setupEffects, steps, skills, extra = {}) =>
+    const timeline = (
+      setupEffects: EditableObject[],
+      steps: RotationStep[],
+      skills: Record<string, SkillRecord>,
+      extra: Partial<TimelineBuildInput> = {},
+    ): TimelineRow[] =>
       buildRotationTimeline({
         rotation: { name: "Talent triggers", steps },
         skills: withImmediateAttacks(skills),
@@ -274,7 +313,7 @@ describe("martial-art-talents", () => {
     const observe = { castTime: 0, action: [{ type: "damage", phyCoef: 1, time: 0 }] }
     const startingResourceRows = timeline(
       [],
-      [cast("Observe"), delay(60), cast("Observe")],
+      [castStep("Observe"), delayStep(60), castStep("Observe")],
       { Observe: observe },
       { initialResources: system.initialResources },
     ).filter(row => row.step.skill === "Observe")
@@ -287,7 +326,7 @@ describe("martial-art-talents", () => {
         ...talentEffects("rivenTwinblades", "Increased Binge Point Gain"),
         ...talentEffects("skystrikeGauntlets", "Inebriate Dodge Enhancement"),
       ],
-      [cast("Carouse"), cast("Dodge"), cast("Dodge"), delay(1), cast("Dodge"), cast("Observe")],
+      [castStep("Carouse"), castStep("Dodge"), castStep("Dodge"), delayStep(1), castStep("Dodge"), castStep("Observe")],
       {
         Carouse: { castTime: 0, tags: ["HeroesBlood"], action: [] },
         Dodge: { castTime: 0, tags: ["PerfectDodge"], action: [] },
@@ -295,18 +334,25 @@ describe("martial-art-talents", () => {
       },
     )
     const final = rows.findLast(r => r.step.skill === "Observe")
+    assert(final, "The rotation must observe at least once.")
+    const carouse = final.buffs.get("Carouse")
+    assert(carouse, "Observing must leave the Carouse buff applied.")
     close(final.resources.Binge, 10, "Carouse dodge gain has a shared one-second cooldown")
-    close(final.buffs.get("Carouse").expiresAt, 20, "Carouse lasts twenty seconds")
+    close(carouse.expiresAt, 20, "Carouse lasts twenty seconds")
     const soulRows = timeline(
       talentEffects("heavenquakerSpear", "Damage Over Time Enhancement"),
-      [...Array.from({ length: 6 }, () => cast("Charged")), cast("Observe")],
+      [...Array.from({ length: 6 }, () => castStep("Charged")), castStep("Observe")],
       { Charged: { ...observe, tags: ["HeavenQuakerSpear", "Charged"] }, Observe: observe },
     )
-    close(soulRows.at(-1).debuffs.get("SoulShaken").stack, 5, "Heavenquaker trigger applies capped Soul-Shaken stacks")
+    const lastSoulRow = soulRows.at(-1)
+    assert(lastSoulRow, "The rotation must produce at least one row.")
+    const soulShaken = lastSoulRow.debuffs.get("SoulShaken")
+    assert(soulShaken, "The Heavenquaker trigger must apply Soul-Shaken.")
+    close(soulShaken.stack, 5, "Heavenquaker trigger applies capped Soul-Shaken stacks")
     for (const [grace, baseBonus] of [
       ["FloatingGrace", 0.1],
       ["FloatingGraceDeluge", 0.24],
-    ]) {
+    ] as Array<[string, number]>) {
       const graceSkills = {
         Grace: {
           castTime: 0,
@@ -327,23 +373,23 @@ describe("martial-art-talents", () => {
         Observe: observe,
       }
       const graceSteps = [
-        cast("Grace"),
-        cast("Observe"),
-        cast("Exhaust"),
-        cast("Observe"),
-        delay(1.1),
-        cast("Observe"),
-        cast("LongExhaust"),
-        delay(5.1),
-        cast("Observe"),
-        cast("ConsumeGrace"),
-        cast("Observe"),
-        cast("Grace"),
-        cast("Observe"),
-        delay(12.1),
-        cast("Observe"),
+        castStep("Grace"),
+        castStep("Observe"),
+        castStep("Exhaust"),
+        castStep("Observe"),
+        delayStep(1.1),
+        castStep("Observe"),
+        castStep("LongExhaust"),
+        delayStep(5.1),
+        castStep("Observe"),
+        castStep("ConsumeGrace"),
+        castStep("Observe"),
+        castStep("Grace"),
+        castStep("Observe"),
+        delayStep(12.1),
+        castStep("Observe"),
       ]
-      const graceRun = (enabled, extra = {}) =>
+      const graceRun = (enabled: boolean, extra: Partial<TimelineBuildInput> = {}): RotationSimulationBaseline =>
         run("soulshadeUmbrella", "Buff Enhancement", [], {
           timeline: {
             rotation: { name: "Floating Grace exhaustion conditions", steps: graceSteps },
@@ -354,10 +400,13 @@ describe("martial-art-talents", () => {
         }).result
       const ordinary = graceRun(false)
       const talented = graceRun(true)
-      const damage = result =>
+      const damage = (result: RotationSimulationBaseline) =>
         result.baseline
           .filter(entry => entry.action.type === "damage")
-          .map(entry => result.actionBreakdowns[entry.id].physical)
+          .map(entry => {
+            assert(entry.id, "A resolved damaging action must have an id.")
+            return result.actionBreakdowns[entry.id].physical
+          })
       const ordinaryDamage = damage(ordinary)
       const talentedDamage = damage(talented)
       assert.equal(talentedDamage.length, 7)
@@ -374,7 +423,7 @@ describe("martial-art-talents", () => {
         "The talent must not create a separate visible buff",
       )
       const permanent = {
-        rotation: { name: "Permanent Floating Grace", steps: [cast("Observe")] },
+        rotation: { name: "Permanent Floating Grace", steps: [castStep("Observe")] },
         initialBuffs: [{ name: grace, stack: 1, persistent: true }],
         initialDebuffs: [{ name: "Exhausted", stack: 1 }],
       }

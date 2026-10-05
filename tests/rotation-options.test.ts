@@ -45,14 +45,14 @@ describe("rotation-options", () => {
     })
     const hpRow = hpTimeline.find(row => row.step.type === "skill")
     const automaticRows = hpTimeline.filter(
-      row => row.step.type === "event" && row.step.event === "HP" && row.step.automatic,
+      row => row.step.type === "event" && row.step.event === "HP" && "automatic" in row.step && row.step.automatic,
     )
     expect(
       automaticRows.length === 0,
       "A legacy Auto HP flag must not generate duration-dependent HP events.",
     ).toBeTruthy()
     expect(
-      Object.values(hpRow.actionStates).every(state => state.targetHPRatio === 0.99),
+      hpRow !== undefined && Object.values(hpRow.actionStates).every(state => state.targetHPRatio === 0.99),
       "Without manual HP events or maximum target HP, legacy rotations retain the ordinary 99% target state.",
     ).toBeTruthy()
 
@@ -114,7 +114,11 @@ describe("rotation-options", () => {
     expect(
       bossDefinitions.every(definition => {
         const rows = attackTimelines[definition.id].filter(
-          row => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "targetAttack",
+          row =>
+            row.step.type === "event" &&
+            row.step.event === "TakeDamage" &&
+            "automatic" in row.step &&
+            row.step.automatic === "targetAttack",
         )
         // A target that declares no attack pattern must never generate a hit.
         if (definition.attackPattern.length === 0) return rows.length === 0
@@ -137,7 +141,11 @@ describe("rotation-options", () => {
 
     const dummyAttackTimeline = attackTimelines.DummyAttack
     const dummyAttackRows = dummyAttackTimeline.filter(
-      row => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "targetAttack",
+      row =>
+        row.step.type === "event" &&
+        row.step.event === "TakeDamage" &&
+        "automatic" in row.step &&
+        row.step.automatic === "targetAttack",
     )
     expect(dummyAttackRows.length, "The attacking dummy must resolve its declared pattern before Battle End.").toBe(6)
     expect(
@@ -174,7 +182,11 @@ describe("rotation-options", () => {
     })
     expect(
       legacyTimeline.filter(
-        row => row.step.type === "event" && row.step.event === "TakeDamage" && row.step.automatic === "targetAttack",
+        row =>
+          row.step.type === "event" &&
+          row.step.event === "TakeDamage" &&
+          "automatic" in row.step &&
+          row.step.automatic === "targetAttack",
       ).length > 0,
       "A stored rotation using the removed dummyAttack flag must keep its generated attack pattern.",
     ).toBeTruthy()

@@ -16,8 +16,11 @@ afterEach(() => vi.restoreAllMocks())
 const uncachedMatches: typeof attunementMatching.matchingAttunementEntries = (attunement, tags) =>
   Object.entries(attunement).flatMap(([key]) => {
     const effect = definitions[key as keyof typeof definitions]?.effect
-    return attunementMatching.attunementMatchesSkill(effect, tags)
-      ? [{ key: key as keyof AttunementStats, stat: effect?.stat }]
+    // The matcher reads the tag filter off an effect that also carries its stat sheet,
+    // so the filter is the effect as the matcher declares it.
+    const filter = { ...effect } as attunementMatching.AttunementTagFilter
+    return attunementMatching.attunementMatchesSkill(filter, tags)
+      ? [{ key: key as keyof AttunementStats, stat: (effect?.stat ?? {}) as Record<string, number> }]
       : []
   })
 
@@ -66,7 +69,7 @@ function outcomes(input: DamageContext) {
 describe("cached attunement matching", () => {
   it("matches uncached expected and sampled formulas exactly across filters and entry orders", () => {
     const tagSets = Object.values(definitions).flatMap(definition => {
-      const filter: attunementMatching.AttunementTagFilter = definition.effect
+      const filter = definition.effect as attunementMatching.AttunementTagFilter
       const tags = filter.tags?.map(tag => (typeof tag === "string" ? tag : tag[0])) ?? []
       const alternatives = (filter.tags ?? []).flatMap(tag =>
         typeof tag === "string"

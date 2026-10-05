@@ -1,5 +1,10 @@
 import { assert, describe, it } from "vitest"
 
+import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationStep, SkillRecord } from "@/calculations/rotationTimeline"
+
+import { isClose } from "./helpers/floatEquality"
+
 // Ported from script/probe/check-snowbreak-hit-effect.mjs.
 describe("snowbreak-hit-effect", () => {
   it("Snowbreak Spring hit-time Frost-Clad Night checks passed", async () => {
@@ -7,7 +12,7 @@ describe("snowbreak-hit-effect", () => {
     const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
     const { emptyStats } = await import("../src/data/statDefinitions.ts")
     const frostCladNight = (await import("../data/innerway/frost-clad-night.json")).default
-    const closeTo = (actual, expected) => Math.abs(actual - expected) < 1e-9
+    const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, precision: 1 }
     const enemy = {
       name: "Probe",
@@ -29,15 +34,15 @@ describe("snowbreak-hit-effect", () => {
       modifier: [],
       tags: ["SnowbreakSpring"],
     }
-    const exhausted = {
+    const exhausted: SkillRecord = {
       name: "Exhausted",
       castTime: 0,
       action: [{ type: "apply", target: "target", value: "Exhausted", time: 0 }],
       tags: ["Event"],
     }
 
-    const damage = ({ exhaustedAt, innerPassion = false } = {}) => {
-      const steps = [{ type: "skill", skill: "Hit" }]
+    const damage = ({ exhaustedAt, innerPassion = false }: { exhaustedAt?: number; innerPassion?: boolean } = {}) => {
+      const steps: RotationStep[] = [{ type: "skill", skill: "Hit" }]
       if (exhaustedAt !== undefined) steps.push({ type: "event", event: "Exhausted", startTime: exhaustedAt })
       return calculateRotationBaseline({
         timeline: {
@@ -54,7 +59,7 @@ describe("snowbreak-hit-effect", () => {
         },
         startAnchor: { rowId: "rotation-0" },
         stats,
-        attunement: {},
+        attunement: emptyAttunementStats,
         enemy,
         derivedStats: calculateDerivedStats(stats, 0),
         weapons: [],

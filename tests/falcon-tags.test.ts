@@ -10,9 +10,9 @@ describe("falcon-tags", () => {
 
     const skillSources = await Promise.all(files.map(async file => [file, await readFile(file, "utf8")] as const))
     for (const [file, source] of skillSources) {
-      const skills = JSON.parse(source)
+      const skills = JSON.parse(source) as Record<string, { tags?: unknown }>
       for (const [skillId, skill] of Object.entries(skills)) {
-        const tags = Array.isArray(skill.tags) ? skill.tags : []
+        const tags = Array.isArray(skill.tags) ? skill.tags.filter(tag => typeof tag === "string") : []
         if (tags.includes("Falcon") && !tags.includes("MartialArts")) missing.push(`${file}:${skillId}`)
       }
     }

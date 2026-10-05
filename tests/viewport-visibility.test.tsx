@@ -49,6 +49,7 @@ class ControllableObserver implements IntersectionObserver {
 
   readonly root = null
   readonly rootMargin = ""
+  readonly scrollMargin = ""
   readonly thresholds = []
 
   /** The browser telling the card it has entered or left the screen. */
