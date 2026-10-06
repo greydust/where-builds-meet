@@ -10,6 +10,7 @@ import { useRotationStore } from "@/stores/rotationStore"
 import english from "../public/locales/en.json"
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
+const foodCalculationCategories = ["food", "enduranceFood"] as const
 
 let container: HTMLDivElement
 let root: Root
@@ -67,4 +68,23 @@ it("reports a measured zero as zero rather than as an absent measurement", async
   })
   const { text } = await render("statPriority")
   expect(text).toBe("Recalculating… 0%")
+})
+
+it("keeps one food indicator busy until both categories finish", async () => {
+  await act(async () => {
+    useRotationStore.getState().startCategory("food")
+    useRotationStore.getState().startCategory("enduranceFood")
+    root.render(<CategoryStatus category={foodCalculationCategories} />)
+  })
+  expect(container.querySelectorAll("[data-calculation-status]")).toHaveLength(1)
+  expect(container.textContent).toBe("Recalculating…")
+  await act(async () => {
+    useRotationStore.getState().settleCategory("food")
+    useRotationStore.getState().progressCategory("enduranceFood", 0.5)
+  })
+  expect(container.textContent).toBe("Recalculating… 75%")
+  expect(container.querySelector("[data-busy]")).not.toBeNull()
+  await act(async () => useRotationStore.getState().settleCategory("enduranceFood"))
+  expect(container.textContent).toBe("Up to date")
+  expect(container.querySelector("[data-busy]")).toBeNull()
 })

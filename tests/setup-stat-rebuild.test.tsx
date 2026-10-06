@@ -222,7 +222,9 @@ it("migrates legacy Endurance food and keeps both food controls independent", as
     food: "SimmeringFishSlices",
     enduranceFood: "SwallowsAgility",
   })
-  const heading = [...container.querySelectorAll("h3")].find(node => node.textContent?.startsWith("Endurance"))!
+  const heading = [...container.querySelectorAll(".setup-category-row > span")].find(
+    node => node.textContent === "Endurance",
+  )!
   const none = [...heading.parentElement!.querySelectorAll("button")].find(node =>
     node.textContent?.startsWith("None"),
   )!

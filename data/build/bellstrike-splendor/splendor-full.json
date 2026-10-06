@@ -1,0 +1,124 @@
+{
+  "id": "splendor-full",
+  "name": "Graduate",
+  "order": 2,
+  "martialArts": ["namelessSword", "namelessSpear"],
+  "setup": {
+    "innerWays": [
+      { "innerWay": "SwordMorph", "tier": "T6" },
+      { "innerWay": "MountainsMight", "tier": "T6" },
+      { "innerWay": "BattleAnthem", "tier": "T6" },
+      { "innerWay": "InsightfulStrike", "tier": "T6" }
+    ],
+    "weaponSets": { "Jadeware": 4 },
+    "armorSets": {},
+    "bowRingSet": "Affinity",
+    "arsenal": "Bellstrike"
+  },
+  "gear": {
+    "leftWeapon": {
+      "definitionId": "sword",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "maxPhys", "value": 77.8 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "swordDmgBoost", "value": 0.062 },
+        { "key": "power", "value": 49.4 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 11 }
+    },
+    "rightWeapon": {
+      "definitionId": "spear",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "maxPhys", "value": 77.8 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "power", "value": 49.4 },
+        { "key": "affinity", "value": 0.044 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 11 }
+    },
+    "disc": {
+      "definitionId": "disc",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "maxPhys", "value": 77.8 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "allMartialArts", "value": 0.032 },
+        { "key": "power", "value": 49.4 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 11 }
+    },
+    "pendant": {
+      "definitionId": "pendant",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "maxPhys", "value": 77.8 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "allMartialArts", "value": 0.032 },
+        { "key": "power", "value": 49.4 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 11 }
+    },
+    "helmet": {
+      "definitionId": "helmet",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "affinity", "value": 0.044 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "power", "value": 49.4 },
+        { "key": "affinity", "value": 0.044 }
+      ],
+      "attunement": { "key": "namelessSwordChargedBoost", "value": 0.06 }
+    },
+    "chestpiece": {
+      "definitionId": "chestpiece",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "affinity", "value": 0.044 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "power", "value": 49.4 },
+        { "key": "affinity", "value": 0.044 }
+      ],
+      "attunement": { "key": "namelessSwordChargedBoost", "value": 0.06 }
+    },
+    "greaves": {
+      "definitionId": "greaves",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "power", "value": 49.4 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "vsBossDmg", "value": 0.032 },
+        { "key": "power", "value": 49.4 }
+      ],
+      "attunement": { "key": "namelessSwordChargedBoost", "value": 0.06 }
+    },
+    "bracer": {
+      "definitionId": "bracer",
+      "level": 96,
+      "rarity": "Gold",
+      "baseAffix": { "key": "power", "value": 49.4 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 77.8 },
+        { "key": "momentum", "value": 49.4 },
+        { "key": "vsBossDmg", "value": 0.032 },
+        { "key": "power", "value": 49.4 }
+      ],
+      "attunement": { "key": "namelessSwordChargedBoost", "value": 0.06 }
+    }
+  }
+}

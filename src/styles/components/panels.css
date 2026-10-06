@@ -91,9 +91,9 @@
    */
   .setup-placeholder-panel [data-panel-heading] h2,
   .inner-way-panel [data-panel-heading] h2,
-  .global-debuff-panel [data-panel-heading] h2,
+  .setup-category-panel [data-panel-heading] h2,
   .gear-set-list .setup-field > span,
-  .global-debuff-row > span {
+  .setup-category-row > span {
     margin-inline-start: calc(var(--radius-xs) * 0.5);
   }
 
@@ -327,23 +327,23 @@
     white-space: normal;
   }
 
-  /* Global Debuff Panel */
-  .global-debuff-panel {
-    padding: 12px;
+  /* Food and Global Buffs/Debuffs share category labels above option groups. */
+  .setup-category-panel {
+    padding: var(--space-sm);
   }
 
-  .global-debuff-panel [data-panel-heading] {
-    margin-block-end: 12px;
+  .setup-category-panel [data-panel-heading] {
+    margin-block-end: var(--space-sm);
   }
 
-  .global-debuff-list {
+  .setup-category-list {
     display: grid;
-    gap: 8px;
+    gap: var(--space-xs);
   }
 
-  .global-debuff-row {
+  .setup-category-row {
     display: grid;
-    gap: 3px;
+    gap: var(--space-2xs);
     min-inline-size: 0;
     color: var(--text-muted);
   }

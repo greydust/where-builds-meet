@@ -61,6 +61,8 @@ import { Panel, PanelHeading } from "@/ui/Panel"
 import { CalculatedStatField } from "./CalculatedStatField"
 import { StatPair } from "./StatPair"
 
+const foodCalculationCategories = ["food", "enduranceFood"] as const
+
 export function StatsTab({
   character,
   pathId,
@@ -847,16 +849,16 @@ export function StatsTab({
                 ))}
               </div>
             </Panel>
-            <Panel className="global-debuff-panel">
+            <Panel className="setup-category-panel">
               <PanelHeading>
                 <div>
                   <h2>{t("ui.app.globalBuffsDebuffs")}</h2>
                   <CalculationStatus category="globalDebuffs" />
                 </div>
               </PanelHeading>
-              <div className="global-debuff-list">
+              <div className="setup-category-list">
                 {globalDebuffRows.map(({ key, name, path }) => (
-                  <div className="global-debuff-row" key={key}>
+                  <div className="setup-category-row" key={key}>
                     <span>
                       {gameText(name)}
                       {path && <> ({gameText(path)})</>}
@@ -867,7 +869,7 @@ export function StatsTab({
                     </ButtonGroup>
                   </div>
                 ))}
-                <div className="global-debuff-row">
+                <div className="setup-category-row">
                   <span>{t("ui.app.draughtDebuffs")}</span>
                   <ButtonGroup columns={3}>
                     {(["none", "strayhunt", "both"] as const).map(value => {
@@ -890,7 +892,7 @@ export function StatsTab({
                     })}
                   </ButtonGroup>
                 </div>
-                <div className="global-debuff-row">
+                <div className="setup-category-row">
                   <span>
                     {gameText("Floating Grace")} ({t("system.path.deluge")})
                   </span>
@@ -910,7 +912,7 @@ export function StatsTab({
                     })}
                   </ButtonGroup>
                 </div>
-                <div className="global-debuff-row">
+                <div className="setup-category-row">
                   <span>{t("system.innerWay.bitterSeasons")}</span>
                   <ButtonGroup columns={3}>
                     {(["none", "T1", "T6"] as const).map(value => {
@@ -1111,36 +1113,37 @@ export function StatsTab({
               ))}
             </ButtonGroup>
           </Panel>
-          <Panel className="setup-placeholder-panel">
+          <Panel className="setup-category-panel">
             <PanelHeading>
               <div>
                 <h2>{t("ui.app.food")}</h2>
+                <CalculationStatus category={foodCalculationCategories} />
               </div>
             </PanelHeading>
-            {foodCategories.map(({ key, title }) => {
-              const selected = foodSelectionForPath(character.setupSelections[key], pathId, key)
-              return (
-                <div key={key}>
-                  <h3>
-                    {gameText(title)} <CalculationStatus category={key} />
-                  </h3>
-                  <ButtonGroup>
-                    {Object.entries(typedFoodDefinitions)
-                      .filter(([value]) => foodAvailableForPath(value, pathId, key))
-                      .map(([value, definition]) => (
-                        <ButtonGroupOption
-                          key={value}
-                          label={gameText(definition.name)}
-                          selected={selected === value}
-                          onClick={() => onSetupSelectionChange(key, value)}
-                        >
-                          {setupStatus(key, value, selected === value)}
-                        </ButtonGroupOption>
-                      ))}
-                  </ButtonGroup>
-                </div>
-              )
-            })}
+            <div className="setup-category-list">
+              {foodCategories.map(({ key, title }) => {
+                const selected = foodSelectionForPath(character.setupSelections[key], pathId, key)
+                return (
+                  <div key={key} className="setup-category-row">
+                    <span>{gameText(title)}</span>
+                    <ButtonGroup>
+                      {Object.entries(typedFoodDefinitions)
+                        .filter(([value]) => foodAvailableForPath(value, pathId, key))
+                        .map(([value, definition]) => (
+                          <ButtonGroupOption
+                            key={value}
+                            label={gameText(definition.name)}
+                            selected={selected === value}
+                            onClick={() => onSetupSelectionChange(key, value)}
+                          >
+                            {setupStatus(key, value, selected === value)}
+                          </ButtonGroupOption>
+                        ))}
+                    </ButtonGroup>
+                  </div>
+                )
+              })}
+            </div>
           </Panel>
           <Panel className="setup-placeholder-panel">
             <PanelHeading>

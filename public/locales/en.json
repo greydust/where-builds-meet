@@ -213,6 +213,7 @@
   "data.build.bamboocutWind.windFullMin.name": "Full Min Build",
   "data.build.bamboocutWind.windFullyRelayedMax.name": "Fully Relayed Max Build",
   "data.build.bamboocutWind.windFullyRelayedMin.name": "Fully Relayed Min Build",
+  "data.build.bellstrikeSplendor.splendorFull.name": "Graduate",
   "data.build.bellstrikeSplendor.splendorFullyRelayed.name": "Fully Relayed",
   "data.build.empty.name": "Empty Build",
   "data.build.silkbindDeluge.delugeFullMinEw.name": "Full Min Build Etherwrath",
