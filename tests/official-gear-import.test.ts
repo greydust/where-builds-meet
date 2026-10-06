@@ -5,10 +5,10 @@ import type { OfficialProfileMap } from "@/officialGearImport"
 // Ported from script/probe/check-official-gear-import.mjs.
 describe("official-gear-import", () => {
   it("Official dashboard gear parsing and additive build import checks passed", async () => {
-    const importer = await import("../src/officialGearImport.ts")
-    const bookmarklet = await import("../src/officialGearBookmarklet.ts")
-    const gear = await import("../src/gear.ts")
-    const affixMap = (await import("../data/official/affix-map.json")).default as Record<string, string>
+    const importer = await import("@/officialGearImport.ts")
+    const bookmarklet = await import("@/officialGearBookmarklet.ts")
+    const gear = await import("@/gear.ts")
+    const affixMap = (await import("@gamedata/official/affix-map.json")).default as Record<string, string>
     assert(
       bookmarklet.officialGearBookmarklet.startsWith("javascript:"),
       "The dashboard exporter must be a draggable JavaScript bookmark.",
@@ -269,10 +269,10 @@ describe("official-gear-import", () => {
       "A Dust import must select the Bamboocut arsenal that covers its path's attribute.",
     )
     // The official ID tables are only useful while every value they carry resolves.
-    const profileMap = (await import("../data/official/profile-map.json")).default as OfficialProfileMap
-    const { innerWayDefinitions } = await import("../src/data/innerWayDefinitions.ts")
-    const { typedPathDefinitions } = await import("../src/application/gameData/paths.ts")
-    const arsenals = Object.keys((await import("../data/arsenal.json")).default) as string[]
+    const profileMap = (await import("@gamedata/official/profile-map.json")).default as OfficialProfileMap
+    const { innerWayDefinitions } = await import("@/data/innerWayDefinitions.ts")
+    const { typedPathDefinitions } = await import("@/application/gameData/paths.ts")
+    const arsenals = Object.keys((await import("@gamedata/arsenal.json")).default) as string[]
     for (const [id, entry] of Object.entries(profileMap.innerWays)) {
       if (!entry.innerWay) continue
       assert.ok(
@@ -516,10 +516,10 @@ describe("official-gear-import", () => {
       kiteArmor.warnings.length === 0 &&
         kiteItems.get("helmet")?.attunement?.key === "skygraspSpecialBoost" &&
         kiteItems.get("chestpiece")?.attunement?.key === "heavenwillChargedBoost" &&
-        kiteItems.get("greaves")?.additionalAffixes.some(affix => affix.key === "body") &&
+        kiteItems.get("greaves")?.additionalAffixes.some(affix => affix.key === "defense") &&
         kiteItems.get("greaves")?.attunement?.key === "heavenwillLightVariedComboBoost" &&
         kiteItems.get("bracer")?.attunement?.key === "heavenwillMartialBoost",
-      "Observed Kite armor IDs must import as Body and the matching Kite attunements.",
+      "Observed Kite armor IDs must import as Defense and the matching Kite attunements.",
     )
     const firstOfficialMerge = gear.mergeImportedBuildState(
       { entries: [], activeBuildId: "", gearItems: [] },

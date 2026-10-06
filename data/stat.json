@@ -33,7 +33,9 @@
       "dualBladesDmgBoost": 0.062,
       "vsBossDmg": 0.032,
       "singleTargetMysticDmgBoost": 0.098,
-      "areaMysticDmgBoost": 0.098
+      "areaMysticDmgBoost": 0.098,
+      "maxHp": 2960,
+      "physicalDefense": 39
     },
     "attunement": { "physicalPenetration": 11, "formlessPenetration": 13, "physicalResistance": 11, "armor": 0.06 }
   },

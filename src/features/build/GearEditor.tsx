@@ -11,14 +11,15 @@ import {
   type GearLevel,
   type GearRarity,
   type GearValueDefinition,
-} from "../../gear"
-import type { GearOcrResult } from "../../gearOcr"
-import { gameText, t } from "../../i18n"
-import { Button } from "../../ui/Button"
-import { Checkbox } from "../../ui/Checkbox"
-import { NumberInput } from "../../ui/NumberInput"
-import { Panel, PanelHeading } from "../../ui/Panel"
-import { Select } from "../../ui/Select"
+} from "@/gear"
+import type { GearOcrResult } from "@/gearOcr"
+import { gameText, t } from "@/i18n"
+import { Button } from "@/ui/Button"
+import { Checkbox } from "@/ui/Checkbox"
+import { NumberInput } from "@/ui/NumberInput"
+import { Panel, PanelHeading } from "@/ui/Panel"
+import { Select } from "@/ui/Select"
+
 import { GearOcrModal } from "./GearOcrModal"
 
 export type GearValueDraft = { key: string; value: string }
@@ -143,11 +144,18 @@ function GearValueEditor({
           }
         >
           <option value="">{t("ui.buildTab.selectAnAttribute")}</option>
-          {options.map(key => (
-            <option key={key} value={key} disabled={key !== value.key && (disabledKeys?.has(key) ?? false)}>
-              {gameText(definitions[key]?.name ?? key)}
+          {selectedDefinition?.pickable === false && (
+            <option value={value.key} disabled>
+              {gameText(selectedDefinition.name)}
             </option>
-          ))}
+          )}
+          {options
+            .filter(key => definitions[key]?.pickable !== false)
+            .map(key => (
+              <option key={key} value={key} disabled={key !== value.key && (disabledKeys?.has(key) ?? false)}>
+                {gameText(definitions[key]?.name ?? key)}
+              </option>
+            ))}
         </Select>
       </label>
       <label className="gear-value-input">

@@ -31,7 +31,7 @@ describe("gear", () => {
       return import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`)
     }
 
-    const gear = await import("../src/gear.ts")
+    const gear = await import("@/gear.ts")
     const damage = await loadBundledModule("./src/calculations/damage.ts")
     const statDefinitions = await loadBundledModule("./src/data/statDefinitions.ts")
     const maxRoll = (...args: Parameters<typeof gear.maxGearRoll>) => {
@@ -44,7 +44,7 @@ describe("gear", () => {
       assert(clamped !== undefined, `No clamped roll for ${String(args[0])}.`)
       return clamped
     }
-    const breakthroughProfiles = (await import("../data/breakthrough.json")).default
+    const breakthroughProfiles = (await import("@gamedata/breakthrough.json")).default
 
     const gearAffixSummary = gear.summarizeGearAffixes([
       {
@@ -87,7 +87,7 @@ describe("gear", () => {
         .affixOptionsForGearDefinition(gear.gearData.gear.hengBlade, "additionalAffixes", 96, true)
         .slice(-2)
         .join(",") === "body,defense",
-      "Universal defensive affixes must remain at the bottom of Build tab affix dropdowns.",
+      "Body and Defense must remain supported universal affixes for saved gear.",
     )
     assert(
       Object.keys(gear.gearData.affixes).every(

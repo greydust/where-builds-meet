@@ -1,11 +1,12 @@
-import armorSetJson from "../data/armor-set.json"
-import arsenalJson from "../data/arsenal.json"
-import attunementJson from "../data/attunement.json"
-import bowRingSetJson from "../data/bow-ring-set.json"
-import defaultSetupJson from "../data/default-setup.json"
-import gearSetJson from "../data/gear-set.json"
-import gearJson from "../data/gear.json"
-import statJson from "../data/stat.json"
+import armorSetJson from "@gamedata/armor-set.json"
+import arsenalJson from "@gamedata/arsenal.json"
+import attunementJson from "@gamedata/attunement.json"
+import bowRingSetJson from "@gamedata/bow-ring-set.json"
+import defaultSetupJson from "@gamedata/default-setup.json"
+import gearSetJson from "@gamedata/gear-set.json"
+import gearJson from "@gamedata/gear.json"
+import statJson from "@gamedata/stat.json"
+
 import { activeBuildStorageKey, buildListStorageKey, legacyGearStorageKey } from "./application/persistence/keys"
 import { readLegacyBuildSetup, readLegacyGearInventory } from "./application/persistence/legacy"
 import type { AttunementTagFilter } from "./calculations/attunementStats"
@@ -117,7 +118,7 @@ export type BuildEntry = {
 
 export type BuildState = { entries: BuildEntry[]; activeBuildId: string; gearItems: GearItem[] }
 
-export type GearValueDefinition = { name: string; percentage?: boolean }
+export type GearValueDefinition = { name: string; percentage?: boolean; pickable?: boolean }
 
 export type AttunementDefinition = GearValueDefinition & {
   tags: string[]
@@ -337,7 +338,7 @@ export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverride
   return result
 }
 
-const buildPresetModules = import.meta.glob("../data/build/**/*.json", { eager: true, import: "default" }) as Record<
+const buildPresetModules = import.meta.glob("@gamedata/build/**/*.json", { eager: true, import: "default" }) as Record<
   string,
   BuildPreset
 >

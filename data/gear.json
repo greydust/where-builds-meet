@@ -23,10 +23,10 @@
     "minBamboocut": { "name": "Min Bamboocut Attack" },
     "maxBamboocut": { "name": "Max Bamboocut Attack" },
     "power": { "name": "Power" },
-    "body": { "name": "Body" },
+    "body": { "name": "Body", "pickable": false },
     "agility": { "name": "Agility" },
     "momentum": { "name": "Momentum" },
-    "defense": { "name": "Defense" },
+    "defense": { "name": "Defense", "pickable": false },
     "precision": { "name": "Precision", "percentage": true },
     "crit": { "name": "Critical", "percentage": true },
     "affinity": { "name": "Affinity", "percentage": true },
@@ -42,9 +42,11 @@
     "dualBladesDmgBoost": { "name": "Art of Dual Blades", "percentage": true },
     "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
-    "vsBossDmg": { "name": "vs Boss DMG", "percentage": true }
+    "vsBossDmg": { "name": "vs Boss DMG", "percentage": true },
+    "maxHp": { "name": "Max HP", "pickable": false },
+    "physicalDefense": { "name": "Physical Defense", "pickable": false }
   },
-  "universalAdditionalAffixes": { "96": ["body", "defense"], "91": ["body", "defense"] },
+  "universalAdditionalAffixes": { "96": ["maxHp", "physicalDefense", "body", "defense"], "91": ["body", "defense"] },
   "gear": {
     "hengBlade": {
       "name": "Heng Blade",
@@ -56,7 +58,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -116,7 +128,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -176,7 +198,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -236,7 +268,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -296,7 +338,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -356,7 +408,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -416,7 +478,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -476,7 +548,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -536,7 +618,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -596,7 +688,17 @@
       },
       "baseAffixes": {
         "96": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
-        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"]
+        "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
+        "96Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ]
       },
       "additionalAffixes": {
         "96": [
@@ -753,7 +855,10 @@
         "96": { "Gold": { "maxHp": 5774, "physicalDefense": 22 }, "Purple": { "maxHp": 5196, "physicalDefense": 20 } },
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 18 }, "Purple": { "maxHp": 4153, "physicalDefense": 16 } }
       },
-      "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
+      "baseAffixes": {
+        "96": ["crit", "precision", "affinity", "maxHp", "physicalDefense"],
+        "91": ["crit", "precision", "affinity"]
+      },
       "additionalAffixes": {
         "96": [
           "minPhys",
@@ -808,7 +913,10 @@
         },
         "91": { "Gold": { "maxHp": 9227, "physicalDefense": 18 }, "Purple": { "maxHp": 8305, "physicalDefense": 16 } }
       },
-      "baseAffixes": { "96": ["crit", "precision", "affinity"], "91": ["crit", "precision", "affinity"] },
+      "baseAffixes": {
+        "96": ["crit", "precision", "affinity", "maxHp", "physicalDefense"],
+        "91": ["crit", "precision", "affinity"]
+      },
       "additionalAffixes": {
         "96": [
           "minPhys",
@@ -861,7 +969,7 @@
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 36 }, "Purple": { "maxHp": 4153, "physicalDefense": 32 } }
       },
       "baseAffixes": {
-        "96": ["crit", "precision", "affinity", "power"],
+        "96": ["crit", "precision", "affinity", "power", "maxHp", "physicalDefense", "body"],
         "91": ["crit", "precision", "affinity", "power"]
       },
       "additionalAffixes": {
@@ -914,7 +1022,7 @@
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 18 }, "Purple": { "maxHp": 4153, "physicalDefense": 16 } }
       },
       "baseAffixes": {
-        "96": ["crit", "precision", "affinity", "power"],
+        "96": ["crit", "precision", "affinity", "power", "maxHp", "physicalDefense", "body"],
         "91": ["crit", "precision", "affinity", "power"]
       },
       "additionalAffixes": {

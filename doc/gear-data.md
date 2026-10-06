@@ -46,7 +46,12 @@ a level. Body and Defense use this shared pool, avoiding repeated option lists
 while keeping their availability explicit in data. Body, Defense, Max HP, and
 Physical Defense are visible calculated fields in the Main stat grid. Equipped
 values enter the shared derived-stat pipeline, so Body affects Max HP and any
-mechanic that scales from it.
+mechanic that scales from it. Defensive affixes have `pickable: false`: imported
+or saved rolls remain supported, but the editor does not offer them as new choices.
+An existing defensive roll displays as a disabled selected option and keeps its value.
+Tier 96 also supports Max HP and Physical Defense as universal additional rolls,
+and as armor base rolls; Greaves and Bracer additionally support Body base rolls.
+Their Tier 96 maximums are 2960 HP and 39 Physical Defense from the item catalog.
 
 An attunement selector is matched against each definition's `tags` in
 `data/attunement.json`. Weapons, Disc, and Pendant select `Weapon`; Helmet,
@@ -69,6 +74,9 @@ Bamboocut Attack. These stats share the Tier 96 min/max Void Attack roll in
 `data/stat.json`. Tier 91 weapons expose min/max Bellstrike, Stonesplit,
 Silkbind, and Bamboocut Attack as ordinary additional affixes without requiring
 relay.
+Tier 96 Trial weapon IDs `9620001`–`9620014` cover the shared weapon base
+rolls and elemental relay base rolls. Weapon `96Relayed` base choices reuse
+the existing relay selection and import inference mechanism.
 All weapon definitions share the same fixed base-stat and base-affix tables.
 Their additional-affix pools also share the ordinary weapon affixes, with each
 definition including only its own weapon-family damage boost. Both Rope Dart
@@ -218,7 +226,16 @@ The Tier 96 Kite armor-attunement family uses IDs `279751` through `279755` in
 charged/martial/third-type order for Heavenwill Gauntlets, followed by Heavy and
 Special for Skygrasp Rope Dart. Dashboard Body and Defense IDs are mapped as
 ordinary universal additional affixes rather than discarded as non-offensive data.
-The Tier 96 Art of Gauntlet additional affix uses ID `9793031`.
+The Tier 96 Art of Gauntlet additional affix uses IDs `9793031` and `9794031`.
+Art of Sword, Spear, Fan, and Dual Blades IDs also map to their existing
+weapon-specific affix keys, including the Tier 91 `9293`/`9294` and Tier 96
+`9793`/`9794` families. In particular, `9793015` is `swordDmgBoost`;
+dashboard values already expressed as decimal ratios are preserved.
+The Tier 96 item catalog is authoritative for defensive ID meanings: `9793001`
+is Body, `9793003` is Defense, and `9793006` is Max HP. The corresponding
+accessory/armor and alternate families use the same meanings. Older imported
+items retain their saved stat keys and values; their original dashboard IDs were
+not stored, so ambiguous past misidentifications cannot be migrated reliably.
 
 The import creates a new `{character name} Import` build even when no gear can
 be imported. Missing gear details, missing or unsupported base affixes, invalid
