@@ -44,7 +44,7 @@ function run(
   return calculateRotationBaseline({
     timeline: {
       rotation,
-      skills: allSkillDefinitions,
+      skills: { ...allSkillDefinitions, SwordSlashWait: { name: "Wait", castTime: 8, tags: ["General"] } },
       effectDefinitions,
       eventDefinitions: rotationEventDefinitions,
       dots: {},
@@ -72,6 +72,12 @@ function run(
     innerWayPriority: [],
     setupComparisons: {},
   })
+}
+
+function firstHitDamage(result: ReturnType<typeof run>) {
+  const row = result.timeline[0]
+  const index = row.actions.findIndex(action => action.type === "damage")
+  return result.actionBreakdowns[row.id + ":" + index].total
 }
 
 it("Daunting Strike cancel lands the flying sword and applies Qi Imbalance on hit", () => {
@@ -109,8 +115,8 @@ describe("Splendor Inner Way behavior", () => {
     const full = run(ways, ["VagrantSword2"], 21, false, false, true)
     expect(empty.timeline[0].baseResourceConsumption?.Endurance).toBe(0)
     expect(partial.timeline[0].baseResourceConsumption?.Endurance).toBe(10)
-    expect(partial.metrics.totalDamage / empty.metrics.totalDamage).toBeCloseTo(1.15, 8)
-    expect(full.metrics.totalDamage / empty.metrics.totalDamage).toBeCloseTo(1.3, 8)
+    expect(firstHitDamage(partial) / firstHitDamage(empty)).toBeCloseTo(1.15, 8)
+    expect(firstHitDamage(full) / firstHitDamage(empty)).toBeCloseTo(1.3, 8)
   })
 
   it("guarantees only the third wave's Affinity and removes Abrasion against Exhausted", () => {
@@ -149,11 +155,11 @@ describe("Splendor Inner Way behavior", () => {
     const noExtra = run(ways, ["VagrantSword2"], 24)
     const partial = run(ways, ["VagrantSword2"], 34)
     const full = run(ways, ["VagrantSword2"], 44)
-    expect(partial.metrics.totalDamage / noExtra.metrics.totalDamage).toBeCloseTo(
+    expect(firstHitDamage(partial) / firstHitDamage(noExtra)).toBeCloseTo(
       (1 + 10.0012 * 0.015) / (1 + 0.0012 * 0.015),
       8,
     )
-    expect(full.metrics.totalDamage / noExtra.metrics.totalDamage).toBeCloseTo(1.3 / (1 + 0.0012 * 0.015), 8)
+    expect(firstHitDamage(full) / firstHitDamage(noExtra)).toBeCloseTo(1.3 / (1 + 0.0012 * 0.015), 8)
   })
 
   it("restores Battle Anthem Endurance on a guaranteed Affinity hit", () => {
@@ -276,4 +282,52 @@ describe("Splendor Inner Way behavior", () => {
     expect(tracker.resolve(12, 1, 12)).toBe(0.5)
     expect(tracker.resolve(13, 1, 12)).toBe(0.5)
   })
+})
+
+it("stacks sword-energy damage after each hit, caps at three, and excludes other skills", () => {
+  const result = run(
+    [],
+    ["VagrantSword2", "ShadowStepCancel", "VagrantSword2", "ShadowStepCancel", "DauntingStrikeCancel"],
+  )
+  const hits = result.timeline.flatMap(row =>
+    row.actions.flatMap((action, index) =>
+      action.type === "damage"
+        ? [{ row, index, stacks: row.actionStates[index].debuffs.get("SwordSlashDamageBoost")?.stack ?? 0 }]
+        : [],
+    ),
+  )
+  expect(hits.map(hit => hit.stacks)).toEqual([0, 1, 2, 3, 3])
+  for (const { row, index, stacks } of hits) {
+    const bonus = row.actionSkillTags?.[index]?.includes("SwordEnergy") ?? row.skill?.tags?.includes("SwordEnergy")
+    const actual = result.actionBreakdowns[row.id + ":" + index].total
+    const plain = run([], [row.step.type === "skill" ? row.step.skill! : ""])
+    const plainIndex = plain.timeline[0].actions.findIndex(action => action.type === "damage")
+    expect(actual / plain.actionBreakdowns[plain.timeline[0].id + ":" + plainIndex].total).toBeCloseTo(
+      1 + (bonus ? stacks * 0.1 : 0),
+      8,
+    )
+  }
+})
+
+it("builds three stacks within Vagrant's three waves and refreshes their shared expiry", () => {
+  const result = run([{ innerWay: "SwordMorph", tier: "T0" }], ["VagrantSword2", "ShadowStepCancel"])
+  const row = result.timeline[0]
+  expect(
+    row.actions.flatMap((action, index) =>
+      action.type === "damage" ? [row.actionStates[index].debuffs.get("SwordSlashDamageBoost")?.stack ?? 0] : [],
+    ),
+  ).toEqual([0, 1, 2])
+  expect(result.timeline[1].debuffs.get("SwordSlashDamageBoost")?.stack).toBe(3)
+  expect(result.timeline[1].debuffs.get("SwordSlashDamageBoost")?.appliedAt).toBeCloseTo(row.startTime + 1.4 + 0.755)
+})
+
+it("expires all sword-energy stacks eight seconds after the last hit", () => {
+  const result = run([], ["ShadowStepCancel", "SwordSlashWait", "ShadowStepCancel"])
+  const row = result.timeline[2]
+  const index = row.actions.findIndex(action => action.type === "damage")
+  expect(row.actionStates[index].debuffs.has("SwordSlashDamageBoost")).toBe(false)
+  expect(result.actionBreakdowns[row.id + ":" + index].total).toBeCloseTo(
+    firstHitDamage(run([], ["ShadowStepCancel"])),
+    8,
+  )
 })

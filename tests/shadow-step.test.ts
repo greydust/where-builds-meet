@@ -99,7 +99,10 @@ describe("Shadow Step cancel", () => {
         row.actions.flatMap((action, index) => {
           const breakdown = result.actionBreakdowns[`${row.id}:${index}`]
           const tags = row.actionSkillTags?.[index] ?? []
-          return action.type === "damage" && breakdown && tags.includes("SwordEnergy") && tags.includes("VagrantSword")
+          return action.type === "damage" &&
+            breakdown &&
+            tags.includes("VagrantSword") &&
+            row.actions.filter(candidate => candidate.type === "damage").length === 3
             ? [breakdown.total]
             : []
         }),

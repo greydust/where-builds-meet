@@ -952,6 +952,12 @@ time. Exhausted alone does not satisfy this condition.
 
 ## Splendor outcome and spending effects
 
+Vagrant Sword (both release variants) and Shadow Step carry `SwordEnergy`. Each
+damage hit applies Sword Slash Damage Boost (劍氣增傷) after that hit: one stack,
+up to three, with a shared eight-second duration refreshed on every hit. The
+debuff adds 10% damage bonus per stack only to `SwordEnergy` skills; the applying
+hit uses the previous stack count. This mechanic is independent of Inner Way tier.
+
 Nameless Spear increases natural Endurance regeneration by 20% strictly below
 30% of maximum Endurance. The regeneration calculation uses the current cap and
 splits spans when the meter crosses that threshold. Direct skill and Inner Way

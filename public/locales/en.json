@@ -266,6 +266,8 @@
   "data.debuff.bellstrikeSplendor.QiImbalance.description": "Increases Qi damage taken by 10%. Increases global HP damage taken by 8% during exhausted, and an additional 8% for Bellstrike damage.",
   "data.debuff.bellstrikeSplendor.QiImbalance.name": "Qi Imbalance",
   "data.debuff.bellstrikeSplendor.QiImbalance.shortName": "QI",
+  "data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.description": "Increases SwordEnergy skill damage by 10% per stack, up to 3 stacks. Hits refresh the 8-second duration.",
+  "data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.name": "Sword Slash Damage Boost",
   "data.debuff.bellstrikeUmbra.SoulShaken.description": "Increases DoT damage taken by 5% per stack, another 5% from Strategic Sword or Heavenquaker Spear, and another 10% for High Bleed.",
   "data.debuff.bellstrikeUmbra.SoulShaken.name": "Soul-Shaken",
   "data.debuff.bellstrikeUmbra.SoulShaken.shortName": "SS",

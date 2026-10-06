@@ -728,6 +728,12 @@ rotation casts wait automatically without storing explicit Delay steps.
 
 ### Vagrant Sword charge tiers
 
+Vagrant Sword (both release variants) and Shadow Step carry `SwordEnergy`. Each
+damage hit applies Sword Slash Damage Boost (劍氣增傷) after that hit: one stack,
+up to three, with a shared eight-second duration refreshed on every hit. The
+debuff adds 10% damage bonus per stack only to `SwordEnergy` skills; the applying
+hit uses the previous stack count. This mechanic is independent of Inner Way tier.
+
 Vagrant Sword ignores ping on its parent and every sub-action: pre-charge,
 charging, and both release variants. Input latency adds no delay to the cast
 or any phase or hit, including the charge skipped by Energy Surge.

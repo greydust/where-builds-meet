@@ -137,6 +137,8 @@
   "data.debuff.bellstrikeSplendor.QiImbalance.description": "受到的真氣傷害提高 10%。力竭期間受到的全域氣血傷害提高 8%，鳴金傷害再額外提高 8%。",
   "data.debuff.bellstrikeSplendor.QiImbalance.name": "真氣失衡",
   "data.debuff.bellstrikeSplendor.QiImbalance.shortName": "失",
+  "data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.description": "每層使劍氣技能傷害提高 10%，最多 3 層。命中時刷新 8 秒持續時間。",
+  "data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.name": "劍氣增傷",
   "data.debuff.bellstrikeUmbra.SoulShaken.name": "驚魂",
   "data.debuff.bellstrikeUmbra.SoulShaken.shortName": "驚",
   "data.debuff.general.Controlled.description": "將目標標記為受控，以供條件效果判定。",

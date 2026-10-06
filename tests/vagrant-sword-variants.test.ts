@@ -89,13 +89,18 @@ describe("vagrant-sword-charge-variants", () => {
       })
 
     // Sub-actions land on the same row, so discriminate by each action's own tags.
-    // The three-wave variant is the only one tagged SwordEnergy.
+    // Both variants carry SwordEnergy; the selected release determines the hit count.
     const singleWave = (result: ReturnType<typeof run>) =>
       result.timeline.flatMap(row =>
         row.actions.flatMap((action, index) => {
           const breakdown = result.actionBreakdowns[`${row.id}:${index}`]
           const tags = row.actionSkillTags?.[index] ?? []
-          return action.type === "damage" && breakdown && !tags.includes("SwordEnergy") ? [breakdown.total] : []
+          return action.type === "damage" &&
+            breakdown &&
+            tags.includes("VagrantSword") &&
+            row.actions.filter(candidate => candidate.type === "damage").length === 1
+            ? [breakdown.total]
+            : []
         }),
       )
     const threeWaves = (result: ReturnType<typeof run>) =>
@@ -103,14 +108,19 @@ describe("vagrant-sword-charge-variants", () => {
         row.actions.flatMap((action, index) => {
           const breakdown = result.actionBreakdowns[`${row.id}:${index}`]
           const tags = row.actionSkillTags?.[index] ?? []
-          return action.type === "damage" && breakdown && tags.includes("SwordEnergy") ? [breakdown.total] : []
+          return action.type === "damage" &&
+            breakdown &&
+            tags.includes("VagrantSword") &&
+            row.actions.filter(candidate => candidate.type === "damage").length === 3
+            ? [breakdown.total]
+            : []
         }),
       )
 
     const plain = run([], false)
     const plainWaves = singleWave(plain)
     assert.equal(plainWaves.length, 1, "Without Sword Morph the shooting phase is a single wave")
-    assert.equal(threeWaves(plain).length, 0, "No sword energy without Sword Morph")
+    assert.equal(threeWaves(plain).length, 0, "No three-wave release without Sword Morph")
 
     // The three phases are the whole cast: 0.2 pre-charge, 1.2 charge, 0.85 shoot.
     // Identify the row by its own skill tag rather than a display name.

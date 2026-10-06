@@ -14,5 +14,17 @@
       }
     ],
     "refresh": true
+  },
+  "SwordSlashDamageBoost": {
+    "name": "Sword Slash Damage Boost",
+    "description": "Increases SwordEnergy skill damage by 10% per stack, up to 3 stacks. Hits refresh the 8-second duration.",
+    "duration": 8,
+    "maxStack": 3,
+    "refresh": true,
+    "stackEffects": [
+      [{ "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }], "effect": { "dmgBonus": 0.1 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }], "effect": { "dmgBonus": 0.2 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }], "effect": { "dmgBonus": 0.3 } }]
+    ]
   }
 }

@@ -42,7 +42,16 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SwordEnergy"
+    ],
     "martialArt": "namelessSword",
     "weapon": "Sword",
     "ignorePing": true
@@ -51,7 +60,7 @@
     "name": "Vagrant Sword [Pre-charge]",
     "shortName": "Sword Pre-charge",
     "castTime": 0.2,
-    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction", "SwordEnergy"],
     "ignorePing": true
   },
   "VagrantSwordCharge": {
@@ -59,7 +68,7 @@
     "shortName": "Sword Charging",
     "castTime": 1.2,
     "endurance": { "regeneration": 0.001, "consumption": 20 },
-    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction", "SwordEnergy"],
     "ignorePing": true
   },
   "VagrantSwordShootSingle": {
@@ -86,10 +95,21 @@
         "phyBonus": 904,
         "attrBonus": 493,
         "time": 0.2023076923076923
-      }
+      },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.2023076923076923 }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction"],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SubAction",
+      "SwordEnergy"
+    ],
     "ignorePing": true
   },
   "VagrantSwordShootThree": {
@@ -145,7 +165,10 @@
         "value": "SwordMorphEnergySurge",
         "time": 0,
         "requirement": [{ "target": "self", "value": "SwordMorphT6" }]
-      }
+      },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.101 },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.267 },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.755 }
     ],
     "modifier": [],
     "tags": [
@@ -206,7 +229,8 @@
         "value": "SwordMorphWindow",
         "time": 0.287,
         "requirement": [{ "target": "self", "value": "SwordMorphT1" }]
-      }
+      },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.287 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "Special", "Sword", "NamelessSword", "ShadowStep", "SwordEnergy"],
