@@ -968,7 +968,9 @@ cost; a discount alone does not reduce damage. Actual meter spending remains
 separate in `resourceConsumption`; `baseResourceConsumption` supplies the bonus.
 
 Resource costs resolve as `baseCost * (1 + sum(resourceCostBonus)) *
-product(resourceCostMultiplier)`, with the additive factor floored at zero.
+(1 + sum(resourceCostMultiplier - 1))`, with each factor floored at zero.
+General cost multipliers combine their offsets additively: Ghostly Step's 0.9
+and Endless Gale's 0.8 yield 0.7, or 30% less Endurance cost.
 Requirement-gated charge modifiers share the additive category: Battle Anthem
 T4–T5 add 0.10 and upgraded Endless Gale subtracts 0.10. Per user-confirmed
 game behavior, Battle Anthem T6 removes that cost increase despite its description;

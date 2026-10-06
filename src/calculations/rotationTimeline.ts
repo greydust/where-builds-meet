@@ -1699,10 +1699,10 @@ export function buildRotationTimeline(
         )
       )
         continue
-      if (typeof factor === "number") multiplier *= Math.max(0, factor)
+      if (typeof factor === "number") multiplier += factor - 1
       if (typeof additive === "number") bonus += additive
     }
-    return multiplier * Math.max(0, 1 + bonus)
+    return Math.max(0, multiplier) * Math.max(0, 1 + bonus)
   }
   const applyResourceAction = (originalAction: EditableObject, row: TimelineRow, tags = row.skill?.tags ?? []) => {
     const action =
@@ -1739,10 +1739,12 @@ export function buildRotationTimeline(
         ...row.resourceConsumption,
         [action.value]: (row.resourceConsumption?.[action.value] ?? 0) + spent,
       }
-      const baseSpent =
+      let baseSpent =
         typeof originalAction.amount === "number"
           ? originalAction.amount * (requested > 0 ? spent / requested : 1)
           : spent
+      // Cast costs can drain the meter without funding resource-scaled damage.
+      if (originalAction.creditResourceSpend === false) baseSpent = 0
       row.baseResourceConsumption = {
         ...row.baseResourceConsumption,
         [action.value]: (row.baseResourceConsumption?.[action.value] ?? 0) + baseSpent,

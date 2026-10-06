@@ -32,7 +32,14 @@ const enemy = {
   bamboocutResistance: 0,
   judgementResistance: 0,
 }
-function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, exhausted = false, gale = false) {
+function run(
+  ways: BuildSetup["innerWays"],
+  skills: string[],
+  endurance = 200,
+  exhausted = false,
+  gale = false,
+  surge = false,
+) {
   const rotation: RotationRecord = { name: "Test", steps: skills.map(skill => ({ type: "skill", skill })) }
   return calculateRotationBaseline({
     timeline: {
@@ -48,6 +55,7 @@ function run(ways: BuildSetup["innerWays"], skills: string[], endurance = 200, e
       initialBuffs: [
         { name: "Shield", stack: 1, appliedAt: 0 },
         ...(gale ? [{ name: "EndlessGale", stack: 1, appliedAt: 0 }] : []),
+        ...(surge ? [{ name: "EnergySurge", stack: 1, appliedAt: 0 }] : []),
       ],
       initialDebuffs: exhausted ? [{ name: "Exhausted", stack: 1, appliedAt: 0 }] : [],
       initialResources: { Endurance: endurance },
@@ -80,6 +88,31 @@ it("Daunting Strike cancel lands the flying sword and applies Qi Imbalance on hi
 })
 
 describe("Splendor Inner Way behavior", () => {
+  it.each([false, true])("charges instant Vagrant separately from its damage boost with Gale=%s", gale => {
+    const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
+    const result = run(ways, ["VagrantSword2", "VagrantSword2"], 200, false, gale, true)
+    const first = result.timeline[0]
+    expect(first.effectiveCastTime).toBeCloseTo(0.85, 8)
+    expect(first.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual([
+      0.101, 0.267, 0.755,
+    ])
+    expect(first.resourceConsumption?.Endurance).toBeCloseTo(gale ? 16.8 : 21, 8)
+    expect(first.baseResourceConsumption?.Endurance).toBeCloseTo(20, 8)
+    expect(result.timeline[1].effectiveCastTime).toBeCloseTo(2.25, 8)
+    expect(result.timeline[1].buffs.has("EnergySurge")).toBe(false)
+  })
+
+  it("does not credit the instant cast cost toward Sword Morph damage when Endurance is limited", () => {
+    const ways: BuildSetup["innerWays"] = [{ innerWay: "SwordMorph", tier: "T0" }]
+    const empty = run(ways, ["VagrantSword2"], 1, false, false, true)
+    const partial = run(ways, ["VagrantSword2"], 11, false, false, true)
+    const full = run(ways, ["VagrantSword2"], 21, false, false, true)
+    expect(empty.timeline[0].baseResourceConsumption?.Endurance).toBe(0)
+    expect(partial.timeline[0].baseResourceConsumption?.Endurance).toBe(10)
+    expect(partial.metrics.totalDamage / empty.metrics.totalDamage).toBeCloseTo(1.15, 8)
+    expect(full.metrics.totalDamage / empty.metrics.totalDamage).toBeCloseTo(1.3, 8)
+  })
+
   it("guarantees only the third wave's Affinity and removes Abrasion against Exhausted", () => {
     const result = run([{ innerWay: "SwordMorph", tier: "T3" }], ["VagrantSword2"], 200, true)
     const hits = result.timeline[0].actions.flatMap((action, index) =>
@@ -90,7 +123,8 @@ describe("Splendor Inner Way behavior", () => {
     expect(hits[0].outcomeRates?.affinity).toBeLessThan(1)
     expect(hits[2].outcomeRates?.affinity).toBe(1)
     const plain = run([{ innerWay: "SwordMorph", tier: "T3" }], ["VagrantSword2"])
-    expect(plain.actionBreakdowns["rotation-0:3"].outcomeRates?.affinity).toBeLessThan(1)
+    const lastHit = plain.timeline[0].actions.findLastIndex(action => action.type === "damage")
+    expect(plain.actionBreakdowns[`rotation-0:${lastHit}`].outcomeRates?.affinity).toBeLessThan(1)
   })
 
   it("restores Endurance on either Spear Q route and caps the meter", () => {
@@ -206,7 +240,10 @@ describe("Splendor Inner Way behavior", () => {
     const skills = Array.from({ length: 10 }, () => "VagrantSword2")
     const before = run(base, skills, 200, true)
     const after = run(upgraded, skills, 200, true)
-    expect(after.actionBreakdowns["rotation-0:1"].total).toBe(before.actionBreakdowns["rotation-0:1"].total)
+    const firstHit = before.timeline[0].actions.findIndex(action => action.type === "damage")
+    expect(after.actionBreakdowns[`rotation-0:${firstHit}`].total).toBe(
+      before.actionBreakdowns[`rotation-0:${firstHit}`].total,
+    )
     expect(after.metrics.totalDamage).toBeGreaterThan(before.metrics.totalDamage)
   })
 
@@ -218,11 +255,14 @@ describe("Splendor Inner Way behavior", () => {
     )
     const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
     expect(casts[0].effectiveCastTime).toBeCloseTo(2.25, 8)
-    expect(casts[1].effectiveCastTime).toBeCloseTo(1.05, 8)
+    expect(casts[1].effectiveCastTime).toBeCloseTo(0.85, 8)
     expect(casts[2].effectiveCastTime).toBeCloseTo(2.25, 8)
     const grants = result.timeline.filter(
       row => row.step.type === "skill" && row.step.skill === "SwordMorphEnergySurge" && !row.skipped,
     )
+    expect(grants[0].startTime).toBeCloseTo(casts[0].startTime + 1.4, 8)
+    const firstHit = casts[0].actions.findIndex(action => action.type === "damage")
+    expect(casts[0].actionStates[firstHit].resources?.Endurance).toBeCloseTo(176.001301, 8)
     expect(grants.length).toBeGreaterThan(1)
     expect(grants[1].startTime - grants[0].startTime).toBeGreaterThanOrEqual(12)
     expect(grants[1].startTime - grants[0].startTime).toBeLessThan(15)

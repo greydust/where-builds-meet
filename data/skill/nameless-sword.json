@@ -4,7 +4,10 @@
     "shortName": "Sword Charged",
     "castTime": 0,
     "subAction": [
-      "VagrantSwordPreCharge",
+      {
+        "value": "VagrantSwordPreCharge",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "EnergySurge" }] }]
+      },
       {
         "value": "VagrantSwordCharge",
         "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "EnergySurge" }] }]
@@ -140,7 +143,7 @@
       {
         "type": "trigger",
         "value": "SwordMorphEnergySurge",
-        "time": 0.85,
+        "time": 0,
         "requirement": [{ "target": "self", "value": "SwordMorphT6" }]
       }
     ],

@@ -689,14 +689,23 @@ Endurance-spend action). It starts at 12 m and reasserts 12 m on Flute Full's
 last direct hit. The target is the non-attacking dummy, with preset ping of 15 ms. Qi break is attached after wave 3 of the Vagrant cast immediately before the
 second full Qiankun's Lock (the 11th Vagrant cast). The last Spear Q is a cancel.
 Battle ends at 60 seconds relative to the first-hit battle anchor. No
-additional movement is inferred. The break resolves at 21.723s after battle start.
-Qi 60% and 40% thresholds retain proportional timing at 8.6892s and 13.0338s.
-After Exhausted ends at 31.723s, Qi damage immunity lasts until 35.723s.
-The same depletion rate places the next 60% and 40% thresholds at 44.4122s
-and 48.7568s. No second break is authored.
+additional movement is inferred. The break resolves at 21.338s after battle start.
+Qi 60% and 40% thresholds retain proportional timing at 8.5352s and 12.8028s.
+After Exhausted ends at 31.338s, Qi damage immunity lasts until 35.338s.
+The same depletion rate places the next 60% and 40% thresholds at 43.8732s
+and 48.1408s. No second break is authored.
 The production calculation verifies 81 waves before the cutoff: all 27 casts
 use the three-wave route, which requires Sword Morph and either Shield, the T1
 out-of-combat exception, or the T4 follow-up window.
+
+Ghostly Step - Umbra is cast immediately after the fourth Vagrant Sword.
+Both Ghostly Step variants' 30-second Mystery buffs reduce all Endurance costs
+by 10%. This combines additively with Endless Gale's general 20% reduction:
+the shared general factor is 0.7. Mountain's Might's charge-only 10% reduction
+remains in the separate charge category, giving a combined 0.63 charge factor.
+At T6, a full ordinary charge therefore spends 15.12 Endurance with both buffs,
+and Sword Morph's separate release costs 14. Qi Surge's base 1 cost becomes
+0.63. Existing charge-start snapshots and release-time cost evaluation apply.
 The Fully Relayed preset equips Sword Morph, Mountain's Might, Battle Anthem, and Insightful Strike at T6, Jadeware, and Affinity bow/ring. Its fixed core is 12 max Physical, 8 Momentum, 2 All Martial Arts, 1 Art of Sword, and 2 vs Boss rolls. Comparing all legal Power/Affinity fills and offensive armor bases gives 6 Affinity and 9 Power rolls; optimization rebuilds the live timeline for each candidate.
 
 Only the skills the Inner Ways reference are authored, at the user's direction:
@@ -786,6 +795,15 @@ the following charging phase fixes its drain rate for all 1.2 seconds even if
 Endless Gale expires or is gained midway. Direct `consumeResource` actions stay
 live: Sword Morph evaluates its extra 20-Endurance cost when the release starts.
 
+Energy Surge (Qi Surge) skips both Vagrant Sword's pre-charge and charging
+phases. Its buff's parent `skillStart` trigger pays 1 base Endurance before the
+0.85-second release, using the normal charged-cost modifiers. Sword Morph still
+pays its separate 20 base Endurance. The trigger sets `creditResourceSpend: false` on
+its `consumeResource` action: this drains the meter and suppresses natural
+regeneration normally, but excludes the cast cost from `baseResourceConsumption`
+and therefore from resource-spend damage bonuses. The default is to credit
+direct spends; the extra Sword Morph payment retains that behavior.
+
 `regeneration` replaces the base rate and `consumption` drains on top of it, so
 the two never merge into one net figure. `system.json.resourceSpendRegenDelay`
 suppresses regeneration for a fixed delay after a **direct** spend, which is a
@@ -823,7 +841,11 @@ Remaining mechanics:
   the out-of-combat route; T4 sustains its five-second window. T3 removes Abrasion
   on sword energy against Exhausted and guarantees Affinity on the third wave.
   Shadow Step opens the same five-second window at T1. T6's
-  Energy Surge restores 20 Endurance at the end of a three-wave release and grants a five-second buff that skips the next charge. Its 20-second cooldown is reduced by one second on each subsequent sword-energy hit, up to eight times, using a hidden stack budget.
+  Energy Surge restores 20 Endurance at the start of a three-wave release,
+  after its Sword Morph payment, and grants a five-second buff that skips the
+  next charge. Its 20-second cooldown starts there and is reduced by one second
+  on each subsequent sword-energy hit, including the triggering release's waves,
+  up to eight times, using a hidden stack budget.
 
 Damage actions may declare `modifier` using the same requirement/effect structure
 as skill modifiers. These resolve against each hit's live state, and participate

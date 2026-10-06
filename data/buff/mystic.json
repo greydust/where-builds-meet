@@ -58,7 +58,7 @@
     "description": "From Ghostly Steps",
     "duration": 30,
     "maxStack": 1,
-    "effect": [],
+    "effect": [{ "effect": { "resourceCostMultiplier": { "Endurance": 0.9 } } }],
     "refresh": true
   },
   "MysteryUmbra": {
@@ -67,7 +67,7 @@
     "description": "From Ghostly Steps - Umbra",
     "duration": 30,
     "maxStack": 1,
-    "effect": [],
+    "effect": [{ "effect": { "resourceCostMultiplier": { "Endurance": 0.9 } } }],
     "refresh": true
   },
   "MysteryDMGBoost": {

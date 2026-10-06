@@ -9,7 +9,20 @@
     "refresh": true
   },
   "SwordMorphWindow": { "name": "Sword Morph Window", "duration": 5, "maxStack": 1, "hidden": true, "refresh": true },
-  "EnergySurge": { "name": "Energy Surge", "duration": 5, "maxStack": 1, "refresh": true },
+  "EnergySurge": {
+    "name": "Energy Surge",
+    "duration": 5,
+    "maxStack": 1,
+    "refresh": true,
+    "trigger": {
+      "event": "skillStart",
+      "requirement": [
+        { "target": "skillTag", "value": "VagrantSword" },
+        { "operator": "not", "operand": [{ "target": "skillTag", "value": "SubAction" }] }
+      ],
+      "action": { "type": "consumeResource", "value": "Endurance", "amount": 1, "creditResourceSpend": false }
+    }
+  },
   "EnergySurgeRecovery": {
     "name": "Energy Surge Recovery",
     "duration": 20,
