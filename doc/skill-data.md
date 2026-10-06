@@ -422,6 +422,8 @@ carrying `hitProbability` do not count, even at probability one; sampled actual
 hits do. Heal and non-damage actions never count.
 
 `damageOutcome` rules run after the resolved outcome and affect later hits.
+Insightful Strike restarts its configured decayDelay (seconds) on each eligible
+Affinity outcome; failed outcomes leave that deadline unchanged.
 They can use a decaying outcome resource with `gain`, `decayRate`, `threshold`,
 and required `resetTo: 0`. Expected and sampled tracking are separate; do not
 replace correlated states with average stacks. Specialized random-outcome and

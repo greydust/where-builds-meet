@@ -9,7 +9,7 @@
           "event": "damageOutcome",
           "outcome": "affinity",
           "target": "self",
-          "resource": { "name": "Focus", "gain": 1, "decayRate": -0.25, "threshold": 4, "resetTo": 0 },
+          "resource": { "name": "Focus", "gain": 1, "decayRate": -0.5, "decayDelay": 3, "threshold": 5, "resetTo": 0 },
           "action": [{ "type": "apply", "target": "self", "value": "Concentration", "stack": 1, "reapply": true }]
         }
       ]

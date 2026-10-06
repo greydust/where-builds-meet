@@ -515,7 +515,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
             (breakdown.outcomeRates?.[entry.hawkwing.outcome] ?? 0) * Number(entry.action.hitProbability ?? 1),
           )
       }
-      if (entry.insightfulStrike) {
+      if (entry.insightfulStrike && entry.action.type === "damage" && !entry.context.isDot) {
         if (random && breakdown.outcome === entry.insightfulStrike.outcome)
           simulatedInsightfulStrike!.resolveAffinity(entry.insightfulStrike, tick)
         else if (!random && !schedule)

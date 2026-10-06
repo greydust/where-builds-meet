@@ -18,6 +18,7 @@ export type InsightfulStrikeEffect = {
   focusGainUnits: number
   focusThresholdUnits: number
   focusDecayUnitsPerTick: number
+  focusDecayDelayTicks: number
   concentrationDurationTicks: number
   affinityDamageBonus: number
   directAffinityRules: DirectAffinityRule[]
@@ -26,19 +27,36 @@ export type InsightfulStrikeEffect = {
   incomingDamageReduction?: { chance: number; reduction: number }
 }
 
-type FocusDistribution = Map<number, Map<number, number>>
-type ConcreteFocusState = { focusUnits: number; concentrationExpiresAtTick: number; lastTick: number }
+type FocusState = { focusUnits: number; decayStartsAtTick: number; concentrationExpiresAtTick: number }
+type FocusDistribution = Map<string, FocusState & { probability: number }>
 
-function addProbability(
-  distribution: FocusDistribution,
-  focusUnits: number,
-  concentrationExpiresAtTick: number,
-  probability: number,
-) {
+function addProbability(distribution: FocusDistribution, state: FocusState, probability: number) {
   if (probability <= 0) return
-  const concentrations = distribution.get(focusUnits) ?? new Map<number, number>()
-  concentrations.set(concentrationExpiresAtTick, (concentrations.get(concentrationExpiresAtTick) ?? 0) + probability)
-  distribution.set(focusUnits, concentrations)
+  const normalized = { ...state, decayStartsAtTick: state.focusUnits === 0 ? 0 : state.decayStartsAtTick }
+  const key = [normalized.focusUnits, normalized.decayStartsAtTick, normalized.concentrationExpiresAtTick].join(":")
+  const previous = distribution.get(key)
+  distribution.set(key, { ...normalized, probability: (previous?.probability ?? 0) + probability })
+}
+
+function advanceFocus(effect: InsightfulStrikeEffect, state: FocusState, lastTick: number, tick: number): FocusState {
+  const decayTicks = Math.max(0, tick - Math.max(lastTick, state.decayStartsAtTick))
+  const focusUnits = Math.max(0, state.focusUnits - decayTicks * effect.focusDecayUnitsPerTick)
+  return {
+    focusUnits,
+    // Once decay runs, lastTick carries elapsed time. Zero Focus has no timer.
+    decayStartsAtTick: focusUnits === 0 || state.decayStartsAtTick <= tick ? 0 : state.decayStartsAtTick,
+    concentrationExpiresAtTick: state.concentrationExpiresAtTick <= tick ? 0 : state.concentrationExpiresAtTick,
+  }
+}
+
+function gainFocus(effect: InsightfulStrikeEffect, state: FocusState, tick: number): FocusState {
+  const gainedFocus = state.focusUnits + effect.focusGainUnits
+  const converted = gainedFocus >= effect.focusThresholdUnits
+  return {
+    focusUnits: converted ? 0 : gainedFocus,
+    decayStartsAtTick: converted ? 0 : tick + effect.focusDecayDelayTicks,
+    concentrationExpiresAtTick: converted ? tick + effect.concentrationDurationTicks : state.concentrationExpiresAtTick,
+  }
 }
 
 function numericValue(value: unknown) {
@@ -128,9 +146,10 @@ export function insightfulStrikeEffectFor(
       .map(candidate => candidate.modify as EditableObject)
     const modifiedResource = Object.assign({}, resource, ...resourceModifiers)
     const gain = numericValue(modifiedResource.gain)
-    const decayRate = numericValue(resource.decayRate)
-    const threshold = numericValue(resource.threshold)
-    const resetTo = numericValue(resource.resetTo)
+    const decayRate = numericValue(modifiedResource.decayRate)
+    const decayDelay = numericValue(modifiedResource.decayDelay)
+    const threshold = numericValue(modifiedResource.threshold)
+    const resetTo = numericValue(modifiedResource.resetTo)
     const concentrationName = applyAction.value as string
     const baseConcentration = effectDefinitions[concentrationName]
     if (!baseConcentration) return undefined
@@ -145,6 +164,8 @@ export function insightfulStrikeEffectFor(
       gain <= 0 ||
       decayRate === undefined ||
       decayRate >= 0 ||
+      decayDelay === undefined ||
+      decayDelay < 0 ||
       threshold === undefined ||
       threshold <= 0 ||
       resetTo !== 0 ||
@@ -160,6 +181,7 @@ export function insightfulStrikeEffectFor(
       focusGainUnits: Math.round(gain * focusUnitsPerPoint),
       focusThresholdUnits: Math.round(threshold * focusUnitsPerPoint),
       focusDecayUnitsPerTick: 1,
+      focusDecayDelayTicks: outcomeBuffTick(decayDelay),
       concentrationDurationTicks: outcomeBuffTick(concentration.duration),
       affinityDamageBonus: effectAffinityDamageBonus(concentration),
       directAffinityRules: effectDirectAffinityRules(concentration),
@@ -180,23 +202,16 @@ export function insightfulStrikeEffectFor(
 }
 
 export class ExpectedInsightfulStrikeTracker {
-  private distribution: FocusDistribution = new Map([[0, new Map([[0, 1]])]])
+  private distribution: FocusDistribution = new Map([
+    ["0:0:0", { focusUnits: 0, decayStartsAtTick: 0, concentrationExpiresAtTick: 0, probability: 1 }],
+  ])
   private lastTick = 0
 
   private advance(effect: InsightfulStrikeEffect, tick: number) {
-    const elapsedTicks = Math.max(0, tick - this.lastTick)
-    if (elapsedTicks === 0) return
+    if (tick <= this.lastTick) return
     const next: FocusDistribution = new Map()
-    for (const [focusUnits, concentrations] of this.distribution) {
-      for (const [expiresAtTick, probability] of concentrations) {
-        addProbability(
-          next,
-          Math.max(0, focusUnits - elapsedTicks * effect.focusDecayUnitsPerTick),
-          expiresAtTick <= tick ? 0 : expiresAtTick,
-          probability,
-        )
-      }
-    }
+    for (const state of this.distribution.values())
+      addProbability(next, advanceFocus(effect, state, this.lastTick, tick), state.probability)
     this.distribution = next
     this.lastTick = tick
   }
@@ -204,9 +219,8 @@ export class ExpectedInsightfulStrikeTracker {
   expectedConcentration(effect: InsightfulStrikeEffect, tick: number) {
     this.advance(effect, tick)
     let probability = 0
-    for (const concentrations of this.distribution.values())
-      for (const [expiresAtTick, stateProbability] of concentrations)
-        if (expiresAtTick > tick) probability += stateProbability
+    for (const state of this.distribution.values())
+      if (state.concentrationExpiresAtTick > tick) probability += state.probability
     return probability
   }
 
@@ -220,31 +234,22 @@ export class ExpectedInsightfulStrikeTracker {
     const inactiveChance = outcomeProbability(inactiveProbability)
     const activeChance = outcomeProbability(activeProbability)
     const next: FocusDistribution = new Map()
-    for (const [focusUnits, concentrations] of this.distribution) {
-      for (const [expiresAtTick, stateProbability] of concentrations) {
-        const chance = expiresAtTick > tick ? activeChance : inactiveChance
-        addProbability(next, focusUnits, expiresAtTick, stateProbability * (1 - chance))
-        const gainedFocus = focusUnits + effect.focusGainUnits
-        if (gainedFocus >= effect.focusThresholdUnits)
-          addProbability(next, 0, tick + effect.concentrationDurationTicks, stateProbability * chance)
-        else addProbability(next, gainedFocus, expiresAtTick, stateProbability * chance)
-      }
+    for (const state of this.distribution.values()) {
+      const chance = state.concentrationExpiresAtTick > tick ? activeChance : inactiveChance
+      addProbability(next, state, state.probability * (1 - chance))
+      addProbability(next, gainFocus(effect, state, tick), state.probability * chance)
     }
     this.distribution = next
   }
 }
 
 export class SimulatedInsightfulStrikeTracker {
-  private state: ConcreteFocusState = { focusUnits: 0, concentrationExpiresAtTick: 0, lastTick: 0 }
+  private state: FocusState = { focusUnits: 0, decayStartsAtTick: 0, concentrationExpiresAtTick: 0 }
+  private lastTick = 0
 
   private advance(effect: InsightfulStrikeEffect, tick: number) {
-    const elapsedTicks = Math.max(0, tick - this.state.lastTick)
-    this.state = {
-      focusUnits: Math.max(0, this.state.focusUnits - elapsedTicks * effect.focusDecayUnitsPerTick),
-      concentrationExpiresAtTick:
-        this.state.concentrationExpiresAtTick <= tick ? 0 : this.state.concentrationExpiresAtTick,
-      lastTick: tick,
-    }
+    this.state = advanceFocus(effect, this.state, this.lastTick, tick)
+    this.lastTick = tick
   }
 
   concentrationActive(effect: InsightfulStrikeEffect, tick: number) {
@@ -254,14 +259,6 @@ export class SimulatedInsightfulStrikeTracker {
 
   resolveAffinity(effect: InsightfulStrikeEffect, tick: number) {
     this.advance(effect, tick)
-    const gainedFocus = this.state.focusUnits + effect.focusGainUnits
-    this.state = {
-      focusUnits: gainedFocus >= effect.focusThresholdUnits ? 0 : gainedFocus,
-      concentrationExpiresAtTick:
-        gainedFocus >= effect.focusThresholdUnits
-          ? tick + effect.concentrationDurationTicks
-          : this.state.concentrationExpiresAtTick,
-      lastTick: tick,
-    }
+    this.state = gainFocus(effect, this.state, tick)
   }
 }

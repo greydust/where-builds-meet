@@ -7,10 +7,10 @@ import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
 import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
 
-/** The Affinity rate the fifth hit resolved, named when it resolved none. */
-function affinityOnFifthHit(baseline: RotationSimulationBaseline) {
-  const rates = baseline.actionBreakdowns["rotation-0:4"].outcomeRates
-  assert(rates, "The fifth Insightful Strike hit must resolve its outcome rates.")
+/** The Affinity rate the sixth hit resolved, named when it resolved none. */
+function affinityOnSixthHit(baseline: RotationSimulationBaseline) {
+  const rates = baseline.actionBreakdowns["rotation-0:5"].outcomeRates
+  assert(rates, "The sixth Insightful Strike hit must resolve its outcome rates.")
   return rates.affinity
 }
 
@@ -22,15 +22,15 @@ describe("insightful-strike", () => {
       SimulatedInsightfulStrikeTracker,
       insightfulStrikeDirectAffinityBonus,
       insightfulStrikeEffectFor,
-    } = await import("../src/calculations/insightfulStrike.ts")
+    } = await import("@/calculations/insightfulStrike.ts")
     const { calculateRotationBaseline, calculateRotationDamageSequence } = await probeLoad<
-      typeof import("../src/calculations/rotationCalculator")
+      typeof import("@/calculations/rotationCalculator")
     >("/src/calculations/rotationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { outcomeBuffTick } = await import("../src/calculations/outcomeTriggeredBuffs.ts")
-    const concentration = (await import("../data/buff/bellstrike-umbra.json")).default.Concentration
-    const insightfulStrikeDefinition = (await import("../data/innerway/insightful-strike.json")).default
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { outcomeBuffTick } = await import("@/calculations/outcomeTriggeredBuffs.ts")
+    const concentration = (await import("@gamedata/buff/bellstrike-umbra.json")).default.Concentration
+    const insightfulStrikeDefinition = (await import("@gamedata/innerway/insightful-strike.json")).default
 
     const closeTo = (actual: number, expected: number, message: string, tolerance = 1e-9) =>
       assertClose(actual, expected, tolerance, message)
@@ -42,7 +42,7 @@ describe("insightful-strike", () => {
         event: "damageOutcome",
         outcome: "affinity",
         target: "self",
-        resource: { name: "Focus", gain: 1, decayRate: -0.25, threshold: 4, resetTo: 0 },
+        resource: insightfulStrikeDefinition.effect.InsightfulStrikeT0.trigger[0].resource,
         action: [{ type: "apply", target: "self", value: "Concentration", stack: 1, reapply: true }],
       },
     }
@@ -54,21 +54,21 @@ describe("insightful-strike", () => {
     closeTo(
       Number(simulated.concentrationActive(insightfulStrike, outcomeBuffTick(3))),
       0,
-      "Three Affinity hits separated by decay must not activate Concentration",
+      "Three Affinity hits must not activate Concentration",
     )
     simulated.resolveAffinity(insightfulStrike, outcomeBuffTick(3))
     closeTo(
       Number(simulated.concentrationActive(insightfulStrike, outcomeBuffTick(3))),
       0,
-      "Four one-second-spaced hits decay below the Focus threshold",
+      "Four one-second-spaced hits remain below the five-Focus threshold",
     )
 
     const immediate = new SimulatedInsightfulStrikeTracker()
-    for (let hit = 0; hit < 4; hit += 1) immediate.resolveAffinity(insightfulStrike, outcomeBuffTick(0))
+    for (let hit = 0; hit < 5; hit += 1) immediate.resolveAffinity(insightfulStrike, outcomeBuffTick(0))
     closeTo(
       Number(immediate.concentrationActive(insightfulStrike, outcomeBuffTick(0))),
       1,
-      "Four immediate Affinity hits must activate Concentration",
+      "Five immediate Affinity hits must activate Concentration",
     )
     for (let hit = 0; hit < 3; hit += 1) immediate.resolveAffinity(insightfulStrike, outcomeBuffTick(1))
     closeTo(
@@ -84,11 +84,11 @@ describe("insightful-strike", () => {
     )
     assert(insightfulStrikeT4, "Insightful Strike T4 Focus generation was not recognized.")
     const t4Simulation = new SimulatedInsightfulStrikeTracker()
-    for (let hit = 0; hit < 3; hit += 1) t4Simulation.resolveAffinity(insightfulStrikeT4, outcomeBuffTick(0))
+    for (let hit = 0; hit < 4; hit += 1) t4Simulation.resolveAffinity(insightfulStrikeT4, outcomeBuffTick(0))
     closeTo(
       Number(t4Simulation.concentrationActive(insightfulStrikeT4, outcomeBuffTick(0))),
       1,
-      "T4 must reach Concentration after three immediate Affinity outcomes",
+      "T4 must reach Concentration after four immediate Affinity outcomes",
     )
 
     const t3Modifier = insightfulStrikeDefinition.effect.InsightfulStrikeT3.effect[0]
@@ -107,11 +107,53 @@ describe("insightful-strike", () => {
     )
 
     const expected = new ExpectedInsightfulStrikeTracker()
-    for (let hit = 0; hit < 4; hit += 1) expected.resolveAffinity(insightfulStrike, outcomeBuffTick(0), 0.5)
+    for (let hit = 0; hit < 5; hit += 1) expected.resolveAffinity(insightfulStrike, outcomeBuffTick(0), 0.5)
     closeTo(
       expected.expectedConcentration(insightfulStrike, outcomeBuffTick(0)),
-      0.0625,
-      "Expected calculation must preserve the probability of four Affinity outcomes",
+      0.03125,
+      "Expected calculation must preserve the probability of five Affinity outcomes",
+    )
+
+    // Boundary timing, fractional decay, restarted timers, and complete depletion.
+    for (const [times, active] of [
+      [[0, 0, 0, 0, 3], true],
+      [[0, 0, 0, 0, 3.0001], false],
+      [[0, 0, 0, 0, 4, 4], true],
+      [[0, 1, 2, 3, 6], true],
+      [[0, 0, 0, 0, 12], false],
+    ] as const) {
+      const tracker = new SimulatedInsightfulStrikeTracker()
+      for (const time of times) tracker.resolveAffinity(insightfulStrike, outcomeBuffTick(time))
+      assert(tracker.concentrationActive(insightfulStrike, outcomeBuffTick(times.at(-1)!)) === active)
+    }
+    simulated.resolveAffinity(insightfulStrike, outcomeBuffTick(4))
+    assert(
+      simulated.concentrationActive(insightfulStrike, outcomeBuffTick(4)),
+      "One-second-spaced hits must restart the delay and activate on the fifth hit",
+    )
+
+    // Compare the probability model against every concrete outcome history.
+    // Failed hits must neither gain Focus nor restart its delay.
+    const times = [0, 1, 2, 5.5, 6, 6.5, 7, 10.5, 11]
+    const probabilityTracker = new ExpectedInsightfulStrikeTracker()
+    for (const time of times) probabilityTracker.resolveAffinity(insightfulStrike, outcomeBuffTick(time), 0.4, 0.7)
+    let enumerated = 0
+    for (let mask = 0; mask < 2 ** times.length; mask += 1) {
+      const tracker = new SimulatedInsightfulStrikeTracker()
+      let probability = 1
+      for (const [index, time] of times.entries()) {
+        const tick = outcomeBuffTick(time)
+        const chance = tracker.concentrationActive(insightfulStrike, tick) ? 0.7 : 0.4
+        const affinity = Boolean(mask & (1 << index))
+        probability *= affinity ? chance : 1 - chance
+        if (affinity) tracker.resolveAffinity(insightfulStrike, tick)
+      }
+      if (tracker.concentrationActive(insightfulStrike, outcomeBuffTick(11))) enumerated += probability
+    }
+    closeTo(
+      probabilityTracker.expectedConcentration(insightfulStrike, outcomeBuffTick(11)),
+      enumerated,
+      "Expected tracking must agree with all concrete histories across decay deadlines",
     )
 
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1, directAffinity: 1 }
@@ -130,14 +172,14 @@ describe("insightful-strike", () => {
       rotation: { name: "Insightful Strike probe", steps: [{ type: "skill", skill: "Probe" }] },
       skills: {
         Probe: {
-          name: "Five-hit probe",
+          name: "Six-hit probe",
           castTime: 0,
           tags: ["MartialArts"],
-          action: Array.from({ length: 5 }, (_, index) => ({
+          action: Array.from({ length: 6 }, (_, index) => ({
             type: "damage",
             phyCoef: 1,
             attrCoef: 1,
-            time: index < 4 ? 0 : 0.0001,
+            time: index < 5 ? 0 : 0.0001,
           })),
         },
       },
@@ -166,13 +208,22 @@ describe("insightful-strike", () => {
       entry.id ? result.expectedOutcomeBuffSchedule[entry.id]?.Concentration : undefined,
     )
     assert(
-      JSON.stringify(concentrations) === JSON.stringify([0, 0, 0, 0, 1]),
-      `Concentration must begin after the fourth hit and affect the fifth; received ${concentrations}.`,
+      JSON.stringify(concentrations) === JSON.stringify([0, 0, 0, 0, 0, 1]),
+      `Concentration must begin after the fifth hit and affect the sixth; received ${concentrations}.`,
     )
     const simulatedDamage = calculateRotationDamageSequence(result.baseline, () => 0.5)
     assert(
-      simulatedDamage[4].breakdown.total > simulatedDamage[3].breakdown.total,
-      "Active Concentration must increase the fifth Affinity hit's damage.",
+      simulatedDamage[5].breakdown.total > simulatedDamage[4].breakdown.total,
+      "Active Concentration must increase the sixth Affinity hit's damage.",
+    )
+
+    const withDot = structuredClone(result.baseline)
+    withDot[0].context.isDot = true
+    const dotSequence = calculateRotationDamageSequence(withDot, () => 0.5)
+    closeTo(
+      dotSequence[5].breakdown.total,
+      dotSequence[4].breakdown.total,
+      "A DOT Affinity outcome must not generate Focus",
     )
 
     const probabilisticStats = { ...stats, directAffinity: 0.5 }
@@ -206,12 +257,12 @@ describe("insightful-strike", () => {
       innerWayPriority: [],
       setupComparisons: {},
     })
-    const t0FifthAffinity = affinityOnFifthHit(probabilisticT0)
-    const t3FifthAffinity = affinityOnFifthHit(probabilisticT3)
+    const t0SixthAffinity = affinityOnSixthHit(probabilisticT0)
+    const t3SixthAffinity = affinityOnSixthHit(probabilisticT3)
     closeTo(
-      t3FifthAffinity - t0FifthAffinity,
-      0.001875,
-      "Deterministic T3 damage must weight its 3% Direct Affinity by the 6.25% active Concentration branch",
+      t3SixthAffinity - t0SixthAffinity,
+      0.0009375,
+      "Deterministic T3 damage must weight its 3% Direct Affinity by the 3.125% active Concentration branch",
     )
   })
 })

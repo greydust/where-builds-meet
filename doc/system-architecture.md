@@ -1452,7 +1452,9 @@ schedule and maintain their own sampled stack state.
 Outcome mechanics are separated by responsibility. `hawkwing.ts` owns
 Hawkwing's stack/expiry distribution and setup-effect parsing;
 `insightfulStrike.ts` owns Focus decay, Concentration conversion, and its Inner
-Way trigger parsing. `outcomeTriggeredBuffs.ts` contains only the shared 0.1 ms
+Way trigger parsing. Its expected state includes Focus, the per-branch decay
+deadline, and Concentration expiry; identical states merge after each transition.
+Expected and sampled trackers share the same decay and gain transitions. `outcomeTriggeredBuffs.ts` contains only the shared 0.1 ms
 clock and schedule primitives. The rotation calculator coordinates the two
 mechanics and adds their resolved pre-hit effects to the ordinary unconditional
 damage-effect snapshot. This keeps the probability transitions reviewable

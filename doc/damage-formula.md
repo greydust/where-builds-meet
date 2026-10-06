@@ -252,14 +252,18 @@ state unchanged.
 
 Insightful Strike uses a separate outcome tracker with the same integer 0.1 ms
 clock. Focus is stored as decay units rather than a floating-point resource:
-one Focus equals 40,000 units, and one unit expires per tick, which is exactly a
-decay rate of `0.25` Focus per second. Every Affinity outcome adds 40,000 units.
-Reaching 160,000 units applies or refreshes Concentration for 10 seconds and
-resets Focus to zero. The conversion happens after the triggering hit, so that
-hit does not receive Concentration's 10% Affinity DMG Bonus. Deterministic
-calculation carries the exact probability distribution keyed by Focus units and
-Concentration expiry; simulations update one concrete state from sampled
-outcomes.
+one Focus equals 20,000 units. Each eligible direct Affinity hit adds one Focus
+(1.5 at Tier 4+) and restarts a three-second decay delay. After the delay,
+one unit expires per tick, exactly 0.5 Focus per second; other outcomes
+do not restart the delay. Reaching 100,000 units (five Focus) applies or
+refreshes Concentration for 10 seconds and resets Focus to zero.
+The conversion happens after the triggering hit, so that hit does not receive
+Concentration's 10% Affinity DMG Bonus. Deterministic calculation carries the
+exact probability distribution keyed by Focus units, decay deadline, and
+Concentration expiry; simulations update one concrete state from sampled outcomes.
+Identical states merge. Once a decay deadline has passed, it normalizes to zero
+because the last processed tick carries ongoing decay; zero Focus also clears
+its irrelevant deadline.
 Insightful Strike T3 makes the Affinity probability itself depend on whether
 Concentration is active. Deterministic calculation therefore resolves each hit
 once for the inactive branch and once for the active branch, weights their
