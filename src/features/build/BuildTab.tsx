@@ -17,6 +17,7 @@ import {
 
 import type { PathId } from "@/application/contracts"
 import { formatThroughput, formatThroughputDelta, throughputDeltaClass } from "@/application/formatting"
+import { breakthroughProfile } from "@/application/gameData/setup"
 import type { MeasurementContext } from "@/calculations/rotationCalculationBundle"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
 import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
@@ -182,6 +183,7 @@ export default function BuildTab({
   // The build list and the shared gear inventory are one stored record, held by `gearStore`
   // rather than handed in: this component is where they are created, renamed, duplicated,
   // deleted and equipped, so it is also where they are stored.
+  const gearTier = breakthroughProfile(measurement.environment.settings).gearTier
   const buildState = useGearStore(state => state.buildState)
   const updateBuildState = useGearStore(state => state.updateBuildState)
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId)
@@ -274,7 +276,7 @@ export default function BuildTab({
     !isActiveBuild && editedThroughput && activeThroughput
       ? { delta: editedThroughput.dps - activeThroughput.dps, reading: editedThroughput }
       : undefined
-  const inventory = resolveBuildInventory(editingEntry, visibleItems, weapons)
+  const inventory = resolveBuildInventory(editingEntry, visibleItems, weapons, gearTier)
   const setup = resolveBuildSetup(editingEntry)
   const usageCounts = new Map<string, number>()
   for (const entry of listedEntries) {
@@ -327,7 +329,7 @@ export default function BuildTab({
   function duplicateBuild() {
     const id = createBuildId()
     const name = t("ui.buildTab.copyOfNamedBuild", { name: buildEntryDisplayName(editingEntry) })
-    updateBuildState(pathId, current => duplicateBuildState(current, editingEntry.id, { id, name }))
+    updateBuildState(pathId, current => duplicateBuildState(current, editingEntry.id, { id, name }, gearTier))
     setEditingBuildId(id)
     setEditingName(false)
   }
@@ -888,11 +890,12 @@ function BuildManagement({
   measurement,
   activeRotation,
 }: BuildManagementProps) {
+  const gearTier = breakthroughProfile(measurement.environment.settings).gearTier
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon")
   const [editing, setEditing] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  const [draft, setDraft] = useState<GearDraft>(newDraft)
+  const [draft, setDraft] = useState<GearDraft>(() => newDraft(gearTier))
   const [error, setError] = useState("")
   // The candidates currently on screen. Each card reports its own, so the set is what bounds how
   // much measuring a slot asks for, and an empty set means a slot costs nothing to look at.
@@ -946,7 +949,7 @@ function BuildManagement({
     setEditing(false)
     setEditingItemId(null)
     setPendingDeleteId(null)
-    setDraft(newDraft())
+    setDraft(newDraft(gearTier))
     setError("")
     // Another slot's cards report their own visibility, so what this one measured is dropped with it.
     setVisibleItemIds(emptySet)
@@ -954,7 +957,7 @@ function BuildManagement({
 
   function beginAdd() {
     if (editing && editingItemId === null) return
-    setDraft(newDraft())
+    setDraft(newDraft(gearTier))
     setError("")
     setEditingItemId(null)
     setPendingDeleteId(null)
@@ -1041,7 +1044,7 @@ function BuildManagement({
     }))
     setEditing(false)
     setEditingItemId(null)
-    setDraft(newDraft())
+    setDraft(newDraft(gearTier))
     setError("")
   }
 
@@ -1069,7 +1072,7 @@ function BuildManagement({
     if (editingItemId === item.id) {
       setEditing(false)
       setEditingItemId(null)
-      setDraft(newDraft())
+      setDraft(newDraft(gearTier))
       setError("")
     }
   }

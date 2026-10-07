@@ -2146,3 +2146,23 @@ not calculate defensive rewards or hold timing independently.
 Stat-only comparisons that reuse a baseline timeline retain its resolved action
 IDs. Conditional or cooldown-blocked actions remain absent; only a rebuilt
 combat timeline can introduce a newly eligible action.
+
+### Gear progression and preset inventories
+
+Each breakthrough selects an explicit `gearTier`: 17 selects 96 and 18 selects 100. Gear comparison affix and attunement maxima resolve this tier; enemy level
+does not select gear values. Each item retains its own persisted level (91, 96,
+or 100), which selects its base stats, allowed affixes, and editor roll limits.
+Changing breakthrough does not rewrite stored user equipment.
+
+Bundled build presets declare `gearByTier`, with complete inventories for 96
+and 100. `buildPresetInventory` selects exactly one tier and rejects missing
+entries. The shared build-stat resolver, graduation calculation, Build tab, and
+preset duplication all pass the selected breakthrough tier. Preset IDs and setup
+remain stable. Duplicating a preset stores the selected tier's actual items;
+subsequent breakthrough changes do not upgrade that editable copy. This is a
+bundled-data schema change, not a rename of persisted user fields.
+
+Tier-100 item bases, affix pools, and maxima come from the interpreted fields in
+`local/datamine/wwm-items-tier-100.json`. Existing relay-only affix eligibility
+and the 0.94 relayed-affix multiplier continue to apply. Presets retain their
+existing affix selections and use the selected tier's maximum rolls.

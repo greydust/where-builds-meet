@@ -949,7 +949,7 @@ while expiry closes it. Sky Gripped continues to replay one source hit.
 
 ## Stat-priority conversion
 
-Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the selected breakthrough profile's enemy level, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
+Level-keyed max-roll values are stored in `data/stat.json` under `affix` and `attunement`. Stat and attunement priority select the entry matching the selected breakthrough profile's `gearTier`, add one max roll, and recalculate DPS. Gear editing uses the same entry matching the gear item's level. The base-attribute conversion rules are stored under `baseAttributes` in `data/system.json` and apply to character talents, gear, manual comparison deltas, and every other source:
 
 ```text
 1 Power    = 0.22 Min Physical Attack + 1.36 Max Physical Attack

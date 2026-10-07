@@ -11,7 +11,8 @@ import type { BuildPreset, BuildPresetGear, GearSlot } from "@/gear"
 
 // The build and rotation presets share the fields this spec reads; only a build
 // preset carries gear, so the shared shape is the intersection of the two.
-type PresetPayload = Pick<BuildPreset, "id" | "martialArts" | "relayed" | "test"> & Partial<Pick<BuildPreset, "gear">>
+type PresetPayload = Pick<BuildPreset, "id" | "martialArts" | "relayed" | "test"> &
+  Partial<Pick<BuildPreset, "gearByTier">>
 
 // Ported from script/probe/check-preset-eligibility.mjs.
 describe("preset-eligibility", () => {
@@ -137,10 +138,9 @@ describe("preset-eligibility", () => {
           graduateBuild.definition.relayed !== true,
           `Path ${pathId}'s graduate build ${graduateBuild.definition.id} cannot be relayed.`,
         )
-        for (const [slot, gear] of Object.entries(graduateBuild.definition.gear ?? {}) as [
-          GearSlot,
-          BuildPresetGear,
-        ][]) {
+        for (const [slot, gear] of Object.values(graduateBuild.definition.gearByTier ?? {}).flatMap(gear =>
+          Object.entries(gear),
+        ) as [GearSlot, BuildPresetGear][]) {
           assert(gear.relayed !== true, `Path ${pathId}'s graduate ${slot} cannot be relayed.`)
           const affixCaps = statRollsForLevel(gear.level)?.affix
           assert(affixCaps, `Path ${pathId}'s graduate ${slot} has unsupported gear level ${gear.level}.`)

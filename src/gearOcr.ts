@@ -115,7 +115,7 @@ function containsNumber(values: number[], expected: number) {
 export function inferGearLevelAndRarity(definitionId: string, rawText: string) {
   const definition = gearData.gear[definitionId]
   const normalizedText = normalize(rawText)
-  const levelMatch = normalizedText.match(/tier\s*(91|96)/)
+  const levelMatch = normalizedText.match(/tier\s*(91|96|100)/)
   const level = (levelMatch ? Number(levelMatch[1]) : 96) as GearLevel
   const values = numericTokens(rawText)
   const rarities = (["Gold", "Purple"] as const).filter(rarity => {

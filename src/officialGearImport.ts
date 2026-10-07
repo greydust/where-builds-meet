@@ -1,7 +1,8 @@
-import officialAffixMapJson from "../data/official/affix-map.json"
-import officialImportMapJson from "../data/official/import-map.json"
-import officialProfileMapJson from "../data/official/profile-map.json"
-import pathDefinitionsJson from "../data/path.json"
+import officialAffixMapJson from "@gamedata/official/affix-map.json"
+import officialImportMapJson from "@gamedata/official/import-map.json"
+import officialProfileMapJson from "@gamedata/official/profile-map.json"
+import pathDefinitionsJson from "@gamedata/path.json"
+
 import { innerWayAvailableForTag } from "./data/innerWayDefinitions"
 import {
   attunementData,
@@ -10,6 +11,8 @@ import {
   buildExportFormat,
   defaultBuildSetup,
   gearData,
+  gearLevels,
+  isGearLevel,
   gearDefinitionForSlot,
   normalizeBuildSetup,
   sameWeaponPair,
@@ -117,7 +120,7 @@ function baseAttributes(value: unknown) {
 function matchingBaseSignature(attributes: Record<string, number>, definitionId: string) {
   const matches: Array<{ level: GearLevel; rarity: GearRarity }> = []
   const definition = gearData.gear[definitionId]
-  for (const level of [91, 96] as const) {
+  for (const level of gearLevels) {
     for (const rarity of ["Gold", "Purple"] as const) {
       const expected = definition?.baseStats[String(level)]?.[rarity]
       if (
@@ -139,7 +142,7 @@ function matchingBaseSignature(attributes: Record<string, number>, definitionId:
   for (const category of categories) {
     for (const [levelText, rarities] of Object.entries(officialImportMap.baseStats[category] ?? {})) {
       const level = Number(levelText)
-      if (level !== 91 && level !== 96) continue
+      if (!isGearLevel(level)) continue
       for (const [officialRarity, expected] of Object.entries(rarities ?? {})) {
         if (
           !expected ||
@@ -332,10 +335,8 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   })
 
   const commonLevel =
-    parsedPieces
-      .map(piece => piece.signature?.level)
-      .find((level): level is GearLevel => level === 91 || level === 96) ??
-    ([91, 96].includes(Number(role.level)) ? (Number(role.level) as GearLevel) : 96)
+    parsedPieces.map(piece => piece.signature?.level).find((level): level is GearLevel => isGearLevel(level)) ??
+    (isGearLevel(Number(role.level)) ? (Number(role.level) as GearLevel) : 96)
   const parsedGearItems = parsedPieces.map((piece): GearItem | undefined => {
     const definition = gearData.gear[piece.definitionId]
     if (!definition) {
@@ -344,11 +345,11 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     }
     const level = (namedScalar(piece.exVo, /^(?:gear)?(?:tier|level)$/i) ??
       namedScalar(piece.detail, /^(?:gear)?(?:tier|level)$/i)) as GearLevel | undefined
-    if (level !== undefined && level !== 91 && level !== 96) {
+    if (level !== undefined && !isGearLevel(level)) {
       warnings.push(`${gearData.slots[piece.slot]} was skipped because gear level ${level} is unsupported.`)
       return undefined
     }
-    const resolvedLevel = level === 91 || level === 96 ? level : (piece.signature?.level ?? commonLevel)
+    const resolvedLevel = isGearLevel(level) ? level : (piece.signature?.level ?? commonLevel)
     const rarity = explicitRarity(piece.exVo, piece.detail) ?? piece.signature?.rarity
     const resolvedRarity = rarity ?? "Gold"
     const mappedRows = piece.rows.map(row => ({ row, key: row ? officialAffixMap[row.statId] : undefined }))

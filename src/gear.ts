@@ -36,7 +36,11 @@ export const gearSlots = [
   "bracer",
 ] as const
 export type GearSlot = (typeof gearSlots)[number]
-export type GearLevel = 91 | 96
+export const gearLevels = [91, 96, 100] as const
+export type GearLevel = (typeof gearLevels)[number]
+export function isGearLevel(value: unknown): value is GearLevel {
+  return typeof value === "number" && gearLevels.some(level => level === value)
+}
 export type GearRarity = "Purple" | "Gold"
 export type GearSetTier = 0 | 2 | 4
 export type SetSelections = Record<string, GearSetTier>
@@ -102,7 +106,7 @@ export type BuildPreset = {
   relayed?: boolean
   martialArts: WeaponId[]
   setup?: BuildSetup
-  gear: Partial<Record<GearSlot, BuildPresetGear>>
+  gearByTier: Record<string, Partial<Record<GearSlot, BuildPresetGear>>>
   buildGroup?: string
 }
 
@@ -338,7 +342,7 @@ export function normalizeBuildSetupOverrides(value: unknown): BuildSetupOverride
   return result
 }
 
-const buildPresetModules = import.meta.glob("@gamedata/build/**/*.json", { eager: true, import: "default" }) as Record<
+const buildPresetModules = import.meta.glob("../data/build/**/*.json", { eager: true, import: "default" }) as Record<
   string,
   BuildPreset
 >
@@ -472,7 +476,7 @@ function parseGearItem(value: unknown): GearItem | undefined {
   if (typeof candidate.id !== "string" || !candidate.id) return undefined
   if (typeof candidate.definitionId !== "string") return undefined
   const definition = gearData.gear[candidate.definitionId]
-  const level = candidate.level === 91 || candidate.level === 96 ? candidate.level : undefined
+  const level = isGearLevel(candidate.level) ? candidate.level : undefined
   const rarity = candidate.rarity === "Purple" || candidate.rarity === "Gold" ? candidate.rarity : undefined
   const slot = gearSlots.includes(candidate.slot as GearSlot) ? (candidate.slot as GearSlot) : undefined
   if (!definition || !level || !rarity || (!definition.weapon && (!slot || !definition.slots.includes(slot))))
@@ -562,9 +566,11 @@ export function loadGearInventory(): GearInventory {
   }
 }
 
-export function buildPresetInventory(preset: BuildPreset): GearInventory {
+export function buildPresetInventory(preset: BuildPreset, gearTier: GearLevel = 96): GearInventory {
+  const gear = preset.gearByTier[String(gearTier)]
+  if (!gear) throw new RangeError(`Missing gear tier ${gearTier} in preset ${preset.id}`)
   const entries = gearSlots.flatMap((slot): Array<{ slot: GearSlot; item: GearItem }> => {
-    const presetGear = preset.gear[slot]
+    const presetGear = gear[slot]
     if (!presetGear) return []
     const definition = gearData.gear[presetGear.definitionId]
     if (!definition?.slots.includes(slot)) throw new Error(`Invalid ${slot} definition in build preset ${preset.id}.`)
@@ -642,11 +648,12 @@ export function resolveBuildInventory(
   entry: BuildEntry,
   sharedItems: GearItem[] = [],
   weapons?: [WeaponId, WeaponId],
+  gearTier: GearLevel = 96,
 ): GearInventory {
   let inventory: GearInventory
   if (entry.isDefault) {
     const preset = defaultBuildPresets.find(candidate => candidate.id === entry.presetId)
-    inventory = preset ? buildPresetInventory(preset) : { items: [], equipped: {} }
+    inventory = preset ? buildPresetInventory(preset, gearTier) : { items: [], equipped: {} }
   } else {
     inventory = { items: sharedItems, equipped: entry.equipped ?? {} }
   }
@@ -684,6 +691,7 @@ export function duplicateBuildState(
   current: BuildState,
   sourceId: string,
   duplicate: { id: string; name: string },
+  gearTier: GearLevel = 96,
 ): BuildState {
   const source = current.entries.find(entry => entry.id === sourceId)
   if (!source) throw new Error(`Cannot duplicate missing build ${sourceId}.`)
@@ -700,7 +708,7 @@ export function duplicateBuildState(
     return { ...current, entries: [...current.entries, { ...baseEntry, equipped: { ...source.equipped } }] }
   }
 
-  const presetInventory = resolveBuildInventory(source)
+  const presetInventory = resolveBuildInventory(source, [], undefined, gearTier)
   const usedGearIds = new Set(current.gearItems.map(item => item.id))
   const equippedGearIds = new Set<string>()
   const addedItems: GearItem[] = []

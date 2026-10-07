@@ -16,118 +16,234 @@
     "bowRingSet": "Precision",
     "arsenal": "Bamboocut"
   },
-  "gear": {
-    "leftWeapon": {
-      "definitionId": "umbrella",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "minPhys", "value": 73.132 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "umbrellaDmgBoost", "value": 0.05828 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "physicalPenetration", "value": 11 }
+  "gearByTier": {
+    "96": {
+      "leftWeapon": {
+        "definitionId": "umbrella",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "umbrellaDmgBoost", "value": 0.05828 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "rightWeapon": {
+        "definitionId": "unfetteredRopeDart",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "crit", "value": 0.0846 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "allMartialArts", "value": 0.03008 },
+          { "key": "crit", "value": 0.0846 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "allMartialArts", "value": 0.03008 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "precision", "value": 0.0752 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "precision", "value": 0.0752 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "vsBossDmg", "value": 0.03008 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 96,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "vsBossDmg", "value": 0.03008 },
+          { "key": "maxBamboocut", "value": 41.548 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
+      }
     },
-    "rightWeapon": {
-      "definitionId": "unfetteredRopeDart",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "minPhys", "value": 73.132 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "crit", "value": 0.0846 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "physicalPenetration", "value": 11 }
-    },
-    "disc": {
-      "definitionId": "disc",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "minPhys", "value": 73.132 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "allMartialArts", "value": 0.03008 },
-        { "key": "crit", "value": 0.0846 }
-      ],
-      "attunement": { "key": "physicalPenetration", "value": 11 }
-    },
-    "pendant": {
-      "definitionId": "pendant",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "minPhys", "value": 73.132 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "allMartialArts", "value": 0.03008 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "physicalPenetration", "value": 11 }
-    },
-    "helmet": {
-      "definitionId": "helmet",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "crit", "value": 0.0846 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "precision", "value": 0.0752 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
-    },
-    "chestpiece": {
-      "definitionId": "chestpiece",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "crit", "value": 0.0846 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "precision", "value": 0.0752 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
-    },
-    "greaves": {
-      "definitionId": "greaves",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "crit", "value": 0.0846 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "vsBossDmg", "value": 0.03008 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
-    },
-    "bracer": {
-      "definitionId": "bracer",
-      "level": 96,
-      "rarity": "Gold",
-      "relayed": true,
-      "baseAffix": { "key": "crit", "value": 0.0846 },
-      "additionalAffixes": [
-        { "key": "minPhys", "value": 73.132 },
-        { "key": "agility", "value": 46.436 },
-        { "key": "vsBossDmg", "value": 0.03008 },
-        { "key": "maxBamboocut", "value": 41.548 }
-      ],
-      "attunement": { "key": "everspringMartialBoost", "value": 0.06 }
+    "100": {
+      "leftWeapon": {
+        "definitionId": "umbrella",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "umbrellaDmgBoost", "value": 0.06956 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "rightWeapon": {
+        "definitionId": "unfetteredRopeDart",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "crit", "value": 0.09775999999999999 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "allMartialArts", "value": 0.033839999999999995 },
+          { "key": "crit", "value": 0.09775999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "allMartialArts", "value": 0.033839999999999995 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "precision", "value": 0.08836 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.07 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "precision", "value": 0.08836 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.07 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "vsBossDmg", "value": 0.035719999999999995 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.07 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 100,
+        "rarity": "Gold",
+        "relayed": true,
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "vsBossDmg", "value": 0.035719999999999995 },
+          { "key": "maxBamboocut", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "everspringMartialBoost", "value": 0.07 }
+      }
     }
   }
 }

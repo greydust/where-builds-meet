@@ -13,7 +13,7 @@ import type { EditableObject, ResourceEventRule } from "@/calculations/rotationT
 import type { EffectiveStatEffectContainer, StatEffectContainer } from "@/calculations/statEffects"
 import type { BaseAttributeData } from "@/data/baseAttributeEffects"
 import { createBaseAttributeEffects } from "@/data/baseAttributeEffects"
-import { armorSetDefinitions, weaponSetDefinitions, type SetDefinition } from "@/gear"
+import { armorSetDefinitions, weaponSetDefinitions, type SetDefinition, type GearLevel } from "@/gear"
 import type { EnemyProfile } from "@/types"
 
 export type SetupEffect = StatEffectContainer &
@@ -28,6 +28,7 @@ export type SetupEffect = StatEffectContainer &
     modify?: EditableObject
   }
 export type BreakthroughProfile = EnemyProfile & {
+  gearTier: GearLevel
   soloLevel: number
   martialArtTalentRank: number
   levelBonusStats: SetupEffect & {

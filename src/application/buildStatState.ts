@@ -1,3 +1,4 @@
+import { breakthroughProfile } from "@/application/gameData/setup"
 import { resolveAttunementStats, type AttunementOverrides } from "@/calculations/attunementStats"
 import type { AttunementStats } from "@/calculations/damage"
 import type { CharacterStatOverrides, StatEffectContainer } from "@/calculations/statEffects"
@@ -75,7 +76,9 @@ export function resolveBuildSetupWithOverrides(
 export function resolveBuildStatState(input: BuildStatStateInput): BuildStatState {
   const { build, gearItems, settings, statOverrides, attunementOverrides, setupSelections, pathId } = input
   const buildSetup = resolveBuildSetupWithOverrides(build, input.buildSetupOverrides)
-  const inventory = build ? resolveBuildInventory(build, gearItems, settings.weapons) : { items: [], equipped: {} }
+  const inventory = build
+    ? resolveBuildInventory(build, gearItems, settings.weapons, breakthroughProfile(settings).gearTier)
+    : { items: [], equipped: {} }
   // A default build is the path's own preset, so its gear is not a player's choice and does
   // not earn the scaling a hand-picked one does.
   const equipped = calculateEquippedGearEffects(inventory, settings.weapons, build?.isDefault !== true)

@@ -5,6 +5,7 @@ import {
   attunementData,
   clampGearRoll,
   gearData,
+  gearLevels,
   maxGearRoll,
   type GearDefinition,
   type GearItem,
@@ -38,8 +39,8 @@ export type GearDraft = {
 }
 
 export const blankValue = (): GearValueDraft => ({ key: "", value: "" })
-export const newDraft = (): GearDraft => ({
-  level: 96,
+export const newDraft = (level: GearLevel = 96): GearDraft => ({
+  level,
   rarity: "Gold",
   relayed: false,
   baseAffix: blankValue(),
@@ -308,8 +309,11 @@ export function GearEditor({
         <label className="editor-field">
           <span>{t("ui.buildTab.level")}</span>
           <Select value={draft.level} onChange={event => onLevelChange(Number(event.target.value) as GearLevel)}>
-            <option value={96}>96</option>
-            <option value={91}>91</option>
+            {gearLevels.toReversed().map(level => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
           </Select>
         </label>
         <label className="editor-field">

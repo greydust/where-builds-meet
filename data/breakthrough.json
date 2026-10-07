@@ -13,7 +13,8 @@
     "levelBonusStats": {
       "rawStat": { "precision": 0.165, "agility": 150, "power": 150, "momentum": 150, "body": 150, "defense": 150 }
     },
-    "soloLevel": 17
+    "soloLevel": 17,
+    "gearTier": 96
   },
   "18": {
     "name": "18",
@@ -29,6 +30,7 @@
     "levelBonusStats": {
       "rawStat": { "precision": 0.178, "agility": 164, "power": 164, "momentum": 164, "body": 164, "defense": 164 }
     },
-    "soloLevel": 18
+    "soloLevel": 18,
+    "gearTier": 100
   }
 }

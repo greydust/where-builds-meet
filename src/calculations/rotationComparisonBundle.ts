@@ -72,7 +72,8 @@ export function buildRotationComparisonBundle(
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
     return { ...rawCharacterStats, [key]: rawCharacterStats[key] + amount }
   }
-  const priorityLevelData = statRollsForLevel(subject.enemy.level)
+  const gearTier = breakthroughProfile(settings).gearTier
+  const priorityLevelData = statRollsForLevel(gearTier)
   const priorityCharacter = Object.fromEntries(
     Object.entries(priorityLevelData?.affix ?? {}).filter(([key]) =>
       characterStatAvailableForSettings(key as keyof CharacterStats, settings, pathId),
@@ -81,7 +82,7 @@ export function buildRotationComparisonBundle(
   const priorityAttunement = Object.keys(attunementData)
     .filter(key => attunementAvailableForSettings(key, pathId, settings))
     .flatMap(key => {
-      const amount = maxGearRoll(key, "attunement", false, subject.enemy.level)
+      const amount = maxGearRoll(key, "attunement", false, gearTier)
       return typeof amount === "number" ? [[key, amount] as const] : []
     })
   const selectedInnerWays = buildSetup.innerWays.filter(

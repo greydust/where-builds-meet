@@ -89,7 +89,11 @@ export function buildPresetRotationBundle(
     ping: resolvePing(environment.rotation.ping),
   }
   const buildSetup = normalizeBuildSetup(build.setup)
-  const equippedGear = calculateEquippedGearEffects(buildPresetInventory(build), weapons, false)
+  const equippedGear = calculateEquippedGearEffects(
+    buildPresetInventory(build, breakthroughProfile(settings).gearTier),
+    weapons,
+    false,
+  )
   const gearStatEffect: StatEffectContainer = { rawStat: equippedGear.stats }
   const preview = combatDefinitionsFor(environment.previewId)
   const setupEffects = selectedSetupEffects(
