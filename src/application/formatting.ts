@@ -1,8 +1,8 @@
 import type { SkillRecord } from "@/calculations/rotationTimeline"
-import { dataText, getLocale } from "@/i18n"
+import { dataText, gameText, getLocale } from "@/i18n"
 import type { EditorCategory } from "@/skillOverrides"
 
-import { allSkillDefinitions, skillDataNamespaceById } from "./gameData/skills"
+import { allSkillDefinitions, dotDefinitions, skillDataNamespaceById } from "./gameData/skills"
 
 export function skillCategoryLabel(category: EditorCategory) {
   switch (category) {
@@ -114,10 +114,12 @@ export function throughputDeltaClass(value: number, channel: ThroughputChannel) 
 }
 
 export function skillFieldText(skillId: string, skill: SkillRecord | undefined, field: "name" | "shortName") {
-  const value = skill?.[field]?.trim()
+  const definition = skill ?? dotDefinitions[skillId]
+  const value = definition?.[field]?.trim()
   if (!value) return field === "name" ? skillId : ""
   const namespace = skillDataNamespaceById.get(skillId)
   const defaultValue = allSkillDefinitions[skillId]?.[field]?.trim()
+  if (!namespace && value === dotDefinitions[skillId]?.[field]?.trim()) return gameText(value)
   return namespace && value === defaultValue ? dataText(`data.skill.${namespace}.${skillId}.${field}`, value) : value
 }
 
