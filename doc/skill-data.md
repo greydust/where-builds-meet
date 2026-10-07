@@ -691,9 +691,9 @@ below keeps cross-cutting blockers and outstanding skill evidence.
 
 ### Bellstrike Splendor
 
-Splendor is `wip`, not `available`: it has talent, Inner Way, attunement, and
-skill data and the proposed `dummy-1-min-81-waves` rotation, but no preset build
-or accepted DPS snapshot. Its path status is not proof that any timing is verified.
+Splendor is `available`: it has talent, Inner Way, attunement, and skill data,
+preset builds, and the accepted `dummy-1-min-81-waves` DPS snapshot. Its path
+status is not proof that any timing is verified.
 
 `Dummy 1 min 81 waves` preserves the user-proposed sequence: 27 tier-2 Vagrant
 Sword casts, with battle start on the first cast's first damage hit (after its

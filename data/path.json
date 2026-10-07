@@ -2,7 +2,7 @@
   "bellstrikeSplendor": {
     "name": "Splendor",
     "tag": "BellstrikeSplendor",
-    "status": "wip",
+    "status": "available",
     "buildGroup": "bellstrike-splendor",
     "defaultBuild": "splendor-fully-relayed",
     "graduated": ["splendor-full"],
