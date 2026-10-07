@@ -3,10 +3,18 @@ import attunementJson from "@gamedata/attunement.json"
 import { emptyStats } from "@/data/statDefinitions"
 import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
 
+import {
+  attackStatFields,
+  referencesChangedInput,
+  RotationAttackResponse,
+  type AttackStatField,
+} from "./attackDamageResponse"
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import { DEFAULT_TARGET_HP_RATIO, normalizeEnemyCount, resolveTargetType } from "./combatDefaults"
 import {
   calculateDamageBreakdown,
+  createPreparedDamageCalculator,
+  preparedDamageStatFields,
   calculateSimulatedDamageBreakdown,
   type DamageBreakdown,
   type DamageContext,
@@ -228,6 +236,7 @@ function calculateRotationDamageEntry(
   directAffinityBonus = 0,
   random?: () => number,
   additionalEffects: EditableObject[] = [],
+  preparedDamage?: ReturnType<typeof createPreparedDamageCalculator>,
 ): RotationActionBreakdown {
   let breakdown: RotationActionBreakdown
   if (entry.replay) {
@@ -276,7 +285,7 @@ function calculateRotationDamageEntry(
         : contextWithDamageEffects
     breakdown = random
       ? calculateSimulatedDamageBreakdown(entry.action, context, random)
-      : calculateDamageBreakdown(entry.action, context)
+      : (preparedDamage ?? calculateDamageBreakdown)(entry.action, context)
     if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt)
   }
   return breakdown
@@ -355,7 +364,11 @@ export type ResolvedRotationDamage = {
   }
 }
 
-function createRotationDamageResolver(random?: () => number, schedule?: ExpectedOutcomeBuffSchedule) {
+function createRotationDamageResolver(
+  random?: () => number,
+  schedule?: ExpectedOutcomeBuffSchedule,
+  preparedDamage?: ReturnType<typeof createPreparedDamageCalculator>,
+) {
   const expectedHawkwing = random ? undefined : new ExpectedHawkwingTracker()
   const simulatedHawkwing = random ? new SimulatedHawkwingTracker() : undefined
   const expectedInsightfulStrike = random ? undefined : new ExpectedInsightfulStrikeTracker()
@@ -454,7 +467,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
     ): RotationActionBreakdown => {
       const outcomes = entry.seasonalEdge?.outcomes
       if (!outcomes?.length || entry.action.type !== "damage" || entry.replay)
-        return calculateRotationDamageEntry(entry, baseOutcomeEffects, directAffinityBonus, random)
+        return calculateRotationDamageEntry(entry, baseOutcomeEffects, directAffinityBonus, random, [], preparedDamage)
       if (random) {
         return calculateRotationDamageEntry(
           entry,
@@ -462,6 +475,7 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
           directAffinityBonus,
           random,
           effectsForSeasonalOutcome(entry.context, selectedSeasonalOutcome!),
+          preparedDamage,
         )
       }
       const grouped = new Map<string, { weight: number; effects: EditableObject[] }>()
@@ -474,7 +488,14 @@ function createRotationDamageResolver(random?: () => number, schedule?: Expected
       let combined: RotationActionBreakdown | undefined
       let combinedWeight = 0
       grouped.forEach(({ weight, effects }) => {
-        const current = calculateRotationDamageEntry(entry, baseOutcomeEffects, directAffinityBonus, undefined, effects)
+        const current = calculateRotationDamageEntry(
+          entry,
+          baseOutcomeEffects,
+          directAffinityBonus,
+          undefined,
+          effects,
+          preparedDamage,
+        )
         combined = combined ? blendDamageBreakdowns(combined, current, weight / (combinedWeight + weight)) : current
         combinedWeight += weight
       })
@@ -576,8 +597,9 @@ export function calculateRotationDamageSequence(
   random?: () => number,
   schedule?: ExpectedOutcomeBuffSchedule,
   recalculateRecordings = false,
+  preparedDamage?: ReturnType<typeof createPreparedDamageCalculator>,
 ) {
-  const resolver = createRotationDamageResolver(random, schedule)
+  const resolver = createRotationDamageResolver(random, schedule, preparedDamage)
   const damageByAction = new Map<string, number>()
   return entries.map(entry => {
     const sourceIds = recalculateRecordings ? entry.replay?.sourceActionIds : undefined
@@ -2143,6 +2165,114 @@ export function calculateSimulatedRotationRun(
   }
 }
 
+const baselineSequences = new WeakMap<RotationSimulationBaseline, ResolvedRotationDamageSequence>()
+const attackResponses = new WeakMap<RotationSimulationBaseline, RotationAttackResponse | null>()
+
+const attackDependencies = new WeakMap<RotationSimulationBaseline, unknown[]>()
+function baselineAttackDependencies(baseline: RotationSimulationBaseline, input: TimelineBuildInput) {
+  let dependencies = attackDependencies.get(baseline)
+  if (!dependencies) {
+    const effectNames = new Set(baseline.timeline.flatMap(row => [...row.buffs.keys(), ...row.debuffs.keys()]))
+    dependencies = [
+      input.rotation,
+      input.innerWayRules,
+      ...baseline.timeline.flatMap(row => [row.skill, row.actions, row.modifierEffects, row.actionModifierEffects]),
+      ...new Set(baseline.baseline.flatMap(entry => [entry.context.effects, entry.context.expectedEffects])),
+      ...Array.from(effectNames, name => input.effectDefinitions[name]),
+    ]
+    attackDependencies.set(baseline, dependencies)
+  }
+  return dependencies
+}
+
+const attackDependencyChecks = new WeakMap<RotationSimulationBaseline, Map<string, boolean>>()
+function baselineDependsOnAttack(baseline: RotationSimulationBaseline, input: TimelineBuildInput, fields: Set<string>) {
+  let checks = attackDependencyChecks.get(baseline)
+  if (!checks) {
+    checks = new Map()
+    attackDependencyChecks.set(baseline, checks)
+  }
+  for (const field of fields) {
+    let depends = checks.get(field)
+    if (depends === undefined) {
+      depends = referencesChangedInput(baselineAttackDependencies(baseline, input), new Set([field]))
+      checks.set(field, depends)
+    }
+    if (depends) return true
+  }
+  return false
+}
+
+function rotationAttackResponse(baseline: RotationSimulationBaseline) {
+  if (attackResponses.has(baseline)) return attackResponses.get(baseline)
+  const sequence = baselineSequences.get(baseline)
+  if (
+    !sequence ||
+    sequence.some(
+      ({ entry }) =>
+        entry.action.type === "heal" || entry.accumulatorSnapshot || (entry.replay && !entry.replay.sourceActionIds),
+    )
+  ) {
+    attackResponses.set(baseline, null)
+    return null
+  }
+  const total = new RotationAttackResponse()
+  const responses = new Map<string, RotationAttackResponse>()
+  for (const resolved of sequence) {
+    const { entry, outcomeEffects, expectedConcentration: concentration } = resolved
+    const response = new RotationAttackResponse()
+    if (entry.replay) {
+      const bonus = entry.context.effects.reduce(
+        (sum, effect) => sum + (typeof effect.replayDmgBonus === "number" ? effect.replayDmgBonus : 0),
+        0,
+      )
+      const weight = entry.replay.coef * (1 + bonus)
+      if (!(weight >= 0)) {
+        attackResponses.set(baseline, null)
+        return null
+      }
+      for (const id of entry.replay.sourceActionIds!) {
+        const source = responses.get(id)
+        if (!source) {
+          attackResponses.set(baseline, null)
+          return null
+        }
+        response.add(source, weight)
+      }
+    } else {
+      const addContext = (effects: UnconditionalDamageEffects | undefined, directAffinity: number, weight: number) => {
+        if (weight === 0) return
+        const outcomes = entry.seasonalEdge?.outcomes
+        if (!outcomes?.length)
+          response.addDamage(entry.action, contextWithOutcomeEffects(entry.context, effects, directAffinity), weight)
+        else
+          for (const outcome of outcomes)
+            response.addDamage(
+              entry.action,
+              contextWithOutcomeEffects(
+                entry.context,
+                effects,
+                directAffinity,
+                effectsForSeasonalOutcome(entry.context, outcome),
+              ),
+              weight * outcome.weight,
+            )
+      }
+      addContext(outcomeEffects, 0, 1 - (concentration?.probability ?? 0))
+      if (concentration)
+        addContext(
+          addUnconditionalDamageEffects(outcomeEffects, concentration.activeEffects),
+          concentration.directAffinityBonus,
+          concentration.probability,
+        )
+    }
+    if (entry.id) responses.set(entry.id, response)
+    total.add(response, entry.context.skillTags.includes("Mystic") ? baseline.mysticVitalityDamageScale : 1)
+  }
+  attackResponses.set(baseline, total)
+  return total
+}
+
 export function calculateRotationBaseline(bundle: RotationSimulationBundle): RotationSimulationBaseline {
   const timelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
   const state = rotationStatState(bundle)
@@ -2217,7 +2347,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
   metrics.breakdown.groupedHealingSkills = groupSkillBreakdown(metrics.breakdown.healingSkills, bundle.timeline.skills)
   metrics.expectedHawkwingStacks = averageExpectedBuffStack(resolvedSequence, "Hawkwing")
   if (import.meta.env.DEV) finishCalculationPhase("metricsAndBreakdown", metricsStartedAt)
-  return {
+  const result = {
     metrics,
     timeline,
     anchorTime,
@@ -2227,6 +2357,8 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     expectedOutcomeBuffSchedule: expectedOutcomeBuffSchedule(resolvedSequence),
     mysticVitalityDamageScale,
   }
+  baselineSequences.set(result, resolvedSequence)
+  return result
 }
 
 function canReuseExpectedOutcomeBuffSchedule(variant: RotationSimulationVariant) {
@@ -2285,6 +2417,7 @@ export function calculateRotationComparisons(
   onProgress?: (completed: number, total: number) => void,
 ): RotationMetrics {
   const state = rotationStatState(bundle)
+  const preparedDamage = createPreparedDamageCalculator()
   const totalVariants =
     bundle.statPriority.length +
     bundle.attunementPriority.length +
@@ -2316,6 +2449,51 @@ export function calculateRotationComparisons(
       // Resource caps move natural-regeneration thresholds and later spending.
       timelineInput.setupEffects.some(effect => effect.resourceRegenerationBonus) ||
       liveCollectors
+    if (!requiresLiveResolution && variant.stats && !variant.attunement) {
+      const changed = Object.keys(emptyStats).filter(
+        key => variant.stats![key as keyof CharacterStats] !== state.baseStats[key as keyof CharacterStats],
+      )
+      const changedInputs = new Set(
+        changed.flatMap(key => [key, attackStatFields[key as keyof typeof attackStatFields]]).filter(Boolean),
+      )
+      if (changed.length > 0 && changed.every(key => key in attackStatFields)) {
+        const next = variantStatState(state, timelineInput.setupEffects, timelineInput.innerWayRules, variant)
+        const resolvedSetup = timelineInput.setupEffects.map(effect =>
+          effect.statStage === "talent" ? resolveRawStatFormulas(effect, state.rawStats) : effect,
+        )
+        const nextSetup = timelineInput.setupEffects.map(effect =>
+          effect.statStage === "talent" ? resolveRawStatFormulas(effect, next.rawStats) : effect,
+        )
+        const independent =
+          JSON.stringify(resolvedSetup) === JSON.stringify(nextSetup) &&
+          !referencesChangedInput(resolvedSetup, changedInputs) &&
+          !baselineDependsOnAttack(baselineResult, timelineInput, changedInputs)
+        // Raw-sourced talents may change damage bonuses, penetration or other derived inputs.
+        const attackOnly = Object.keys(emptyStats).every(
+          key =>
+            key in attackStatFields ||
+            next.stats[key as keyof CharacterStats] === state.stats[key as keyof CharacterStats],
+        )
+        if (attackOnly && independent) {
+          const delta: Partial<Record<AttackStatField, number>> = {}
+          for (const field of Object.keys(attackStatFields) as AttackStatField[]) {
+            const amount = next.stats[field] - state.stats[field]
+            if (amount !== 0) delta[field] = amount
+          }
+          const difference = rotationAttackResponse(baselineResult)?.evaluate(delta)
+          if (difference !== undefined) {
+            completedVariants += 1
+            onProgress?.(completedVariants, totalVariants)
+            return {
+              entries: [],
+              damage: baselineResult.metrics.totalDamage + difference,
+              healing: baselineResult.metrics.totalHealing,
+              duration: baselineResult.duration,
+            }
+          }
+        }
+      }
+    }
     const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const reusableExpectedBuffSchedule =
       !requiresLiveResolution && !hasRecordingSources && canReuseExpectedOutcomeBuffSchedule(variant)
@@ -2345,6 +2523,16 @@ export function calculateRotationComparisons(
     const entries = combatRuntime
       ? resolution.entries
       : resolution.entries.filter(entry => baselineActionIds.has(entry.id))
+    const reusableDamageFormula =
+      variant.stats &&
+      !variant.attunement &&
+      Object.keys(emptyStats).every(
+        key =>
+          preparedDamageStatFields.has(key) ||
+          variant.stats![key as keyof CharacterStats] === state.baseStats[key as keyof CharacterStats],
+      )
+        ? preparedDamage
+        : undefined
     const resolvedSequence =
       resolution.resolvedSequence ??
       calculateRotationDamageSequence(
@@ -2352,6 +2540,7 @@ export function calculateRotationComparisons(
         undefined,
         reusableExpectedBuffSchedule,
         hasRecordingSources,
+        reusableDamageFormula,
       ).filter(result => baselineActionIds.has(result.entry.id))
     if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt)
     let duration = baselineResult.duration

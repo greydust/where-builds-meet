@@ -1,9 +1,12 @@
 import { createServer } from "vite"
 
+import { alias } from "../../aliases.ts"
+
 // Production preset and UI-equivalent stat/attunement groups, without browser transport/rendering.
 // Run from the repository root: node script/probe/benchmark-wind-innerways.mjs
 const server = await createServer({
   configFile: false,
+  resolve: { alias },
   server: { middlewareMode: true },
   appType: "custom",
   logLevel: "silent",
@@ -34,6 +37,7 @@ try {
           martialArts: rotation.martialArts,
           rotation,
           skillOverrides: {},
+          previewId: null,
         },
         preset.id,
       )
@@ -80,6 +84,18 @@ try {
       const attuneStart = performance.now()
       calculateRotationComparisons({ ...bundle, statPriority: [] }, baseline)
       const attunementMs = performance.now() - attuneStart
+      // The full stat group above prepares the aggregate coefficients. Measure
+      // repeated attack comparisons separately from their one-time preparation.
+      const attackStart = performance.now()
+      calculateRotationComparisons(
+        {
+          ...bundle,
+          statPriority: bundle.statPriority.filter(variant => ["minPhys", "maxPhys"].includes(variant.label)),
+          attunementPriority: [],
+        },
+        baseline,
+      )
+      const cachedAttackComparisonsMs = performance.now() - attackStart
       const sample = {
         round,
         name,
@@ -87,6 +103,7 @@ try {
         compactionMs,
         statsMs,
         attunementMs,
+        cachedAttackComparisonsMs,
         statCount: bundle.statPriority.length,
         attunementCount: bundle.attunementPriority.length,
         rows: baseline.timeline.length,
@@ -107,7 +124,7 @@ try {
       JSON.stringify({
         summary: name,
         ...Object.fromEntries(
-          ["baselineMs", "compactionMs", "statsMs", "attunementMs"].map(key => [
+          ["baselineMs", "compactionMs", "statsMs", "attunementMs", "cachedAttackComparisonsMs"].map(key => [
             key,
             median(runs.map(run => run[key])),
           ]),

@@ -182,6 +182,7 @@ function calculateDamageBreakdownInternal(
   action: DamageAction,
   context: DamageContext,
   random?: () => number,
+  prepare?: (formula: PreparedDamageFormula) => void,
 ): DamageBreakdown {
   const { stats: baseStats, attunement, skillTags, weapons, enemy, derivedStats: baseDerivedStats, effects } = context
   const stats = baseStats
@@ -313,9 +314,6 @@ function calculateDamageBreakdownInternal(
   attributeBonus *= 1 + resolvedEffects.flatAttackBonus
   const channelSnapshotStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
   const physicalAttackMultiplier = 1 + resolvedEffects.attackBonus.physical
-  const minPhysicalAttack = derivedStats.effectiveMinPhys * physicalAttackMultiplier
-  const maxPhysicalAttack = derivedStats.effectiveMaxPhys * physicalAttackMultiplier
-  const averagePhysicalAttack = (minPhysicalAttack + maxPhysicalAttack) / 2
   const attributeRanges = [
     [
       derivedStats.effectiveMinBellstrike * (1 + resolvedEffects.attackBonus.bellstrike),
@@ -398,39 +396,52 @@ function calculateDamageBreakdownInternal(
         return (minimum + maximum) / 2
     }
   }
-  const calculateAttributeDamage = (mode: AttackRollMode) =>
-    attributeRanges.reduce(
-      (total, [minAttack, maxAttack, penetration, damageBonus, attribute, resistance]) => {
-        const attack = attackValue(minAttack, maxAttack, mode)
-        const damage =
-          (attributeCoefficient * attack + (attribute === path ? attributeBonus : 0)) *
-          penetrationMultiplier(penetration + (attribute === path ? attunementFormlessPenetration : 0), resistance) *
-          (1 + damageBonus) *
-          (attribute === path ? 1.5 : 1)
+  const preparedAttributeRanges = attributeRanges.map(([, , penetration, damageBonus, attribute, resistance]) => ({
+    attribute,
+    attackMultiplier: 1 + resolvedEffects.attackBonus[attribute],
+    penetration: penetrationMultiplier(
+      penetration + (attribute === path ? attunementFormlessPenetration : 0),
+      resistance,
+    ),
+    damageMultiplier: 1 + damageBonus,
+    pathMultiplier: attribute === path ? 1.5 : 1,
+    flatBonus: attribute === path ? attributeBonus : 0,
+  }))
+  const adjustedEnemyDefense = enemy.defense * (1 + resolvedEffects.defenseBonus)
+  const physicalPenetrationMultiplier = penetrationMultiplier(
+    stats.physicalPenetration + attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
+    enemy.physicalResistance + resolvedEffects.physicalResistance,
+  )
+  const physicalDamageMultiplier = 1 + stats.physDmgBonus
+  const globalMultiplier = 1 + resolvedEffects.globalDmgBonus
+  const calculateAttributeDamage = (mode: AttackRollMode, snapshot: DerivedStats) =>
+    preparedAttributeRanges.reduce(
+      (total, { attribute, attackMultiplier, penetration, damageMultiplier, pathMultiplier, flatBonus }) => {
+        const [minimum, maximum] = attackFields[attribute]
+        const attack = attackValue(snapshot[minimum] * attackMultiplier, snapshot[maximum] * attackMultiplier, mode)
+        const damage = (attributeCoefficient * attack + flatBonus) * penetration * damageMultiplier * pathMultiplier
         return Object.assign(total, { [attribute]: total[attribute as keyof typeof total] + damage })
       },
       { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
     )
-  const calculateVariant = (damageType: AttackRollMode, specialBonus: number) => {
+  const calculateVariant = (damageType: AttackRollMode, specialBonus: number, snapshot = derivedStats) => {
     const variantStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const physicalChannelStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-    const physicalAttack =
-      damageType === "average" ? averagePhysicalAttack : attackValue(minPhysicalAttack, maxPhysicalAttack, damageType)
-    const adjustedEnemyDefense = enemy.defense * (1 + resolvedEffects.defenseBonus)
+    const physicalAttack = attackValue(
+      snapshot.effectiveMinPhys * physicalAttackMultiplier,
+      snapshot.effectiveMaxPhys * physicalAttackMultiplier,
+      damageType,
+    )
     const physicalDamage =
       (coefficient * (physicalAttack - adjustedEnemyDefense) + physicalBonus) *
-      penetrationMultiplier(
-        stats.physicalPenetration + attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
-        enemy.physicalResistance + resolvedEffects.physicalResistance,
-      ) *
-      (1 + stats.physDmgBonus)
+      physicalPenetrationMultiplier *
+      physicalDamageMultiplier
     const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
     const attributeMultiplier = attributeSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
-    const globalMultiplier = 1 + resolvedEffects.globalDmgBonus
     const resolvedPhysicalDamage = Math.max(0, physicalDamage * physicalMultiplier * globalMultiplier)
     if (import.meta.env.DEV) finishCalculationPhase("damagePhysicalChannel", physicalChannelStartedAt)
     const attributeChannelsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-    const attributeDamage = calculateAttributeDamage(damageType)
+    const attributeDamage = calculateAttributeDamage(damageType, snapshot)
     const result = {
       physical: resolvedPhysicalDamage,
       bellstrike:
@@ -446,47 +457,58 @@ function calculateDamageBreakdownInternal(
     return result
   }
   const rateResolutionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-  const rateStats = {
-    effectivePrecision: derivedStats.effectivePrecision,
-    effectiveCrit: derivedStats.effectiveCrit,
-    effectiveAffinity: derivedStats.effectiveAffinity,
-    directCrit: derivedStats.directCrit,
-    directAffinity: derivedStats.finalAffinity - derivedStats.effectiveAffinity,
-    finalAffinity: derivedStats.finalAffinity,
-  }
   const conversionEffects = effects.filter(
     (effect): effect is Record<string, unknown> & StatConversionEffectContainer => effect.convert !== undefined,
   )
-  const convertedRateStats =
-    conversionEffects.length > 0 ? applyStatConversions(rateStats, conversionEffects) : rateStats
   const GuaranteedAffinity = effects.some(effect => effect.GuaranteedAffinity === true)
   const NoAbrasion = effects.some(effect => effect.NoAbrasion === true)
   const GuaranteedCrit = effects.some(effect => effect.GuaranteedCrit === true)
   const SteadfastGuaranteedCrit =
     effects.some(effect => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"))
-  const calculatedRates = calculateRates(
-    NoAbrasion ? { ...convertedRateStats, effectivePrecision: 1 } : convertedRateStats,
-    { GuaranteedCrit, GuaranteedAffinity, SteadfastGuaranteedCrit },
-  )
-  const convertedRates =
-    conversionEffects.length > 0 ? applyStatConversions(calculatedRates, conversionEffects) : calculatedRates
-  const normalRates = GuaranteedAffinity
-    ? {
-        ...convertedRates,
-        finalAffinity: 1,
-        finalCrit: 0,
-        critRate: 0,
-        abrasionRate: 0,
-        normalRate: 0,
-        affinityRate: 1,
-      }
-    : GuaranteedCrit
-      ? { ...convertedRates, finalCrit: 1, critRate: 1, abrasionRate: 0, normalRate: 0, affinityRate: 0 }
-      : convertedRates
-  // The healing and Divinecraft routes cannot roll every outcome, so they replace the normal rates.
-  const rateRoute = restrictedRateRouteFor(action.rateRoute)
-  const rates = rateRoute ? restrictedOutcomeRates(rateRoute, rateStats) : normalRates
+  const resolveRates = (snapshot: DerivedStats) => {
+    const rateStats = {
+      effectivePrecision: snapshot.effectivePrecision,
+      effectiveCrit: snapshot.effectiveCrit,
+      effectiveAffinity: snapshot.effectiveAffinity,
+      directCrit: snapshot.directCrit,
+      directAffinity: snapshot.finalAffinity - snapshot.effectiveAffinity,
+      finalAffinity: snapshot.finalAffinity,
+    }
+    const convertedRateStats =
+      conversionEffects.length > 0 ? applyStatConversions(rateStats, conversionEffects) : rateStats
+    const calculatedRates = calculateRates(
+      NoAbrasion ? { ...convertedRateStats, effectivePrecision: 1 } : convertedRateStats,
+      { GuaranteedCrit, GuaranteedAffinity, SteadfastGuaranteedCrit },
+    )
+    const convertedRates =
+      conversionEffects.length > 0 ? applyStatConversions(calculatedRates, conversionEffects) : calculatedRates
+    let normalRates = convertedRates
+    switch (true) {
+      case GuaranteedAffinity:
+        normalRates = {
+          ...convertedRates,
+          finalAffinity: 1,
+          finalCrit: 0,
+          critRate: 0,
+          abrasionRate: 0,
+          normalRate: 0,
+          affinityRate: 1,
+        }
+        break
+      case GuaranteedCrit:
+        normalRates = { ...convertedRates, finalCrit: 1, critRate: 1, abrasionRate: 0, normalRate: 0, affinityRate: 0 }
+        break
+      default:
+        break
+    }
+    // The healing and Divinecraft routes cannot roll every outcome, so they replace the normal rates.
+    const rateRoute = restrictedRateRouteFor(action.rateRoute)
+    const rates = rateRoute ? restrictedOutcomeRates(rateRoute, rateStats) : normalRates
+    return rates
+  }
+  const initialRates = resolveRates(derivedStats)
+  const rates = initialRates
   if (import.meta.env.DEV) finishCalculationPhase("damageRateResolution", rateResolutionStartedAt)
   if (random) {
     const outcomeSelectionStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
@@ -546,54 +568,267 @@ function calculateDamageBreakdownInternal(
     if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAssemblyStartedAt)
     return result
   }
-  const abrasionDamage = calculateVariant("min", 0)
-  const normalDamage = calculateVariant("average", 0)
-  const critDamage = calculateVariant("average", derivedStats.effectiveCritDmgBonus + resolvedEffects.critDmgBonus)
-  const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus)
-  const outcomeAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-  const weighted = (key: keyof typeof abrasionDamage) =>
-    abrasionDamage[key] * rates.abrasionRate +
-    normalDamage[key] * rates.normalRate +
-    critDamage[key] * rates.critRate +
-    affinityDamage[key] * rates.affinityRate
-  const physical = weighted("physical")
-  const bellstrike = weighted("bellstrike")
-  const stonesplit = weighted("stonesplit")
-  const silkbind = weighted("silkbind")
-  const bamboocut = weighted("bamboocut")
-  const result = {
-    physical,
-    bellstrike,
-    stonesplit,
-    silkbind,
-    bamboocut,
-    total: physical + bellstrike + stonesplit + silkbind + bamboocut,
-    outcomeRates: {
-      abrasion: rates.abrasionRate,
-      normal: rates.normalRate,
-      critical: rates.critRate,
-      affinity: rates.affinityRate,
-    },
+  const evaluate = (snapshot: DerivedStats) => {
+    const rates = snapshot === derivedStats ? initialRates : resolveRates(snapshot)
+    const abrasionDamage = calculateVariant("min", 0, snapshot)
+    const normalDamage = calculateVariant("average", 0, snapshot)
+    const critDamage = calculateVariant(
+      "average",
+      snapshot.effectiveCritDmgBonus + resolvedEffects.critDmgBonus,
+      snapshot,
+    )
+    const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus, snapshot)
+    const outcomeAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
+    const weighted = (key: keyof typeof abrasionDamage) =>
+      abrasionDamage[key] * rates.abrasionRate +
+      normalDamage[key] * rates.normalRate +
+      critDamage[key] * rates.critRate +
+      affinityDamage[key] * rates.affinityRate
+    const physical = weighted("physical")
+    const bellstrike = weighted("bellstrike")
+    const stonesplit = weighted("stonesplit")
+    const silkbind = weighted("silkbind")
+    const bamboocut = weighted("bamboocut")
+    const result = {
+      physical,
+      bellstrike,
+      stonesplit,
+      silkbind,
+      bamboocut,
+      total: physical + bellstrike + stonesplit + silkbind + bamboocut,
+      outcomeRates: {
+        abrasion: rates.abrasionRate,
+        normal: rates.normalRate,
+        critical: rates.critRate,
+        affinity: rates.affinityRate,
+      },
+    }
+    if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAggregationStartedAt)
+    return result
   }
-  if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAggregationStartedAt)
-  return result
+  prepare?.({
+    evaluate,
+    attackResponse: () => {
+      const coefficients = Object.fromEntries(
+        Object.values(attackFields)
+          .flat()
+          .map(field => [field, 0]),
+      ) as Record<AttackField, number>
+      const physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }> = []
+      const outcomes = [
+        [1, 0, rates.abrasionRate, 0],
+        [0.5, 0.5, rates.normalRate, 0],
+        [0.5, 0.5, rates.critRate, derivedStats.effectiveCritDmgBonus + resolvedEffects.critDmgBonus],
+        [0, 1, rates.affinityRate, stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus],
+      ]
+      for (const [minimumWeight, maximumWeight, probability, specialBonus] of outcomes) {
+        if (probability === 0) continue
+        const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
+        const attributeMultiplier = attributeSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
+        const globalMultiplier = 1 + resolvedEffects.globalDmgBonus
+        const physicalFactor =
+          penetrationMultiplier(
+            stats.physicalPenetration + attunementPhysicalPenetration + resolvedEffects.physicalPenetration,
+            enemy.physicalResistance + resolvedEffects.physicalResistance,
+          ) *
+          (1 + stats.physDmgBonus) *
+          physicalMultiplier *
+          globalMultiplier
+        const attack =
+          (derivedStats.effectiveMinPhys * minimumWeight + derivedStats.effectiveMaxPhys * maximumWeight) *
+          physicalAttackMultiplier
+        const unclamped =
+          (coefficient * (attack - enemy.defense * (1 + resolvedEffects.defenseBonus)) + physicalBonus) * physicalFactor
+        const slope = coefficient * physicalAttackMultiplier * physicalFactor
+        if (slope !== 0) {
+          const boundary = -unclamped / slope
+          const increasing = slope > 0
+          const positive = unclamped > 0
+          physicalBounds.push({
+            minimumWeight,
+            maximumWeight,
+            lower: increasing === positive ? boundary : -Infinity,
+            upper: increasing === positive ? Infinity : boundary,
+          })
+        }
+        if (unclamped > 0) {
+          coefficients.effectiveMinPhys += slope * minimumWeight * probability
+          coefficients.effectiveMaxPhys += slope * maximumWeight * probability
+        }
+        for (const [, , penetration, damageBonus, attribute, resistance] of attributeRanges) {
+          const factor =
+            attributeCoefficient *
+            (1 + resolvedEffects.attackBonus[attribute]) *
+            penetrationMultiplier(penetration + (attribute === path ? attunementFormlessPenetration : 0), resistance) *
+            (1 + damageBonus) *
+            (attribute === path ? 1.5 : 1) *
+            attributeMultiplier *
+            (globalMultiplier + (attribute === "bellstrike" ? resolvedEffects.globalBellstrikeDmgBonus : 0))
+          const [minimum, maximum] = attackFields[attribute]
+          coefficients[minimum] += factor * minimumWeight * probability
+          coefficients[maximum] += factor * maximumWeight * probability
+        }
+      }
+      return { coefficients, physicalBounds }
+    },
+  })
+  return evaluate(derivedStats)
 }
 
-export function calculateDamageBreakdown(action: DamageAction, context: DamageContext): DamageBreakdown {
+export type AttackField = (typeof attackFields)[keyof typeof attackFields][number]
+export type AttackDamageResponse = {
+  coefficients: Record<AttackField, number>
+  physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }>
+}
+export type PreparedDamageFormula = {
+  /** Receives a snapshot from the shared stat pipeline. Other formula inputs remain fixed. */
+  evaluate: (snapshot: DerivedStats) => DamageBreakdown
+  attackResponse: () => AttackDamageResponse
+}
+
+export const attackFields = {
+  physical: ["effectiveMinPhys", "effectiveMaxPhys"],
+  bellstrike: ["effectiveMinBellstrike", "effectiveMaxBellstrike"],
+  stonesplit: ["effectiveMinStonesplit", "effectiveMaxStonesplit"],
+  silkbind: ["effectiveMinSilkbind", "effectiveMaxSilkbind"],
+  bamboocut: ["effectiveMinBamboocut", "effectiveMaxBamboocut"],
+} as const
+
+/** Compile one resolved damage context; the caller owns dependency and timeline eligibility. */
+export function prepareDamageFormula(action: DamageAction, context: DamageContext): PreparedDamageFormula {
+  let prepared!: PreparedDamageFormula
+  calculateDamageBreakdownInternal(action, context, undefined, formula => {
+    prepared = formula
+  })
+  return prepared
+}
+
+export function calculateDamageBreakdown(
+  action: DamageAction,
+  context: DamageContext,
+  resolvedDamage: (action: DamageAction, context: DamageContext) => DamageBreakdown = calculateDamageBreakdownInternal,
+): DamageBreakdown {
   const [distribution, ...remaining] = context.expectedEffects ?? []
-  if (!distribution) return calculateDamageBreakdownInternal(action, resolveActionStatContext(context))
+  if (!distribution) return resolvedDamage(action, resolveActionStatContext(context))
   let result: DamageBreakdown | undefined
   for (const outcome of distribution) {
-    const current = calculateDamageBreakdown(action, {
-      ...context,
-      effects: [...context.effects, ...outcome.effects],
-      expectedEffects: remaining,
-    })
+    const current = calculateDamageBreakdown(
+      action,
+      { ...context, effects: [...context.effects, ...outcome.effects], expectedEffects: remaining },
+      resolvedDamage,
+    )
     result ??= { ...current, physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 }
     for (const field of ["physical", "bellstrike", "stonesplit", "silkbind", "bamboocut", "total"] as const)
       result[field] += current[field] * outcome.probability
   }
   return result!
+}
+
+export const preparedDamageStatFields = new Set([
+  "minPhys",
+  "maxPhys",
+  "minBellstrike",
+  "maxBellstrike",
+  "minStonesplit",
+  "maxStonesplit",
+  "minSilkbind",
+  "maxSilkbind",
+  "minBamboocut",
+  "maxBamboocut",
+  "minVoidAttack",
+  "maxVoidAttack",
+  "precision",
+  "crit",
+  "affinity",
+  "directCrit",
+  "directAffinity",
+  "effectiveCritBonus",
+  "critDmgBonus",
+])
+
+/** Comparison-local cache: retain attack/outcome expressions, never a previous variant's rates. */
+export function createPreparedDamageCalculator() {
+  const mutableFields = new Set<string>([
+    ...Object.values(attackFields).flat(),
+    ...preparedDamageStatFields,
+    "effectivePrecision",
+    "effectiveCrit",
+    "effectiveAffinity",
+    "effectiveCritDmgBonus",
+    "finalCrit",
+    "finalAffinity",
+    "abrasionRate",
+    "normalRate",
+    "critRate",
+    "affinityRate",
+    "uncappedDirectCrit",
+  ])
+  const dependencies = new WeakMap<object, boolean>()
+  const dependsOnMutableInput = (value: unknown): boolean => {
+    if (typeof value === "string") return mutableFields.has(value)
+    if (!value || typeof value !== "object") return false
+    const cached = dependencies.get(value)
+    if (cached !== undefined) return cached
+    const dependent = Object.values(value).some(dependsOnMutableInput)
+    dependencies.set(value, dependent)
+    return dependent
+  }
+  const keys = new WeakMap<object, number>()
+  const fixedStats = new WeakMap<object, number>()
+  const values = new Map<string, number>()
+  const intern = (key: string) => {
+    let id = values.get(key)
+    if (id === undefined) {
+      id = values.size
+      values.set(key, id)
+    }
+    return id
+  }
+  const templates = new WeakMap<object, Map<string, PreparedDamageFormula>>()
+  const keyFor = (value: object) => {
+    let key = keys.get(value)
+    if (key === undefined) {
+      key = intern(JSON.stringify(value))
+      keys.set(value, key)
+    }
+    return key
+  }
+  const calculate = (action: DamageAction, context: DamageContext): DamageBreakdown => {
+    const resolved = context
+    if (dependsOnMutableInput(action) || dependsOnMutableInput(resolved.effects))
+      return calculateDamageBreakdownInternal(action, resolved)
+    let statsKey = fixedStats.get(resolved.stats)
+    if (statsKey === undefined) {
+      statsKey = intern(JSON.stringify(Object.entries(resolved.stats).filter(([field]) => !mutableFields.has(field))))
+      fixedStats.set(resolved.stats, statsKey)
+    }
+    const key = JSON.stringify([
+      statsKey,
+      keyFor(resolved.effects),
+      keyFor(resolved.attunement),
+      keyFor(resolved.enemy),
+      keyFor(resolved.weapons),
+      keyFor(resolved.skillTags),
+      resolved.unconditionalDamageEffects ? keyFor(resolved.unconditionalDamageEffects) : undefined,
+      resolved.distance,
+      resolved.currentHPRatio,
+      resolved.targetHPRatio,
+      resolved.enduranceLost,
+      resolved.enduranceSpent,
+      resolved.isDot,
+    ])
+    let variants = templates.get(action)
+    if (!variants) {
+      variants = new Map()
+      templates.set(action, variants)
+    }
+    let formula = variants.get(key)
+    if (!formula) {
+      return calculateDamageBreakdownInternal(action, resolved, undefined, prepared => variants!.set(key, prepared))
+    }
+    return formula.evaluate(resolved.derivedStats)
+  }
+  return (action: DamageAction, context: DamageContext) => calculateDamageBreakdown(action, context, calculate)
 }
 
 export function calculateSimulatedDamageBreakdown(

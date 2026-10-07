@@ -17,6 +17,7 @@ import { attunementData, defaultBuildPresets, maxGearRoll } from "@/gear"
 import type { CharacterStats } from "@/types"
 
 import { loadDpsSnapshotFixtures, dpsSnapshotEnvironment } from "./helpers/dps-snapshot-fixtures"
+import { compareDpsSnapshots } from "./helpers/dps-snapshot-guard.mjs"
 import { weaponPair } from "./helpers/weaponPair"
 
 afterEach(() => {
@@ -133,7 +134,23 @@ describe("single-pass calculation", () => {
         baseline,
       )
       expect(observed.build).toHaveBeenCalledTimes(bundle.statPriority.length + bundle.attunementPriority.length)
-      expect(reused).toEqual(live)
+      for (const priority of reused.statPriority) {
+        const reference = live.statPriority.find(row => row.label === priority.label)!
+        const snapshot = (difference: number) => ({
+          dps: baseline.metrics.dps + difference,
+          totalDamage: (baseline.metrics.dps + difference) * baseline.duration,
+          duration: baseline.duration,
+          fixture: priority.label,
+        })
+        expect(
+          compareDpsSnapshots(
+            { comparison: snapshot(reference.dpsDifference) },
+            { comparison: snapshot(priority.dpsDifference) },
+          ),
+        ).toEqual([])
+        expect(priority.increase).toBeCloseTo(reference.increase, 10)
+      }
+      expect({ ...reused, statPriority: [] }).toEqual({ ...live, statPriority: [] })
       const events = (result: ReturnType<typeof calculateRotationBaseline>) =>
         result.timeline.map(row => ({ skill: row.step.skill, startTime: row.startTime, actions: row.actions }))
       for (const variant of bundle.attunementPriority) {

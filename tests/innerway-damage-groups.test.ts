@@ -3,14 +3,14 @@ import assert from "node:assert/strict"
 import { describe, it } from "vitest"
 
 import { emptyAttunementStats } from "@/calculations/attunementStats"
-
-import type { RotationSimulationBaseline, RotationSimulationBundle } from "../src/calculations/rotationCalculator.ts"
+import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator.ts"
 import type {
   EditableObject,
   InnerWayEffectRule,
   SkillRecord,
   TimelineBuildInput,
-} from "../src/calculations/rotationTimeline.ts"
+} from "@/calculations/rotationTimeline.ts"
+
 import { probeLoad } from "./helpers/probe-loader.js"
 import { castStep } from "./helpers/rotationSteps"
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
@@ -20,22 +20,22 @@ import { rowWithId } from "./helpers/timelineRows"
 describe("innerway-damage-groups", () => {
   it("Inner Way ownership, unchanged damage/timing, grouped totals, zero-proc headers, expansion isolation, and sampled ownership verified", async () => {
     const { calculateRotationBaseline, calculateSimulatedRotationRun, calculateRotationComparisons } =
-      await import("../src/calculations/rotationCalculator.ts")
+      await import("@/calculations/rotationCalculator.ts")
     const { buildRotationTimeline, mergeCalculatedTimelineState } = await probeLoad<
-      typeof import("../src/calculations/rotationTimeline")
+      typeof import("@/calculations/rotationTimeline")
     >("/src/calculations/rotationTimeline.ts")
-    const { buildTimelineDisplayEntries } = await import("../src/rotationDisplay.ts")
-    const { compactInnerWayResults } = await import("../src/calculations/compactInnerWayResults.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { innerWayDefinitionForSoloLevel } = await import("../src/data/innerWayDefinitions.ts")
+    const { buildTimelineDisplayEntries } = await import("@/rotationDisplay.ts")
+    const { compactInnerWayResults } = await import("@/calculations/compactInnerWayResults.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { innerWayDefinitionForSoloLevel } = await import("@/data/innerWayDefinitions.ts")
     const ways = {
-      FivefoldBleed: innerWayDefinitionForSoloLevel(await import("../data/innerway/fivefold-bleed.json"), 17),
-      MoraleChant: innerWayDefinitionForSoloLevel(await import("../data/innerway/morale-chant.json"), 17),
+      FivefoldBleed: innerWayDefinitionForSoloLevel(await import("@gamedata/innerway/fivefold-bleed.json"), 17),
+      MoraleChant: innerWayDefinitionForSoloLevel(await import("@gamedata/innerway/morale-chant.json"), 17),
     }
-    const general = asSkillRecords((await import("../data/skill/general.json")).default)
-    const dots = asSkillRecords((await import("../data/dot/innerway.json")).default)
-    const buffs = asEffectDefinitions((await import("../data/buff/general.json")).default)
+    const general = asSkillRecords((await import("@gamedata/skill/general.json")).default)
+    const dots = asSkillRecords((await import("@gamedata/dot/innerway.json")).default)
+    const buffs = asEffectDefinitions((await import("@gamedata/buff/general.json")).default)
     const noEffect: EditableObject = {}
     const rules: InnerWayEffectRule[] = Object.entries(ways).flatMap(([source, way]) =>
       Object.values(way.effect).flatMap((definition, tier) =>
@@ -212,11 +212,13 @@ describe("innerway-damage-groups", () => {
       ...bundle,
       statPriority: [{ label: "Physical", stats: { ...stats, minPhys: 110, maxPhys: 110 } }],
     }
-    assert.deepEqual(
-      calculateRotationComparisons(comparisonBundle, compacted),
-      calculateRotationComparisons(comparisonBundle, result),
-      "A compacted baseline rebuilds exact events if the worker cache is unavailable",
-    )
+    const rebuiltComparison = calculateRotationComparisons(comparisonBundle, compacted)
+    const cachedComparison = calculateRotationComparisons(comparisonBundle, result)
+    // Aggregated attack coefficients regroup floating-point additions; publication fallback
+    // still reproduces the same damage, while all non-comparison results remain exact.
+    for (const field of ["dpsDifference", "increase", "hpsDifference", "healingIncrease"] as const)
+      assert.ok(Math.abs(rebuiltComparison.statPriority[0][field] - cachedComparison.statPriority[0][field]) < 1e-10)
+    assert.deepEqual({ ...rebuiltComparison, statPriority: [] }, { ...cachedComparison, statPriority: [] })
     const collapsed = buildTimelineDisplayEntries(result.timeline, () => false, bundle.startAnchor)
     assert.deepEqual(
       collapsed

@@ -761,6 +761,34 @@ A trailing explicit Delay extends this window; DOTs, triggered skills, replays,
 and generated target attacks cannot extend it. No feedback-suppressed cutoff pass
 is needed.
 
+## Prepared attack comparisons
+
+Comparison variants that reuse combat events can reuse per-hit damage expressions.
+`damage.ts` prepares the physical and four attribute channels plus the four outcome
+routes from the ordinary damage formula. A comparison-local cache retains those
+expressions while the shared stat pipeline supplies each variant's effective
+attack ranges and outcome rates. The cache is used for attack/rate stat variants and includes all fixed formula inputs,
+including penetration, bonuses, attunements, dynamic state, and resolved effects;
+formulas reading mutable attack/rate inputs bypass it. Expected-effect mixtures
+and recorded damage retain the ordinary sequence traversal and ordering.
+
+For attack-only variants, `attackDamageResponse.ts` additionally accumulates an
+affine rotation response with separate minimum/maximum coefficients for all five
+channels. Preparation is lazy and cached privately against the original worker
+baseline. Outcome mixtures and replay source contributions retain their weights;
+Mystic contributions retain the baseline Vitality scale. Evaluation uses the
+baseline damage plus the dot product of attack deltas and the coefficients.
+The response records physical zero-clamp and attack-range normalization bounds.
+Both sides of attack normalization are supported, including maximum attack that
+follows minimum attack. Raw-sourced talents can remain eligible when their resolved
+amounts are identical, such as already capped bonuses. Dependency checks are cached
+per changed input so repeated comparisons do not traverse the baseline hits.
+Variants crossing those bounds, formulas depending on changed inputs, healing or
+accumulator timelines, changed non-attack stats, and combat-changing variants use
+the existing calculator. Published/cloned baselines lack the private response and
+also use the existing calculation. Aggregation can change floating-point addition
+order; it does not change the baseline or sampled damage formulas.
+
 ## Runtime Inner Way damage ownership
 
 Skill and DOT `damageGroup` metadata names an Inner Way owner. Timeline construction

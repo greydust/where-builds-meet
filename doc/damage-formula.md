@@ -1071,3 +1071,17 @@ sampled mode rolls the proc only while Concentration is active. Avoided hits
 remain zero and do not roll mitigation. Both effects share the existing Focus
 tracker, including expiry between outgoing hits. Expected HP remains a single
 mean meter, so later HP-threshold rules do not retain a joint HP distribution.
+
+## Attack comparison coefficients
+
+When outcome rates and other multipliers remain fixed, expected damage is affine
+in the effective minimum and maximum attack of each channel. Abrasion contributes
+to the minimum coefficient, Affinity to the maximum coefficient, and Normal and
+Critical split their contributions equally between minimum and maximum.
+Flat skill attack and enemy defense are constant terms. The comparison evaluates
+`baselineDamage + sum(coefficient * attackDelta)` after preparing the coefficients
+through the same damage formula. It applies only within the baseline's physical
+zero-clamp and attack normalization region, with attack-dependent formulas and
+combat feedback excluded. Per-hit prepared expressions can separately reevaluate
+outcome rates and attack ranges when the rotation-wide affine shortcut is ineligible.
+See [Prepared attack comparisons](system-architecture.md#prepared-attack-comparisons).
