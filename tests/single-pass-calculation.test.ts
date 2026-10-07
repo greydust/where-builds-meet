@@ -134,8 +134,8 @@ describe("single-pass calculation", () => {
         baseline,
       )
       expect(observed.build).toHaveBeenCalledTimes(bundle.statPriority.length + bundle.attunementPriority.length)
-      for (const priority of reused.statPriority) {
-        const reference = live.statPriority.find(row => row.label === priority.label)!
+      for (const priority of [...reused.statPriority, ...reused.attunementPriority]) {
+        const reference = [...live.statPriority, ...live.attunementPriority].find(row => row.label === priority.label)!
         const snapshot = (difference: number) => ({
           dps: baseline.metrics.dps + difference,
           totalDamage: (baseline.metrics.dps + difference) * baseline.duration,
@@ -150,7 +150,11 @@ describe("single-pass calculation", () => {
         ).toEqual([])
         expect(priority.increase).toBeCloseTo(reference.increase, 10)
       }
-      expect({ ...reused, statPriority: [] }).toEqual({ ...live, statPriority: [] })
+      expect({ ...reused, statPriority: [], attunementPriority: [] }).toEqual({
+        ...live,
+        statPriority: [],
+        attunementPriority: [],
+      })
       const events = (result: ReturnType<typeof calculateRotationBaseline>) =>
         result.timeline.map(row => ({ skill: row.step.skill, startTime: row.startTime, actions: row.actions }))
       for (const variant of bundle.attunementPriority) {

@@ -772,7 +772,7 @@ including penetration, bonuses, attunements, dynamic state, and resolved effects
 formulas reading mutable attack/rate inputs bypass it. Expected-effect mixtures
 and recorded damage retain the ordinary sequence traversal and ordering.
 
-For attack-only variants, `attackDamageResponse.ts` additionally accumulates an
+For attack-only variants, `rotationDamageResponse.ts` additionally accumulates an
 affine rotation response with separate minimum/maximum coefficients for all five
 channels. Preparation is lazy and cached privately against the original worker
 baseline. Outcome mixtures and replay source contributions retain their weights;
@@ -788,6 +788,13 @@ accumulator timelines, changed non-attack stats, and combat-changing variants us
 the existing calculator. Published/cloned baselines lack the private response and
 also use the existing calculation. Aggregation can change floating-point addition
 order; it does not change the baseline or sampled damage formulas.
+
+Pure damage-boost attunement comparisons use the same private rotation response.
+Each matching hit contributes `damage / (1 + attunementBonus)` times the data-defined
+bonus multiplier; recorded replays propagate source coefficients. A single changed
+attunement is eligible only when its definition changes damage bonus alone and the
+shared multiplier stays positive. Penetration and mixed-stat attunements retain the
+ordinary calculation. Unmatched tags contribute zero.
 
 ## Runtime Inner Way damage ownership
 

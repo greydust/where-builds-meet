@@ -1085,3 +1085,11 @@ zero-clamp and attack normalization region, with attack-dependent formulas and
 combat feedback excluded. Per-hit prepared expressions can separately reevaluate
 outcome rates and attack ranges when the rotation-wide affine shortcut is ineligible.
 See [Prepared attack comparisons](system-architecture.md#prepared-attack-comparisons).
+
+For a pure damage-boost attunement, fixed-event damage is linear in its value.
+The coefficient for a matching hit is
+`baselineHitDamage * definitionMultiplier / (1 + baselineAttunementBonus)`.
+The denominator includes every matching attunement bonus. Replay contributions
+use the same source weights as ordinary calculation. The response requires the
+baseline and variant shared multipliers to remain positive; otherwise the ordinary
+formula resolves physical zero clamps directly.

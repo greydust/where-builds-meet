@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest"
 
 import * as actionStats from "@/calculations/actionStats"
-import { attackStatFields, RotationAttackResponse } from "@/calculations/attackDamageResponse"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { calculateDamageBreakdown, createPreparedDamageCalculator, type DamageContext } from "@/calculations/damage"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
@@ -10,6 +9,7 @@ import {
   calculateRotationComparisons,
   type RotationSimulationBundle,
 } from "@/calculations/rotationCalculator"
+import { attackStatFields, RotationDamageResponse } from "@/calculations/rotationDamageResponse"
 import { emptyStats } from "@/data/statDefinitions"
 
 const enemy = {
@@ -163,7 +163,7 @@ describe("prepared damage responses", () => {
   it("aggregates physical and attribute slopes and rejects crossing physical clamps or attack normalization", () => {
     const input = context()
     const action = { type: "damage", phyCoef: 1.5, attrCoef: 0.7, phyBonus: 20, attrBonus: 10 }
-    const response = new RotationAttackResponse()
+    const response = new RotationDamageResponse()
     response.addDamage(action, input)
     const delta = { minPhys: 23, maxPhys: 40, minBamboocut: 7, maxBamboocut: 11 }
     const next = {
@@ -254,5 +254,47 @@ describe("prepared damage responses", () => {
       baseline,
     )
     expect(calculateRotationComparisons(input, baseline).statPriority).toEqual(full.statPriority)
+  })
+})
+
+describe("attunement damage responses", () => {
+  it("matches full calculation with overlapping bonuses and skips hits after preparation", () => {
+    const input = bundle()
+    input.timeline.skills.Hit.tags = ["InfernalTwinblades", "MartialArt", "Special"]
+    input.attunement = { ...emptyAttunementStats, infernalMartialBoost: 0.2, infernalSpecialBoost: 0.15 }
+    const baseline = calculateRotationBaseline(input)
+    const variant = { label: "Martial boost", attunement: { ...input.attunement, infernalMartialBoost: 0.27 } }
+    const comparison = { ...input, attunementPriority: [variant] }
+    const first = calculateRotationComparisons(comparison, baseline)
+    const spy = vi.spyOn(actionStats, "resolveActionStatContext")
+    const cached = calculateRotationComparisons(comparison, baseline)
+    expect(spy).not.toHaveBeenCalled()
+    expect(cached).toEqual(first)
+    const full = calculateRotationComparisons(
+      { ...comparison, attunementPriority: [{ ...variant, timeline: input.timeline }] },
+      baseline,
+    )
+    expect(cached.attunementPriority[0].dpsDifference).toBeCloseTo(full.attunementPriority[0].dpsDifference, 10)
+    expect(cached.attunementPriority[0].dpsDifference).toBeGreaterThan(0)
+  })
+
+  it("guards multiplier sign crossings and excludes penetration", () => {
+    const response = new RotationDamageResponse()
+    const input = {
+      ...context(),
+      skillTags: ["InfernalTwinblades", "MartialArt"],
+      attunement: { ...emptyAttunementStats, infernalMartialBoost: 0.2 },
+    }
+    response.addAttunementDamage(120, input)
+    expect(response.evaluateAttunement("infernalMartialBoost", 0.1)).toBeCloseTo(10, 12)
+    expect(response.evaluateAttunement("infernalMartialBoost", -1.2)).toBeUndefined()
+    expect(response.evaluateAttunement("physicalPenetration", 1)).toBeUndefined()
+    expect(response.evaluateAttunement("mortalMartialBoost", 0.1)).toBe(0)
+    const excluded = new RotationDamageResponse()
+    excluded.addAttunementDamage(120, { ...input, skillTags: ["ThundercryBlade", "Charged", "StonebreakerQuake"] })
+    expect(excluded.evaluateAttunement("thundercryChargedBoost", 0.1)).toBe(0)
+    const replay = new RotationDamageResponse()
+    replay.add(response, 0.35)
+    expect(replay.evaluateAttunement("infernalMartialBoost", 0.1)).toBeCloseTo(3.5, 12)
   })
 })

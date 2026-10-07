@@ -1,4 +1,5 @@
-import attunementJson from "../../data/attunement.json"
+import attunementJson from "@gamedata/attunement.json"
+
 import type { AttunementStats } from "./damage"
 
 export type AttunementOverrides = Partial<AttunementStats>
@@ -76,4 +77,13 @@ export function resolveAttunementStats(
   }
 
   return { calculation, displayed }
+}
+
+/** Only pure damage multipliers can use the fixed-timeline affine response. */
+export function attunementDamageMultiplier(key: keyof AttunementStats): number | undefined {
+  const stat = attunementDefinitions[key]?.effect?.stat
+  const multiplier = stat?.attunementDMGBonus
+  return stat && Object.keys(stat).length === 1 && typeof multiplier === "number" && Number.isFinite(multiplier)
+    ? multiplier
+    : undefined
 }

@@ -1,4 +1,6 @@
 import { resolveActionStatContext } from "./actionStats"
+import { attunementDamageMultiplier, matchingAttunementEntries } from "./attunementStats"
+import type { AttunementStats } from "./damage"
 import { attackFields, prepareDamageFormula, type AttackField, type DamageAction, type DamageContext } from "./damage"
 import { mainAttributeForWeapons } from "./effectiveStats"
 import type { ResolvedStats } from "./statEffects"
@@ -28,18 +30,52 @@ export function referencesChangedInput(value: unknown, fields: Set<string>): boo
 }
 
 /** An affine response around the baseline, valid only within the recorded clamp/normalization region. */
-export class RotationAttackResponse {
+export class RotationDamageResponse {
   readonly coefficients = Object.fromEntries(Object.keys(attackStatFields).map(field => [field, 0])) as Record<
     AttackStatField,
     number
   >
+  private attunementCoefficients = new Map<keyof AttunementStats, number>()
+  private attunementBounds = new Map<keyof AttunementStats, number>()
+
+  addAttunementDamage(damage: number, context: DamageContext) {
+    const matches = matchingAttunementEntries(context.attunement, context.skillTags)
+    const factor =
+      1 +
+      matches.reduce((sum, { key, stat }) => {
+        const multiplier = stat?.attunementDMGBonus
+        return (
+          sum +
+          (typeof multiplier === "number" && Number.isFinite(multiplier) ? context.attunement[key] * multiplier : 0)
+        )
+      }, 0)
+    for (const { key } of matches) {
+      const multiplier = attunementDamageMultiplier(key)
+      if (multiplier === undefined) continue
+      // A sign change can move physical damage across its zero clamp.
+      this.attunementBounds.set(key, factor > 0 ? -factor : Infinity)
+      this.attunementCoefficients.set(key, factor > 0 ? (damage / factor) * multiplier : 0)
+    }
+  }
+
+  evaluateAttunement(key: keyof AttunementStats, delta: number): number | undefined {
+    const multiplier = attunementDamageMultiplier(key)
+    if (multiplier === undefined || !(delta * multiplier > (this.attunementBounds.get(key) ?? -Infinity)))
+      return undefined
+    return (this.attunementCoefficients.get(key) ?? 0) * delta
+  }
+
   private bounds = new Map<number, { lower: number; upper: number }>()
   private ranges = new Map<keyof typeof attackFields, { lower: number; upper: number }>()
 
-  add(other: RotationAttackResponse, weight = 1) {
+  add(other: RotationDamageResponse, weight = 1) {
     if (weight === 0) return
     for (const field of Object.keys(attackStatFields) as AttackStatField[])
       this.coefficients[field] += other.coefficients[field] * weight
+    for (const [key, coefficient] of other.attunementCoefficients)
+      this.attunementCoefficients.set(key, (this.attunementCoefficients.get(key) ?? 0) + coefficient * weight)
+    for (const [key, lower] of other.attunementBounds)
+      this.attunementBounds.set(key, Math.max(this.attunementBounds.get(key) ?? -Infinity, lower))
     for (const [minimumWeight, bound] of other.bounds) this.bound(minimumWeight, bound.lower, bound.upper)
     for (const [channel, bound] of other.ranges) this.range(channel, bound.lower, bound.upper)
   }

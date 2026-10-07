@@ -3,12 +3,7 @@ import attunementJson from "@gamedata/attunement.json"
 import { emptyStats } from "@/data/statDefinitions"
 import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
 
-import {
-  attackStatFields,
-  referencesChangedInput,
-  RotationAttackResponse,
-  type AttackStatField,
-} from "./attackDamageResponse"
+import { attunementDamageMultiplier } from "./attunementStats"
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import { DEFAULT_TARGET_HP_RATIO, normalizeEnemyCount, resolveTargetType } from "./combatDefaults"
 import {
@@ -38,6 +33,12 @@ import {
 } from "./insightfulStrike"
 import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTriggeredBuffs"
 import { createPreparedEffectState } from "./preparedEffectState"
+import {
+  attackStatFields,
+  referencesChangedInput,
+  RotationDamageResponse,
+  type AttackStatField,
+} from "./rotationDamageResponse"
 import {
   emptyRotationBreakdown,
   type RotationBreakdown,
@@ -2166,7 +2167,7 @@ export function calculateSimulatedRotationRun(
 }
 
 const baselineSequences = new WeakMap<RotationSimulationBaseline, ResolvedRotationDamageSequence>()
-const attackResponses = new WeakMap<RotationSimulationBaseline, RotationAttackResponse | null>()
+const damageResponses = new WeakMap<RotationSimulationBaseline, RotationDamageResponse | null>()
 
 const attackDependencies = new WeakMap<RotationSimulationBaseline, unknown[]>()
 function baselineAttackDependencies(baseline: RotationSimulationBaseline, input: TimelineBuildInput) {
@@ -2203,8 +2204,8 @@ function baselineDependsOnAttack(baseline: RotationSimulationBaseline, input: Ti
   return false
 }
 
-function rotationAttackResponse(baseline: RotationSimulationBaseline) {
-  if (attackResponses.has(baseline)) return attackResponses.get(baseline)
+function rotationDamageResponse(baseline: RotationSimulationBaseline) {
+  if (damageResponses.has(baseline)) return damageResponses.get(baseline)
   const sequence = baselineSequences.get(baseline)
   if (
     !sequence ||
@@ -2213,14 +2214,14 @@ function rotationAttackResponse(baseline: RotationSimulationBaseline) {
         entry.action.type === "heal" || entry.accumulatorSnapshot || (entry.replay && !entry.replay.sourceActionIds),
     )
   ) {
-    attackResponses.set(baseline, null)
+    damageResponses.set(baseline, null)
     return null
   }
-  const total = new RotationAttackResponse()
-  const responses = new Map<string, RotationAttackResponse>()
+  const total = new RotationDamageResponse()
+  const responses = new Map<string, RotationDamageResponse>()
   for (const resolved of sequence) {
     const { entry, outcomeEffects, expectedConcentration: concentration } = resolved
-    const response = new RotationAttackResponse()
+    const response = new RotationDamageResponse()
     if (entry.replay) {
       const bonus = entry.context.effects.reduce(
         (sum, effect) => sum + (typeof effect.replayDmgBonus === "number" ? effect.replayDmgBonus : 0),
@@ -2228,18 +2229,19 @@ function rotationAttackResponse(baseline: RotationSimulationBaseline) {
       )
       const weight = entry.replay.coef * (1 + bonus)
       if (!(weight >= 0)) {
-        attackResponses.set(baseline, null)
+        damageResponses.set(baseline, null)
         return null
       }
       for (const id of entry.replay.sourceActionIds!) {
         const source = responses.get(id)
         if (!source) {
-          attackResponses.set(baseline, null)
+          damageResponses.set(baseline, null)
           return null
         }
         response.add(source, weight)
       }
     } else {
+      response.addAttunementDamage(resolved.breakdown.total, entry.context)
       const addContext = (effects: UnconditionalDamageEffects | undefined, directAffinity: number, weight: number) => {
         if (weight === 0) return
         const outcomes = entry.seasonalEdge?.outcomes
@@ -2269,7 +2271,7 @@ function rotationAttackResponse(baseline: RotationSimulationBaseline) {
     if (entry.id) responses.set(entry.id, response)
     total.add(response, entry.context.skillTags.includes("Mystic") ? baseline.mysticVitalityDamageScale : 1)
   }
-  attackResponses.set(baseline, total)
+  damageResponses.set(baseline, total)
   return total
 }
 
@@ -2430,6 +2432,16 @@ export function calculateRotationComparisons(
   )
   let completedVariants = 0
   onProgress?.(0, totalVariants)
+  const calculationFromDifference = (difference: number) => {
+    completedVariants += 1
+    onProgress?.(completedVariants, totalVariants)
+    return {
+      entries: [],
+      damage: baselineResult.metrics.totalDamage + difference,
+      healing: baselineResult.metrics.totalHealing,
+      duration: baselineResult.duration,
+    }
+  }
   const calculationForVariant = (variant: RotationSimulationVariant) => {
     const timelineInput = variant.timeline ?? bundle.timeline
     const requiresLiveResolution =
@@ -2449,6 +2461,19 @@ export function calculateRotationComparisons(
       // Resource caps move natural-regeneration thresholds and later spending.
       timelineInput.setupEffects.some(effect => effect.resourceRegenerationBonus) ||
       liveCollectors
+    if (!requiresLiveResolution && variant.attunement && !variant.stats) {
+      const changed = (Object.keys(bundle.attunement) as Array<keyof AttunementStats>).filter(
+        key => variant.attunement![key] !== bundle.attunement[key],
+      )
+      if (changed.length === 1 && attunementDamageMultiplier(changed[0]) !== undefined) {
+        const key = changed[0]
+        const difference = rotationDamageResponse(baselineResult)?.evaluateAttunement(
+          key,
+          variant.attunement[key] - bundle.attunement[key],
+        )
+        if (difference !== undefined) return calculationFromDifference(difference)
+      }
+    }
     if (!requiresLiveResolution && variant.stats && !variant.attunement) {
       const changed = Object.keys(emptyStats).filter(
         key => variant.stats![key as keyof CharacterStats] !== state.baseStats[key as keyof CharacterStats],
@@ -2480,17 +2505,8 @@ export function calculateRotationComparisons(
             const amount = next.stats[field] - state.stats[field]
             if (amount !== 0) delta[field] = amount
           }
-          const difference = rotationAttackResponse(baselineResult)?.evaluate(delta)
-          if (difference !== undefined) {
-            completedVariants += 1
-            onProgress?.(completedVariants, totalVariants)
-            return {
-              entries: [],
-              damage: baselineResult.metrics.totalDamage + difference,
-              healing: baselineResult.metrics.totalHealing,
-              duration: baselineResult.duration,
-            }
-          }
+          const difference = rotationDamageResponse(baselineResult)?.evaluate(delta)
+          if (difference !== undefined) return calculationFromDifference(difference)
         }
       }
     }
