@@ -1080,6 +1080,10 @@ action snapshot carries the resource values used by action and setup-effect
 requirements. Optional resource-regeneration rates accrue from elapsed timeline
 time before each ordered event is processed.
 System-defined resource-event rules are evaluated by the same ordered queue.
+Setup and Inner Way resource-cost candidates are normalized and filtered once
+per timeline build. Each spend still checks the requested resource and evaluates
+requirements against live combat state. Active buff cost rules remain dynamic,
+and candidates retain their original accumulation order.
 They cover universal gains such as Vitality from attacks and actual Max-HP
 loss, while ordinary skill actions handle explicit costs and gains.
 Actions may wrap their requirement operands with `resolveAt: "skillStart"`.

@@ -1067,6 +1067,14 @@ export function buildRotationTimeline(
     return left.length - right.length
   }
   const { rotation, skills, eventDefinitions, dots, effectDefinitions, innerWayRules, setupEffects, weapons } = input
+  const staticResourceCostRules = [
+    ...setupEffects,
+    ...innerWayRules.map(rule => ({ ...rule.effect, requirement: rule.requirement })),
+  ].filter(candidate => {
+    const rule = candidate as EditableObject
+    const effect = (rule.effect ?? rule) as EditableObject
+    return effect.resourceCostMultiplier !== undefined || effect.resourceCostBonus !== undefined
+  })
   // Application bundles resolve the Settings default before reaching the scheduler.
   const pingSeconds = (normalizePing(rotation.ping) ?? 0) / 1000
   const skillPing = (skill: SkillRecord | undefined) => (skill && !skill.ignorePing ? pingSeconds : 0)
@@ -1674,8 +1682,7 @@ export function buildRotationTimeline(
   const resourceCostMultiplier = (resource: string, tags: string[], time: number) => {
     const activeBuffs = filterTrackedEffects(buffs, buff => buff.expiresAt === undefined || buff.expiresAt > time)
     const rules = [
-      ...setupEffects,
-      ...innerWayRules.map(rule => ({ ...rule.effect, requirement: rule.requirement })),
+      ...staticResourceCostRules,
       ...Array.from(activeBuffs.values()).flatMap(buff =>
         effectsForTrackedEffect(buff.stack, getModifiedEffectDefinition(buff.name, activeBuffs, debuffs, tags)),
       ),
