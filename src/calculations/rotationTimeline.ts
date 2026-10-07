@@ -285,6 +285,8 @@ export type TimelineRow = {
   actionStates: Record<
     number,
     {
+      /** Accepted action order in the live traversal, including precombat. */
+      combatOrder?: number
       buffs: EffectState
       debuffs: EffectState
       distance: number
@@ -1577,6 +1579,7 @@ export function buildRotationTimeline(
     {
       id: number
       sourceDamage: number
+      sourceActionIds: string[]
       hasMatchedDamage: boolean
       sourceRowId: string
       expiresAt: number
@@ -1584,6 +1587,7 @@ export function buildRotationTimeline(
     }
   >()
   let nextRecordingId = 0
+  let nextCombatActionOrder = 0
   let currentMartialArt = weapons[0]
   let currentWeapon = currentMartialArt ? input.martialArtState?.[currentMartialArt]?.weapon : undefined
   const resourceMaximums = Object.fromEntries(
@@ -3461,6 +3465,7 @@ export function buildRotationTimeline(
     if (typeof action.cooldown === "number" && (cooldowns[actionCooldownKey] ?? 0) > event.time) continue
     if (action.type === "apply" && typeof action.value === "string" && (cooldowns[action.value] ?? 0) > event.time)
       continue
+    if (event.kind === "action") event.row.actionStates[event.actionIndex ?? -1].combatOrder = nextCombatActionOrder++
     const resolvedAction = event.kind === "action" ? resolveAction?.(event.row, event.actionIndex ?? -1) : undefined
     if (action.type === "clearCD" && typeof action.value === "string") {
       if (action.seconds === undefined) cooldowns[action.value] = event.time
@@ -3550,6 +3555,7 @@ export function buildRotationTimeline(
       replaySourceDamage?: number,
       suppressFallback = false,
       queuedFrom?: string,
+      replaySourceActionIds?: string[],
     ) => {
       const definition = skills[skillId]
       const triggeredSkill =
@@ -3593,6 +3599,7 @@ export function buildRotationTimeline(
             {},
             item,
             item.type === "replay" && replaySourceDamage !== undefined ? { replaySourceDamage } : {},
+            item.type === "replay" && replaySourceActionIds ? { replaySourceActionIds } : {},
             probability !== undefined && item.type === "damage"
               ? { damageScale: Number(item.damageScale ?? 1) * probability, hitProbability: probability }
               : {},
@@ -3793,6 +3800,9 @@ export function buildRotationTimeline(
           undefined,
           undefined,
           recording.sourceDamage,
+          false,
+          undefined,
+          recording.sourceActionIds,
         )
     }
     const startRecording = (
@@ -3808,6 +3818,7 @@ export function buildRotationTimeline(
       recordings.set(key, {
         id: nextRecordingId++,
         sourceDamage: 0,
+        sourceActionIds: [],
         hasMatchedDamage: false,
         sourceRowId,
         expiresAt: appliedEffect.expiresAt,
@@ -4383,6 +4394,7 @@ export function buildRotationTimeline(
           )
         ) {
           recording.sourceDamage += resolvedAction?.damage ?? 0
+          if (resolvedAction) recording.sourceActionIds.push(`${event.row.id}:${event.actionIndex}`)
           recording.hasMatchedDamage = true
         }
       }

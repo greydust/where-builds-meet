@@ -88,10 +88,11 @@ export type RotationDamageEntry = {
   attributionContexts?: Array<{ sourceRowId: string; context: DamageContext }>
   timelineTime?: number
   timelineOrder?: number
+  combatOrder?: number
   sourceRowId?: string
   activeBuffStacks?: Record<string, number>
   activeDebuffStacks?: Record<string, number>
-  replay?: { sourceDamage: number; coef: number }
+  replay?: { sourceDamage: number; coef: number; sourceActionIds?: string[] }
   hawkwing?: HawkwingEffect
   insightfulStrike?: InsightfulStrikeEffect
   seasonalEdge?: SeasonalEdgeEntryState
@@ -574,9 +575,29 @@ export function calculateRotationDamageSequence(
   entries: RotationDamageEntry[],
   random?: () => number,
   schedule?: ExpectedOutcomeBuffSchedule,
+  recalculateRecordings = false,
 ) {
   const resolver = createRotationDamageResolver(random, schedule)
-  return entries.map(resolver.resolve)
+  const damageByAction = new Map<string, number>()
+  return entries.map(entry => {
+    const sourceIds = recalculateRecordings ? entry.replay?.sourceActionIds : undefined
+    const resolvedEntry = sourceIds
+      ? {
+          ...entry,
+          replay: {
+            ...entry.replay!,
+            sourceDamage: sourceIds.reduce((sum, id) => {
+              const damage = damageByAction.get(id)
+              if (damage === undefined) throw new Error(`Recording source action ${id} has not been resolved`)
+              return sum + damage
+            }, 0),
+          },
+        }
+      : entry
+    const result = resolver.resolve(resolvedEntry)
+    if (recalculateRecordings && entry.id) damageByAction.set(entry.id, result.breakdown.total)
+    return result
+  })
 }
 
 type ResolvedRotationDamageSequence = ReturnType<typeof calculateRotationDamageSequence>
@@ -1610,7 +1631,13 @@ function createTimelineEntryBuilder(
       row.skill?.tags?.includes("Replayed") &&
       typeof action.replaySourceDamage === "number" &&
       typeof action.coef === "number"
-        ? { sourceDamage: action.replaySourceDamage, coef: action.coef }
+        ? {
+            sourceDamage: action.replaySourceDamage,
+            coef: action.coef,
+            ...(Array.isArray(action.replaySourceActionIds)
+              ? { sourceActionIds: action.replaySourceActionIds as string[] }
+              : {}),
+          }
         : undefined
     if (action.type !== "damage" && action.type !== "heal" && !accumulatorSnapshot && !replay) return []
     const actionTime = row.startTime + Number(action.time ?? 0)
@@ -1842,6 +1869,9 @@ function createTimelineEntryBuilder(
         context,
         timelineTime: actionTime,
         timelineOrder: actionOrder,
+        ...(row.actionStates[actionIndex]?.combatOrder !== undefined
+          ? { combatOrder: row.actionStates[actionIndex].combatOrder }
+          : {}),
         sourceRowId: row.sourceRowId ?? row.id,
         activeBuffStacks: trackedEffectMetadata(buffs).stacks,
         activeDebuffStacks: {
@@ -1887,6 +1917,7 @@ function timelineDamageEntries(
   state: ReturnType<typeof rotationStatState>,
   startAnchor: RotationSimulationBundle["startAnchor"],
   overrides: RotationSimulationVariant = { label: "" },
+  includeRecordingSources = false,
 ) {
   // Only event-invariant variants use stored action snapshots. Combat state and
   // listeners were already resolved by the baseline's single live traversal.
@@ -1897,15 +1928,16 @@ function timelineDamageEntries(
     startAnchor,
     overrides,
     false,
-    false,
+    includeRecordingSources,
     undefined,
     false,
   )
   const entries: RotationDamageEntry[] = timeline
     .flatMap(row => (row.skipped ? [] : row.actions.flatMap((_action, index) => entriesForAction(row, index))))
-    .filter(entry => !entry.accumulatorSnapshot)
+    .filter(entry => !entry.accumulatorSnapshot && (!includeRecordingSources || entry.combatOrder !== undefined))
   entries.sort(
     (left, right) =>
+      (includeRecordingSources ? (left.combatOrder ?? 0) - (right.combatOrder ?? 0) : 0) ||
       compareTimelineTime(left.timelineTime ?? 0, right.timelineTime ?? 0) ||
       (left.timelineOrder ?? 0) - (right.timelineOrder ?? 0),
   )
@@ -2210,6 +2242,43 @@ function canReuseExpectedOutcomeBuffSchedule(variant: RotationSimulationVariant)
   )
 }
 
+function requiresLiveCollectors(timeline: TimelineRow[], input: TimelineBuildInput) {
+  const actions = timeline.flatMap(row => row.actions)
+  const hasHealing = actions.some(action => action.type === "heal")
+  const hasDamage = actions.some(action => action.type === "damage")
+  if (hasHealing || actions.some(action => action.type === "replay" && !Array.isArray(action.replaySourceActionIds)))
+    return true
+  const effectNames = new Set([
+    ...(input.initialBuffs ?? []).map(effect => effect.name),
+    ...(input.initialDebuffs ?? []).map(effect => effect.name),
+    ...actions.flatMap(action => (action.type === "apply" && typeof action.value === "string" ? [action.value] : [])),
+  ])
+  return Array.from(effectNames).some(name => {
+    const definition = input.effectDefinitions[name]
+    if (definition?.recording) {
+      const payout = input.skills[definition.recording.action.value]
+      if (
+        !payout?.tags?.includes("Replayed") ||
+        !Array.isArray(payout.action) ||
+        !payout.action.every(item => {
+          const replay = item as EditableObject
+          return replay.type === "replay" && typeof replay.coef === "number"
+        })
+      )
+        return true
+    }
+    if (!definition?.accumulator) return false
+    switch (definition.accumulator.event) {
+      case "overheal":
+        return hasHealing
+      case "damage":
+        return hasDamage
+      default:
+        return true
+    }
+  })
+}
+
 export function calculateRotationComparisons(
   bundle: RotationSimulationBundle,
   baselineResult: RotationSimulationBaseline,
@@ -2222,6 +2291,10 @@ export function calculateRotationComparisons(
     bundle.innerWayPriority.length +
     Object.values(bundle.setupComparisons).reduce((total, variants) => total + variants.length, 0)
   const baselineActionIds = new Set(baselineResult.baseline.map(entry => entry.id))
+  const liveCollectors = requiresLiveCollectors(baselineResult.timeline, bundle.timeline)
+  const hasRecordingSources = baselineResult.timeline.some(row =>
+    row.actions.some(action => Array.isArray(action.replaySourceActionIds)),
+  )
   let completedVariants = 0
   onProgress?.(0, totalVariants)
   const calculationForVariant = (variant: RotationSimulationVariant) => {
@@ -2242,20 +2315,10 @@ export function calculateRotationComparisons(
       ) ||
       // Resource caps move natural-regeneration thresholds and later spending.
       timelineInput.setupEffects.some(effect => effect.resourceRegenerationBonus) ||
-      baselineResult.timeline.some(row =>
-        row.actions.some(
-          action =>
-            action.type === "heal" ||
-            action.type === "replay" ||
-            (action.type === "apply" &&
-              typeof action.value === "string" &&
-              (timelineInput.effectDefinitions[action.value]?.accumulator ||
-                timelineInput.effectDefinitions[action.value]?.recording)),
-        ),
-      )
+      liveCollectors
     const damagePipelineStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const reusableExpectedBuffSchedule =
-      !requiresLiveResolution && canReuseExpectedOutcomeBuffSchedule(variant)
+      !requiresLiveResolution && !hasRecordingSources && canReuseExpectedOutcomeBuffSchedule(variant)
         ? baselineResult.expectedOutcomeBuffSchedule
         : undefined
     const combatRuntime = requiresLiveResolution
@@ -2276,13 +2339,20 @@ export function calculateRotationComparisons(
       : undefined
     const variantTimeline = combatRuntime?.timeline ?? baselineResult.timeline
     const resolution =
-      combatRuntime ?? timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant)
+      combatRuntime ??
+      timelineDamageEntries(variantTimeline, timelineInput, state, bundle.startAnchor, variant, hasRecordingSources)
     // Reusing combat events must preserve actions skipped by requirements or cooldowns.
     const entries = combatRuntime
       ? resolution.entries
       : resolution.entries.filter(entry => baselineActionIds.has(entry.id))
     const resolvedSequence =
-      resolution.resolvedSequence ?? calculateRotationDamageSequence(entries, undefined, reusableExpectedBuffSchedule)
+      resolution.resolvedSequence ??
+      calculateRotationDamageSequence(
+        hasRecordingSources ? resolution.entries : entries,
+        undefined,
+        reusableExpectedBuffSchedule,
+        hasRecordingSources,
+      ).filter(result => baselineActionIds.has(result.entry.id))
     if (import.meta.env.DEV) finishCalculationPhase("damagePipeline", damagePipelineStartedAt)
     let duration = baselineResult.duration
     if (variant.timeline || combatRuntime) {

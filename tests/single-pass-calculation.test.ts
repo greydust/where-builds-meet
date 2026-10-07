@@ -2,20 +2,20 @@ import nodeAssert from "node:assert/strict"
 
 import { assert, afterEach, describe, expect, it, vi } from "vitest"
 
+import { attunementAvailableForSettings } from "@/application/characterComposition"
 import type { CalculatorSettings } from "@/application/contracts"
+import { buildPresetRotationBundle } from "@/application/graduation"
+import { resolveActionStatContext } from "@/calculations/actionStats"
 import type { AttunementStats } from "@/calculations/damage"
-import type { CharacterStats } from "@/types"
-
-import { attunementAvailableForSettings } from "../src/application/characterComposition"
-import { buildPresetRotationBundle } from "../src/application/graduation"
-import { resolveActionStatContext } from "../src/calculations/actionStats"
 import {
   calculateRotationBaseline,
   calculateRotationComparisons,
   calculateSimulatedRotationRun,
-} from "../src/calculations/rotationCalculator"
-import * as scheduler from "../src/calculations/rotationTimeline"
-import { attunementData, defaultBuildPresets, maxGearRoll } from "../src/gear"
+} from "@/calculations/rotationCalculator"
+import * as scheduler from "@/calculations/rotationTimeline"
+import { attunementData, defaultBuildPresets, maxGearRoll } from "@/gear"
+import type { CharacterStats } from "@/types"
+
 import { loadDpsSnapshotFixtures, dpsSnapshotEnvironment } from "./helpers/dps-snapshot-fixtures"
 import { weaponPair } from "./helpers/weaponPair"
 
@@ -91,7 +91,7 @@ describe("single-pass calculation", () => {
     "reuses Rodent events for all attunements with %s and matches live calculations",
     async way => {
       const bundle = await windBundle(way)
-      // Isolate coordinated attacks from the full preset's recording and healing mechanics.
+      // Isolate coordinated attacks from the full preset's recording and WTS accumulator.
       bundle.timeline.rotation = {
         name: "Coordinated Rodent comparison",
         ping: 40,
@@ -143,7 +143,7 @@ describe("single-pass calculation", () => {
       }
     },
   )
-  it("resolves a Wind baseline, feedback variant, and sampled run once each", async () => {
+  it("reuses a Wind comparison and resolves baseline, forced variant, and sampled run once each", async () => {
     const bundle = await windBundle()
     const observed = observeTraversals()
     const baseline = calculateRotationBaseline(bundle)
@@ -161,21 +161,30 @@ describe("single-pass calculation", () => {
     )
     expect(baseline.timeline[0].battleStartTime).toBe(baseline.anchorTime)
     expect(observed.actions[0].size).toBeGreaterThan(baseline.baseline.length)
-    calculateRotationComparisons(
+    const comparisonBundle = {
+      ...bundle,
+      statPriority: [],
+      innerWayPriority: [],
+      setupComparisons: {},
+      attunementPriority: [
+        {
+          label: "Penetration",
+          attunement: { ...bundle.attunement, physicalPenetration: bundle.attunement.physicalPenetration + 1 },
+        },
+      ],
+    }
+    const reused = calculateRotationComparisons(comparisonBundle, baseline)
+    expect(observed.build).toHaveBeenCalledTimes(1)
+    const live = calculateRotationComparisons(
       {
-        ...bundle,
-        statPriority: [],
-        innerWayPriority: [],
-        setupComparisons: {},
-        attunementPriority: [
-          {
-            label: "Penetration",
-            attunement: { ...bundle.attunement, physicalPenetration: bundle.attunement.physicalPenetration + 1 },
-          },
-        ],
+        ...comparisonBundle,
+        attunementPriority: comparisonBundle.attunementPriority.map(variant =>
+          Object.assign({}, variant, { timeline: bundle.timeline }),
+        ),
       },
       baseline,
     )
+    expect(reused).toEqual(live)
     expect(observed.build).toHaveBeenCalledTimes(2)
     expect(calculateSimulatedRotationRun(bundle, () => 0.5).resolvedSequence.length).toBeGreaterThan(0)
     expect(observed.build).toHaveBeenCalledTimes(3)
@@ -190,7 +199,7 @@ describe("single-pass calculation", () => {
       postMessage: vi.fn<(message: { error?: string; metrics: { dps: number } }) => void>(),
     }
     vi.stubGlobal("self", worker)
-    await import("../src/calculations/rotationWorker")
+    await import("@/calculations/rotationWorker")
     worker.onmessage!({ data: { id: 1, mode: "editorTimeline", bundle } })
     worker.onmessage!({ data: { id: 2, mode: "baseline", cacheKey: "single-pass-preview", bundle } })
     expect(worker.postMessage).toHaveBeenCalledTimes(2)

@@ -2146,11 +2146,25 @@ Expiry and reapplication share one resolver; activation IDs reject stale expiry
 events. A window accumulates final resolved damage in a running total and tracks
 whether any hit matched, so zero-damage hits still settle while empty windows do
 not. Settlement captures the total for the shared replay calculator; replay bonuses
-still resolve at payout time. Recording-dependent
-calculations use the live combat traversal, also used for healing and accumulator
-snapshots, so settlement affects target HP before subsequent actions. Comparison
-variants rebuild that traversal and resolve their own source damage. Runtime
-recording IDs and source totals are not persisted in user rotations.
+still resolve at payout time. Recording-dependent baseline and sampled calculations
+use the live combat traversal, so settlement affects target HP before subsequent
+actions. Each recording retains its matched source-action IDs in accumulation
+order, and accepted action snapshots retain their combat execution order.
+Event-invariant comparisons whose recording payout contains only replay actions
+reuse that timeline and recalculate each payout from their own resolved source
+damage. Precombat source hits resolve before settlement but remain excluded from
+combat totals. Healing, target-HP feedback, state-changing payouts, and the other
+comparison rebuild gates still require live traversal. Runtime recording IDs,
+source-action IDs, execution order, and source totals are not persisted in user
+rotations.
+
+An accumulator alone does not require a comparison rebuild when the baseline has
+no action of its input event type: overheal requires healing actions, and damage
+requires damage actions. Unknown input events retain the rebuild gate. This checks
+for potential input actions rather than a positive baseline total: a zero-valued
+heal could become positive under another stat variant. Variants changing timeline,
+setup rules, Inner Ways, or conditions continue rebuilding regardless of this
+collector check.
 
 ### Attack-aligned casts
 
