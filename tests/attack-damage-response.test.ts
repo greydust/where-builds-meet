@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import * as actionStats from "@/calculations/actionStats"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
-import { calculateDamageBreakdown, createPreparedDamageCalculator, type DamageContext } from "@/calculations/damage"
+import {
+  calculateDamageBreakdown,
+  createPreparedDamageCalculator,
+  prepareDamageFormula,
+  type DamageContext,
+} from "@/calculations/damage"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
 import {
   calculateRotationBaseline,
@@ -278,7 +283,7 @@ describe("attunement damage responses", () => {
     expect(cached.attunementPriority[0].dpsDifference).toBeGreaterThan(0)
   })
 
-  it("guards multiplier sign crossings and excludes penetration", () => {
+  it("guards multiplier sign crossings and excludes unrelated stats", () => {
     const response = new RotationDamageResponse()
     const input = {
       ...context(),
@@ -288,7 +293,7 @@ describe("attunement damage responses", () => {
     response.addAttunementDamage(120, input)
     expect(response.evaluateAttunement("infernalMartialBoost", 0.1)).toBeCloseTo(10, 12)
     expect(response.evaluateAttunement("infernalMartialBoost", -1.2)).toBeUndefined()
-    expect(response.evaluateAttunement("physicalPenetration", 1)).toBeUndefined()
+    expect(response.evaluateAttunement("physicalResistance", 1)).toBeUndefined()
     expect(response.evaluateAttunement("mortalMartialBoost", 0.1)).toBe(0)
     const excluded = new RotationDamageResponse()
     excluded.addAttunementDamage(120, { ...input, skillTags: ["ThundercryBlade", "Charged", "StonebreakerQuake"] })
@@ -296,5 +301,121 @@ describe("attunement damage responses", () => {
     const replay = new RotationDamageResponse()
     replay.add(response, 0.35)
     expect(replay.evaluateAttunement("infernalMartialBoost", 0.1)).toBeCloseTo(3.5, 12)
+  })
+})
+
+describe("penetration damage responses", () => {
+  it("matches full formulas above and below resistance with expected effects", () => {
+    const action = { type: "damage", phyCoef: 1.5, attrCoef: 0.7, phyBonus: 20, attrBonus: 17 }
+    for (const penetration of [0, 30]) {
+      const input = {
+        ...context(),
+        attunement: { ...emptyAttunementStats, physicalPenetration: penetration, formlessPenetration: penetration },
+        expectedEffects: [
+          [
+            { probability: 0.3, effects: [{ physicalPenetration: 2, bamboocutPenetration: 3 }] },
+            { probability: 0.7, effects: [] },
+          ],
+        ],
+      }
+      const response = new RotationDamageResponse()
+      response.addDamage(action, input)
+      for (const key of ["physicalPenetration", "formlessPenetration"] as const) {
+        const difference =
+          calculateDamageBreakdown(action, { ...input, attunement: { ...input.attunement, [key]: penetration + 1 } })
+            .total - calculateDamageBreakdown(action, input).total
+        expect(response.evaluateAttunement(key, 1)).toBeCloseTo(difference, 10)
+        const replay = new RotationDamageResponse()
+        replay.add(response, 0.35)
+        expect(replay.evaluateAttunement(key, 1)).toBeCloseTo(difference * 0.35, 10)
+      }
+    }
+  })
+
+  it("falls back across resistance branches and physical zero multipliers", () => {
+    const response = new RotationDamageResponse()
+    response.addDamage({ type: "damage", phyCoef: 1, attrCoef: 1 }, context())
+    expect(response.evaluateAttunement("physicalPenetration", 13)).toBeUndefined()
+    expect(response.evaluateAttunement("formlessPenetration", 11)).toBeUndefined()
+    expect(response.evaluateAttunement("physicalPenetration", -100)).toBeUndefined()
+  })
+
+  it("evaluates cached rotation penetration variants without visiting hits", () => {
+    const input = bundle()
+    input.attunementPriority = ["physicalPenetration", "formlessPenetration"].map(key => ({
+      label: key,
+      attunement: { ...input.attunement, [key]: 1 },
+    }))
+    const baseline = calculateRotationBaseline(input)
+    const cached = calculateRotationComparisons(input, baseline)
+    const spy = vi.spyOn(actionStats, "resolveActionStatContext")
+    expect(calculateRotationComparisons(input, baseline)).toEqual(cached)
+    expect(spy).not.toHaveBeenCalled()
+    const full = calculateRotationComparisons(
+      {
+        ...input,
+        attunementPriority: input.attunementPriority.map(variant =>
+          Object.assign({}, variant, { timeline: input.timeline }),
+        ),
+      },
+      baseline,
+    )
+    for (let i = 0; i < cached.attunementPriority.length; i++)
+      expect(cached.attunementPriority[i].dpsDifference).toBeCloseTo(full.attunementPriority[i].dpsDifference, 10)
+  })
+})
+
+describe("cached outcome channel coefficients", () => {
+  it("reweights rates exactly across caps, guarantees, conversions and restricted routes", () => {
+    for (const effects of [
+      [],
+      [{ GuaranteedCrit: true }],
+      [{ GuaranteedAffinity: true }],
+      [{ NoAbrasion: true }],
+      [{ convert: { from: "effectiveCrit", to: "effectiveAffinity", ratio: 0.25 } }],
+    ]) {
+      for (const rateRoute of [undefined, "healing", "divinecraft"]) {
+        const input = { ...context(), effects }
+        const action = { rateRoute, type: "damage", phyCoef: 1.5, attrCoef: 0.7, phyBonus: 19, attrBonus: 13 }
+        const prepared = prepareDamageFormula(action, input)
+        for (let i = 0; i < 20; i++) {
+          const next = {
+            ...stats,
+            precision: i * 0.1,
+            crit: i * 0.08,
+            affinity: i * 0.06,
+            directCrit: i * 0.02,
+            directAffinity: i * 0.01,
+          }
+          const snapshot = calculateDerivedStats(next, 0, {}, input.weapons)
+          expect(prepared.evaluate(snapshot)).toEqual(
+            calculateDamageBreakdown(action, { ...input, stats: next, derivedStats: snapshot }),
+          )
+        }
+      }
+    }
+  })
+
+  it("reads each attack input once on rate-only reuse and rebuilds for attack/critical multiplier changes", () => {
+    const input = context()
+    const action = { type: "damage", phyCoef: 1.5, attrCoef: 0.7 }
+    const prepared = prepareDamageFormula(action, input)
+    let reads = 0
+    const snapshot = {
+      ...input.derivedStats,
+      effectiveCrit: 0.5,
+      get effectiveMaxBamboocut() {
+        reads++
+        return input.derivedStats.effectiveMaxBamboocut
+      },
+    }
+    prepared.evaluate(snapshot)
+    expect(reads).toBe(1)
+    const changed = { ...stats, maxBamboocut: 230, critDmgBonus: 0.75, crit: 0.5 }
+    const next = calculateDerivedStats(changed, 0, {}, input.weapons)
+    expect(prepared.evaluate(next)).toEqual(
+      calculateDamageBreakdown(action, { ...input, stats: changed, derivedStats: next }),
+    )
+    expect(prepared.evaluate(input.derivedStats)).toEqual(calculateDamageBreakdown(action, input))
   })
 })

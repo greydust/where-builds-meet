@@ -568,16 +568,30 @@ function calculateDamageBreakdownInternal(
     if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAssemblyStartedAt)
     return result
   }
+  let outcomeInputs: number[] | undefined
+  let outcomeCritBonus: number | undefined
+  let outcomeDamage: Array<ReturnType<typeof calculateVariant>> | undefined
   const evaluate = (snapshot: DerivedStats) => {
     const rates = snapshot === derivedStats ? initialRates : resolveRates(snapshot)
-    const abrasionDamage = calculateVariant("min", 0, snapshot)
-    const normalDamage = calculateVariant("average", 0, snapshot)
-    const critDamage = calculateVariant(
-      "average",
-      snapshot.effectiveCritDmgBonus + resolvedEffects.critDmgBonus,
-      snapshot,
-    )
-    const affinityDamage = calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus, snapshot)
+    // Rate-only variants retain all four channel vectors. Changes to effective
+    // attack or critical damage rebuild them through the ordinary formula.
+    if (
+      !outcomeDamage ||
+      outcomeCritBonus !== snapshot.effectiveCritDmgBonus ||
+      outcomeAttackFields.some((field, index) => outcomeInputs![index] !== snapshot[field])
+    ) {
+      if (prepare) {
+        outcomeInputs = outcomeAttackFields.map(field => snapshot[field])
+        outcomeCritBonus = snapshot.effectiveCritDmgBonus
+      }
+      outcomeDamage = [
+        calculateVariant("min", 0, snapshot),
+        calculateVariant("average", 0, snapshot),
+        calculateVariant("average", snapshot.effectiveCritDmgBonus + resolvedEffects.critDmgBonus, snapshot),
+        calculateVariant("max", stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus, snapshot),
+      ]
+    }
+    const [abrasionDamage, normalDamage, critDamage, affinityDamage] = outcomeDamage
     const outcomeAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const weighted = (key: keyof typeof abrasionDamage) =>
       abrasionDamage[key] * rates.abrasionRate +
@@ -608,13 +622,34 @@ function calculateDamageBreakdownInternal(
   }
   prepare?.({
     evaluate,
-    attackResponse: () => {
+    response: () => {
       const coefficients = Object.fromEntries(
         Object.values(attackFields)
           .flat()
           .map(field => [field, 0]),
       ) as Record<AttackField, number>
       const physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }> = []
+      const penetrationResponse = (difference: number): PenetrationDamageResponse => ({
+        coefficient: 0,
+        lower: difference >= 0 ? -difference : -Infinity,
+        upper: difference >= 0 ? Infinity : -difference,
+      })
+      const physicalDifference =
+        stats.physicalPenetration +
+        attunementPhysicalPenetration +
+        resolvedEffects.physicalPenetration -
+        (enemy.physicalResistance + resolvedEffects.physicalResistance)
+      const physicalPenetration = penetrationResponse(physicalDifference)
+      // Positive penetration multipliers preserve the physical zero-clamp region.
+      physicalPenetration.lower =
+        physicalPenetrationMultiplier > 0 ? Math.max(physicalPenetration.lower, -100 - physicalDifference) : Infinity
+      const primaryRange = preparedAttributeRanges.find(range => range.attribute === path)
+      const primaryDifference = primaryRange
+        ? attributeRanges.find(range => range[4] === path)![2] +
+          attunementFormlessPenetration -
+          attributeRanges.find(range => range[4] === path)![5]
+        : 0
+      const formlessPenetration = penetrationResponse(primaryDifference)
       const outcomes = [
         [1, 0, rates.abrasionRate, 0],
         [0.5, 0.5, rates.normalRate, 0],
@@ -651,6 +686,22 @@ function calculateDamageBreakdownInternal(
             upper: increasing === positive ? Infinity : boundary,
           })
         }
+        if (unclamped > 0 && physicalPenetrationMultiplier > 0)
+          physicalPenetration.coefficient +=
+            ((unclamped / physicalPenetrationMultiplier) * probability) / (physicalDifference >= 0 ? 200 : 100)
+        if (primaryRange) {
+          const [minimum, maximum] = attackFields[primaryRange.attribute]
+          const attack =
+            (derivedStats[minimum] * minimumWeight + derivedStats[maximum] * maximumWeight) *
+            primaryRange.attackMultiplier
+          const unpenetrated =
+            (attributeCoefficient * attack + primaryRange.flatBonus) *
+            primaryRange.damageMultiplier *
+            primaryRange.pathMultiplier *
+            attributeMultiplier *
+            (globalMultiplier + (path === "bellstrike" ? resolvedEffects.globalBellstrikeDmgBonus : 0))
+          formlessPenetration.coefficient += (unpenetrated * probability) / (primaryDifference >= 0 ? 200 : 100)
+        }
         if (unclamped > 0) {
           coefficients.effectiveMinPhys += slope * minimumWeight * probability
           coefficients.effectiveMaxPhys += slope * maximumWeight * probability
@@ -669,21 +720,23 @@ function calculateDamageBreakdownInternal(
           coefficients[maximum] += factor * maximumWeight * probability
         }
       }
-      return { coefficients, physicalBounds }
+      return { coefficients, physicalBounds, penetration: { physicalPenetration, formlessPenetration } }
     },
   })
   return evaluate(derivedStats)
 }
 
 export type AttackField = (typeof attackFields)[keyof typeof attackFields][number]
-export type AttackDamageResponse = {
+export type PenetrationDamageResponse = { coefficient: number; lower: number; upper: number }
+export type PreparedDamageResponse = {
+  penetration: Record<"physicalPenetration" | "formlessPenetration", PenetrationDamageResponse>
   coefficients: Record<AttackField, number>
   physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }>
 }
 export type PreparedDamageFormula = {
   /** Receives a snapshot from the shared stat pipeline. Other formula inputs remain fixed. */
   evaluate: (snapshot: DerivedStats) => DamageBreakdown
-  attackResponse: () => AttackDamageResponse
+  response: () => PreparedDamageResponse
 }
 
 export const attackFields = {
@@ -693,6 +746,8 @@ export const attackFields = {
   silkbind: ["effectiveMinSilkbind", "effectiveMaxSilkbind"],
   bamboocut: ["effectiveMinBamboocut", "effectiveMaxBamboocut"],
 } as const
+
+const outcomeAttackFields = Object.values(attackFields).flat()
 
 /** Compile one resolved damage context; the caller owns dependency and timeline eligibility. */
 export function prepareDamageFormula(action: DamageAction, context: DamageContext): PreparedDamageFormula {

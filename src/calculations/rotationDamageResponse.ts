@@ -1,5 +1,9 @@
 import { resolveActionStatContext } from "./actionStats"
-import { attunementDamageMultiplier, matchingAttunementEntries } from "./attunementStats"
+import {
+  attunementDamageMultiplier,
+  attunementPenetrationMultiplier,
+  matchingAttunementEntries,
+} from "./attunementStats"
 import type { AttunementStats } from "./damage"
 import { attackFields, prepareDamageFormula, type AttackField, type DamageAction, type DamageContext } from "./damage"
 import { mainAttributeForWeapons } from "./effectiveStats"
@@ -36,6 +40,7 @@ export class RotationDamageResponse {
     number
   >
   private attunementCoefficients = new Map<keyof AttunementStats, number>()
+  private penetration = new Map<keyof AttunementStats, { coefficient: number; lower: number; upper: number }>()
   private attunementBounds = new Map<keyof AttunementStats, number>()
 
   addAttunementDamage(damage: number, context: DamageContext) {
@@ -60,8 +65,13 @@ export class RotationDamageResponse {
 
   evaluateAttunement(key: keyof AttunementStats, delta: number): number | undefined {
     const multiplier = attunementDamageMultiplier(key)
-    if (multiplier === undefined || !(delta * multiplier > (this.attunementBounds.get(key) ?? -Infinity)))
-      return undefined
+    if (multiplier === undefined) {
+      if (!attunementPenetrationMultiplier(key)) return undefined
+      const response = this.penetration.get(key)
+      if (!response) return 0
+      return delta > response.lower && delta < response.upper ? response.coefficient * delta : undefined
+    }
+    if (!(delta * multiplier > (this.attunementBounds.get(key) ?? -Infinity))) return undefined
     return (this.attunementCoefficients.get(key) ?? 0) * delta
   }
 
@@ -76,8 +86,22 @@ export class RotationDamageResponse {
       this.attunementCoefficients.set(key, (this.attunementCoefficients.get(key) ?? 0) + coefficient * weight)
     for (const [key, lower] of other.attunementBounds)
       this.attunementBounds.set(key, Math.max(this.attunementBounds.get(key) ?? -Infinity, lower))
+    for (const [key, response] of other.penetration) this.addPenetration(key, response, weight)
     for (const [minimumWeight, bound] of other.bounds) this.bound(minimumWeight, bound.lower, bound.upper)
     for (const [channel, bound] of other.ranges) this.range(channel, bound.lower, bound.upper)
+  }
+
+  private addPenetration(
+    key: keyof AttunementStats,
+    response: { coefficient: number; lower: number; upper: number },
+    weight: number,
+  ) {
+    const previous = this.penetration.get(key)
+    this.penetration.set(key, {
+      coefficient: (previous?.coefficient ?? 0) + response.coefficient * weight,
+      lower: Math.max(previous?.lower ?? -Infinity, response.lower),
+      upper: Math.min(previous?.upper ?? Infinity, response.upper),
+    })
   }
 
   private range(channel: keyof typeof attackFields, lower: number, upper: number) {
@@ -109,7 +133,21 @@ export class RotationDamageResponse {
       return
     }
     const resolved = resolveActionStatContext(context)
-    const response = prepareDamageFormula(action, resolved).attackResponse()
+    const response = prepareDamageFormula(action, resolved).response()
+    for (const { key } of matchingAttunementEntries(resolved.attunement, resolved.skillTags)) {
+      const definition = attunementPenetrationMultiplier(key)
+      if (!definition) continue
+      const penetration = response.penetration[definition.field]
+      this.addPenetration(
+        key,
+        {
+          coefficient: penetration.coefficient * definition.multiplier,
+          lower: penetration.lower / definition.multiplier,
+          upper: penetration.upper / definition.multiplier,
+        },
+        weight,
+      )
+    }
     const bonuses = (resolved.stats as Partial<ResolvedStats>).effectiveStatBonuses ?? {}
     let physicalMaximumUsesMinimum = false
     for (const [channel, [minimum, maximum]] of Object.entries(attackFields) as Array<

@@ -3,7 +3,7 @@ import attunementJson from "@gamedata/attunement.json"
 import { emptyStats } from "@/data/statDefinitions"
 import type { CharacterStats, EnemyProfile, WeaponId } from "@/types"
 
-import { attunementDamageMultiplier } from "./attunementStats"
+import { attunementDamageMultiplier, attunementPenetrationMultiplier } from "./attunementStats"
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import { DEFAULT_TARGET_HP_RATIO, normalizeEnemyCount, resolveTargetType } from "./combatDefaults"
 import {
@@ -2465,7 +2465,11 @@ export function calculateRotationComparisons(
       const changed = (Object.keys(bundle.attunement) as Array<keyof AttunementStats>).filter(
         key => variant.attunement![key] !== bundle.attunement[key],
       )
-      if (changed.length === 1 && attunementDamageMultiplier(changed[0]) !== undefined) {
+      if (
+        changed.length === 1 &&
+        (attunementDamageMultiplier(changed[0]) !== undefined ||
+          attunementPenetrationMultiplier(changed[0]) !== undefined)
+      ) {
         const key = changed[0]
         const difference = rotationDamageResponse(baselineResult)?.evaluateAttunement(
           key,

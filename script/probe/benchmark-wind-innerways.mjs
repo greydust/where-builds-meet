@@ -96,6 +96,18 @@ try {
         baseline,
       )
       const cachedAttackComparisonsMs = performance.now() - attackStart
+      const rateStart = performance.now()
+      calculateRotationComparisons(
+        {
+          ...bundle,
+          statPriority: bundle.statPriority.filter(variant =>
+            ["precision", "crit", "affinity"].includes(variant.label),
+          ),
+          attunementPriority: [],
+        },
+        baseline,
+      )
+      const rateComparisonsMs = performance.now() - rateStart
       const sample = {
         round,
         name,
@@ -104,6 +116,7 @@ try {
         statsMs,
         attunementMs,
         cachedAttackComparisonsMs,
+        rateComparisonsMs,
         statCount: bundle.statPriority.length,
         attunementCount: bundle.attunementPriority.length,
         rows: baseline.timeline.length,
@@ -124,10 +137,14 @@ try {
       JSON.stringify({
         summary: name,
         ...Object.fromEntries(
-          ["baselineMs", "compactionMs", "statsMs", "attunementMs", "cachedAttackComparisonsMs"].map(key => [
-            key,
-            median(runs.map(run => run[key])),
-          ]),
+          [
+            "baselineMs",
+            "compactionMs",
+            "statsMs",
+            "attunementMs",
+            "cachedAttackComparisonsMs",
+            "rateComparisonsMs",
+          ].map(key => [key, median(runs.map(run => run[key]))]),
         ),
       }),
     )

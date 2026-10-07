@@ -771,6 +771,13 @@ attack ranges and outcome rates. The cache is used for attack/rate stat variants
 including penetration, bonuses, attunements, dynamic state, and resolved effects;
 formulas reading mutable attack/rate inputs bypass it. Expected-effect mixtures
 and recorded damage retain the ordinary sequence traversal and ordering.
+Each prepared hit caches four outcome channel vectors. When only outcome rates
+change, evaluation resolves the shared rate rules and reweights those vectors
+without repeating attack, penetration, multiplier, or zero-clamp calculations.
+Changing an effective attack endpoint or effective critical damage rebuilds all
+four vectors. The existing fixed-context cache still invalidates other multipliers
+and dynamic state. Rate-dependent buffs and recorded damage continue through the
+ordinary sequence; this shortcut does not freeze their probability state.
 
 For attack-only variants, `rotationDamageResponse.ts` additionally accumulates an
 affine rotation response with separate minimum/maximum coefficients for all five
@@ -793,8 +800,10 @@ Pure damage-boost attunement comparisons use the same private rotation response.
 Each matching hit contributes `damage / (1 + attunementBonus)` times the data-defined
 bonus multiplier; recorded replays propagate source coefficients. A single changed
 attunement is eligible only when its definition changes damage bonus alone and the
-shared multiplier stays positive. Penetration and mixed-stat attunements retain the
-ordinary calculation. Unmatched tags contribute zero.
+shared multiplier stays positive. Pure physical/formless penetration attunements use coefficients prepared from
+the same per-hit outcome formula, with intersected bounds for resistance branches
+and positive physical penetration multipliers. Branch crossings and mixed-stat
+attunements retain the ordinary calculation. Unmatched tags contribute zero.
 
 ## Runtime Inner Way damage ownership
 

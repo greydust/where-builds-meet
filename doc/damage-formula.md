@@ -1093,3 +1093,22 @@ The denominator includes every matching attunement bonus. Replay contributions
 use the same source weights as ordinary calculation. The response requires the
 baseline and variant shared multipliers to remain positive; otherwise the ordinary
 formula resolves physical zero clamps directly.
+
+Pure physical/formless penetration attunements also have affine comparison
+coefficients within one resistance branch: below resistance the penetration
+multiplier slope is `1 / 100`, and at or above resistance it is `1 / 200`.
+Preparation uses the ordinary outcome/channel formula, including flat bonuses,
+expected effects, and the primary-attribute restriction for Formless Penetration.
+Physical penetration additionally requires a positive multiplier so its zero clamp
+stays in the same region. Resistance crossings or zero-multiplier crossings use
+the full calculation. Recorded replays propagate these coefficients with their
+ordinary source weights. Baseline and sampled arithmetic remain unchanged.
+
+For fixed attack ranges and damage multipliers, each hit's channel damage is
+`abrasionRate * abrasionDamage + normalRate * normalDamage + critRate * critDamage + affinityRate * affinityDamage`.
+Prepared hits retain the four outcome/channel values and resolve only rates on
+subsequent rate-only evaluations. Caps, guarantees, conversions, and restricted
+rate routes still use the shared rate calculation. Effective attack changes or
+critical-damage changes rebuild the retained values. Channel weighting and total
+summation keep the original arithmetic order, preserving bit-identical results;
+rate-sensitive sequence state continues to be recalculated normally.

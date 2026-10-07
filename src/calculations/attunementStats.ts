@@ -87,3 +87,15 @@ export function attunementDamageMultiplier(key: keyof AttunementStats): number |
     ? multiplier
     : undefined
 }
+
+/** Penetration responses support one positive, data-defined stat multiplier. */
+export function attunementPenetrationMultiplier(
+  key: keyof AttunementStats,
+): { field: "physicalPenetration" | "formlessPenetration"; multiplier: number } | undefined {
+  const stat = attunementDefinitions[key]?.effect?.stat
+  if (!stat || Object.keys(stat).length !== 1) return undefined
+  const field = Object.keys(stat)[0]
+  if (field !== "physicalPenetration" && field !== "formlessPenetration") return undefined
+  const multiplier = stat[field]
+  return Number.isFinite(multiplier) && multiplier > 0 ? { field, multiplier } : undefined
+}
