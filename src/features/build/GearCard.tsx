@@ -157,10 +157,10 @@ export function GearCard({ item, name, eyebrowLabel, status, footer, compact = f
               <small>
                 {item.level} {gearRarityLabel(item.rarity)}
               </small>
-              <GearBaseStatSummary item={item} />
             </div>
             {status && <div className="gear-card-status">{status}</div>}
           </div>
+          <GearBaseStatSummary item={item} />
           <GearAttributes item={item} compact={compact} />
         </>
       ) : (
