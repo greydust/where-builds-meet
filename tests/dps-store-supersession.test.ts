@@ -68,6 +68,27 @@ async function comparison(store: () => any, key: string) {
 }
 
 describe("calculation store supersession", () => {
+  it("drops queued variants and preserves completed results when a revision is replaced", async () => {
+    const { useDpsStore, workers } = await loadStore()
+    const store = () => useDpsStore.getState()
+    const ready = comparison(store, "held")
+    workers[0].flush()
+    await ready
+    const abandoned = Array.from({ length: 8 }, (_, index) =>
+      comparison(store, `old:${index}`).catch((error: Error) => error.message),
+    )
+    store().supersede()
+    const fresh = comparison(store, "latest")
+    assert.equal(store().entry("comparisons", "held")?.status, "ready")
+    assert.equal(workers.at(-1).pending[0].cacheKey, "latest")
+    assert.ok(workers.slice(0, -1).every(worker => worker.terminated))
+    assert.ok((await Promise.all(abandoned)).every(message => /superseded/.test(message)))
+    workers.at(-1).flush()
+    await fresh
+    assert.equal(store().entry("comparisons", "latest")?.status, "ready")
+    store().reset()
+  })
+
   it("lets a batch started during a teardown finish without being disturbed", async () => {
     const { useDpsStore, workers } = await loadStore()
     const store = () => useDpsStore.getState()

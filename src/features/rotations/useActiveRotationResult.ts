@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react"
+import { useEffect, useMemo, useRef } from "react"
 
 import { baselineMetricsWithPreviousComparisons } from "@/application/comparison"
 import type { PathId } from "@/application/contracts"
@@ -102,6 +102,8 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
     [build, gearItems, measurement, rotation],
   )
 
+  const revisionRef = useRef<string | undefined>(undefined)
+
   useEffect(() => {
     if (!active || !subject) return
     let cancelled = false
@@ -130,6 +132,13 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
       skillOverrides: measurement.environment.skillOverrides,
       previewId: measurement.environment.previewId,
     })
+
+    // Compare calculation inputs, rather than effect runs: changing tab visibility or
+    // recreating an equivalent input object must not interrupt useful shared work.
+    const comparisonBundle = buildRotationComparisonBundle(subject)
+    const revision = JSON.stringify([bundleKey, rotationBundleFingerprint(comparisonBundle), graduation?.fingerprint])
+    if (revisionRef.current !== undefined && revisionRef.current !== revision) useDpsStore.getState().supersede()
+    revisionRef.current = revision
 
     const publish = (metrics: ActiveRotationResult["metrics"], dps?: number) => {
       if (!current()) return
@@ -171,7 +180,7 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
         // action breakdowns, totals and the immutable bundle needed by Simulation.
         const comparisons = comparisonsActive
           ? resolveComparisonMetrics({
-              bundle: buildRotationComparisonBundle(subject),
+              bundle: comparisonBundle,
               baselineKey: cacheKey,
               baseline: () => resolved.baseline,
               onCategoryStarted: category => {
