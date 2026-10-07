@@ -56,27 +56,21 @@ export type SystemStatsDefinition = {
   baseStats: SetupEffect
   enhancementStats: Array<SetupEffect & { id: string }>
   talentStatsBySoloLevel: Record<string, SetupEffect>
-  qingheOddityStats: Array<SetupEffect & { id: string }>
-  kaifengOddityStats: Array<SetupEffect & { id: string }>
-  imperialPalaceOddityStats: Array<SetupEffect & { id: string }>
-  hexiOddityStats: Array<SetupEffect & { id: string }>
-  hiddenMountainOddityStats: Array<SetupEffect & { id: string }>
+  oddityStats: Record<string, SetupEffect & { minBreakthrough?: number }>
   baseAttributes: BaseAttributeData
 }
 export const typedSystemStats = systemStats as SystemStatsDefinition
 export const baseAttributeEffects = createBaseAttributeEffects(typedSystemStats.baseAttributes)
-export function systemStatEffectsForSoloLevel(soloLevel: number): SetupEffect[] {
+export function systemStatEffectsForProgression(soloLevel: number, breakthrough: number): SetupEffect[] {
   const talents = typedSystemStats.talentStatsBySoloLevel[String(soloLevel)]
   if (!talents) throw new RangeError(`Missing character talent totals for Solo Level ${soloLevel}`)
   return [
     typedSystemStats.baseStats,
     ...typedSystemStats.enhancementStats,
     talents,
-    ...typedSystemStats.qingheOddityStats,
-    ...typedSystemStats.kaifengOddityStats,
-    ...typedSystemStats.imperialPalaceOddityStats,
-    ...typedSystemStats.hexiOddityStats,
-    ...typedSystemStats.hiddenMountainOddityStats,
+    ...Object.values(typedSystemStats.oddityStats).filter(
+      effect => effect.minBreakthrough === undefined || breakthrough >= effect.minBreakthrough,
+    ),
     ...baseAttributeEffects,
   ]
 }

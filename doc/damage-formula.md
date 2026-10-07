@@ -121,7 +121,7 @@ The higher-of-Body-or-Power conversions remain deferred rather than using Power
 alone. See the [rank-13 audit](martial-art-talent-audit.md) for conditional
 effects, existing shared behavior, and all unresolved talent portions.
 
-The simulation input starts from zero, then the calculator applies innate character stats, the selected breakthrough's level bonuses, Enhancement bonuses, the selected Solo Level's cumulative character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
+The simulation input starts from zero, then the calculator applies innate character stats, the selected breakthrough's level bonuses, Enhancement bonuses, the selected Solo Level's cumulative character talent stats, regional Oddity totals eligible for the selected breakthrough (Qingzhou from breakthrough 18), attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
 
 Inner Way stat tables resolve using the selected breakthrough's `soloLevel`,
 independently of `martialArtTalentRank`, before these stages. A table contributes

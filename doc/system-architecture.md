@@ -956,13 +956,12 @@ Divinecraft.
 
 `data/system.json` keeps innate `baseStats`, ordered `enhancementStats`,
 Solo-Level-keyed cumulative `talentStatsBySoloLevel`, regional
-Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
-`imperialPalaceOddityStats`, `hexiOddityStats`,
-and `hiddenMountainOddityStats` separate. Its `baseAttributes` field stores a
+Oddity totals under region-keyed `oddityStats` separate. Its `baseAttributes` field stores a
 nested source-attribute to target-stat multiplier map. The shared
 `baseAttributeEffects.ts` adapter converts that map to ordinary formula effects.
-Oddity rewards remain individual effects so their source progression is auditable even when several rewards
-grant the same stat. Attribute conversions are regular formula effects in the
+Each Oddity region stores one summed raw-stat effect. An optional `minBreakthrough`
+gates the entire region; Qingzhou applies from breakthrough 18. Regions without a
+gate always apply. Attribute conversions are regular formula effects in the
 shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
 `data/breakthrough.json` groups the selected enemy profile and its
@@ -985,7 +984,7 @@ ranks 13 and 14 contain complete datamined talent selections and supported effec
 talents. Rank selection reads the breakthrough field directly rather than
 deriving a rank from enemy level or the datamine's world-level unlock requirements.
 Character talents resolve the exact Solo Level entry through
-`systemStatEffectsForSoloLevel`; missing totals throw rather than borrowing another
+`systemStatEffectsForProgression`; missing totals throw rather than borrowing another
 level. Each entry is a complete cumulative raw-stat effect, applied once in the
 shared character-sheet and worker setup pipeline. The level-18 total uses the
 grey variant progression; the normal variant export stops at level 17.
@@ -1815,8 +1814,8 @@ setup conditions to the same requirement context used by Inner Ways.
 Update `data/system.json`. Keep innate values under `baseStats`, every Enhancement bonus under its own ordered
 `enhancementStats` entry, each supported Solo Level as one complete cumulative
 `talentStatsBySoloLevel` raw-stat effect, and every regional Oddity reward
-under its own ordered collection such as `qingheOddityStats` or
-`kaifengOddityStats`. Express base-attribute relationships under
+as one summed `oddityStats` entry keyed by region, with an optional
+`minBreakthrough` gate. Express base-attribute relationships under
 `baseAttributes` by nesting each target stat and its multiplier under the
 source base attribute, for example `"power": { "minPhys": 0.22 }`.
 

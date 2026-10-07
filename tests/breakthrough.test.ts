@@ -4,7 +4,7 @@ import {
   baseAttributeEffects,
   breakthroughProfile,
   defaultSettings,
-  systemStatEffectsForSoloLevel,
+  systemStatEffectsForProgression,
   typedSystemStats,
 } from "@/application/gameData/setup"
 import { calculateStatsWithEffects } from "@/calculations/statEffects"
@@ -42,7 +42,7 @@ describe("breakthrough", () => {
 describe("Solo Level character talents", () => {
   it("replaces the cumulative reward and restores the previous level without stacking", () => {
     const calculate = (soloLevel: number) =>
-      calculateStatsWithEffects(emptyStats, systemStatEffectsForSoloLevel(soloLevel), 0).rawStats
+      calculateStatsWithEffects(emptyStats, systemStatEffectsForProgression(soloLevel, 17), 0).rawStats
     const before = calculate(17)
     const after = calculate(18)
     expect(after.power - before.power).toBe(4)
@@ -67,12 +67,31 @@ describe("Solo Level character talents", () => {
     expect(after.precision).toBe(before.precision)
     expect(calculate(17)).toEqual(before)
     expect(
-      systemStatEffectsForSoloLevel(18).filter(effect => effect === typedSystemStats.talentStatsBySoloLevel["18"]),
+      systemStatEffectsForProgression(18, 17).filter(
+        effect => effect === typedSystemStats.talentStatsBySoloLevel["18"],
+      ),
     ).toHaveLength(1)
   })
 
   it("rejects missing talent totals and resolves removed breakthrough selections to the default", () => {
-    expect(() => systemStatEffectsForSoloLevel(16)).toThrow(RangeError)
+    expect(() => systemStatEffectsForProgression(16, 17)).toThrow(RangeError)
     expect(breakthroughProfile({ ...defaultSettings, breakthrough: "16" })).toBe(breakthroughProfile(defaultSettings))
+  })
+})
+
+describe("regional oddity breakthrough gate", () => {
+  it("adds Qingzhou at breakthrough 18 independently of Solo Level and removes it when returning", () => {
+    const calculate = (breakthrough: number) =>
+      calculateStatsWithEffects(emptyStats, systemStatEffectsForProgression(17, breakthrough), 0).rawStats
+    const before = calculate(17)
+    const after = calculate(18)
+    expect(after.maxHp - before.maxHp).toBe(500)
+    expect(after.minPhys - before.minPhys).toBe(4)
+    expect(after.maxPhys - before.maxPhys).toBe(8)
+    expect(after.physicalDefense - before.physicalDefense).toBe(4)
+    expect(after.maxEndurance).toBe(before.maxEndurance)
+    expect(after.maxVitality).toBe(before.maxVitality)
+    expect(calculate(19)).toEqual(after)
+    expect(calculate(17)).toEqual(before)
   })
 })
