@@ -18,7 +18,16 @@
     [],
     [
       { "name": "Max Battle Will Increase", "effect": [] },
-      { "name": "Max HP Up", "effect": [] },
+      {
+        "name": "Max HP Up",
+        "effect": [
+          {
+            "stat": {
+              "maxHp": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 10, "max": 2800 } }
+            }
+          }
+        ]
+      },
       { "name": "DMG Reduction Enhancement", "effect": [] },
       {
         "name": "Stonesplit Attribute Up",
@@ -35,7 +44,16 @@
     ],
     [
       { "name": "Max Battle Will Increase", "effect": [] },
-      { "name": "Max HP Up", "effect": [] },
+      {
+        "name": "Max HP Up",
+        "effect": [
+          {
+            "stat": {
+              "maxHp": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 10, "max": 3000 } }
+            }
+          }
+        ]
+      },
       { "name": "DMG Reduction Enhancement", "effect": [] },
       {
         "name": "Stonesplit Attribute Up",

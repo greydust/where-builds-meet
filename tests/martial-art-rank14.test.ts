@@ -38,6 +38,30 @@ const context: DamageContext = {
 }
 
 describe("rank-14 martial-art talents", () => {
+  it("converts the higher raw Body or Power into capped Stormbreaker HP without stacking ranks", () => {
+    const calculate = (rank: number, body: number, power: number) =>
+      calculateStatsWithEffects(
+        { ...emptyStats, maxHp: 10000, body, power },
+        [
+          ...martialArtEffectsForRank(martialArtDefinitions, ["stormbreaker", "stormbreaker"], rank).filter(
+            effect => !effect.requirement,
+          ),
+          { stat: { power: 1000 } },
+        ],
+        0,
+        ["stormbreaker"],
+      )
+    for (const rank of [13, 14]) {
+      expect(calculate(rank, 250, 200).stats.maxHp).toBe(12500)
+      expect(calculate(rank, 200, 250).stats.maxHp).toBe(12500)
+      expect(calculate(rank, 250, 250).stats.maxHp).toBe(12500)
+      expect(calculate(rank, 0, 0).stats.maxHp).toBe(10000)
+    }
+    expect(calculate(13, 290, 100).stats.maxHp).toBe(12800)
+    expect(calculate(14, 290, 100).stats.maxHp).toBe(12900)
+    expect(calculate(14, 100, 400).stats.maxHp).toBe(13000)
+  })
+
   it("scales flat attack separately from coefficients in expected, sampled, and aggregated damage", () => {
     const action = { phyCoef: 2, attrCoef: 3, phyBonus: 40, attrBonus: 20 }
     const effect = { flatAttackBonus: 0.0725, coefficientBonusWithoutFlatAttack: 0.00725 }
