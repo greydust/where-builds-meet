@@ -1134,6 +1134,8 @@ export function buildRotationTimeline(
   )
   const startStepIndex = hasUsableStart ? authoredStart!.step : 0
   let battleStartTime = -1
+  let battleStarted = false
+  let anchoredRow: TimelineRow | undefined
   const multiActionSegments = new Map<
     string,
     Array<ExpandedSkillSegment & { startOffset: number; effectiveCastTime: number }>
@@ -1220,6 +1222,7 @@ export function buildRotationTimeline(
       actionStates: {},
     }
     rows.push(row)
+    if (rowIndex === startStepIndex) anchoredRow = row
     if (expandedSkill?.isMultiAction)
       multiActionSegments.set(
         row.id,
@@ -1939,39 +1942,14 @@ export function buildRotationTimeline(
       .map(([skillId, skill]) => [skillId, skill.cooldownGroup]),
   )
   let currentTimelineTime = 0
-  // The encounter begins at the fight-start anchor, so nothing can be put on the
-  // target before it: a prepull hit does not apply a debuff or DOT. The anchored
-  // row is created in step order, so while it is still missing the event is
-  // necessarily prepull, and once it exists its own start time is the boundary.
-  // Prepull is a question of rotation position, not of timestamps: a step before
-  // the anchor is prepull in full. Inside the anchored step the boundary is the
-  // anchored action's own time, so an action ordered ahead of it still counts when
-  // it resolves at that same instant. A generated row inherits its source row's
-  // position.
-  const rotationIndexFor = (row: TimelineRow): number | undefined => {
-    let current: TimelineRow | undefined = row
-    for (let depth = 0; current && depth < 16; depth++) {
-      if (current.rotationIndex !== undefined) return current.rotationIndex
-      current = rows.find(candidate => candidate.id === current!.sourceRowId)
-    }
-    return undefined
-  }
   /**
-   * The instant the fight starts, once the anchored row exists. The anchor names an
-   * action, but the boundary is its time: an action ordered before it that resolves
-   * at the same instant belongs to the anchored hit rather than to prepull. The
-   * requirement path reads this per action, so the row is searched once and the
-   * resolved instant is cached against the row data that produces it.
+   * The anchor's live instant. Row construction supplies its identity directly;
+   * charging and cast adjustments invalidate the cached action time by changing
+   * the row's start or actions. Requirements read battleStarted instead.
    */
-  let anchoredRow: TimelineRow | undefined
-  let anchoredRowSearched = false
   let anchoredInstant: { startTime: number; actions: readonly EditableObject[]; time: number } | undefined
   const anchoredActionTime = (): number | undefined => {
     if (!hasUsableStart) return undefined
-    if (!anchoredRowSearched) {
-      anchoredRowSearched = true
-      anchoredRow = rows.find(candidate => candidate.rotationIndex === startStepIndex)
-    }
     const anchored = anchoredRow
     if (!anchored) return undefined
     if (startAction === undefined) return anchored.startTime
@@ -1988,32 +1966,16 @@ export function buildRotationTimeline(
   /**
    * Whether a queued event opens the fight. The anchor names an action, but the
    * boundary is that action's resolved time: an action ordered ahead of it that
-   * resolves at the same instant belongs to the anchored hit rather than to prepull,
-   * so the fight opens before any of them runs. Readiness and cast-start events are
-   * not that instant; a step-level anchor opens on the anchored row's start event.
+   * resolves at the same instant is in combat, including timed target effects and
+   * delayed follow-ups. Readiness and cast-start events are not that instant;
+   * a step-level anchor also opens on the anchored row's start event.
    */
   const opensBattleStart = (event: TimelineEvent | undefined): boolean => {
-    if (!hasUsableStart || !event || event.row.rotationIndex !== startStepIndex) return false
-    if (startAction === undefined) return event.kind === "start"
+    if (!hasUsableStart || !event) return false
+    if (startAction === undefined && event.kind === "start") return event.row.rotationIndex === startStepIndex
     if (event.kind !== "action") return false
-    if (event.actionIndex === startAction) return true
-    if ((event.actionIndex ?? 0) > startAction) return false
     const anchoredTime = anchoredActionTime()
     return anchoredTime !== undefined && event.time >= anchoredTime
-  }
-  const targetAcceptsApplications = (row: TimelineRow | undefined, actionIndex?: number) => {
-    if (!hasUsableStart) return true
-    const index = row ? rotationIndexFor(row) : undefined
-    if (index === undefined || index > startStepIndex) return true
-    if (index < startStepIndex) return false
-    // The anchored step: only actions at or after the anchored one are in-combat.
-    if (startAction === undefined || actionIndex === undefined || row === undefined) return true
-    if (actionIndex >= startAction) return true
-    const anchoredTime = anchoredActionTime()
-    const action = row.actions[actionIndex]
-    return (
-      anchoredTime !== undefined && action !== undefined && row.startTime + Number(action.time ?? 0) >= anchoredTime
-    )
   }
   const requirementState = (): RequirementState => ({
     enemyCount: normalizeEnemyCount(rotation.enemyCount),
@@ -2028,11 +1990,9 @@ export function buildRotationTimeline(
     currentMartialArt,
     currentWeapon,
     targetType: resolveTargetType(rotation),
-    battleStarted: targetAcceptsApplications(requirementRow()[0], requirementRow()[1]),
+    battleStarted,
     ...responseContext,
   })
-  // The row and action index currently resolving, used by the battle-start gate.
-  let requirementRow: () => [TimelineRow | undefined, number | undefined] = () => [undefined, undefined]
   const applicationDuration = (
     duration: number | undefined,
     target: unknown,
@@ -2883,6 +2843,7 @@ export function buildRotationTimeline(
       ? createRow(timed[0].index, timed[0].step, timed[0].time)
       : undefined
   const startBattle = (time: number) => {
+    battleStarted = true
     battleStartTime = time
     lastResourceRegenerationTime = time
     if (rotation.eventTimeReference === "battleStart")
@@ -3235,9 +3196,7 @@ export function buildRotationTimeline(
             innerWayConditions,
             weapons,
             resources,
-            // Component selection occurs before its actions; the previous action's
-            // row cannot determine whether this release is still prepull.
-            { ...requirementState(), battleStarted: !hasUsableStart || battleStartTime >= 0 },
+            requirementState(),
           )
         if (choiceKey) subActionChoices.set(choiceKey, primaryPasses)
       }
@@ -3436,10 +3395,6 @@ export function buildRotationTimeline(
           return event.row.actions[event.actionIndex ?? -1]
       }
     }
-    // The battle-start gate reads the row resolving right now, so publish it first.
-    const activeRow = event.row
-    const activeActionIndex = event.actionIndex
-    requirementRow = () => [activeRow, activeActionIndex]
     const action: EditableObject | undefined = lifecycleAction()
     if (!action) continue
     if (event.row.kind === "dot" && event.row.step.type === "skill" && event.row.step.skill) {
@@ -3925,7 +3880,7 @@ export function buildRotationTimeline(
         triggerAction.type !== "apply" ||
         typeof triggerAction.value !== "string" ||
         (cooldowns[triggerAction.value] ?? 0) > event.time ||
-        (triggerAction.target === "target" && targetAcceptsApplications(event.row, event.actionIndex) === false)
+        (triggerAction.target === "target" && !battleStarted)
       )
         return
       const targetEffects = triggerAction.target === "target" ? debuffs : buffs
@@ -4506,7 +4461,7 @@ export function buildRotationTimeline(
     if (action.type === "emitEvent" && typeof action.value === "string") emitCustomEvent(action.value)
     if ((action.type === "apply" || action.type === "extend") && typeof action.value === "string") {
       // Nothing reaches the target before the fight starts.
-      if (action.target === "target" && targetAcceptsApplications(event.row, event.actionIndex) === false) continue
+      if (action.target === "target" && !battleStarted) continue
       const targetEffects = action.target === "target" ? debuffs : buffs
       const periodicTarget = action.target === "target" ? "target" : action.target === "player" ? "player" : "self"
       const playerRecipientIndex =

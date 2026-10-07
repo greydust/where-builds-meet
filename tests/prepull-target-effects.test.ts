@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest"
 
-import { rotationEventDefinitions } from "../src/application/gameData/rotationEffects"
-import { effectDefinitions } from "../src/application/gameData/skills"
-import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
+import { rotationEventDefinitions } from "@/application/gameData/rotationEffects"
+import { effectDefinitions } from "@/application/gameData/skills"
+import { buildRotationTimeline } from "@/calculations/rotationTimeline"
+
 import { rowWithId } from "./helpers/timelineRows"
 
 // The fight-start anchor is the boundary for anything that goes on the target. A
@@ -112,6 +113,37 @@ describe("prepull target effects", () => {
     expect(debuffNames(after)).not.toContain("FearfulBlade")
   })
 
+  it("opens combat before timed target effects at the anchor's instant", () => {
+    const timeline = buildRotationTimeline({
+      rotation: {
+        name: "Timed target effect at battle start",
+        start: { step: 0 },
+        steps: [
+          { type: "skill", skill: "Hit" },
+          { type: "event", event: "Exhausted", startTime: 0 },
+          { type: "event", event: "Delay", duration: 1 },
+        ],
+      },
+      skills: { Hit: { name: "Hit", castTime: 1, action: [{ type: "damage", phyCoef: 1, time: 0.5 }] } },
+      eventDefinitions: {
+        ...rotationEventDefinitions,
+        Exhausted: {
+          name: "Timed debuff",
+          castTime: 0,
+          action: [{ type: "apply", target: "target", value: "FearfulBlade", time: 0 }],
+        },
+      },
+      dots: {},
+      effectDefinitions,
+      innerWayConditions: [],
+      innerWayRules: [],
+      setupEffects: [],
+      weapons: [],
+    })
+    expect(timeline[0].battleStartTime).toBe(0)
+    expect(debuffNames(rowWithId(timeline, "rotation-2")!)).toContain("FearfulBlade")
+  })
+
   it("keeps a self effect from a prepull step", () => {
     const timeline = build({ step: 1 })
     // Row snapshots capture state at row start, so the effect a prepull step
@@ -121,5 +153,67 @@ describe("prepull target effects", () => {
         effect => (effect as { name: string }).name,
       )
     expect(timeline.some(row => buffNames(row).includes("Shield"))).toBeTruthy()
+  })
+
+  it("uses the live battle flag for delayed prepull follow-ups while retaining their damage source", () => {
+    const timeline = buildRotationTimeline({
+      rotation: {
+        name: "Delayed prepull follow-up",
+        start: { step: 1 },
+        steps: [
+          { type: "skill", skill: "Prepull" },
+          { type: "event", event: "Delay", duration: 2 },
+          { type: "event", event: "Delay", duration: 1 },
+        ],
+      },
+      skills: {
+        Prepull: { name: "Prepull", castTime: 1, action: [{ type: "trigger", value: "Followup", time: 0 }] },
+        Followup: {
+          name: "Followup",
+          castTime: 2,
+          tags: ["Followup"],
+          action: [
+            { type: "apply", target: "target", value: "BeforeBattle", time: 0.25 },
+            { type: "damage", phyCoef: 1, time: 0.25 },
+            { type: "apply", target: "target", value: "AfterBattle", time: 1.25 },
+            { type: "damage", phyCoef: 1, time: 1.25 },
+          ],
+        },
+      },
+      eventDefinitions: rotationEventDefinitions,
+      dots: {},
+      effectDefinitions: Object.fromEntries(
+        ["BeforeBattle", "AfterBattle", "TriggeredTarget", "CombatHits"].map(name => [
+          name,
+          { name, duration: 10, maxStack: 10 },
+        ]),
+      ),
+      innerWayConditions: [],
+      innerWayRules: [
+        {
+          source: "CombatProbe",
+          tier: 0,
+          effect: {},
+          trigger: {
+            event: "damage",
+            requirement: [{ target: "skillTag", value: "Followup" }, { target: "battleStarted" }],
+            action: [
+              { type: "apply", target: "target", value: "TriggeredTarget" },
+              { type: "apply", target: "self", value: "CombatHits" },
+            ],
+          },
+        },
+      ],
+      setupEffects: [],
+      weapons: [],
+    })
+    expect(timeline[0].battleStartTime).toBe(1)
+    const followup = timeline.find(row => row.kind === "trigger" && row.step.skill === "Followup")!
+    expect(followup.sourceRowId).toBe("rotation-0")
+    const after = rowWithId(timeline, "rotation-2")!
+    expect(debuffNames(after)).not.toContain("BeforeBattle")
+    expect(debuffNames(after)).toEqual(expect.arrayContaining(["AfterBattle", "TriggeredTarget"]))
+    expect([...after.buffs.values()].find(effect => effect.name === "CombatHits")?.stack).toBe(1)
+    expect([...after.debuffs.values()].find(effect => effect.name === "TriggeredTarget")?.stack).toBe(1)
   })
 })

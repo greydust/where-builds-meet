@@ -232,6 +232,9 @@ exclude prepull. Target debuffs and DOTs are already rejected during prepull; us
 this for a self effect that should only accumulate in-combat, such as a hit
 counter. An action-level anchor opens the fight on its own resolved time, so an
 action sharing that instant with the anchored hit is already in combat.
+The requirement reads the event loop's live battle flag, independently of damage
+ownership. Delayed follow-ups from prepull casts can apply target effects and
+satisfy `battleStarted` once the anchor has opened combat.
 
 Numeric targets include `resource`, `distance`, `enemyCount`, `selfHPPercentage`,
 `targetHPPercentage`, `targetQiPercentage`, and `endurancePercentage`.

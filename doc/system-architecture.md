@@ -556,22 +556,21 @@ would exclude both dummies. Write such a mechanic unconditionally, exactly as
 distinguish one practice target from another, such as a target that attacks or a
 target with a different resistance profile.
 
-The fight-start anchor is also the boundary for anything put on the target. An
-`apply` or `extend` action with `target: "target"` is rejected while its resolved
-row is still a prepull step, and a trigger-driven target application is rejected
-the same way. Prepull is decided by rotation position rather than timestamp, so a
-prepull step that shares the anchor's timestamp is still prepull. When the anchor
-names one action inside a step, the boundary is that action's own resolved time, so
-the anchored step's actions are prepull only while they resolve before it. A
-release that applies a debuff and lands its first hit in one timestamp slot is
-therefore fully in combat when the anchor names that hit, and the fight opens
-before any of them runs. Prepull damage and self effects are
-unaffected; only the target is unreachable. A `battleStarted` requirement is
-available to data that needs the same distinction for a self effect, such as a
-hit counter, because a self effect is not gated automatically.
-Conditional sub-action selection reads the current battle-start lifecycle state,
-not the previous action's row. A release before its anchored first hit can thus
-select an out-of-combat route and retain it once the hit opens combat.
+The fight-start anchor is also the boundary for anything put on the target. The
+event loop sets one `battleStarted` boolean when it reaches the anchor; target
+`apply`/`extend` actions, trigger-driven target applications, data requirements,
+and conditional sub-action selection read that same live state. Requirement
+checks do not traverse source rows to determine combat status. A delayed
+follow-up from a prepull cast can apply target effects after battle starts;
+`sourceRowId` retains its damage ownership and causal associations independently.
+When the anchor names one action inside a step, the fight opens on that action's
+resolved time before damage or target-effect actions sharing that instant,
+including timed encounter effects and delayed follow-ups from other rows.
+Earlier events processed before the anchor remain prepull. Prepull damage and
+unconditional self effects are unaffected; only the target is unreachable.
+A self effect can require `battleStarted` to exclude prepull, such as an
+in-combat hit counter. A release selected before its anchored first hit can
+choose an out-of-combat route and retain it once the hit opens combat.
 
 A target's `attackPattern` array declares its generated Take Damage events. Each
 entry is `{ firstDelay, interval, count, damage }`: the first occurrence lands
