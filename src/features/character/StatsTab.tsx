@@ -33,6 +33,7 @@ import {
   typedWeaponSetDefinitions,
   type GearSetDefinition,
 } from "@/application/gameData/setup"
+import { scriptImages, divinecraftImages } from "@/application/gameData/setupImages"
 import { percentageAttunementKeys } from "@/application/persistence/attunements"
 import { statDefinition } from "@/application/persistence/stats"
 import { CalculationStatus } from "@/application/results/CalculationStatus"
@@ -1166,7 +1167,7 @@ export function StatsTab({
                   >
                     <span className="script-image-frame">
                       {definition.image ? (
-                        <img src={`${import.meta.env.BASE_URL}script/${definition.image}`} alt="" />
+                        <img src={scriptImages[definition.image]} alt="" />
                       ) : (
                         <span className="script-none-mark" aria-hidden="true" />
                       )}
@@ -1203,7 +1204,7 @@ export function StatsTab({
                   >
                     <span className="divinecraft-image-frame">
                       {definition.image ? (
-                        <img src={`${import.meta.env.BASE_URL}divinecraft/${definition.image}`} alt="" />
+                        <img src={divinecraftImages[definition.image]} alt="" />
                       ) : (
                         <span className="divinecraft-none-mark" aria-hidden="true" />
                       )}

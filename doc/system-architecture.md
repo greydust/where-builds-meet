@@ -176,7 +176,6 @@ src/
 
 public/
   apple-touch-icon.png           home-screen icon, opaque, 180px
-  divinecraft/                   static selector images copied into the build
   favicon.ico                    multi-size icon for the automatic root request
   favicon.svg                    the icon, drawn on a plate, for surfaces that take vectors
   licenses/                      third-party notices copied into the build
@@ -213,6 +212,12 @@ optimized 56px WebP assets instead of copying the 512px PNG sources.
 `gameData/pathIcons.ts` binds one icon to each `PathId` and is the only place
 that names a source file, so `data/path.json` carries no image fields and the
 selector renders straight from the `PathId` it is already iterating.
+
+Script and Divinecraft selector images live under `src/assets/script/` and
+`src/assets/divinecraft/`. `gameData/setupImages.ts` maps the filenames in game
+data to imported WebP URLs using `?quality=85&format=webp`. Builds preserve
+the source dimensions for responsive selectors and emit compressed, hashed
+assets instead of copying the original PNGs from `public/`.
 
 ## UI layering
 

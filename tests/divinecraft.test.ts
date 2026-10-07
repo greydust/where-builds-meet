@@ -18,7 +18,7 @@ type Divinecraft = { name: string; description: string; image?: string; effect: 
 // Ported from script/probe/check-divinecraft.mjs.
 describe("divinecraft", () => {
   it("Divinecraft damage and healing-triggered Vitality checks passed", async () => {
-    const definitions = (await import("../data/divinecraft.json")).default as Record<string, Divinecraft>
+    const definitions = (await import("@gamedata/divinecraft.json")).default as Record<string, Divinecraft>
 
     /** The Divinecraft with `id`, named when the shipped file has no such entry. */
     function divinecraftOf(id: string) {
@@ -27,14 +27,17 @@ describe("divinecraft", () => {
       return definition
     }
 
-    const damage = await import("../src/calculations/damage.ts")
-    const timelineCalculation = await import("../src/calculations/rotationTimeline.ts")
-    const statDefinitions = await import("../src/data/statDefinitions.ts")
-    const effectiveStats = await import("../src/calculations/effectiveStats.ts")
+    const damage = await import("@/calculations/damage.ts")
+    const timelineCalculation = await import("@/calculations/rotationTimeline.ts")
+    const statDefinitions = await import("@/data/statDefinitions.ts")
+    const effectiveStats = await import("@/calculations/effectiveStats.ts")
 
     for (const definition of Object.values(definitions)) {
       if (definition.image)
-        assert(existsSync(`public/divinecraft/${definition.image}`), `Missing Divinecraft image: ${definition.image}`)
+        assert(
+          existsSync(`src/assets/divinecraft/${definition.image}`),
+          `Missing Divinecraft image: ${definition.image}`,
+        )
     }
 
     const stats = { ...statDefinitions.emptyStats, minPhys: 100, maxPhys: 100 }
