@@ -4,7 +4,11 @@ import {
   type PeriodicStateList,
   type PeriodicStateStorage,
 } from "./periodicStateLists"
-import { mergeTinyProbabilityStates, PROBABILITY_TICKS_PER_SECOND } from "./probabilityStateMerging"
+import {
+  mergeTinyProbabilityStates,
+  PROBABILITY_TICKS_PER_SECOND,
+  TINY_STATE_PROBABILITY,
+} from "./probabilityStateMerging"
 
 export const OUTCOME_BUFF_TICKS_PER_SECOND = PROBABILITY_TICKS_PER_SECOND
 
@@ -39,6 +43,7 @@ type PeriodicPartition = { inactive: number; owners: Map<string, Map<number, Per
 export class ExpectedPeriodicTracker {
   private sharedTick?: number
   private branches = new Map<string | undefined, PeriodicPartition>([[undefined, { inactive: 1, owners: new Map() }]])
+  private readonly orderedStacks = new WeakMap<Map<number, PeriodicStateList>, [number, PeriodicStateList][]>()
   private readonly createList: () => PeriodicStateList
   private readonly interval: number
   private readonly firstTick: number
@@ -80,16 +85,23 @@ export class ExpectedPeriodicTracker {
     let stacks = partition.owners.get(source)
     if (!stacks) partition.owners.set(source, (stacks = new Map()))
     let list = stacks.get(stack)
-    if (!list) stacks.set(stack, (list = this.createList()))
+    if (!list) {
+      stacks.set(stack, (list = this.createList()))
+      this.orderedStacks.delete(stacks)
+    }
     return list
   }
 
   private visitLists(visit: (list: PeriodicStateList, source: string, stack: number) => void) {
     for (const partition of this.branches.values())
-      for (const [source, stacks] of partition.owners)
-        for (const [stack, list] of [...stacks].sort(([left], [right]) => left - right)) {
-          if (list?.size) visit(list, source, stack)
+      for (const [source, stacks] of partition.owners) {
+        let ordered = this.orderedStacks.get(stacks)
+        if (!ordered) {
+          ordered = [...stacks].sort(([left], [right]) => left - right)
+          this.orderedStacks.set(stacks, ordered)
         }
+        for (const [stack, list] of ordered) if (list.size) visit(list, source, stack)
+      }
   }
 
   /** Marginal stack probabilities for a refreshing, finite-duration effect. */
@@ -360,7 +372,10 @@ export class ExpectedPeriodicTracker {
       for (const [stack, list] of stacks)
         for (let index = list.head; index >= 0; index = list.next(index)) {
           const probability = list.mass[index]
+          if (probability >= TINY_STATE_PROBABILITY) continue
           states.push({
+            list,
+            index,
             stack,
             expires: list.expires[index],
             probability,
@@ -369,6 +384,7 @@ export class ExpectedPeriodicTracker {
             cadences: list.cadences[index],
           })
         }
+    if (states.length < 2) return false
     const merged = mergeTinyProbabilityStates(states, ["expires"], ["stack", "pendingFraction"], (left, right) => {
       const owners = new Map(left.owners)
       for (const [source, probability] of right.owners) owners.set(source, (owners.get(source) ?? 0) + probability)
@@ -379,11 +395,27 @@ export class ExpectedPeriodicTracker {
       return { ...left, owners, cadences }
     })
     if (merged.length === states.length) return false
-    // Reuse the arena after consuming its old lists; never leave orphaned slots.
-    for (const stacks of partition.owners.values())
-      for (const list of stacks.values()) while (list.head >= 0) list.shift()
-    partition.owners.clear()
+    const originals = new Set(states)
+    const unchanged = new Set(merged.filter(state => originals.has(state)))
+    const removals = new Map<PeriodicStateList, Set<number>>()
+    for (const state of states) {
+      if (unchanged.has(state)) continue
+      let indices = removals.get(state.list)
+      if (!indices) removals.set(state.list, (indices = new Set()))
+      indices.add(state.index)
+    }
+    // Significant states and singleton rare states stay in their original slots.
+    for (const [list, indices] of removals) list.retain(index => !indices.has(index))
+    for (const [source, stacks] of partition.owners) {
+      for (const [stack, list] of stacks)
+        if (!list.size) {
+          stacks.delete(stack)
+          this.orderedStacks.delete(stacks)
+        }
+      if (!stacks.size) partition.owners.delete(source)
+    }
     for (const state of merged) {
+      if (originals.has(state)) continue
       const cadences = state.cadences
         ? mergeTinyProbabilityStates(
             [...state.cadences].map(([tick, probability]) => ({ tick, probability })),

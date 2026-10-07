@@ -663,9 +663,13 @@ stacks downward, scale failed applications in place and aggregate successful mas
 into one new entry per destination stack. Indexed linked lists backed by shared
 numeric arrays recycle slots without allocating per-state objects. Packed arrays
 remain available through the diagnostic `expectedPeriodicStorage` input.
-Tiny-state compaction collects the released numerical states across stacks and
-owners, applies the common probability/time-bucket rule, and rebuilds their
-weighted entries in the same recycled arena. Source probabilities remain a
+Tiny-state compaction collects only released rare states across stacks and
+owners and applies the common probability/time-bucket rule. Only entries that
+actually merge are removed and rebuilt in the recycled arena; significant and
+singleton states retain their storage. Empty stack lists are removed so weighted
+fractional stack histories cannot accumulate unused indexes. Stack traversal
+order is cached until a stack list is added or removed, avoiding repeated sorting
+during tick, expiry, and damage-snapshot reads. Source probabilities remain a
 mixture while stacks and timing fields are averaged. Numeric Map keys retain
 fractional stacks without rounding them back to an integer.
 Branch release merges sorted lists with one forward cursor and a direct-tail
@@ -1341,7 +1345,12 @@ queue policy is:
    comparisons and then inactive baselines.
 5. Equal-priority work remains first-in, first-out.
 
-Switching path supersedes the batch, which terminates the workers and rejects
+Changing the active rotation's baseline, comparison, or graduation fingerprint
+supersedes the calculation batch before requesting replacement work. Completed
+store results remain cached; pending requests are removed and running workers
+are terminated. Equivalent inputs and tab visibility changes keep the batch.
+
+Switching path also supersedes the batch, which terminates the workers and rejects
 their pending requests, so a comparison cannot resolve against a baseline from a
 superseded state. Each slot keeps its own baseline cache, because a shared set
 would let one slot's cached baseline answer another's comparison.
@@ -1458,6 +1467,12 @@ schedule and maintain their own sampled stack state.
 
 Outcome mechanics are separated by responsibility. `hawkwing.ts` owns
 Hawkwing's stack/expiry distribution and setup-effect parsing;
+Hawkwing expected tracking retains active states in an expiry-sorted array and
+inactive probability as a scalar. Expected stacks are cached between transitions;
+reads remove expired prefixes instead of rebuilding the entire distribution.
+Numeric stack/expiry keys consolidate identical branches during transitions,
+and the merged result remains an array rather than a second rebuilt map.
+
 `insightfulStrike.ts` owns Focus decay, Concentration conversion, and its Inner
 Way trigger parsing. Its expected state includes Focus, the per-branch decay
 deadline, and Concentration expiry. Inactive states use an array; active states

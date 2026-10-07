@@ -27,17 +27,6 @@ function addProbability(distribution: StackDistribution, stack: number, expiresA
   distribution.set(stack, expiries)
 }
 
-function activeDistribution(distribution: StackDistribution, tick: number): StackDistribution {
-  const active = new Map<number, Map<number, number>>()
-  for (const [stack, expiries] of distribution) {
-    for (const [expiresAtTick, probability] of expiries) {
-      if (stack > 0 && expiresAtTick <= tick) addProbability(active, 0, 0, probability)
-      else addProbability(active, stack, expiresAtTick, probability)
-    }
-  }
-  return active
-}
-
 export function hawkwingEffectFor(
   setupEffects: EditableObject[],
   effectDefinitions: Record<string, EffectDefinition>,
@@ -89,38 +78,47 @@ export function hawkwingEffectFor(
 }
 
 export class ExpectedHawkwingTracker {
-  private distribution: StackDistribution = new Map([[0, new Map([[0, 1]])]])
+  private inactive = 1
+  private active: (ConcreteBuffState & { probability: number })[] = []
+  private expected = 0
+
+  private expire(tick: number) {
+    let count = 0
+    while (count < this.active.length && this.active[count].expiresAtTick <= tick) {
+      const state = this.active[count++]
+      this.inactive += state.probability
+      this.expected -= state.stack * state.probability
+    }
+    if (count) this.active = this.active.slice(count)
+    if (!this.active.length) this.expected = 0
+  }
 
   expectedStack(_effect: HawkwingEffect, tick: number) {
-    this.distribution = activeDistribution(this.distribution, tick)
-    let expected = 0
-    for (const [stack, expiries] of this.distribution)
-      for (const probability of expiries.values()) expected += stack * probability
-    return expected
+    this.expire(tick)
+    return this.expected
   }
 
   resolveAffinity(effect: HawkwingEffect, tick: number, probability: number) {
+    this.expire(tick)
     const chance = outcomeProbability(probability)
-    const current = activeDistribution(this.distribution, tick)
     const next: StackDistribution = new Map()
-    for (const [stack, expiries] of current) {
-      for (const [expiresAtTick, stateProbability] of expiries) {
-        addProbability(next, stack, expiresAtTick, stateProbability * (1 - chance))
-        addProbability(
-          next,
-          Math.min(effect.maxStack, stack + 1),
-          tick + effect.durationTicks,
-          stateProbability * chance,
-        )
-      }
+    addProbability(next, Math.min(effect.maxStack, 1), tick + effect.durationTicks, this.inactive * chance)
+    this.inactive *= 1 - chance
+    for (const state of this.active) {
+      addProbability(next, state.stack, state.expiresAtTick, state.probability * (1 - chance))
+      addProbability(
+        next,
+        Math.min(effect.maxStack, state.stack + 1),
+        tick + effect.durationTicks,
+        state.probability * chance,
+      )
     }
     const states = [...next].flatMap(([stack, expiries]) =>
       [...expiries].map(([expiresAtTick, probability]) => ({ stack, expiresAtTick, probability })),
     )
-    const merged: StackDistribution = new Map()
-    for (const state of mergeTinyProbabilityStates(states, ["expiresAtTick"], ["stack"]))
-      addProbability(merged, state.stack, state.expiresAtTick, state.probability)
-    this.distribution = merged
+    this.active = mergeTinyProbabilityStates(states, ["expiresAtTick"], ["stack"])
+    this.expected = this.active.reduce((total, state) => total + state.stack * state.probability, 0)
+    this.active.sort((left, right) => left.expiresAtTick - right.expiresAtTick)
   }
 }
 

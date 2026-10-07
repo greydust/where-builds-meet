@@ -278,11 +278,13 @@ stats. Effect-supplied penetration is likewise resolved independently for all
 five damage channels.
 
 Hawkwing is an outcome-triggered attack bonus. Deterministic calculations carry
-a probability distribution keyed by stack count and absolute expiry time,
+an expiry-sorted active-state array and scalar inactive probability,
 quantized to integer 0.1 ms ticks. Every hit reads the expected stack count before
 damage, applies `2% × expected stacks` as Physical Attack Bonus, and then branches
 the distribution using that hit's resolved Affinity rate. Identical stack/expiry
-states are merged, and compatible tiny expiries use the shared weighted timing rule.
+states are merged during transitions, and compatible tiny expiries use the shared
+weighted timing rule. Expected stacks are cached; reads process only expired
+entries.
 Simulation runs instead use the sampled outcome: an Affinity
 hit adds and refreshes one concrete stack, while other outcomes leave the concrete
 state unchanged.
