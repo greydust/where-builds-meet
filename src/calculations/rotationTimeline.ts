@@ -1689,6 +1689,7 @@ export function buildRotationTimeline(
       const bonuses = effect.resourceCostBonus as Record<string, number> | undefined
       const factor = factors?.[resource]
       const additive = bonuses?.[resource]
+      if (typeof factor !== "number" && typeof additive !== "number") continue
       if (
         !requirementsPass(
           rule.requirement,
