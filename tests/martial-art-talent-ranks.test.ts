@@ -17,11 +17,11 @@ describe("martial-art-talent-ranks", () => {
   it("Talent ranks: configured data coverage, independent selection, deduplication, raw-stat formulas, worker damage, and timeline changes passed", async () => {
     const readJson = async (path: string) => JSON.parse(await readFile(path, "utf8")) as unknown
 
-    const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { martialArtEffectsForRank } = await import("@/data/martialArtTalents.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { calculateStatsWithEffects } = await import("@/calculations/statEffects.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
     const profiles = Object.values((await readJson("data/breakthrough.json")) as BreakthroughProfiles)
     const arts = (await Promise.all(
       (await readdir("data/martial-art"))
@@ -142,11 +142,11 @@ describe("martial-art-talent-ranks", () => {
       )
       assert.equal(
         sheet.rawStats.minBamboocut,
-        296,
-        `Breakthrough ${profile.name} selects both real rank-13 attribute talents`,
+        profile.martialArtTalentRank === 14 ? 312 : 296,
+        `Breakthrough ${profile.name} selects both selected attribute talents`,
       )
       assert(
-        Math.abs(sheet.stats.bamboocutDmgBonus - 296 * 0.000336) < 1e-9,
+        Math.abs(sheet.stats.bamboocutDmgBonus - sheet.rawStats.minBamboocut * 0.000336) < 1e-9,
         "Ranked talent formulas still read the shared raw-stat stage",
       )
     }

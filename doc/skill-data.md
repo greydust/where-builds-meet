@@ -64,6 +64,11 @@ resource units, or mode-specific behavior from a damage baseline alone.
   additions to prior ranks. Resolve them against `talents.definitions`.
   Runtime `talent[rank]` is likewise a complete independent array; missing or
   empty ranks contribute nothing. Solo Level and talent rank are separate.
+- Rank-14 Additional Attack uses `effect.flatAttackBonus` to scale `phyBonus`
+  and `attrBonus`, scoped by the martial-art skill tag. The normal Strategic
+  Sword, Heavenwill, and Skystrike definitions also use
+  `effect.coefficientBonusWithoutFlatAttack` when both flat terms are zero.
+  Other arts do not inherit this coefficient exception.
 - Preserve internal IDs used by saved data. Display names and translations do
   not change identifiers. Renaming persisted fields requires migration.
 

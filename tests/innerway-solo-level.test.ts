@@ -12,13 +12,13 @@ import { probeLoad } from "./helpers/probe-loader.js"
 describe("innerway-solo-level", () => {
   it("Inner Way Solo Level selection, raw-stat formulas, overrides, and production worker bundle checks passed", async () => {
     const { innerWayDefinitionForSoloLevel, innerWayDefinitions } = await probeLoad<
-      typeof import("../src/data/innerWayDefinitions")
+      typeof import("@/data/innerWayDefinitions")
     >("/src/data/innerWayDefinitions.ts")
     const { calculateStatsWithEffects, calculateStatsWithOverrides } = await probeLoad<
-      typeof import("../src/calculations/statEffects")
+      typeof import("@/calculations/statEffects")
     >("/src/calculations/statEffects.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { martialArtEffectsForRank } = await import("@/data/martialArtTalents.ts")
     const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
     const definition = {
       name: "Level probe",
@@ -79,7 +79,7 @@ describe("innerway-solo-level", () => {
     )
     assert.throws(() => innerWayDefinitionForSoloLevel(definition, 1.5), RangeError)
 
-    const profiles = (await import("../data/breakthrough.json")).default
+    const profiles = (await import("@gamedata/breakthrough.json")).default
     for (const profile of Object.values(profiles)) {
       for (const entry of Object.values(innerWayDefinitions)) {
         const resolved = innerWayDefinitionForSoloLevel(entry, profile.soloLevel)
@@ -95,8 +95,8 @@ describe("innerway-solo-level", () => {
       }
     }
 
-    const { buildPresetRotationBundle } = await import("../src/application/graduation")
-    const path = (await import("../data/path.json")).default.bamboocutKite
+    const { buildPresetRotationBundle } = await import("@/application/graduation")
+    const path = (await import("@gamedata/path.json")).default.bamboocutKite
     const build = (breakthrough: string) =>
       buildPresetRotationBundle(
         {
@@ -113,7 +113,7 @@ describe("innerway-solo-level", () => {
         },
         path.defaultBuild,
       )
-    const bundles = ["16", "17"].map(build)
+    const bundles = ["17", "18"].map(build)
     const t2Rules = (bundle: RotationSimulationBundle) =>
       bundle.timeline.innerWayRules.filter(rule => rule.tier === 2 && "rawStat" in rule.effect)
     const [lowerBreakthrough, higherBreakthrough] = bundles
@@ -123,10 +123,10 @@ describe("innerway-solo-level", () => {
       t2Rules(higherBreakthrough),
       "The production preset worker bundle must resolve the selected Solo Level",
     )
-    assert.deepEqual(
+    assert.notDeepEqual(
       lowerBreakthrough.timeline.setupEffects.filter(effect => effect.statStage === "talent"),
       higherBreakthrough.timeline.setupEffects.filter(effect => effect.statStage === "talent"),
-      "Breakthroughs with the same talent rank must retain identical martial-art talents",
+      "The selected breakthrough must also resolve its distinct martial-art rank",
     )
   })
 })

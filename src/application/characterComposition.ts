@@ -30,7 +30,7 @@ import {
   foodSelectionForPath,
   foodCategories,
   scriptEffectFor,
-  systemStatEffects,
+  systemStatEffectsForSoloLevel,
   typedArmorSetDefinitions,
   typedFoodDefinitions,
   typedWeaponSetDefinitions,
@@ -204,7 +204,7 @@ export function selectedSetupEffects(
         ? ((definition.effect ?? []) as EditableObject[])
         : [],
     ),
-    ...systemStatEffects,
+    ...systemStatEffectsForSoloLevel(breakthroughProfile(settings).soloLevel),
     breakthroughProfile(settings).levelBonusStats,
     ...selectedMartialArtEffects(settings, definitions),
     arsenalEffectFor(selectedBuildSetup.arsenal),

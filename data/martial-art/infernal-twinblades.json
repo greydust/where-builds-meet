@@ -59,6 +59,59 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Perfect Dodge Enhancement",
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "PerfectDodge" }], "buffDurationBonus": 0.4 },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "PerfectDodge" }],
+              "cooldown": 30,
+              "action": { "type": "clearCD", "value": "AddledMind", "charges": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Flamelash Damage Enhancement",
+        "effect": [
+          { "requirement": [{ "target": "self", "value": "Flamelash" }], "effect": { "critDmgBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "self", "value": "Flamelash" }],
+            "effect": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 } }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InfernalTwinblades" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

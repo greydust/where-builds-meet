@@ -4,7 +4,10 @@ Source: `local/datamine/wwm-martial-arts-normal.json`, interpreted fields only.
 Selection uses each art's `unlockLevel: 13` and its ordered `talentIds` resolved
 against `definitions`. All 20 arts now contain their five selected talents at
 `talent[13]`; ranks 0–12 remain empty. Runtime talents contain names and effects,
-with no source IDs. No calculation or timeline mechanism was added.
+with no source IDs. Rank 14 is also implemented as a complete independent selection. It retains
+the supported non-stat mechanics and deliberate source exceptions described
+here, with upgraded stat caps and raw attribute attack. Additional Attack and
+its coefficient exceptions are documented in `damage-formula.md`.
 
 Panacea Fan has one additional rank-13 entry: **Mystic Precision Enhancement**.
 The user confirmed that this behavior exists in the game even though it is

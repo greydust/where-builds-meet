@@ -1,20 +1,4 @@
 {
-  "16": {
-    "name": "16",
-    "martialArtTalentRank": 13,
-    "level": 96,
-    "defense": 408,
-    "physicalResistance": 0,
-    "bellstrikeResistance": 0,
-    "stonesplitResistance": 0,
-    "silkbindResistance": 0,
-    "bamboocutResistance": 0,
-    "judgementResistance": 0.65,
-    "levelBonusStats": {
-      "rawStat": { "precision": 0.153, "agility": 138, "power": 138, "momentum": 138, "body": 138, "defense": 138 }
-    },
-    "soloLevel": 16
-  },
   "17": {
     "name": "17",
     "martialArtTalentRank": 13,
@@ -30,5 +14,21 @@
       "rawStat": { "precision": 0.165, "agility": 150, "power": 150, "momentum": 150, "body": 150, "defense": 150 }
     },
     "soloLevel": 17
+  },
+  "18": {
+    "name": "18",
+    "martialArtTalentRank": 14,
+    "level": 96,
+    "defense": 446,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 0.85,
+    "levelBonusStats": {
+      "rawStat": { "precision": 0.178, "agility": 164, "power": 164, "momentum": 164, "body": 164, "defense": 164 }
+    },
+    "soloLevel": 18
   }
 }

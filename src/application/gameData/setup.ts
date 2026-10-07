@@ -54,7 +54,7 @@ export type SystemStatsDefinition = {
   resourceEvents: ResourceEventRule[]
   baseStats: SetupEffect
   enhancementStats: Array<SetupEffect & { id: string }>
-  talentStats: Array<SetupEffect & { id: string }>
+  talentStatsBySoloLevel: Record<string, SetupEffect>
   qingheOddityStats: Array<SetupEffect & { id: string }>
   kaifengOddityStats: Array<SetupEffect & { id: string }>
   imperialPalaceOddityStats: Array<SetupEffect & { id: string }>
@@ -64,17 +64,21 @@ export type SystemStatsDefinition = {
 }
 export const typedSystemStats = systemStats as SystemStatsDefinition
 export const baseAttributeEffects = createBaseAttributeEffects(typedSystemStats.baseAttributes)
-export const systemStatEffects: SetupEffect[] = [
-  typedSystemStats.baseStats,
-  ...typedSystemStats.enhancementStats,
-  ...typedSystemStats.talentStats,
-  ...typedSystemStats.qingheOddityStats,
-  ...typedSystemStats.kaifengOddityStats,
-  ...typedSystemStats.imperialPalaceOddityStats,
-  ...typedSystemStats.hexiOddityStats,
-  ...typedSystemStats.hiddenMountainOddityStats,
-  ...baseAttributeEffects,
-]
+export function systemStatEffectsForSoloLevel(soloLevel: number): SetupEffect[] {
+  const talents = typedSystemStats.talentStatsBySoloLevel[String(soloLevel)]
+  if (!talents) throw new RangeError(`Missing character talent totals for Solo Level ${soloLevel}`)
+  return [
+    typedSystemStats.baseStats,
+    ...typedSystemStats.enhancementStats,
+    talents,
+    ...typedSystemStats.qingheOddityStats,
+    ...typedSystemStats.kaifengOddityStats,
+    ...typedSystemStats.imperialPalaceOddityStats,
+    ...typedSystemStats.hexiOddityStats,
+    ...typedSystemStats.hiddenMountainOddityStats,
+    ...baseAttributeEffects,
+  ]
+}
 export type ArsenalDefinition = { name: string; effect?: SetupEffect }
 export const typedArsenalDefinitions = arsenalDefinitions as Record<string, ArsenalDefinition>
 export const typedBowRingSetDefinitions = bowRingSetDefinitions as Record<string, ArsenalDefinition>

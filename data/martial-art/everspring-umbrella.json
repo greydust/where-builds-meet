@@ -65,6 +65,65 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Perfect Catch Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Returning Umbrella DMG Up",
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "ReturningUmbrella" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

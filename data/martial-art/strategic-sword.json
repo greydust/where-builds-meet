@@ -48,6 +48,48 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      { "name": "Bleed Mechanism Enhancement", "effect": [] },
+      {
+        "name": "Affinity Rate Up",
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.0456 } } } }
+        ]
+      },
+      {
+        "name": "Bleed Penetration Enhancement",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bellstrike Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 212, "minBellstrike": 106 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.0725, "coefficientBonusWithoutFlatAttack": 0.00725 }
+          }
+        ]
+      }
     ]
   ]
 }

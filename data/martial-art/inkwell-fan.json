@@ -64,6 +64,61 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Low Qi Follow-up Enhancement",
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Heavy Attack Pursuit Enhancement",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Silkbind Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 212, "minSilkbind": 106 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.0725 } }
+        ]
+      }
     ]
   ]
 }

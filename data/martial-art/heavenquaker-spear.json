@@ -65,6 +65,65 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Damage Over Time Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Damage Over Time Enhancement",
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "name": "Bellstrike Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 212, "minBellstrike": 106 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

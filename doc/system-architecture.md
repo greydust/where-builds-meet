@@ -951,14 +951,13 @@ Ways, martial-art talents, arsenal, bow/ring set, weapon and armor sets, food, a
 Divinecraft.
 
 `data/system.json` keeps innate `baseStats`, ordered `enhancementStats`,
-ordered `talentStats`, regional
+Solo-Level-keyed cumulative `talentStatsBySoloLevel`, regional
 Oddity groups such as `qingheOddityStats`, `kaifengOddityStats`, and
 `imperialPalaceOddityStats`, `hexiOddityStats`,
 and `hiddenMountainOddityStats` separate. Its `baseAttributes` field stores a
 nested source-attribute to target-stat multiplier map. The shared
-`baseAttributeEffects.ts` adapter converts that map to ordinary formula effects. Talent and
-Oddity rewards remain individual
-effects so their source progression is auditable even when several rewards
+`baseAttributeEffects.ts` adapter converts that map to ordinary formula effects.
+Oddity rewards remain individual effects so their source progression is auditable even when several rewards
 grant the same stat. Attribute conversions are regular formula effects in the
 shared pipeline, so Power, Agility, Momentum, Body, and Defense gained from any
 source use the same conversion rules.
@@ -966,21 +965,26 @@ source use the same conversion rules.
 `levelBonusStats` under the breakthrough number. Changing breakthrough therefore
 updates enemy inputs and replaces the level-derived Precision and five base
 attributes through the same shared effect pipeline. Breakthrough 17 is selected
-on every page load. The user may switch to Breakthrough 16 for the current page
+on every page load. The user may switch to Breakthrough 18 for the current page
 session, but Breakthrough is not written to browser storage or character profiles.
 Each breakthrough declares its own `soloLevel` for Inner Way stat tables.
 `innerWayDefinitionForSoloLevel` resolves those tables to numeric raw-stat
-effects before character-sheet and worker calculation. Breakthroughs 16 and 17
-select Solo Levels 16 and 17. The live rotation rule memo depends on Solo Level,
+effects before character-sheet and worker calculation. Breakthroughs 17 and 18
+select Solo Levels 17 and 18. The live rotation rule memo depends on Solo Level,
 so switching breakthrough replaces the Inner Way bonuses and invalidates the
 normal calculation inputs. These levels are independent of martial-art rank.
-Each breakthrough also declares `martialArtTalentRank`: breakthroughs 16 and 17
-both use rank 13. The shared `martialArtEffectsForRank` selector reads the
+Each breakthrough also declares `martialArtTalentRank`: breakthrough 17 uses
+rank 13 and breakthrough 18 uses rank 14. The shared `martialArtEffectsForRank` selector reads the
 two-dimensional `talent[rank]` array for each distinct equipped martial art and
 passes its effects into the existing setup pipeline. Ranks 0–12 are empty;
-rank 13 contains the datamined talent selection and supported effects. Empty or absent ranks grant no
+ranks 13 and 14 contain complete datamined talent selections and supported effects. Empty or absent ranks grant no
 talents. Rank selection reads the breakthrough field directly rather than
 deriving a rank from enemy level or the datamine's world-level unlock requirements.
+Character talents resolve the exact Solo Level entry through
+`systemStatEffectsForSoloLevel`; missing totals throw rather than borrowing another
+level. Each entry is a complete cumulative raw-stat effect, applied once in the
+shared character-sheet and worker setup pipeline. The level-18 total uses the
+grey variant progression; the normal variant export stops at level 17.
 Changing rank therefore changes the setup effects used to build stats, worker
 inputs, and calculation fingerprints; timeline-affecting talents are selected
 before constructing a new baseline.
@@ -1789,8 +1793,8 @@ setup conditions to the same requirement context used by Inner Ways.
 ### Character system stats
 
 Update `data/system.json`. Keep innate values under `baseStats`, every Enhancement bonus under its own ordered
-`enhancementStats` entry, every talent grant as its own ordered
-`talentStats` entry, and every regional Oddity reward
+`enhancementStats` entry, each supported Solo Level as one complete cumulative
+`talentStatsBySoloLevel` raw-stat effect, and every regional Oddity reward
 under its own ordered collection such as `qingheOddityStats` or
 `kaifengOddityStats`. Express base-attribute relationships under
 `baseAttributes` by nesting each target stat and its multiplier under the

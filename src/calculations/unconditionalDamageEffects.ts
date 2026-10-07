@@ -1,8 +1,10 @@
-import { emptyStats } from "../data/statDefinitions"
-import type { CharacterStats } from "../types"
+import { emptyStats } from "@/data/statDefinitions"
+import type { CharacterStats } from "@/types"
 
 export const unconditionalDamageEffectFields = [
   "physicalAttackBonus",
+  "flatAttackBonus",
+  "coefficientBonusWithoutFlatAttack",
   "bellstrikeAttackBonus",
   "stonesplitAttackBonus",
   "silkbindAttackBonus",

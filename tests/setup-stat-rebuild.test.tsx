@@ -160,7 +160,7 @@ it("keeps Script and Divinecraft selections in the same calculation as the chara
 })
 
 it.each([
-  { name: "breakthrough", selector: ".breakthrough-control select", value: "16" },
+  { name: "breakthrough", selector: ".breakthrough-control select", value: "18" },
   { name: "Inner Way tier", selector: ".inner-way-row select:nth-of-type(2)", value: "T0" },
 ])("rebuilds character stats when $name changes", async ({ selector, value }) => {
   await act(async () => root.render(<App />))

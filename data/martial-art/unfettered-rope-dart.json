@@ -57,6 +57,57 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Charged Combo Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Critical Rate Up",
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
+        ]
+      },
+      {
+        "name": "Soulbreak Critical Boost",
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

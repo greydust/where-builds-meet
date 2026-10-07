@@ -6,6 +6,7 @@ import { assert, describe, it } from "vitest"
 
 import type { GearItem } from "@/gear"
 
+import { alias } from "../aliases"
 import { setupOf, weaponsOf, type ExportedBuildPayload, type SerializedBuildPayload } from "./helpers/buildStatePayload"
 import { readOnlyStorage, windowOverGlobalStorage } from "./helpers/domStubs"
 import { rowWithId } from "./helpers/timelineRows"
@@ -21,6 +22,7 @@ describe("gear", () => {
       const bundled = await build({
         entryPoints: [entryPoint],
         bundle: true,
+        alias,
         format: "esm",
         platform: "node",
         target: "node22",
@@ -79,7 +81,7 @@ describe("gear", () => {
       "Build affix summaries must count and sort equipped base and additional affixes without counting attunements.",
     )
     assert(
-      gear.statRollsForLevel(breakthroughProfiles["16"].level) === gear.statRollsForLevel(96),
+      gear.statRollsForLevel(breakthroughProfiles["17"].level) === gear.statRollsForLevel(96),
       "Enemy levels must select the matching stat roll table.",
     )
     assert(

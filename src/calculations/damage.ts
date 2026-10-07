@@ -220,10 +220,10 @@ function calculateDamageBreakdownInternal(
     if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
     return resolved
   }
-  const coefficient = effectValue(action.phyCoef)
-  const attributeCoefficient = effectValue(action.attrCoef)
-  const physicalBonus = numberValue(action.phyBonus)
-  const attributeBonus = numberValue(action.attrBonus)
+  let coefficient = effectValue(action.phyCoef)
+  let attributeCoefficient = effectValue(action.attrCoef)
+  let physicalBonus = numberValue(action.phyBonus)
+  let attributeBonus = numberValue(action.attrBonus)
   const path = mainAttributeForWeapons(weapons)
   const effectFieldAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
   const accumulatorStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
@@ -259,6 +259,8 @@ function calculateDamageBreakdownInternal(
     critDmgBonus: unconditional.critDmgBonus ?? 0,
     affinityDmgBonus: unconditional.affinityDmgBonus ?? 0,
     attributeDmgBonus: unconditional.attributeDMGBonus ?? 0,
+    flatAttackBonus: unconditional.flatAttackBonus ?? 0,
+    coefficientBonusWithoutFlatAttack: unconditional.coefficientBonusWithoutFlatAttack ?? 0,
   }
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectAccumulatorInitialization", accumulatorStartedAt)
   const remainingScanStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
@@ -274,6 +276,8 @@ function calculateDamageBreakdownInternal(
     return remaining
   })
   for (const effect of [...groupedEffects, ...reductionGroups.values()]) {
+    resolvedEffects.flatAttackBonus += effectValue(effect.flatAttackBonus)
+    resolvedEffects.coefficientBonusWithoutFlatAttack += effectValue(effect.coefficientBonusWithoutFlatAttack)
     resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus)
     for (const attribute of attributeDamageTypes) {
       resolvedEffects.attackBonus[attribute] += effectValue(effect[`${attribute}AttackBonus`])
@@ -299,6 +303,14 @@ function calculateDamageBreakdownInternal(
   }
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectRemainingScan", remainingScanStartedAt)
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectFieldAggregation", effectFieldAggregationStartedAt)
+  // Flat bonus attack is separate from attack stats and final damage bonuses.
+  // Only explicitly opted-in talents scale coefficients on actions with no flat attack.
+  if (physicalBonus === 0 && attributeBonus === 0) {
+    coefficient *= 1 + resolvedEffects.coefficientBonusWithoutFlatAttack
+    attributeCoefficient *= 1 + resolvedEffects.coefficientBonusWithoutFlatAttack
+  }
+  physicalBonus *= 1 + resolvedEffects.flatAttackBonus
+  attributeBonus *= 1 + resolvedEffects.flatAttackBonus
   const channelSnapshotStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
   const physicalAttackMultiplier = 1 + resolvedEffects.attackBonus.physical
   const minPhysicalAttack = derivedStats.effectiveMinPhys * physicalAttackMultiplier

@@ -58,6 +58,58 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Inebriate Dodge Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Inebriate Critical Enhancement",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } } }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Additional Attack Up",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.0725, "coefficientBonusWithoutFlatAttack": 0.00725 }
+          }
+        ]
+      }
     ]
   ]
 }

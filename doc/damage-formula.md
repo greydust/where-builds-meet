@@ -4,11 +4,13 @@ This document describes the formula currently implemented by the rotation simula
 
 Enemy defense, level, path resistances, Judgement Resistance, and level-derived
 character bonuses come from the selected entry in `data/breakthrough.json`.
-Breakthroughs 16 and 17 currently share a Level 96 enemy with 408 defense, zero
-base resistance, and 65% Judgement Resistance. Breakthrough 16 grants 15.3%
-Precision and 138 of each base attribute; Breakthrough 17 grants 16.5% Precision
-and 150 of each base attribute.
-Both profiles select martial-art talent rank 13 through `martialArtTalentRank`.
+Breakthrough 17 uses 408 enemy defense, zero base resistance, 65% Judgement
+Resistance, 16.5% level Precision, and 150 of each base attribute. Breakthrough
+18 uses 446 enemy defense, zero base resistance, 85% Judgement Resistance,
+17.8% level Precision, and 164 of each base attribute. Enemy level remains 96
+for both profiles; it is not imported from the Solo Level datamine.
+Breakthrough 17 selects martial-art talent rank 13 and breakthrough 18 selects
+rank 14 through `martialArtTalentRank`.
 Each equipped martial art contributes only its `talent[rank]` effects; ranks are
 not cumulative. Infernal Twinblades' rank-13 conversions use the interpreted
 datamine rates: 0.264 Min Physical Attack per Agility (capped at 73.92), and
@@ -71,9 +73,26 @@ within a 0.1-second bucket. No probability mass is discarded and damage formulas
 are unchanged, but the resulting expiration/refresh timing is approximate.
 Simulation retains exact sampled timing.
 
+## Rank-14 Additional Attack
+
+Rank 14 grants 106 minimum and 212 maximum raw attribute attack. Existing
+conversion rates retain their slopes, with base-attribute thresholds raised to
+300 (79.2 Physical Attack, 9.12% Critical Rate, or 4.56% Affinity Rate caps).
+Attribute penetration caps rise to 23.6 and damage/healing bonus caps to 11.8%.
+Existing deferred higher-of-Body-or-Power conversions remain deferred.
+
+Additional Attack scales the matching martial art's flat physical and attribute
+bonus attack terms by `1 + flatAttackBonus` (1.0725 at rank 14), before channel
+and outcome multipliers. It does not scale attack stats or final damage.
+The normal Strategic Sword, Heavenwill, and Skystrike talents additionally
+scale both coefficients by `1 + coefficientBonusWithoutFlatAttack` (1.00725),
+only when both action flat terms are zero. Effects and triggered actions use
+the same martial-art tag requirement; unrelated arts and Mystics do not match.
+Expected and sampled damage share this resolution, including static aggregates.
+
 ## Stat resolution
 
-All martial arts now use the interpreted rank-13 conversion rates, including
+Rank 13 uses the interpreted conversion rates, including
 `0.264` Physical Attack per base-attribute point (cap `73.92`), `0.000304`
 Critical Rate (cap `0.08512`), and `0.000152` Affinity Rate (cap `0.04256`).
 Attribute talents add 98 minimum and 196 maximum raw attack. Penetration scales
@@ -85,7 +104,7 @@ The higher-of-Body-or-Power conversions remain deferred rather than using Power
 alone. See the [rank-13 audit](martial-art-talent-audit.md) for conditional
 effects, existing shared behavior, and all unresolved talent portions.
 
-The simulation input starts from zero, then the calculator applies innate character stats, the selected breakthrough's level bonuses, Enhancement bonuses, character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
+The simulation input starts from zero, then the calculator applies innate character stats, the selected breakthrough's level bonuses, Enhancement bonuses, the selected Solo Level's cumulative character talent stats, regional Oddity rewards, attribute conversions, equipped gear, selected Inner Ways, martial-art talents, the active build's arsenal, bow/ring set, weapon set, and armor set (with any Main-tab overrides), food, and the selected Divinecraft through these stages. Set options may also contribute named timeline conditions; these use the common requirement pipeline for non-stat mechanics such as Formbend extending Shield and Breakthrough:
 
 Inner Way stat tables resolve using the selected breakthrough's `soloLevel`,
 independently of `martialArtTalentRank`, before these stages. A table contributes

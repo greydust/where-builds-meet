@@ -61,6 +61,61 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Perfect Dodge Enhancement",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Raptor's Instinct Crit Boost",
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.0725, "coefficientBonusWithoutFlatAttack": 0.00725 }
+          }
+        ]
+      }
     ]
   ]
 }

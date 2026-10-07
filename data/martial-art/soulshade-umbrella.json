@@ -75,6 +75,75 @@
         ]
       },
       { "name": "Attribute Attack Enhancement", "effect": [] }
+    ],
+    [
+      {
+        "name": "Buff Enhancement",
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Physical Attack Up",
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "name": "Critical Heal Enhancement",
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Silkbind Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 212, "minSilkbind": 106 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attribute Attack Enhancement", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

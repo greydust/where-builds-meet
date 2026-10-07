@@ -50,6 +50,50 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      { "name": "Increased Heaven's Will Gain", "effect": [] },
+      {
+        "name": "Critical Rate Up",
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
+        ]
+      },
+      {
+        "name": "Heaven's Will DMG Boost",
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "HeavensWill", "comparison": ">", "amount": 1 }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkygraspRopeDart" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

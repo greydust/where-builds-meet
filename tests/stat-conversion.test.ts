@@ -9,12 +9,12 @@ import { probeLoad } from "./helpers/probe-loader.js"
 describe("stat-conversion", () => {
   it("Generic stat conversion and Soaring High T4 checks passed", async () => {
     const { applyStatConversions, calculateStatsWithEffects } = await probeLoad<
-      typeof import("../src/calculations/statEffects")
+      typeof import("@/calculations/statEffects")
     >("/src/calculations/statEffects.ts")
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const soaringHigh = (await import("../data/innerway/soaring-high.json")).default
-    const breakthroughProfiles = (await import("../data/breakthrough.json")).default
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const soaringHigh = (await import("@gamedata/innerway/soaring-high.json")).default
+    const breakthroughProfiles = (await import("@gamedata/breakthrough.json")).default
 
     const generic = applyStatConversions({ source: 0.2, target: 0.05, untouched: 3 }, [
       { convert: { from: "source", to: "target", ratio: 2, max: 0.1 } },
@@ -32,7 +32,7 @@ describe("stat-conversion", () => {
     const cappedCharacter = calculateStatsWithEffects(
       { ...emptyStats, directCrit: 0.18 },
       [{ stat: { directCrit: 0.05 } }],
-      breakthroughProfiles["16"].judgementResistance,
+      breakthroughProfiles["17"].judgementResistance,
     )
     assertClose(cappedCharacter.stats.directCrit, 0.2, 1e-9, "Character Direct Critical must stop at its 20% cap.")
     assertClose(cappedCharacter.derivedStats.directCrit, 0.2, 1e-9, "Derived Direct Critical must preserve the cap.")
@@ -81,7 +81,7 @@ describe("stat-conversion", () => {
         skillTags: ["VileCondemned"],
         weapons: ["heavenwill", "skygrasp"],
         buffs: [],
-        enemy: breakthroughProfiles["16"],
+        enemy: breakthroughProfiles["17"],
         derivedStats,
         effects: [t4Rule.effect],
       },

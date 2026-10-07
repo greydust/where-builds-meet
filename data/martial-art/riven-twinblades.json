@@ -74,6 +74,74 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      {
+        "name": "Increased Binge Point Gain",
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "name": "Critical Rate Up",
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
+        ]
+      },
+      {
+        "name": "Inebriate DMG Boost Enhancement",
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Bamboocut Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Additional Attack Up",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

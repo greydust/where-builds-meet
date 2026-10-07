@@ -48,6 +48,48 @@
         ]
       },
       { "name": "Attr. Attack DMG Up", "effect": [] }
+    ],
+    [
+      { "name": "Max Blade Momentum Up", "effect": [] },
+      {
+        "name": "Critical Rate Up",
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
+        ]
+      },
+      {
+        "name": "Iron Guards Penetration Up",
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Stonesplit Attribute Up",
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 212, "minStonesplit": 106 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "name": "Attr. Attack DMG Up", "effect": [] },
+      {
+        "name": "Increases Additional Attack",
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }
