@@ -1,3 +1,4 @@
+import { mergeTinyProbabilityStates } from "./probabilityStateMerging"
 import {
   compareTimelineTime,
   type EditableObject,
@@ -210,9 +211,10 @@ export function applySeasonalEdgeCooldownToTimeline(timeline: TimelineRow[], win
   }
 }
 
-function overlapDuration(start: number, end: number, windows: SeasonalEdgeWindow[]) {
+function overlapDuration(start: number, end: number, windows: SeasonalEdgeWindow[], weights: number[]) {
   return windows.reduce(
-    (total, window) => total + Math.max(0, Math.min(end, window.expiresAt) - Math.max(start, window.startsAt)),
+    (total, window, index) =>
+      total + weights[index] * Math.max(0, Math.min(end, window.expiresAt) - Math.max(start, window.startsAt)),
     0,
   )
 }
@@ -270,17 +272,29 @@ export function applySeasonalVitalityRanges(
   snapshots.sort((left, right) => compareTimelineTime(left.time, right.time) || left.order - right.order)
   const first = snapshots.find(snapshot => Number.isFinite(snapshot.resources.Vitality))
   if (!first) return undefined
-  const branches = windows.reduce<{ selected: SeasonalEdgeWindow[]; probability: number }[]>(
+  const branches = windows.reduce<{ yieldWeights: number[]; probability: number }[]>(
     (current, window) => {
-      if (window.yieldProbability <= 0) return current
+      if (window.yieldProbability <= 0)
+        return current.map(branch => ({ yieldWeights: [...branch.yieldWeights, 0], probability: branch.probability }))
       if (window.yieldProbability >= 1)
-        return current.map(branch => ({ selected: [...branch.selected, window], probability: branch.probability }))
-      return current.flatMap(branch => [
-        { selected: branch.selected, probability: branch.probability * (1 - window.yieldProbability) },
-        { selected: [...branch.selected, window], probability: branch.probability * window.yieldProbability },
+        return current.map(branch => ({ yieldWeights: [...branch.yieldWeights, 1], probability: branch.probability }))
+      const next = current.flatMap(branch => [
+        { yieldWeights: [...branch.yieldWeights, 0], probability: branch.probability * (1 - window.yieldProbability) },
+        { yieldWeights: [...branch.yieldWeights, 1], probability: branch.probability * window.yieldProbability },
       ])
+      // Every branch is evaluated on the same timeline; its deterministic windows share the time buckets.
+      return mergeTinyProbabilityStates(next, [], [], (left, right) => {
+        const probability = left.probability + right.probability
+        return {
+          probability,
+          yieldWeights: left.yieldWeights.map(
+            (weight, index) =>
+              (weight * left.probability + right.yieldWeights[index] * right.probability) / probability,
+          ),
+        }
+      })
     },
-    [{ selected: [], probability: 1 }],
+    [{ yieldWeights: [], probability: 1 }],
   )
   const cap = typeof maximum === "number" && Number.isFinite(maximum) ? maximum : Number.POSITIVE_INFINITY
   const snapshotOutcomes = snapshots.map(() => [] as { vitality: number; probability: number }[])
@@ -292,7 +306,7 @@ export function applySeasonalVitalityRanges(
       const base = snapshot.resources.Vitality
       if (!Number.isFinite(base)) return
       vitality += base - previousBase
-      vitality += overlapDuration(previousTime, snapshot.time, branch.selected) * 2
+      vitality += overlapDuration(previousTime, snapshot.time, windows, branch.yieldWeights) * 2
       vitality = Math.max(base, Math.min(cap, vitality))
       snapshotOutcomes[index].push({ vitality, probability: branch.probability })
       previousBase = base

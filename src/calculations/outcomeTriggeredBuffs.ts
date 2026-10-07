@@ -1,14 +1,12 @@
 import {
   periodicStateListFactory,
   mergePeriodicLists,
-  mergeTinyPeriodicEntries,
   type PeriodicStateList,
   type PeriodicStateStorage,
 } from "./periodicStateLists"
+import { mergeTinyProbabilityStates, PROBABILITY_TICKS_PER_SECOND } from "./probabilityStateMerging"
 
-export const OUTCOME_BUFF_TICKS_PER_SECOND = 10_000
-const TINY_PERIODIC_STATE_PROBABILITY = 1e-5
-const PERIODIC_EXPIRATION_BUCKET_TICKS = 0.1 * OUTCOME_BUFF_TICKS_PER_SECOND
+export const OUTCOME_BUFF_TICKS_PER_SECOND = PROBABILITY_TICKS_PER_SECOND
 
 export type ExpectedOutcomeBuffSchedule = Record<string, Record<string, number>>
 
@@ -35,7 +33,7 @@ export function maxStackActionFor(stack: number, maxStack: number | undefined, a
   return action?.consume === "all" && maxStack !== undefined && stack >= maxStack ? action : undefined
 }
 
-type PeriodicPartition = { inactive: number; owners: Map<string, PeriodicStateList[]> }
+type PeriodicPartition = { inactive: number; owners: Map<string, Map<number, PeriodicStateList>> }
 
 /** Stack-indexed sorted expiration lists. Branches exist only until causal follow-ups finish. */
 export class ExpectedPeriodicTracker {
@@ -80,15 +78,16 @@ export class ExpectedPeriodicTracker {
 
   private list(partition: PeriodicPartition, source: string, stack: number) {
     let stacks = partition.owners.get(source)
-    if (!stacks) partition.owners.set(source, (stacks = []))
-    return (stacks[stack] ??= this.createList())
+    if (!stacks) partition.owners.set(source, (stacks = new Map()))
+    let list = stacks.get(stack)
+    if (!list) stacks.set(stack, (list = this.createList()))
+    return list
   }
 
   private visitLists(visit: (list: PeriodicStateList, source: string, stack: number) => void) {
     for (const partition of this.branches.values())
       for (const [source, stacks] of partition.owners)
-        for (let stack = 1; stack < stacks.length; stack++) {
-          const list = stacks[stack]
+        for (const [stack, list] of [...stacks].sort(([left], [right]) => left - right)) {
           if (list?.size) visit(list, source, stack)
         }
   }
@@ -96,15 +95,15 @@ export class ExpectedPeriodicTracker {
   /** Marginal stack probabilities for a refreshing, finite-duration effect. */
   stackProbabilities(time: number) {
     const now = outcomeBuffTick(time)
-    const probabilities: number[] = [1]
+    const probabilities = new Map<number, number>([[0, 1]])
     this.visitLists((list, _source, stack) => {
       for (let index = list.head; index >= 0; index = list.next(index)) {
         if (list.expires[index] <= now) continue
-        probabilities[stack] = (probabilities[stack] ?? 0) + list.mass[index]
-        probabilities[0] -= list.mass[index]
+        probabilities.set(stack, (probabilities.get(stack) ?? 0) + list.mass[index])
+        probabilities.set(0, probabilities.get(0)! - list.mass[index])
       }
     })
-    probabilities[0] = Math.max(0, probabilities[0])
+    probabilities.set(0, Math.max(0, probabilities.get(0)!))
     return probabilities
   }
 
@@ -125,7 +124,7 @@ export class ExpectedPeriodicTracker {
   tickStackProbabilities(time: number) {
     const tick = outcomeBuffTick(time)
     const interval = outcomeBuffTick(this.interval)
-    const probabilities: number[] = []
+    const probabilities = new Map<number, number>()
     let total = 0
     if (this.tickOrigin === null) return probabilities
     if (
@@ -145,11 +144,13 @@ export class ExpectedPeriodicTracker {
           for (const [next, weight] of list.cadences[index] ?? []) {
             if (tick >= next && (tick - next) % interval === 0) mass += weight
           }
-        probabilities[stack] = (probabilities[stack] ?? 0) + mass
+        probabilities.set(stack, (probabilities.get(stack) ?? 0) + mass)
         total += mass
       }
     })
-    return total > 0 ? probabilities.map(probability => probability / total) : []
+    return total > 0
+      ? new Map([...probabilities].map(([stack, probability]) => [stack, probability / total]))
+      : new Map<number, number>()
   }
 
   private tickBeforeExpiry(tick: number, expiry: number) {
@@ -205,11 +206,11 @@ export class ExpectedPeriodicTracker {
     let thresholdProbability = 0
     for (const partition of affected) {
       if (!partition) continue
-      let highest = 0
+      const stackValues = new Set<number>()
       // Expired entries become inactive before this hit's transition.
       for (const stacks of partition.owners.values()) {
-        highest = Math.max(highest, stacks.length - 1)
-        for (const list of stacks) {
+        for (const stack of stacks.keys()) stackValues.add(stack)
+        for (const list of stacks.values()) {
           if (!list) continue
           while (list.head >= 0 && list.expires[list.head] <= now) {
             partition.inactive += list.mass[list.head]
@@ -217,12 +218,12 @@ export class ExpectedPeriodicTracker {
           }
         }
       }
-      for (let stack = highest; stack >= 1; stack--) {
+      for (const stack of [...stackValues].sort((a, b) => b - a)) {
         let gained = 0,
           pending = 0
         const cadence = this.tickOrigin === undefined ? new Map<number, number>() : undefined
         for (const stacks of partition.owners.values()) {
-          const list = stacks[stack]
+          const list = stacks.get(stack)
           if (!list?.size) continue
           list.retain(index => {
             const mass = list.mass[index]
@@ -262,7 +263,7 @@ export class ExpectedPeriodicTracker {
           )
       }
       for (const [owner, stacks] of partition.owners)
-        if (!stacks.some(list => list?.size)) partition.owners.delete(owner)
+        if (![...stacks.values()].some(list => list.size)) partition.owners.delete(owner)
     }
     // Never feed threshold-created zero-stack mass back through the original hit.
     if (thresholdProbability > 0) this.partition(emittedBranch).inactive += thresholdProbability
@@ -275,7 +276,7 @@ export class ExpectedPeriodicTracker {
     for (const partition of this.branches.values()) {
       const stacks = partition.owners.get(source)
       if (!stacks) continue
-      for (const list of stacks) {
+      for (const list of stacks.values()) {
         if (!list) continue
         // Chronological scheduling consumes heads in O(1), without compacting the list.
         if (list.head >= 0 && list.expires[list.head] === tick) {
@@ -290,7 +291,7 @@ export class ExpectedPeriodicTracker {
           })
         }
       }
-      if (!stacks.some(list => list?.size)) partition.owners.delete(source)
+      if (![...stacks.values()].some(list => list.size)) partition.owners.delete(source)
     }
     const probability = expired * chance
     if (expired > probability) this.partition().inactive += expired - probability
@@ -305,8 +306,7 @@ export class ExpectedPeriodicTracker {
     const target = this.partition()
     target.inactive += partition.inactive
     for (const [source, stacks] of partition.owners)
-      for (let stack = 1; stack < stacks.length; stack++) {
-        const list = stacks[stack]
+      for (const [stack, list] of stacks) {
         if (!list?.size) continue
         const destination = this.list(target, source, stack)
         mergePeriodicLists(destination, list)
@@ -342,7 +342,7 @@ export class ExpectedPeriodicTracker {
     for (const partition of this.branches.values()) {
       const stacks = partition.owners.get(source)
       if (!stacks) continue
-      for (const list of stacks) {
+      for (const list of stacks.values()) {
         if (!list) continue
         for (let index = list.head; index >= 0 && list.expires[index] <= tick; index = list.next(index))
           if (list.expires[index] === tick) probability += list.mass[index]
@@ -351,20 +351,57 @@ export class ExpectedPeriodicTracker {
     return probability
   }
 
-  /** Released tiny states merge only within the same stack, owner and 0.1s bucket. */
-  mergeTinyExpirations(time: number) {
-    if (this.tickOrigin === undefined) return false
+  /** Merge released tiny states by time bucket, weighting stacks and retaining source mass as a mixture. */
+  mergeTinyExpirations(_time: number) {
     const partition = this.branches.get(undefined)
     if (!partition) return false
-    const now = outcomeBuffTick(time)
-    let changed = false
+    const states = []
+    for (const [source, stacks] of partition.owners)
+      for (const [stack, list] of stacks)
+        for (let index = list.head; index >= 0; index = list.next(index)) {
+          const probability = list.mass[index]
+          states.push({
+            stack,
+            expires: list.expires[index],
+            probability,
+            pendingFraction: list.pending[index] / probability,
+            owners: new Map([[source, probability]]),
+            cadences: list.cadences[index],
+          })
+        }
+    const merged = mergeTinyProbabilityStates(states, ["expires"], ["stack", "pendingFraction"], (left, right) => {
+      const owners = new Map(left.owners)
+      for (const [source, probability] of right.owners) owners.set(source, (owners.get(source) ?? 0) + probability)
+      const cadences = left.cadences || right.cadences ? new Map(left.cadences) : undefined
+      if (cadences)
+        for (const [tick, probability] of right.cadences ?? [])
+          cadences.set(tick, (cadences.get(tick) ?? 0) + probability)
+      return { ...left, owners, cadences }
+    })
+    if (merged.length === states.length) return false
+    // Reuse the arena after consuming its old lists; never leave orphaned slots.
     for (const stacks of partition.owners.values())
-      for (const list of stacks) {
-        if (!list?.size) continue
-        if (mergeTinyPeriodicEntries(list, now, TINY_PERIODIC_STATE_PROBABILITY, PERIODIC_EXPIRATION_BUCKET_TICKS))
-          changed = true
+      for (const list of stacks.values()) while (list.head >= 0) list.shift()
+    partition.owners.clear()
+    for (const state of merged) {
+      const cadences = state.cadences
+        ? mergeTinyProbabilityStates(
+            [...state.cadences].map(([tick, probability]) => ({ tick, probability })),
+            ["tick"],
+            [],
+          )
+        : undefined
+      for (const [source, probability] of state.owners) {
+        const fraction = probability / state.probability
+        this.list(partition, source, state.stack).add(
+          state.expires,
+          probability,
+          state.pendingFraction * probability,
+          cadences ? new Map(cadences.map(cadence => [cadence.tick, cadence.probability * fraction])) : undefined,
+        )
       }
-    return changed
+    }
+    return true
   }
 
   consumeTick(time: number) {
@@ -472,7 +509,23 @@ export class OutcomeCooldownTracker {
         add(time + cooldown, weight * chance)
       }
     }
-    this.readiness = next
+    const merged = mergeTinyProbabilityStates(
+      [...next].map(([readyAt, probability]) => ({
+        readyAt,
+        readyAtTick: readyAt * OUTCOME_BUFF_TICKS_PER_SECOND,
+        probability,
+      })),
+      ["readyAtTick"],
+      ["readyAt"],
+    )
+    this.readiness = new Map()
+    for (const state of merged) {
+      const readyAt =
+        state.readyAtTick === state.readyAt * OUTCOME_BUFF_TICKS_PER_SECOND
+          ? state.readyAt
+          : state.readyAtTick / OUTCOME_BUFF_TICKS_PER_SECOND
+      this.readiness.set(readyAt, (this.readiness.get(readyAt) ?? 0) + state.probability)
+    }
     return proc
   }
 }

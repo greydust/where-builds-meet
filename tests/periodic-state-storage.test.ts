@@ -4,13 +4,10 @@ import { execFileSync } from "node:child_process"
 import { build } from "esbuild"
 import { describe, it } from "vitest"
 
-import { ExpectedPeriodicTracker as Current, type MaxStackAction } from "../src/calculations/outcomeTriggeredBuffs"
-import {
-  mergePeriodicLists,
-  mergeTinyPeriodicEntries,
-  periodicStateListFactory,
-  type PeriodicStateList,
-} from "../src/calculations/periodicStateLists"
+import { ExpectedPeriodicTracker as Current, type MaxStackAction } from "@/calculations/outcomeTriggeredBuffs"
+import { mergePeriodicLists, periodicStateListFactory, type PeriodicStateList } from "@/calculations/periodicStateLists"
+import { mergeTinyProbabilityStates } from "@/calculations/probabilityStateMerging"
+
 import { assertClose } from "./helpers/floatEquality"
 
 // Ported from script/probe/check-periodic-state-storage.mjs. The reference
@@ -107,7 +104,7 @@ describe("periodic-state-storage", () => {
         // Independent reference: group original eligible entries, then sort once.
         const groups = new Map()
         for (const row of rows) {
-          if (row.expires <= 15 || row.mass >= 1e-5) continue
+          if (row.mass >= 1e-5) continue
           const bucket = Math.floor(row.expires / 10)
           if (!groups.has(bucket)) groups.set(bucket, [])
           groups.get(bucket).push(row)
@@ -134,7 +131,17 @@ describe("periodic-state-storage", () => {
           const prior = expected.get(row.expires) ?? { mass: 0, pending: 0 }
           expected.set(row.expires, { mass: prior.mass + row.mass, pending: prior.pending + row.pending })
         }
-        assert.equal(mergeTinyPeriodicEntries(list, 15, 1e-5, 10), replacements.length > 0)
+        const merged = mergeTinyProbabilityStates(
+          rows.map(row => ({ expires: row.expires, probability: row.mass, pendingFraction: row.pending / row.mass })),
+          ["expires"],
+          ["pendingFraction"],
+          undefined,
+          1e-5,
+          10,
+        )
+        assert.equal(merged.length < rows.length, replacements.length > 0)
+        while (list.head >= 0) list.shift()
+        for (const row of merged) list.add(row.expires, row.probability, row.pendingFraction * row.probability)
         assert.equal(list.size, expected.size)
         let position = list.head
         for (const [expires, value] of expected) {

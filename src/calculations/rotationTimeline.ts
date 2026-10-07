@@ -2258,26 +2258,33 @@ export function buildRotationTimeline(
       if (debuffs.get(name)?.persistent) continue
       const probabilities =
         dot && dot === linkedDot ? tracker.tickStackProbabilities(time) : tracker.stackProbabilities(time)
-      const distribution = probabilities.flatMap((probability, stack) =>
-        probability > 0
-          ? [
-              {
-                probability,
-                effects:
-                  stack === 0
-                    ? []
-                    : effectsForTrackedEffect(stack, definition).map(
-                        rule => (rule as { effect: EditableObject }).effect,
-                      ),
-              },
-            ]
-          : [],
-      )
+      const distribution = [...probabilities].flatMap(([stack, probability]) => {
+        if (probability <= 0) return []
+        const lowerStack = Math.floor(stack)
+        const fraction = stack - lowerStack
+        const outcomes =
+          fraction === 0
+            ? [[stack, probability]]
+            : [
+                [lowerStack, probability * (1 - fraction)],
+                [lowerStack + 1, probability * fraction],
+              ]
+        return outcomes.map(([resolvedStack, weight]) => ({
+          probability: weight,
+          effects:
+            resolvedStack === 0
+              ? []
+              : effectsForTrackedEffect(resolvedStack, definition).map(
+                  rule => (rule as { effect: EditableObject }).effect,
+                ),
+        }))
+      })
       if (distribution.length) expectedEffects.push(distribution)
       if (definition.showCoverage)
-        expectedDebuffStacks[name] = tracker
-          .stackProbabilities(time)
-          .reduce((total, probability, stack) => total + probability * stack, 0)
+        expectedDebuffStacks[name] = [...tracker.stackProbabilities(time)].reduce(
+          (total, [stack, probability]) => total + probability * stack,
+          0,
+        )
     }
     return { expectedEffects, expectedDebuffStacks }
   }

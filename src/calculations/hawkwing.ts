@@ -1,5 +1,6 @@
 import type { DamageOutcome } from "./damage"
 import { outcomeBuffTick, outcomeProbability } from "./outcomeTriggeredBuffs"
+import { mergeTinyProbabilityStates } from "./probabilityStateMerging"
 import { effectsForTrackedEffect, type EditableObject, type EffectDefinition } from "./rotationTimeline"
 
 export type HawkwingEffect = {
@@ -113,7 +114,13 @@ export class ExpectedHawkwingTracker {
         )
       }
     }
-    this.distribution = next
+    const states = [...next].flatMap(([stack, expiries]) =>
+      [...expiries].map(([expiresAtTick, probability]) => ({ stack, expiresAtTick, probability })),
+    )
+    const merged: StackDistribution = new Map()
+    for (const state of mergeTinyProbabilityStates(states, ["expiresAtTick"], ["stack"]))
+      addProbability(merged, state.stack, state.expiresAtTick, state.probability)
+    this.distribution = merged
   }
 }
 

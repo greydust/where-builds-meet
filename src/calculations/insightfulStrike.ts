@@ -1,5 +1,6 @@
 import type { DamageOutcome } from "./damage"
 import { outcomeBuffTick, outcomeProbability } from "./outcomeTriggeredBuffs"
+import { mergeTinyProbabilityStates } from "./probabilityStateMerging"
 import {
   mergeEffectDefinition,
   requirementsPass,
@@ -28,15 +29,7 @@ export type InsightfulStrikeEffect = {
 }
 
 type FocusState = { focusUnits: number; decayStartsAtTick: number; concentrationExpiresAtTick: number }
-type FocusDistribution = Map<string, FocusState & { probability: number }>
-
-function addProbability(distribution: FocusDistribution, state: FocusState, probability: number) {
-  if (probability <= 0) return
-  const normalized = { ...state, decayStartsAtTick: state.focusUnits === 0 ? 0 : state.decayStartsAtTick }
-  const key = [normalized.focusUnits, normalized.decayStartsAtTick, normalized.concentrationExpiresAtTick].join(":")
-  const previous = distribution.get(key)
-  distribution.set(key, { ...normalized, probability: (previous?.probability ?? 0) + probability })
-}
+type WeightedFocusState = FocusState & { probability: number }
 
 function advanceFocus(effect: InsightfulStrikeEffect, state: FocusState, lastTick: number, tick: number): FocusState {
   const decayTicks = Math.max(0, tick - Math.max(lastTick, state.decayStartsAtTick))
@@ -202,26 +195,48 @@ export function insightfulStrikeEffectFor(
 }
 
 export class ExpectedInsightfulStrikeTracker {
-  private distribution: FocusDistribution = new Map([
-    ["0:0:0", { focusUnits: 0, decayStartsAtTick: 0, concentrationExpiresAtTick: 0, probability: 1 }],
-  ])
+  private inactive: WeightedFocusState[] = [
+    { focusUnits: 0, decayStartsAtTick: 0, concentrationExpiresAtTick: 0, probability: 1 },
+  ]
+  // Min-heap: the earliest Concentration expiry is always at index zero.
+  private active: WeightedFocusState[] = []
+  private activeProbability = 0
   private lastTick = 0
 
-  private advance(effect: InsightfulStrikeEffect, tick: number) {
-    if (tick <= this.lastTick) return
-    const next: FocusDistribution = new Map()
-    for (const state of this.distribution.values())
-      addProbability(next, advanceFocus(effect, state, this.lastTick, tick), state.probability)
-    this.distribution = next
-    this.lastTick = tick
+  private expire(tick: number) {
+    while (this.active.length && this.active[0].concentrationExpiresAtTick <= tick) {
+      const expired = this.active[0]
+      const tail = this.active.pop()!
+      if (this.active.length) {
+        this.active[0] = tail
+        this.siftDown(0)
+      }
+      this.activeProbability -= expired.probability
+      expired.concentrationExpiresAtTick = 0
+      this.inactive.push(expired)
+    }
+    if (!this.active.length) this.activeProbability = 0
   }
 
-  expectedConcentration(effect: InsightfulStrikeEffect, tick: number) {
-    this.advance(effect, tick)
-    let probability = 0
-    for (const state of this.distribution.values())
-      if (state.concentrationExpiresAtTick > tick) probability += state.probability
-    return probability
+  private siftDown(index: number) {
+    const state = this.active[index]
+    while (index * 2 + 1 < this.active.length) {
+      let child = index * 2 + 1
+      if (
+        child + 1 < this.active.length &&
+        this.active[child + 1].concentrationExpiresAtTick < this.active[child].concentrationExpiresAtTick
+      )
+        child++
+      if (state.concentrationExpiresAtTick <= this.active[child].concentrationExpiresAtTick) break
+      this.active[index] = this.active[child]
+      index = child
+    }
+    this.active[index] = state
+  }
+
+  expectedConcentration(_effect: InsightfulStrikeEffect, tick: number) {
+    this.expire(tick)
+    return this.activeProbability
   }
 
   resolveAffinity(
@@ -230,16 +245,57 @@ export class ExpectedInsightfulStrikeTracker {
     inactiveProbability: number,
     activeProbability = inactiveProbability,
   ) {
-    this.advance(effect, tick)
-    const inactiveChance = outcomeProbability(inactiveProbability)
-    const activeChance = outcomeProbability(activeProbability)
-    const next: FocusDistribution = new Map()
-    for (const state of this.distribution.values()) {
-      const chance = state.concentrationExpiresAtTick > tick ? activeChance : inactiveChance
-      addProbability(next, state, state.probability * (1 - chance))
-      addProbability(next, gainFocus(effect, state, tick), state.probability * chance)
+    this.expire(tick)
+    const nextInactive: WeightedFocusState[] = []
+    const nextActive: WeightedFocusState[] = []
+    const split = (states: WeightedFocusState[], chance: number) => {
+      for (const state of states) {
+        const advanced = advanceFocus(effect, state, this.lastTick, tick)
+        const failed = state.probability * (1 - chance)
+        const gained = state.probability * chance
+        if (failed > 0) {
+          const branch = { ...advanced, probability: failed }
+          ;(branch.concentrationExpiresAtTick > tick ? nextActive : nextInactive).push(branch)
+        }
+        if (gained > 0) {
+          const branch = { ...gainFocus(effect, advanced, tick), probability: gained }
+          ;(branch.concentrationExpiresAtTick > tick ? nextActive : nextInactive).push(branch)
+        }
+      }
     }
-    this.distribution = next
+    split(this.inactive, outcomeProbability(inactiveProbability))
+    split(this.active, outcomeProbability(activeProbability))
+    // One weighted rare state per category, with no timing-bucket restriction.
+    // The shared helper still rounds weighted deadlines to the common clock.
+    const merge = (states: WeightedFocusState[]) => {
+      const statesByFocus = new Map<number, Map<number, Map<number, WeightedFocusState>>>()
+      const result: WeightedFocusState[] = []
+      for (const state of mergeTinyProbabilityStates(
+        states,
+        ["decayStartsAtTick", "concentrationExpiresAtTick"],
+        ["focusUnits"],
+        undefined,
+        undefined,
+        Infinity,
+      )) {
+        let decay = statesByFocus.get(state.focusUnits)
+        if (!decay) statesByFocus.set(state.focusUnits, (decay = new Map()))
+        let expiry = decay.get(state.decayStartsAtTick)
+        if (!expiry) decay.set(state.decayStartsAtTick, (expiry = new Map()))
+        const previous = expiry.get(state.concentrationExpiresAtTick)
+        if (previous) previous.probability += state.probability
+        else {
+          expiry.set(state.concentrationExpiresAtTick, state)
+          result.push(state)
+        }
+      }
+      return result
+    }
+    this.inactive = merge(nextInactive)
+    this.active = merge(nextActive)
+    this.activeProbability = this.active.reduce((total, state) => total + state.probability, 0)
+    for (let index = Math.floor(this.active.length / 2) - 1; index >= 0; index--) this.siftDown(index)
+    this.lastTick = tick
   }
 }
 

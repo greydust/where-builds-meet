@@ -1,27 +1,27 @@
+import debuffs from "@gamedata/debuff/innerway.json"
+import dots from "@gamedata/dot/innerway.json"
+import way from "@gamedata/innerway/bitter-seasons.json"
 import { describe, expect, it } from "vitest"
 
+import { withExpectedDebuffPlates } from "@/application/gameData/skills"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
-
-import debuffs from "../data/debuff/innerway.json"
-import dots from "../data/dot/innerway.json"
-import way from "../data/innerway/bitter-seasons.json"
-import { withExpectedDebuffPlates } from "../src/application/gameData/skills"
-import { calculateDamageBreakdown } from "../src/calculations/damage"
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
-import { ExpectedPeriodicTracker } from "../src/calculations/outcomeTriggeredBuffs"
+import { calculateDamageBreakdown } from "@/calculations/damage"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import { ExpectedPeriodicTracker } from "@/calculations/outcomeTriggeredBuffs"
 import {
   calculateRotationBaseline,
   calculateSimulatedRotationRun,
   type RotationSimulationBundle,
-} from "../src/calculations/rotationCalculator"
+} from "@/calculations/rotationCalculator"
 import {
   buildRotationTimeline,
   effectsForTrackedEffect,
   mergeCalculatedTimelineState,
   type TimelineBuildInput,
-} from "../src/calculations/rotationTimeline"
-import { emptyStats } from "../src/data/statDefinitions"
-import { defaultGlobalDebuffs, globalDebuffTimelineEffects } from "../src/globalDebuffs"
+} from "@/calculations/rotationTimeline"
+import { emptyStats } from "@/data/statDefinitions"
+import { defaultGlobalDebuffs, globalDebuffTimelineEffects } from "@/globalDebuffs"
+
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 import { rowWithId } from "./helpers/timelineRows"
 
@@ -81,6 +81,18 @@ const poisonRows = (input: TimelineBuildInput, roll?: () => number) =>
   buildRotationTimeline(input, roll).filter(row => row.kind === "dot")
 
 describe("Bitter Seasons", () => {
+  it("resolves damage from probability-weighted fractional debuff stacks", () => {
+    const input = structuredClone(inputFor([0.01, 0.06, 0.07]))
+    const chance = 2e-6
+    const actions = input.innerWayRules![0].trigger!.action as Array<{ chance: unknown }>
+    actions[0].chance = chance
+    const result = calculateRotationBaseline(bundleFor(input))
+    // Two rare applications share one weighted stack state. Defense reduction
+    // must still reach the ordinary damage formula rather than disappearing
+    // because a fractional stack does not index an authored table directly.
+    expect(result.actionBreakdowns["rotation-0:2"].total).toBeCloseTo(1000 - 408 + 408 * 0.006 * 2 * chance, 10)
+  })
+
   it.each([0, 1, 6])("preserves expected debuff badges through the editor timeline merge at tier %s", tier => {
     const input = inputFor([0, 1, 12], tier)
     const result = calculateRotationBaseline(bundleFor(input))
@@ -218,14 +230,14 @@ describe("Bitter Seasons", () => {
     const linked = new ExpectedPeriodicTracker(1, 1, 0, "indexed", true, 5)
     linked.apply(0.25, 0.1, 10, 5, 1, "debuff")
     linked.apply(1, 0.1, 10, 5, 1, "debuff")
-    expect(linked.tickStackProbabilities(1)[1]).toBeCloseTo(0.9, 12)
-    expect(linked.tickStackProbabilities(1)[2]).toBeCloseTo(0.1, 12)
+    expect(linked.tickStackProbabilities(1).get(1)!).toBeCloseTo(0.9, 12)
+    expect(linked.tickStackProbabilities(1).get(2)!).toBeCloseTo(0.1, 12)
     const gap = new ExpectedPeriodicTracker(1, 1, 0, "indexed", true, 5)
     gap.apply(0.25, 0.1, 10, 5, 1, "debuff")
     gap.apply(6, 0.1, 10, 5, 1, "debuff")
     // The remaining debuff can survive after Poison; fresh applications at a
     // boundary must not make previously inactive Poison tick immediately.
-    expect(gap.tickStackProbabilities(6)).toEqual([])
+    expect(gap.tickStackProbabilities(6).size).toBe(0)
     const reapplied = poisonRows(inputFor([0.25, 6]))
     expect(reapplied.some(row => row.startTime === 6)).toBe(false)
     expect(reapplied.find(row => row.startTime === 7)!.actions[0].hitProbability).toBeCloseTo(0.1, 12)

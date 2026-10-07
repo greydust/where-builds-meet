@@ -100,7 +100,8 @@ pass. Auto HP is removed, so HP never depends on future rotation duration.
 ### Stack-indexed periodic probability storage
 
 Each temporary causal partition has an inactive-probability scalar and, per damage
-owner, a stack-indexed collection of sorted `(expiration, probability)` lists.
+owner, a numeric Map from stack count to sorted `(expiration, probability)` lists.
+Numeric stack keys also retain fractional values produced by tiny-state merging.
 For a hit, visit stack counts downward. Scale each entry's failure mass in place,
 sum its success mass, then insert one destination entry at the refreshed expiration.
 Equal expirations merge. Threshold-burst mass is published only after processing
@@ -156,13 +157,19 @@ exact/shared cadences, and verifies sorted insertion and recycled-slot isolation
 
 ### Tiny expected-state merging
 
-Expected shared-clock DOT trackers merge released states with individual absolute
-probability below `1e-5`, equal stack count and damage owner, and expiration times
-in the same absolute 0.1-second bucket. A group retains its summed probability,
-summed pending-tick probability, and probability-weighted mean expiration rounded
-to the existing 0.0001-second clock. A singleton keeps its exact timestamp.
-States still in a temporary causal branch, already expired states, significant
-states and exact-cadence trackers are not approximated. Simulation is unchanged.
+Expected DOT trackers follow the shared policy in `probabilityStateMerging.ts` and
+merge released states with individual absolute
+probability below `1e-5` and expiration times in the same absolute 0.1-second
+bucket. Stack counts and pending-tick fractions become probability-weighted
+means; expiration means are rounded to the existing 0.0001-second clock.
+Different stacks and damage owners do not prevent merging. Source ownership
+is retained as a probability-weighted mixture. Application-relative cadence
+entries also merge by probability and 0.1-second time bucket, weighting their
+tick times. A singleton keeps its original values. There is no additional
+active/expired timer eligibility test; chronological execution normally consumes
+expired states before merging. Temporary causal branches enter the retained
+distribution after their linked follow-ups finish. Significant states and
+sampled simulation retain their original values.
 
 Merging runs after ordinary applications or after conditional burst follow-ups
 release their branch. The scheduler updates the effect's earliest-expiration
@@ -170,6 +177,9 @@ wakeup to reflect the merged lists. Probability is not
 discarded; expiration timing and its interaction with later hits are approximated.
 `TimelineBuildInput.expectedPeriodicStateMerging: false` disables this new
 approximation for comparisons, without disabling the existing shared DOT grid.
+
+The benchmark results below describe the former equal-stack/owner expiration-only
+rule and predate universal state-value weighting.
 
 `node script/probe/benchmark-fivefold-state-merging.mjs 400` alternates exact and
 merged runs, discards four warm-up pairs, and reports medians of six measured

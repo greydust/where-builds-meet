@@ -430,8 +430,13 @@ hits do. Heal and non-damage actions never count.
 Insightful Strike restarts its configured decayDelay (seconds) on each eligible
 Affinity outcome; failed outcomes leave that deadline unchanged.
 They can use a decaying outcome resource with `gain`, `decayRate`, `threshold`,
-and required `resetTo: 0`. Expected and sampled tracking are separate; do not
-replace correlated states with average stacks. Specialized random-outcome and
+and required `resetTo: 0`. Expected and sampled tracking are separate. Retain
+correlated expected states except for the shared tiny-state rule: individual
+probability below `1e-5` and matching 0.1-second timing buckets merge with every
+numeric state field probability-weighted, including Focus and stacks. Insightful
+Strike instead merges all tiny resulting branches within each Concentration
+activity category without timing buckets, favoring calculation speed. Sampled
+states remain concrete. Specialized random-outcome and
 accumulator contracts are documented in [system architecture](system-architecture.md).
 
 Buff accumulators can listen for damage or overheal, perform named checks,

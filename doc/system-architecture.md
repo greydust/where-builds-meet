@@ -663,14 +663,18 @@ stacks downward, scale failed applications in place and aggregate successful mas
 into one new entry per destination stack. Indexed linked lists backed by shared
 numeric arrays recycle slots without allocating per-state objects. Packed arrays
 remain available through the diagnostic `expectedPeriodicStorage` input.
-Tiny-state compaction retains nodes and unlinks others during linear bucket
-traversals; it does not rebuild groups and search to reinsert each result.
+Tiny-state compaction collects the released numerical states across stacks and
+owners, applies the common probability/time-bucket rule, and rebuilds their
+weighted entries in the same recycled arena. Source probabilities remain a
+mixture while stacks and timing fields are averaged. Numeric Map keys retain
+fractional stacks without rounding them back to an integer.
 Branch release merges sorted lists with one forward cursor and a direct-tail
 fast path for current-expiration follow-ups, avoiding repeated prefix searches.
 Exact-cadence states also carry maps of next-tick timestamps to absolute
 probability mass. Cadence does not affect the supported application, threshold,
 or expiration transitions, so states with different cadences share those
-transitions while their weighted tick schedules remain exact by default. The expected
+transitions while their tick schedules remain exact except for the universal
+tiny-state time-bucket approximation. The expected
 timeline contains the union of possible ticks, with separate damage and hit
 weights. These finite probability branches do not consume the ordinary-event
 loop budget. Without the tiny-state approximation described below, the DOT's
@@ -1457,7 +1461,23 @@ Outcome mechanics are separated by responsibility. `hawkwing.ts` owns
 Hawkwing's stack/expiry distribution and setup-effect parsing;
 `insightfulStrike.ts` owns Focus decay, Concentration conversion, and its Inner
 Way trigger parsing. Its expected state includes Focus, the per-branch decay
-deadline, and Concentration expiry; identical states merge after each transition.
+deadline, and Concentration expiry. Inactive states use an array; active states
+use a min-heap ordered by expiry and a cached total probability. Pre-hit reads
+expire only the heap head, and Focus decay runs when the next hit splits states.
+Tiny resulting branches merge into one weighted state per activity category,
+without timing buckets. Exactly identical states consolidate using numeric
+Focus, decay-deadline, and expiry keys; significant states retain their values.
+`probabilityStateMerging.ts` owns the common 0.1 ms clock, `1e-5` threshold,
+0.1-second timing buckets, and probability-weighted merging for expected state
+models. Eligibility depends only on individual probability and timing buckets;
+every numeric state field is averaged, including Focus and stack count. Insightful
+Strike uses the same threshold and weighted arithmetic with unrestricted timing
+within each activity category after splitting. Hawkwing,
+resource cooldowns, DOT expiry/cadence states, and Seasonal Edge Yield histories
+use the same helper. Periodic stack storage uses numeric Map keys so fractional
+stacks are retained, and source ownership is a weighted mixture. Fractional
+debuff stacks resolve through neighboring authored stack-effect tables. There
+is no separate Focus-decay-lifetime condition or non-timing equality gate.
 Expected and sampled trackers share the same decay and gain transitions. `outcomeTriggeredBuffs.ts` contains only the shared 0.1 ms
 clock and schedule primitives. The rotation calculator coordinates the two
 mechanics and adds their resolved pre-hit effects to the ordinary unconditional

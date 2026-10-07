@@ -67,11 +67,28 @@ traversal. HP feedback, recorded damage, and replay coefficients consume those
 resolved values immediately. Reporting retains the results; buff-attribution
 counterfactual formulas do not execute combat events or change live state.
 
-Expected shared-clock DOTs use the [tiny-state merging approximation](rotation-event-loop.md#tiny-expected-state-merging):
-compatible states below `1e-5` probability can share a weighted mean expiration
-within a 0.1-second bucket. No probability mass is discarded and damage formulas
-are unchanged, but the resulting expiration/refresh timing is approximate.
-Simulation retains exact sampled timing.
+Expected probability models share a tiny-state timing policy, defined in
+`probabilityStateMerging.ts`: states with individual probability strictly below
+`1e-5` merge when each timing field lies in the same absolute 0.1-second bucket.
+There is no equal-Focus, equal-stack, owner, cadence, or decay-lifetime condition.
+Every numeric state field becomes its probability-weighted mean. Timing fields
+are rounded to the 0.1 ms clock; Focus and stacks retain fractional weighted
+values. Probability mass is summed, never discarded. Singleton and significant
+states retain their original values. The same bucket rule applies to zero or
+elapsed timers; there is no additional active-timer test.
+This applies to Hawkwing, outcome-dependent resource cooldowns,
+and [DOT expiry tracking](rotation-event-loop.md#tiny-expected-state-merging).
+Damage-source identities remain a probability-weighted mixture within the merged
+state, rather than selecting one source or blocking the merge. Pending-tick
+fractions and application-relative cadence times are weighted as well. Fractional
+debuff stacks resolve between neighboring authored stack-effect tables through
+the ordinary expected-damage pipeline. Temporary causal branches finish their
+linked follow-ups before they enter the retained state distribution.
+Seasonal Edge's rare Yield histories weight each window's activation and use
+those weighted windows for subsequent Vitality recovery. Its categorical buff
+choices continue to be represented by their effect-set probability mixtures.
+Timing and its interaction with later hits are approximate; simulation retains
+exact sampled timing.
 
 ## Rank-14 Additional Attack
 
@@ -261,11 +278,12 @@ stats. Effect-supplied penetration is likewise resolved independently for all
 five damage channels.
 
 Hawkwing is an outcome-triggered attack bonus. Deterministic calculations carry
-an exact probability distribution keyed by stack count and absolute expiry time,
+a probability distribution keyed by stack count and absolute expiry time,
 quantized to integer 0.1 ms ticks. Every hit reads the expected stack count before
 damage, applies `2% × expected stacks` as Physical Attack Bonus, and then branches
 the distribution using that hit's resolved Affinity rate. Identical stack/expiry
-states are merged. Simulation runs instead use the sampled outcome: an Affinity
+states are merged, and compatible tiny expiries use the shared weighted timing rule.
+Simulation runs instead use the sampled outcome: an Affinity
 hit adds and refreshes one concrete stack, while other outcomes leave the concrete
 state unchanged.
 
@@ -278,15 +296,23 @@ do not restart the delay. Reaching 100,000 units (five Focus) applies or
 refreshes Concentration for 10 seconds and resets Focus to zero.
 The conversion happens after the triggering hit, so that hit does not receive
 Concentration's 10% Affinity DMG Bonus. Deterministic calculation carries the
-exact probability distribution keyed by Focus units, decay deadline, and
+probability distribution in an inactive array and an active min-heap ordered by
 Concentration expiry; simulations update one concrete state from sampled outcomes.
-Identical states merge. Once a decay deadline has passed, it normalizes to zero
+Before damage, expired active states move to the inactive array and the active
+probability total is updated. Focus decay is deferred until the next eligible hit.
+Each hit splits states using their category's Affinity chance. Resulting branches
+with individual probability strictly below `1e-5` merge into one aggregate per
+category, without a timing-bucket restriction. Focus and both deadlines are
+probability-weighted; deadlines round to the shared clock. Significant branches retain their values. Exactly identical states are
+consolidated using numeric keys after tiny-state aggregation. This deliberately favors speed over preserving rare timing
+histories; probability mass is retained. Expected
+Focus may therefore contain fractional decay units. Once a decay deadline has passed, it normalizes to zero
 because the last processed tick carries ongoing decay; zero Focus also clears
 its irrelevant deadline.
 Insightful Strike T3 makes the Affinity probability itself depend on whether
 Concentration is active. Deterministic calculation therefore resolves each hit
 once for the inactive branch and once for the active branch, weights their
-damage and outcome rates by the exact pre-hit Concentration probability, and
+damage and outcome rates by the tracked pre-hit Concentration probability, and
 uses each branch's own Affinity rate for the next Focus transition. Simulation
 runs use only their concrete active or inactive state. This avoids feeding an
 average Direct Affinity value back into the Focus distribution.
