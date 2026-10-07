@@ -419,3 +419,67 @@ describe("cached outcome channel coefficients", () => {
     expect(prepared.evaluate(input.derivedStats)).toEqual(calculateDamageBreakdown(action, input))
   })
 })
+
+describe("rotation-wide rate groups", () => {
+  it("matches full calculations across caps with guarantees and static rate modifiers", () => {
+    const input = bundle()
+    input.stats = { ...stats, directCrit: 0.65 }
+    input.timeline.rotation.steps = Array.from({ length: 12 }, () => ({ type: "skill", skill: "Hit" }))
+    input.timeline.skills.Hit.action = [
+      { type: "damage", time: 0, phyCoef: 1.5, attrCoef: 0.7 },
+      { type: "damage", time: 1, phyCoef: 0.9, modifier: [{ effect: { GuaranteedCrit: true } }] },
+      { type: "damage", time: 2, attrCoef: 0.8, modifier: [{ effect: { stat: { crit: 0.15, directCrit: -0.4 } } }] },
+    ]
+    input.statPriority = [0.2, 0.7, 1.2].map(crit => ({
+      label: String(crit),
+      stats: { ...input.stats, crit, precision: 0.8, affinity: 0.3, directCrit: crit },
+    }))
+    const baseline = calculateRotationBaseline(input)
+    const grouped = calculateRotationComparisons(input, baseline)
+    const spy = vi.spyOn(actionStats, "resolveActionStatContext")
+    expect(calculateRotationComparisons(input, baseline)).toEqual(grouped)
+    expect(spy.mock.calls.length).toBeLessThan(12)
+    const full = calculateRotationComparisons(
+      {
+        ...input,
+        statPriority: input.statPriority.map(variant => Object.assign({}, variant, { timeline: input.timeline })),
+      },
+      baseline,
+    )
+    for (let i = 0; i < grouped.statPriority.length; i++)
+      expect(grouped.statPriority[i].dpsDifference).toBeCloseTo(full.statPriority[i].dpsDifference, 8)
+  })
+
+  it("falls back when rate-dependent formulas change damage inputs", () => {
+    const input = bundle()
+    input.timeline.setupEffects = [{ stat: { physDmgBonus: { formula: { source: "crit", multiplier: 0.2 } } } }]
+    input.statPriority = [{ label: "Crit", stats: { ...stats, crit: 0.5 } }]
+    const baseline = calculateRotationBaseline(input)
+    const fast = calculateRotationComparisons(input, baseline)
+    const full = calculateRotationComparisons(
+      {
+        ...input,
+        statPriority: input.statPriority.map(variant => Object.assign({}, variant, { timeline: input.timeline })),
+      },
+      baseline,
+    )
+    expect(fast).toEqual(full)
+  })
+})
+
+it("propagates rotation rate coefficients through recorded source weights", () => {
+  const input = context()
+  const action = { type: "damage", phyCoef: 1.5, attrCoef: 0.7 }
+  const source = new RotationDamageResponse(true)
+  source.addDamage(action, input)
+  const replay = new RotationDamageResponse(true)
+  replay.add(source, 0.35)
+  const next = { ...stats, crit: stats.crit + 0.2 }
+  const difference =
+    calculateDamageBreakdown(action, {
+      ...input,
+      stats: next,
+      derivedStats: calculateDerivedStats(next, 0, {}, input.weapons),
+    }).total - calculateDamageBreakdown(action, input).total
+  expect(replay.evaluateRates({ crit: 0.2 }, {})).toBeCloseTo(difference * 0.35, 10)
+})

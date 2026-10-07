@@ -7,7 +7,7 @@ import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults"
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues"
 import { calculateRates, mainAttributeForWeapons } from "./effectiveStats"
 import type { DerivedStats } from "./effectiveStats"
-import { restrictedOutcomeRates, restrictedRateRouteFor } from "./rateRoutes"
+import { restrictedOutcomeRates, restrictedRateRouteFor, type OutcomeRates } from "./rateRoutes"
 import {
   applyStatConversions,
   resolveFormulaValue,
@@ -622,6 +622,22 @@ function calculateDamageBreakdownInternal(
   }
   prepare?.({
     evaluate,
+    rateResponse: () => ({
+      key: JSON.stringify([
+        GuaranteedCrit,
+        GuaranteedAffinity,
+        SteadfastGuaranteedCrit,
+        NoAbrasion,
+        conversionEffects,
+        action.rateRoute,
+      ]),
+      coefficients: outcomeDamage!.map(
+        channels =>
+          channels.physical + channels.bellstrike + channels.stonesplit + channels.silkbind + channels.bamboocut,
+      ),
+      baselineRates: initialRates,
+      resolveRates,
+    }),
     response: () => {
       const coefficients = Object.fromEntries(
         Object.values(attackFields)
@@ -733,7 +749,14 @@ export type PreparedDamageResponse = {
   coefficients: Record<AttackField, number>
   physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }>
 }
+export type PreparedRateResponse = {
+  key: string
+  coefficients: number[]
+  baselineRates: OutcomeRates
+  resolveRates: (snapshot: DerivedStats) => OutcomeRates
+}
 export type PreparedDamageFormula = {
+  rateResponse: () => PreparedRateResponse
   /** Receives a snapshot from the shared stat pipeline. Other formula inputs remain fixed. */
   evaluate: (snapshot: DerivedStats) => DamageBreakdown
   response: () => PreparedDamageResponse

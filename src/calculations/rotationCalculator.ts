@@ -35,6 +35,7 @@ import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTrig
 import { createPreparedEffectState } from "./preparedEffectState"
 import {
   attackStatFields,
+  rateStatFields,
   referencesChangedInput,
   RotationDamageResponse,
   type AttackStatField,
@@ -2167,6 +2168,23 @@ export function calculateSimulatedRotationRun(
 }
 
 const baselineSequences = new WeakMap<RotationSimulationBaseline, ResolvedRotationDamageSequence>()
+const rateInvariantBaselines = new WeakMap<RotationSimulationBaseline, boolean>()
+function baselineRateInvariant(baseline: RotationSimulationBaseline) {
+  let independent = rateInvariantBaselines.get(baseline)
+  if (independent === undefined) {
+    independent = Boolean(
+      baselineSequences
+        .get(baseline)
+        ?.every(
+          ({ entry }) =>
+            !entry.hawkwing && !entry.insightfulStrike && !entry.seasonalEdge && !entry.context.expectedEffects?.length,
+        ),
+    )
+    rateInvariantBaselines.set(baseline, independent)
+  }
+  return independent
+}
+
 const damageResponses = new WeakMap<RotationSimulationBaseline, RotationDamageResponse | null>()
 
 const attackDependencies = new WeakMap<RotationSimulationBaseline, unknown[]>()
@@ -2217,11 +2235,12 @@ function rotationDamageResponse(baseline: RotationSimulationBaseline) {
     damageResponses.set(baseline, null)
     return null
   }
-  const total = new RotationDamageResponse()
+  const includeRates = baselineRateInvariant(baseline)
+  const total = new RotationDamageResponse(includeRates)
   const responses = new Map<string, RotationDamageResponse>()
   for (const resolved of sequence) {
     const { entry, outcomeEffects, expectedConcentration: concentration } = resolved
-    const response = new RotationDamageResponse()
+    const response = new RotationDamageResponse(includeRates)
     if (entry.replay) {
       const bonus = entry.context.effects.reduce(
         (sum, effect) => sum + (typeof effect.replayDmgBonus === "number" ? effect.replayDmgBonus : 0),
@@ -2479,6 +2498,38 @@ export function calculateRotationComparisons(
       }
     }
     if (!requiresLiveResolution && variant.stats && !variant.attunement) {
+      const changedRates = Object.keys(emptyStats).filter(
+        key => variant.stats![key as keyof CharacterStats] !== state.baseStats[key as keyof CharacterStats],
+      )
+      if (
+        changedRates.length > 0 &&
+        changedRates.every(key => rateStatFields.has(key)) &&
+        baselineRateInvariant(baselineResult) &&
+        !baselineDependsOnAttack(baselineResult, timelineInput, rateStatFields)
+      ) {
+        const next = variantStatState(state, timelineInput.setupEffects, timelineInput.innerWayRules, variant)
+        const unchanged = Object.keys(emptyStats).every(
+          key =>
+            rateStatFields.has(key) ||
+            next.stats[key as keyof CharacterStats] === state.stats[key as keyof CharacterStats],
+        )
+        if (unchanged) {
+          const delta: Partial<CharacterStats> = {}
+          const effectiveDelta: Partial<CharacterStats> = {}
+          for (const key of Object.keys(emptyStats) as Array<keyof CharacterStats>) {
+            const amount =
+              key === "directCrit"
+                ? next.stats.uncappedDirectCrit - state.stats.uncappedDirectCrit
+                : next.stats[key] - state.stats[key]
+            if (amount !== 0) delta[key] = amount
+            const bonus = (next.stats.effectiveStatBonuses?.[key] ?? 0) - (state.stats.effectiveStatBonuses?.[key] ?? 0)
+            if (bonus !== 0) effectiveDelta[key] = bonus
+          }
+          const difference = rotationDamageResponse(baselineResult)?.evaluateRates(delta, effectiveDelta)
+          if (difference !== undefined) return calculationFromDifference(difference)
+        }
+      }
+
       const changed = Object.keys(emptyStats).filter(
         key => variant.stats![key as keyof CharacterStats] !== state.baseStats[key as keyof CharacterStats],
       )

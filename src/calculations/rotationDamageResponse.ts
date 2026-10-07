@@ -1,13 +1,18 @@
+import type { CharacterStats } from "@/types"
+
 import { resolveActionStatContext } from "./actionStats"
 import {
   attunementDamageMultiplier,
   attunementPenetrationMultiplier,
   matchingAttunementEntries,
 } from "./attunementStats"
+import type { PreparedRateResponse } from "./damage"
 import type { AttunementStats } from "./damage"
 import { attackFields, prepareDamageFormula, type AttackField, type DamageAction, type DamageContext } from "./damage"
 import { mainAttributeForWeapons } from "./effectiveStats"
+import { calculateActionStats } from "./statEffects"
 import type { ResolvedStats } from "./statEffects"
+import { collectUnconditionalStatEffects } from "./unconditionalDamageEffects"
 
 export const attackStatFields = {
   minPhys: "effectiveMinPhys",
@@ -22,6 +27,26 @@ export const attackStatFields = {
   maxBamboocut: "effectiveMaxBamboocut",
 } as const
 
+export const rateStatFields = new Set([
+  "precision",
+  "crit",
+  "affinity",
+  "directCrit",
+  "directAffinity",
+  "effectiveCritBonus",
+  "effectivePrecision",
+  "effectiveCrit",
+  "effectiveAffinity",
+  "finalCrit",
+  "finalAffinity",
+  "abrasionRate",
+  "normalRate",
+  "critRate",
+  "affinityRate",
+  "uncappedDirectCrit",
+])
+const rateFields = ["abrasionRate", "normalRate", "critRate", "affinityRate"] as const
+
 export type AttackStatField = keyof typeof attackStatFields
 
 /** Formula sources, segments, conversions and stat requirements must remain independent of changed inputs. */
@@ -35,10 +60,64 @@ export function referencesChangedInput(value: unknown, fields: Set<string>): boo
 
 /** An affine response around the baseline, valid only within the recorded clamp/normalization region. */
 export class RotationDamageResponse {
+  private readonly includeRates: boolean
+  constructor(includeRates = false) {
+    this.includeRates = includeRates
+  }
   readonly coefficients = Object.fromEntries(Object.keys(attackStatFields).map(field => [field, 0])) as Record<
     AttackStatField,
     number
   >
+  private rateGroups = new Map<
+    string,
+    { context: DamageContext; resolved: DamageContext; response: PreparedRateResponse }
+  >()
+
+  evaluateRates(delta: Partial<CharacterStats>, effectiveDelta: Partial<CharacterStats>): number | undefined {
+    let difference = 0
+    for (const { context, resolved, response } of this.rateGroups.values()) {
+      const stats = calculateActionStats(
+        context.stats,
+        [{ stat: delta, effectiveStat: effectiveDelta }],
+        context.enemy.judgementResistance,
+        context.weapons,
+      )
+      const next = resolveActionStatContext({ ...context, stats, derivedStats: stats })
+      // Rate changes must leave all damage inputs unchanged, including formula/conversion effects.
+      const fixed = Object.keys(resolved.derivedStats).filter(
+        key => !rateStatFields.has(key) && key !== "effectiveStatBonuses",
+      )
+      if (
+        fixed.some(
+          key =>
+            (resolved.derivedStats as unknown as Record<string, unknown>)[key] !==
+            (next.derivedStats as unknown as Record<string, unknown>)[key],
+        )
+      )
+        return undefined
+      const rates = response.resolveRates(next.derivedStats)
+      for (let i = 0; i < rateFields.length; i++)
+        difference += response.coefficients[i] * (rates[rateFields[i]] - response.baselineRates[rateFields[i]])
+    }
+    return difference
+  }
+
+  private addRateGroup(
+    key: string,
+    group: { context: DamageContext; resolved: DamageContext; response: PreparedRateResponse },
+    weight: number,
+  ) {
+    const previous = this.rateGroups.get(key)
+    if (previous)
+      for (let i = 0; i < rateFields.length; i++)
+        previous.response.coefficients[i] += group.response.coefficients[i] * weight
+    else
+      this.rateGroups.set(key, {
+        ...group,
+        response: { ...group.response, coefficients: group.response.coefficients.map(value => value * weight) },
+      })
+  }
+
   private attunementCoefficients = new Map<keyof AttunementStats, number>()
   private penetration = new Map<keyof AttunementStats, { coefficient: number; lower: number; upper: number }>()
   private attunementBounds = new Map<keyof AttunementStats, number>()
@@ -82,6 +161,7 @@ export class RotationDamageResponse {
     if (weight === 0) return
     for (const field of Object.keys(attackStatFields) as AttackStatField[])
       this.coefficients[field] += other.coefficients[field] * weight
+    for (const [key, group] of other.rateGroups) this.addRateGroup(key, group, weight)
     for (const [key, coefficient] of other.attunementCoefficients)
       this.attunementCoefficients.set(key, (this.attunementCoefficients.get(key) ?? 0) + coefficient * weight)
     for (const [key, lower] of other.attunementBounds)
@@ -133,7 +213,18 @@ export class RotationDamageResponse {
       return
     }
     const resolved = resolveActionStatContext(context)
-    const response = prepareDamageFormula(action, resolved).response()
+    const formula = prepareDamageFormula(action, resolved)
+    const response = formula.response()
+    if (this.includeRates) {
+      const rateResponse = formula.rateResponse()
+      const rateKey = JSON.stringify([
+        rateResponse.key,
+        context.stats,
+        context.effects.filter(effect => effect.stat || effect.effectiveStat),
+        collectUnconditionalStatEffects(context.unconditionalDamageEffects),
+      ])
+      this.addRateGroup(rateKey, { context, resolved, response: rateResponse }, weight)
+    }
     for (const { key } of matchingAttunementEntries(resolved.attunement, resolved.skillTags)) {
       const definition = attunementPenetrationMultiplier(key)
       if (!definition) continue

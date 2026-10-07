@@ -805,6 +805,19 @@ the same per-hit outcome formula, with intersected bounds for resistance branche
 and positive physical penetration multipliers. Branch crossings and mixed-stat
 attunements retain the ordinary calculation. Unmatched tags contribute zero.
 
+Rotation-wide rate comparisons reuse the same private damage response. Eligible
+baselines group outcome coefficients by fixed stat context and rate rules;
+guarantees, caps, and restricted routes resolve once per group through the ordinary
+rate function. Shared stat preparation applies each variant's ordinary/effective
+rate deltas and verifies that non-rate damage inputs remain identical. Replay
+source weights and Mystic Vitality scaling propagate into the group coefficients.
+The result adds weighted rate differences to the original baseline damage.
+Hawkwing, Concentration, seasonal state, expected-effect distributions, healing,
+accumulators, rate-dependent formulas/conversions, and combat-changing variants
+retain sequence/full calculation. Group preparation and eligibility are lazy and
+baseline-local; repeated eligible comparisons traverse groups rather than actions.
+Floating-point aggregation can change the last bits of comparison results.
+
 ## Runtime Inner Way damage ownership
 
 Skill and DOT `damageGroup` metadata names an Inner Way owner. Timeline construction

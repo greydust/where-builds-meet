@@ -1112,3 +1112,11 @@ rate routes still use the shared rate calculation. Effective attack changes or
 critical-damage changes rebuild the retained values. Channel weighting and total
 summation keep the original arithmetic order, preserving bit-identical results;
 rate-sensitive sequence state continues to be recalculated normally.
+
+When rate changes leave all damage state fixed, rotation coefficients are summed
+per rate/stat-context group. The comparison evaluates
+`baselineDamage + sum(groupOutcomeDamage * (variantRate - baselineRate))` across
+the four outcomes and all groups. Rates still use their shared caps, guarantees,
+and restricted routes. Replayed damage contributes its weighted source coefficients.
+Probability-dependent buffs and state distributions remain on the sequence path;
+fixed rotation coefficients do not freeze their baseline probabilities.
