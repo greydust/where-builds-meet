@@ -2291,6 +2291,7 @@ export function buildRotationTimeline(
     sourceOrder: number,
     includeCurrentTime = false,
     resolvedTicks?: Array<ReturnType<ExpectedPeriodicTracker["tickAt"]>>,
+    retainScheduledRows = false,
   ) => {
     if (activeEffect.expected && !resolvedTicks) {
       scheduleExpectedTick(name, activeEffect, afterTime, causalSortOrder, includeCurrentTime)
@@ -2312,6 +2313,24 @@ export function buildRotationTimeline(
     const nextTickIndex = Math.max(0, Math.ceil((afterTime - activeEffect.appliedAt - firstTick - 1e-6) / interval))
     let nextTickTime = activeEffect.appliedAt + firstTick + nextTickIndex * interval
     if (!includeCurrentTime && nextTickTime <= afterTime + 1e-6) nextTickTime += interval
+    const firstScheduledIndex = Math.max(0, Math.round((nextTickTime - activeEffect.appliedAt - firstTick) / interval))
+    const retainedRows = retainScheduledRows
+      ? new Map(activeEffect.rows.filter(row => row.startTime > afterTime + 1e-6).map(row => [row.startTime, row]))
+      : undefined
+    const retainedOrders = new Map<TimelineRow, number[]>()
+    // Indefinite schedules keep one successor wakeup. Retaining its row must
+    // replace that wakeup rather than enqueue a second successor chain.
+    if (retainScheduledRows && indefinite) events.remove(event => event.periodicWakeup?.active === activeEffect)
+    const queueWakeup = (row: TimelineRow, tickTime: number, sortOrder: number[]) => {
+      if (indefinite)
+        events.push({
+          time: tickTime + interval,
+          sortOrder: [...sortOrder, 2],
+          kind: "periodicTick",
+          row,
+          periodicWakeup: { name, active: activeEffect },
+        })
+    }
     const scheduledTicks =
       resolvedTicks ??
       (indefinite
@@ -2320,11 +2339,13 @@ export function buildRotationTimeline(
             {
               length: Math.max(
                 0,
-                Math.floor((activeEffect.expiresAt - activeEffect.appliedAt - firstTick + 1e-6) / interval) + 1,
+                Math.floor((activeEffect.expiresAt - activeEffect.appliedAt - firstTick + 1e-6) / interval) -
+                  firstScheduledIndex +
+                  1,
               ),
             },
             (_, index) => ({
-              time: activeEffect.appliedAt + firstTick + index * interval,
+              time: activeEffect.appliedAt + firstTick + (firstScheduledIndex + index) * interval,
               probability: undefined,
               sources: undefined,
             }),
@@ -2336,6 +2357,16 @@ export function buildRotationTimeline(
       const derivedId = nextDerivedOrder++
       const derivedSortOrder = [...causalSortOrder, derivedId]
       const ordinal = Math.max(0, Math.round((tickTime - activeEffect.appliedAt - firstTick) / interval))
+      const order = sourceOrder + 10 + (resolvedTicks || indefinite ? tickIndex : ordinal) / 1000
+      const retained = retainedRows?.get(tickTime)
+      if (retained) {
+        retained.sourceRowId = activeEffect.sourceRowId
+        retained.order = order
+        retained.enduranceLost = enduranceLost()
+        retainedOrders.set(retained, derivedSortOrder)
+        queueWakeup(retained, tickTime, derivedSortOrder)
+        continue
+      }
       const actions = baseActions.map(action =>
         Object.assign(
           {},
@@ -2361,7 +2392,7 @@ export function buildRotationTimeline(
         ...(activeEffect.playerRecipientIndex !== undefined
           ? { playerRecipientIndex: activeEffect.playerRecipientIndex }
           : {}),
-        order: sourceOrder + 10 + tickIndex / 1000,
+        order,
         step: { type: "skill", skill: name },
         startTime: tickTime,
         distance,
@@ -2381,14 +2412,7 @@ export function buildRotationTimeline(
         modifierEffects: [],
         actionStates: {},
       }
-      if (indefinite)
-        events.push({
-          time: tickTime + interval,
-          sortOrder: [...derivedSortOrder, 2],
-          kind: "periodicTick",
-          row,
-          periodicWakeup: { name, active: activeEffect },
-        })
+      queueWakeup(row, tickTime, derivedSortOrder)
       activeEffect.rows.push(row)
       rows.push(row)
       events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row })
@@ -2402,6 +2426,22 @@ export function buildRotationTimeline(
         }),
       )
     }
+    if (retainedOrders.size)
+      events.mutate(event => {
+        const sortOrder = retainedOrders.get(event.row)
+        if (!sortOrder) return
+        switch (event.kind) {
+          case "start":
+            event.sortOrder = [...sortOrder, 0]
+            break
+          case "action":
+            event.sortOrder = [...sortOrder, 1, event.actionIndex!]
+            break
+          case "periodicTick":
+            event.sortOrder = [...sortOrder, 2]
+            break
+        }
+      })
   }
   const scheduleExpectedTick = (
     name: string,
@@ -2477,12 +2517,28 @@ export function buildRotationTimeline(
   ) => {
     const activeEffect = activePeriodicEffects[periodicEffectKey(target, name, playerRecipientIndex)]
     if (!activeEffect) return
-    removePendingPeriodicRows(activeEffect, eventTime)
+    const samePeriodic =
+      activeEffect.definition.periodic === definition.periodic ||
+      JSON.stringify(activeEffect.definition.periodic) === JSON.stringify(definition.periodic)
+    const retainScheduledRows =
+      !resetCadence && samePeriodic && Number.isFinite(activeEffect.expiresAt) === Number.isFinite(expiresAt)
+    if (!retainScheduledRows) removePendingPeriodicRows(activeEffect, eventTime)
+    else if (expiresAt < activeEffect.expiresAt)
+      removePendingPeriodicRows(activeEffect, expiresAt, definition.periodic?.tickOnExpire === false)
     activeEffect.definition = definition
     activeEffect.expiresAt = expiresAt
     activeEffect.sourceRowId = sourceRowId
     if (resetCadence) activeEffect.appliedAt = eventTime
-    schedulePeriodicActions(name, activeEffect, eventTime, causalSortOrder, sourceOrder, resetCadence)
+    schedulePeriodicActions(
+      name,
+      activeEffect,
+      eventTime,
+      causalSortOrder,
+      sourceOrder,
+      resetCadence,
+      undefined,
+      retainScheduledRows,
+    )
   }
   const enqueueEffectActions = (
     name: string,

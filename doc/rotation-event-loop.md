@@ -28,10 +28,18 @@ cooldown wait. Once accepted, cast-start modifiers determine the new cooldown
 window and cast duration.
 
 Indefinite periodic effects keep only one upcoming tick in the event queue.
-Each tick schedules its successor using the original application cadence;
-consumption and refresh remove obsolete wakeups. Finite periodic effects retain
-their bounded schedule, and both obey the same combat endpoint. Periodic resource
-amounts can increase by a data-defined amount each tick, as used by Hellfire.
+Each tick schedules its successor using the original application cadence.
+When `resetOnRefresh` is false and the periodic definition is unchanged, refreshes
+retain existing future tick rows, update their source and causal ordering, and
+extend the schedule only for missing ticks. Shorter lifetimes remove ticks beyond
+the new expiry, honoring `tickOnExpire`. Indefinite refreshes replace their single
+successor wakeup without duplicating the retained tick. Damage and effect state
+are captured when the tick starts, so retaining a row does not freeze its buffs
+or stats. Cadence resets, changed periodic definitions, and finite/indefinite
+lifetime transitions rebuild the pending schedule. Consumption removes obsolete
+rows and wakeups. Finite periodic effects retain their bounded schedule, and both
+obey the same combat endpoint. Periodic resource amounts can increase by a
+data-defined amount each tick, as used by Hellfire.
 
 ## Readiness after charging
 
