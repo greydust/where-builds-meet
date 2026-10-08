@@ -43,25 +43,39 @@ describe("periodic-state-merging", () => {
     close(merged.apply(0.3, 1, 5, 5, 4, "owner", threshold, "burst"), 5e-7)
     close(merged.apply(0.4, 1, 5, 5, 5, "owner", threshold, "all"), 1)
 
-    for (const options of [{ secondTime: 0.26 }, { mass: 0.01 }]) {
-      const tracker = fixture(options)
+    for (const secondTime of [0.26, 3.16]) {
+      const tracker = fixture({ secondTime })
       tracker.releaseBranch("A")
       tracker.releaseBranch("B")
-      assert.equal(
-        tracker.mergeTinyExpirations(0.3),
-        false,
-        `Must keep different time buckets or significant states: ${JSON.stringify(options)}`,
-      )
+      assert.equal(tracker.mergeTinyExpirations(secondTime), true, "Same-stack rare states merge across deadlines")
+      const expiry = Math.round((5 + 0.11 * 0.4 + secondTime * 0.6) * 10_000) / 10_000
+      close(tracker.expirationProbability(expiry, "owner"), 5e-7)
+      close(tracker.stackProbabilities(secondTime).get(1)!, 5e-7)
+      close(tracker.apply(secondTime + 0.01, 1, 5, 5, 4, "owner", threshold, "burst"), 5e-7)
     }
-    const differing = fixture({ secondSource: "different", secondStack: 2 })
+    {
+      const tracker = fixture({ mass: 0.01 })
+      tracker.releaseBranch("A")
+      tracker.releaseBranch("B")
+      assert.equal(tracker.mergeTinyExpirations(0.3), false, "Significant states retain their deadlines")
+    }
+    const differing = fixture({ secondSource: "different" })
     differing.releaseBranch("A")
     differing.releaseBranch("B")
     assert.equal(differing.mergeTinyExpirations(0.3), true)
-    close(differing.stackProbabilities(1).get(1.6)!, 5e-7)
+    close(differing.stackProbabilities(1).get(1)!, 5e-7)
     close(differing.tickAt(1).sources.owner, 2e-7)
     close(differing.tickAt(1).sources.different, 3e-7)
     close(differing.expirationProbability(5.14, "owner"), 2e-7)
     close(differing.expirationProbability(5.14, "different"), 3e-7)
+    const differingStacks = fixture({ secondStack: 2 })
+    differingStacks.releaseBranch("A")
+    differingStacks.releaseBranch("B")
+    assert.equal(differingStacks.mergeTinyExpirations(0.3), false, "Different bleed stacks remain separate")
+    close(differingStacks.stackProbabilities(1).get(1)!, 2e-7)
+    close(differingStacks.stackProbabilities(1).get(2)!, 3e-7)
+    close(differingStacks.expirationProbability(5.11, "owner"), 2e-7)
+    close(differingStacks.expirationProbability(5.16, "owner"), 3e-7)
     const exact = new ExpectedPeriodicTracker(1, 1.01)
     const newlyEligible = fixture({ mass: 5e-6 })
     newlyEligible.releaseBranch("A")
@@ -77,9 +91,11 @@ describe("periodic-state-merging", () => {
     exact.apply(0.11, 2e-7, 5, 5, 1, "owner")
     exact.apply(0.16, 3e-7, 5, 5, 1, "owner")
     assert.equal(exact.mergeTinyExpirations(0.2), true)
-    close(exact.tickAt(1.12).probability, 0)
-    close(exact.tickAt(1.15).probability, 2e-7 + 3e-7 - 2e-7 * 3e-7)
-    assert.equal(exact.nextTick(0.2), 1.15)
+    // Both successful applications retain a separate two-stack history and its
+    // original cadence; only the one-stack histories share the mean deadline.
+    close(exact.tickAt(1.12).probability, 2e-7 * 3e-7)
+    close(exact.tickAt(1.15).probability, 2e-7 + 3e-7 - 2 * 2e-7 * 3e-7)
+    assert.equal(exact.nextTick(0.2), 1.12)
 
     const pending = fixture({ origin: 0.05, firstTime: 1.01, secondTime: 1.05 })
     pending.releaseBranch("A")
@@ -95,7 +111,7 @@ describe("periodic-state-merging", () => {
     assert.equal(
       expired.mergeTinyExpirations(5.12),
       true,
-      "Only probability and time buckets determine merge eligibility",
+      "Probability and stack determine merge eligibility, not time buckets",
     )
     assert.equal(expired.nextExpiration(), 5.14)
   })

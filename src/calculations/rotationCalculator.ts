@@ -40,6 +40,7 @@ import {
   attackInputFields,
   rateStatFields,
   referencesChangedInput,
+  referencedInputs,
   RotationDamageResponse,
   type AttackStatField,
 } from "./rotationDamageResponse"
@@ -2190,38 +2191,26 @@ function baselineRateInvariant(baseline: RotationSimulationBaseline) {
 
 const damageResponses = new WeakMap<RotationSimulationBaseline, RotationDamageResponse | null>()
 
-const attackDependencies = new WeakMap<RotationSimulationBaseline, unknown[]>()
+const attackDependencies = new WeakMap<RotationSimulationBaseline, Set<string>>()
 function baselineAttackDependencies(baseline: RotationSimulationBaseline, input: TimelineBuildInput) {
   let dependencies = attackDependencies.get(baseline)
   if (!dependencies) {
     const effectNames = new Set(baseline.timeline.flatMap(row => [...row.buffs.keys(), ...row.debuffs.keys()]))
-    dependencies = [
+    dependencies = referencedInputs([
       input.rotation,
       input.innerWayRules,
       ...baseline.timeline.flatMap(row => [row.skill, row.actions, row.modifierEffects, row.actionModifierEffects]),
       ...new Set(baseline.baseline.flatMap(entry => [entry.context.effects, entry.context.expectedEffects])),
       ...Array.from(effectNames, name => input.effectDefinitions[name]),
-    ]
+    ])
     attackDependencies.set(baseline, dependencies)
   }
   return dependencies
 }
 
-const attackDependencyChecks = new WeakMap<RotationSimulationBaseline, Map<string, boolean>>()
 function baselineDependsOnAttack(baseline: RotationSimulationBaseline, input: TimelineBuildInput, fields: Set<string>) {
-  let checks = attackDependencyChecks.get(baseline)
-  if (!checks) {
-    checks = new Map()
-    attackDependencyChecks.set(baseline, checks)
-  }
-  for (const field of fields) {
-    let depends = checks.get(field)
-    if (depends === undefined) {
-      depends = referencesChangedInput(baselineAttackDependencies(baseline, input), new Set([field]))
-      checks.set(field, depends)
-    }
-    if (depends) return true
-  }
+  const dependencies = baselineAttackDependencies(baseline, input)
+  for (const field of fields) if (dependencies.has(field)) return true
   return false
 }
 

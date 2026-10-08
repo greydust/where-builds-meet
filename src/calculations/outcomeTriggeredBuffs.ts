@@ -363,11 +363,20 @@ export class ExpectedPeriodicTracker {
     return probability
   }
 
-  /** Merge released tiny states by time bucket, weighting stacks and retaining source mass as a mixture. */
+  /** Merge released tiny states per stack across deadlines, retaining source mass as a mixture. */
   mergeTinyExpirations(_time: number) {
     const partition = this.branches.get(undefined)
     if (!partition) return false
-    const states = []
+    const states: Array<{
+      list: PeriodicStateList
+      index: number
+      stack: number
+      expires: number
+      probability: number
+      pendingFraction: number
+      owners: Map<string, number>
+      cadences: Map<number, number> | undefined
+    }> = []
     for (const [source, stacks] of partition.owners)
       for (const [stack, list] of stacks)
         for (let index = list.head; index >= 0; index = list.next(index)) {
@@ -385,7 +394,7 @@ export class ExpectedPeriodicTracker {
           })
         }
     if (states.length < 2) return false
-    const merged = mergeTinyProbabilityStates(states, ["expires"], ["stack", "pendingFraction"], (left, right) => {
+    const combinePayload = (left: (typeof states)[number], right: (typeof states)[number]) => {
       const owners = new Map(left.owners)
       for (const [source, probability] of right.owners) owners.set(source, (owners.get(source) ?? 0) + probability)
       const cadences = left.cadences || right.cadences ? new Map(left.cadences) : undefined
@@ -393,7 +402,16 @@ export class ExpectedPeriodicTracker {
         for (const [tick, probability] of right.cadences ?? [])
           cadences.set(tick, (cadences.get(tick) ?? 0) + probability)
       return { ...left, owners, cadences }
-    })
+    }
+    const statesByStack = new Map<number, typeof states>()
+    for (const state of states) {
+      let group = statesByStack.get(state.stack)
+      if (!group) statesByStack.set(state.stack, (group = []))
+      group.push(state)
+    }
+    const merged = Array.from(statesByStack.values()).flatMap(group =>
+      mergeTinyProbabilityStates(group, ["expires"], ["pendingFraction"], combinePayload, undefined, Infinity),
+    )
     if (merged.length === states.length) return false
     const originals = new Set(states)
     const unchanged = new Set(merged.filter(state => originals.has(state)))
@@ -421,6 +439,9 @@ export class ExpectedPeriodicTracker {
             [...state.cadences].map(([tick, probability]) => ({ tick, probability })),
             ["tick"],
             [],
+            undefined,
+            undefined,
+            Infinity,
           )
         : undefined
       for (const [source, probability] of state.owners) {

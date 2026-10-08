@@ -59,6 +59,23 @@ export function referencesChangedInput(value: unknown, fields: Set<string>): boo
   )
 }
 
+/** Index exact string values once; object keys are not formula references. */
+export function referencedInputs(value: unknown): Set<string> {
+  const references = new Set<string>()
+  const visited = new Set<object>()
+  const visit = (child: unknown) => {
+    if (typeof child === "string") {
+      references.add(child)
+      return
+    }
+    if (!child || typeof child !== "object" || visited.has(child)) return
+    visited.add(child)
+    for (const nested of Object.values(child)) visit(nested)
+  }
+  visit(value)
+  return references
+}
+
 /** An affine response around the baseline, valid only within the recorded clamp/normalization region. */
 export class RotationDamageResponse {
   private readonly includeRates: boolean

@@ -101,7 +101,7 @@ pass. Auto HP is removed, so HP never depends on future rotation duration.
 
 Each temporary causal partition has an inactive-probability scalar and, per damage
 owner, a numeric Map from stack count to sorted `(expiration, probability)` lists.
-Numeric stack keys also retain fractional values produced by tiny-state merging.
+Tiny-state merging preserves each stack count.
 For a hit, visit stack counts downward. Scale each entry's failure mass in place,
 sum its success mass, then insert one destination entry at the refreshed expiration.
 Equal expirations merge. Threshold-burst mass is published only after processing
@@ -112,12 +112,9 @@ Exact cadence weights and shared-grid pending-tick weights travel with the mass.
 The default storage is an indexed linked list backed by parallel JavaScript numeric
 arrays and a recycled-slot free list. Head removal, tail append and equal-tail
 merging are O(1); finding an arbitrary insertion/merge position is still O(n).
-Tiny-state merging does not use arbitrary insertion: each expiration bucket is
-visited twice, once to compute its aggregate and once to retain a survivor and
-unlink the other eligible nodes in O(1) each. If significant states lie between
-tiny states, move their payloads through the survivor slot during that traversal
-to preserve sorted order without reinsertion. Equal mean/significant expirations
-combine exactly as before. No temporary grouping maps or node-index sets are built.
+Tiny-state merging collects released rare entries per stack across owners and
+expiration times. It removes entries that actually merge and inserts their weighted
+deadline, preserving sorted order; significant and singleton entries remain in place.
 Branch release uses a forward-only sorted merge, O(n + m), with O(1) work per
 visited node rather than O(n) insertion searches per source entry. Current-expiry
 follow-ups use the tail directly. Fixed-duration chronological applications also
@@ -158,13 +155,13 @@ exact/shared cadences, and verifies sorted insertion and recycled-slot isolation
 ### Tiny expected-state merging
 
 Expected DOT trackers follow the shared policy in `probabilityStateMerging.ts` and
-merge released states with individual absolute
-probability below `1e-5` and expiration times in the same absolute 0.1-second
-bucket. Stack counts and pending-tick fractions become probability-weighted
-means; expiration means are rounded to the existing 0.0001-second clock.
-Different stacks and damage owners do not prevent merging. Source ownership
+merge released states with individual absolute probability below `1e-5` and the
+same stack count, regardless of expiration time. Stack counts remain unchanged;
+pending-tick fractions and expiration times become probability-weighted means,
+with expiration means rounded to the existing 0.0001-second clock. Different stacks
+remain separate. Source ownership
 is retained as a probability-weighted mixture. Application-relative cadence
-entries also merge by probability and 0.1-second time bucket, weighting their
+entries also merge by probability without time buckets, weighting their
 tick times. A singleton keeps its original values. There is no additional
 active/expired timer eligibility test; chronological execution normally consumes
 expired states before merging. Temporary causal branches enter the retained
@@ -178,8 +175,19 @@ discarded; expiration timing and its interaction with later hits are approximate
 `TimelineBuildInput.expectedPeriodicStateMerging: false` disables this new
 approximation for comparisons, without disabling the existing shared DOT grid.
 
-The benchmark results below describe the former equal-stack/owner expiration-only
-rule and predate universal state-value weighting.
+An alternating baseline benchmark on 2026-10-08 used the Wind Fully Relayed Min
+preset and Dummy 1 Min Infinite Vitality rotation with Fivefold Bleed replacing
+Morale Chant. After four warm-up pairs, six measured pairs gave median baseline
+times of 531 ms with the former time-bucket policy and 398 ms with same-stack
+merging across deadlines. Damage entries fell from 1,852 to 1,413; expiration
+Pierce entries fell from 826 to 387. Five-stack bursts stayed at 450 and DOT ticks
+at 59. Expected DPS changed from 68,113.8785 to 68,096.9623 (−0.02484%). With
+periodic merging disabled, DPS was 68,123.2593. These are fixture-specific
+approximation differences, not a universal error bound. Sampled runs with fixed
+rolls of 0.1 and 0.9 were identical under both policies.
+
+The benchmark results below are historical and do not measure the current
+same-stack policy without timing buckets.
 
 `node script/probe/benchmark-fivefold-state-merging.mjs 400` alternates exact and
 merged runs, discards four warm-up pairs, and reports medians of six measured

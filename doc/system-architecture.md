@@ -667,22 +667,20 @@ stacks downward, scale failed applications in place and aggregate successful mas
 into one new entry per destination stack. Indexed linked lists backed by shared
 numeric arrays recycle slots without allocating per-state objects. Packed arrays
 remain available through the diagnostic `expectedPeriodicStorage` input.
-Tiny-state compaction collects only released rare states across stacks and
-owners and applies the common probability/time-bucket rule. Only entries that
+Tiny-state compaction collects only released rare states and groups them by stack
+count across owners and deadlines. Only entries that
 actually merge are removed and rebuilt in the recycled arena; significant and
-singleton states retain their storage. Empty stack lists are removed so weighted
-fractional stack histories cannot accumulate unused indexes. Stack traversal
+singleton states retain their storage. Empty stack lists are removed. Stack traversal
 order is cached until a stack list is added or removed, avoiding repeated sorting
 during tick, expiry, and damage-snapshot reads. Source probabilities remain a
-mixture while stacks and timing fields are averaged. Numeric Map keys retain
-fractional stacks without rounding them back to an integer.
+mixture while expiration and pending-tick fields are averaged; stack counts stay unchanged.
 Branch release merges sorted lists with one forward cursor and a direct-tail
 fast path for current-expiration follow-ups, avoiding repeated prefix searches.
 Exact-cadence states also carry maps of next-tick timestamps to absolute
 probability mass. Cadence does not affect the supported application, threshold,
 or expiration transitions, so states with different cadences share those
-transitions while their tick schedules remain exact except for the universal
-tiny-state time-bucket approximation. The expected
+transitions while their tick schedules remain exact except for tiny-state
+weighted-time merging. The expected
 timeline contains the union of possible ticks, with separate damage and hit
 weights. These finite probability branches do not consume the ordinary-event
 loop budget. Without the tiny-state approximation described below, the DOT's
@@ -729,12 +727,13 @@ but the grid alone does not approximate stack/expiration transitions or conditio
 Sampled timelines ignore this option and retain exact periodic cadence.
 The generic exact-cadence path remains available for other periodic definitions.
 Shared-clock expected trackers additionally merge released states below `1e-5`
-probability when stack count, damage owner and the 0.1-second expiration bucket
-match. The merged state preserves total mass and uses the weighted mean expiry;
+probability when stack counts match, regardless of expiration time or damage owner.
+The merged state preserves total mass and source ownership and uses the weighted mean expiry;
 temporary conditional branches remain isolated until their follow-ups finish.
 Superseded expiration wakeups are removed, not merely left to fire with zero mass.
 This approximates expiry timing and can affect later stack/trigger transitions;
-it never prunes probability. Exact-cadence trackers and simulations are unchanged.
+it never prunes probability. Exact-cadence trackers use the same rare-state policy;
+sampled simulations are unchanged.
 See [tiny-state merging and its benchmark](rotation-event-loop.md#tiny-expected-state-merging)
 for the diagnostic opt-out, rounding rule, and measured accuracy.
 Expected DOT scheduling keeps one pending tick wakeup per active effect. Applications
@@ -792,8 +791,10 @@ primary attribute. The response records separate weighted bounds for normalizati
 before and after adding Void, preserving whether each maximum follows its own
 endpoint or the minimum. Void and ordinary attack can change together within
 those bounds. Raw-sourced talents can remain eligible when their resolved
-amounts are identical, such as already capped bonuses. Dependency checks are cached
-per changed input so repeated comparisons do not traverse the baseline hits.
+amounts are identical, such as already capped bonuses. Dependency strings are indexed
+once per original baseline, visiting shared objects once. Attack and rate eligibility
+checks query that index instead of traversing the baseline hits separately for every
+changed input. Only string values are indexed; object keys do not count as references.
 Variants crossing those bounds, formulas depending on changed inputs, healing or
 accumulator timelines, changed non-attack stats, and combat-changing variants use
 the existing calculator. Published/cloned baselines lack the private response and
@@ -1556,15 +1557,14 @@ without timing buckets. Exactly identical states consolidate using numeric
 Focus, decay-deadline, and expiry keys; significant states retain their values.
 `probabilityStateMerging.ts` owns the common 0.1 ms clock, `1e-5` threshold,
 0.1-second timing buckets, and probability-weighted merging for expected state
-models. Eligibility depends only on individual probability and timing buckets;
-every numeric state field is averaged, including Focus and stack count. Insightful
+models. Callers select grouping and timing restrictions. Insightful
 Strike uses the same threshold and weighted arithmetic with unrestricted timing
 within each activity category after splitting. Hawkwing,
 resource cooldowns, DOT expiry/cadence states, and Seasonal Edge Yield histories
-use the same helper. Periodic stack storage uses numeric Map keys so fractional
-stacks are retained, and source ownership is a weighted mixture. Fractional
+use the same helper. Periodic trackers merge rare states separately per stack without
+timing buckets; stack counts stay fixed and source ownership is a weighted mixture. Fractional
 debuff stacks resolve through neighboring authored stack-effect tables. There
-is no separate Focus-decay-lifetime condition or non-timing equality gate.
+is no separate Focus-decay-lifetime condition.
 Expected and sampled trackers share the same decay and gain transitions. `outcomeTriggeredBuffs.ts` contains only the shared 0.1 ms
 clock and schedule primitives. The rotation calculator coordinates the two
 mechanics and adds their resolved pre-hit effects to the ordinary unconditional
