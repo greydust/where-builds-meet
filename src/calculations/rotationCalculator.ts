@@ -14,8 +14,10 @@ import {
   type DamageBreakdown,
   type DamageContext,
   type DamageAction,
+  attackFields,
 } from "./damage"
 import type { AttunementStats } from "./damage"
+import { mainAttributeForWeapons } from "./effectiveStats"
 import { ExpectedHawkwingTracker, SimulatedHawkwingTracker, hawkwingEffectFor, type HawkwingEffect } from "./hawkwing"
 import {
   calculateHealingAttackSnapshot,
@@ -35,6 +37,7 @@ import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTrig
 import { createPreparedEffectState } from "./preparedEffectState"
 import {
   attackStatFields,
+  attackInputFields,
   rateStatFields,
   referencesChangedInput,
   RotationDamageResponse,
@@ -2536,7 +2539,11 @@ export function calculateRotationComparisons(
       const changedInputs = new Set(
         changed.flatMap(key => [key, attackStatFields[key as keyof typeof attackStatFields]]).filter(Boolean),
       )
-      if (changed.length > 0 && changed.every(key => key in attackStatFields)) {
+      const primary = mainAttributeForWeapons(state.weapons)
+      if (primary && changed.some(key => key === "minVoidAttack" || key === "maxVoidAttack"))
+        for (const field of attackFields[primary]) changedInputs.add(field)
+      const attackChange = changed.every(key => attackInputFields.has(key))
+      if (changed.length > 0 && attackChange) {
         const next = variantStatState(state, timelineInput.setupEffects, timelineInput.innerWayRules, variant)
         const resolvedSetup = timelineInput.setupEffects.map(effect =>
           effect.statStage === "talent" ? resolveRawStatFormulas(effect, state.rawStats) : effect,
@@ -2549,14 +2556,14 @@ export function calculateRotationComparisons(
           !referencesChangedInput(resolvedSetup, changedInputs) &&
           !baselineDependsOnAttack(baselineResult, timelineInput, changedInputs)
         // Raw-sourced talents may change damage bonuses, penetration or other derived inputs.
-        const attackOnly = Object.keys(emptyStats).every(
+        const onlyEligibleStats = Object.keys(emptyStats).every(
           key =>
-            key in attackStatFields ||
+            attackInputFields.has(key) ||
             next.stats[key as keyof CharacterStats] === state.stats[key as keyof CharacterStats],
         )
-        if (attackOnly && independent) {
+        if (onlyEligibleStats && independent) {
           const delta: Partial<Record<AttackStatField, number>> = {}
-          for (const field of Object.keys(attackStatFields) as AttackStatField[]) {
+          for (const field of attackInputFields as Set<AttackStatField>) {
             const amount = next.stats[field] - state.stats[field]
             if (amount !== 0) delta[field] = amount
           }

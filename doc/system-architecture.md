@@ -787,7 +787,11 @@ Mystic contributions retain the baseline Vitality scale. Evaluation uses the
 baseline damage plus the dot product of attack deltas and the coefficients.
 The response records physical zero-clamp and attack-range normalization bounds.
 Both sides of attack normalization are supported, including maximum attack that
-follows minimum attack. Raw-sourced talents can remain eligible when their resolved
+follows minimum attack. Void minimum/maximum deltas contribute to the equipped
+primary attribute. The response records separate weighted bounds for normalization
+before and after adding Void, preserving whether each maximum follows its own
+endpoint or the minimum. Void and ordinary attack can change together within
+those bounds. Raw-sourced talents can remain eligible when their resolved
 amounts are identical, such as already capped bonuses. Dependency checks are cached
 per changed input so repeated comparisons do not traverse the baseline hits.
 Variants crossing those bounds, formulas depending on changed inputs, healing or
@@ -795,6 +799,10 @@ accumulator timelines, changed non-attack stats, and combat-changing variants us
 the existing calculator. Published/cloned baselines lack the private response and
 also use the existing calculation. Aggregation can change floating-point addition
 order; it does not change the baseline or sampled damage formulas.
+
+Critical and affinity damage-bonus variants retain the existing per-action
+calculation. The main-page comparison workload does not request direct variants
+for these bonuses, so the rotation response does not prepare dedicated coefficients.
 
 Pure damage-boost attunement comparisons use the same private rotation response.
 Each matching hit contributes `damage / (1 + attunementBonus)` times the data-defined

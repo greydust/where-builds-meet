@@ -483,3 +483,91 @@ it("propagates rotation rate coefficients through recorded source weights", () =
     }).total - calculateDamageBreakdown(action, input).total
   expect(replay.evaluateRates({ crit: 0.2 }, {})).toBeCloseTo(difference * 0.35, 10)
 })
+
+describe("Void attack rotation coefficients", () => {
+  it("matches full normalization on both stages for each primary attribute", () => {
+    const weapons = ["namelessSword", "snowparting", "panaceaFan", "infernalTwinblades"] as const
+    const action = { type: "damage", phyCoef: 0.9, attrCoef: 0.7, attrBonus: 11 }
+    for (const weapon of weapons) {
+      for (const [minimum, maximum, voidMin, voidMax] of [
+        [100, 200, 10, 50],
+        [300, 100, 10, 50],
+        [300, 100, 50, 10],
+        [100, 200, 200, 0],
+      ]) {
+        const attack = {
+          ...stats,
+          minBellstrike: minimum,
+          maxBellstrike: maximum,
+          minStonesplit: minimum,
+          maxStonesplit: maximum,
+          minSilkbind: minimum,
+          maxSilkbind: maximum,
+          minBamboocut: minimum,
+          maxBamboocut: maximum,
+          minVoidAttack: voidMin,
+          maxVoidAttack: voidMax,
+        }
+        const input = {
+          ...context(),
+          weapons: [weapon],
+          stats: attack,
+          derivedStats: calculateDerivedStats(attack, 0, {}, [weapon]),
+        }
+        const response = new RotationDamageResponse()
+        response.addDamage(action, input)
+        for (const delta of [
+          { minVoidAttack: 3 },
+          { maxVoidAttack: 4 },
+          { minVoidAttack: 3, maxVoidAttack: 4, minBamboocut: 2 },
+        ]) {
+          const next = {
+            ...attack,
+            ...Object.fromEntries(
+              Object.entries(delta).map(([field, amount]) => [field, attack[field as keyof typeof attack] + amount!]),
+            ),
+          }
+          const difference =
+            calculateDamageBreakdown(action, {
+              ...input,
+              stats: next,
+              derivedStats: calculateDerivedStats(next, 0, {}, [weapon]),
+            }).total - calculateDamageBreakdown(action, input).total
+          expect(response.evaluate(delta)).toBeCloseTo(difference, 10)
+        }
+      }
+    }
+  })
+
+  it("falls back when Void changes cross the post-Void normalization boundary", () => {
+    const attack = { ...stats, minVoidAttack: 200, maxVoidAttack: 0 }
+    const input = { ...context(), stats: attack, derivedStats: calculateDerivedStats(attack, 0, {}, context().weapons) }
+    const response = new RotationDamageResponse()
+    response.addDamage({ type: "damage", attrCoef: 1 }, input)
+    expect(response.evaluate({ maxVoidAttack: 101 })).toBeUndefined()
+    expect(response.evaluate({ minVoidAttack: -101 })).toBeUndefined()
+  })
+})
+
+describe("Void attack rotation comparisons", () => {
+  it("evaluates repeated Void variants without visiting hits", () => {
+    const input = bundle()
+    input.timeline.setupEffects = [{ effectiveStat: { minVoidAttack: 30, maxVoidAttack: 60, critDmgBonus: 0.2 } }]
+    const fields = ["minVoidAttack", "maxVoidAttack"] as const
+    input.statPriority = fields.map(field => ({ label: field, stats: { ...stats, [field]: stats[field] + 5 } }))
+    const baseline = calculateRotationBaseline(input)
+    const fast = calculateRotationComparisons(input, baseline)
+    const spy = vi.spyOn(actionStats, "resolveActionStatContext")
+    expect(calculateRotationComparisons(input, baseline)).toEqual(fast)
+    expect(spy).not.toHaveBeenCalled()
+    const full = calculateRotationComparisons(
+      {
+        ...input,
+        statPriority: input.statPriority.map(variant => Object.assign({}, variant, { timeline: input.timeline })),
+      },
+      baseline,
+    )
+    for (let i = 0; i < fields.length; i++)
+      expect(fast.statPriority[i].dpsDifference).toBeCloseTo(full.statPriority[i].dpsDifference, 10)
+  })
+})

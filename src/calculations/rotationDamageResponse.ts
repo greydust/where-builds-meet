@@ -47,7 +47,8 @@ export const rateStatFields = new Set([
 ])
 const rateFields = ["abrasionRate", "normalRate", "critRate", "affinityRate"] as const
 
-export type AttackStatField = keyof typeof attackStatFields
+export const attackInputFields = new Set([...Object.keys(attackStatFields), "minVoidAttack", "maxVoidAttack"])
+export type AttackStatField = keyof typeof attackStatFields | "minVoidAttack" | "maxVoidAttack"
 
 /** Formula sources, segments, conversions and stat requirements must remain independent of changed inputs. */
 export function referencesChangedInput(value: unknown, fields: Set<string>): boolean {
@@ -64,7 +65,7 @@ export class RotationDamageResponse {
   constructor(includeRates = false) {
     this.includeRates = includeRates
   }
-  readonly coefficients = Object.fromEntries(Object.keys(attackStatFields).map(field => [field, 0])) as Record<
+  readonly coefficients = Object.fromEntries([...attackInputFields].map(field => [field, 0])) as Record<
     AttackStatField,
     number
   >
@@ -155,11 +156,13 @@ export class RotationDamageResponse {
   }
 
   private bounds = new Map<number, { lower: number; upper: number }>()
-  private ranges = new Map<keyof typeof attackFields, { lower: number; upper: number }>()
-
+  private ranges = new Map<
+    string,
+    { weights: Partial<Record<AttackStatField, number>>; lower: number; upper: number }
+  >()
   add(other: RotationDamageResponse, weight = 1) {
     if (weight === 0) return
-    for (const field of Object.keys(attackStatFields) as AttackStatField[])
+    for (const field of attackInputFields as Set<AttackStatField>)
       this.coefficients[field] += other.coefficients[field] * weight
     for (const [key, group] of other.rateGroups) this.addRateGroup(key, group, weight)
     for (const [key, coefficient] of other.attunementCoefficients)
@@ -168,7 +171,7 @@ export class RotationDamageResponse {
       this.attunementBounds.set(key, Math.max(this.attunementBounds.get(key) ?? -Infinity, lower))
     for (const [key, response] of other.penetration) this.addPenetration(key, response, weight)
     for (const [minimumWeight, bound] of other.bounds) this.bound(minimumWeight, bound.lower, bound.upper)
-    for (const [channel, bound] of other.ranges) this.range(channel, bound.lower, bound.upper)
+    for (const bound of other.ranges.values()) this.range(bound.weights, bound.lower, bound.upper)
   }
 
   private addPenetration(
@@ -184,9 +187,11 @@ export class RotationDamageResponse {
     })
   }
 
-  private range(channel: keyof typeof attackFields, lower: number, upper: number) {
-    const previous = this.ranges.get(channel)
-    this.ranges.set(channel, {
+  private range(weights: Partial<Record<AttackStatField, number>>, lower: number, upper: number) {
+    const key = JSON.stringify(weights)
+    const previous = this.ranges.get(key)
+    this.ranges.set(key, {
+      weights,
       lower: Math.max(previous?.lower ?? -Infinity, lower),
       upper: Math.min(previous?.upper ?? Infinity, upper),
     })
@@ -253,21 +258,31 @@ export class RotationDamageResponse {
       const minAttack = resolved.stats[rawMinimum] + (bonuses[rawMinimum] ?? 0)
       const maxAttack = resolved.stats[rawMaximum] + (bonuses[rawMaximum] ?? 0)
       const gap = maxAttack - minAttack
-      let maximumUsesMinimum = gap < 0
-      this.range(channel, maximumUsesMinimum ? gap : -Infinity, maximumUsesMinimum ? Infinity : gap)
-      if (mainAttributeForWeapons(resolved.weapons) === channel) {
+      const firstClamped = gap < 0
+      const rawWeights = { [rawMinimum]: 1, [rawMaximum]: -1 }
+      this.range(rawWeights, firstClamped ? gap : -Infinity, firstClamped ? Infinity : gap)
+      let secondClamped = false
+      const primary = mainAttributeForWeapons(resolved.weapons) === channel
+      if (primary) {
         const voidMin = resolved.stats.minVoidAttack + (bonuses.minVoidAttack ?? 0)
         const voidMax = resolved.stats.maxVoidAttack + (bonuses.maxVoidAttack ?? 0)
         const secondGap = Math.max(minAttack, maxAttack) + voidMax - minAttack - voidMin
-        if (!maximumUsesMinimum) {
-          const secondClamped = secondGap < 0
-          this.range(channel, secondClamped ? secondGap : -Infinity, secondClamped ? Infinity : secondGap)
-          maximumUsesMinimum = secondClamped
-        }
+        secondClamped = secondGap < 0
+        this.range(
+          { ...(firstClamped ? {} : rawWeights), minVoidAttack: 1, maxVoidAttack: -1 },
+          secondClamped ? secondGap : -Infinity,
+          secondClamped ? Infinity : secondGap,
+        )
       }
+      const maximumUsesMinimum = firstClamped || secondClamped
       this.coefficients[rawMinimum] +=
         (response.coefficients[minimum] + (maximumUsesMinimum ? response.coefficients[maximum] : 0)) * weight
       if (!maximumUsesMinimum) this.coefficients[rawMaximum] += response.coefficients[maximum] * weight
+      if (primary) {
+        this.coefficients.minVoidAttack +=
+          (response.coefficients[minimum] + (secondClamped ? response.coefficients[maximum] : 0)) * weight
+        if (!secondClamped) this.coefficients.maxVoidAttack += response.coefficients[maximum] * weight
+      }
       if (channel === "physical") physicalMaximumUsesMinimum = maximumUsesMinimum
     }
     for (const bound of response.physicalBounds)
@@ -280,15 +295,13 @@ export class RotationDamageResponse {
       // Strict interior avoids zero-damage transitions that could alter outcome-trigger feedback.
       if (!(change > lower && change < upper)) return undefined
     }
-    for (const [channel, { lower, upper }] of this.ranges) {
-      const [minimum, maximum] = attackFields[channel]
-      const rawMinimum = Object.entries(attackStatFields).find(([, field]) => field === minimum)![0] as AttackStatField
-      const rawMaximum = Object.entries(attackStatFields).find(([, field]) => field === maximum)![0] as AttackStatField
-      if (!(rawMinimum in delta || rawMaximum in delta)) continue
-      const change = (delta[rawMinimum] ?? 0) - (delta[rawMaximum] ?? 0)
+    for (const { weights, lower, upper } of this.ranges.values()) {
+      const fields = Object.keys(weights) as AttackStatField[]
+      if (!fields.some(field => field in delta)) continue
+      const change = fields.reduce((sum, field) => sum + weights[field]! * (delta[field] ?? 0), 0)
       if (!(change > lower && change < upper)) return undefined
     }
-    return (Object.keys(attackStatFields) as AttackStatField[]).reduce(
+    return ([...attackInputFields] as AttackStatField[]).reduce(
       (total, field) => total + this.coefficients[field] * (delta[field] ?? 0),
       0,
     )

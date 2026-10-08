@@ -1120,3 +1120,12 @@ the four outcomes and all groups. Rates still use their shared caps, guarantees,
 and restricted routes. Replayed damage contributes its weighted source coefficients.
 Probability-dependent buffs and state distributions remain on the sequence path;
 fixed rotation coefficients do not freeze their baseline probabilities.
+
+Void attack deltas use the equipped primary attribute's minimum/maximum coefficients.
+The first normalization applies to the attribute endpoints; the second applies
+after Void minimum/maximum are added. Each stage retains its own delta bounds.
+If the second maximum follows the minimum, both its attribute and Void contribution
+follow their minimum inputs. Other attribute channels receive no Void contribution.
+
+Critical and affinity damage-bonus changes use the native per-action formula;
+the rotation response does not prepare dedicated coefficients for these bonuses.
