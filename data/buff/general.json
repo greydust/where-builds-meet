@@ -221,5 +221,198 @@
       ]
     ],
     "refresh": true
+  },
+  "RighteousLight": {
+    "name": "Light",
+    "description": "Increases Righteous Return by 10% per stack.",
+    "duration": 5,
+    "maxStack": 5,
+    "refresh": true,
+    "stackEffects": [
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.005, 0.0045, 0.004, 0.0035, 0.003],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.01, 0.009, 0.008, 0.007, 0.006],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.015, 0.0135, 0.012, 0.0105, 0.009],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.02, 0.018, 0.016, 0.014, 0.012],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.025, 0.0225, 0.02, 0.0175, 0.015],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    ]
+  },
+  "RighteousDarkness": {
+    "name": "Darkness",
+    "description": "Increases Relentless Combat by 10% per stack.",
+    "duration": 5,
+    "maxStack": 5,
+    "refresh": true,
+    "stackEffects": [
+      [
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.005, 0.0045, 0.004, 0.0035, 0.003],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.005, 0.0045, 0.004, 0.0035, 0.003],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.01, 0.009, 0.008, 0.007, 0.006],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.01, 0.009, 0.008, 0.007, 0.006],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.015, 0.0135, 0.012, 0.0105, 0.009],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.015, 0.0135, 0.012, 0.0105, 0.009],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.02, 0.018, 0.016, 0.014, 0.012],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.02, 0.018, 0.016, 0.014, 0.012],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ],
+      [
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.025, 0.0225, 0.02, 0.0175, 0.015],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.025, 0.0225, 0.02, 0.0175, 0.015],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    ]
   }
 }

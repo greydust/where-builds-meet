@@ -1,10 +1,50 @@
 {
   "name": "Light and Shadow Alike",
   "altersTimeline": true,
-  "tags": [],
+  "tags": ["SilkbindDeluge"],
   "effect": {
-    "LightAndShadowAlikeT0": {},
-    "LightAndShadowAlikeT1": {},
+    "LightAndShadowAlikeT0": {
+      "effect": [
+        {
+          "requirement": [
+            { "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT3" }] },
+            { "target": "skillTag", "value": "DirectDamage" }
+          ],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [20, 40, 60, 80],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    },
+    "LightAndShadowAlikeT1": {
+      "effect": [
+        {
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT3" }] }],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [20, 40, 60, 80],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [20, 40, 60, 80],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    },
     "LightAndShadowAlikeT2": {
       "effect": [
         {
@@ -65,9 +105,102 @@
         }
       ]
     },
-    "LightAndShadowAlikeT3": {},
-    "LightAndShadowAlikeT4": {},
+    "LightAndShadowAlikeT3": {
+      "effect": [
+        {
+          "requirement": [
+            { "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT6" }] },
+            { "target": "skillTag", "value": "DirectDamage" }
+          ],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        },
+        {
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT6" }] }],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.05, 0.045, 0.04, 0.035, 0.03],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    },
+    "LightAndShadowAlikeT4": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [
+            { "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT6" }] },
+            { "target": "skillTag", "value": "DirectDamage" }
+          ],
+          "action": [
+            { "type": "consume", "target": "self", "value": "RighteousDarkness", "stack": 1 },
+            { "type": "apply", "target": "self", "value": "RighteousLight", "stack": 1 }
+          ]
+        },
+        {
+          "event": "takeDamage",
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "LightAndShadowAlikeT6" }] }],
+          "action": [
+            { "type": "consume", "target": "self", "value": "RighteousLight", "stack": 1 },
+            { "type": "apply", "target": "self", "value": "RighteousDarkness", "stack": 1 }
+          ]
+        }
+      ]
+    },
     "LightAndShadowAlikeT5": { "effect": [{ "rawStat": { "physicalPenetration": 5.1 } }] },
-    "LightAndShadowAlikeT6": {}
+    "LightAndShadowAlikeT6": {
+      "effect": [
+        {
+          "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+          "effect": {
+            "dmgBonus": {
+              "function": "segment",
+              "param1": "targetHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.09, 0.08, 0.07, 0.06, 0.05],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        },
+        {
+          "requirement": [],
+          "effect": {
+            "healingBonus": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.09, 0.08, 0.07, 0.06, 0.05],
+              "mode": "UpperBoundInclusive"
+            },
+            "directDamageReduction": {
+              "function": "segment",
+              "param1": "currentHPPercentage",
+              "param2": [40, 55, 70, 85],
+              "param3": [0.09, 0.08, 0.07, 0.06, 0.05],
+              "mode": "UpperBoundInclusive"
+            }
+          }
+        }
+      ]
+    }
   }
 }

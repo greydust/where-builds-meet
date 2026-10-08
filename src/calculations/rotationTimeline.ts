@@ -4358,9 +4358,43 @@ export function buildRotationTimeline(
       // This lets zero-damage manual events activate responses.
       activeResponses.forEach(response => queueAttackResponse(response.row, event.time, event.sortOrder))
       const incomingDamage = Math.max(0, action.damage)
+      // Incoming attacks use the pre-hit HP and stacks, before takeDamage triggers.
+      const incomingEffects = [
+        ...setupEffects,
+        ...innerWayRules,
+        ...[...buffs.values()].flatMap(tracked =>
+          effectsForTrackedEffect(tracked.stack, getModifiedEffectDefinition(tracked.name, buffs, debuffs, skillTags)),
+        ),
+      ]
+      let directDamageReduction = 0
+      for (const rule of incomingEffects) {
+        if (!rule || typeof rule !== "object" || Array.isArray(rule)) continue
+        const effectRule = rule as EditableObject
+        const effect = (effectRule.effect ?? effectRule) as EditableObject
+        if (effect.directDamageReduction === undefined) continue
+        if (
+          !requirementsPass(
+            effectRule.requirement,
+            buffs,
+            debuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
+          )
+        )
+          continue
+        const value = effect.directDamageReduction
+        directDamageReduction +=
+          typeof value === "number"
+            ? value
+            : (resolveSegmentValue(value, { currentHPPercentage: currentHPRatio * 100 }) ?? 0)
+      }
+      const reducedIncomingDamage = incomingDamage * Math.max(0, 1 - directDamageReduction)
       const resolvedDamage = activeResponses.length
         ? 0
-        : (resolveAction?.resolveIncomingDamage?.(incomingDamage, event.time) ?? incomingDamage)
+        : (resolveAction?.resolveIncomingDamage?.(reducedIncomingDamage, event.time) ?? reducedIncomingDamage)
       action.damage = resolvedDamage
       // A manually authored zero-damage event is still a Take Damage event. A
       // positive attack that a defense avoids remains excluded from damage-taken

@@ -777,6 +777,16 @@ Grace adds another `dmgBonus: 0.05` only against an Exhausted target. This is
 part of Floating Grace's damage bonus (including its Deluge variant), with no
 separate buff or five-second timer.
 
+Light and Shadow Alike's Righteous Return adds to `dmgBonus` only for
+`DirectDamage` actions. T0–T2 grant 3% plus 0.5% per complete 20% target HP
+lost, capped at 2% extra; T3–T5 use 15% intervals. T6 replaces this with 5%
+plus 1% per complete 15% lost, capped at 4% extra. HP threshold equality grants
+the next step. T1 adds the corresponding healing bonus and direct incoming
+damage reduction using the caster's pre-action HP instead of target HP.
+T4–T5 Light/Darkness stacks enhance their respective bonuses by 10% per stack,
+up to 50%; T6 removes stack generation. These definitions follow innerway 47
+in `local/datamine/wwm-inner-way-normal.json` (normal variant).
+
 `Exhausted` supplies `globalDmgBonus: 0.1`. Thunder Summoning supplies
 `globalDmgBonus: 0.3` for 15 seconds, matching its source cause-50 value.
 Qi Imbalance conditionally supplies

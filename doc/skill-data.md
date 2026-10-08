@@ -606,8 +606,20 @@ Self HP events store absolute HP; the UI percentage is only an input boundary.
 Take Damage is an independent timed event. A manually authored event with zero
 damage still dispatches defensive responses and Take Damage effects even though
 it removes no HP. Target HP is depleted only when the rotation supplies maximum
-`targetHP`; otherwise it stays at the implicit state unless explicitly set. Qi
-depletion is authored rather than calculated. A preset's Qi events read as repeating
+`targetHP`; otherwise it stays at the implicit state unless explicitly set.
+
+`directDamageReduction` is an additive ratio on setup, innerway, or tracked
+self-effect rules. It accepts a fixed ratio or a `segment` on
+`currentHPPercentage`, resolved against pre-hit Self HP. Take Damage events
+represent direct incoming attacks; the reduction applies before Insightful
+Strike's probabilistic defense and before HP loss and take-damage triggers.
+Light and Shadow Alike uses this field alongside `healingBonus` for Relentless
+Combat. Its T4–T5 direct outgoing hits consume one Darkness and add one Light;
+incoming hits consume one Light and add one Darkness. Each effect refreshes its
+five-second duration, caps at five stacks, and uses `stackEffects` to enhance
+its HP-dependent bonus. T6 gates off both triggers and replaces the base rules.
+
+Qi depletion is authored rather than calculated. A preset's Qi events read as repeating
 ramps of `0.5999`, `0.3999`, `0`; the `0` event applies Exhausted, and its expiry is
 the only thing that refills the meter. The target is then immune to Qi damage
 for four seconds (user-confirmed). A following depletion ramp starts after both the Exhausted

@@ -1243,6 +1243,13 @@ even when a triggered skill changes its damage group. These rules execute within
 the shared worker timeline; comparisons that change them require a rebuilt
 timeline rather than reusing baseline effect snapshots.
 
+Direct incoming damage reductions reuse setup/innerway requirements and tracked
+self-effect definitions in the timeline. They read pre-hit HP and stacks before
+defensive resolution and take-damage triggers. Light and Shadow Alike is enabled
+for Deluge and uses the existing segmented damage/healing values and opposing
+tracked stacks; it changes HP and combat events, so its variants rebuild the
+timeline through `altersTimeline`.
+
 Triggered attacks use explicit authored tags. Scarlet Spin and Dreamwrought Bubbles
 raise separate Resonance definitions, with `MartialArt` and `Heavy`/`Charged`
 respectively. Both retain `Umbrella` and `ReturningUmbrella` bonuses and share the
