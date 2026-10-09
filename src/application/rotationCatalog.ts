@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid"
 
-import { normalizeEnemyCount, normalizePing, resolveTargetType } from "../calculations/combatDefaults"
-import { resolveSwitchValue } from "../calculations/dynamicValues"
+import { normalizeEnemyCount, normalizePing, resolveTargetType } from "@/calculations/combatDefaults"
+import { resolveSwitchValue } from "@/calculations/dynamicValues"
 import {
   buildRotationTimeline,
   editableCastTimeRequired,
@@ -15,7 +15,7 @@ import {
   type RotationStep,
   type SkillRecord,
   type TimelineRow,
-} from "../calculations/rotationTimeline"
+} from "@/calculations/rotationTimeline"
 import {
   migrateAutomaticDelays,
   migrateDefenseActionAnchors,
@@ -23,9 +23,11 @@ import {
   migrateGeneralsBaneSlides,
   migrateVendettaTokenStep,
   normalizeRotationStart,
-} from "../rotationEditing"
-import type { RotationEntry } from "../rotationTransfer"
-import { normalizeStoredWeaponIds, weaponIds as allWeaponIds, type WeaponId } from "../types"
+} from "@/rotationEditing"
+import type { RotationEntry } from "@/rotationTransfer"
+import { migrateSkillId } from "@/skillIdMigrations"
+import { normalizeStoredWeaponIds, weaponIds as allWeaponIds, type WeaponId } from "@/types"
+
 import { rotationEventDefinitions } from "./gameData/rotationEffects"
 import { allSkillDefinitions, dotDefinitions, effectDefinitions, martialArtBySkillId } from "./gameData/skills"
 
@@ -43,6 +45,7 @@ export function normalizeRotation(rotation: RotationRecord): RotationRecord {
   const steps: RotationStep[] = (rotation.steps as Array<RotationStep & { repeat?: number }>).flatMap(
     (step): RotationStep[] => {
       if (step.type === "event") return [migrateVendettaTokenStep(step)]
+      step = { ...step, skill: step.skill ? migrateSkillId(step.skill) : step.skill }
       if (
         editableCastTimeRequired(allSkillDefinitions[step.skill ?? ""]) &&
         (typeof step.duration !== "number" || !Number.isFinite(step.duration))

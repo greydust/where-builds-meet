@@ -147,8 +147,8 @@ describe("vagrant-sword-charge-variants", () => {
     const prepullMorph = run(["SwordMorphT0", "SwordMorphT1"], false, 5, true)
     assert.equal(
       prepullMorph.timeline[0].timelineResourceSummary?.Endurance?.consumed,
-      20,
-      "The opener pays the release cost; passive charge drain starts only in combat",
+      43.9988,
+      "The opener drains during charging before battle and pays the release cost",
     )
 
     const chainingTiers = ["SwordMorphT0", "SwordMorphT1", "SwordMorphT4"]

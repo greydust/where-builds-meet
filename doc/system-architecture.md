@@ -1940,8 +1940,10 @@ unrestricted test combinations. Planner-only paths indicate that their
 martial-art pair and build-planner surfaces are registered but their combat mechanics
 are not implemented. Planner-only
 paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
-is enabled. Bellstrike Splendor and Umbra, Silkbind Jade, and Bamboocut
-Draught currently use this state. Deluge, Kite, Wind, and Dust are available:
+is enabled. Bellstrike Splendor, Silkbind Jade, and Bamboocut
+Draught currently use this state. Umbra is WIP with a registered draft rotation;
+its missing timings and damage terms are documented in `skill-data.md`.
+Deluge, Kite, Wind, and Dust are available:
 their editor catalogs, Inner Way rules, and default rotations are registered,
 and their default rotations use explicit unresolved timing fallbacks. Available
 paths contribute their fixed martial-art pairs and physical weapon

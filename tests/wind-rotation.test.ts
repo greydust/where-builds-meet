@@ -166,7 +166,7 @@ describe("Wind dummy preset", () => {
     const qiRows = timeline.filter(row => row.step.type === "event" && row.step.event === "Qi")
     expect(qiRows).toHaveLength(5)
     const breakTime = qiRows[2].startTime - fightStart
-    expect(breakTime).toBeCloseTo(21.062, 2)
+    expect(breakTime).toBeCloseTo(21.024, 2)
     const recoveryTime = breakTime + 10
     const nextBreak = 65
     const immunityEnd = recoveryTime + 4

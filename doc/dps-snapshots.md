@@ -32,6 +32,11 @@ the check.
 
 ## Accepted values and review gate
 
+The October 2026 Umbra release uses the user-approved current damage for all
+presets. This includes the new WIP Umbra rotation, weapon-specific Deflect timing,
+Endurance recovery before combat, and the approved Splendor Qi and Might Defense
+alignment repairs. The snapshot JSON records the exact accepted values.
+
 Schema version 2 replaces the old one-case-per-path file. Each case records its
 fixture, DPS, total damage, and duration. The gate fails on:
 

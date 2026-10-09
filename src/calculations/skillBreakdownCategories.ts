@@ -12,7 +12,7 @@ export function groupSkillBreakdown<T extends SkillRow>(
   const categories = new Map<string, T[]>()
   const result: SkillBreakdownGroup<T>[] = []
   for (const row of rows) {
-    const category = skills[row.id]?.skillBreakdownCategory?.trim()
+    const category = (row.skillBreakdownCategory ?? skills[row.id]?.skillBreakdownCategory)?.trim()
     if (!category) {
       result.push(row)
       continue

@@ -21,11 +21,13 @@ import innerWayDebuffs from "@gamedata/debuff/innerway.json"
 import mysticDebuffs from "@gamedata/debuff/mystic.json"
 import stonesplitMightDebuffs from "@gamedata/debuff/stonesplit-might.json"
 import stonesplitStrengthDebuffs from "@gamedata/debuff/stonesplit-strength.json"
+import umbraDots from "@gamedata/dot/bellstrike-umbra.json"
 import divinecraftDots from "@gamedata/dot/divinecraft.json"
 import innerWayDots from "@gamedata/dot/innerway.json"
 import mysticDots from "@gamedata/dot/mystic.json"
 import everspringSkills from "@gamedata/skill/everspring-umbrella.json"
 import generalSkills from "@gamedata/skill/general.json"
+import heavenquakerSkills from "@gamedata/skill/heavenquaker-spear.json"
 import heavenwillSkills from "@gamedata/skill/heavenwill-gauntlets.json"
 import infernalSkills from "@gamedata/skill/infernal-twinblades.json"
 import mechanismSkills from "@gamedata/skill/mechanism.json"
@@ -39,6 +41,7 @@ import skygraspSkills from "@gamedata/skill/skygrasp-rope-dart.json"
 import snowpartingSkills from "@gamedata/skill/snowparting-blade.json"
 import soulshadeSkills from "@gamedata/skill/soulshade-umbrella.json"
 import stormbreakerSkills from "@gamedata/skill/stormbreaker-spear.json"
+import strategicSwordSkills from "@gamedata/skill/strategic-sword.json"
 import thundercrySkills from "@gamedata/skill/thundercry-blade.json"
 import unfetteredSkills from "@gamedata/skill/unfettered-rope-dart.json"
 
@@ -61,6 +64,8 @@ export const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Unfettered: unfetteredSkills as SkillMap,
   NamelessSword: namelessSwordSkills as SkillMap,
   NamelessSpear: namelessSpearSkills as SkillMap,
+  StrategicSword: strategicSwordSkills as SkillMap,
+  HeavenQuakerSpear: heavenquakerSkills as SkillMap,
   Mystic: mysticSkills as SkillMap,
   General: generalSkills as SkillMap,
   Mechanism: mechanismSkills as SkillMap,
@@ -112,6 +117,8 @@ export const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
   unfettered: "Unfettered",
   namelessSword: "NamelessSword",
   namelessSpear: "NamelessSpear",
+  strategicSword: "StrategicSword",
+  heavenquakerSpear: "HeavenQuakerSpear",
 }
 export const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap
 export const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
@@ -129,6 +136,8 @@ export const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
   Unfettered: "unfetteredRopeDart",
   NamelessSword: "namelessSword",
   NamelessSpear: "namelessSpear",
+  StrategicSword: "strategicSword",
+  HeavenQuakerSpear: "heavenquakerSpear",
   Mystic: "mystic",
   General: "general",
   Mechanism: "mechanism",
@@ -143,6 +152,8 @@ export const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).fl
 )
 export const editorSkillIds = Array.from(new Set(allSkillIds))
 export const martialArtBySkillId = new Map<string, WeaponId>([
+  ...Object.keys(strategicSwordSkills).map(id => [id, "strategicSword"] as const),
+  ...Object.keys(heavenquakerSkills).map(id => [id, "heavenquakerSpear"] as const),
   ...Object.keys(snowpartingSkills).map(id => [id, "snowparting"] as const),
   ...Object.keys(phalanxbaneSkills).map(id => [id, "phalanxbane"] as const),
   ...Object.keys(thundercrySkills).map(id => [id, "thundercry"] as const),
@@ -168,7 +179,10 @@ export const rotationEventOptionIds = [
   "__event:Buff",
   "__event:Debuff",
 ]
-export const dotDefinitions = { ...mysticDots, ...innerWayDots, ...divinecraftDots } as Record<string, SkillRecord>
+export const dotDefinitions = { ...mysticDots, ...innerWayDots, ...divinecraftDots, ...umbraDots } as Record<
+  string,
+  SkillRecord
+>
 export const dotEffectIds = new Set(Object.keys(dotDefinitions))
 export const effectDefinitions = {
   ...bellstrikeSplendorBuffs,

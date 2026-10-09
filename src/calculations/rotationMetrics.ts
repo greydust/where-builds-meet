@@ -8,6 +8,7 @@ export type RotationPriority = {
   hpsDifference: number
 }
 export type RotationSkillBreakdown = {
+  skillBreakdownCategory?: string
   id: string
   name: string
   casts: number
@@ -21,6 +22,7 @@ export type RotationSkillBreakdown = {
   percentage: number
 }
 export type RotationHealingSkillBreakdown = {
+  skillBreakdownCategory?: string
   id: string
   name: string
   casts: number

@@ -3,8 +3,67 @@
   "altersTimeline": true,
   "tags": ["BellstrikeUmbra"],
   "effect": {
-    "WolfchasersArtT0": {},
-    "WolfchasersArtT1": {},
+    "WolfchasersArtT0": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "self", "value": "SoberSorrowComboWindow" },
+            { "target": "skillTag", "value": "SoberSorrow" },
+            { "target": "target", "value": "UmbraBleeding", "stack": 1 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 2 }] }
+          ],
+          "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1, "chance": 0.6 }]
+        },
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "self", "value": "SoberSorrowComboWindow" },
+            { "target": "skillTag", "value": "SoberSorrow" },
+            { "target": "target", "value": "UmbraBleeding", "stack": 2 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 3 }] }
+          ],
+          "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1, "chance": 0.7 }]
+        },
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "self", "value": "SoberSorrowComboWindow" },
+            { "target": "skillTag", "value": "SoberSorrow" },
+            { "target": "target", "value": "UmbraBleeding", "stack": 3 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 4 }] }
+          ],
+          "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1, "chance": 0.8 }]
+        },
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "self", "value": "SoberSorrowComboWindow" },
+            { "target": "skillTag", "value": "SoberSorrow" },
+            { "target": "target", "value": "UmbraBleeding", "stack": 4 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }] }
+          ],
+          "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1, "chance": 0.9 }]
+        },
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "self", "value": "SoberSorrowComboWindow" },
+            { "target": "skillTag", "value": "SoberSorrow" },
+            { "target": "target", "value": "UmbraBleeding", "stack": 5 }
+          ],
+          "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1, "chance": 1 }]
+        }
+      ]
+    },
+    "WolfchasersArtT1": {
+      "effect": [
+        { "target": "WaterDrop", "modify": { "duration": 15 } },
+        { "target": "SpringSurge", "modify": { "duration": 15 } },
+        { "target": "RiverFlow", "modify": { "duration": 15 } },
+        { "target": "EmpoweredRiverFlow", "modify": { "duration": 15 } }
+      ]
+    },
     "WolfchasersArtT2": {
       "effect": [
         {
@@ -39,9 +98,25 @@
         }
       ]
     },
-    "WolfchasersArtT3": {},
+    "WolfchasersArtT3": {
+      "effect": [{ "requirement": [{ "target": "skillTag", "value": "SoberSorrow" }], "effect": { "dmgBonus": 0.1 } }]
+    },
     "WolfchasersArtT4": {},
     "WolfchasersArtT5": { "effect": [{ "rawStat": { "affinityDmgBonus": 0.052 } }] },
-    "WolfchasersArtT6": {}
+    "WolfchasersArtT6": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [{ "target": "skillTag", "value": "SoberSorrow" }],
+          "action": [{ "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }]
+        },
+        {
+          "event": "damage",
+          "hitWindow": { "count": 3, "seconds": 3 },
+          "requirement": [{ "target": "skillTag", "value": "SoberSorrow" }],
+          "action": [{ "type": "apply", "target": "target", "value": "WineGu", "stack": 1 }]
+        }
+      ]
+    }
   }
 }

@@ -118,15 +118,7 @@
           "modify": {
             "effect": [
               {
-                "requirement": [
-                  {
-                    "operator": "or",
-                    "operand": [
-                      { "target": "skillTag", "value": "DOT" },
-                      { "target": "skillTag", "value": "DOTEmpowered" }
-                    ]
-                  }
-                ],
+                "requirement": [{ "operator": "or", "operand": [{ "target": "skillTag", "value": "DOT" }] }],
                 "effect": { "dmgBonus": 0.1 }
               }
             ]

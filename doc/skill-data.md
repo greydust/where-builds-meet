@@ -36,6 +36,15 @@ The live `SkillRecord`, `EffectDefinition`, `RotationRecord`, and `RotationStep`
 contracts are in [rotationTimeline.ts](../src/calculations/rotationTimeline.ts).
 Use them instead of maintaining a second TypeScript schema in this document.
 
+The Skills editor displays a read-only combined cast time from the shared subaction
+expansion alongside the editable wrapper duration. Conditional combinations
+select their base route against an empty combat state rather than summing mutually
+exclusive branches, and are marked as combat-dependent. The Rotation editor displays
+the resolved worker timeline duration. Composite rotation rows always show that
+resolved total rather than offering an editable wrapper-duration field. Stored
+step duration overrides remain intact; wrapper editing stays in the Skills editor.
+Base totals exclude ping.
+
 ## Datamine interpretation
 
 Local references are under `local/datamine/`: `wwm-skills-normal-all.json`,
@@ -301,6 +310,10 @@ effect. If it expires before consumption, do not fall through to another one.
 
 ### Cooldowns, components, and attack responses
 
+An `extend` action may set `maxRemaining` in seconds. The extension cannot
+raise remaining lifetime above that cap, and never shortens an existing longer
+lifetime. Tracked expiry and periodic scheduling use the same capped result.
+
 `cooldownGroup` shares readiness across skill definitions; otherwise the skill ID
 is the key. `cooldownUses` with default `cooldownRecovery: "window"` grants uses
 within one window. `"independent"` gives each spent charge its own recovery.
@@ -490,6 +503,11 @@ cannot sustain themselves.
 consumes the effect and cancels pending ticks before spawning the threshold
 skill. Overflow produces one burst; later actions cannot see the threshold
 stack. `triggerTags` affect only that spawned instance.
+
+Reactive `addResource` actions also accept `chance`: expected timelines multiply
+the resource gain by its probability, while sampled timelines roll the gain once.
+Threshold requirements still read the resulting resource value, so this does not
+represent a distribution of downstream buff outcomes.
 
 Action `chance` accepts a number or supported dynamic value; finite results are
 clamped to 0–1, invalid results rejected. The supported expected periodic case
@@ -691,8 +709,9 @@ below keeps cross-cutting blockers and outstanding skill evidence.
 
 ### Timing and source validation
 
-- Non-Gauntlet General Deflect timings retain the shared placeholder until
-  weapon-specific measurements are available.
+- User-confirmed Deflect timing is 0.3s for all weapons, except Heng Blade at
+  0.25s. Both ordinary and successful variants resolve this from `currentWeapon`;
+  unknown weapons use the 0.3s fallback.
 - Might still has provisional cast-end multi-hit timings outside its measured
   routes. Its available path status is not proof that every timing is verified.
 - Addled Mind's supplied outside-PvP Level 100 timing is unverified in play.
@@ -850,7 +869,7 @@ rather than being smeared across the gap. Both are event-aligned by
 construction: a window starts and ends at a sub-action boundary, and a spend
 happens at an event.
 
-Vagrant Sword's charge tier 2 is the only authored consumer. The pre-charge
+Vagrant Sword's charge tier 2 uses this mechanism. The pre-charge
 has no setting; charging drains 20/s for its 1.2s; whichever release variant runs
 holds 0.001/s for its 0.85s; and the base 10/s returns after 2.25s. Both release
 variants declare the Sword Morph spend, which only resolves on the three-wave
@@ -1084,6 +1103,188 @@ and Burn and Bury slow/Breath-hold are intentionally ignored by user instruction
 
 Towline T6 refreshes/settles target Soulbreak only at distance <= 15m.
 Its self Soul Return refresh and Burn and Bury damage bonus are not range-gated.
+
+### Bellstrike Umbra implementation gaps
+
+`InnerTrackSlashCancel` (Sword QQQ [Cancel]) retains both third-cast hits and
+ends that component at its second hit, 1.187704707s into cast three. Its total
+base duration is 2.510104707s. The component remains in the ordinary third-cast
+breakdown category and is hidden from rotation selection with `SubAction`.
+The 60-second preset uses this variant for the first QQQ, followed immediately
+by Ghostly Step - Umbra. At its configured 40ms ping, the delay before the second
+Sweep All is 1.342295293s, preserving its 12-second Empowered River Flow BB
+cooldown boundary and the rotation's 38 total Blood Bursts.
+
+Umbra's dummy Qi break is attached after the final direct hit of editor cast #34
+(zero-based skill numbering), Inner Balance Strike III [2 Casts][Cancel]. At the
+preset's 40ms ping it lands at battle time 30.54962591963635s. Pre-break Qi
+thresholds are authored at 40% and 60% of that time. Exhausted lasts ten seconds
+and its expiry restores Qi; the next ramp starts after the additional four-second
+immunity window. Only its 60% threshold falls before the 60-second Battle End.
+
+Umbra remains WIP. Its Fully Relayed and Graduate presets copy Splendor's gear,
+replace the four armor attunements with Strategic Sword - Bleeding DMG Boost,
+and use Hawkwing with Sword Horizon, Morale Chant, Insightful Strike, and
+Wolfchaser's Art at T6. `dummy-1-min-38-bb` is registered as a draft, with the
+requested ordered sequence and Battle End at battle-relative 60 seconds. BB
+means Blood Burst; 38 is the intended trigger count, not a validated result.
+The first four-hit sword charge's first damage marker anchors battle start.
+The preset applies five Zenith stacks before the opening drink, representing
+Spirit prepared before the fight. Its first Blood Burst therefore starts at full
+Zenith, guaranteeing affinity and extending active Smolder through Sword Horizon T3.
+
+Umbra variants share `skillBreakdownCategory` by skill family: Inner Track
+Slash, Inner Balance Strike, Second Track Slash, Sober Sorrow, Sweep All, and
+Blood Burst. `SecondTrackSlash2Casts1Hit` composes the existing charge and
+one-hit follow-up; the preset replaces adjacent pairs with that composite.
+The component IDs remain available for stored rotations and overrides.
+Inner Balance Strike's second-cast variants use the separate breakdown category
+`Crisscross - Inner Balance Strike III`.
+Composite damage and healing use the subaction reference's `skillBreakdownCategory`,
+then the component skill's category, then wrapper attribution. Reference overrides
+also propagate through nested composites. Cast statistics
+continue to describe the complete composite, and action IDs and damage are unchanged.
+
+The refreshed `local/datamine/wwm-skills-normal-all.json` supplied on 2026-10-08
+includes normal-route Strategic Sword per-hit coefficients and attack-animation
+markers. These coefficients already include the hit multiplier; importing them
+must not multiply them a second time. Level-dependent curves select level 100,
+while scalar follow-up curves use their exported value.
+Inner Track Slash uses three separate animation clocks: stage one advances at
+the 0.3s combo boundary, stage two at the 1.0224s perfect-input boundary, and
+stage three finishes at its 1.426s interrupt boundary. All seven damage hits
+(one, four, then two) are imported, including both Horizon follow-up coefficients.
+The four-hit charge uses the first four level-one hits after a free 0.2s
+pre-charge and the minimum 0.3s charge clock, then advances at the 0.947s
+perfect-input release boundary. Its deflect
+cancel timing remains unmeasured. The first-stage special imports all four
+hits and its 1.4s interrupt boundary. Sober Sorrow now uses all six exported
+hit markers and the 1.996s full-cast interrupt boundary. Its five-hit cancel
+uses a temporary boundary at the fifth hit (1.374300296s); actual cancel timing
+remains unmeasured. Sweep All uses the user-selected 0.304s first-hit and one-hit cancel boundary
+for all buff variants. Its exported animation route mapping remains unresolved.
+These remaining placeholders cannot validate the proposed sequence within 60s,
+cooldown readiness, effect coverage, or its named 38 BB count.
+
+The user confirmed that Q Q Q uses all three stages, the combined special
+uses both stages, and the four-hit special uses only stage one. On 2026-10-08,
+the combined special was clarified to mean three stage-one hits plus one
+follow-up hit (four total). It advances at 1.063s and ends the follow-up at
+its first hit at 0.095977982s for the combined [2 Casts][Cancel] variant.
+The standalone second-stage definition retains its 0.946s interrupt boundary. Inner Track
+Slash's first two stages use the source one-plus-four hit series; the third
+stage is the two-hit Horizon follow-up. Second Track Slash is the charged route;
+Inner Balance Strike III is the special route. The combined special now applies
+Bleed before checking for Blood Burst on each stage-one hit. Horizon follow-up
+hits also apply one stack and check at that same hit, including the second hit
+of a two-hit route if the first has not reached five. These application/order
+semantics are user-confirmed from combat comparison, rather than explicit
+tooltip ordering. Charged follow-ups expose one-hit and two-hit
+cancel variants; the rotation uses the one-hit variant. Their temporary cancel
+boundaries equal their last retained hit marker (0.22504647s or 0.68347914s).
+
+Damage coverage and remaining omissions:
+
+- Bleed ticks (`2038001`–`2038005`) use the user-supplied per-tick coefficients:
+  0.132/0.165/0.198/0.264/0.33 for both physical and attribute damage at one
+  through five stacks, without an additional stack multiplier. The existing DOT
+  scheduler ticks at application +0.5s, then every second. Stack additions refresh
+  the ten-second duration while preserving cadence. Sword BB clears all stacks,
+  then T6 reapplies two, restarting the 0.5-second tick delay. Full Zenith also
+  extends the reapplied Bleed through the existing 16-second cap. Clearing or
+  expiry ends ticks, and reapplication starts a new timer.
+  Sweep All's High Bleed does not detonate Bleed: it keeps five stacks and preserves cadence.
+- Blood Burst (`2038006`) uses the user-confirmed physical and attribute
+  coefficients of 2.4, supplied on 2026-10-08. The export still lacks its curve,
+  but burst damage is now implemented and resolves immediately on its trigger.
+- The refreshed export resolves Q stage three and the four-hit charge/special
+  coefficients, both charged follow-up cancel variants, and the combined special.
+  Their coefficients are no longer placeholders; measured partial-route cancel
+  boundaries remain missing.
+- Horizon's description scopes its five-stack Blood Burst to follow-up attacks.
+  This does not add a global threshold trigger to ordinary Q or charge hits.
+
+Sword Blood Burst clears all Bleed stacks, then T6 reapplies two while Zenith
+exists after the burst's Spirit grant, including the first burst as observed
+in the user's confirmed special sequence. Raw Horizon passive `102154301` grants 20 Sword Spirit per burst,
+represented by one of five Zenith stacks. At 100 Spirit the next burst forces
+Affinity; T6 retains 20 and then credits that burst's ordinary 20 gain.
+The T4 bonus and T1 follow-up Endurance restore are implemented. T3's full-Zenith
+burst extends Bleeding, Smolder, Qingyi's Poison, and Weeping Blood by ten seconds,
+capped at sixteen seconds remaining; missing effects are left absent. All
+currently supported encounter targets are non-player targets.
+Strategic Sword rank 13/14 restores ten Endurance on the first qualifying
+five-stack Special hit of each cast. Special stages apply their Bleed stack
+before checking the threshold. Their shared `StrategicSwordSpecialBloodBurst`
+trigger restores Endurance when the cast-start readiness effect is present,
+consumes that effect, then detonates. A hit raising four stacks to five therefore
+restores Endurance too; later bursts in the same cast do not restore again.
+The Special follow-up declares a `skillStart` action at its own start. This uses
+the shared skill-start trigger pipeline with the component's tags, refreshing the
+talent's readiness for that second cast even inside a composite rotation row.
+Thus two casts can each refund ten; multiple detonations within one cast refund
+only once. The composite wrapper remains a display container for these casts.
+Ordinary Q/charged follow-up bursts and Sweep All do not use this special refund.
+Blood Burst is `DirectDamage`, with `HighBleed` selecting Soul-Shaken's exclusive
+High Bleed bonus (10% per stack). It receives no ordinary DOT bonus or
+Insightful Strike DOT-only T6 bonus. `Bleed` selects Bleeding attunements and talents.
+Legacy special and charge follow-up IDs migrate to the current III/Crisscross IDs
+in saved rotations and skill overrides, including component references.
+Component-only skills carry `SubAction` to hide them from rotation selection.
+Every Umbra skill includes its own current skill ID in its tags.
+
+Sober Sorrow's five-hit cancel and full six-hit route use the source five
+0.15 multipliers plus the final 0.25 multiplier. Sweep All uses the description's
+0.8/1/1.2 factors against `20101101`, rather than guessing from its separate
+parent curve. Water Drop, Spring Surge, River Flow, and Empowered River Flow
+are selected automatically when Sober Sorrow ends, using its cast-scoped combo
+resource. Every DirectDamage hit during the cast counts, including Solid Foundation;
+DOT ticks do not. Wolfchaser adds an extra combo on Sober Sorrow hits with own Bleed
+at probabilities 0.6/0.7/0.8/0.9/1 for one through five stacks. Expected calculation
+adds probability-weighted resource gains; sampled simulation rolls each gain.
+Buff thresholds read this resource at the authored cast end; this expected-counter
+model does not branch buff selection at uncertain thresholds. Five-stack casts
+are deterministic. The counter resets on each cast and remains available for
+diagnostics after the window closes. The explicit five-hit/ten-combo variant
+starts with five extra combos and is used for the first Sober Sorrow in the
+draft (stored step index 8). River Flow and Empowered River Flow Sweep All fill
+Bleed to five stacks, based on the user's confirmed behavior; the tooltip only
+says that Bleed is applied. Subsequent casts still require those stacks to
+remain present; expiry and intervening consumption are not bypassed. The second-cast special cancel
+keeps the first Empowered River Flow active through the second Sweep All;
+all ordinary Sober Sorrow casts in the draft now start at five Bleed stacks.
+Sweep All's defense reduction lifetime and empowered damage leech are missing.
+Wolfchaser T3 damage, T6 Soul-Shaken, and the existing three-hit/three-second
+rolling-window mechanism for fifteen-second Wine Gu are implemented.
+
+User-supplied Endurance costs (2026-10-08): Second Track Slash drains 14/s
+only during its held-charge phase and pays another 6 at 0.3s. A separate 0.2s
+pre-charge precedes the 0.3s charging phase, matching Vagrant Sword's explicit
+phase structure; pre-charge does not drain Endurance. Its separate
+four-hit release does not continue the charging drain. The draft's default
+0.3s hold costs 10.2 gross Endurance; a 1.2s full hold costs 22.8. Natural
+regeneration and suppression use the shared resource pipeline, including before
+battle start. Charging overrides regeneration to 0.001/s; the one-time 6 spend
+suppresses regeneration for 1.2 seconds. Continuous
+drain changes the tracked meter but, like other charging phases, is not
+credited as direct `enduranceSpent` damage scaling.
+Inner Balance Strike III pays 40 at stage-one start, for both the four-hit
+first-stage route and the three-hit-prefix plus follow-up route. The follow-up
+does not pay another 40. Its minimum 50 Endurance activation requirement is
+documented but deliberately not enforced, at the user's request. The recovered
+held-charge path has no fixed minimum and ends when Endurance runs out; this
+draft tracks depletion but does not automatically truncate an authored hold.
+Sweep All pays 40 at the start of its selected Water Drop, Spring Surge, or River
+Flow component, once per cast. This direct spend also starts the shared
+1.2-second regeneration suppression; empowered recovery remains a separate gain.
+Endurance checks remain draft diagnostics with the remaining timing gaps,
+not validation of the final measured rotation.
+
+Umbra cooldowns, incoming mitigation/Tenacity, and missing
+stage-specific Bleed grants still need source records. General and Mystic
+skills retain their existing definitions. The draft has no accepted DPS
+snapshot; its incomplete damage and zero timings cannot establish either a
+useful DPS recommendation or the intended 38 Blood Bursts.
 
 ### Food choices
 

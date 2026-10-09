@@ -17,7 +17,21 @@
     [],
     [],
     [
-      { "name": "Bleed Mechanism Enhancement", "effect": [] },
+      {
+        "name": "Bleed Mechanism Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
       {
         "name": "Affinity Rate Up",
         "effect": [
@@ -50,7 +64,21 @@
       { "name": "Attr. Attack DMG Up", "effect": [] }
     ],
     [
-      { "name": "Bleed Mechanism Enhancement", "effect": [] },
+      {
+        "name": "Bleed Mechanism Enhancement",
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
       {
         "name": "Affinity Rate Up",
         "effect": [

@@ -22,6 +22,10 @@ export function skillCategoryLabel(category: EditorCategory) {
       return "Soulshade Umbrella"
     case "Panacea":
       return "Panacea Fan"
+    case "StrategicSword":
+      return "Strategic Sword"
+    case "HeavenQuakerSpear":
+      return "Heavenquaker Spear"
     default:
       return category
   }

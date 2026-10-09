@@ -1,22 +1,22 @@
+import buffs from "@gamedata/buff/stonesplit-strength.json"
 import { describe, expect, it } from "vitest"
 
 import { defaultSkillMaps } from "@/application/gameData/skills"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 
-import buffs from "../data/buff/stonesplit-strength.json"
-
 const general = defaultSkillMaps.General
-import snowparting from "../data/skill/snowparting-blade.json"
-import { calculateDamageBreakdown } from "../src/calculations/damage"
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
+import snowparting from "@gamedata/skill/snowparting-blade.json"
+
+import { calculateDamageBreakdown } from "@/calculations/damage"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
 import {
   buildRotationTimeline,
   requirementsPass,
   type RotationStep,
   type TimelineBuildInput,
-} from "../src/calculations/rotationTimeline"
-import { effectState } from "../src/calculations/trackedEffectState"
-import { emptyStats } from "../src/data/statDefinitions"
+} from "@/calculations/rotationTimeline"
+import { effectState } from "@/calculations/trackedEffectState"
+import { emptyStats } from "@/data/statDefinitions"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 const delay = (duration: number): RotationStep => ({ type: "event", event: "Delay", duration })
@@ -54,11 +54,11 @@ describe("Adaptive Steel Heng Blade", () => {
       delay(1),
       cast("DeflectSuccessful"),
       cast("Observe"),
-      delay(5 - 1 - 2 * 0.338),
+      delay(5 - 1 - 2 * 0.25),
       cast("Observe"),
       cast("DeflectSuccessful"),
       cast("Observe"),
-      delay(20 - 5 - 0.338),
+      delay(20 - 5 - 0.25),
       cast("DeflectSuccessful"),
       cast("Observe"),
     ])

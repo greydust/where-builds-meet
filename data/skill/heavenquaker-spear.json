@@ -1,0 +1,504 @@
+{
+  "SoberSorrow5Hits": {
+    "name": "Sober Sorrow [5 Hits]",
+    "castTime": 1.3743002960000001,
+    "editableCastTime": true,
+    "action": [
+      { "type": "setResource", "value": "SoberSorrowCombo", "amount": 0, "time": 0 },
+      { "type": "apply", "target": "self", "value": "SoberSorrowComboWindow", "stack": 1, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.232051435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.5231152960000001
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.756165148
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.037226435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.3743002960000001
+      },
+      { "type": "trigger", "value": "SoberSorrowResolve", "time": 1.3743002960000001 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "HeavenQuakerSpear",
+      "MartialArt",
+      "SoberSorrow",
+      "SoberSorrow5Hits"
+    ],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "skillBreakdownCategory": "Sober Sorrow"
+  },
+  "SoberSorrow": {
+    "name": "Sober Sorrow",
+    "castTime": 1.996,
+    "editableCastTime": true,
+    "action": [
+      { "type": "setResource", "value": "SoberSorrowCombo", "amount": 0, "time": 0 },
+      { "type": "apply", "target": "self", "value": "SoberSorrowComboWindow", "stack": 1, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.232051435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.5231152960000001
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.756165148
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.037226435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.3743002960000001
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.535055,
+        "attrCoef": 0.535055,
+        "phyBonus": 148.25,
+        "attrBonus": 80.75,
+        "time": 1.640357722
+      },
+      { "type": "trigger", "value": "SoberSorrowResolve", "time": 1.996 }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Spear", "HeavenQuakerSpear", "MartialArt", "SoberSorrow"],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "skillBreakdownCategory": "Sober Sorrow"
+  },
+  "SweepAll": {
+    "name": "Sweep All [1 Hit]",
+    "castTime": 0,
+    "editableCastTime": true,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Spear", "HeavenQuakerSpear", "Special", "SweepAll"],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "subAction": [
+      {
+        "value": "SweepAllRiverFlow",
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "RiverFlow" },
+              { "target": "self", "value": "EmpoweredRiverFlow" }
+            ]
+          }
+        ]
+      },
+      {
+        "value": "SweepAllSpringSurge",
+        "requirement": [
+          { "target": "self", "value": "SpringSurge" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "RiverFlow" }] },
+          { "operator": "not", "operand": [{ "target": "self", "value": "EmpoweredRiverFlow" }] }
+        ]
+      },
+      {
+        "value": "SweepAllWaterDrop",
+        "requirement": [
+          { "operator": "not", "operand": [{ "target": "self", "value": "SpringSurge" }] },
+          { "operator": "not", "operand": [{ "target": "self", "value": "RiverFlow" }] },
+          { "operator": "not", "operand": [{ "target": "self", "value": "EmpoweredRiverFlow" }] }
+        ]
+      }
+    ],
+    "skillBreakdownCategory": "Sweep All"
+  },
+  "SweepAllWaterDrop": {
+    "name": "Sweep All - WaterDrop",
+    "castTime": 0.304,
+    "editableCastTime": true,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 1.712176,
+        "attrCoef": 1.712176,
+        "phyBonus": 474.4,
+        "attrBonus": 258.4,
+        "time": 0.304
+      },
+      {
+        "type": "trigger",
+        "value": "BloodBurstDamage",
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 20,
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Spear", "HeavenQuakerSpear", "Special", "SubAction", "SweepAllWaterDrop"],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Sweep All"
+  },
+  "SweepAllSpringSurge": {
+    "name": "Sweep All - SpringSurge",
+    "castTime": 0.304,
+    "editableCastTime": true,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
+      { "type": "damage", "phyCoef": 2.14022, "attrCoef": 2.14022, "phyBonus": 593, "attrBonus": 323, "time": 0.304 },
+      {
+        "type": "trigger",
+        "value": "BloodBurstDamage",
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 20,
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "HeavenQuakerSpear",
+      "Special",
+      "SubAction",
+      "SweepAllSpringSurge"
+    ],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Sweep All"
+  },
+  "SweepAllRiverFlow": {
+    "name": "Sweep All - RiverFlow",
+    "castTime": 0.304,
+    "editableCastTime": true,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 2.568264,
+        "attrCoef": 2.568264,
+        "phyBonus": 711.6,
+        "attrBonus": 387.6,
+        "time": 0.304
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 5, "time": 0.304 },
+      {
+        "type": "trigger",
+        "value": "BloodBurstDamage",
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 20,
+        "time": 0.304,
+        "cooldown": 12,
+        "requirement": [
+          { "target": "self", "value": "EmpoweredRiverFlow" },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Spear", "HeavenQuakerSpear", "Special", "SubAction", "SweepAllRiverFlow"],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Sweep All"
+  },
+  "SoberSorrow5Hits10Combos": {
+    "name": "Sober Sorrow [5 Hits][10 Combos]",
+    "castTime": 1.3743002960000001,
+    "editableCastTime": true,
+    "action": [
+      { "type": "setResource", "value": "SoberSorrowCombo", "amount": 5, "time": 0 },
+      { "type": "apply", "target": "self", "value": "SoberSorrowComboWindow", "stack": 1, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.232051435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.5231152960000001
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 0.756165148
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.037226435
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.321033,
+        "attrCoef": 0.321033,
+        "phyBonus": 88.95,
+        "attrBonus": 48.45,
+        "time": 1.3743002960000001
+      },
+      { "type": "trigger", "value": "SoberSorrowResolve", "time": 1.3743002960000001 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "HeavenQuakerSpear",
+      "MartialArt",
+      "SoberSorrow",
+      "SoberSorrow5Hits10Combos"
+    ],
+    "martialArt": "heavenquakerSpear",
+    "weapon": "Spear",
+    "skillBreakdownCategory": "Sober Sorrow"
+  },
+  "SoberSorrowResolve": {
+    "name": "Sober Sorrow (Combo Buff)",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["Triggered", "SubAction", "SoberSorrowResolve"],
+    "action": [
+      { "type": "consume", "target": "self", "value": "SoberSorrowComboWindow", "stack": "all", "time": 0 },
+      { "type": "consume", "target": "self", "value": "WaterDrop", "stack": "all", "time": 0 },
+      { "type": "consume", "target": "self", "value": "SpringSurge", "stack": "all", "time": 0 },
+      { "type": "consume", "target": "self", "value": "RiverFlow", "stack": "all", "time": 0 },
+      { "type": "consume", "target": "self", "value": "EmpoweredRiverFlow", "stack": "all", "time": 0 },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "EmpoweredRiverFlow",
+        "stack": 1,
+        "time": 0,
+        "requirement": [
+          { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+          { "target": "self", "value": "WolfchasersArtT4" }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "RiverFlow",
+        "stack": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 8 },
+                { "target": "self", "value": "WolfchasersArtT0" }
+              ],
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+                { "operator": "not", "operand": [{ "target": "self", "value": "WolfchasersArtT0" }] }
+              ]
+            ]
+          },
+          {
+            "operator": "not",
+            "operand": [
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+                { "target": "self", "value": "WolfchasersArtT4" }
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SpringSurge",
+        "stack": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 4 },
+                { "target": "self", "value": "WolfchasersArtT0" }
+              ],
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 5 },
+                { "operator": "not", "operand": [{ "target": "self", "value": "WolfchasersArtT0" }] }
+              ]
+            ]
+          },
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "operator": "or",
+                "operand": [
+                  [
+                    { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 8 },
+                    { "target": "self", "value": "WolfchasersArtT0" }
+                  ],
+                  [
+                    { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+                    { "operator": "not", "operand": [{ "target": "self", "value": "WolfchasersArtT0" }] }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "operator": "not",
+            "operand": [
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+                { "target": "self", "value": "WolfchasersArtT4" }
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "WaterDrop",
+        "stack": 1,
+        "time": 0,
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [
+              {
+                "operator": "or",
+                "operand": [
+                  [
+                    { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 4 },
+                    { "target": "self", "value": "WolfchasersArtT0" }
+                  ],
+                  [
+                    { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 5 },
+                    { "operator": "not", "operand": [{ "target": "self", "value": "WolfchasersArtT0" }] }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "operator": "not",
+            "operand": [
+              [
+                { "target": "resource", "value": "SoberSorrowCombo", "comparison": ">=", "amount": 10 },
+                { "target": "self", "value": "WolfchasersArtT4" }
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "skillBreakdownCategory": "Sober Sorrow"
+  }
+}

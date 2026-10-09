@@ -8,5 +8,57 @@
     "incomingDamageReduction": { "chance": 0.05, "reduction": 0.4 },
     "effect": [{ "effect": { "affinityDmgBonus": 0.1 } }],
     "refresh": true
+  },
+  "SwordsZenith": {
+    "name": "Sword's Zenith",
+    "description": "One stack represents 20 Sword Spirit; maximum is 100.",
+    "maxStack": 5,
+    "refresh": false,
+    "shortName": "Zenith"
+  },
+  "WaterDrop": {
+    "name": "Water Drop",
+    "duration": 12,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "effect": { "hpDMGBonus": 0.1 } }]
+  },
+  "SpringSurge": {
+    "name": "Spring Surge",
+    "duration": 12,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "effect": { "hpDMGBonus": 0.15 } }]
+  },
+  "RiverFlow": {
+    "name": "River Flow",
+    "duration": 12,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "effect": { "hpDMGBonus": 0.2 } }]
+  },
+  "EmpoweredRiverFlow": {
+    "name": "Empowered River Flow",
+    "duration": 12,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "effect": { "hpDMGBonus": 0.25 } }],
+    "shortName": "ERF"
+  },
+  "StrategicBleedEnduranceReady": {
+    "name": "Strategic Sword Bleed Endurance Ready",
+    "maxStack": 1,
+    "refresh": true,
+    "hidden": true
+  },
+  "SoberSorrowComboWindow": {
+    "name": "Sober Sorrow Combo Window",
+    "maxStack": 1,
+    "refresh": true,
+    "trigger": {
+      "event": "damage",
+      "requirement": [{ "target": "skillTag", "value": "DirectDamage" }],
+      "action": [{ "type": "addResource", "value": "SoberSorrowCombo", "amount": 1 }]
+    }
   }
 }

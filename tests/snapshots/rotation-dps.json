@@ -47,8 +47,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 59121.24260242634,
-      "totalDamage": 3547274.5561455805,
+      "dps": 59185.751681597285,
+      "totalDamage": 3551145.100895837,
       "duration": 60
     },
     "bamboocutKite/dummy-1-min-infinite-vitality": {
@@ -72,8 +72,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 55757.95023356205,
-      "totalDamage": 3345477.014013723,
+      "dps": 55755.35695102388,
+      "totalDamage": 3345321.4170614327,
       "duration": 60
     },
     "bamboocutKite/dummy-1-min-iv-bp": {
@@ -97,8 +97,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 61486.47899350167,
-      "totalDamage": 3689188.7396101,
+      "dps": 61484.24028064938,
+      "totalDamage": 3689054.4168389626,
       "duration": 60
     },
     "bamboocutWind/wind-dummy-1-min-infinite-vitality": {
@@ -122,9 +122,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 69190.02270940656,
-      "totalDamage": 4151401.3625643943,
-      "duration": 60.00000000000001
+      "dps": 69121.77274118822,
+      "totalDamage": 4147306.364471293,
+      "duration": 60
     },
     "bellstrikeSplendor/dummy-1-min-81-waves": {
       "fixture": {
@@ -147,8 +147,33 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 65377.163525342316,
-      "totalDamage": 3922629.8115205388,
+      "dps": 65364.94121485134,
+      "totalDamage": 3921896.47289108,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-38-bb": {
+      "fixture": {
+        "build": "umbra-fully-relayed",
+        "rotation": "dummy-1-min-38-bb",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "17",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none"
+        }
+      },
+      "dps": 80863.81713022864,
+      "totalDamage": 4851829.027813718,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-regular-fire": {
@@ -172,8 +197,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 30231.42797466753,
-      "totalDamage": 1813885.678480052,
+      "dps": 30235.360820053047,
+      "totalDamage": 1814121.649203183,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-smolder": {
@@ -197,8 +222,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 36642.220387931746,
-      "totalDamage": 2198533.2232759045,
+      "dps": 36873.458832420496,
+      "totalDamage": 2212407.5299452296,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts": {
@@ -247,8 +272,8 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 39687.73214483704,
-      "totalDamage": 2381263.9286902226,
+      "dps": 39724.57025069542,
+      "totalDamage": 2383474.215041725,
       "duration": 60
     },
     "stonesplitMight/dummy-1-min": {
@@ -272,9 +297,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 79335.15205387062,
-      "totalDamage": 4760109.123232237,
-      "duration": 60
+      "dps": 79503.85066834385,
+      "totalDamage": 4770231.040100631,
+      "duration": 60.00000000000001
     },
     "stonesplitStrength/mixed-dummy-1-min": {
       "fixture": {
@@ -297,9 +322,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 67538.87323014844,
-      "totalDamage": 4052332.393808906,
-      "duration": 59.99999999999999
+      "dps": 67509.52357894306,
+      "totalDamage": 4050571.4147365834,
+      "duration": 60
     },
     "stonesplitStrength/mixed-dummy-1-min-double-stab": {
       "fixture": {
@@ -322,9 +347,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 66805.24199167758,
-      "totalDamage": 4008314.519500654,
-      "duration": 59.99999999999999
+      "dps": 66771.02076597798,
+      "totalDamage": 4006261.2459586794,
+      "duration": 60
     },
     "stonesplitStrength/mixed-dummy-infinite-vitality-1-min": {
       "fixture": {
@@ -347,9 +372,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 67809.20532960331,
-      "totalDamage": 4068552.3197761993,
-      "duration": 60.00000000000001
+      "dps": 67828.67270050912,
+      "totalDamage": 4069720.362030547,
+      "duration": 60
     },
     "stonesplitStrength/mixed-dummy-smolder-poet-1-min": {
       "fixture": {
@@ -372,9 +397,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 67697.10938724448,
-      "totalDamage": 4061826.5632346678,
-      "duration": 59.99999999999999
+      "dps": 67675.19144487414,
+      "totalDamage": 4060511.4866924495,
+      "duration": 60.00000000000001
     },
     "stonesplitStrength/pure-dummy-1-min": {
       "fixture": {
@@ -397,9 +422,9 @@
           "floatingGrace": "none"
         }
       },
-      "dps": 66044.27878698069,
-      "totalDamage": 3962656.727218841,
-      "duration": 60
+      "dps": 66073.89334400739,
+      "totalDamage": 3964433.6006404436,
+      "duration": 60.00000000000001
     }
   }
 }

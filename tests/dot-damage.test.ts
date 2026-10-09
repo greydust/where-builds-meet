@@ -7,18 +7,18 @@ import type { EditableObject } from "@/calculations/rotationTimeline"
 /** One Soul-Shaken stack rule as this spec reads it: a gate plus its damage sheet. */
 type StackRule = { requirement?: unknown; effect?: EditableObject }
 
-import { effectState } from "../src/calculations/trackedEffectState"
+import { effectState } from "@/calculations/trackedEffectState"
+
 import { isClose } from "./helpers/floatEquality"
 
 // Ported from script/probe/check-dot-damage.mjs.
 describe("dot-damage", () => {
   it("DOT damage and Soul-Shaken checks passed", async () => {
-    const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } =
-      await import("../src/calculations/damage.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { requirementsPass } = await import("../src/calculations/rotationTimeline.ts")
-    const soulShaken = (await import("../data/debuff/bellstrike-umbra.json")).default.SoulShaken as {
+    const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } = await import("@/calculations/damage")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats")
+    const { emptyStats } = await import("@/data/statDefinitions")
+    const { requirementsPass } = await import("@/calculations/rotationTimeline")
+    const soulShaken = (await import("@gamedata/debuff/bellstrike-umbra.json")).default.SoulShaken as {
       stackEffects: StackRule[][]
     }
     const closeTo = (actual: number | undefined, expected: number) => isClose(actual, expected, 1e-9)
@@ -112,8 +112,8 @@ describe("dot-damage", () => {
     ).toBeTruthy()
 
     for (const [tags, multiplier] of [
-      [["StrategicSword", "DOT", "HighBleed"], 2],
-      [["Other", "DOT", "HighBleed"], 1.75],
+      [["StrategicSword", "DOT", "HighBleed"], 1.5],
+      [["Other", "DOT", "HighBleed"], 1.5],
       [["HeavenQuakerSpear", "DOT"], 1.5],
       [["Other", "DOT"], 1.25],
     ] as Array<[string[], number]>) {
@@ -121,17 +121,16 @@ describe("dot-damage", () => {
         .filter(rule => requirementsPass(rule.requirement, effectState([]), effectState([]), tags, new Set()))
         .map(rule => rule.effect ?? rule)
       expect(
-        closeTo(damage(selected, true).total / baselineDot.total, multiplier),
+        closeTo(damage(selected, true, tags).total / baselineDot.total, multiplier),
         "Soul-Shaken's High Bleed bonus adds once and respects source tags",
       ).toBeTruthy()
     }
   })
 
   it("resolves DOT flat physical and attribute bonuses exactly like a direct hit", async () => {
-    const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } =
-      await import("../src/calculations/damage.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { calculateDamageBreakdown, calculateSimulatedDamageBreakdown } = await import("@/calculations/damage")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats")
+    const { emptyStats } = await import("@/data/statDefinitions")
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, minBellstrike: 100, maxBellstrike: 100, precision: 1 }
     const context: DamageContext = {
       stats,

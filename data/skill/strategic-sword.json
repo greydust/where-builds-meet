@@ -1,0 +1,829 @@
+{
+  "InnerTrackSlash1": {
+    "name": "Inner Track Slash 1st Cast",
+    "castTime": 0.3,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.544068,
+        "attrCoef": 0.544068,
+        "phyBonus": 150.6,
+        "attrBonus": 82,
+        "time": 0.17471346000000001
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.17471346000000001 }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "MartialArt", "SubAction", "InnerTrackSlash1"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "InnerTrackSlash2": {
+    "name": "Inner Track Slash 2nd Cast",
+    "castTime": 1.0224,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.544068,
+        "attrCoef": 0.544068,
+        "phyBonus": 150.6,
+        "attrBonus": 82,
+        "time": 0.09042487680000001
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.09042487680000001 },
+      {
+        "type": "damage",
+        "phyCoef": 0.408051,
+        "attrCoef": 0.408051,
+        "phyBonus": 112.95,
+        "attrBonus": 61.5,
+        "time": 0.38490783600000006
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.38490783600000006 },
+      {
+        "type": "damage",
+        "phyCoef": 0.408051,
+        "attrCoef": 0.408051,
+        "phyBonus": 112.95,
+        "attrBonus": 61.5,
+        "time": 0.5673584592
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.5673584592 },
+      {
+        "type": "damage",
+        "phyCoef": 0.816102,
+        "attrCoef": 0.816102,
+        "phyBonus": 225.9,
+        "attrBonus": 123,
+        "time": 0.7113996264
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.7113996264 }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "MartialArt", "SubAction", "InnerTrackSlash2"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "InnerTrackSlash3": {
+    "name": "Inner Track Slash 3rd",
+    "castTime": 1.426,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 8,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT1" }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.316910747755,
+        "attrCoef": 0.316910747755,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.5279576539999999
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.5279576539999999 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 0.5279576539999999,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.475366121633,
+        "attrCoef": 0.475366121633,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 1.187704707
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 1.187704707 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 1.187704707,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "MartialArt",
+      "CrisscrossingSwords",
+      "SubAction",
+      "InnerTrackSlash3"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Crisscross - Inner Track"
+  },
+  "InnerTrackSlash": {
+    "name": "Inner Track Slash [3 Casts]",
+    "castTime": 0,
+    "editableCastTime": true,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "MartialArt", "InnerTrackSlash"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "subAction": [{ "value": "InnerTrackSlash1" }, { "value": "InnerTrackSlash2" }, { "value": "InnerTrackSlash3" }],
+    "shortName": "Sword QQQ",
+    "skillBreakdownCategory": "Inner Track Slash"
+  },
+  "InnerBalanceStrikeIII1": {
+    "name": "Inner Balance Strike III [1 Cast]",
+    "castTime": 1.4,
+    "editableCastTime": true,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 0.196354,
+        "attrCoef": 0.196354,
+        "phyBonus": 54.4,
+        "attrBonus": 29.6,
+        "time": 0.48
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.48 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.48,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.392708,
+        "attrCoef": 0.392708,
+        "phyBonus": 108.8,
+        "attrBonus": 59.2,
+        "time": 0.586
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.586 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.586,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.196354,
+        "attrCoef": 0.196354,
+        "phyBonus": 54.4,
+        "attrBonus": 29.6,
+        "time": 0.724
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.724 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.724,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.392708,
+        "attrCoef": 0.392708,
+        "phyBonus": 108.8,
+        "attrBonus": 59.2,
+        "time": 1.266
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 1.266 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 1.266,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "Special", "InnerBalanceStrikeIII1"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "shortName": "Sword Special 1",
+    "skillBreakdownCategory": "Inner Balance Strike"
+  },
+  "InnerBalanceStrikeIII2": {
+    "name": "Inner Balance Strike III [2 Casts][Cancel]",
+    "castTime": 0,
+    "editableCastTime": true,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "Special", "InnerBalanceStrikeIII2"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "subAction": [{ "value": "InnerBalanceStrikeIII1ThreeHits" }, { "value": "CrisscrossInnerBalanceStrikeIIICancel" }],
+    "shortName": "Sword Special 2",
+    "skillBreakdownCategory": "Inner Balance Strike"
+  },
+  "InnerBalanceStrikeIII1ThreeHits": {
+    "name": "Inner Balance Strike III [3 Hits]",
+    "castTime": 1.063,
+    "editableCastTime": true,
+    "action": [
+      { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 0.196354,
+        "attrCoef": 0.196354,
+        "phyBonus": 54.4,
+        "attrBonus": 29.6,
+        "time": 0.48
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.48 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.48,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.392708,
+        "attrCoef": 0.392708,
+        "phyBonus": 108.8,
+        "attrBonus": 59.2,
+        "time": 0.586
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.586 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.586,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.196354,
+        "attrCoef": 0.196354,
+        "phyBonus": 54.4,
+        "attrBonus": 29.6,
+        "time": 0.724
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.724 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.724,
+        "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Special",
+      "SubAction",
+      "InnerBalanceStrikeIII1ThreeHits"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "CrisscrossInnerBalanceStrikeIIICancel": {
+    "name": "Crisscross - Inner Balance Strike III [Cancel]",
+    "castTime": 0.244,
+    "editableCastTime": true,
+    "action": [
+      { "type": "skillStart", "time": 0 },
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 8,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT1" }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.625421412,
+        "attrCoef": 0.625421412,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.09597798199999999
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.09597798199999999 },
+      {
+        "type": "trigger",
+        "value": "StrategicSwordSpecialBloodBurst",
+        "time": 0.09597798199999999,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Special",
+      "CrisscrossingSwords",
+      "SubAction",
+      "CrisscrossInnerBalanceStrikeIIICancel"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Crisscross - Inner Balance Strike III"
+  },
+  "SecondTrackSlash1": {
+    "name": "Second Track Slash - Stage 1",
+    "castTime": 0,
+    "editableCastTime": false,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "Charged", "SecondTrackSlash1"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "subAction": [
+      { "value": "SecondTrackSlashPreCharge" },
+      { "value": "SecondTrackSlashCharge" },
+      { "value": "SecondTrackSlash1Release" }
+    ],
+    "skillBreakdownCategory": "Second Track Slash"
+  },
+  "CrisscrossSecondTrackSlash1": {
+    "name": "Crisscross - Second Track Slash [1 Hit]",
+    "castTime": 0.22504647000000003,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 8,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT1" }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3256009812,
+        "attrCoef": 0.3256009812,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.22504647000000003
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.22504647000000003 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 0.22504647000000003,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Charged",
+      "CrisscrossingSwords",
+      "SubAction",
+      "CrisscrossSecondTrackSlash1"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "skillBreakdownCategory": "Crisscross - Second Track"
+  },
+  "CrisscrossSecondTrackSlash2": {
+    "name": "Crisscross - Second Track Slash",
+    "castTime": 0.68347914,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 8,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT1" }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3256009812,
+        "attrCoef": 0.3256009812,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.22504647000000003
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.22504647000000003 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 0.22504647000000003,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.4884014718,
+        "attrCoef": 0.4884014718,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.68347914
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.68347914 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 0.68347914,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Charged",
+      "CrisscrossingSwords",
+      "SubAction",
+      "CrisscrossSecondTrackSlash2"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword"
+  },
+  "SecondTrackSlash1Release": {
+    "name": "Second Track Slash - Stage 1 Release [4 Hits]",
+    "castTime": 0.947,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.402924,
+        "attrCoef": 0.402924,
+        "phyBonus": 111.6,
+        "attrBonus": 60.75,
+        "time": 0.09597798200000002
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.09597798200000002 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.507586139
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.507586139 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.6649105629999998
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.6649105629999998 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.8311389539999998
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.8311389539999998 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Charged",
+      "SubAction",
+      "SecondTrackSlash1Release"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "SecondTrackSlashCharge": {
+    "name": "Second Track Slash [Charging]",
+    "castTime": 0.3,
+    "editableCastTime": true,
+    "action": [{ "type": "consumeResource", "value": "Endurance", "amount": 6, "time": 0.3 }],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Charged",
+      "SubAction",
+      "SecondTrackSlashCharge"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "endurance": { "regeneration": 0.001, "consumption": 14 },
+    "ignorePing": true
+  },
+  "SecondTrackSlashPreCharge": {
+    "name": "Second Track Slash [Pre-charge]",
+    "castTime": 0.2,
+    "action": [],
+    "tags": ["MartialArts", "Sword", "StrategicSword", "Charged", "SubAction", "SecondTrackSlashPreCharge"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "SecondTrackSlash2Casts1Hit": {
+    "name": "Second Track Slash [2 Casts][1 Hit]",
+    "shortName": "Charged 2 [1 Hit]",
+    "castTime": 0,
+    "action": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "Charged", "SecondTrackSlash2Casts1Hit"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true,
+    "subAction": [{ "value": "SecondTrackSlash1" }, { "value": "CrisscrossSecondTrackSlash1" }],
+    "skillBreakdownCategory": "Second Track Slash"
+  },
+  "BloodBurst": {
+    "name": "Blood Burst",
+    "castTime": 0,
+    "action": [
+      { "type": "trigger", "value": "BloodBurstDamage", "time": 0 },
+      { "type": "consume", "target": "target", "value": "UmbraBleeding", "stack": "all", "time": 0 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "UmbraBleeding",
+        "stack": 2,
+        "time": 0,
+        "requirement": [
+          { "target": "self", "value": "SwordHorizonT6" },
+          { "target": "self", "value": "SwordsZenith" }
+        ]
+      },
+      {
+        "type": "extend",
+        "target": "target",
+        "value": "UmbraBleeding",
+        "duration": 10,
+        "maxRemaining": 16,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordHorizonT3" },
+            { "target": "self", "value": "SwordsZenith", "stack": 5 }
+          ]
+        }
+      }
+    ],
+    "tags": ["Triggered", "StrategicSword", "Bleed", "HighBleed", "BloodBurst"],
+    "skillBreakdownCategory": "Blood Burst"
+  },
+  "BloodBurstDamage": {
+    "name": "Blood Burst Damage",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 2.4,
+        "attrCoef": 2.4,
+        "time": 0,
+        "modifier": [
+          {
+            "requirement": [{ "target": "self", "value": "SwordsZenith", "stack": 5 }],
+            "effect": { "GuaranteedAffinity": true }
+          }
+        ]
+      },
+      {
+        "type": "extend",
+        "target": "target",
+        "value": "UmbraBleeding",
+        "duration": 10,
+        "maxRemaining": 16,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordHorizonT3" },
+            { "target": "self", "value": "SwordsZenith", "stack": 5 }
+          ]
+        }
+      },
+      {
+        "type": "extend",
+        "target": "target",
+        "value": "Smolder",
+        "duration": 10,
+        "maxRemaining": 16,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordHorizonT3" },
+            { "target": "self", "value": "SwordsZenith", "stack": 5 }
+          ]
+        }
+      },
+      {
+        "type": "extend",
+        "target": "target",
+        "value": "QingyisPoison",
+        "duration": 10,
+        "maxRemaining": 16,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordHorizonT3" },
+            { "target": "self", "value": "SwordsZenith", "stack": 5 }
+          ]
+        }
+      },
+      {
+        "type": "extend",
+        "target": "target",
+        "value": "WeepingBlood",
+        "duration": 10,
+        "maxRemaining": 16,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordHorizonT3" },
+            { "target": "self", "value": "SwordsZenith", "stack": 5 }
+          ]
+        }
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "SwordsZenith",
+        "stack": "all",
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [{ "target": "self", "value": "SwordsZenith", "stack": 5 }]
+        }
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SwordsZenith",
+        "stack": 1,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SwordsZenith", "stack": 5 },
+            { "target": "self", "value": "SwordHorizonT6" }
+          ]
+        }
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SwordsZenith",
+        "stack": 1,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT3" }]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "Triggered",
+      "StrategicSword",
+      "Bleed",
+      "HighBleed",
+      "DirectDamage",
+      "BloodBurstDamage",
+      "Sword",
+      "MartialArts"
+    ],
+    "skillBreakdownCategory": "Blood Burst"
+  },
+  "StrategicSwordSpecialBloodBurst": {
+    "name": "Strategic Sword Special Blood Burst",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 10,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "StrategicBleedEnduranceReady" }]
+      },
+      { "type": "consume", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": "all", "time": 0 },
+      { "type": "trigger", "value": "BloodBurst", "time": 0 }
+    ],
+    "tags": ["Triggered", "SubAction", "StrategicSwordSpecialBloodBurst"]
+  },
+  "InnerTrackSlash3Cancel": {
+    "name": "Inner Track Slash 3rd [Cancel]",
+    "castTime": 1.187704707,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "addResource",
+        "value": "Endurance",
+        "amount": 8,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordHorizonT1" }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.316910747755,
+        "attrCoef": 0.316910747755,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 0.5279576539999999
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.5279576539999999 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 0.5279576539999999,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.475366121633,
+        "attrCoef": 0.475366121633,
+        "phyBonus": 0,
+        "attrBonus": 0,
+        "time": 1.187704707
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 1.187704707 },
+      {
+        "type": "trigger",
+        "value": "BloodBurst",
+        "time": 1.187704707,
+        "requirement": [
+          { "target": "target", "value": "UmbraBleeding", "stack": 5 },
+          { "target": "self", "value": "SwordHorizonT0" }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "MartialArt",
+      "CrisscrossingSwords",
+      "SubAction",
+      "InnerTrackSlash3Cancel"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true,
+    "skillBreakdownCategory": "Crisscross - Inner Track"
+  },
+  "InnerTrackSlashCancel": {
+    "name": "Inner Track Slash [3 Casts][Cancel]",
+    "castTime": 0,
+    "editableCastTime": true,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "MartialArt", "InnerTrackSlashCancel"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "subAction": [
+      { "value": "InnerTrackSlash1" },
+      { "value": "InnerTrackSlash2" },
+      { "value": "InnerTrackSlash3Cancel" }
+    ],
+    "shortName": "Sword QQQ [Cancel]",
+    "skillBreakdownCategory": "Inner Track Slash"
+  }
+}

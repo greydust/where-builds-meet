@@ -1,4 +1,4 @@
-import { compareTimelineTime, type EffectDefinition, type TimelineRow } from "./calculations/rotationTimeline"
+import { compareTimelineTime, type EffectDefinition, type TimelineRow } from "@/calculations/rotationTimeline"
 
 export type TimelineDisplayEntry = {
   row: TimelineRow
@@ -55,6 +55,10 @@ export function buildTimelineDisplayEntries(
     const derivedExpanded =
       row.kind !== "rotation" && sourceRow && (sourceRow.step.type !== "skill" || expanded(sourceRow.id))
     row.actions.forEach((action, actionIndex) => {
+      // A visited action can fail its stack requirement or cooldown. Its state
+      // exists for calculation, but only accepted actions receive combat order.
+      const state = row.actionStates[actionIndex]
+      if (!row.pendingCalculation && state && state.combatOrder === undefined) return
       const visible =
         derivedExpanded ||
         row.step.type !== "skill" ||

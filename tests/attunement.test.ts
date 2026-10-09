@@ -18,11 +18,11 @@ function skillActions(record: SkillRecord): EditableObject[] {
 // Ported from script/probe/check-attunement.mjs.
 describe("attunement", () => {
   it("Attunement tag and standalone multiplier checks passed", async () => {
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const thundercrySkills = asSkillRecords((await import("../data/skill/thundercry-blade.json")).default)
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const thundercrySkills = asSkillRecords((await import("@gamedata/skill/thundercry-blade.json")).default)
     const closeTo = (actual: number, expected: number) => isClose(actual, expected, 1e-9)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
@@ -63,7 +63,7 @@ describe("attunement", () => {
           effects: [],
         },
       ).total
-    const infernalSkills = (await import("../data/skill/infernal-twinblades.json")).default
+    const infernalSkills = (await import("@gamedata/skill/infernal-twinblades.json")).default
     for (const [skill, expectedMultiplier] of [
       [infernalSkills.AddledMind, 1.06],
       [infernalSkills.InfernalLight1, 1],
@@ -145,10 +145,10 @@ describe("attunement", () => {
   // A castable skill can hand its damage to triggered component skills. Every tag-gated
   // boost must reach those components, so the boost follows the hit rather than the button.
   it("attunement boosts reach triggered damage components", async () => {
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const rope = asSkillRecords((await import("../data/skill/unfettered-rope-dart.json")).default)
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const rope = asSkillRecords((await import("@gamedata/skill/unfettered-rope-dart.json")).default)
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, precision: 1 }
     const enemy = {
       name: "Attunement probe",
@@ -200,7 +200,7 @@ describe("attunement", () => {
   })
 
   it("triggered damage components inherit their parent's skill categories", async () => {
-    const { allSkillDefinitions } = await import("../src/application/gameData/skills.ts")
+    const { allSkillDefinitions } = await import("@/application/gameData/skills.ts")
     const skillCategories = ["Charged", "Special", "MartialArt", "Light", "Heavy", "VariedCombo", "Pursuit"]
     const missing: string[] = []
     for (const [id, skill] of Object.entries(allSkillDefinitions)) {
@@ -211,9 +211,9 @@ describe("attunement", () => {
         const componentTags = component.tags ?? []
         const dealsDamage = skillActions(component).some(entry => entry.type === "damage" || entry.type === "heal")
         if (!dealsDamage) continue
-        // MartialArtEffect marks a separate
-        // summoned attack that is deliberately not categorised by the skill that raised it.
-        if (componentTags.includes("MartialArtEffect")) continue
+        // Separate summoned attacks and High Bleed mechanisms use their own boost
+        // eligibility instead of inheriting the triggering button's category.
+        if (componentTags.includes("MartialArtEffect") || componentTags.includes("HighBleed")) continue
         const absent = skillCategories.filter(
           category => (skill.tags ?? []).includes(category) && !componentTags.includes(category),
         )

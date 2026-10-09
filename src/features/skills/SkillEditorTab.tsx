@@ -1,20 +1,25 @@
 import { IconChevronDown, IconChevronUp, IconX } from "@tabler/icons-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { skillCategoryLabel, skillDisplayName } from "../../application/formatting"
-import { currentCombatDefinitions, type CombatDefinitions } from "../../application/gameData/previews"
-import { defaultEditorMaps, editorSkillIds, skillCategoryByWeapon } from "../../application/gameData/skills"
-import { hasSkillOverrides } from "../../application/persistence/skillOverrides"
-import { baseSkillCastTime } from "../../application/rotationCatalog"
-import { type EditableObject, type SkillRecord } from "../../calculations/rotationTimeline"
-import { t } from "../../i18n"
-import { publishNotice, dismissNotice } from "../../notices"
-import { type EditorCategory, type SkillMap, type SkillOverrides } from "../../skillOverrides"
-import { type WeaponId } from "../../types"
-import { Button } from "../../ui/Button"
-import { NumberInput } from "../../ui/NumberInput"
-import { Panel } from "../../ui/Panel"
-import { Tab } from "../../ui/Tab"
+import { skillCategoryLabel, skillDisplayName } from "@/application/formatting"
+import { currentCombatDefinitions, type CombatDefinitions } from "@/application/gameData/previews"
+import { defaultEditorMaps, editorSkillIds, skillCategoryByWeapon } from "@/application/gameData/skills"
+import { hasSkillOverrides } from "@/application/persistence/skillOverrides"
+import { baseSkillCastTime } from "@/application/rotationCatalog"
+import {
+  expandedSkillActionLayout,
+  expandedSkillBaseCastTime,
+  type EditableObject,
+  type SkillRecord,
+} from "@/calculations/rotationTimeline"
+import { t } from "@/i18n"
+import { publishNotice, dismissNotice } from "@/notices"
+import { type EditorCategory, type SkillMap, type SkillOverrides } from "@/skillOverrides"
+import { type WeaponId } from "@/types"
+import { Button } from "@/ui/Button"
+import { NumberInput } from "@/ui/NumberInput"
+import { Panel } from "@/ui/Panel"
+import { Tab } from "@/ui/Tab"
 
 function skillToDraft(skill: SkillRecord) {
   const { name = "", shortName = "", castTime = 0, action = [], modifier = [], tags = [] } = skill
@@ -1195,6 +1200,24 @@ export function SkillEditorTab({
 
   const skills = useMemo(() => ({ ...editorMaps[category], ...overrides[category] }), [editorMaps, category, overrides])
   const skillIds = useMemo(() => Object.keys(skills), [skills])
+  const combinedCastLayout = draftSkillLayout()
+  function draftSkillLayout() {
+    const selected = skills[selectedSkill]
+    if (!selected?.subAction?.length) return undefined
+    const definitions = {
+      ...Object.assign(
+        {},
+        ...Object.entries(preview.skillMaps).map(([key, records]) =>
+          Object.assign({}, records, overrides[key as EditorCategory]),
+        ),
+      ),
+      [selectedSkill]: { ...selected, castTime: Number(draft.castTime) },
+    }
+    return {
+      ...expandedSkillActionLayout(selectedSkill, definitions),
+      castTime: expandedSkillBaseCastTime(selectedSkill, definitions),
+    }
+  }
   const editorModified = hasSkillOverrides(overrides)
   const visibleCategories = useMemo<EditorCategory[]>(() => {
     const martialCategories = weapons.flatMap(weapon => {
@@ -1548,7 +1571,7 @@ export function SkillEditorTab({
                   ) : (
                     <>
                       <label className="editor-field">
-                        <span>{t("ui.app.castTime")}</span>
+                        <span>{t(combinedCastLayout ? "ui.app.wrapperCastTime" : "ui.app.castTime")}</span>
                         <input
                           type="number"
                           min="0"
@@ -1557,6 +1580,15 @@ export function SkillEditorTab({
                           onChange={event => setDraft({ ...draft, castTime: event.target.value })}
                         />
                       </label>
+                      {combinedCastLayout && (
+                        <label className="editor-field">
+                          <span>
+                            {t("ui.app.combinedCastTime")}
+                            {combinedCastLayout.conditional && <small> — {t("ui.app.combatDependentCastTime")}</small>}
+                          </span>
+                          <input readOnly value={`${Number(combinedCastLayout.castTime.toFixed(4))}s`} />
+                        </label>
+                      )}
                       <label className="editor-field">
                         <span>{t("ui.app.cooldown")}</span>
                         <input

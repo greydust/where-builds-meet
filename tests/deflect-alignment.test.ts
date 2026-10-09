@@ -1,9 +1,9 @@
+import general from "@gamedata/skill/general.json"
 import { describe, expect, it } from "vitest"
 
 import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "@/calculations/rotationTimeline"
 import { migrateAutomaticDelays } from "@/rotationEditing"
 
-import general from "../data/skill/general.json"
 import { asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
@@ -33,6 +33,18 @@ const damage = (rows: ReturnType<typeof buildRotationTimeline>) =>
   rows.flatMap(row => row.actions.filter(action => action.type === "takeDamage").map(action => action.damage))
 
 describe("Successful Deflect attack alignment", () => {
+  it.each(["HengBlade", "MoBlade", "Spear", "Umbrella", "RopeDart", "Gauntlet", "Sword", "Fan", "DualBlades"])(
+    "uses the measured %s duration for both Deflect variants without input latency",
+    weapon => {
+      for (const skill of ["Deflect", "DeflectSuccessful"]) {
+        const data = input([cast(skill), cast("Lead")])
+        data.weapons = ["snowparting"]
+        data.martialArtState = { snowparting: { weapon } } as TimelineBuildInput["martialArtState"]
+        const rows = buildRotationTimeline(data)
+        expect(rows.find(row => row.step.skill === "Lead")!.startTime).toBe(weapon === "HengBlade" ? 0.25 : 0.3)
+      }
+    },
+  )
   it("waits for each upcoming manual attack and delays start attachments", () => {
     const data = input([
       cast("Lead"),
@@ -48,13 +60,13 @@ describe("Successful Deflect attack alignment", () => {
     const deflects = successful(rows)
     expect(deflects).toHaveLength(2)
     expect(deflects.map(row => row.startTime + row.effectiveCastTime)).toEqual([5.1, 8.1])
-    expect(rows.find(row => row.rotationIndex === 1)?.startTime).toBeCloseTo(4.762)
+    expect(rows.find(row => row.rotationIndex === 1)?.startTime).toBeCloseTo(4.8)
     expect(deflects[0].buffs.has("Marker")).toBe(true)
     expect(damage(rows)).toEqual([0, 0])
     const waits = rows.filter(row => row.step.type === "event" && row.step.event === "Delay")
     expect(waits).toHaveLength(2)
-    expect(waits[0].effectiveCastTime).toBeCloseTo(3.762)
-    expect(waits[1].effectiveCastTime).toBeCloseTo(2.662)
+    expect(waits[0].effectiveCastTime).toBeCloseTo(3.8)
+    expect(waits[1].effectiveCastTime).toBeCloseTo(2.7)
     expect(data.rotation.steps.some(step => step.type === "event" && step.event === "Delay")).toBe(false)
   })
   it("uses the earlier of manual and paired dummy attacks, on the battle-relative clock", () => {
@@ -76,7 +88,7 @@ describe("Successful Deflect attack alignment", () => {
     data.skills.Lead.castTime = 4.9
     const rows = buildRotationTimeline(data)
     expect(successful(rows)[0].startTime).toBeCloseTo(4.9)
-    expect(successful(rows)[0].startTime + successful(rows)[0].effectiveCastTime).toBeCloseTo(5.238)
+    expect(successful(rows)[0].startTime + successful(rows)[0].effectiveCastTime).toBeCloseTo(5.2)
     expect(damage(rows)).toEqual([0])
   })
   it.each([[], [attack(0.5)], [attack(8), end(6)], [attack(6), end(6)]].map(events => ({ events })))(
@@ -92,7 +104,7 @@ describe("Successful Deflect attack alignment", () => {
       input([cast("Lead"), cast("Deflect"), cast("DeflectSuccessful"), attack(5), end(6)]),
     )
     expect(rows.find(row => row.rotationIndex === 1)?.startTime).toBeCloseTo(1)
-    expect(successful(rows)[0].startTime).toBeCloseTo(4.762)
+    expect(successful(rows)[0].startTime).toBeCloseTo(4.8)
   })
   it("uses the current weapon and cast modifiers when determining the lead time", () => {
     const data = input([cast("Lead"), cast("DeflectSuccessful"), attack(5), end(6)])
@@ -123,8 +135,8 @@ describe("Successful Deflect attack alignment", () => {
     }
     const rows = buildRotationTimeline(data)
     const deflect = successful(rows)[1]
-    expect(deflect.startTime).toBeCloseTo(4.762)
-    expect(deflect.cooldownWait).toBeCloseTo(1.662)
+    expect(deflect.startTime).toBeCloseTo(4.8)
+    expect(deflect.cooldownWait).toBeCloseTo(1.7)
     const waits = rows.filter(row => row.step.type === "event" && row.step.event === "Delay")
     expect(waits.map(row => row.step.type === "event" && row.step.event === "Delay" && row.step.automatic)).toEqual([
       "cooldown",

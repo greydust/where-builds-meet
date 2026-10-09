@@ -1,0 +1,232 @@
+{
+  "id": "umbra-full",
+  "name": "Graduate",
+  "order": 2,
+  "martialArts": ["strategicSword", "heavenquakerSpear"],
+  "setup": {
+    "innerWays": [
+      { "innerWay": "SwordHorizon", "tier": "T6" },
+      { "innerWay": "MoraleChant", "tier": "T6" },
+      { "innerWay": "InsightfulStrike", "tier": "T6" },
+      { "innerWay": "WolfchasersArt", "tier": "T6" }
+    ],
+    "weaponSets": { "Hawkwing": 4 },
+    "armorSets": {},
+    "bowRingSet": "Affinity",
+    "arsenal": "Bellstrike"
+  },
+  "gearByTier": {
+    "96": {
+      "leftWeapon": {
+        "definitionId": "sword",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 77.8 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "swordDmgBoost", "value": 0.062 },
+          { "key": "power", "value": 49.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "rightWeapon": {
+        "definitionId": "spear",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 77.8 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "power", "value": 49.4 },
+          { "key": "maxVoidAttack", "value": 44.2 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 77.8 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "allMartialArts", "value": 0.032 },
+          { "key": "power", "value": 49.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 77.8 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "allMartialArts", "value": 0.032 },
+          { "key": "power", "value": 49.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "affinity", "value": 0.044 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "power", "value": 49.4 },
+          { "key": "affinity", "value": 0.044 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.06 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "affinity", "value": 0.044 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "power", "value": 49.4 },
+          { "key": "affinity", "value": 0.044 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.06 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 49.4 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "vsBossDmg", "value": 0.032 },
+          { "key": "power", "value": 49.4 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.06 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 49.4 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 77.8 },
+          { "key": "momentum", "value": 49.4 },
+          { "key": "vsBossDmg", "value": 0.032 },
+          { "key": "power", "value": 49.4 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.06 }
+      }
+    },
+    "100": {
+      "leftWeapon": {
+        "definitionId": "sword",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 90.6 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "swordDmgBoost", "value": 0.074 },
+          { "key": "power", "value": 57.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "rightWeapon": {
+        "definitionId": "spear",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 90.6 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "power", "value": 57.4 },
+          { "key": "affinity", "value": 0.052 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 90.6 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "allMartialArts", "value": 0.036 },
+          { "key": "power", "value": 57.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 90.6 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "allMartialArts", "value": 0.036 },
+          { "key": "power", "value": 57.4 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "affinity", "value": 0.052 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "power", "value": 57.4 },
+          { "key": "affinity", "value": 0.052 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "affinity", "value": 0.052 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "power", "value": 57.4 },
+          { "key": "affinity", "value": 0.052 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 57.4 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "vsBossDmg", "value": 0.038 },
+          { "key": "power", "value": 57.4 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 57.4 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 90.6 },
+          { "key": "momentum", "value": 57.4 },
+          { "key": "vsBossDmg", "value": 0.038 },
+          { "key": "power", "value": 57.4 }
+        ],
+        "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
+      }
+    }
+  }
+}

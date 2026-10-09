@@ -891,6 +891,7 @@ function calculateBreakdown(
   duration: number,
   totalDamage: number,
   totalHealing: number,
+  skillDefinitions: TimelineBuildInput["skills"],
 ): RotationBreakdown {
   const percentage = (damage: number) => (totalDamage > 0 ? (damage / totalDamage) * 100 : 0)
   const healingPercentage = (healing: number) => (totalHealing > 0 ? (healing / totalHealing) * 100 : 0)
@@ -947,6 +948,7 @@ function calculateBreakdown(
       affinityTotal: number
       damage: number
       tags: string[]
+      skillBreakdownCategory?: string
     }
   >()
   const healingSkills = new Map<
@@ -961,6 +963,7 @@ function calculateBreakdown(
       normalTotal: number
       criticalTotal: number
       tags: string[]
+      skillBreakdownCategory?: string
     }
   >()
   const damageGroupRowIds = new Set(timeline.filter(row => row.kind === "damageGroup").map(row => row.id))
@@ -1015,7 +1018,29 @@ function calculateBreakdown(
     return undefined
   }
 
-  timeline.forEach(row => {
+  const breakdownRows = timeline.flatMap<TimelineRow>(row => {
+    if (row.step.type !== "skill" || !row.step.skill || !row.actionSkillIds) return [row]
+    const rootId = row.step.skill
+    const attributedSkills = new Map<string, NonNullable<TimelineRow["skill"]>>()
+    const owners = row.actions.map((_, index) => {
+      const componentId = row.actionSkillIds?.[index]
+      const component = componentId ? skillDefinitions[componentId] : undefined
+      const category = row.actionSkillCategories?.[index]?.trim() ?? component?.skillBreakdownCategory?.trim()
+      if (!componentId || !component || !category) return rootId
+      const id =
+        category === component.skillBreakdownCategory?.trim() ? componentId : `${componentId}:category:${category}`
+      attributedSkills.set(id, Object.assign({}, component, { skillBreakdownCategory: category }))
+      return id
+    })
+    return [...new Set(owners)].map(skillId =>
+      Object.assign({}, row, {
+        step: { type: "skill" as const, skill: skillId },
+        skill: attributedSkills.get(skillId) ?? skillDefinitions[skillId] ?? row.skill,
+        actions: row.actions.map((action, index) => (owners[index] === skillId ? action : { type: "inactive" })),
+      }),
+    )
+  })
+  breakdownRows.forEach(row => {
     if (row.skipped || row.step.type !== "skill" || !row.step.skill) return
     const id = row.step.skill
     const hasCountedDamage = row.actions.some(
@@ -1028,6 +1053,7 @@ function calculateBreakdown(
     const current = skills.get(id) ?? {
       id,
       name: row.skill?.name ?? id,
+      skillBreakdownCategory: row.skill?.skillBreakdownCategory,
       casts: 0,
       triggers: 0,
       hits: 0,
@@ -1041,6 +1067,7 @@ function calculateBreakdown(
     const currentHealing = healingSkills.get(id) ?? {
       id,
       name: row.skill?.name ?? id,
+      skillBreakdownCategory: row.skill?.skillBreakdownCategory,
       casts: 0,
       triggers: 0,
       heals: 0,
@@ -2355,6 +2382,7 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
     duration,
     rawBaselineDamage,
     baselineHealing,
+    bundle.timeline.skills,
   )
   metrics.breakdown.groupedSkills = groupSkillBreakdown(metrics.breakdown.skills, bundle.timeline.skills)
   metrics.breakdown.groupedHealingSkills = groupSkillBreakdown(metrics.breakdown.healingSkills, bundle.timeline.skills)

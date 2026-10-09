@@ -2,6 +2,15 @@
 
 This document describes the formula currently implemented by the rotation simulator. Unless stated otherwise, percentage values are stored internally as decimal ratios: `0.11` means `11%`. The UI converts between ratios and percentage points.
 
+Blood Burst is direct damage tagged `HighBleed` and `Bleed`. The latter selects
+Bleeding attunements and talents; it does not grant DOT bonuses. Its `Sword`
+and `MartialArts` tags enable Art of Sword and All Martial Arts in the standard
+shared additive bonus bucket. Soul-Shaken's
+`highBleedDamage` applies only to `HighBleed` hits (10% per stack, up to 50%)
+in the existing multiplicative damage bucket. Its ordinary `dotDamage` bonuses
+apply only to periodic DOT damage and exclude High Bleed. BB does not receive
+Insightful Strike's DOT-only T6 bonus; its normal direct-hit triggers remain active.
+
 Enemy defense, level, path resistances, Judgement Resistance, and level-derived
 character bonuses come from the selected entry in `data/breakthrough.json`.
 Breakthrough 17 uses 408 enemy defense, zero base resistance, 65% Judgement

@@ -2,11 +2,9 @@ import assert from "node:assert/strict"
 
 import { describe, expect, it } from "vitest"
 
-import { defaultGlobalDebuffs } from "@/globalDebuffs"
-
-import type { PathId } from "../src/application/contracts"
-import { typedPathDefinitions, type PathDefinition } from "../src/application/gameData/paths"
-import { buildPresetRotationBundle } from "../src/application/graduation"
+import type { PathId } from "@/application/contracts"
+import { typedPathDefinitions, type PathDefinition } from "@/application/gameData/paths"
+import { buildPresetRotationBundle } from "@/application/graduation"
 import {
   buildRotationTimeline,
   canAnchorAttachedEvent,
@@ -14,7 +12,9 @@ import {
   type RotationRecord,
   type RotationStep,
   type TimelineRow,
-} from "../src/calculations/rotationTimeline"
+} from "@/calculations/rotationTimeline"
+import { defaultGlobalDebuffs } from "@/globalDebuffs"
+
 import { loadDpsSnapshotFixtures } from "./helpers/dps-snapshot-fixtures"
 import { probeLoad } from "./helpers/probe-loader"
 import { rowCasting } from "./helpers/timelineRows"
@@ -150,8 +150,12 @@ describe("preset Qi ramp coverage", () => {
   // this cycle silently skew every target-Qi requirement that data gates on.
   const RAMP = [0.5999, 0.3999, 0]
 
-  it("descends each preset's meter in 0.5999 / 0.3999 / 0 ramps that land inside the fight", async () => {
-    const cases = await loadDpsSnapshotFixtures()
+  it("descends each available path preset's meter in 0.5999 / 0.3999 / 0 ramps that land inside the fight", async () => {
+    // WIP paths can contain unmeasured drafts without an authored Qi schedule.
+    // Keep the complete-ramp invariant on the available paths used for recommendations.
+    const cases = (await loadDpsSnapshotFixtures()).filter(
+      fixture => typedPathDefinitions[fixture.pathId].status === "available",
+    )
     expect(cases.length).toBeGreaterThan(0)
     for (const { id, pathId, rotation, fixture } of cases) {
       const bundle = buildPresetRotationBundle(

@@ -253,7 +253,9 @@ function calculateDamageBreakdownInternal(
     baseDmgBonus: unconditional.baseDMGBonus ?? 0,
     globalDmgBonus: (unconditional.globalDmgBonus ?? 0) + (unconditional.globalHPDMGBonus ?? 0),
     globalBellstrikeDmgBonus: unconditional.globalBellstrikeDMGBonus ?? 0,
-    dotDamageBonus: context.isDot ? (unconditional.dotDamage ?? 0) : 0,
+    dotDamageBonus:
+      (context.isDot ? (unconditional.dotDamage ?? 0) : 0) +
+      (context.skillTags.includes("HighBleed") ? (unconditional.highBleedDamage ?? 0) : 0),
     physicalPenetration: unconditional.physicalPenetration ?? 0,
     defenseBonus: unconditional.defenseBonus ?? 0,
     physicalResistance: unconditional.physicalResistance ?? 0,
@@ -295,6 +297,7 @@ function calculateDamageBreakdownInternal(
     resolvedEffects.globalDmgBonus += effectValue(effect.globalDmgBonus) + effectValue(effect.globalHPDMGBonus)
     resolvedEffects.globalBellstrikeDmgBonus += effectValue(effect.globalBellstrikeDMGBonus)
     if (context.isDot) resolvedEffects.dotDamageBonus += effectValue(effect.dotDamage)
+    if (context.skillTags.includes("HighBleed")) resolvedEffects.dotDamageBonus += effectValue(effect.highBleedDamage)
     resolvedEffects.physicalPenetration += effectValue(effect.physicalPenetration)
     resolvedEffects.defenseBonus += effectValue(effect.defenseBonus)
     resolvedEffects.physicalResistance += effectValue(effect.physicalResistance)

@@ -1,7 +1,9 @@
-import umbrellaSkills from "../data/skill/everspring-umbrella.json"
+import umbrellaSkills from "@gamedata/skill/everspring-umbrella.json"
+
 import type { EditableObject, EffectDefinition, SkillRecord } from "./calculations/rotationTimeline"
 import { validateUnknown } from "./schemas/json"
 import { skillOverridesInputSchema } from "./schemas/skillOverrides"
+import { migrateSkillId } from "./skillIdMigrations"
 
 export type SkillMap = Record<string, SkillRecord>
 export type SkillCategory =
@@ -19,6 +21,8 @@ export type SkillCategory =
   | "Unfettered"
   | "NamelessSword"
   | "NamelessSpear"
+  | "StrategicSword"
+  | "HeavenQuakerSpear"
   | "Mystic"
   | "General"
   | "Mechanism"
@@ -34,7 +38,15 @@ export function deserializeSkillOverrides(value: unknown): SkillOverrides {
   const migrate = (entry: unknown): unknown => {
     if (Array.isArray(entry)) return entry.map(migrate)
     if (!entry || typeof entry !== "object") return entry
-    const record = Object.fromEntries(Object.entries(entry).map(([key, child]) => [key, migrate(child)]))
+    const record = Object.fromEntries(
+      Object.entries(entry).map(([key, child]) => [migrateSkillId(key), migrate(child)]),
+    )
+    if (typeof record.value === "string") record.value = migrateSkillId(record.value)
+    if (typeof record.fallback === "string") record.fallback = migrateSkillId(record.fallback)
+    if (Array.isArray(record.tags))
+      record.tags = record.tags.map(tag => (typeof tag === "string" ? migrateSkillId(tag) : tag))
+    if (Array.isArray(record.subAction))
+      record.subAction = record.subAction.map(child => (typeof child === "string" ? migrateSkillId(child) : child))
     if (record.durationInput !== undefined) {
       record.editableCastTime =
         record.durationInput && typeof record.durationInput === "object" ? record.durationInput : true

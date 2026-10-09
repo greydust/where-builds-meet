@@ -97,11 +97,26 @@ while recalculating outcomes cannot reproduce that feedback.
 
 The internal clock begins at the first ordered item. Battle start is recorded once
 as `battleStartTime` (`-1` until detected). Detection activates battle-relative
-encounter events, passive regeneration, the practice target's declared attack
+encounter events, passive regeneration for resources other than Endurance, the practice target's declared attack
 patterns, and shared expected DOT ticks. Precombat DOT applications remain in their trackers until clock activation.
 The worker publishes internal timestamps and battle start; the UI subtracts the
 recorded start for display. There is no anchor-convergence or duration-discovery
 pass. Auto HP is removed, so HP never depends on future rotation duration.
+
+Endurance spending, continuous consumption, regeneration overrides, and passive
+recovery run from the first ordered item, including before battle start. Battle
+detection does not reset this resource clock.
+
+The editor omits resolved actions rejected by their requirements or cooldowns.
+Action snapshots alone do not indicate acceptance: only accepted actions receive
+`combatOrder`. This keeps stack-dependent DOT damage alternatives from appearing
+as multiple hits for one tick; pending calculation previews remain visible.
+
+A composite component can declare `{ "type": "skillStart", "time": 0 }` when
+it begins another actual cast. This action dispatches the existing skill-start
+effect triggers using that component's tags. It does not start another rotation
+row, pay another parent cost, or change cast duration. Umbra's Special follow-up
+uses it to reset its once-per-cast Endurance refund allowance.
 
 ## Verification
 

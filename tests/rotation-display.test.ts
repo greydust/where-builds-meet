@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 
-import { buildRotationTimeline, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
-import { withUnresolvedEditorSteps } from "../src/editorTimelinePreview"
-import { buildTimelineDisplayEntries } from "../src/rotationDisplay"
+import { buildRotationTimeline, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+import { withUnresolvedEditorSteps } from "@/editorTimelinePreview"
+import { buildTimelineDisplayEntries } from "@/rotationDisplay"
 
 describe("rotation editor after battle end", () => {
   it("keeps unreached skills editable in saved order without exposing unexecuted actions", () => {

@@ -1,12 +1,12 @@
+import regular from "@gamedata/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json"
+import bp from "@gamedata/rotation/bamboocut-kite/dummy-1-min-iv-bp.json"
 import { assert, describe, expect, it } from "vitest"
 
+import { buildPresetRotationBundle } from "@/application/graduation"
+import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
 import { defaultGlobalDebuffs } from "@/globalDebuffs"
 
-import regular from "../data/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json"
-import bp from "../data/rotation/bamboocut-kite/dummy-1-min-iv-bp.json"
-import { buildPresetRotationBundle } from "../src/application/graduation"
-import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
-import type { RotationRecord } from "../src/calculations/rotationTimeline"
 import { rowWithId } from "./helpers/timelineRows"
 
 export function calculateKite(rotation: RotationRecord, build: string) {
@@ -77,7 +77,7 @@ it("Kite BP uses Perfect Dodge to cancel A6 and align with the first dummy attac
       row.step.automatic === "attack",
   )
   expect(waits).toHaveLength(1)
-  expect(waits[0].effectiveCastTime).toBeCloseTo(0.0585)
+  expect(waits[0].effectiveCastTime).toBeCloseTo(0.0965)
 })
 
 it("Kite BP's final Qi break follows Soaring Spin and enables the last VC reset", () => {

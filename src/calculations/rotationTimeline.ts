@@ -46,6 +46,7 @@ export type PeriodicEffect = {
   action?: unknown[]
 }
 export type SubActionReference = {
+  skillBreakdownCategory?: string
   value: string | string[]
   requirement?: unknown
   fallback?: string | string[]
@@ -282,6 +283,9 @@ export type TimelineRow = {
   modifierEffects: EditableObject[]
   unconditionalDamageEffects?: UnconditionalDamageEffects
   actionSkillTags?: Record<number, string[]>
+  /** Selected component skill for breakdown attribution; action indexes remain on the composite row. */
+  actionSkillIds?: Record<number, string>
+  actionSkillCategories?: Record<number, string>
   actionModifierEffects?: Record<number, EditableObject[]>
   actionStates: Record<
     number,
@@ -688,6 +692,7 @@ type ExpandedSkillSegment = {
     requirement?: unknown
     fallback?: string
     waitForRequirement?: boolean
+    skillBreakdownCategory?: string
     choiceGroup?: number
     choiceIndex?: number
   }
@@ -696,7 +701,7 @@ type ExpandedSkillSegment = {
   actionIndexes: number[]
   localActionTimes: number[]
 }
-function expandSkill(skillId: string, skills: Record<string, SkillRecord>) {
+function expandSkill(skillId: string, skills: Record<string, SkillRecord>, resolveConditions = false) {
   const root = skills[skillId]
   const segments: ExpandedSkillSegment[] = []
   const actions: EditableObject[] = []
@@ -746,7 +751,13 @@ function expandSkill(skillId: string, skills: Record<string, SkillRecord>) {
     if (Array.isArray(skill?.subAction))
       skill.subAction.forEach(entry => {
         const subAction = normalizeSubAction(entry)
-        appendSubAction(subAction, nextAncestry)
+        appendSubAction(
+          {
+            ...subAction,
+            skillBreakdownCategory: subAction.skillBreakdownCategory ?? reference?.skillBreakdownCategory,
+          },
+          nextAncestry,
+        )
       })
   }
   const appendSubAction = (reference: SubActionReference, ancestry: Set<string>) => {
@@ -756,12 +767,18 @@ function expandSkill(skillId: string, skills: Record<string, SkillRecord>) {
       : reference.fallback
         ? [reference.fallback]
         : []
+    if (resolveConditions && reference.requirement !== undefined) {
+      const passes = requirementsPass(reference.requirement, effectState(), effectState(), [], new Set(), [], {}, {})
+      for (const id of passes ? primary : fallback) append(id, ancestry)
+      return
+    }
     const isSequence = Array.isArray(reference.value) || Array.isArray(reference.fallback)
     if (!isSequence) {
       append(primary[0], ancestry, {
         value: primary[0],
         requirement: reference.requirement,
         waitForRequirement: reference.waitForRequirement,
+        skillBreakdownCategory: reference.skillBreakdownCategory,
         fallback: fallback[0],
       })
       return
@@ -775,6 +792,7 @@ function expandSkill(skillId: string, skills: Record<string, SkillRecord>) {
         waitForRequirement: reference.waitForRequirement,
         fallback: fallback[choiceIndex],
         choiceGroup,
+        skillBreakdownCategory: reference.skillBreakdownCategory,
         choiceIndex,
       })
   }
@@ -794,8 +812,17 @@ export function expandedSkillActionLayout(skillId: string, skills: Record<string
       return segment.baseStartOffset + (action && typeof action.time === "number" ? action.time : segment.baseCastTime)
     })
   })
-  return { actionTimes, castTime: expanded.castTime }
+  return {
+    actionTimes,
+    castTime: expanded.castTime,
+    conditional: expanded.segments.some(segment => segment.reference?.requirement !== undefined),
+  }
 }
+/** Base duration with conditional subactions selected against an empty combat state, excluding ping. */
+export function expandedSkillBaseCastTime(skillId: string, skills: Record<string, SkillRecord>) {
+  return expandSkill(skillId, skills, true).castTime
+}
+
 /** Count the reserved action slots produced by a composite skill and all fallback branches. */
 export function expandedSkillActionCount(skillId: string, skills: Record<string, SkillRecord>) {
   return expandedSkillActionLayout(skillId, skills).actionTimes.length
@@ -996,11 +1023,23 @@ function applyTrackedEffect(
   return new Map(effects).set(effectKey(name, playerRecipientIndex), nextEffect)
 }
 
-function extendTrackedEffect(effects: EffectState, name: string, duration: number, time: number) {
+function extendTrackedEffect(
+  effects: EffectState,
+  name: string,
+  duration: number,
+  time: number,
+  maxRemaining?: number,
+) {
   return mapTrackedEffects(effects, effect =>
     effect.name !== name || effect.expiresAt === undefined || effect.expiresAt <= time
       ? effect
-      : { ...effect, expiresAt: effect.expiresAt + duration },
+      : {
+          ...effect,
+          expiresAt: Math.max(
+            effect.expiresAt,
+            Math.min(effect.expiresAt + duration, time + (maxRemaining ?? Infinity)),
+          ),
+        },
   )
 }
 
@@ -1799,9 +1838,9 @@ export function buildRotationTimeline(
       regenSuppressedUntil.set(action.value, currentTimelineTime + spendDelay)
     return true
   }
-  // Pre-fight actions can change resources, but passive regeneration begins only
-  // when the live event loop detects battle start.
-  let lastResourceRegenerationTime = Infinity
+  // Endurance uses the ordered timeline clock, including preparation before battle.
+  // Other passive resources begin regenerating at battle start.
+  let lastResourceRegenerationTime = 0
   /** Current Endurance against its own maximum, for the `endurancePercentage` requirement target. */
   const endurancePercentage = () => {
     const maximum = resourceMaximums.Endurance
@@ -1848,6 +1887,7 @@ export function buildRotationTimeline(
       // suppression deadline is an event time, so it splits too and the
       // suppression test below is exact within each piece.
       const boundaries = new Set<number>()
+      if (battleStartTime > from && battleStartTime < time) boundaries.add(battleStartTime)
       for (const buff of buffs.values()) {
         if (buff.expiresAt !== undefined && buff.expiresAt > from && buff.expiresAt < time)
           boundaries.add(buff.expiresAt)
@@ -1875,7 +1915,8 @@ export function buildRotationTimeline(
             )
             const override = active.findLast(window => window.regeneration !== undefined)?.regeneration
             const drain = active.reduce((total, window) => total + (window.consumption ?? 0), 0)
-            const rate = override ?? resourceRegeneration[name] ?? 0
+            const regenerationActive = name === "Endurance" || (battleStartTime >= 0 && spanStart >= battleStartTime)
+            const rate = regenerationActive ? (override ?? resourceRegeneration[name] ?? 0) : 0
             const suppressed = (regenSuppressedUntil.get(name) ?? Number.NEGATIVE_INFINITY) > spanStart
             if (rate <= 0 && drain <= 0) return next
             const before = next[name] ?? 0
@@ -2805,7 +2846,7 @@ export function buildRotationTimeline(
       const item = value as EditableObject
       if (Array.isArray(item.operand)) collectThresholds(item.operand)
       if (item.target !== "resource" || typeof item.value !== "string" || typeof item.amount !== "number") return
-      const rate = resourceRegeneration[item.value] ?? 0
+      const rate = item.value === "Endurance" || battleStarted ? (resourceRegeneration[item.value] ?? 0) : 0
       if (rate > 0 && !infiniteResources.has(item.value))
         candidates.push(
           Math.max(time, earliest, lastResourceRegenerationTime + (item.amount - (resources[item.value] ?? 0)) / rate),
@@ -2820,7 +2861,7 @@ export function buildRotationTimeline(
         .find(candidate => {
           const projected = { ...resources }
           for (const [name, rate] of Object.entries(resourceRegeneration))
-            if (!infiniteResources.has(name))
+            if (!infiniteResources.has(name) && (name === "Endurance" || battleStarted))
               projected[name] = clampResource(
                 name,
                 (resources[name] ?? 0) + rate * Math.max(0, candidate - lastResourceRegenerationTime),
@@ -2918,7 +2959,6 @@ export function buildRotationTimeline(
   const startBattle = (time: number) => {
     battleStarted = true
     battleStartTime = time
-    lastResourceRegenerationTime = time
     if (rotation.eventTimeReference === "battleStart")
       for (const entry of timed)
         entry.time = time + (typeof entry.step.startTime === "number" ? entry.step.startTime : 0)
@@ -3318,8 +3358,13 @@ export function buildRotationTimeline(
       })
       const skillTags = segment.skill.tags ?? []
       event.row.actionSkillTags ??= {}
+      event.row.actionSkillIds ??= {}
+      event.row.actionSkillCategories ??= {}
       segment.actionIndexes.forEach(actionIndex => {
         event.row.actionSkillTags![actionIndex] = skillTags
+        event.row.actionSkillIds![actionIndex] = segment.skillId
+        const category = segment.reference?.skillBreakdownCategory ?? segment.skill.skillBreakdownCategory
+        if (category !== undefined) event.row.actionSkillCategories![actionIndex] = category
       })
       resolveStartBoundActionValues(event.row, segment.actionIndexes)
       const modifiers = modifiersFor(segment.skill)
@@ -3917,6 +3962,18 @@ export function buildRotationTimeline(
       const hitProbability = typeof action.hitProbability === "number" ? action.hitProbability : 1
       if (triggerAction.type === "addResource" && typeof triggerAction.amount === "number" && hitProbability !== 1)
         triggerAction = { ...triggerAction, amount: triggerAction.amount * hitProbability }
+      if (triggerAction.type === "addResource" && triggerAction.chance !== undefined) {
+        const chance = resolveActionChance(triggerAction.chance)
+        if (chance <= 0) return
+        if (procRoll && chance < 1) {
+          const key = `resource:${event.row.sourceRowId ?? event.row.id}:${event.actionIndex}:${triggerSource}:${triggerAction.value}`
+          const occurrence = procOccurrences.get(key) ?? 0
+          procOccurrences.set(key, occurrence + 1)
+          if (procRoll(`${key}:${occurrence}`) >= chance) return
+        } else if (!procRoll) {
+          triggerAction = { ...triggerAction, amount: Number(triggerAction.amount) * chance }
+        }
+      }
       if (applyResourceAction(triggerAction, event.row, skillTags)) return
       if (triggerAction.type === "clearCD" && typeof triggerAction.value === "string") {
         if (triggerAction.seconds === undefined) cooldowns[triggerAction.value] = event.time
@@ -4333,7 +4390,7 @@ export function buildRotationTimeline(
           triggerState.readyAt = event.time + triggerCooldown
       })
     }
-    if (event.kind === "start") {
+    if (event.kind === "start" || action.type === "skillStart") {
       runEffectTriggers("skillStart")
       runEffectTriggers("skillStart", true)
       continue
@@ -4616,7 +4673,13 @@ export function buildRotationTimeline(
         continue
       const next =
         action.type === "extend" && typeof duration === "number"
-          ? extendTrackedEffect(targetEffects, action.value, duration, event.time)
+          ? extendTrackedEffect(
+              targetEffects,
+              action.value,
+              duration,
+              event.time,
+              typeof action.maxRemaining === "number" ? action.maxRemaining : undefined,
+            )
           : shouldApply
             ? applyTrackedEffect(
                 targetEffects,
@@ -4687,7 +4750,7 @@ export function buildRotationTimeline(
           action.value,
           periodicTarget,
           definition,
-          existing.expiresAt + duration,
+          appliedEffect!.expiresAt!,
           event.time,
           event.row.sourceRowId ?? event.row.id,
           event.sortOrder,

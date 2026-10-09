@@ -90,6 +90,8 @@ describe("skill-override-calculation", () => {
       Unfettered: {},
       NamelessSword: {},
       NamelessSpear: {},
+      StrategicSword: {},
+      HeavenQuakerSpear: {},
       Mystic: {},
       General: {},
       Mechanism: {},

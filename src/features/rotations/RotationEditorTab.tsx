@@ -2278,7 +2278,8 @@ export function RotationEditorTab({
                         : selfHPPercentage
                     const durationEvent =
                       isManualEvent && (step.event === "Controlled" || step.event === "Delay") ? step.event : undefined
-                    const editableCastTime = step.type === "skill" && Boolean(row.skill?.editableCastTime)
+                    const editableCastTime =
+                      step.type === "skill" && Boolean(skill?.editableCastTime) && !skill?.subAction?.length
                     const durationMaximum = step.type === "skill" ? editableCastTimeMaximum(row.skill) : undefined
                     const durationLabel =
                       step.type === "skill" && typeof row.skill?.editableCastTime === "object"

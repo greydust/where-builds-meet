@@ -1,0 +1,66 @@
+{
+  "UmbraBleeding": {
+    "name": "Bleeding",
+    "duration": 10,
+    "maxStack": 5,
+    "refresh": true,
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "skillBreakdownCategory": "Bleeding",
+    "tags": ["DOT", "MartialArts", "Sword", "StrategicSword", "Bleed", "UmbraBleeding"],
+    "periodic": {
+      "firstTick": 0.5,
+      "interval": 1,
+      "resetOnRefresh": false,
+      "action": [
+        {
+          "type": "damage",
+          "phyCoef": 0.132,
+          "attrCoef": 0.132,
+          "time": 0,
+          "requirement": [
+            { "target": "target", "value": "UmbraBleeding", "stack": 1 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 2 }] }
+          ]
+        },
+        {
+          "type": "damage",
+          "phyCoef": 0.165,
+          "attrCoef": 0.165,
+          "time": 0,
+          "requirement": [
+            { "target": "target", "value": "UmbraBleeding", "stack": 2 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 3 }] }
+          ]
+        },
+        {
+          "type": "damage",
+          "phyCoef": 0.198,
+          "attrCoef": 0.198,
+          "time": 0,
+          "requirement": [
+            { "target": "target", "value": "UmbraBleeding", "stack": 3 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 4 }] }
+          ]
+        },
+        {
+          "type": "damage",
+          "phyCoef": 0.264,
+          "attrCoef": 0.264,
+          "time": 0,
+          "requirement": [
+            { "target": "target", "value": "UmbraBleeding", "stack": 4 },
+            { "operator": "not", "operand": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }] }
+          ]
+        },
+        {
+          "type": "damage",
+          "phyCoef": 0.33,
+          "attrCoef": 0.33,
+          "time": 0,
+          "requirement": [{ "target": "target", "value": "UmbraBleeding", "stack": 5 }]
+        }
+      ]
+    }
+  }
+}

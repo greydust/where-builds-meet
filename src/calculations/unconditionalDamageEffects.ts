@@ -24,6 +24,7 @@ export const unconditionalDamageEffectFields = [
   "globalHPDMGBonus",
   "globalBellstrikeDMGBonus",
   "dotDamage",
+  "highBleedDamage",
   "physicalPenetration",
   "defenseBonus",
   "physicalResistance",

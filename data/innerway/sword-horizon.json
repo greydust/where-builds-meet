@@ -40,7 +40,17 @@
       ]
     },
     "SwordHorizonT3": {},
-    "SwordHorizonT4": {},
+    "SwordHorizonT4": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "HighBleed" },
+            { "target": "self", "value": "SwordsZenith" }
+          ],
+          "effect": { "dmgBonus": 0.15 }
+        }
+      ]
+    },
     "SwordHorizonT5": { "effect": [{ "rawStat": { "directAffinity": 0.023 } }] },
     "SwordHorizonT6": {}
   }
