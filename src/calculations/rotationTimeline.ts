@@ -20,6 +20,7 @@ import {
   type MaxStackAction,
 } from "./outcomeTriggeredBuffs"
 import { regenerateResource, type ResourceRegenerationBonus } from "./resourceRegeneration"
+import { requirementIsUnconditional } from "./statEffects"
 import {
   trackedEffectMetadata,
   reuseTrackedEffectState,
@@ -1482,15 +1483,28 @@ export function buildRotationTimeline(
     updateNextOrdered(row)
   }
 
-  const effectContentModifiedNames = new Set(
-    [...setupEffects, ...innerWayRules]
-      .filter(rule => {
-        if (typeof rule.target !== "string" || !rule.modify || typeof rule.modify !== "object") return false
-        const modify = rule.modify as EditableObject
-        return Object.hasOwn(modify, "effect") || Object.hasOwn(modify, "stackEffects")
-      })
+  const effectContentModifiers = [...setupEffects, ...innerWayRules].filter(rule => {
+    if (typeof rule.target !== "string" || !rule.modify || typeof rule.modify !== "object") return false
+    const modify = rule.modify as EditableObject
+    return Object.hasOwn(modify, "effect") || Object.hasOwn(modify, "stackEffects")
+  })
+  const conditionalEffectContentModifiedNames = new Set(
+    effectContentModifiers
+      .filter(rule => !requirementIsUnconditional(rule.requirement))
       .map(rule => rule.target as string),
   )
+  const preparedDefinitions = new Map<string, EffectDefinition>()
+  for (const rule of effectContentModifiers) {
+    const name = rule.target as string
+    if (conditionalEffectContentModifiedNames.has(name)) continue
+    preparedDefinitions.set(
+      name,
+      mergeEffectDefinition(
+        preparedDefinitions.get(name) ?? { ...effectDefinitions[name] },
+        rule.modify as EditableObject,
+      ),
+    )
+  }
   const withoutAggregatedDamageEffects = (tracked: TrackedEffect): TrackedEffect => {
     const {
       unconditionalDamageEffects: _removedDamageEffects,
@@ -1505,7 +1519,7 @@ export function buildRotationTimeline(
     const cached = preparedEffects.get(tracked)
     if (cached) return cached
     let prepared: TrackedEffect
-    if (effectContentModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
+    if (conditionalEffectContentModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
     else {
       let stacks = preparedContributions.get(tracked.name)
       if (!stacks) preparedContributions.set(tracked.name, (stacks = new Map()))
@@ -1513,7 +1527,10 @@ export function buildRotationTimeline(
       let contribution = stacks.get(stack)
       if (!contribution) {
         contribution = splitUnconditionalDamageEffectRules(
-          effectsForTrackedEffect(tracked.stack, effectDefinitions[tracked.name]),
+          effectsForTrackedEffect(
+            tracked.stack,
+            preparedDefinitions.get(tracked.name) ?? effectDefinitions[tracked.name],
+          ),
         )
         stacks.set(stack, contribution)
       }

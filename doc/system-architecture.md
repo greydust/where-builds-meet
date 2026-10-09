@@ -1606,6 +1606,16 @@ lifecycle transitions. Damage contexts carry the aggregate separately, while
 conditional or dynamic rules remain in the regular effect list. This removes
 stable tracked-effect field probes from each hit without tying the reusable
 timeline to a particular character-stat baseline.
+Unconditional definition modifiers are merged in setup/Inner Way order before
+preparing tracked contributions, so modified buffs such as Samsara can use the
+same aggregate. A conditional content modifier keeps that effect on the live
+resolution path. Modifier contributions remain owned by the tracked buff for
+expiry, removal, and damage attribution.
+The damage-field scan caches whether each immutable effect object has any
+supported damage fields. Empty objects and trigger/resource-only effects skip
+that scan; their other consumers still receive the original effects. Mixed
+objects and dynamic damage values remain on the ordinary per-hit path, and
+shared reduction groups are resolved before filtering.
 Lifecycle-only updates reuse the aggregate when the ordered effect keys,
 recipients, and prepared contribution identities are unchanged. Names, stack
 metadata, and the canonical requirement key are reused when their inputs are

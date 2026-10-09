@@ -14,7 +14,20 @@ import {
   type StatConversionEffectContainer,
   type StatFormula,
 } from "./statEffects"
-import type { UnconditionalDamageEffects } from "./unconditionalDamageEffects"
+import { unconditionalDamageEffectFields, type UnconditionalDamageEffects } from "./unconditionalDamageEffects"
+
+const damageEffectFields = new Set<string>(unconditionalDamageEffectFields)
+const effectHasDamageFields = new WeakMap<object, boolean>()
+
+/** Effect shapes are immutable within a calculation snapshot; values still resolve per hit. */
+function hasDamageFields(effect: Record<string, unknown>) {
+  let relevant = effectHasDamageFields.get(effect)
+  if (relevant === undefined) {
+    relevant = Object.keys(effect).some(field => damageEffectFields.has(field))
+    effectHasDamageFields.set(effect, relevant)
+  }
+  return relevant
+}
 
 export type AttunementStats = {
   driftcleaveDeepdazeBoost: number
@@ -279,6 +292,7 @@ function calculateDamageBreakdownInternal(
     return remaining
   })
   for (const effect of [...groupedEffects, ...reductionGroups.values()]) {
+    if (!hasDamageFields(effect)) continue
     resolvedEffects.flatAttackBonus += effectValue(effect.flatAttackBonus)
     resolvedEffects.coefficientBonusWithoutFlatAttack += effectValue(effect.coefficientBonusWithoutFlatAttack)
     resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus)
