@@ -4,6 +4,7 @@ import { DIRECT_CRIT_RATE_CAP } from "./statCaps"
 
 // Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
 export const JUDGEMENT_RESISTANCE = 0.65
+const PRECISION_BASELINE = 0.65
 
 export type DerivedStats = {
   effectiveMinPhys: number
@@ -200,7 +201,7 @@ export function calculateDerivedStats(
   const directAffinity = effectiveValue("directAffinity")
   const effectivePrecision = Math.min(
     1,
-    (precision - judgementResistance) / (1 + judgementResistance) + judgementResistance,
+    (precision - PRECISION_BASELINE) / (1 + judgementResistance) + PRECISION_BASELINE,
   )
   const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance) + effectiveCritBonus)
   const effectiveAffinity = Math.min(0.4, affinity / (1 + judgementResistance))

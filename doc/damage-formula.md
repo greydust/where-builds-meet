@@ -904,11 +904,14 @@ baseline.
 For Judgement Resistance `J`:
 
 ```text
-Effective Precision = min(1, (Precision − J) / (1 + J) + J)
+Effective Precision = min(1, (Precision − 0.65) / (1 + J) + 0.65)
 Effective Critical  = min(0.8, Critical / (1 + J) + Effective Critical Bonus)
 Effective Affinity  = min(0.4, Affinity / (1 + J))
 Final Affinity = clamp(Effective Affinity + Direct Affinity, 0, 1)
 ```
+
+The Precision baseline is always `0.65`; only the denominator changes with
+Judgement Resistance, including at breakthrough 18 (`J = 0.85`).
 
 Effective Critical Bonus is added after Judgement Resistance and shares the
 80% Effective Critical cap. Flamelash contributes `0.1` and Ivorybloom's
