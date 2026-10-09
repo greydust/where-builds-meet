@@ -1606,11 +1606,19 @@ lifecycle transitions. Damage contexts carry the aggregate separately, while
 conditional or dynamic rules remain in the regular effect list. This removes
 stable tracked-effect field probes from each hit without tying the reusable
 timeline to a particular character-stat baseline.
-Unconditional definition modifiers are merged in setup/Inner Way order before
-preparing tracked contributions, so modified buffs such as Samsara can use the
-same aggregate. A conditional content modifier keeps that effect on the live
-resolution path. Modifier contributions remain owned by the tracked buff for
-expiry, removal, and damage attribution.
+Definition modifiers are indexed by target at simulation startup. Targets with
+only unconditional modifiers are merged in setup/Inner Way order once and reused
+for both tracked contributions and effect application. Thus Samsara starts with
+its selected Echoes bonus already included. Targets with conditional modifiers
+retain their complete ordered modifier list and resolve it against live state;
+fixed modifiers are not moved across conditional ones. Modifier contributions
+remain owned by the tracked buff for expiry, removal, and damage attribution.
+Trigger registration also prepares validated action arrays and outcome names,
+and separates permanent and buff-owned trigger lists. Rules without triggers do
+not enter dispatch. Cooldowns, hit windows, ownership, requirements, chances,
+and probability-weighted action amounts remain live, with original action order.
+All preparation is local to one simulation: a new run or setup variant prepares
+from its own inputs, without a cross-run cache or mutation of catalog definitions.
 The damage-field scan caches whether each immutable effect object has any
 supported damage fields. Empty objects and trigger/resource-only effects skip
 that scan; their other consumers still receive the original effects. Mixed

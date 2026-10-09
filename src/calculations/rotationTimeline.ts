@@ -1483,26 +1483,32 @@ export function buildRotationTimeline(
     updateNextOrdered(row)
   }
 
-  const effectContentModifiers = [...setupEffects, ...innerWayRules].filter(rule => {
-    if (typeof rule.target !== "string" || !rule.modify || typeof rule.modify !== "object") return false
-    const modify = rule.modify as EditableObject
-    return Object.hasOwn(modify, "effect") || Object.hasOwn(modify, "stackEffects")
-  })
-  const conditionalEffectContentModifiedNames = new Set(
-    effectContentModifiers
-      .filter(rule => !requirementIsUnconditional(rule.requirement))
-      .map(rule => rule.target as string),
-  )
-  const preparedDefinitions = new Map<string, EffectDefinition>()
-  for (const rule of effectContentModifiers) {
-    const name = rule.target as string
-    if (conditionalEffectContentModifiedNames.has(name)) continue
+  // Setup order is significant: later modifiers can replace fields from earlier ones.
+  const modifiersByTarget = new Map<string, Array<{ requirement: unknown; modify: EditableObject }>>()
+  for (const rule of [...setupEffects, ...innerWayRules]) {
+    if (
+      typeof rule.target !== "string" ||
+      !rule.modify ||
+      typeof rule.modify !== "object" ||
+      Array.isArray(rule.modify)
+    )
+      continue
+    let modifiers = modifiersByTarget.get(rule.target)
+    if (!modifiers) modifiersByTarget.set(rule.target, (modifiers = []))
+    modifiers.push({ requirement: rule.requirement, modify: rule.modify as EditableObject })
+  }
+  const conditionalModifiedNames = new Set<string>()
+  const preparedDefinitions = new Map<string, EffectDefinition>(Object.entries(effectDefinitions))
+  for (const [name, modifiers] of modifiersByTarget) {
+    if (modifiers.some(modifier => !requirementIsUnconditional(modifier.requirement))) {
+      conditionalModifiedNames.add(name)
+      continue
+    }
     preparedDefinitions.set(
       name,
-      mergeEffectDefinition(
-        preparedDefinitions.get(name) ?? { ...effectDefinitions[name] },
-        rule.modify as EditableObject,
-      ),
+      modifiers.reduce((definition, modifier) => mergeEffectDefinition(definition, modifier.modify), {
+        ...effectDefinitions[name],
+      }),
     )
   }
   const withoutAggregatedDamageEffects = (tracked: TrackedEffect): TrackedEffect => {
@@ -1519,7 +1525,7 @@ export function buildRotationTimeline(
     const cached = preparedEffects.get(tracked)
     if (cached) return cached
     let prepared: TrackedEffect
-    if (conditionalEffectContentModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
+    if (conditionalModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
     else {
       let stacks = preparedContributions.get(tracked.name)
       if (!stacks) preparedContributions.set(tracked.name, (stacks = new Map()))
@@ -1967,11 +1973,33 @@ export function buildRotationTimeline(
   > = {}
   const effectTriggerCooldowns = new Map<number, number>()
   const buffDurationRules = setupEffects.filter(effect => typeof effect.buffDurationBonus === "number")
+  const prepareTriggerActions = (value: unknown) => {
+    let declared: unknown[] = []
+    if (value && typeof value === "object") declared = Array.isArray(value) ? value : [value]
+    return {
+      count: declared.length,
+      actions: declared.filter(
+        (action): action is EditableObject => Boolean(action) && typeof action === "object" && !Array.isArray(action),
+      ),
+    }
+  }
+  type PreparedEffectTrigger = {
+    triggerIndex: number
+    trigger: EditableObject
+    actions: EditableObject[]
+    owner?: string
+  }
   const effectTriggersByEvent = new Map<
     string,
-    Array<{ triggerIndex: number; trigger: EditableObject; owner?: string }>
+    { permanent: PreparedEffectTrigger[]; owned: PreparedEffectTrigger[] }
   >()
-  // One setup effect may declare several reactive triggers, so each gets its own index.
+  const registerEffectTrigger = (triggerIndex: number, trigger: EditableObject, owner?: string) => {
+    if (typeof trigger.event !== "string") return
+    let group = effectTriggersByEvent.get(trigger.event)
+    if (!group) effectTriggersByEvent.set(trigger.event, (group = { permanent: [], owned: [] }))
+    const entry = { triggerIndex, trigger, owner, actions: prepareTriggerActions(trigger.action).actions }
+    ;(owner ? group.owned : group.permanent).push(entry)
+  }
   let setupTriggerIndex = 0
   setupEffects.forEach(setup => {
     const declared = Array.isArray(setup.trigger) ? setup.trigger : [setup.trigger]
@@ -1979,37 +2007,38 @@ export function buildRotationTimeline(
       if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) continue
       const trigger = candidate as EditableObject
       if (typeof trigger.event !== "string") continue
-      const triggerIndex = setupTriggerIndex++
-      effectTriggersByEvent.set(trigger.event, [
-        ...(effectTriggersByEvent.get(trigger.event) ?? []),
-        { triggerIndex, trigger },
-      ])
+      registerEffectTrigger(setupTriggerIndex++, trigger)
     }
   })
-  const innerWayTriggersByEvent = new Map<string, InnerWayEffectRule[]>()
   Object.entries(effectDefinitions).forEach(([owner, definition], index) => {
     const trigger = definition.trigger
     if (typeof trigger?.event !== "string") return
-    effectTriggersByEvent.set(trigger.event, [
-      ...(effectTriggersByEvent.get(trigger.event) ?? []),
-      { triggerIndex: setupEffects.length + setupTriggerIndex + index, trigger, owner },
-    ])
+    registerEffectTrigger(setupEffects.length + setupTriggerIndex + index, trigger, owner)
   })
+  const innerWayTriggersByEvent = new Map<
+    string,
+    Array<{ rule: InnerWayEffectRule; actions: EditableObject[]; actionCount: number; outcomes: string[] }>
+  >()
   const outcomeResourceCooldowns = new Map<InnerWayEffectRule, OutcomeCooldownTracker>()
   const innerWayTriggerStates = new Map<InnerWayEffectRule, { hits: number[]; readyAt: number }>()
   innerWayRules.forEach(rule => {
-    const triggerEvent = rule.trigger?.event ?? "damage"
+    if (!rule.trigger) return
+    const triggerEvent = rule.trigger.event ?? "damage"
     if (typeof triggerEvent !== "string") return
+    const prepared = prepareTriggerActions(rule.trigger.action)
     if (triggerEvent === "damageOutcome") {
-      const actions = Array.isArray(rule.trigger?.action) ? rule.trigger.action : [rule.trigger?.action]
+      const declared = Array.isArray(rule.trigger.action) ? rule.trigger.action : [rule.trigger.action]
       if (
-        !actions.every(
+        !declared.every(
           action => action && typeof action === "object" && (action as EditableObject).type === "addResource",
         )
       )
         return
     }
-    innerWayTriggersByEvent.set(triggerEvent, [...(innerWayTriggersByEvent.get(triggerEvent) ?? []), rule])
+    const outcomes = (Array.isArray(rule.trigger.outcome) ? rule.trigger.outcome : [rule.trigger.outcome]).map(String)
+    let entries = innerWayTriggersByEvent.get(triggerEvent)
+    if (!entries) innerWayTriggersByEvent.set(triggerEvent, (entries = []))
+    entries.push({ rule, actions: prepared.actions, actionCount: prepared.count, outcomes })
   })
   const skillCooldownGroups = Object.fromEntries(
     Object.entries(skills)
@@ -2223,43 +2252,25 @@ export function buildRotationTimeline(
     currentDebuffs: EffectState,
     skillTags: string[],
   ) => {
-    const setupModifiers = setupEffects
-      .filter(
-        effect =>
-          effect.target === name &&
-          effect.modify &&
-          typeof effect.modify === "object" &&
-          !Array.isArray(effect.modify) &&
-          requirementsPass(
-            effect.requirement,
-            currentBuffs,
-            currentDebuffs,
-            skillTags,
-            innerWayConditions,
-            weapons,
-            resources,
-            requirementState(),
-          ),
+    if (!conditionalModifiedNames.has(name)) return preparedDefinitions.get(name) ?? {}
+    let definition = { ...effectDefinitions[name] }
+    for (const modifier of modifiersByTarget.get(name)!) {
+      if (
+        requirementIsUnconditional(modifier.requirement) ||
+        requirementsPass(
+          modifier.requirement,
+          currentBuffs,
+          currentDebuffs,
+          skillTags,
+          innerWayConditions,
+          weapons,
+          resources,
+          requirementState(),
+        )
       )
-      .map(effect => effect.modify as EditableObject)
-    const innerWayModifiers = innerWayRules
-      .filter(
-        rule =>
-          rule.target === name &&
-          rule.modify &&
-          requirementsPass(
-            rule.requirement,
-            currentBuffs,
-            currentDebuffs,
-            skillTags,
-            innerWayConditions,
-            weapons,
-            resources,
-            requirementState(),
-          ),
-      )
-      .map(rule => rule.modify!)
-    return [...setupModifiers, ...innerWayModifiers].reduce(mergeEffectDefinition, { ...effectDefinitions[name] })
+        definition = mergeEffectDefinition(definition, modifier.modify)
+    }
+    return definition
   }
   let nextDerivedOrder = rotation.steps.length * 1000 + 1
   type ActivePeriodicEffect = {
@@ -4289,123 +4300,111 @@ export function buildRotationTimeline(
       }
     }
     const runEffectTriggers = (triggerEvent: string, tracked = false) => {
-      ;(effectTriggersByEvent.get(triggerEvent) ?? []).forEach(({ triggerIndex, trigger, owner }) => {
-        if (Boolean(owner) !== tracked || (owner && !buffs.has(owner))) return
-        if (trigger.oncePerSkill) {
-          if (action.type !== "damage" || (!procRoll && action.hitProbability !== undefined)) return
-          if (!isFirstDamageAction()) return
-        }
-        if (
-          (effectTriggerCooldowns.get(triggerIndex) ?? 0) > event.time ||
-          !requirementsPass(
-            trigger.requirement,
-            buffs,
-            debuffs,
-            skillTags,
-            innerWayConditions,
-            weapons,
-            resources,
-            requirementState(),
+      ;(effectTriggersByEvent.get(triggerEvent)?.[tracked ? "owned" : "permanent"] ?? []).forEach(
+        ({ triggerIndex, trigger, owner, actions: runnable }) => {
+          if (owner && !buffs.has(owner)) return
+          if (trigger.oncePerSkill) {
+            if (action.type !== "damage" || (!procRoll && action.hitProbability !== undefined)) return
+            if (!isFirstDamageAction()) return
+          }
+          if (
+            (effectTriggerCooldowns.get(triggerIndex) ?? 0) > event.time ||
+            !requirementsPass(
+              trigger.requirement,
+              buffs,
+              debuffs,
+              skillTags,
+              innerWayConditions,
+              weapons,
+              resources,
+              requirementState(),
+            )
           )
-        )
-          return
-        // A trigger's actions run in order in this one pass, so a `consume` ahead of a
-        // `trigger` completes before the triggered row is queued. Ordering by
-        // timestamp cannot do that: two damage actions sharing a timestamp would both
-        // see the buff before either queued row removed it.
-        const declaredActions = trigger.action
-        const actions = Array.isArray(declaredActions) ? declaredActions : [declaredActions]
-        const runnable = actions.filter(
-          (action): action is EditableObject => Boolean(action) && typeof action === "object" && !Array.isArray(action),
-        )
-        if (runnable.length) {
-          for (const triggerAction of runnable) applyTriggerAction(triggerAction, "setup")
-          if (typeof trigger.cooldown === "number" && trigger.cooldown > 0)
-            effectTriggerCooldowns.set(triggerIndex, event.time + trigger.cooldown)
-        }
-      })
+            return
+          // A trigger's actions run in order in this one pass, so a `consume` ahead of a
+          // `trigger` completes before the triggered row is queued. Ordering by
+          // timestamp cannot do that: two damage actions sharing a timestamp would both
+          // see the buff before either queued row removed it.
+          if (runnable.length) {
+            for (const triggerAction of runnable) applyTriggerAction(triggerAction, "setup")
+            if (typeof trigger.cooldown === "number" && trigger.cooldown > 0)
+              effectTriggerCooldowns.set(triggerIndex, event.time + trigger.cooldown)
+          }
+        },
+      )
     }
     const runInnerWayTriggers = (
       triggerEvent: "damage" | "heal" | "takeDamage" | "damageOutcome",
       row?: TimelineRow,
     ) => {
-      ;(innerWayTriggersByEvent.get(triggerEvent) ?? []).forEach(rule => {
-        const requirement = rule.requirement ?? rule.trigger?.requirement
-        if (
-          !requirementsPass(
-            requirement,
-            buffs,
-            debuffs,
-            skillTags,
-            innerWayConditions,
-            weapons,
-            resources,
-            requirementState(),
-            // Rows carry the effect state as it was when the skill started, which is
-            // what a resolveAt: "skillStart" element reads.
-            row ? { buffs: row.buffs, debuffs: row.debuffs } : undefined,
+      ;(innerWayTriggersByEvent.get(triggerEvent) ?? []).forEach(
+        ({ rule, actions: triggerActions, actionCount, outcomes }) => {
+          const requirement = rule.requirement ?? rule.trigger?.requirement
+          if (
+            !requirementsPass(
+              requirement,
+              buffs,
+              debuffs,
+              skillTags,
+              innerWayConditions,
+              weapons,
+              resources,
+              requirementState(),
+              // Rows carry the effect state as it was when the skill started, which is
+              // what a resolveAt: "skillStart" element reads.
+              row ? { buffs: row.buffs, debuffs: row.debuffs } : undefined,
+            )
           )
-        )
-          return
-        const triggerActions = Array.isArray(rule.trigger?.action)
-          ? rule.trigger.action
-          : rule.trigger?.action && typeof rule.trigger.action === "object"
-            ? [rule.trigger.action]
-            : []
-        if (triggerEvent === "damageOutcome") {
-          const outcomes = Array.isArray(rule.trigger?.outcome) ? rule.trigger.outcome : [rule.trigger?.outcome]
-          const probability = outcomes.reduce<number>(
-            (total, outcome) => total + (resolvedAction?.outcomeRates?.[String(outcome)] ?? 0),
-            0,
-          )
-          let tracker = outcomeResourceCooldowns.get(rule)
-          if (!tracker) outcomeResourceCooldowns.set(rule, (tracker = new OutcomeCooldownTracker()))
-          const proc = tracker.resolve(event.time, probability, Number(rule.trigger?.cooldown ?? 0))
-          if (proc > 0)
-            for (const action of triggerActions) {
-              const resourceAction = action as EditableObject
-              applyTriggerAction({ ...resourceAction, amount: Number(resourceAction.amount) * proc }, "innerWay")
+            return
+          if (triggerEvent === "damageOutcome") {
+            const probability = outcomes.reduce<number>(
+              (total, outcome) => total + (resolvedAction?.outcomeRates?.[outcome] ?? 0),
+              0,
+            )
+            let tracker = outcomeResourceCooldowns.get(rule)
+            if (!tracker) outcomeResourceCooldowns.set(rule, (tracker = new OutcomeCooldownTracker()))
+            const proc = tracker.resolve(event.time, probability, Number(rule.trigger?.cooldown ?? 0))
+            if (proc > 0)
+              for (const action of triggerActions) {
+                const resourceAction = action as EditableObject
+                applyTriggerAction({ ...resourceAction, amount: Number(resourceAction.amount) * proc }, "innerWay")
+              }
+            return
+          }
+          const hitWindow = rule.trigger?.hitWindow as { count: number; seconds: number } | undefined
+          const triggerCooldown = rule.trigger?.cooldown
+          let triggerState: { hits: number[]; readyAt: number } | undefined
+          if (hitWindow || typeof triggerCooldown === "number") {
+            triggerState = innerWayTriggerStates.get(rule)
+            if (!triggerState) {
+              triggerState = { hits: [], readyAt: Number.NEGATIVE_INFINITY }
+              innerWayTriggerStates.set(rule, triggerState)
             }
-          return
-        }
-        const hitWindow = rule.trigger?.hitWindow as { count: number; seconds: number } | undefined
-        const triggerCooldown = rule.trigger?.cooldown
-        let triggerState: { hits: number[]; readyAt: number } | undefined
-        if (hitWindow || typeof triggerCooldown === "number") {
-          triggerState = innerWayTriggerStates.get(rule)
-          if (!triggerState) {
-            triggerState = { hits: [], readyAt: Number.NEGATIVE_INFINITY }
-            innerWayTriggerStates.set(rule, triggerState)
+            if (hitWindow) {
+              // Expected probability-weighted rows do not count, even at probability one.
+              // Sampled timelines contain concrete successful procs and may count those hits.
+              if (action.type !== "damage" || (!procRoll && action.hitProbability !== undefined)) return
+              if (
+                !Number.isInteger(hitWindow.count) ||
+                hitWindow.count < 1 ||
+                !Number.isFinite(hitWindow.seconds) ||
+                hitWindow.seconds < 0
+              )
+                return
+              triggerState.hits = triggerState.hits.filter(
+                time => compareTimelineTime(time, event.time - hitWindow.seconds) >= 0,
+              )
+              triggerState.hits.push(event.time)
+              if (triggerState.hits.length > hitWindow.count) triggerState.hits.shift()
+              if (triggerState.hits.length < hitWindow.count) return
+            }
+            if (compareTimelineTime(event.time, triggerState.readyAt) < 0) return
           }
-          if (hitWindow) {
-            // Expected probability-weighted rows do not count, even at probability one.
-            // Sampled timelines contain concrete successful procs and may count those hits.
-            if (action.type !== "damage" || (!procRoll && action.hitProbability !== undefined)) return
-            if (
-              !Number.isInteger(hitWindow.count) ||
-              hitWindow.count < 1 ||
-              !Number.isFinite(hitWindow.seconds) ||
-              hitWindow.seconds < 0
-            )
-              return
-            triggerState.hits = triggerState.hits.filter(
-              time => compareTimelineTime(time, event.time - hitWindow.seconds) >= 0,
-            )
-            triggerState.hits.push(event.time)
-            if (triggerState.hits.length > hitWindow.count) triggerState.hits.shift()
-            if (triggerState.hits.length < hitWindow.count) return
-          }
-          if (compareTimelineTime(event.time, triggerState.readyAt) < 0) return
-        }
-        triggerActions
-          .filter(
-            (triggerAction): triggerAction is EditableObject =>
-              Boolean(triggerAction) && typeof triggerAction === "object" && !Array.isArray(triggerAction),
-          )
-          .forEach(triggerAction => applyTriggerAction(triggerAction, "innerWay"))
-        if (triggerState && typeof triggerCooldown === "number" && triggerCooldown > 0 && triggerActions.length > 0)
-          triggerState.readyAt = event.time + triggerCooldown
-      })
+          triggerActions.forEach(triggerAction => applyTriggerAction(triggerAction, "innerWay"))
+          if (triggerState && typeof triggerCooldown === "number" && triggerCooldown > 0 && actionCount > 0)
+            triggerState.readyAt = event.time + triggerCooldown
+        },
+      )
     }
     if (event.kind === "start" || action.type === "skillStart") {
       runEffectTriggers("skillStart")
