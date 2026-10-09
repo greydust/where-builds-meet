@@ -49,6 +49,7 @@
   },
   "Hawkwing": {
     "name": "Hawkwing",
+    "showCoverage": true,
     "shortName": "Hawk",
     "description": "Increases physical attack by 2% per stack.",
     "duration": 5,

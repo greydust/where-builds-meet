@@ -565,6 +565,16 @@ describe("Umbra draft behavior", () => {
     )!
     const result = calculateRotationBaseline(bundle)
     expect(result.duration).toBeCloseTo(60, 8)
+    for (const id of ["Hawkwing", "Concentration", "EmpoweredRiverFlow"]) {
+      const coverage = result.metrics.breakdown.buffCoverage.find(row => row.id === id)
+      expect(coverage?.averageStacks).toBeGreaterThan(0)
+      expect(coverage!.averageStacks).toBeLessThanOrEqual(effectDefinitions[id].maxStack!)
+    }
+    const comboWindows = result.timeline
+      .flatMap(row => [...row.buffs.values()])
+      .filter(effect => effect.name === "SoberSorrowComboWindow")
+    expect(comboWindows.length).toBeGreaterThan(0)
+    expect(visibleTimelineEffects(comboWindows, effectDefinitions)).toEqual([])
     const authoredCasts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
     const exhaustCast = authoredCasts[34]
     expect(exhaustCast.step.skill).toBe("InnerBalanceStrikeIII2")
