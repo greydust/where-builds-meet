@@ -8,7 +8,7 @@ export type RestrictedRateRoute = "healing" | "divinecraft"
 
 export type OutcomeRates = { abrasionRate: number; normalRate: number; critRate: number; affinityRate: number }
 
-type CriticalRateStats = Pick<DerivedStats, "effectiveCrit" | "directCrit" | "effectivePrecision">
+type CriticalRateStats = Pick<DerivedStats, "effectiveCrit" | "directCrit">
 
 export function restrictedRateRouteFor(value: unknown): RestrictedRateRoute | undefined {
   switch (value) {
@@ -21,14 +21,11 @@ export function restrictedRateRouteFor(value: unknown): RestrictedRateRoute | un
   }
 }
 
-/** Healing rolls only Normal or Critical; Divinecraft damage rolls only Normal. */
+/** Healing ignores Precision and rolls only Normal or Critical; Divinecraft rolls only Normal. */
 export function restrictedOutcomeRates(route: RestrictedRateRoute, derivedStats: CriticalRateStats): OutcomeRates {
   switch (route) {
     case "healing": {
-      const critRate = Math.min(
-        1,
-        Math.max(0, (derivedStats.effectiveCrit + derivedStats.directCrit) * derivedStats.effectivePrecision),
-      )
+      const critRate = Math.min(1, Math.max(0, derivedStats.effectiveCrit + derivedStats.directCrit))
       return { abrasionRate: 0, normalRate: 1 - critRate, critRate, affinityRate: 0 }
     }
     case "divinecraft":

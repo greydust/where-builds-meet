@@ -558,7 +558,7 @@ cooldown. Its next qualifying direct hit triggers
 
 Healing actions share the hit-time stat and effect snapshot used by damage
 actions, but resolve only Physical and Silkbind components. Enemy defense,
-resistance, other attribute attacks, damage bonuses, abrasion, and affinity do
+resistance, other attribute attacks, damage bonuses, precision, abrasion, and affinity do
 not affect healing.
 
 ```text
@@ -594,7 +594,7 @@ Healing has only Normal and Critical outcomes, which is the `healing` rate route
 
 ```text
 Healing Critical Rate =
-  clamp((Effective Critical Rate + Direct Critical Rate) × Effective Precision, 0, 1)
+  clamp(Effective Critical Rate + Direct Critical Rate, 0, 1)
 
 Expected Critical Multiplier =
   1 + Healing Critical Rate × (0.5 + Critical Healing Bonus)
@@ -919,8 +919,9 @@ full-HP four-piece effect contributes `0.05` through
 `effectiveStat.effectiveCritBonus`. At `J = 0.65`, these are equivalent to
 `0.165` and `0.0825` ordinary Critical respectively before the cap. Ivorybloom's
 unconditional `0.09` Critical remains subject to Judgement Resistance.
-These bonuses feed the shared damage and healing rate calculations; Precision
-and outcome competition still apply normally.
+These bonuses feed the shared damage and healing rate calculations. Precision
+and outcome competition apply to ordinary damage; healing ignores Precision
+and rolls only Normal or Critical.
 Direct Critical is a separate final-rate channel
 and is not part of Effective Critical or its cap. When
 `Final Affinity + Direct Critical + Effective Critical <= 1`:
