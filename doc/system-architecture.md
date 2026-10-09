@@ -1606,6 +1606,13 @@ lifecycle transitions. Damage contexts carry the aggregate separately, while
 conditional or dynamic rules remain in the regular effect list. This removes
 stable tracked-effect field probes from each hit without tying the reusable
 timeline to a particular character-stat baseline.
+Lifecycle-only updates reuse the aggregate when the ordered effect keys,
+recipients, and prepared contribution identities are unchanged. Names, stack
+metadata, and the canonical requirement key are reused when their inputs are
+unchanged as well. Expiry and source ownership still belong to the new immutable
+snapshot: its earliest expiry and self-recipient view must reflect that snapshot.
+Stack, membership, recipient, or contribution changes invalidate the corresponding
+derived state; changed iteration order forces reaggregation to preserve exact sums.
 Setup and Inner Way stat or damage fields with requirements limited to action
 tags and the equipped martial-art pair are additionally cached per effective
 action-tag signature while damage entries are built. Stat fields produce the

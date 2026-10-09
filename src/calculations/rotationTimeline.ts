@@ -22,6 +22,7 @@ import {
 import { regenerateResource, type ResourceRegenerationBonus } from "./resourceRegeneration"
 import {
   trackedEffectMetadata,
+  reuseTrackedEffectState,
   effectKey,
   effectState,
   mapTrackedEffects,
@@ -1528,11 +1529,13 @@ export function buildRotationTimeline(
       else updated.delete(name)
       next = updated
     }
-    buffs = prepareTrackedEffects(next)
+    const prepared = prepareTrackedEffects(next)
+    const sameContributions = reuseTrackedEffectState(buffs, prepared)
+    buffs = prepared
     for (const name of accumulatorStates.keys()) {
       if (!buffs.has(name)) accumulatorStates.delete(name)
     }
-    refreshUnconditionalDamageEffects()
+    if (!sameContributions) refreshUnconditionalDamageEffects()
   }
   const debuffMaxStackSeconds: Record<string, number> = {}
   let debuffCoverageTime = 0
@@ -1551,9 +1554,11 @@ export function buildRotationTimeline(
   const setDebuffs = (next: EffectState) => {
     if (next === debuffs) return
     advanceDebuffCoverage(currentTimelineTime)
-    debuffs = prepareTrackedEffects(next)
+    const prepared = prepareTrackedEffects(next)
+    const sameContributions = reuseTrackedEffectState(debuffs, prepared)
+    debuffs = prepared
     trackedEffectMetadata(debuffs)
-    refreshUnconditionalDamageEffects()
+    if (!sameContributions) refreshUnconditionalDamageEffects()
   }
   let distance = 1
   const maxHP = Math.max(0, input.maxHP ?? 1)

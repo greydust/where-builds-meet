@@ -19,7 +19,9 @@ export function mapTrackedEffects(
     if (value) next.set(key, value)
     if (value !== effect) changed = true
   }
-  return changed ? next : effects
+  if (!changed) return effects
+  reuseTrackedEffectState(effects, next)
+  return next
 }
 export function filterTrackedEffects(effects: EffectState, keep: (effect: TrackedEffect) => boolean): EffectState {
   return mapTrackedEffects(effects, effect => (keep(effect) ? effect : undefined))
@@ -32,6 +34,43 @@ type EffectMetadata = {
   requirementKey: string
 }
 const metadata = new WeakMap<EffectState, EffectMetadata>()
+
+/** Carry derived state across lifecycle changes without retaining old snapshots.
+ * Contribution identity and iteration order must match to preserve exact sums.
+ * Live tracked objects (including expiry and ownership) always come from next. */
+export function reuseTrackedEffectState(previous: EffectState, next: EffectState): boolean {
+  if (previous === next) return true
+  if (previous.size !== next.size) return false
+  const oldEntries = previous.entries()
+  let sameRequirements = true
+  let sameContributions = true
+  let nextExpiry = Infinity
+  for (const [key, effect] of next) {
+    const oldEntry = oldEntries.next().value
+    if (!oldEntry || oldEntry[0] !== key) return false
+    const old = oldEntry[1]
+    const sameRecipient = (old.playerRecipientIndex ?? 0) === (effect.playerRecipientIndex ?? 0)
+    sameRequirements &&=
+      sameRecipient && old.name === effect.name && old.stack === effect.stack && old.maxStack === effect.maxStack
+    sameContributions &&= sameRecipient && old.unconditionalDamageEffects === effect.unconditionalDamageEffects
+    nextExpiry = Math.min(nextExpiry, effect.expiresAt ?? Infinity)
+  }
+  const cached = sameRequirements ? metadata.get(previous) : undefined
+  if (cached) {
+    metadata.set(next, {
+      self:
+        cached.self === previous
+          ? next
+          : filterTrackedEffects(next, effect => (effect.playerRecipientIndex ?? 0) === 0),
+      names: cached.names,
+      stacks: cached.stacks,
+      requirementKey: cached.requirementKey,
+      nextExpiry,
+    })
+  }
+  return sameContributions
+}
+
 export function trackedEffectMetadata(effects: EffectState): EffectMetadata {
   const cached = metadata.get(effects)
   if (cached) return cached
