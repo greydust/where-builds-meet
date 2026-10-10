@@ -197,7 +197,7 @@ the resulting diff and run formatting, build, and release snapshot checks before
 publishing. Focused mechanic tests remain necessary when timing or buff changes
 can offset each other in total DPS.
 
-## Pending review: 33 ms DOT timer wheel
+## Accepted: 33 ms DOT timer wheel
 
 The timer-wheel data change adopts 528 ms burn intervals, 1,023 ms other DOT
 intervals and adjusted positive initial delays, plus 132 ms Hellfire drains.
@@ -207,11 +207,11 @@ counts and downstream trigger/resource feedback. Longer Hellfire retention
 increases Wind damage. Umbra also uses the canceled Stage 1 Slash preset
 and recalibrated Qi milestones. These results include the current working-tree changes.
 
-All 17 preset comparisons exceed the 4-ULP gate. Accepted snapshots remain
-unchanged pending user review. Every affected duration remains 60 seconds;
+The user accepted all 17 preset changes on 2026-10-11, and their snapshots
+were refreshed after review. Every affected duration remains 60 seconds;
 total damage is DPS multiplied by 60. Exact DPS values follow.
 
-| Rotation path                                            |       Accepted DPS |      Proposed DPS |
+| Rotation path                                            |       Previous DPS |      Accepted DPS |
 | -------------------------------------------------------- | -----------------: | ----------------: |
 | `bamboocutDust/dust-dummy-1-min-100pc`                   | 59185.751681597285 | 59162.81970722088 |
 | `bamboocutDust/dust-dummy-1-min`                         |  59450.01720629205 | 59428.59338014854 |
