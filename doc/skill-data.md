@@ -491,6 +491,23 @@ cadence; true restarts it. `tickOnExpire: false` excludes the exact expiry tick;
 the default endpoint is inclusive. No duration means ticking until removal or
 combat cutoff. Resource `amountPerTick` adds to `amount` by zero-based tick index.
 
+Authored DOT timings store effective wakeup delays, already adjusted for the
+33 ms native timer wheel and Lua deadline retry. For the adopted aligned-clock,
+timely-polling model, a request rounds down to a wheel slot; an early wakeup
+retries with the 34 ms Lua minimum, which rounds to 33 ms. Thus 500 ms becomes
+528 ms, 1,000 ms becomes 1,023 ms, and Hellfire's 100 ms drain becomes 132 ms.
+Apply this to positive initial delays as well as intervals; do not quantize
+these effective values again in the scheduler. This model comes from the CN
+client implementation; identical live Global server behavior is not established.
+
+Smolder and Combustion tick immediately, then every 528 ms. Their inclusive
+initial lifetimes end at the last retained tick: Smolder uses 3.696 seconds
+(8 ticks), Combustion 7.92 seconds (16 ticks). Burn extensions scale by
+528/500: 1.5 seconds becomes 1.584, 3 becomes 3.168, 4 becomes 4.224,
+and 7.5 becomes 7.92. The full Dragon's Breath casts retain 23 Smolder or
+22 Combustion ticks. Expected battle-aligned DOTs use the authored effective
+interval for their shared clock too.
+
 Consuming/removing the last stack cancels future periodic actions. A DOT deals
 one copy per active tick, independent of stack count, and ignores flat bonuses.
 Use ordinary expiry actions for delayed non-DOT attacks. Future ticks inherit
@@ -526,7 +543,7 @@ stacks to a nonlinear formula. For a grouped DOT/debuff application,
 tick damage uses the debuff distribution conditional on that tick occurring;
 the shorter DOT lifetime can restart its cadence while debuff stacks persist.
 Poison uses the same expected battle-clock alignment as Weeping Blood, limiting
-it to one probability-weighted tick per battle second. Its linked defense-debuff
+it to one probability-weighted tick per 1.023-second battle-clock boundary. Its linked defense-debuff
 distribution uses the same clock; sampled simulation retains exact application
 cadence. This approximates Poison tick timing, not its application chance.
 As with other shared-clock DOTs, this can change damage-triggered cooldown and
@@ -1188,9 +1205,9 @@ Damage coverage and remaining omissions:
 - Bleed ticks (`2038001`–`2038005`) use the user-supplied per-tick coefficients:
   0.132/0.165/0.198/0.264/0.33 for both physical and attribute damage at one
   through five stacks, without an additional stack multiplier. The existing DOT
-  scheduler ticks at application +0.5s, then every second. Stack additions refresh
+  scheduler ticks at application +0.528s, then every 1.023 seconds. Stack additions refresh
   the ten-second duration while preserving cadence. Sword BB clears all stacks,
-  then T6 reapplies two, restarting the 0.5-second tick delay. Full Zenith also
+  then T6 reapplies two, restarting the 0.528-second tick delay. Full Zenith also
   extends the reapplied Bleed through the existing 16-second cap. Clearing or
   expiry ends ticks, and reapplication starts a new timer.
   Sweep All's High Bleed does not detonate Bleed: it keeps five stacks and preserves cadence.
@@ -1298,3 +1315,10 @@ Endurance (Swallow’s Agility) is available only for Splendor and Umbra and add
 20 to `maxEndurance` through the shared stat pipeline. A saved unavailable food
 is treated as None without deleting the saved choice. Comparisons involving
 Endurance food rebuild combat with the variant’s starting Endurance and capacity.
+
+### Umbra canceled Stage 1 Slash preset
+
+`SecondTrackSlash1Cancel` uses the existing charge components and a four-hit
+release ending at 0.831138954 seconds. Its release preserves all damage and
+Bleed applications. The one-minute Umbra preset uses this cancel twice;
+its timed Qi ramps are recalibrated around the earlier attached Qi break.

@@ -9,8 +9,8 @@
     "skillBreakdownCategory": "Bleeding",
     "tags": ["DOT", "MartialArts", "Sword", "StrategicSword", "Bleed", "UmbraBleeding"],
     "periodic": {
-      "firstTick": 0.5,
-      "interval": 1,
+      "firstTick": 0.528,
+      "interval": 1.023,
       "resetOnRefresh": false,
       "action": [
         {

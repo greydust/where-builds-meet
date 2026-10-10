@@ -4,8 +4,8 @@
     "shortName": "Com",
     "maxStack": 1,
     "periodic": {
-      "interval": 0.5,
-      "firstTick": 0.5,
+      "interval": 0.528,
+      "firstTick": 0,
       "resetOnRefresh": false,
       "action": [
         {
@@ -28,8 +28,8 @@
     "showCoverage": true,
     "maxStack": 1,
     "periodic": {
-      "interval": 0.5,
-      "firstTick": 0.5,
+      "interval": 0.528,
+      "firstTick": 0,
       "resetOnRefresh": false,
       "action": [
         {

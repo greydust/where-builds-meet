@@ -37,7 +37,7 @@
       }
     ],
     "periodic": {
-      "interval": 0.13,
+      "interval": 0.132,
       "resetOnRefresh": true,
       "action": [
         { "type": "consumeResource", "value": "Hellfire", "amount": 1, "amountPerTick": 0.05 },

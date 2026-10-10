@@ -130,13 +130,13 @@ describe("divinecraft damage", () => {
       duration: 4,
       maxStack: 1,
       refresh: true,
-      periodic: { interval: 1, firstTick: 0.5 },
+      periodic: { interval: 1.023, firstTick: 0.528 },
     })
     expect(divinecraftDots.DivinecraftPoison).toMatchObject({
       duration: 8,
       maxStack: 1,
       refresh: true,
-      periodic: { interval: 1, firstTick: 0.5 },
+      periodic: { interval: 1.023, firstTick: 0.528 },
     })
 
     const timelineFor = (divinecraft: string, options?: { steps?: number }) =>
@@ -149,7 +149,7 @@ describe("divinecraft damage", () => {
       return {
         times: timeline
           .filter(row => row.kind === "dot")
-          .map(row => row.startTime)
+          .map(row => Math.round(row.startTime * 1000) / 1000)
           .sort((left, right) => left - right),
         // A DOT tick must not be counted as a hit that reapplies its own source.
         kinds: new Set(timeline.filter(row => row.kind === "dot").map(row => row.step.skill)),
@@ -157,9 +157,9 @@ describe("divinecraft damage", () => {
     }
 
     // Sustained direct hits keep the burn refreshed, so it never lapses and ticks
-    // on its own 1s schedule for as long as the rotation runs.
+    // on its own 1.023s schedule for as long as the rotation runs.
     const fire = ticksFor("Fire", { steps: 20 })
-    expect(fire.times).toEqual([0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5])
+    expect(fire.times).toEqual(Array.from({ length: 13 }, (_, i) => (528 + i * 1023) / 1000))
     expect([...fire.kinds]).toEqual(["DivinecraftFire"])
 
     // A single hit then a long gap: the burn must expire on its own rather than
@@ -168,13 +168,11 @@ describe("divinecraft damage", () => {
       ...divinecraftTimelineInput({ steps: 1 }),
       setupEffects: [typedDivinecraftDefinitions.Fire.effect as Record<string, unknown>],
     })
-    const singleTicks = single.filter(row => row.kind === "dot").map(row => row.startTime)
-    expect(singleTicks).toEqual([0.5, 1.5, 2.5, 3.5])
+    const singleTicks = single.filter(row => row.kind === "dot").map(row => Math.round(row.startTime * 1000) / 1000)
+    expect(singleTicks).toEqual([0.528, 1.551, 2.574, 3.597])
 
     const poison = ticksFor("PoisonFire", { steps: 20 })
-    expect(poison.times).toEqual([
-      0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5,
-    ])
+    expect(poison.times).toEqual(Array.from({ length: 17 }, (_, i) => (528 + i * 1023) / 1000))
     expect([...poison.kinds]).toEqual(["DivinecraftPoison"])
 
     // The longer Poison window is what distinguishes the two on a single hit.
@@ -182,9 +180,9 @@ describe("divinecraft damage", () => {
       ...divinecraftTimelineInput({ steps: 1 }),
       setupEffects: [typedDivinecraftDefinitions.PoisonFire.effect as Record<string, unknown>],
     })
-    expect(singlePoison.filter(row => row.kind === "dot").map(row => row.startTime)).toEqual([
-      0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,
-    ])
+    expect(singlePoison.filter(row => row.kind === "dot").map(row => Math.round(row.startTime * 1000) / 1000)).toEqual(
+      Array.from({ length: 8 }, (_, i) => (528 + i * 1023) / 1000),
+    )
 
     // Water-first pairings and None apply no Divinecraft DOT.
     expect(ticksFor("WaterFire").times).toEqual([])
@@ -263,7 +261,7 @@ describe("divinecraft damage", () => {
       setupEffects: [typedDivinecraftDefinitions.Fire.effect as Record<string, unknown>],
     })
     const strikes = timeline.filter(row => row.step.skill === "DivinecraftSolidFoundationStrike")
-    const times = strikes.map(row => row.startTime)
+    const times = strikes.map(row => Math.round(row.startTime * 1000) / 1000)
     // One strike per grant, never two at the same instant, and never inside the
     // 10s re-grant cooldown.
     expect(new Set(times).size).toBe(times.length)

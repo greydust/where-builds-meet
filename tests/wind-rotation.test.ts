@@ -224,7 +224,7 @@ describe("Wind dummy preset", () => {
         Observation: {
           castTime: 0,
           tags: ["Triggered"],
-          action: [0.199, 0.201, 5.529, 5.531].map(time => ({ type: "damage", phyCoef: 1, time })),
+          action: [0.199, 0.201, 5.611, 5.613].map(time => ({ type: "damage", phyCoef: 1, time })),
         },
       },
     }

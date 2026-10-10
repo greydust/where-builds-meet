@@ -497,8 +497,8 @@ describe("Umbra draft behavior", () => {
       innerWayConditions: [...innerWayConditionsFor([...ways], undefined, "bellstrikeUmbra")],
     })
     const ticks = rows.filter(row => row.kind === "dot")
-    expect(ticks).toHaveLength(32)
-    expect(ticks.at(-1)?.startTime).toBe(16)
+    expect(ticks).toHaveLength(31)
+    expect(ticks.at(-1)?.startTime).toBeCloseTo(15.84, 10)
     expect(ticks.every(row => row.startTime <= 16)).toBe(true)
   })
 

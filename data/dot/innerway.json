@@ -7,9 +7,9 @@
     "onMaxStack": { "consume": "all", "trigger": "PiercingDamage", "triggerTags": ["WeepingBloodMaxStack"] },
     "refresh": true,
     "periodic": {
-      "interval": 1,
+      "interval": 1.023,
       "expectedTickAlignment": "battle",
-      "firstTick": 1.01,
+      "firstTick": 1.023,
       "resetOnRefresh": false,
       "tickOnExpire": false,
       "action": [{ "type": "damage", "phyCoef": 0.02, "time": 0 }]
@@ -24,7 +24,7 @@
     "maxStack": 5,
     "refresh": true,
     "periodic": {
-      "interval": 1,
+      "interval": 1.023,
       "resetOnRefresh": false,
       "action": [{ "type": "damage", "phyCoef": 0.02, "time": 0 }],
       "expectedTickAlignment": "battle"

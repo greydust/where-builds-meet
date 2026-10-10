@@ -6,8 +6,8 @@
     "maxStack": 1,
     "refresh": true,
     "periodic": {
-      "interval": 1,
-      "firstTick": 0.5,
+      "interval": 1.023,
+      "firstTick": 0.528,
       "resetOnRefresh": false,
       "action": [{ "type": "damage", "phyCoef": 0.26, "rateRoute": "divinecraft", "averageAttack": true, "time": 0 }]
     },
@@ -21,8 +21,8 @@
     "maxStack": 1,
     "refresh": true,
     "periodic": {
-      "interval": 1,
-      "firstTick": 0.5,
+      "interval": 1.023,
+      "firstTick": 0.528,
       "resetOnRefresh": false,
       "action": [{ "type": "damage", "phyCoef": 0.16, "rateRoute": "divinecraft", "averageAttack": true, "time": 0 }]
     },

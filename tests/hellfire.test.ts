@@ -1,13 +1,13 @@
+import buffsJson from "@gamedata/buff/bamboocut-wind.json"
 import { describe, it, expect } from "vitest"
-
-import buffsJson from "../data/buff/bamboocut-wind.json"
 const buffs = asEffectDefinitions(buffsJson)
-import events from "../data/event.json"
-import echoes from "../data/innerway/echoes-of-oblivion.json"
-import skillsJson from "../data/skill/infernal-twinblades.json"
+import events from "@gamedata/event.json"
+import echoes from "@gamedata/innerway/echoes-of-oblivion.json"
+import skillsJson from "@gamedata/skill/infernal-twinblades.json"
 const skills = asSkillRecords(skillsJson)
-import { buildRotationTimeline, type TimelineBuildInput, type RotationStep } from "../src/calculations/rotationTimeline"
-import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries } from "../src/rotationTransfer"
+import { buildRotationTimeline, type TimelineBuildInput, type RotationStep } from "@/calculations/rotationTimeline"
+import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries } from "@/rotationTransfer"
+
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 import { rowCasting } from "./helpers/timelineRows"
 
@@ -85,13 +85,13 @@ describe("Hellfire", () => {
     expect(imported.entries[0].rotation.steps).toEqual(entry.rotation.steps)
   })
   it.each([false, true])(
-    "drains in increasing 0.13-second ticks and ends immediately at zero (sampled=%s)",
+    "drains in increasing 0.132-second ticks and ends immediately at zero (sampled=%s)",
     sampled => {
       const rows = buildRotationTimeline(
         input(
           [cast("Observe"), cast("Flamelash"), { type: "event", event: "Delay", duration: 5 }],
           80,
-          [0.001, 0.129, 0.131, 0.261, 5.201, 5.331],
+          [0.001, 0.131, 0.133, 0.265, 5.281, 5.413],
         ),
         sampled ? () => 0.5 : undefined,
       )
@@ -102,7 +102,7 @@ describe("Hellfire", () => {
         row => row.kind === "periodic" && row.actions.some(action => action.type === "consumeResource"),
       )
       expect(ticks).toHaveLength(41)
-      expect(ticks[40].startTime).toBeCloseTo(5.33)
+      expect(ticks[40].startTime).toBeCloseTo(5.412)
       expect(rows[0].timelineResourceSummary!.Hellfire.consumed).toBeCloseTo(80)
     },
   )
@@ -151,7 +151,7 @@ describe("Hellfire", () => {
         { type: "event", event: "Delay", duration: 1 },
       ],
       80,
-      [0.849, 0.851, 0.981, 1.111],
+      [0.849, 0.851, 0.983, 1.115],
     )
     const states = Object.values(observer(buildRotationTimeline(data)).actionStates)
     ;[73.25, 80, 79, 77.95].forEach((value, index) => expect(states[index].resources.Hellfire).toBeCloseTo(value))

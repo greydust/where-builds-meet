@@ -519,7 +519,7 @@
         "time": 0,
         "attrCoef": 0.701655587896
       },
-      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.5, "time": 0 }
+      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.584, "time": 0 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "Triggered"]
@@ -564,12 +564,12 @@
         "time": 1.27292535,
         "attrCoef": 1.36063935
       },
-      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.5, "time": 1.27292535 },
+      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.584, "time": 1.27292535 },
       {
         "type": "apply",
         "target": "target",
         "value": "Combustion",
-        "duration": 8,
+        "duration": 7.92,
         "reapply": false,
         "time": 1.27292535
       },
@@ -615,8 +615,15 @@
         "time": 1.27292535,
         "attrCoef": 1.283668254717
       },
-      { "type": "extend", "target": "target", "value": "Smolder", "duration": 4, "time": 1.27292535 },
-      { "type": "apply", "target": "target", "value": "Smolder", "reapply": false, "duration": 4, "time": 1.27292535 },
+      { "type": "extend", "target": "target", "value": "Smolder", "duration": 4.224, "time": 1.27292535 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Smolder",
+        "reapply": false,
+        "duration": 3.696,
+        "time": 1.27292535
+      },
       {
         "type": "apply",
         "target": "self",
@@ -659,12 +666,12 @@
         "time": 1.27292535,
         "attrCoef": 1.36063935
       },
-      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.5, "time": 1.27292535 },
+      { "type": "extend", "target": "target", "value": "Combustion", "duration": 1.584, "time": 1.27292535 },
       {
         "type": "apply",
         "target": "target",
         "value": "Combustion",
-        "duration": 8,
+        "duration": 7.92,
         "reapply": false,
         "time": 1.27292535
       },
@@ -684,7 +691,7 @@
         "time": 2.7276895800000003,
         "attrCoef": 1.4994801
       },
-      { "type": "extend", "target": "target", "value": "Combustion", "duration": 3, "time": 2.7276895800000003 },
+      { "type": "extend", "target": "target", "value": "Combustion", "duration": 3.168, "time": 2.7276895800000003 },
       {
         "type": "apply",
         "target": "self",
@@ -734,8 +741,15 @@
         "time": 1.27292535,
         "attrCoef": 1.283668254717
       },
-      { "type": "extend", "target": "target", "value": "Smolder", "duration": 4, "time": 1.27292535 },
-      { "type": "apply", "target": "target", "value": "Smolder", "duration": 4, "reapply": false, "time": 1.27292535 },
+      { "type": "extend", "target": "target", "value": "Smolder", "duration": 4.224, "time": 1.27292535 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Smolder",
+        "duration": 3.696,
+        "reapply": false,
+        "time": 1.27292535
+      },
       {
         "type": "damage",
         "phyCoef": 1.283668254717,
@@ -752,7 +766,7 @@
         "time": 2.7276895800000003,
         "attrCoef": 1.414654811321
       },
-      { "type": "extend", "target": "target", "value": "Smolder", "duration": 7.5, "time": 2.7276895800000003 },
+      { "type": "extend", "target": "target", "value": "Smolder", "duration": 7.92, "time": 2.7276895800000003 },
       {
         "type": "apply",
         "target": "self",

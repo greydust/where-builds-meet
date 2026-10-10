@@ -65,12 +65,12 @@ it("Bleed ticks select exactly one current-stack coefficient without multiplying
         : [],
     )
     expect(hits).toHaveLength(1)
-    expect(tick.startTime).toBe(0.5)
+    expect(tick.startTime).toBe(0.528)
     expect(hits[0].physical).toBeCloseTo(100 * coefficient, 10)
     expect(hits[0].bellstrike).toBeCloseTo(150 * coefficient, 10)
     expect(result.metrics.breakdown.groupedSkills.find(row => row.name === "Bleeding")?.hits).toBe(1)
     const displayedTicks = buildTimelineDisplayEntries(result.timeline, () => true, { rowId: "rotation-0" }).filter(
-      entry => entry.row.step.skill === "UmbraBleeding" && entry.time === 0.5,
+      entry => entry.row.step.skill === "UmbraBleeding" && entry.time === 0.528,
     )
     expect(displayedTicks).toHaveLength(1)
     expect(result.actionBreakdowns[`${tick.id}:${displayedTicks[0].actionIndex}`]).toBeDefined()
@@ -90,7 +90,7 @@ it("adding or consuming some stacks preserves cadence, while clearing and reappl
     6,
   )
   const ticks = result.timeline.filter(row => row.kind === "dot" && row.step.skill === "UmbraBleeding")
-  expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.5, 2.5, 3.5, 4.6, 5.6])
+  expect(ticks.map(row => Math.round(row.startTime * 1000) / 1000)).toEqual([0.528, 1.551, 2.574, 3.597, 4.628, 5.651])
   expect(ticks.map(row => row.debuffs.get("UmbraBleeding")?.stack)).toEqual([1, 2, 5, 2, 1, 1])
 })
 
@@ -102,7 +102,9 @@ it("Bleed expiry stops ticks and reapplication starts a new timer", () => {
     ],
     5,
   )
-  expect(result.timeline.filter(row => row.kind === "dot").map(row => row.startTime)).toEqual([0.5, 1.5, 3.6, 4.6])
+  expect(result.timeline.filter(row => row.kind === "dot").map(row => Math.round(row.startTime * 1000) / 1000)).toEqual(
+    [0.528, 1.551, 3.628, 4.651],
+  )
 })
 
 it("adding stacks refreshes expiry while preserving the original tick cadence", () => {
@@ -113,7 +115,9 @@ it("adding stacks refreshes expiry while preserving the original tick cadence", 
     ],
     4,
   )
-  expect(result.timeline.filter(row => row.kind === "dot").map(row => row.startTime)).toEqual([0.5, 1.5, 2.5])
+  expect(result.timeline.filter(row => row.kind === "dot").map(row => Math.round(row.startTime * 1000) / 1000)).toEqual(
+    [0.528, 1.551, 2.574],
+  )
 })
 
 it("Blood Burst clears and reapplies two stacks, restarting the tick delay", () => {
@@ -127,7 +131,7 @@ it("Blood Burst clears and reapplies two stacks, restarting the tick delay", () 
     ["SwordHorizonT3", "SwordHorizonT6"],
   )
   const ticks = result.timeline.filter(row => row.kind === "dot" && row.step.skill === "UmbraBleeding")
-  expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.6, 2.6])
+  expect(ticks.map(row => Math.round(row.startTime * 1000) / 1000)).toEqual([0.528, 1.628, 2.651])
   expect(ticks.map(row => row.debuffs.get("UmbraBleeding")?.stack)).toEqual([5, 3, 3])
 })
 
@@ -143,6 +147,6 @@ it("Sweep All's High Bleed preserves five stacks and the existing tick timer", (
   )
   expect(result.timeline.filter(row => row.step.skill === "BloodBurstDamage")).toHaveLength(1)
   const ticks = result.timeline.filter(row => row.kind === "dot" && row.step.skill === "UmbraBleeding")
-  expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.5])
+  expect(ticks.map(row => Math.round(row.startTime * 1000) / 1000)).toEqual([0.528, 1.551])
   expect(ticks.map(row => row.debuffs.get("UmbraBleeding")?.stack)).toEqual([2, 5])
 })

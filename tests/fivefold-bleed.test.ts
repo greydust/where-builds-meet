@@ -4,13 +4,8 @@ import { describe, it } from "vitest"
 
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
+import type { EffectDefinition, SkillRecord, TimelineBuildInput, TimelineRow } from "@/calculations/rotationTimeline.ts"
 
-import type {
-  EffectDefinition,
-  SkillRecord,
-  TimelineBuildInput,
-  TimelineRow,
-} from "../src/calculations/rotationTimeline.ts"
 import { assertClose } from "./helpers/floatEquality"
 import { probeLoad } from "./helpers/probe-loader.js"
 import { actionNumber, rowWithId } from "./helpers/timelineRows"
@@ -18,25 +13,28 @@ import { actionNumber, rowWithId } from "./helpers/timelineRows"
 // Ported from script/probe/check-fivefold-bleed.mjs.
 describe("fivefold-bleed", () => {
   it("Fivefold Bleed chance, atomic threshold bursts, fresh cadence, generic application rules, exhaustive expected-state and simulation checks passed", async () => {
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad<
-      typeof import("../src/calculations/rotationCalculator")
+      typeof import("@/calculations/rotationCalculator")
     >("/src/calculations/rotationCalculator.ts")
-    const { simulateRotation } = await import("../src/calculations/simulationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { innerWayAvailableForTag } = await import("../src/data/innerWayDefinitions.ts")
-    const { innerWayDefinitionForSoloLevel } = await import("../src/data/innerWayDefinitions.ts")
-    const way = innerWayDefinitionForSoloLevel((await import("../data/innerway/fivefold-bleed.json")).default, 17)
-    const dots = (await import("../data/dot/innerway.json")).default
+    const { simulateRotation } = await import("@/calculations/simulationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { innerWayAvailableForTag } = await import("@/data/innerWayDefinitions.ts")
+    const { innerWayDefinitionForSoloLevel } = await import("@/data/innerWayDefinitions.ts")
+    const way = innerWayDefinitionForSoloLevel((await import("@gamedata/innerway/fivefold-bleed.json")).default, 17)
+    const dots = (await import("@gamedata/dot/innerway.json")).default
     // Retain exact-cadence regression coverage; the battle-grid probe tests the authored approximation.
     // One table serves as both the DOT definitions and the effect definitions here, so it is
     // narrowed to what each of those reads.
     const exactDots = structuredClone(dots) as Record<string, SkillRecord & EffectDefinition>
     const weepingBlood = exactDots.WeepingBlood
     assert(weepingBlood.periodic, "Weeping Blood must declare its tick cadence.")
+    // Keep this generic probability-state oracle on its original synthetic cadence.
+    weepingBlood.periodic.interval = 1
+    weepingBlood.periodic.firstTick = 1.01
     delete weepingBlood.periodic.expectedTickAlignment
-    const { PiercingDamage: piercingDefinition } = (await import("../data/skill/general.json")).default
+    const { PiercingDamage: piercingDefinition } = (await import("@gamedata/skill/general.json")).default
     // Isolate independent application histories; the full feedback chain is tested
     // separately with the unmodified skill in check-fivefold-bleed-loops.mjs.
     const PiercingDamage = {
@@ -270,7 +268,7 @@ describe("fivefold-bleed", () => {
       }),
       "Effects without a threshold rule retain capped stacks without multiplying tick damage",
     )
-    assert.equal(times(ordinaryRows).at(-1), 9.01, "Ordinary capped applications still refresh duration")
+    assert.equal(times(ordinaryRows).at(-1), 9.21, "Ordinary capped applications still refresh duration")
     const bleedDamage = skillDamage(baseline, "WeepingBlood")
     close(bleedDamage.damage, 4 * 2 * 0.1, "Expected physical-only damage")
     close(bleedDamage.hits, 4 * 0.1, "Expected tick count")
@@ -321,7 +319,7 @@ describe("fivefold-bleed", () => {
     const withProc = simulateRotation(bundle, 1, () => 0)
     close(withProc.runs[0].totalDamage, 108, "Simulation must include successful DOTs")
 
-    const system = (await import("../data/system.json")).default as {
+    const system = (await import("@gamedata/system.json")).default as {
       resourceEvents: TimelineBuildInput["resourceEvents"]
     }
     const withResources: TimelineBuildInput = {

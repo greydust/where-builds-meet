@@ -521,7 +521,7 @@ trackers. Exact event timelines remain authoritative for calculation and simulat
 | None         | none                      |
 
 `data/divinecraft.json` selects which of them each Divinecraft applies. Both DOTs
-are one stack, refreshable, tick every second starting 0.5 seconds after
+are one stack, refreshable, tick every 1.023 seconds starting 0.528 seconds after
 application, and use the `divinecraft` rate route with `averageAttack`, so each
 tick is
 `(average physical attack - enemy defense) x physical coefficient` at a single

@@ -347,8 +347,24 @@
     "ignorePing": true,
     "skillBreakdownCategory": "Crisscross - Inner Balance Strike III"
   },
+  "SecondTrackSlash1Cancel": {
+    "name": "Second Track Slash Stage 1 [Cancel]",
+    "castTime": 0,
+    "editableCastTime": false,
+    "action": [],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Sword", "StrategicSword", "Charged", "SecondTrackSlash1"],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "subAction": [
+      { "value": "SecondTrackSlashPreCharge" },
+      { "value": "SecondTrackSlashCharge" },
+      { "value": "SecondTrackSlash1ReleaseCancel" }
+    ],
+    "skillBreakdownCategory": "Second Track Slash"
+  },
   "SecondTrackSlash1": {
-    "name": "Second Track Slash - Stage 1",
+    "name": "Second Track Slash Stage 1",
     "castTime": 0,
     "editableCastTime": false,
     "action": [],
@@ -473,8 +489,64 @@
     "weapon": "Sword"
   },
   "SecondTrackSlash1Release": {
-    "name": "Second Track Slash - Stage 1 Release [4 Hits]",
+    "name": "Second Track Slash Stage 1 Release [4 Hits]",
     "castTime": 0.947,
+    "editableCastTime": true,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.402924,
+        "attrCoef": 0.402924,
+        "phyBonus": 111.6,
+        "attrBonus": 60.75,
+        "time": 0.09597798200000002
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.09597798200000002 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.507586139
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.507586139 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.6649105629999998
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.6649105629999998 },
+      {
+        "type": "damage",
+        "phyCoef": 0.268616,
+        "attrCoef": 0.268616,
+        "phyBonus": 74.4,
+        "attrBonus": 40.5,
+        "time": 0.8311389539999998
+      },
+      { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 1, "time": 0.8311389539999998 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Sword",
+      "StrategicSword",
+      "Charged",
+      "SubAction",
+      "SecondTrackSlash1Release"
+    ],
+    "martialArt": "strategicSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "SecondTrackSlash1ReleaseCancel": {
+    "name": "Second Track Slash Stage 1 Release [4 Hits][Cancel]",
+    "castTime": 0.8311389539999998,
     "editableCastTime": true,
     "action": [
       {
@@ -558,7 +630,7 @@
     "ignorePing": true
   },
   "SecondTrackSlash2Casts1Hit": {
-    "name": "Second Track Slash [2 Casts][1 Hit]",
+    "name": "Second Track Slash Stage 1 [2 Casts][1 Hit]",
     "shortName": "Charged 2 [1 Hit]",
     "castTime": 0,
     "action": [],

@@ -9,19 +9,20 @@ import type {
   TimelineBuildInput,
   TimelineRow,
   EditableObject,
-} from "../src/calculations/rotationTimeline.ts"
+} from "@/calculations/rotationTimeline.ts"
+
 import { assertClose } from "./helpers/floatEquality"
 import { actionNumber } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-fivefold-bleed-grid.mjs.
 describe("fivefold-bleed-grid", () => {
   it("Battle-grid probabilities, boundaries, fight anchor, bounded row count, and unchanged sampled timing verified", async () => {
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
-    const { ExpectedPeriodicTracker } = await import("../src/calculations/outcomeTriggeredBuffs.ts")
-    const dots = (await import("../data/dot/innerway.json")).default as Record<string, SkillRecord & EffectDefinition>
-    const { innerWayDefinitionForSoloLevel } = await import("../src/data/innerWayDefinitions.ts")
-    const way = innerWayDefinitionForSoloLevel((await import("../data/innerway/fivefold-bleed.json")).default, 17)
-    const { PiercingDamage } = (await import("../data/skill/general.json")).default
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
+    const { ExpectedPeriodicTracker } = await import("@/calculations/outcomeTriggeredBuffs.ts")
+    const dots = (await import("@gamedata/dot/innerway.json")).default as Record<string, SkillRecord & EffectDefinition>
+    const { innerWayDefinitionForSoloLevel } = await import("@/data/innerWayDefinitions.ts")
+    const way = innerWayDefinitionForSoloLevel((await import("@gamedata/innerway/fivefold-bleed.json")).default, 17)
+    const { PiercingDamage } = (await import("@gamedata/skill/general.json")).default
     // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
     const noEffect: EditableObject = {}
     const rules = (tier: number): InnerWayEffectRule[] =>
@@ -106,22 +107,22 @@ describe("fivefold-bleed-grid", () => {
     const expected = ticks(buildRotationTimeline(input))
     assert.deepEqual(
       expected.map(row => row.startTime),
-      Array.from({ length: 10 }, (_, i) => i + 1),
+      Array.from({ length: 9 }, (_, i) => ((i + 1) * 1023) / 1000),
     )
     for (const row of expected) {
       const count = hits.filter(time => time < row.startTime && time + 5 > row.startTime).length
       close(actionNumber(row, "damageScale"), 1 - 0.9 ** count)
       close(actionNumber(row, "hitProbability"), actionNumber(row, "damageScale"))
     }
-    const boundary = ticks(buildRotationTimeline(inputFor([1], 7)))
+    const boundary = ticks(buildRotationTimeline(inputFor([1.023], 7)))
     assert.deepEqual(
       boundary.map(row => row.startTime),
-      [2, 3, 4, 5],
+      [2.046, 3.069, 4.092, 5.115],
       "New applications wait for the next boundary; expiration never ticks",
     )
     assert.deepEqual(
       ticks(buildRotationTimeline(inputFor([0.2], 3))).map(row => row.startTime),
-      [1, 2],
+      [1.023, 2.046],
       "Battle End excludes its timestamp",
     )
 
@@ -182,7 +183,13 @@ describe("fivefold-bleed-grid", () => {
       denseTicks.length,
       "At most one Weeping Blood row per grid boundary",
     )
-    assert.ok(denseTicks.every(row => Number.isInteger(row.startTime) && actionNumber(row, "damageScale") <= 1 + 1e-9))
+    assert.ok(
+      denseTicks.every(
+        row =>
+          Math.abs(row.startTime / 1.023 - Math.round(row.startTime / 1.023)) < 1e-10 &&
+          actionNumber(row, "damageScale") <= 1 + 1e-9,
+      ),
+    )
     const removed = inputFor([0.2], 11, 3)
     assert(removed.skills.Hits.action, "The Hits skill must carry its action list.")
     removed.skills.Hits.action.push({
@@ -195,7 +202,7 @@ describe("fivefold-bleed-grid", () => {
     const removedRows = buildRotationTimeline(removed)
     assert.deepEqual(
       ticks(removedRows).map(row => row.startTime),
-      [1],
+      [1.023],
     )
     assert.ok(
       !removedRows.some(row => row.step.skill === "PiercingDamage"),

@@ -196,3 +196,37 @@ obsolete baseline keys. Leave the variable unset during release checks. Inspect
 the resulting diff and run formatting, build, and release snapshot checks before
 publishing. Focused mechanic tests remain necessary when timing or buff changes
 can offset each other in total DPS.
+
+## Pending review: 33 ms DOT timer wheel
+
+The timer-wheel data change adopts 528 ms burn intervals, 1,023 ms other DOT
+intervals and adjusted positive initial delays, plus 132 ms Hellfire drains.
+Smolder and Combustion now tick immediately; their initial lifetimes and
+extensions preserve single-cast tick totals. Slower DOT cadence changes tick
+counts and downstream trigger/resource feedback. Longer Hellfire retention
+increases Wind damage. Umbra also uses the canceled Stage 1 Slash preset
+and recalibrated Qi milestones. These results include the current working-tree changes.
+
+All 17 preset comparisons exceed the 4-ULP gate. Accepted snapshots remain
+unchanged pending user review. Every affected duration remains 60 seconds;
+total damage is DPS multiplied by 60. Exact DPS values follow.
+
+| Rotation path                                            |       Accepted DPS |      Proposed DPS |
+| -------------------------------------------------------- | -----------------: | ----------------: |
+| `bamboocutDust/dust-dummy-1-min-100pc`                   | 59185.751681597285 | 59162.81970722088 |
+| `bamboocutDust/dust-dummy-1-min`                         |  59450.01720629205 | 59428.59338014854 |
+| `bamboocutKite/dummy-1-min-infinite-vitality`            |  55755.35695102388 |   55737.139443286 |
+| `bamboocutKite/dummy-1-min-iv-bp`                        |  61484.24028064938 | 61467.81864820691 |
+| `bamboocutWind/wind-dummy-1-min-infinite-vitality`       |  69121.77274118822 | 69171.64928913544 |
+| `bellstrikeSplendor/dummy-1-min-81-waves`                |  65364.94121485134 | 65349.68233467729 |
+| `bellstrikeUmbra/dummy-1-min-38-bb`                      |  80863.81713022864 | 79816.92602300833 |
+| `silkbindDeluge/dummy-1-min-regular-fire`                | 30235.360820053047 | 29803.73756241419 |
+| `silkbindDeluge/dummy-1-min-smolder`                     | 36873.458832420496 | 36628.55379060283 |
+| `silkbindDeluge/dummy-1-min-wts-team`                    |  39724.57025069542 | 39472.94285759795 |
+| `silkbindDeluge/dummy-1-min-wts`                         | 36078.207131889874 | 35847.48213895326 |
+| `stonesplitMight/dummy-1-min`                            |  79503.85066834385 | 79486.75718449506 |
+| `stonesplitStrength/mixed-dummy-1-min-double-stab`       |  66771.02076597798 | 66752.02424355024 |
+| `stonesplitStrength/mixed-dummy-1-min`                   |  67509.52357894306 |  67492.2679958544 |
+| `stonesplitStrength/mixed-dummy-infinite-vitality-1-min` |  67828.67270050912 |  67806.2615959671 |
+| `stonesplitStrength/mixed-dummy-smolder-poet-1-min`      |  67675.19144487414 | 67656.17965543146 |
+| `stonesplitStrength/pure-dummy-1-min`                    |  66073.89334400739 |  66033.8658054791 |
