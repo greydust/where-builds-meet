@@ -27,19 +27,26 @@ precedes attachment expansion so before-start effects do not run during a
 cooldown wait. Once accepted, cast-start modifiers determine the new cooldown
 window and cast duration.
 
-Indefinite periodic effects keep only one upcoming tick in the event queue.
-Each tick schedules its successor using the original application cadence.
-When `resetOnRefresh` is false and the periodic definition is unchanged, refreshes
-retain existing future tick rows, update their source and causal ordering, and
-extend the schedule only for missing ticks. Shorter lifetimes remove ticks beyond
-the new expiry, honoring `tickOnExpire`. Indefinite refreshes replace their single
-successor wakeup without duplicating the retained tick. Damage and effect state
-are captured when the tick starts, so retaining a row does not freeze its buffs
-or stats. Cadence resets, changed periodic definitions, and finite/indefinite
-lifetime transitions rebuild the pending schedule. Consumption removes obsolete
-rows and wakeups. Finite periodic effects retain their bounded schedule, and both
-obey the same combat endpoint. Periodic resource amounts can increase by a
-data-defined amount each tick, as used by Hellfire.
+DOTs keep only one upcoming tick, regardless of duration. After the tick's actions
+and causal follow-ups resolve, a completion marker schedules its successor from
+the original application cadence and current expiry. Expected DOTs use their
+existing single tick wakeup and probability tracker. Both paths stop at the
+combat endpoint rather than expanding the remaining lifetime.
+When `resetOnRefresh` is false and the periodic definition is unchanged, a DOT
+refresh updates expiry and ownership without invoking the scheduler while a tick
+is pending. References to that tick's queued events update its causal ordering
+without scanning the whole queue. Only strictly future ticks transfer ownership;
+a refresh at the current tick boundary applies to subsequent ticks. Shortening
+expiry cancels an ineligible pending tick, honoring `tickOnExpire`. Extending an
+active DOT after its last eligible tick schedules the next cadence boundary.
+Damage and effect state are captured when the tick starts, so retaining a row
+does not freeze its buffs or stats. Cadence resets, changed periodic definitions,
+and finite/indefinite lifetime transitions rebuild the pending tick. Consumption
+invalidates the old successor chain, including across reapplication.
+
+Non-DOT indefinite periodic effects retain their single-successor wakeup, while
+finite non-DOT periodic effects retain their bounded schedule. Periodic resource
+amounts can increase by a data-defined amount each tick, as used by Hellfire.
 
 ## Readiness after charging
 

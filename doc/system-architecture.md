@@ -744,6 +744,14 @@ without enumerating their entire future union. Both tick and expiry wakeups reta
 the active-effect identity so removal/reapplication cannot revive stale schedules.
 These internal checks do not consume the ordinary trigger-chain safety budget.
 
+Ordinary and sampled DOTs also retain only their next tick. A completion marker
+after its actions schedules the following tick against the current expiry.
+Cadence-preserving refreshes update the pending tick's ownership and ordering
+through retained queue references, without enumerating future ticks or scanning
+the entire queue. Resetting cadence or removing the effect invalidates the old
+successor chain. See the [event-loop reference](rotation-event-loop.md) for
+same-time ownership and expiry boundaries.
+
 Threshold and expiration bursts retain a temporary expected-state branch identity
 until their damage triggers finish. Reapplications to the originating DOT operate
 conditionally on those branches, preserving the consumed/expired-state correlation

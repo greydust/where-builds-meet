@@ -364,6 +364,12 @@ class OrderedQueue<T> {
     this.dirty = true
   }
 
+  /** Update retained queue entries without searching the rest of the queue. */
+  update(values: readonly T[], callback: (value: T) => void) {
+    values.forEach(callback)
+    this.dirty = true
+  }
+
   remove(predicate: (value: T) => boolean) {
     const remaining = this.entries.filter(entry => !predicate(entry.value))
     if (remaining.length === this.entries.length) return
@@ -2285,6 +2291,7 @@ export function buildRotationTimeline(
     pendingTick?: TimelineEvent
     pendingExpiration?: TimelineEvent
     expirationAfter?: number
+    dotSchedule?: { sortOrder: number[]; sourceOrder: number; enduranceLost: number; pendingEvents: TimelineEvent[] }
   }
   const activePeriodicEffects: Record<string, ActivePeriodicEffect> = {}
   const expectedDebuffs = new Map<
@@ -2351,7 +2358,12 @@ export function buildRotationTimeline(
           Object.keys(row.actionStates).length === 0,
       ),
     )
-    events.remove(event => event.periodicWakeup?.active === activeEffect)
+    events.remove(
+      event =>
+        event.periodicWakeup?.active === activeEffect && (!activeEffect.dotSchedule || pendingRows.has(event.row)),
+    )
+    if (activeEffect.dotSchedule?.pendingEvents.some(event => pendingRows.has(event.row)))
+      activeEffect.dotSchedule.pendingEvents = []
     if (pendingRows.size === 0) return
     activeEffect.rows = activeEffect.rows.filter(row => !pendingRows.has(row))
     for (let index = rows.length - 1; index >= 0; index -= 1) if (pendingRows.has(rows[index])) rows.splice(index, 1)
@@ -2382,8 +2394,17 @@ export function buildRotationTimeline(
     }
     const isDot = Boolean(dots[name])
     const rowSkill = (dots[name] ?? effectDefinitions[name]) as SkillRecord | undefined
-    // Indefinite effects schedule only their next tick; generated ticks never extend combat.
+    // DOTs and indefinite effects keep only their next tick; finite non-DOT
+    // periodic effects retain their bounded schedule.
     const indefinite = !Number.isFinite(activeEffect.expiresAt)
+    const incremental = isDot || indefinite
+    if (isDot && !activeEffect.expected)
+      activeEffect.dotSchedule ??= {
+        sortOrder: causalSortOrder,
+        sourceOrder,
+        enduranceLost: enduranceLost(),
+        pendingEvents: [],
+      }
     const nextTickIndex = Math.max(0, Math.ceil((afterTime - activeEffect.appliedAt - firstTick - 1e-6) / interval))
     let nextTickTime = activeEffect.appliedAt + firstTick + nextTickIndex * interval
     if (!includeCurrentTime && nextTickTime <= afterTime + 1e-6) nextTickTime += interval
@@ -2407,7 +2428,7 @@ export function buildRotationTimeline(
     }
     const scheduledTicks =
       resolvedTicks ??
-      (indefinite
+      (incremental
         ? [{ time: nextTickTime, probability: undefined, sources: undefined }]
         : Array.from(
             {
@@ -2426,6 +2447,7 @@ export function buildRotationTimeline(
           ))
     for (const [tickIndex, tick] of scheduledTicks.entries()) {
       const tickTime = tick.time
+      if (!resolvedTicks && tickTime > activeEffect.expiresAt + 1e-6) continue
       if (periodic?.tickOnExpire === false && tickTime >= activeEffect.expiresAt - 1e-6) continue
       if (tickTime < afterTime - 1e-6 || (!includeCurrentTime && Math.abs(tickTime - afterTime) <= 1e-6)) continue
       const derivedId = nextDerivedOrder++
@@ -2475,7 +2497,7 @@ export function buildRotationTimeline(
         targetHPRatio,
         targetQiRatio,
         resources: { ...resources },
-        enduranceLost: enduranceLost(),
+        enduranceLost: activeEffect.dotSchedule?.enduranceLost ?? enduranceLost(),
         currentMartialArt,
         currentWeapon,
         effectiveCastTime: 0,
@@ -2486,19 +2508,32 @@ export function buildRotationTimeline(
         modifierEffects: [],
         actionStates: {},
       }
-      queueWakeup(row, tickTime, derivedSortOrder)
+      if (!activeEffect.dotSchedule) queueWakeup(row, tickTime, derivedSortOrder)
       activeEffect.rows.push(row)
       rows.push(row)
-      events.push({ time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row })
-      actions.forEach((_action, actionIndex) =>
-        events.push({
+      const tickEvents: TimelineEvent[] = [
+        { time: tickTime, sortOrder: [...derivedSortOrder, 0], kind: "start", row },
+        ...actions.map((_action, actionIndex): TimelineEvent => ({
           time: tickTime,
           sortOrder: [...derivedSortOrder, 1, actionIndex],
           kind: "action",
           row,
           actionIndex,
-        }),
-      )
+        })),
+      ]
+      if (activeEffect.dotSchedule) {
+        // Run after this tick's actions and their causal follow-ups. Only then
+        // can the next tick be scheduled against the resulting effect lifetime.
+        tickEvents.push({
+          time: tickTime,
+          sortOrder: [...derivedSortOrder, 2],
+          kind: "periodicTick",
+          row,
+          periodicWakeup: { name, active: activeEffect },
+        })
+        activeEffect.dotSchedule.pendingEvents = tickEvents
+      }
+      events.push(...tickEvents)
     }
     if (retainedOrders.size)
       events.mutate(event => {
@@ -2596,13 +2631,55 @@ export function buildRotationTimeline(
       JSON.stringify(activeEffect.definition.periodic) === JSON.stringify(definition.periodic)
     const retainScheduledRows =
       !resetCadence && samePeriodic && Number.isFinite(activeEffect.expiresAt) === Number.isFinite(expiresAt)
-    if (!retainScheduledRows) removePendingPeriodicRows(activeEffect, eventTime)
-    else if (expiresAt < activeEffect.expiresAt)
+    if (!retainScheduledRows) {
+      removePendingPeriodicRows(activeEffect, eventTime)
+      if (activeEffect.dotSchedule) {
+        events.remove(event => event.periodicWakeup?.active === activeEffect)
+        activeEffect.dotSchedule.pendingEvents = []
+      }
+    } else if (expiresAt < activeEffect.expiresAt)
       removePendingPeriodicRows(activeEffect, expiresAt, definition.periodic?.tickOnExpire === false)
     activeEffect.definition = definition
     activeEffect.expiresAt = expiresAt
     activeEffect.sourceRowId = sourceRowId
     if (resetCadence) activeEffect.appliedAt = eventTime
+    const dotSchedule = activeEffect.dotSchedule
+    if (dotSchedule) {
+      dotSchedule.sortOrder = causalSortOrder
+      dotSchedule.sourceOrder = sourceOrder
+      dotSchedule.enduranceLost = enduranceLost()
+      const pending = dotSchedule.pendingEvents[0]?.row
+      if (pending) {
+        // A refresh at the tick boundary affects subsequent ticks, matching
+        // the existing strict-future ownership rule.
+        if (pending.startTime > eventTime + 1e-6) {
+          const periodic = definition.periodic!
+          const interval = periodic.interval!
+          const ordinal = Math.max(
+            0,
+            Math.round((pending.startTime - activeEffect.appliedAt - (periodic.firstTick ?? interval)) / interval),
+          )
+          pending.sourceRowId = sourceRowId
+          pending.order = sourceOrder + 10 + (Number.isFinite(expiresAt) ? ordinal / 1000 : 0)
+          pending.enduranceLost = dotSchedule.enduranceLost
+          const sortOrder = [...causalSortOrder, nextDerivedOrder++]
+          events.update(dotSchedule.pendingEvents, event => {
+            switch (event.kind) {
+              case "start":
+                event.sortOrder = [...sortOrder, 0]
+                break
+              case "action":
+                event.sortOrder = [...sortOrder, 1, event.actionIndex!]
+                break
+              case "periodicTick":
+                event.sortOrder = [...sortOrder, 2]
+                break
+            }
+          })
+        }
+        return
+      }
+    }
     schedulePeriodicActions(
       name,
       activeEffect,
@@ -3163,8 +3240,15 @@ export function buildRotationTimeline(
     }
     if (event.periodicWakeup) {
       const { name, active } = event.periodicWakeup
-      if (Object.values(activePeriodicEffects).includes(active))
-        schedulePeriodicActions(name, active, event.time, event.sortOrder, event.row.order, true)
+      if (Object.values(activePeriodicEffects).includes(active)) {
+        const dotSchedule = active.dotSchedule
+        if (dotSchedule) {
+          if (!dotSchedule.pendingEvents.includes(event)) continue
+          dotSchedule.pendingEvents = []
+          active.rows = active.rows.filter(row => row !== event.row)
+          schedulePeriodicActions(name, active, event.time, dotSchedule.sortOrder, dotSchedule.sourceOrder)
+        } else schedulePeriodicActions(name, active, event.time, event.sortOrder, event.row.order, true)
+      }
       continue
     }
     if (event.expectedWakeup) {

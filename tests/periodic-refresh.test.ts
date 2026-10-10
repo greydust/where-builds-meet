@@ -62,11 +62,27 @@ function observe(input: TimelineBuildInput) {
 }
 
 describe("periodic refresh", () => {
+  it.each([undefined, () => 0.5])("keeps only the next DOT tick pending, including for long lifetimes (%s)", roll => {
+    const input = fixture(100_000)
+    input.effectDefinitions.Burn.duration = 100_000
+    const pendingCounts: number[] = []
+    const pendingAtTicks: number[] = []
+    const rows = buildRotationTimeline(input, roll, (_input, liveRows) => (row, actionIndex) => {
+      const time = row.startTime + Number(row.actions[actionIndex].time ?? 0)
+      pendingCounts.push(liveRows.filter(candidate => candidate.kind === "dot" && candidate.startTime > time).length)
+      if (row.kind === "dot") pendingAtTicks.push(pendingCounts.at(-1)!)
+      return undefined
+    })
+    expect(Math.max(...pendingCounts)).toBe(1)
+    expect(pendingAtTicks).toEqual([0, 0, 0, 0, 0])
+    expect(rows.filter(row => row.kind === "dot").map(row => row.startTime)).toEqual([0.5, 1.5, 2.5, 3.5, 4.5])
+  })
+
   it("retains tick rows and cadence, extends expiry, updates ownership, and reads buffs at tick time", () => {
     const { pending, ticks } = observe(fixture())
     expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.5, 2.5, 3.5])
+    expect(pending).toHaveLength(1)
     expect(ticks[0]).toBe(pending[0])
-    expect(ticks[1]).toBe(pending[1])
     expect(ticks.every(row => row.sourceRowId === "rotation-1")).toBe(true)
     expect(ticks[0].actionStates[0].buffs.has("Boost")).toBe(false)
     expect(ticks[1].actionStates[0].buffs.has("Boost")).toBe(true)
@@ -82,6 +98,32 @@ describe("periodic refresh", () => {
     const { pending, ticks } = observe(fixture(4, true))
     expect(ticks.map(row => row.startTime)).toEqual([0.75, 1.75, 2.75, 3.75])
     expect(ticks.some(row => pending.includes(row))).toBe(false)
+  })
+
+  it("extends an active DOT after its last previously eligible tick", () => {
+    const input = fixture(3)
+    input.effectDefinitions.Burn.duration = 0.75
+    input.skills.Apply.castTime = 0.6
+    const ticks = buildRotationTimeline(input).filter(row => row.kind === "dot")
+    expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.5, 2.5, 3.5])
+    expect(ticks.map(row => row.sourceRowId)).toEqual(["rotation-0", "rotation-1", "rotation-1", "rotation-1"])
+  })
+
+  it("starts a new cadence after removal without reviving the old successor", () => {
+    const input = fixture()
+    input.skills.Refresh.action = [
+      { type: "consume", target: "target", value: "Burn", stack: "all", time: 0.5 },
+      { type: "apply", target: "target", value: "Burn", time: 1 },
+    ]
+    const ticks = buildRotationTimeline(input).filter(row => row.kind === "dot")
+    expect(ticks.map(row => row.startTime)).toEqual([0.5, 1.75, 2.75])
+  })
+
+  it("supports an immediate first tick without duplicating it on a cadence-preserving refresh", () => {
+    const input = fixture()
+    input.effectDefinitions.Burn.periodic!.firstTick = 0
+    const ticks = buildRotationTimeline(input).filter(row => row.kind === "dot")
+    expect(ticks.map(row => row.startTime)).toEqual([0, 1, 2, 3, 4])
   })
 
   it("retains an indefinite cadence without duplicating successor wakeups", () => {
