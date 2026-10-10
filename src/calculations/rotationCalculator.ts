@@ -8,6 +8,8 @@ import { finishCalculationPhase, startCalculationPhase } from "./calculationBenc
 import { DEFAULT_TARGET_HP_RATIO, normalizeEnemyCount, resolveTargetType } from "./combatDefaults"
 import {
   calculateDamageBreakdown,
+  calculateDamageWithAdditiveResponse,
+  takeAdditiveDamageBonusResponse,
   createPreparedDamageCalculator,
   preparedDamageStatFields,
   calculateSimulatedDamageBreakdown,
@@ -291,7 +293,10 @@ function calculateRotationDamageEntry(
         : contextWithDamageEffects
     breakdown = random
       ? calculateSimulatedDamageBreakdown(entry.action, context, random)
-      : (preparedDamage ?? calculateDamageBreakdown)(entry.action, context)
+      : (
+          preparedDamage ??
+          (entry.attributionContexts?.length ? calculateDamageWithAdditiveResponse : calculateDamageBreakdown)
+        )(entry.action, context)
     if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt)
   }
   return breakdown
@@ -2340,17 +2345,24 @@ export function calculateRotationBaseline(bundle: RotationSimulationBundle): Rot
       .map(({ entry, breakdown, expectedBuffStacks, outcomeEffects, expectedConcentration }) => {
         rawBaselineDamage += breakdown.total
         baselineHealing += breakdown.healing?.total ?? 0
+        const additiveResponse = takeAdditiveDamageBonusResponse(breakdown)
         const buffedDamageBySource = Object.fromEntries(
           (entry.replay ? [] : (entry.attributionContexts ?? []))
             .map(({ sourceRowId, context }) => {
               const damageStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-              const counterfactualDamage = calculateExpectedOutcomeDamage(
-                entry.action,
-                context,
-                outcomeEffects,
-                expectedConcentration,
-                entry.seasonalEdge,
-              ).total
+              const reusedDamage =
+                !expectedConcentration && !entry.seasonalEdge?.outcomes?.length
+                  ? additiveResponse?.(contextWithOutcomeEffects(context, outcomeEffects, 0))
+                  : undefined
+              const counterfactualDamage =
+                reusedDamage ??
+                calculateExpectedOutcomeDamage(
+                  entry.action,
+                  context,
+                  outcomeEffects,
+                  expectedConcentration,
+                  entry.seasonalEdge,
+                ).total
               if (import.meta.env.DEV) finishCalculationPhase("damageCalculation", damageStartedAt)
               return [sourceRowId, breakdown.total - counterfactualDamage]
             })

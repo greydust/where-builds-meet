@@ -147,6 +147,189 @@ export type DamageContext = {
   expectedEffects?: Array<Array<{ probability: number; effects: Record<string, unknown>[] }>>
 }
 
+// Formula reuse stays local to resolved results; it is never serialized into worker output.
+type AdditiveBonusResponse = {
+  context: DamageContext
+  bonusComponents: Array<{
+    physicalDamage: number
+    attributeDamage: Pick<DamageBreakdown, AttributeDamageType>
+    specialBonus: number
+  }>
+  damageScale: number
+  attunementBonus: number
+  resolvedEffects: {
+    baseDmgBonus: number
+    attributeDmgBonus: number
+    dotDamageBonus: number
+    globalBellstrikeDmgBonus: number
+  }
+  globalMultiplier: number
+  skillWeaponArtBonus: number
+  mysticSkillBonus: number
+  rates: OutcomeRates
+}
+const additiveBonusResponses = new WeakMap<DamageBreakdown, AdditiveBonusResponse>()
+const effectSignatures = new WeakMap<object, string>()
+function effectSignature(effect: Record<string, unknown>) {
+  let signature = effectSignatures.get(effect)
+  if (signature === undefined) {
+    signature = JSON.stringify(effect)
+    effectSignatures.set(effect, signature)
+  }
+  return signature
+}
+const pureAdditiveEffects = new WeakMap<object, boolean>()
+function isPureAdditiveEffect(effect: Record<string, unknown>) {
+  let pure = pureAdditiveEffects.get(effect)
+  if (pure === undefined) {
+    pure = Object.keys(effect).every(key => ["dmgBonus", "hpDMGBonus", "hpDMGBonusWeapons"].includes(key))
+    pureAdditiveEffects.set(effect, pure)
+  }
+  return pure
+}
+function differsOnlyInAdditiveBonus(original: DamageContext, candidate: DamageContext) {
+  if (candidate.expectedEffects?.length) return false
+  for (const key of [...Object.keys(original), ...Object.keys(candidate)] as Array<keyof DamageContext>) {
+    switch (key) {
+      case "effects":
+      case "buffs":
+      case "unconditionalDamageEffects":
+      case "expectedEffects":
+        break
+      default:
+        if (original[key] !== candidate[key]) return false
+    }
+  }
+  const before = original.unconditionalDamageEffects ?? {}
+  const after = candidate.unconditionalDamageEffects ?? {}
+  for (const key of [...Object.keys(before), ...Object.keys(after)] as Array<keyof UnconditionalDamageEffects>)
+    if (key !== "dmgBonus" && key !== "hpDMGBonus" && (before[key] ?? 0) !== (after[key] ?? 0)) return false
+  let index = 0
+  for (const effect of candidate.effects) {
+    if (isPureAdditiveEffect(effect)) continue
+    while (index < original.effects.length && isPureAdditiveEffect(original.effects[index])) index++
+    const previous = original.effects[index++]
+    if (!previous || (previous !== effect && effectSignature(previous) !== effectSignature(effect))) return false
+  }
+  while (index < original.effects.length && isPureAdditiveEffect(original.effects[index])) index++
+  return index === original.effects.length
+}
+
+/** Reapply only an additive damage-bonus change; unsupported changes retain the full formula. */
+export function takeAdditiveDamageBonusResponse(result: DamageBreakdown) {
+  const response = additiveBonusResponses.get(result)
+  additiveBonusResponses.delete(result)
+  return response ? (context: DamageContext) => evaluateAdditiveBonusResponse(response, context) : undefined
+}
+
+/** Capture channel components only for hits whose reporting needs counterfactual attribution. */
+export function calculateDamageWithAdditiveResponse(action: DamageAction, context: DamageContext) {
+  return calculateDamageBreakdown(action, context, (resolvedAction, resolvedContext) =>
+    calculateDamageBreakdownInternal(resolvedAction, resolvedContext, undefined, undefined, true),
+  )
+}
+
+function damageEffectValue(value: unknown, context: DamageContext) {
+  const { stats, derivedStats } = context
+  if (typeof value === "number" && Number.isFinite(value)) return value
+  if (!value || typeof value !== "object" || Array.isArray(value)) return 0
+  const dynamicValueStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
+  const objectValue = value as Record<string, unknown>
+  const dynamicParameters = {
+    distance: context.distance ?? 1,
+    maxHp: stats.maxHp,
+    currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
+    missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
+    targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
+    missingTargetHPPercentage: (1 - (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO)) * 100,
+    enduranceLost: context.enduranceLost,
+    enduranceSpent: context.enduranceSpent,
+  }
+  const multiplied = resolveMultiplyValue(value, dynamicParameters)
+  if (multiplied !== undefined) {
+    if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
+    return multiplied
+  }
+  const segmented = resolveSegmentValue(value, dynamicParameters)
+  if (segmented !== undefined) {
+    if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
+    return segmented
+  }
+  const formula = objectValue.formula
+  const resolved =
+    formula && typeof formula === "object" && !Array.isArray(formula)
+      ? (resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0)
+      : 0
+  if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
+  return resolved
+}
+
+function evaluateAdditiveBonusResponse(response: AdditiveBonusResponse, unresolved: DamageContext) {
+  const {
+    context,
+    bonusComponents,
+    damageScale,
+    attunementBonus,
+    resolvedEffects,
+    globalMultiplier,
+    skillWeaponArtBonus,
+    mysticSkillBonus,
+    rates,
+  } = response
+  const { stats, skillTags, weapons } = context
+  const candidate = resolveActionStatContext(unresolved)
+  if (!differsOnlyInAdditiveBonus(context, candidate)) return undefined
+  const aggregate = candidate.unconditionalDamageEffects ?? {}
+  let bonus = (aggregate.dmgBonus ?? 0) + (aggregate.hpDMGBonus ?? 0)
+  for (const effect of candidate.effects) {
+    if (!hasDamageFields(effect)) continue
+    bonus += damageEffectValue(effect.dmgBonus, context)
+    if (
+      !Array.isArray(effect.hpDMGBonusWeapons) ||
+      effect.hpDMGBonusWeapons.some(weapon => weapons.includes(weapon as WeaponId))
+    )
+      bonus += damageEffectValue(effect.hpDMGBonus, context)
+  }
+  const category =
+    stats.vsBossDmg +
+    (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +
+    skillWeaponArtBonus +
+    mysticSkillBonus +
+    bonus
+  const physicalShared = damageScale * (1 + resolvedEffects.baseDmgBonus) * (1 + category) * (1 + attunementBonus)
+  const attributeShared =
+    damageScale *
+    (1 + resolvedEffects.baseDmgBonus) *
+    (1 + category + resolvedEffects.attributeDmgBonus) *
+    (1 + attunementBonus)
+  const variants = bonusComponents.map(({ physicalDamage, attributeDamage, specialBonus }) => {
+    const physicalMultiplier = physicalShared * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
+    const attributeMultiplier = attributeShared * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
+    return {
+      physical: Math.max(0, physicalDamage * physicalMultiplier * globalMultiplier),
+      bellstrike:
+        attributeDamage.bellstrike *
+        attributeMultiplier *
+        (globalMultiplier + resolvedEffects.globalBellstrikeDmgBonus),
+      stonesplit: attributeDamage.stonesplit * attributeMultiplier * globalMultiplier,
+      silkbind: attributeDamage.silkbind * attributeMultiplier * globalMultiplier,
+      bamboocut: attributeDamage.bamboocut * attributeMultiplier * globalMultiplier,
+    }
+  })
+  const weighted = (key: keyof (typeof variants)[0]) =>
+    variants[0][key] * rates.abrasionRate +
+    variants[1][key] * rates.normalRate +
+    variants[2][key] * rates.critRate +
+    variants[3][key] * rates.affinityRate
+  return (
+    weighted("physical") +
+    weighted("bellstrike") +
+    weighted("stonesplit") +
+    weighted("silkbind") +
+    weighted("bamboocut")
+  )
+}
+
 const numberValue = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : 0)
 
 function penetrationMultiplier(penetration: number, resistance = 0) {
@@ -196,44 +379,13 @@ function calculateDamageBreakdownInternal(
   context: DamageContext,
   random?: () => number,
   prepare?: (formula: PreparedDamageFormula) => void,
+  captureAdditiveResponse = false,
 ): DamageBreakdown {
   const { stats: baseStats, attunement, skillTags, weapons, enemy, derivedStats: baseDerivedStats, effects } = context
   const stats = baseStats
   const derivedStats = baseDerivedStats
   const effectAggregationStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-  const effectValue = (value: unknown) => {
-    if (typeof value === "number" && Number.isFinite(value)) return value
-    if (!value || typeof value !== "object" || Array.isArray(value)) return 0
-    const dynamicValueStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
-    const objectValue = value as Record<string, unknown>
-    const dynamicParameters = {
-      distance: context.distance ?? 1,
-      maxHp: stats.maxHp,
-      currentHPPercentage: (context.currentHPRatio ?? 1) * 100,
-      missingHPPercentage: (1 - (context.currentHPRatio ?? 1)) * 100,
-      targetHPPercentage: (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO) * 100,
-      missingTargetHPPercentage: (1 - (context.targetHPRatio ?? DEFAULT_TARGET_HP_RATIO)) * 100,
-      enduranceLost: context.enduranceLost,
-      enduranceSpent: context.enduranceSpent,
-    }
-    const multiplied = resolveMultiplyValue(value, dynamicParameters)
-    if (multiplied !== undefined) {
-      if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
-      return multiplied
-    }
-    const segmented = resolveSegmentValue(value, dynamicParameters)
-    if (segmented !== undefined) {
-      if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
-      return segmented
-    }
-    const formula = objectValue.formula
-    const resolved =
-      formula && typeof formula === "object" && !Array.isArray(formula)
-        ? (resolveFormulaValue(formula as StatFormula, { ...stats, ...derivedStats }) ?? 0)
-        : 0
-    if (import.meta.env.DEV) finishCalculationPhase("damageEffectDynamicValueResolution", dynamicValueStartedAt)
-    return resolved
-  }
+  const effectValue = (value: unknown) => damageEffectValue(value, context)
   let coefficient = effectValue(action.phyCoef)
   let attributeCoefficient = effectValue(action.attrCoef)
   let physicalBonus = numberValue(action.phyBonus)
@@ -441,6 +593,13 @@ function calculateDamageBreakdownInternal(
       },
       { bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0 },
     )
+  const bonusComponents:
+    | Array<{
+        physicalDamage: number
+        attributeDamage: ReturnType<typeof calculateAttributeDamage>
+        specialBonus: number
+      }>
+    | undefined = captureAdditiveResponse ? [] : undefined
   const calculateVariant = (damageType: AttackRollMode, specialBonus: number, snapshot = derivedStats) => {
     const variantStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const physicalChannelStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
@@ -459,6 +618,7 @@ function calculateDamageBreakdownInternal(
     if (import.meta.env.DEV) finishCalculationPhase("damagePhysicalChannel", physicalChannelStartedAt)
     const attributeChannelsStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const attributeDamage = calculateAttributeDamage(damageType, snapshot)
+    bonusComponents?.push({ physicalDamage, attributeDamage, specialBonus })
     const result = {
       physical: resolvedPhysicalDamage,
       bellstrike:
@@ -634,6 +794,18 @@ function calculateDamageBreakdownInternal(
         affinity: rates.affinityRate,
       },
     }
+    if (bonusComponents)
+      additiveBonusResponses.set(result, {
+        context,
+        bonusComponents,
+        damageScale,
+        attunementBonus,
+        resolvedEffects,
+        globalMultiplier,
+        skillWeaponArtBonus,
+        mysticSkillBonus,
+        rates,
+      })
     if (import.meta.env.DEV) finishCalculationPhase("damageOutcomeAggregation", outcomeAggregationStartedAt)
     return result
   }

@@ -76,6 +76,15 @@ traversal. HP feedback, recorded damage, and replay coefficients consume those
 resolved values immediately. Reporting retains the results; buff-attribution
 counterfactual formulas do not execute combat events or change live state.
 
+For additive damage-bonus attribution, the original hit retains its pre-bonus
+physical and attribute components for each outcome. When removing a buff changes
+only `dmgBonus` or weapon-qualified `hpDMGBonus`, reporting reapplies the bonus
+multiplications and outcome weights to those components. Multiplication order
+and physical clamping remain identical to the full formula. Other context or
+effect changes, probability mixtures, concentration, and seasonal outcome models
+use the full counterfactual calculation. The temporary components are consumed
+by attribution and are not serialized into worker results.
+
 Expected probability models share a tiny-state timing policy, defined in
 `probabilityStateMerging.ts`: states with individual probability strictly below
 `1e-5` merge when each timing field lies in the same absolute 0.1-second bucket.
