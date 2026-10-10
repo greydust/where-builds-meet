@@ -13,7 +13,7 @@
   "bellstrikeUmbra": {
     "name": "Umbra",
     "tag": "BellstrikeUmbra",
-    "status": "wip",
+    "status": "available",
     "buildGroup": "bellstrike-umbra",
     "defaultBuild": "umbra-fully-relayed",
     "graduated": ["umbra-full"],

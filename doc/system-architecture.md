@@ -1967,7 +1967,7 @@ martial-art pair and build-planner surfaces are registered but their combat mech
 are not implemented. Planner-only
 paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
 is enabled. Bellstrike Splendor, Silkbind Jade, and Bamboocut
-Draught currently use this state. Umbra is WIP with a registered draft rotation;
+Draught currently use this state. Umbra is available with its registered rotation;
 its missing timings and damage terms are documented in `skill-data.md`.
 Deluge, Kite, Wind, and Dust are available:
 their editor catalogs, Inner Way rules, and default rotations are registered,

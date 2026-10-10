@@ -1139,7 +1139,7 @@ thresholds are authored at 40% and 60% of that time. Exhausted lasts ten seconds
 and its expiry restores Qi; the next ramp starts after the additional four-second
 immunity window. Only its 60% threshold falls before the 60-second Battle End.
 
-Umbra remains WIP. Its Fully Relayed and Graduate presets copy Splendor's gear,
+Umbra is available without Dev mode. Its Fully Relayed and Graduate presets copy Splendor's gear,
 replace the four armor attunements with Strategic Sword - Bleeding DMG Boost,
 and use Hawkwing with Sword Horizon, Morale Chant, Insightful Strike, and
 Wolfchaser's Art at T6. `dummy-1-min-38-bb` is registered as a draft, with the
