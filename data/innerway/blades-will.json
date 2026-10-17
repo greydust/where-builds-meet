@@ -1,7 +1,7 @@
 {
   "name": "Blade's Will",
   "altersTimeline": true,
-  "tags": ["SilkbindWing"],
+  "tags": ["SilkbindWings"],
   "effect": {
     "BladesWillT0": {
       "trigger": [

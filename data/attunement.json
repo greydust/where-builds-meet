@@ -330,31 +330,31 @@
   "museflowWaistDrumMartialBoost": {
     "name": "Museflow Waist Drum - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": ["Armor", "SilkbindWing", "MuseflowWaistDrum"],
+    "tags": ["Armor", "SilkbindWings", "MuseflowWaistDrum"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["MuseflowWaistDrum", "MartialArt"] }
   },
   "museflowWaistDrumSpecialBoost": {
     "name": "Museflow Waist Drum - Special Skill DMG Boost",
     "percentage": true,
-    "tags": ["Armor", "SilkbindWing", "MuseflowWaistDrum"],
+    "tags": ["Armor", "SilkbindWings", "MuseflowWaistDrum"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["MuseflowWaistDrum", "Special"] }
   },
   "museflowWaistDrumLightHeavyVariedComboBoost": {
     "name": "Museflow Waist Drum - Light/Heavy Attack & Varied Combo DMG Boost",
     "percentage": true,
-    "tags": ["Armor", "SilkbindWing", "MuseflowWaistDrum"],
+    "tags": ["Armor", "SilkbindWings", "MuseflowWaistDrum"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["MuseflowWaistDrum", ["Light", "Heavy", "VariedCombo"]] }
   },
   "willowbendFanMartialBoost": {
     "name": "Willowbend Fan - Martial Art Skill DMG Boost",
     "percentage": true,
-    "tags": ["Armor", "SilkbindWing", "WillowbendFan"],
+    "tags": ["Armor", "SilkbindWings", "WillowbendFan"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["WillowbendFan", "MartialArt"] }
   },
   "willowbendFanHeavyVariedComboBoost": {
     "name": "Willowbend Fan - Heavy Attack & Varied Combo DMG Boost",
     "percentage": true,
-    "tags": ["Armor", "SilkbindWing", "WillowbendFan"],
+    "tags": ["Armor", "SilkbindWings", "WillowbendFan"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["WillowbendFan", ["Heavy", "VariedCombo"]] }
   }
 }

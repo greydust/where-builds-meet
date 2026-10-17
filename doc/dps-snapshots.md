@@ -327,8 +327,8 @@ cooldown is ready; ordinary cooldown waiting keeps that cast valid.
 | `silkbindDeluge/dummy-1-min-smolder`                     | 36504.170596575765 |  36654.94652217669 |     2190250.235794546 |     2199296.791330601 |
 | `silkbindDeluge/dummy-1-min-wts`                         | 35571.006125529166 | 35965.542258448586 |      2134260.36753175 |    2157932.5355069153 |
 | `silkbindDeluge/dummy-1-min-wts-team`                    |   38839.4023092996 |  38486.36615934393 |     2330364.138557976 |    2309181.9695606357 |
-| `silkbindWing/wings-dummy-1-min-dawnsun`                 |  36207.09043887357 | 36219.849963928216 |     2172425.426332414 |     2173190.997835693 |
-| `silkbindWing/wings-dummy-1-min-jadebreaker`             |  49308.01325488668 |  49326.60872559312 |    2958480.7952932008 |    2959596.5235355874 |
+| `silkbindWings/wings-dummy-1-min-dawnsun`                |  36207.09043887357 | 36219.849963928216 |     2172425.426332414 |     2173190.997835693 |
+| `silkbindWings/wings-dummy-1-min-jadebreaker`            |  49308.01325488668 |  49326.60872559312 |    2958480.7952932008 |    2959596.5235355874 |
 | `stonesplitStrength/mixed-dummy-1-min`                   |  67395.84544895132 |  67395.58756016383 |      4043750.72693708 |    4043735.2536098287 |
 | `stonesplitStrength/mixed-dummy-infinite-vitality-1-min` |  67757.04178633557 |   67759.9259617702 |    4065422.5071801343 |    4065595.5577062126 |
 | `stonesplitStrength/mixed-dummy-smolder-poet-1-min`      |  67656.17965543146 |  67943.77984410097 |     4059370.779325888 |    4076626.7906460576 |
@@ -366,8 +366,8 @@ Clay Oven Flatbread replaces the previous attack food, increasing effective Phys
 | `silkbindDeluge/dummy-1-min-smolder`                     |  36654.94652217669 |  36880.48631845998 | +0.6153% |
 | `silkbindDeluge/dummy-1-min-wts-team`                    |  38486.36615934393 | 38722.801991740074 | +0.6143% |
 | `silkbindDeluge/dummy-1-min-wts`                         | 35965.542258448586 |  36186.63847937145 | +0.6147% |
-| `silkbindWing/wings-dummy-1-min-dawnsun`                 | 36219.849963928216 |  36423.74732400038 | +0.5629% |
-| `silkbindWing/wings-dummy-1-min-jadebreaker`             |  49326.60872559312 | 49600.968893796395 | +0.5562% |
+| `silkbindWings/wings-dummy-1-min-dawnsun`                | 36219.849963928216 |  36423.74732400038 | +0.5629% |
+| `silkbindWings/wings-dummy-1-min-jadebreaker`            |  49326.60872559312 | 49600.968893796395 | +0.5562% |
 | `stonesplitMight/dummy-1-min`                            |  79486.75718449506 |   80140.3390419006 | +0.8223% |
 | `stonesplitStrength/mixed-dummy-1-min-double-stab`       |  66653.62193112556 |  67017.06987142487 | +0.5453% |
 | `stonesplitStrength/mixed-dummy-1-min`                   |  67395.58756016383 |  67762.68828283051 | +0.5447% |

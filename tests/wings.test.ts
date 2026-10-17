@@ -16,9 +16,9 @@ import { normalizeStoredWeaponIds, weaponIds } from "@/types"
 
 describe("Wings integration", () => {
   it("allows Wings without Dev mode and labels it as Preview", () => {
-    expect(pathRequiresDev(typedPathDefinitions.silkbindWing)).toBe(false)
-    expect(pathStatusLabel(typedPathDefinitions.silkbindWing)).not.toBe("")
-    for (const weapon of typedPathDefinitions.silkbindWing.lockedWeapons!)
+    expect(pathRequiresDev(typedPathDefinitions.silkbindWings)).toBe(false)
+    expect(pathStatusLabel(typedPathDefinitions.silkbindWings)).not.toBe("")
+    for (const weapon of typedPathDefinitions.silkbindWings.lockedWeapons!)
       expect(productionWeaponIds.has(weapon)).toBe(true)
   })
   it.each([
@@ -37,7 +37,7 @@ describe("Wings integration", () => {
       )
   })
   it("resolves both weapons through the shared stat, gear, and empty-build pipelines", () => {
-    const weapons = typedPathDefinitions.silkbindWing.lockedWeapons!
+    const weapons = typedPathDefinitions.silkbindWings.lockedWeapons!
     expect(mainAttributeForWeapons([weapons[0]])).toBe("silkbind")
     expect(mainAttributeForWeapons([weapons[1]])).toBe("silkbind")
     for (const slot of ["leftWeapon", "rightWeapon"] as const) {

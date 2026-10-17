@@ -11,7 +11,7 @@ type Selection = GlobalDebuffState["silkbindWings"]
 function bundle(selection: Selection, wings = true, special = "RippleDawnsun", tier = "T6") {
   const result = buildPresetRotationBundle(
     {
-      pathId: wings ? "silkbindWing" : "silkbindDeluge",
+      pathId: wings ? "silkbindWings" : "silkbindDeluge",
       martialArts: wings ? ["museflowWaistDrum", "willowbendFan"] : ["panaceaFan", "soulshadeUmbrella"],
       rotation: {
         name: "Wings support",

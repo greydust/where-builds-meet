@@ -1,6 +1,6 @@
-import build from "@gamedata/build/silkbind-wing/wings-fully-relayed-min.json"
-import dawnsun from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-dawnsun.json"
-import jadebreaker from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-jadebreaker.json"
+import build from "@gamedata/build/silkbind-wings/wings-fully-relayed-min.json"
+import dawnsun from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-dawnsun.json"
+import jadebreaker from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-jadebreaker.json"
 import system from "@gamedata/system.json"
 import { describe, expect, it } from "vitest"
 
@@ -36,11 +36,11 @@ function timeline(
     dots: {},
     effectDefinitions,
     innerWayConditions: [
-      ...innerWayConditionsFor(innerWays, undefined, "silkbindWing"),
+      ...innerWayConditionsFor(innerWays, undefined, "silkbindWings"),
       ...setupConditionsFor(setupEffects),
       "Cloudshear4P",
     ],
-    innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWing"),
+    innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWings"),
     setupEffects,
     weapons,
     initialResources: system.initialResources,

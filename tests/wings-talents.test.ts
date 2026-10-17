@@ -118,7 +118,7 @@ describe("Wings talent calculations", () => {
 
 describe("Wings Inner Way stat tiers", () => {
   it("resolves level tables once and accumulates T2 and T5 through the shared stat pipeline", () => {
-    expect(innerWayEntriesForTag("SilkbindWing").map(([id]) => id)).toEqual(
+    expect(innerWayEntriesForTag("SilkbindWings").map(([id]) => id)).toEqual(
       expect.arrayContaining(["HarmonySong", "ZephyrWhispers", "InkAndStrings", "BladesWill"]),
     )
     const expected = {

@@ -8,7 +8,7 @@ import generalBuffs from "@gamedata/buff/general.json"
 import mechanismBuffs from "@gamedata/buff/mechanism.json"
 import mysticBuffs from "@gamedata/buff/mystic.json"
 import silkbindDelugeBuffs from "@gamedata/buff/silkbind-deluge.json"
-import wingBuffs from "@gamedata/buff/silkbind-wing.json"
+import silkbindWingsBuffs from "@gamedata/buff/silkbind-wings.json"
 import stonesplitMightBuffs from "@gamedata/buff/stonesplit-might.json"
 import stonesplitStrengthBuffs from "@gamedata/buff/stonesplit-strength.json"
 import bamboocutDraughtDebuffs from "@gamedata/debuff/bamboocut-draught.json"
@@ -21,7 +21,7 @@ import generalDebuffs from "@gamedata/debuff/general.json"
 import innerWayDebuffs from "@gamedata/debuff/innerway.json"
 import mechanismDebuffs from "@gamedata/debuff/mechanism.json"
 import mysticDebuffs from "@gamedata/debuff/mystic.json"
-import wingDebuffs from "@gamedata/debuff/silkbind-wing.json"
+import silkbindWingsDebuffs from "@gamedata/debuff/silkbind-wings.json"
 import stonesplitMightDebuffs from "@gamedata/debuff/stonesplit-might.json"
 import stonesplitStrengthDebuffs from "@gamedata/debuff/stonesplit-strength.json"
 import umbraDots from "@gamedata/dot/bellstrike-umbra.json"
@@ -78,7 +78,7 @@ export const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Mechanism: mechanismSkills as SkillMap,
 }
 export const buffDefinitions = {
-  ...wingBuffs,
+  ...silkbindWingsBuffs,
   ...bellstrikeSplendorBuffs,
   ...bamboocutDustBuffs,
   ...mysticBuffs,
@@ -94,7 +94,7 @@ export const buffDefinitions = {
 } as Record<string, EffectDefinition>
 export const debuffDefinitions = {
   ...mechanismDebuffs,
-  ...wingDebuffs,
+  ...silkbindWingsDebuffs,
   ...mysticDebuffs,
   ...stonesplitStrengthDebuffs,
   ...stonesplitMightDebuffs,

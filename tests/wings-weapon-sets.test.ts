@@ -6,7 +6,7 @@ import { availableSetEntriesForTags, weaponSetDefinitions, normalizeBuildSetup }
 
 describe("Wings weapon set availability", () => {
   it("offers Cloudshear and Etherwrath for the locked pair and retains saved selections", () => {
-    const path = typedPathDefinitions.silkbindWing
+    const path = typedPathDefinitions.silkbindWings
     const tags = path.lockedWeapons!.map(id => martialArtDefinitions[id].tag)
     expect(
       availableSetEntriesForTags(weaponSetDefinitions, tags, path.tag)

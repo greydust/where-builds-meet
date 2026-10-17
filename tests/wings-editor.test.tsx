@@ -21,7 +21,7 @@ it("shows worker Noble Will values for Wings", async () => {
   localStorage.clear()
   sessionStorage.clear()
   localStorage.setItem("wwm-dev-mode-v1", "true")
-  localStorage.setItem("wwm-path-session-v1", "silkbindWing")
+  localStorage.setItem("wwm-path-session-v1", "silkbindWings")
   vi.useFakeTimers()
   vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
   vi.stubGlobal(

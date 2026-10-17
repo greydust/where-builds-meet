@@ -287,7 +287,7 @@
       "totalDamage": 2328683.115535597,
       "duration": 60
     },
-    "silkbindWing/wings-dummy-1-min-dawnsun": {
+    "silkbindWings/wings-dummy-1-min-dawnsun": {
       "fixture": {
         "build": "wings-fully-relayed-min",
         "rotation": "wings-dummy-1-min-dawnsun",
@@ -313,7 +313,7 @@
       "totalDamage": 2187017.9150158335,
       "duration": 60
     },
-    "silkbindWing/wings-dummy-1-min-jadebreaker": {
+    "silkbindWings/wings-dummy-1-min-jadebreaker": {
       "fixture": {
         "build": "wings-fully-relayed-min",
         "rotation": "wings-dummy-1-min-jadebreaker",

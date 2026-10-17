@@ -350,7 +350,7 @@
       "InkwellFan",
       "EverspringUmbrella",
       "UnfetteredRopeDart",
-      "SilkbindWing",
+      "SilkbindWings",
       "MuseflowWaistDrum",
       "WillowbendFan"
     ],
@@ -994,7 +994,7 @@
   "Cloudshear": {
     "name": "Cloudshear",
     "altersTimeline": true,
-    "tags": ["SilkbindWing", "MuseflowWaistDrum", "WillowbendFan"],
+    "tags": ["SilkbindWings", "MuseflowWaistDrum", "WillowbendFan"],
     "options": {
       "0": { "name": "0", "effect": {} },
       "2": {

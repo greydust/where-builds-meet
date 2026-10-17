@@ -9,7 +9,7 @@ import splendorIcon from "@/assets/path-icons/splendor.png?w=56&h=56&format=webp
 import strengthIcon from "@/assets/path-icons/strength.png?w=56&h=56&format=webp"
 import umbraIcon from "@/assets/path-icons/umbra.png?w=56&h=56&format=webp"
 import windIcon from "@/assets/path-icons/wind.png?w=56&h=56&format=webp"
-import wingIcon from "@/assets/path-icons/wing.png?w=56&h=56&format=webp"
+import wingsIcon from "@/assets/path-icons/wings.png?w=56&h=56&format=webp"
 
 /**
  * Combat-path selector icon for every path, keyed by `PathId` so the render
@@ -28,7 +28,7 @@ export const pathIcons: Record<PathId, string | null> = {
   stonesplitStrength: strengthIcon,
   silkbindJade: jadeIcon,
   silkbindDeluge: delugeIcon,
-  silkbindWing: wingIcon,
+  silkbindWings: wingsIcon,
   bamboocutWind: windIcon,
   bamboocutKite: kiteIcon,
   bamboocutDust: dustIcon,

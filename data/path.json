@@ -65,11 +65,11 @@
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"],
     "arsenal": "Silkbind"
   },
-  "silkbindWing": {
+  "silkbindWings": {
     "name": "Wings",
-    "tag": "SilkbindWing",
+    "tag": "SilkbindWings",
     "status": "preview",
-    "buildGroup": "silkbind-wing",
+    "buildGroup": "silkbind-wings",
     "defaultBuild": "wings-fully-relayed-min",
     "graduated": ["wings-graduate"],
     "defaultRotation": "wings-dummy-1-min-jadebreaker",

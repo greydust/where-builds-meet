@@ -1,5 +1,5 @@
-import dawnsun from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-dawnsun.json"
-import jadebreaker from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-jadebreaker.json"
+import dawnsun from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-dawnsun.json"
+import jadebreaker from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-jadebreaker.json"
 import { describe, expect, it } from "vitest"
 
 import { calculateGlobalStatState } from "@/application/characterComposition"
@@ -18,7 +18,7 @@ describe("Wings builds", () => {
       for (const rotation of [dawnsun, jadebreaker]) {
         const bundle = buildPresetRotationBundle(
           {
-            pathId: "silkbindWing",
+            pathId: "silkbindWings",
             martialArts: ["museflowWaistDrum", "willowbendFan"],
             rotation: rotation as RotationRecord,
             breakthrough: String(breakthrough),
@@ -45,7 +45,7 @@ describe("Wings builds", () => {
     },
   )
   it("does not combine Void and Silkbind rolls for the same weapon attack bound", () => {
-    for (const preset of defaultBuildPresets.filter(row => row.buildGroup === "silkbind-wing")) {
+    for (const preset of defaultBuildPresets.filter(row => row.buildGroup === "silkbind-wings")) {
       for (const gear of Object.values(preset.gearByTier)) {
         for (const slot of ["leftWeapon", "rightWeapon"] as const) {
           const weapon = gear[slot]!
@@ -88,7 +88,7 @@ describe("Wings builds", () => {
       { rawStat: gear.stats },
       preset.setup!,
       { food: "SimmeringFishSlices", script: "None", divinecraft: "Fire" },
-      "silkbindWing",
+      "silkbindWings",
     )
     expect(result.derivedStats.effectiveCrit).toBeLessThanOrEqual(0.8)
     expect(result.derivedStats.effectiveCrit).toBeGreaterThanOrEqual(
@@ -98,7 +98,8 @@ describe("Wings builds", () => {
   })
   it.each([96, 100] as const)("equips Agility on every piece of each Min layout at tier %s", tier => {
     for (const preset of defaultBuildPresets.filter(
-      row => row.buildGroup === "silkbind-wing" && !["wings-max", "wings-fully-relayed-min-attribute"].includes(row.id),
+      row =>
+        row.buildGroup === "silkbind-wings" && !["wings-max", "wings-fully-relayed-min-attribute"].includes(row.id),
     )) {
       const inventory = buildPresetInventory(preset, tier)
       expect(inventory.items).toHaveLength(8)

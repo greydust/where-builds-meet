@@ -1,4 +1,4 @@
-import jadebreaker from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-jadebreaker.json"
+import jadebreaker from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-jadebreaker.json"
 import { expect, it } from "vitest"
 
 import { buildPresetRotationBundle } from "@/application/graduation"
@@ -52,7 +52,7 @@ it("restores saved End of Gale rotations without changing their damage or anchor
     calculateRotationBaseline(
       buildPresetRotationBundle(
         {
-          pathId: "silkbindWing",
+          pathId: "silkbindWings",
           martialArts: ["museflowWaistDrum", "willowbendFan"],
           rotation,
           breakthrough: "17",

@@ -57,10 +57,10 @@ function calculate(
       initialResources: { NobleWill: 0 },
       resourceMaximums: { NobleWill: 100 },
       innerWayConditions: [
-        ...innerWayConditionsFor(innerWays, undefined, "silkbindWing"),
+        ...innerWayConditionsFor(innerWays, undefined, "silkbindWings"),
         ...setupConditionsFor(setupEffects),
       ],
-      innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWing"),
+      innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWings"),
     },
     stats,
     derivedStats: calculateDerivedStats(stats, 0),

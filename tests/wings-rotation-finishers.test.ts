@@ -1,5 +1,5 @@
-import dawnsun from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-dawnsun.json"
-import jadebreaker from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-jadebreaker.json"
+import dawnsun from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-dawnsun.json"
+import jadebreaker from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-jadebreaker.json"
 import { describe, expect, it } from "vitest"
 
 import { buildPresetRotationBundle } from "@/application/graduation"
@@ -18,7 +18,7 @@ describe("Wings rotation finishers", () => {
       const calculate = (candidate: RotationRecord) => {
         const bundle = buildPresetRotationBundle(
           {
-            pathId: "silkbindWing",
+            pathId: "silkbindWings",
             martialArts: ["museflowWaistDrum", "willowbendFan"],
             rotation: candidate,
             breakthrough,

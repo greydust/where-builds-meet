@@ -1,5 +1,5 @@
-import dawnsun from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-dawnsun.json"
-import jadebreaker from "@gamedata/rotation/silkbind-wing/wings-dummy-1-min-jadebreaker.json"
+import dawnsun from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-dawnsun.json"
+import jadebreaker from "@gamedata/rotation/silkbind-wings/wings-dummy-1-min-jadebreaker.json"
 import { expect, it } from "vitest"
 
 import { buildPresetRotationBundle } from "@/application/graduation"
@@ -10,7 +10,7 @@ import { defaultGlobalDebuffs } from "@/globalDebuffs"
 function compare(rotation: RotationRecord) {
   const bundle = buildPresetRotationBundle(
     {
-      pathId: "silkbindWing",
+      pathId: "silkbindWings",
       martialArts: ["museflowWaistDrum", "willowbendFan"],
       rotation,
       breakthrough: "17",
