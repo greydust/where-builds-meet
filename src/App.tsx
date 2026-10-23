@@ -1,6 +1,7 @@
-import { IconBrandDiscord, IconBrandGithub } from "@tabler/icons-react"
+import { IconBrandDiscord, IconBrandGithub, IconX } from "@tabler/icons-react"
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 
+import { clearSharedBuild, hasSharedBuild, readSharedBuild } from "./application/buildShare"
 import { resolveBuildStatState } from "./application/buildStatState"
 import { settingsForPath } from "./application/characterComposition"
 import type { LayoutMode, PathId } from "./application/contracts"
@@ -30,6 +31,7 @@ import { SettingsTab } from "./features/settings/SettingsTab"
 import { SkillEditorTab } from "./features/skills/SkillEditorTab"
 import { Button } from "./ui/Button"
 import { Chip } from "./ui/Chip"
+import { Dialog } from "./ui/Dialog"
 import { Tab } from "./ui/Tab"
 const loadBuildTab = () => import("./features/build/BuildTab")
 const loadSimulationTab = () => import("./features/simulation/SimulationTab")
@@ -51,8 +53,17 @@ import {
   type CharacterProfile,
 } from "./characterProfiles"
 import { useActiveRotationResult } from "./features/rotations/useActiveRotationResult"
-import { resolveBuildSetup, sameWeaponPair, type BuildSetup, type BuildSetupOverrides } from "./gear"
+import {
+  buildEntryAvailableForMartialArts,
+  buildEntryMartialArts,
+  mergeImportedBuildState,
+  resolveBuildSetup,
+  sameWeaponPair,
+  type BuildSetup,
+  type BuildSetupOverrides,
+} from "./gear"
 import { gameText, getLocale, getLocaleDisplayName, getSupportedLocales, isLocaleWip, selectLocale, t } from "./i18n"
+import { publishNotice } from "./notices"
 import { resolvePathWorkspaceSelection } from "./pathWorkspace"
 import { removePersistentItem, setPersistentItem } from "./persistentStorage"
 import { serializeSkillOverrides, type SkillOverrides } from "./skillOverrides"
@@ -375,6 +386,42 @@ export default function App() {
     setPreviewId(nextPreview)
     persistPreviewSelection(nextPreview)
   }
+  // A shared build arrives in the URL fragment. The recipient decides whether to import it, so
+  // the fragment is read when the app starts and cleared once they answer.
+  const [sharedBuildOffered, setSharedBuildOffered] = useState(hasSharedBuild)
+  const dismissSharedBuild = () => {
+    clearSharedBuild()
+    setSharedBuildOffered(false)
+  }
+  const importSharedBuild = async () => {
+    setSharedBuildOffered(false)
+    try {
+      const payload = await readSharedBuild()
+      const result = mergeImportedBuildState(useGearStore.getState().buildState, payload, { reuseIdenticalGear: true })
+      const entry = result.state.entries.find(candidate => candidate.id === result.importedBuildIds[0])
+      if (!entry) throw new Error(t("ui.buildTab.shareLinkInvalid"))
+      // Switch the workspace before importing so a private build lands on the path it belongs to.
+      const martialArts = buildEntryMartialArts(entry)
+      if (
+        martialArts.length === 2 &&
+        !buildEntryAvailableForMartialArts(entry, useLoadoutStore.getState().settings.weapons)
+      )
+        selectBuildWeapons([martialArts[0], martialArts[1]])
+      const targetPath = useLoadoutStore.getState().pathId
+      useGearStore.getState().updateBuildState(targetPath, () => result.state)
+      useGearStore.getState().selectBuildForPath(entry.id, targetPath)
+      setActiveTab("build")
+      publishNotice({ id: "build-share", message: t("ui.buildTab.sharedBuildImported", { name: entry.name }) })
+    } catch (error) {
+      publishNotice({
+        id: "build-share",
+        error: true,
+        message: error instanceof Error ? error.message : t("ui.buildTab.shareLinkInvalid"),
+      })
+    } finally {
+      clearSharedBuild()
+    }
+  }
 
   useEffect(
     () => setPersistentItem(characterProfileStorageKey, serializeCharacterProfiles(characterProfiles)),
@@ -626,6 +673,33 @@ export default function App() {
           </a>
         </span>
       </footer>
+      <Dialog
+        open={sharedBuildOffered}
+        onClose={dismissSharedBuild}
+        className="shared-build-dialog"
+        label={t("ui.buildTab.importSharedBuild")}
+      >
+        <div className="dialog-heading">
+          <h2>{t("ui.buildTab.importSharedBuild")}</h2>
+          <button
+            className="icon-button"
+            type="button"
+            aria-label={t("ui.buildTab.cancel")}
+            onClick={dismissSharedBuild}
+          >
+            <IconX size="1em" aria-hidden />
+          </button>
+        </div>
+        <p>{t("ui.buildTab.sharedBuildPrompt")}</p>
+        <div className="dialog-actions">
+          <Button variant="secondary" type="button" onClick={dismissSharedBuild}>
+            {t("ui.buildTab.cancel")}
+          </Button>
+          <Button variant="primary" type="button" onClick={importSharedBuild}>
+            {t("ui.buildTab.import")}
+          </Button>
+        </div>
+      </Dialog>
     </main>
   )
 }

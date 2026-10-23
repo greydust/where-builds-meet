@@ -793,25 +793,67 @@ export function serializeBuildState(state: BuildState) {
   })
 }
 
-export function exportBuildState(state: BuildState) {
+/** The payload a file export and a share link both carry, so one import reads either. */
+function exportedBuildPayload(
+  gearItems: GearItem[],
+  builds: Array<{
+    id: string
+    name: string
+    martialArts: WeaponId[]
+    equipped: Partial<Record<GearSlot, string>>
+    setup: BuildSetup
+  }>,
+  pretty = true,
+) {
   return JSON.stringify(
     {
       format: buildExportFormat,
       version: 7,
       exportedAt: new Date().toISOString(),
-      gearItems: state.gearItems.map(withoutWeaponSlot),
-      builds: state.entries
-        .filter(entry => !entry.isDefault)
-        .map(entry => ({
-          id: entry.id,
-          name: entry.name,
-          martialArts: normalizedMartialArts(entry.martialArts, entry.equipped, state.gearItems),
-          equipped: entry.equipped ?? {},
-          setup: normalizeBuildSetup(entry.setup),
-        })),
+      gearItems: gearItems.map(withoutWeaponSlot),
+      builds,
     },
     null,
-    2,
+    pretty ? 2 : undefined,
+  )
+}
+
+export function exportBuildState(state: BuildState) {
+  return exportedBuildPayload(
+    state.gearItems,
+    state.entries
+      .filter(entry => !entry.isDefault)
+      .map(entry => ({
+        id: entry.id,
+        name: entry.name,
+        martialArts: normalizedMartialArts(entry.martialArts, entry.equipped, state.gearItems),
+        equipped: entry.equipped ?? {},
+        setup: normalizeBuildSetup(entry.setup),
+      })),
+  )
+}
+
+/**
+ * One build with only the gear it equips, which is what a share link carries. The rest of the
+ * inventory stays with the sender, and a preset is resolved first because its gear lives in game
+ * data rather than in the shared items.
+ *
+ * The name is passed in because a preset's display name is localized by the editor.
+ */
+export function exportSharedBuild(entry: BuildEntry, inventory: GearInventory, name: string) {
+  const equippedIds = new Set(Object.values(inventory.equipped))
+  return exportedBuildPayload(
+    inventory.items.filter(item => equippedIds.has(item.id)),
+    [
+      {
+        id: entry.id,
+        name,
+        martialArts: normalizedMartialArts(buildEntryMartialArts(entry), inventory.equipped, inventory.items),
+        equipped: inventory.equipped,
+        setup: resolveBuildSetup(entry),
+      },
+    ],
+    false,
   )
 }
 

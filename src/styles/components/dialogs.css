@@ -208,7 +208,7 @@
     background: var(--backdrop);
   }
 
-  .official-import-heading {
+  .dialog-heading {
     display: flex;
     min-inline-size: 0;
     flex-wrap: wrap;
@@ -217,8 +217,13 @@
     gap: var(--desktop-space-1, 16px);
   }
 
-  .official-import-heading h2 {
+  .dialog-heading h2 {
     margin: var(--desktop-space-0-125, 3px) 0 0;
+  }
+
+  .dialog-heading .icon-button {
+    margin: calc(-1 * var(--desktop-space-0-25, 4px)) calc(-1 * var(--desktop-space-0-25, 4px)) 0 0;
+    font-size: var(--desktop-font-1-375, 1.35rem);
   }
 
   .official-import-steps {
@@ -263,12 +268,20 @@
     box-shadow: 0 0 0 2px var(--primary-soft);
   }
 
-  .official-import-actions {
+  .dialog-actions {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--desktop-space-0-5, 8px);
     margin-block-start: var(--desktop-space-1, 16px);
+  }
+
+  .shared-build-dialog {
+    inline-size: min(32rem, calc(100dvw - 2rem));
+  }
+
+  .shared-build-dialog p {
+    margin: var(--desktop-space-1, 16px) 0 0;
   }
 
   .official-import-privacy {

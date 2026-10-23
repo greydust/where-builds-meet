@@ -1,6 +1,6 @@
 import arsenalDefinitions from "@gamedata/arsenal.json"
 import bowRingSetDefinitions from "@gamedata/bow-ring-set.json"
-import { IconCopy, IconEdit, IconPlus, IconPointFilled, IconX } from "@tabler/icons-react"
+import { IconCopy, IconEdit, IconPlus, IconPointFilled, IconShare, IconX } from "@tabler/icons-react"
 import { nanoid } from "nanoid"
 import {
   useCallback,
@@ -15,6 +15,7 @@ import {
   type SetStateAction,
 } from "react"
 
+import { buildShareLink } from "@/application/buildShare"
 import type { PathId } from "@/application/contracts"
 import { formatThroughput, formatThroughputDelta, throughputDeltaClass } from "@/application/formatting"
 import { typedPathDefinitions } from "@/application/gameData/paths"
@@ -35,6 +36,7 @@ import {
   buildEntryAvailableForMartialArts,
   buildEntryMartialArts,
   exportBuildState,
+  exportSharedBuild,
   gearData,
   gearDefinitionForSlot,
   gearItemSupportsSlot,
@@ -397,6 +399,23 @@ export default function BuildTab({
     URL.revokeObjectURL(url)
   }
 
+  function shareBuild() {
+    const copy = (link: string) => {
+      const promptCopy = () => window.prompt(t("ui.buildTab.shareLinkPrompt"), link)
+      if (!navigator.clipboard?.writeText) {
+        promptCopy()
+        return
+      }
+      void navigator.clipboard
+        .writeText(link)
+        .then(() => publishNotice({ id: "build-share", message: t("ui.buildTab.shareLinkCopied") }), promptCopy)
+    }
+    void buildShareLink(exportSharedBuild(editingEntry, inventory, buildEntryDisplayName(editingEntry))).then(
+      copy,
+      () => publishNotice({ id: "build-share", error: true, message: t("ui.buildTab.shareLinkError") }),
+    )
+  }
+
   async function importBuilds(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget
     const file = input.files?.[0]
@@ -655,6 +674,18 @@ export default function BuildTab({
                 <IconCopy size="1em" aria-hidden />
               </Button>
               <Button
+                aria-label={t("ui.buildTab.shareBuild")}
+                title={t("ui.buildTab.shareBuild")}
+                variant="secondary"
+                size="small"
+                iconOnly
+                type="button"
+                onClick={shareBuild}
+                disabled={optimizingViewed}
+              >
+                <IconShare size="1em" aria-hidden />
+              </Button>
+              <Button
                 className="detail-active-button"
                 size="small"
                 type="button"
@@ -737,7 +768,7 @@ export default function BuildTab({
         </div>
       </div>
       <dialog className="official-import-dialog" ref={officialImportDialogRef}>
-        <div className="official-import-heading">
+        <div className="dialog-heading">
           <div>
             <span className="detail-kicker">{t("ui.buildTab.officialDashboard")}</span>
             <h2>{t("ui.buildTab.importEquippedGear")}</h2>
@@ -779,7 +810,7 @@ export default function BuildTab({
             dismissNotice("official-import")
           }}
         />
-        <div className="official-import-actions">
+        <div className="dialog-actions">
           <Button variant="secondary" type="button" onClick={() => officialImportDialogRef.current?.close()}>
             {t("ui.buildTab.cancel")}
           </Button>
