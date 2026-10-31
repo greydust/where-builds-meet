@@ -1,7 +1,7 @@
 {
   "name": "Restoring Blossom",
   "altersTimeline": true,
-  "tags": [],
+  "tags": ["SilkbindDeluge"],
   "effect": {
     "RestoringBlossomT0": {},
     "RestoringBlossomT1": {},
