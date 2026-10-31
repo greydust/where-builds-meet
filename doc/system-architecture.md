@@ -2024,11 +2024,11 @@ custom builds with `weapons` are migrated at the persistence/import boundary.
 Presets with `test: true` remain bundled but are hidden until the persisted
 header-level Dev toggle is enabled. The application currently recognizes:
 
-- Snowparting, Phalanxbane, Thundercry, Stormbreaker, Heavenwill, Mystic, General, Buff, Debuff, and DOT editor categories
-- twenty martial-art IDs across Heng Blade, Mo Blade, Sword, Spear, Umbrella, Fan, Rope Dart, Gauntlet, and Dual Blades weapon families
-- 56 catalog Inner Ways, including four Draught definitions with T2/T5 raw-stat effects; see the coverage notes in `skill-data.md`
-- eight available Divinecraft definitions, including a no-effect choice
-- seven Script definitions plus a no-effect choice
+- all editor categories registered in `src/application/gameData/skills.ts`, including the martial-art categories and the shared Mystic, General, Mechanism, Buff, Debuff, and DOT categories
+- the martial-art definitions under `data/martial-art/`, spanning Heng Blade, Mo Blade, Sword, Spear, Umbrella, Fan, Rope Dart, Gauntlet, and Dual Blades weapon families
+- the catalog Inner Ways under `data/innerway/`, including the Draught definitions with T2/T5 raw-stat effects; see the coverage notes in `skill-data.md`
+- the available Divinecraft definitions under `data/divinecraft.json`, including a no-effect choice
+- the Script definitions under `data/script.json`, including a no-effect choice
 - Exhausted, Controlled, Shield Broken, Battle End, Move, Self HP, Take Damage, target HP, Qi, Buff, and Debuff manual events
 - bundled Stonesplit Strength default rotations discovered from
   `data/rotation/**/*.json`
@@ -2128,18 +2128,18 @@ from the weapon family, while attunement and set eligibility use the tag.
 The `status` value is one of `available`, `preview`, `wip`, `devOnly`, or `plannerOnly`.
 `available` and `preview` paths are enabled without the header-level Dev toggle.
 Preview paths carry a Preview badge and contribute their weapons to production catalogs.
-Wings uses Preview while its remaining limitations are documented in `wings-implementation-audit.md`. WIP paths
-remain visible with a WIP badge. Dev-only paths carry a Dev badge and support
+Wings and Splendor are available; Wings' remaining limitations are documented in
+`wings-implementation-audit.md`. Jade is WIP and remains visible with a WIP badge.
+Dev-only paths carry a Dev badge and support
 unrestricted test combinations. Planner-only paths indicate that their
 martial-art pair and build-planner surfaces are registered but their combat mechanics
 are not implemented. Planner-only
 paths remain visible, carry a Planner Only badge, and are disabled until Dev mode
-is enabled. Bellstrike Splendor, Silkbind Jade, and Bamboocut
-Draught currently use this state. Umbra is available with its registered rotation;
-its missing timings and damage terms are documented in `skill-data.md`.
-Deluge, Kite, Wind, and Dust are available:
-their editor catalogs, Inner Way rules, and default rotations are registered,
-and their default rotations use explicit unresolved timing fallbacks. Available
+is enabled. Bamboocut Draught currently uses this state. Umbra, Deluge, Kite,
+Wind, and Dust are available with registered editor catalogs, Inner Way rules,
+and default rotations. Umbra's missing timings and damage terms are documented
+in `skill-data.md`; Deluge, Kite, Wind, and Dust use explicit unresolved timing
+fallbacks. Available
 paths contribute their fixed martial-art pairs and physical weapon
 families to Settings and Build. Planner-only status does not imply
 that all supporting data is absent: talents and attunements may already be
@@ -2369,13 +2369,17 @@ cannot display it until their first reload, though their retained chunks work.
 ```text
 npm install
 npm run dev
+npm run verify
 npm run build
 npm run preview
 ```
 
-`npm run build` performs TypeScript project compilation followed by a Vite
-production build into `dist/`. No API keys, database, server process, or runtime
-configuration are required for GitHub Pages hosting.
+`npm run verify` is the full local gate: formatting and lint checks followed by
+`npm run build`. CI runs the fast checks separately, runs tests and builds the
+production bundle after the checks. `npm run build` runs the i18n catalog check, ordinary tests,
+TypeScript project compilation, and the Vite production build into `dist/`. The
+release-only DPS guard is `npm run test:dps`. No API keys, database, server
+process, or runtime configuration are required for GitHub Pages hosting.
 
 ### Preset DPS regression gate
 

@@ -27,17 +27,19 @@ Other commands:
 ```bash
 npm run format        # Format source, JSON data, and documentation
 npm run format:check  # Check formatting without changing files
-npm run build         # Type-check and create the production build in dist/
+npm run verify        # Run the full local gate: format check, lint, tests, typecheck, and build
+npm run build         # Run the i18n check, tests, typecheck, and production build in dist/
 npm run preview       # Serve the production build locally
 ```
 
-`npm run test` runs the automated behavioral tests. `npm run build` runs the build checks and creates the production bundle; simulation changes should also receive a focused calculation check.
+`npm run test` runs the automated behavioral tests. `npm run verify` is the canonical local gate. CI runs formatting, lint, typecheck, and localization checks in parallel, then runs the tests and the production bundle. `npm run build` creates the production bundle and includes the ordinary tests and typecheck, but not lint or the formatting check; simulation changes should also receive a focused calculation check.
 
 ## Project map
 
 ```text
 data/                 Game definitions: skills, effects, gear, enemies, rotations
 doc/                  Architecture, formula, and combat-data documentation
+script/               Active utility scripts; historical one-offs live in script/archive/
 src/App.tsx           Application composition shell and cross-feature state
 src/application/      Cross-feature contracts, game data, persistence, and services
 src/features/         Feature UI and feature-local behavior
@@ -49,7 +51,7 @@ src/types.ts          Shared character and enemy types
 
 At runtime, the app resolves character and setup data, builds an immutable calculation bundle, and sends it to a persistent Web Worker. The worker builds the combat timeline, calculates damage and variants, then publishes one centralized result used by the UI.
 
-For more detail, start with:
+For more detail, start with the [documentation index](doc/README.md), then:
 
 - [System architecture](doc/system-architecture.md)
 - [Damage formula](doc/damage-formula.md)
@@ -62,7 +64,7 @@ Read [AGENTS.md](AGENTS.md) and the relevant technical documents before changing
 
 ```bash
 npm run format
-npm run build
+npm run verify
 ```
 
 Simulation changes should also receive a focused calculation check.
@@ -82,7 +84,7 @@ Do not edit the generated files under `public/locales/`. After updating the CSV,
 ```bash
 npm run i18n:extract
 npm run format
-npm run build
+npm run verify
 ```
 
 When adding an entirely new locale, also add its locale-code column and display-name entry. See [Localization](doc/localization.md) for key ownership, canonical game terms, WIP locale handling, and runtime fallback details.

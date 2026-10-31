@@ -1,5 +1,7 @@
 # Wind Inner Way swap performance audit
 
+> **Historical performance audit (2026-09-27).** Results describe an earlier calculator revision, not current performance. See the [documentation index](README.md) for current references.
+
 Date: 2026-09-27. Calculator revision: `f0f40a7` before this audit.
 
 The original measurements below precede the internal-buff counter change.

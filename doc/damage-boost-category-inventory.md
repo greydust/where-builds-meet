@@ -1,5 +1,7 @@
 # Path buffs and skill damage boost categories
 
+> **Historical snapshot (2026-10-21).** This is evidence from an earlier working tree, not a current source of truth. See the [documentation index](README.md) for current references.
+
 Snapshot: 2026-10-21, current working tree, including uncommitted changes.
 
 This is an inventory of simulator assignments for datamining verification, not a claim that the categories are confirmed in game. Every entry is **pending datamine confirmation**. No calculation or game data is changed.
