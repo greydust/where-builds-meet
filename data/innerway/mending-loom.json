@@ -1,7 +1,7 @@
 {
   "name": "Mending Loom",
   "altersTimeline": true,
-  "tags": [],
+  "tags": ["SilkbindDeluge"],
   "effect": {
     "MendingLoomT0": {},
     "MendingLoomT1": {},
