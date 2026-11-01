@@ -2375,8 +2375,8 @@ npm run preview
 ```
 
 `npm run verify` is the full local gate: formatting and lint checks followed by
-`npm run build`. CI runs the fast checks separately, runs tests and builds the
-production bundle after the checks. `npm run build` runs the i18n catalog check, ordinary tests,
+`npm run build`. CI runs the fast checks separately, then runs the tests and
+builds the production bundle in parallel after those checks. `npm run build` runs the i18n catalog check, ordinary tests,
 TypeScript project compilation, and the Vite production build into `dist/`. The
 release-only DPS guard is `npm run test:dps`. No API keys, database, server
 process, or runtime configuration are required for GitHub Pages hosting.

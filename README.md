@@ -32,7 +32,7 @@ npm run build         # Run the i18n check, tests, typecheck, and production bui
 npm run preview       # Serve the production build locally
 ```
 
-`npm run test` runs the automated behavioral tests. `npm run verify` is the canonical local gate. CI runs formatting, lint, typecheck, and localization checks in parallel, then runs the tests and the production bundle. `npm run build` creates the production bundle and includes the ordinary tests and typecheck, but not lint or the formatting check; simulation changes should also receive a focused calculation check.
+`npm run test` runs the automated behavioral tests. `npm run verify` is the canonical local gate. CI runs formatting, lint, typecheck, and localization checks in parallel, then runs the tests and the production bundle in parallel. `npm run build` creates the production bundle and includes the ordinary tests and typecheck, but not lint or the formatting check; simulation changes should also receive a focused calculation check.
 
 ## Project map
 
