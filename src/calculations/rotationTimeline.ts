@@ -64,6 +64,11 @@ export type SubActionReference = {
   waitForRequirement?: boolean
 }
 export type EditableCastTimeOptions = {
+  /** Fixed preparation and recovery outside the user-entered hold. */
+  startup?: number
+  recovery?: number
+  /** Enter recovery when the held effect is removed early (for example at depletion). */
+  endOnEffectRemoval?: boolean
   /** The tracked effect whose duration follows the user-entered rotation duration. */
   effect?: string
   /** Hard upper bound for the authored duration. */
@@ -84,6 +89,8 @@ export type SkillRecord = {
   /** An inert charging component: no actions, cooldown, or skill-start notifications. */
   silent?: boolean
   attackResponse?: {
+    /** Maximum cast-relative response window, clipped by an earlier cast end. */
+    duration?: number
     endMargin?: number
     durationFrom?: string
     onSuccess: string
@@ -704,6 +711,13 @@ export function resolveSkillStepDuration(
   return Math.max(0, maximum === undefined ? step.duration : Math.min(step.duration, maximum))
 }
 
+export function resolveSkillStepCastTime(step: RotationStep | undefined, skill: SkillRecord | undefined) {
+  const duration = resolveSkillStepDuration(step, skill)
+  if (duration === undefined) return undefined
+  const options = editableCastTimeOptions(skill)
+  return duration + (options?.startup ?? 0) + (options?.recovery ?? 0)
+}
+
 type ExpandedSkillSegment = {
   skillId: string
   skill: SkillRecord
@@ -1161,7 +1175,7 @@ export function buildRotationTimeline(
   const sequentialCastTime = (step: RotationStep) => {
     if (step.type === "skill") {
       const skill = skills[step.skill ?? ""]
-      return resolveSkillStepDuration(step, skill) ?? expandSkill(step.skill ?? "", skills).castTime
+      return resolveSkillStepCastTime(step, skill) ?? expandSkill(step.skill ?? "", skills).castTime
     }
     return step.event === "Delay" ? Math.max(0, step.duration) : 0
   }
@@ -1218,7 +1232,7 @@ export function buildRotationTimeline(
     const expandedSkill = step.type === "skill" ? expandSkill(step.skill ?? "", skills) : undefined
     const skill = expandedSkill?.skill ?? (step.type === "event" ? eventDefinitions[step.event] : undefined)
     const requestedDuration = resolveSkillStepDuration(step, skill)
-    const castTime = requestedDuration ?? expandedSkill?.castTime ?? sequentialCastTime(step)
+    const castTime = resolveSkillStepCastTime(step, skill) ?? expandedSkill?.castTime ?? sequentialCastTime(step)
     const durationEffect = editableCastTimeEffect(skill)
     const sourceActions = expandedSkill?.isMultiAction
       ? expandedSkill.actions
@@ -1755,7 +1769,19 @@ export function buildRotationTimeline(
             currentTime: time,
           }),
         )
-        .map(rate => Object.assign({}, rate, { tracked, definition }))
+        .map(rate => {
+          const source = rows.find(row => row.id === tracked.sourceRowId)
+          return Object.assign({}, rate, {
+            tracked,
+            definition,
+            ...(rate.consumption === undefined
+              ? {}
+              : {
+                  consumption:
+                    rate.consumption * resourceCostMultiplier(rate.resource, source?.skill?.tags ?? [], time),
+                }),
+          })
+        })
     })
   }
   /** Resource regeneration stays at zero until this time after a direct spend. */
@@ -1802,9 +1828,11 @@ export function buildRotationTimeline(
     const activeBuffs = filterTrackedEffects(buffs, buff => buff.expiresAt === undefined || buff.expiresAt > time)
     const rules = [
       ...staticResourceCostRules,
-      ...Array.from(activeBuffs.values()).flatMap(buff =>
-        effectsForTrackedEffect(buff.stack, getModifiedEffectDefinition(buff.name, activeBuffs, debuffs, tags)),
-      ),
+      ...Array.from(activeBuffs.values()).flatMap(buff => {
+        const definition = getModifiedEffectDefinition(buff.name, activeBuffs, debuffs, tags)
+        const effects = effectsForTrackedEffect(buff.stack, definition)
+        return Array.from({ length: definition?.stackEffects ? 1 : (buff.stack ?? 1) }, () => effects).flat()
+      }),
     ]
     let multiplier = 1
     let bonus = 0
@@ -3752,7 +3780,7 @@ export function buildRotationTimeline(
           event.row.step.type === "event" && event.row.step.event === "Delay"
             ? Math.max(0, event.row.step.duration)
             : resolveSkillCastTime(event.row.skill, requirementState())
-        const requestedDuration = resolveSkillStepDuration(event.row.step, event.row.skill)
+        const requestedDuration = resolveSkillStepCastTime(event.row.step, event.row.skill)
         if (requestedDuration !== undefined) baseCastTime = requestedDuration
         applyCastTimingModifiers(event.row, baseCastTime)
         if (event.row.kind === "rotation" && isSequentialStep(event.row.step)) scheduleNextOrdered(event.row)
@@ -3772,9 +3800,12 @@ export function buildRotationTimeline(
           row: event.row,
           endTime:
             event.time +
-            (event.row.skill.attackResponse.durationFrom
-              ? responseDuration(event.row.skill, event.time)
-              : event.row.effectiveCastTime),
+            Math.min(
+              event.row.skill.attackResponse.duration ?? Infinity,
+              event.row.skill.attackResponse.durationFrom
+                ? responseDuration(event.row.skill, event.time)
+                : event.row.effectiveCastTime,
+            ),
           succeeded: false,
         })
         if (event.row.skill.attackResponse.fallback && fallbackResponseRows.has(event.row))
@@ -3941,6 +3972,7 @@ export function buildRotationTimeline(
       )
         value = valueObject.operand.find(candidate => typeof candidate === "string" && targetEffects.has(candidate))
       if (typeof value === "string") {
+        const removedEffect = targetEffects.get(value)
         const next = consumeTrackedEffect(
           targetEffects,
           value,
@@ -3949,6 +3981,15 @@ export function buildRotationTimeline(
         if (action.target === "target") setDebuffs(next)
         else setBuffs(next)
         if (!next.has(value)) {
+          const source = rows.find(row => row.id === removedEffect?.sourceRowId && row.kind === "rotation")
+          const hold = editableCastTimeOptions(source?.skill)
+          if (source && action.target !== "target" && hold?.effect === value && hold.endOnEffectRemoval) {
+            source.effectiveCastTime = Math.min(
+              source.effectiveCastTime,
+              event.time - source.startTime + (hold.recovery ?? 0),
+            )
+            updateNextOrdered(source)
+          }
           const target = action.target === "target" ? "target" : "self"
           const key = periodicEffectKey(target, value)
           const activeEffect = activePeriodicEffects[key]

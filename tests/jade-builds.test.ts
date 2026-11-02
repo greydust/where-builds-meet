@@ -4,10 +4,15 @@ import { calculateGlobalStatState } from "@/application/characterComposition"
 import { buildPresetInventory, calculateEquippedGearEffects, defaultBuildPresets, maxGearRoll } from "@/gear"
 
 describe("Jade starter builds", () => {
-  it.each([96, 100] as const)("loads Graduate with full non-relayed rolls at tier %s", tier => {
-    const preset = defaultBuildPresets.find(build => build.id === "jade-graduate")!
+  it.each([
+    [96, "jade-graduate", "jade-fully-relayed-max"],
+    [100, "jade-graduate", "jade-fully-relayed-max"],
+    [96, "jade-graduate-short", "jade-fully-relayed-max-bp"],
+    [100, "jade-graduate-short", "jade-fully-relayed-max-bp"],
+  ] as const)("loads Graduate with full non-relayed rolls at tier %s (%s)", (tier, graduateId, referenceId) => {
+    const preset = defaultBuildPresets.find(build => build.id === graduateId)!
     const reference = buildPresetInventory(
-      defaultBuildPresets.find(build => build.id === "jade-fully-relayed-max")!,
+      defaultBuildPresets.find(build => build.id === referenceId)!,
       tier,
     )
     const inventory = buildPresetInventory(preset, tier)

@@ -117,5 +117,20 @@
         "effect": { "hpDMGBonus": 0.04, "resourceCostBonus": { "Endurance": 0.04 } }
       }
     ]
+  },
+  "SpringAwayChannel": {
+    "name": "Spring Away Channel",
+    "duration": 10,
+    "maxStack": 1,
+    "refresh": false,
+    "hidden": true,
+    "resourceRates": [
+      {
+        "resource": "Endurance",
+        "regeneration": 0,
+        "consumption": 10,
+        "onDepleted": [{ "type": "consume", "target": "self", "value": "SpringAwayChannel", "stack": "all", "time": 0 }]
+      }
+    ]
   }
 }

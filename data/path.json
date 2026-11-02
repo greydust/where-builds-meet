@@ -48,8 +48,8 @@
     "tag": "SilkbindJade",
     "status": "wip",
     "buildGroup": "silkbind-jade",
-    "defaultBuild": "jade-fully-relayed-max",
-    "graduated": ["jade-graduate"],
+    "defaultBuild": "jade-fully-relayed-max-bp",
+    "graduated": ["jade-graduate-short", "jade-graduate"],
     "defaultRotation": "jade-three-rounds",
     "lockedWeapons": ["vernalUmbrella", "inkwellFan"],
     "arsenal": "Silkbind"

@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-max",
-  "name": "Jade Fully Relayed Max Build",
-  "order": 2,
+  "name": "Fully Relayed Max Long Fight",
+  "order": 3,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

@@ -472,3 +472,12 @@ The two Mystic affixes use existing skill tags:
 - `areaMysticDmgBoost` applies to `AreaMystic`
 
 Both are Category 1 damage bonuses and are stored as decimal ratios.
+
+Jade Short Fight builds use Rain Whisper and Breaking Point; Long Fight builds
+use Mistwillow and Thunderous Bloom. Max Short Fight retains Power and uses one
+Precision roll and nine Critical rolls at both supported gear tiers. Tier-100
+helmet/chestpiece All Mystic damage replaces Agility. The corresponding Short
+and Long Fight graduate presets copy their Max layouts with full non-relayed
+roll values. Existing preset IDs remain stable; jade-graduate is Long Fight and
+jade-graduate-short is the new Short Fight benchmark. Max Short Fight is Jade's
+default build alongside its 30-second IV default rotation.

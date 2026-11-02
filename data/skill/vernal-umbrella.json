@@ -59,8 +59,7 @@
         ]
       }
     ],
-    "silent": true,
-    "skillBreakdownCategory": "Unfading Flower"
+    "silent": true
   },
   "UnfadingFlowerProjectile": {
     "name": "Unfading Flower",
@@ -73,40 +72,31 @@
         "attrCoef": 0.51082875,
         "phyBonus": 141.375,
         "attrBonus": 77,
+        "time": 0
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.51082875,
+        "attrCoef": 0.51082875,
+        "phyBonus": 141.375,
+        "attrBonus": 77,
         "time": 0,
         "requirement": [
           {
-            "operator": "not",
+            "operator": "or",
             "operand": [
-              {
-                "operator": "or",
-                "operand": [
-                  { "target": "target", "value": "LingeringBone" },
-                  { "target": "target", "value": "Airborne" }
-                ]
-              }
+              { "target": "target", "value": "LingeringBone" },
+              { "target": "target", "value": "Airborne" }
             ]
           }
         ]
       },
       {
         "type": "damage",
-        "phyCoef": 1.0216575,
-        "attrCoef": 1.0216575,
-        "phyBonus": 282.75,
-        "attrBonus": 154,
-        "time": 0,
-        "requirement": [
-          { "target": "target", "value": "LingeringBone" },
-          { "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }
-        ]
-      },
-      {
-        "type": "damage",
-        "phyCoef": 1.53248625,
-        "attrCoef": 1.53248625,
-        "phyBonus": 424.125,
-        "attrBonus": 231,
+        "phyCoef": 0.51082875,
+        "attrCoef": 0.51082875,
+        "phyBonus": 141.375,
+        "attrBonus": 77,
         "time": 0,
         "requirement": [{ "target": "target", "value": "Airborne" }]
       },
@@ -131,8 +121,7 @@
       "Triggered"
     ],
     "martialArt": "vernalUmbrella",
-    "weapon": "Umbrella",
-    "skillBreakdownCategory": "Unfading Flower"
+    "weapon": "Umbrella"
   },
   "UnfadingFlowerRelease": {
     "name": "Unfading Flower",
@@ -154,7 +143,7 @@
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "ignorePing": true,
-    "skillBreakdownCategory": "Unfading Flower"
+    "skillBreakdownCategory": "Unfading Flower - Heavy"
   },
   "JadeComboExtension": {
     "name": "Combo Extension",
@@ -316,7 +305,8 @@
     "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Light", "VariedCombo"],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
-    "skillBreakdownCategory": "Colorful Phoenix"
+    "skillBreakdownCategory": "Colorful Phoenix",
+    "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
   },
   "ColorfulPhoenix": {
     "name": "Colorful Phoenix",
@@ -362,7 +352,8 @@
     "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Light", "VariedCombo"],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
-    "skillBreakdownCategory": "Colorful Phoenix"
+    "skillBreakdownCategory": "Colorful Phoenix",
+    "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
   },
   "UnfadingFlowerCancel": {
     "name": "Unfading Flower [Cancel]",
@@ -382,8 +373,7 @@
         ]
       }
     ],
-    "silent": true,
-    "skillBreakdownCategory": "Unfading Flower"
+    "silent": true
   },
   "UnfadingFlowerReleaseCancel": {
     "name": "Unfading Flower [Cancel]",
@@ -405,6 +395,429 @@
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "ignorePing": true,
-    "skillBreakdownCategory": "Unfading Flower"
+    "skillBreakdownCategory": "Unfading Flower - Heavy"
+  },
+  "SpringAway": {
+    "name": "Spring Away",
+    "shortName": "Umbrella Light Charged",
+    "castTime": 11.330909090909092,
+    "editableCastTime": {
+      "effect": "SpringAwayChannel",
+      "max": 10,
+      "required": true,
+      "startup": 0.74,
+      "recovery": 0.5909090909090908,
+      "endOnEffectRemoval": true
+    },
+    "action": [
+      { "type": "apply", "target": "self", "value": "SpringAwayChannel", "time": 0.74 },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 0.7900250007454306,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 0.9501049934402108,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.1101850047707558,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.2902750119268895,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.450354978531599,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.6104350047707556,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.7905249522924422,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 1.950605038166046,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.1106850047707555,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.290774952292442,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.450855038166046,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.610935004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.7910250007454303,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 2.9511049934402105,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.111185004770755,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.291275011926889,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.4513549785315987,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.6114350047707555,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.791524952292442,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 3.9516050381660457,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.111685004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.291774952292442,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.4518550381660456,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.611935004770755,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.79202500074543,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 4.95210499344021,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.1121850047707555,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.29227501192689,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.452354978531599,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.612435004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.7925249522924425,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 5.9526050381660465,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.112685004770755,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.292774952292442,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.452855038166046,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.612935004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.7930250007454305,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 6.953104993440211,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.113185004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.29327501192689,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.4533549785316,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.613435004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.793524952292443,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 7.953605038166046,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.113685004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.293774952292443,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.453855038166047,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.613935004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.79402500074543,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 8.954104993440211,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.114185004770755,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.294275011926889,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.4543549785316,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.614435004770755,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.794524952292441,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 9.954605038166045,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 10.114685004770756,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 10.294774952292443,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 10.454855038166047,
+        "sourceEffect": "SpringAwayChannel"
+      },
+      {
+        "type": "trigger",
+        "value": "SpringAwayProjectile",
+        "time": 10.614935004770755,
+        "sourceEffect": "SpringAwayChannel"
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Umbrella",
+      "VernalUmbrella",
+      "Light",
+      "Charged",
+      "Ballistic",
+      "SpringAway",
+      "FrequentProjectile"
+    ],
+    "martialArt": "vernalUmbrella",
+    "weapon": "Umbrella",
+    "skillBreakdownCategory": "Spring Away"
+  },
+  "SpringAwayProjectile": {
+    "name": "Spring Away Projectile",
+    "shortName": "Umbrella Light Charged",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.2862444,
+        "attrCoef": 0.2862444,
+        "phyBonus": 79.16,
+        "attrBonus": 43.16,
+        "time": 0.04
+      },
+      { "type": "addResource", "value": "Blossoms", "amount": 3.4, "time": 0.04 }
+    ],
+    "modifier": [{ "effect": { "hpDMGBonus": 0.25 } }],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Umbrella",
+      "VernalUmbrella",
+      "Light",
+      "Charged",
+      "Ballistic",
+      "SpringAway",
+      "FrequentProjectile",
+      "Triggered"
+    ],
+    "martialArt": "vernalUmbrella",
+    "weapon": "Umbrella",
+    "skillBreakdownCategory": "Spring Away"
   }
 }

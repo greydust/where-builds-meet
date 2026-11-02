@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-min",
-  "name": "Jade Fully Relayed Min Build",
-  "order": 1,
+  "name": "Fully Relayed Min Long Fight",
+  "order": 4,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

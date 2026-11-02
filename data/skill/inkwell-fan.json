@@ -16,7 +16,8 @@
     "cooldownUses": 2,
     "cooldownRecovery": "sequential",
     "cooldownGroup": "EmeraldBarrier",
-    "skillBreakdownCategory": "Emerald Barrier"
+    "skillBreakdownCategory": "Emerald Barrier",
+    "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
   },
   "ForsakenFame": {
     "name": "Forsaken Fame",
@@ -97,7 +98,8 @@
     "cooldownUses": 2,
     "cooldownRecovery": "sequential",
     "cooldownGroup": "EmeraldBarrier",
-    "skillBreakdownCategory": "Emerald Barrier"
+    "skillBreakdownCategory": "Emerald Barrier",
+    "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
   },
   "MoonShatterSpring": {
     "name": "Moon Shatter Spring",

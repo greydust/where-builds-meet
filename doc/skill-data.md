@@ -717,6 +717,75 @@ cast duration and mirrors it onto the named self effect. The cap is applied
 before anchor timing, editor display, and the sequential scheduler. An omitted
 duration uses the configured maximum; `required: true` additionally prevents
 an authored/imported step from omitting that duration.
+Optional `startup` and `recovery` add fixed time outside that held duration;
+the named effect still receives only the hold duration at its authored apply time.
+`endOnEffectRemoval` enters recovery when that effect is explicitly removed early.
+Resource-rate consumption uses the originating skill's tags for cost modifiers.
+
+Spring Away uses the 2026-10-30 17:30 export's nominal projectile timeline:
+0.74s startup, a user-selected hold capped at 10s, and 0.5909090909090908s
+recovery. Its 60 firing opportunities follow the authored 2.001s repeating clip,
+with nominal contact 0.04s after each launch. Releasing stops new launches but
+does not discard projectiles already in flight. Each contact grants 3.4 Blossoms.
+The raw carrier's ChargeNode421 specifies 10 Endurance per 1s and interruption
+on depletion; the shared continuous resource-rate model represents that drain
+and includes Startling Spring's charged-skill cost increase. Depletion removes
+the channel effect and immediately begins recovery. Ordinary regeneration resumes
+outside the channel. The unresolved opening-strike collider is not assigned a
+fabricated hit time or Blossom gain. Contact remains the nominal 1m model;
+distance-dependent projectile travel is not reconstructed by this export.
+
+Jade's BP builds replace Thunderous Bloom with Breaking Point and independently
+tune Precision/Critical gear rolls for Max and Min. The 30-second IV preset uses
+the attacking dummy and Max BP for its benchmark fixture. The latest event-clock
+export gives Colorful Phoenix and Emerald Barrier a 0.4-second dodge window,
+and Soaring Spin a 0.5-second window (skill level 41+). Their
+`attackResponse.duration` caps the response window from cast start and clips it
+at an earlier cast end. These offensive casts do not automatically wait for an
+attack. A real overlapping incoming hit invokes the existing Perfect Dodge
+success path, including Breaking Point's cooldown-gated T6 proc.
+
+Jade's existing jade-three-rounds ID retains its saved-data identity and is
+displayed as Grounded Dummy 30 Sec IV. Qi exhaustion is attached immediately before
+the third UF's first damage hit (20.46675084992436s in the preset), with proportional
+59.99% and 39.99% markers. Opening Drink/Deflect/Flute/Ghostly Umbra/Fan Q keeps
+Jadebreak through its second application. Ghostly Umbra can cancel Flute.
+The rotation uses full two-hit Soaring, full Smolder with Deflect, and the final
+one-hit Smolder/Deflect/Poet 3/Fan Q/Poet 1/Tide chain. Soaring and final Fan Q
+catch incoming attacks at 5.5s and 23.5s. The first Umbrella Q hit anchors battle time.
+BP builds use relayed All Mystic damage rolls on tier-100 helmet and chestpiece;
+the affix is not available on their tier-96 gear.
+`jade-hybrid` replaces heavy/varied-combo refills with
+Spring Away (1.551s opening hold, then 1.871s holds). Fan charged light, or full
+Peak in the final refill, refreshes Lingering Bone immediately before each channel
+so it survives until UF's first refresh. Emerald Barrier refreshes Jadebreak during
+UF. Filler comparisons include pursuit, Peak/pursuit, Smolder, Poet, Toad,
+Bursting Nine and Soaring Spin; the saved selection retains three Flutes.
+This is the best tested local combination, not an exhaustive rotation optimum.
+Charged refills take about 3.20s including startup/recovery, versus 1.20s for
+heavy/full Colorful Phoenix. The longer refills reduce this 60s preset from seven
+UF casts to five; a higher per-cast refill damage does not imply higher rotation DPS.
+
+`jade-flying` begins with full Peak, Emerald Barrier and five-hit pursuit. It uses
+10s requested Spring Away holds, shortened by Endurance depletion when applicable.
+The exported 10s cap can end a channel with Endurance remaining, particularly when
+Startling Spring expires during that channel. It is not modeled as an unlimited
+channel. During every UF recovery window, Peak closes the distance to 1m and
+reapplies Lingering Bone before pursuit; pursuit itself does not cause the move.
+Flying excludes Forsaken Fame and Endurance-consuming fillers so ordinary
+Endurance regeneration continues throughout these recovery windows.
+Extra Emerald Barrier casts use the existing sequential charge rules to preserve
+Jadebreak after its opening application; the requested initial Peak is unbuffed.
+Both new presets attach a Move to 9m at Spring Away's start and attach the
+return to 1m immediately before Peak's main hit (action 1, at 0.557581475s).
+The earlier small hit at 0.35s remains at 9m and misses. Pursuit preserves the
+resulting distance; Peak casts that already begin at 1m retain their small hit.
+These are the user's instantaneous repositioning assumptions,
+not inferred travel speeds. Projectile contact retains the export's nominal delay.
+
+The rotation editor displays Blossoms followed by Endurance for Jade. Cast and
+expanded-action cells read the corresponding worker resource states and ranges;
+the display does not independently calculate consumption or regeneration.
 
 `start: { step, action? }` chooses battle start; omitted action means cast start.
 Composite action indexes use the same structural expansion as the simulator,
@@ -905,7 +974,7 @@ uncertainty remains as described by the export.
 The preset uses Unfading Flower [Cancel] followed by Deflect for each activation.
 Cancel ends at mode application (0.6s); Deflect adds 0.3s, saving 0.193s
 against the normal 1.093s release without removing the hit or ongoing mode.
-Both variants and their projectiles share the Unfading Flower breakdown category.
+Both activation variants share the Unfading Flower - Heavy breakdown category. Follow-up projectiles retain their Unfading Flower name without a category wrapper. The activation hit has no FrequentProjectile tag and does not receive the Frequent Projectile attunement.
 Unfading Flower mode blocks ordered Umbrella-tagged skills through the shared
 automatic readiness wait. Resource depletion removes the mode immediately;
 the delayed Blossom return does not restore it. Triggered projectiles remain
@@ -1070,6 +1139,14 @@ be knocked airborne. The normal mode returns 15 Blossoms after ending, with a
 an exhausted boss or an immobilized/airborne non-boss. Do not add duplicate
 graph and resource-table grants. The initial preset models boss/dummy targets;
 it does not author Airborne applications.
+
+User-confirmed UF volleys contain one ordinary hit, two separate hits against
+Lingering Bone, or three against Airborne (including targets with both marks).
+Each hit uses the ordinary projectile coefficient and independently triggers
+damage listeners and the qualifying three-Blossom refund. These are separate
+damage actions at the same volley timestamp, not one multiplied-damage action.
+Thus an exhausted Lingering Bone volley refunds six Blossoms; an exhausted
+Airborne volley refunds nine. Volley cadence and resource drain remain unchanged.
 
 ### Bellstrike Splendor
 
@@ -2233,3 +2310,23 @@ user-confirmed cancel so it still covers the intended dummy attack pair. Wings'
 fixed Qi thresholds retain proportional depletion around the second Drum
 Special break and its recovery; changes to that break's time require recomputing
 both cycles of fixed thresholds.
+
+### Golden Body precombat shield
+
+Golden Body [Cancel] uses the user-confirmed instant cancel into Deflect and
+applies the shared Shield effect 0.5 seconds after cast start. Its upgraded
+shield lasts ten seconds (eight base plus two from Defense Boost), with the
+exported twenty-second cooldown. The delayed application survives cast completion
+through the existing timed-action mechanism. This entry models shield presence
+for Rain Whisper; shield absorption, defensive bonuses, healing on expiry, and
+Vitality cost are not modeled yet.
+
+Jade's 30-second IV preset inserts Golden Body [Cancel] / Deflect immediately
+before the opening Umbrella Q. Battle start remains that Q's first damage action,
+so the extra precombat Deflect does not shift the in-combat dodge or Qi clocks.
+
+With individual UF refunds, the 60-second finite Grounded and Hybrid presets
+fit six and four UF activations respectively. Their late Fan Q refreshes occur
+before the next refill or pursuit sequence so the longer exhausted UF window
+does not cause a Jadebreak gap. The 30-second IV sequence and its Qi-break
+anchor remain unchanged.

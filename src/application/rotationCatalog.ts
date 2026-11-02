@@ -8,7 +8,7 @@ import {
   expandedSkillActionCount,
   expandedSkillActionLayout,
   isFixedTimeEvent,
-  resolveSkillStepDuration,
+  resolveSkillStepCastTime,
   type AttachedEventTarget,
   type EditableObject,
   type RotationRecord,
@@ -91,7 +91,7 @@ export function baseSkillCastTime(skill: SkillRecord | undefined) {
 function baseStepCastTime(step: RotationStep) {
   if (step.type !== "skill") return 0
   const skill = allSkillDefinitions[step.skill ?? ""]
-  return resolveSkillStepDuration(step, skill) ?? baseSkillCastTime(skill)
+  return resolveSkillStepCastTime(step, skill) ?? baseSkillCastTime(skill)
 }
 
 export function baseRotationAnchorTime(rotation: RotationRecord) {

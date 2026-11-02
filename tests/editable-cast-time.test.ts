@@ -1,7 +1,15 @@
 import { expect, it } from "vitest"
 
-import { resolveSkillStepDuration } from "../src/calculations/rotationTimeline"
-import { deserializeSkillOverrides, serializeSkillOverrides } from "../src/skillOverrides"
+import { resolveSkillStepDuration, resolveSkillStepCastTime } from "@/calculations/rotationTimeline"
+import { deserializeSkillOverrides, serializeSkillOverrides } from "@/skillOverrides"
+
+it("adds fixed preparation and recovery outside the capped user hold", () => {
+  const skill = { editableCastTime: { max: 10, startup: 0.74, recovery: 0.59 } }
+  const step = { type: "skill" as const, skill: "Channel", duration: 3 }
+  expect(resolveSkillStepDuration(step, skill)).toBe(3)
+  expect(resolveSkillStepCastTime(step, skill)).toBeCloseTo(4.33)
+  expect(resolveSkillStepCastTime({ ...step, duration: 99 }, skill)).toBeCloseTo(11.33)
+})
 
 it("keeps boolean cast-time editing unbounded and honors bounded duration options", () => {
   const step = { type: "skill" as const, skill: "Test", duration: 20 }

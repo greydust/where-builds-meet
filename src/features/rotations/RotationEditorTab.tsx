@@ -1233,9 +1233,12 @@ export function RotationEditorTab({
     pathId === "silkbindJade" ||
     settings.weapons.includes("vernalUmbrella") ||
     rotation.steps.some(step => step.type === "event" && step.event === "Blossoms")
-  const displayedResource = showBlossoms ? "Blossoms" : "Endurance"
-  const resourceLabel = showBlossoms ? t("system.resource.blossoms") : t("system.resource.endurance")
-  const showResourceColumn = showBlossoms || rotationUsesEndurance(timeline)
+  const displayedResources = [
+    ...(showBlossoms ? [{ resource: "Blossoms", label: t("system.resource.blossoms") }] : []),
+    ...(showBlossoms || rotationUsesEndurance(timeline)
+      ? [{ resource: "Endurance", label: t("system.resource.endurance") }]
+      : []),
+  ]
   const showVitalityColumn = useMemo(
     () =>
       rotation.steps.some(step => {
@@ -1255,7 +1258,7 @@ export function RotationEditorTab({
     showNobleWillColumn ? "minmax(0, 0.7fr)" : "",
     showHeavensWillColumn ? "minmax(0, 0.9fr)" : "",
     showVitalityColumn ? "minmax(0, 0.7fr)" : "",
-    showResourceColumn ? "minmax(0, 0.7fr)" : "",
+    ...displayedResources.map(() => "minmax(0, 0.7fr)"),
   ]
     .filter(Boolean)
     .join(" ")
@@ -2060,7 +2063,9 @@ export function RotationEditorTab({
                   {showNobleWillColumn && <span>{t("system.resource.nobleWill")}</span>}
                   {showHeavensWillColumn && <span>{t("system.resource.heavensWill")}</span>}
                   {showVitalityColumn && <span>{t("system.resource.vitality")}</span>}
-                  {showResourceColumn && <span>{resourceLabel}</span>}
+                  {displayedResources.map(({ resource, label }) => (
+                    <span key={resource}>{label}</span>
+                  ))}
                   <span className="rotation-damage-heading">{t("ui.app.damage")}</span>
                   <span>{t("ui.app.buff")}</span>
                   <span>{t("ui.app.debuff")}</span>
@@ -2098,7 +2103,9 @@ export function RotationEditorTab({
                             {showNobleWillColumn && <span aria-hidden="true" />}
                             {showHeavensWillColumn && <span aria-hidden="true" />}
                             {showVitalityColumn && <span aria-hidden="true" />}
-                            {showResourceColumn && <span aria-hidden="true" />}
+                            {displayedResources.map(({ resource }) => (
+                              <span key={resource} aria-hidden="true" />
+                            ))}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {formatThroughput(damage)}
                             </span>
@@ -2760,9 +2767,9 @@ export function RotationEditorTab({
                                   : formatResourceRange(row.resources.Vitality ?? 0, row.resourceRanges?.Vitality)}
                               </span>
                             )}
-                            {showResourceColumn && (
-                              <span data-mobile-label={resourceLabel}>
-                                {isManualEvent && step.event === "Blossoms" ? (
+                            {displayedResources.map(({ resource: displayedResource, label: resourceLabel }) => (
+                              <span key={displayedResource} data-mobile-label={resourceLabel}>
+                                {isManualEvent && step.event === "Blossoms" && displayedResource === "Blossoms" ? (
                                   rowReadOnly ? (
                                     <span>
                                       {step.amount > 0 ? "+" : ""}
@@ -2792,7 +2799,7 @@ export function RotationEditorTab({
                                   )
                                 )}
                               </span>
-                            )}
+                            ))}
                             <span className="rotation-damage-value" data-mobile-label={t("ui.app.damage")}>
                               {isManualEvent ? (
                                 step.event === "MartialArt" ? (
@@ -3143,8 +3150,8 @@ export function RotationEditorTab({
                                         )}
                                   </span>
                                 )}
-                                {showResourceColumn && (
-                                  <span data-mobile-label={resourceLabel}>
+                                {displayedResources.map(({ resource: displayedResource, label: resourceLabel }) => (
+                                  <span key={displayedResource} data-mobile-label={resourceLabel}>
                                     {formatResourceRange(
                                       actionState?.resources[displayedResource] ??
                                         row.resources[displayedResource] ??
@@ -3153,7 +3160,7 @@ export function RotationEditorTab({
                                         row.resourceRanges?.[displayedResource],
                                     )}
                                   </span>
-                                )}
+                                ))}
                                 <span className="rotation-action-damage" data-mobile-label={t("ui.app.damage")}>
                                   {actionCalculated ? (
                                     <RotationActionBreakdownValue

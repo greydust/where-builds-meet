@@ -1,7 +1,7 @@
 {
   "id": "jade-graduate",
-  "name": "Graduate Build",
-  "order": 3,
+  "name": "Graduate Long Fight",
+  "order": 6,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": false,
   "setup": {

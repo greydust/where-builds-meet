@@ -9,6 +9,7 @@ type Environment = Parameters<typeof buildPresetRotationBundle>[0]
 const dataRoot = new URL("../../data/", import.meta.url)
 // Rotations without an override use their path's default build.
 export const snapshotBuildOverrides: Record<string, string> = {
+  "silkbindJade/jade-three-rounds": "jade-fully-relayed-max-bp",
   "bamboocutKite/dummy-1-min-infinite-vitality": "kite-fully-relayed-min",
   "stonesplitStrength/pure-dummy-1-min": "pure-fully-relayed-min",
   "stonesplitStrength/pure-dummy-1-min-infinite-vitality": "pure-fully-relayed-min",
