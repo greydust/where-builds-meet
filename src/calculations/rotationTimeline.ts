@@ -4762,7 +4762,10 @@ export function buildRotationTimeline(
       )
       // A Take Damage action is an incoming attack even when its resolved HP loss is zero.
       // This lets zero-damage manual events activate responses.
-      activeResponses.forEach(response => queueAttackResponse(response.row, event.time, event.sortOrder))
+      // Overlapping windows can avoid the same attack, but cannot award its
+      // response twice. Attribute it to the most recently started action.
+      const response = activeResponses.at(-1)
+      if (response) queueAttackResponse(response.row, event.time, event.sortOrder)
       const incomingDamage = Math.max(0, action.damage)
       // Incoming attacks use the pre-hit HP and stacks, before takeDamage triggers.
       const incomingEffects = [

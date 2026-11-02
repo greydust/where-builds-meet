@@ -2210,10 +2210,17 @@ Snaring Lash / Deflect / Sky Grasped sequence follow that End.
 The preset intentionally does not reset End again during Exhausted. Its final
 ordinary Vile Condemned falls back to the two-HW hit while End cooldown remains
 active. The four charged casts spend 4 / 4 / 4 / 2 HW. At 40ms ping, the Qi
-break is at 41.909697 seconds, Dragon Head hits at 47.877429 seconds, and the
-third End hits at 51.654929 seconds, before Exhausted expires at 51.909697.
-The final weak hit lands at 59.955429 seconds; the 60-second cutoff leaves
+break is at 41.894697 seconds, Dragon Head hits at 47.862429 seconds, and the
+third End hits at 51.639929 seconds, before Exhausted expires at 51.894697.
+The final weak hit lands at 59.940429 seconds; the 60-second cutoff leaves
 little timing margin. Dragon Head already had five stacks in the old preset.
+
+Both Kite BP presets use Soaring's own dodge window for the 17.5, 29.5, and
+41.5-second attacks, without a preceding Perfect Dodge. A 0.45331818181819-second
+Delay before the first Soaring preserves the attack alignment formerly supplied
+by Perfect Dodge's automatic wait. Soaring starts at 17.1, 29.1, and 41.1 seconds.
+The DH preset retains its accepted damage totals; the non-DH BP builds gain a
+new, valid BP proc at 41.5 seconds that the old non-DH sequence lacked.
 
 ### Kite combo stage indicators
 
@@ -2330,3 +2337,11 @@ fit six and four UF activations respectively. Their late Fan Q refreshes occur
 before the next refill or pursuit sequence so the longer exhausted UF window
 does not cause a Jadebreak gap. The 30-second IV sequence and its Qi-break
 anchor remain unchanged.
+
+Overlapping defensive response windows award success only to the most recently
+started active response. One incoming attack cannot award both a canceled dodge
+and the following Soaring Spin. Avoidance remains active for the whole window,
+but ordinary dodge rewards occur at most once per response; paired incoming hits
+do not fall back to an older overlapping window after the newest one succeeds.
+Offensive skill windows never grant rewards without an incoming attack. Explicit
+Perfect Dodge / successful-deflect rows retain their existing no-attack fallback.

@@ -47,6 +47,13 @@ it("Kite DH lands Dragon Head during Exhausted and its final two-HW hit before c
       fixture.build,
     )!
     const result = calculateRotationBaseline(bundle)
+    for (const time of [17.5, 29.5, 41.5]) {
+      const successes = result.timeline.filter(
+        row => row.step.skill === "PerfectDodgeSuccess" && Math.abs(row.startTime - result.anchorTime - time) < 1e-8,
+      )
+      expect(successes).toHaveLength(1)
+      expect(result.timeline.find(row => row.id === successes[0].sourceRowId)?.step.skill).toBe("SoaringSpin2")
+    }
     const dodge = result.timeline.find(
       row =>
         row.step.type === "skill" &&

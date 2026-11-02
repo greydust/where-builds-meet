@@ -1,15 +1,16 @@
+import kiteBuffs from "@gamedata/buff/bamboocut-kite.json"
+import windBuffs from "@gamedata/buff/bamboocut-wind.json"
+import generalBuffs from "@gamedata/buff/general.json"
+import mysticBuffs from "@gamedata/buff/mystic.json"
+import infernal from "@gamedata/martial-art/infernal-twinblades.json"
+import general from "@gamedata/skill/general.json"
+import mystic from "@gamedata/skill/mystic.json"
 import { describe, expect, it } from "vitest"
 
-import kiteBuffs from "../data/buff/bamboocut-kite.json"
-import windBuffs from "../data/buff/bamboocut-wind.json"
-import generalBuffs from "../data/buff/general.json"
-import mysticBuffs from "../data/buff/mystic.json"
-import infernal from "../data/martial-art/infernal-twinblades.json"
-import general from "../data/skill/general.json"
-import mystic from "../data/skill/mystic.json"
-import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
-import { migrateDefenseActionAnchors } from "../src/rotationEditing"
-import { exportRotationEntries, mergeImportedRotationEntries } from "../src/rotationTransfer"
+import { buildRotationTimeline, type RotationStep, type TimelineBuildInput } from "@/calculations/rotationTimeline"
+import { migrateDefenseActionAnchors } from "@/rotationEditing"
+import { exportRotationEntries, mergeImportedRotationEntries } from "@/rotationTransfer"
+
 import { asEffectDefinitions, asSkillRecords, rankTalentEffects } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
@@ -46,6 +47,25 @@ const incoming = (rows: ReturnType<typeof buildRotationTimeline>) =>
     .flatMap(row => row.actions.filter(action => action.type === "takeDamage").map(action => action.damage))
 
 describe("attack response windows", () => {
+  it("awards one dodge when a canceled dodge overlaps Soaring and paired attacks", () => {
+    const rows = buildRotationTimeline(
+      input([cast("PerfectDodgeCancel"), cast("SoaringSpin2"), attack(5), attack(5), end(7)]),
+    )
+    const soaring = rowsFor(rows, "SoaringSpin2")[0]
+    const success = rowsFor(rows, "PerfectDodgeSuccess")
+    expect(success).toHaveLength(1)
+    expect(success[0].startTime).toBe(5)
+    expect(success[0].sourceRowId).toBe(soaring.id)
+    expect(rowsFor(rows, "BreakingPointT6Dodge")).toHaveLength(1)
+    expect(incoming(rows)).toEqual([0, 0])
+  })
+
+  it.each(["SoaringSpin1", "SoaringSpin2"])("%s never grants dodge rewards without an incoming attack", skill => {
+    const rows = buildRotationTimeline(input([cast(skill), cast("Follow"), end(4)]))
+    expect(rowsFor(rows, "PerfectDodgeSuccess")).toHaveLength(0)
+    expect(rowsFor(rows, "BreakingPointT6Dodge")).toHaveLength(0)
+  })
+
   it("keeps the canceled dodge window across the next cast and grants buffs exactly on the attack", () => {
     const rows = buildRotationTimeline(
       input([cast("PerfectDodgeCancel"), cast("Follow"), attack(5), attack(5), attack(5.05), attack(5.2), end(6)]),
