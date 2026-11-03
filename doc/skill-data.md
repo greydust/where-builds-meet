@@ -2320,7 +2320,7 @@ both cycles of fixed thresholds.
 
 ### Golden Body precombat shield
 
-Golden Body [Cancel] uses the user-confirmed instant cancel into Deflect and
+Golden Body [Cancel] waits 0.5 seconds for Shield before its cancel follow-up and
 applies the shared Shield effect 0.5 seconds after cast start. Its upgraded
 shield lasts ten seconds (eight base plus two from Defense Boost), with the
 exported twenty-second cooldown. The delayed application survives cast completion
@@ -2328,8 +2328,8 @@ through the existing timed-action mechanism. This entry models shield presence
 for Rain Whisper; shield absorption, defensive bonuses, healing on expiry, and
 Vitality cost are not modeled yet.
 
-Jade's 30-second IV preset inserts Golden Body [Cancel] / Deflect immediately
-before the opening Umbrella Q. Battle start remains that Q's first damage action,
+Jade's 30-second IV preset uses Fan Q / Golden Body [Cancel] before the opening
+Umbrella Q. Its second UF cancels directly into Fan Q to retain Jadebreak. Battle start remains that Q's first damage action,
 so the extra precombat Deflect does not shift the in-combat dodge or Qi clocks.
 
 With individual UF refunds, the 60-second finite Grounded and Hybrid presets
@@ -2345,3 +2345,15 @@ but ordinary dodge rewards occur at most once per response; paired incoming hits
 do not fall back to an older overlapping window after the newest one succeeds.
 Offensive skill windows never grant rewards without an incoming attack. Explicit
 Perfect Dodge / successful-deflect rows retain their existing no-attack fallback.
+
+The Jade 30-second IV opener cancels Flute with Deflect before Ghostly Step;
+Ghostly Step is not a legal Flute cancel. Battle start remains the first Umbrella
+Q hit. The opening Fan Q precedes Golden Body. The second UF leads directly
+into Fan Q, using Q as its cancel follow-up to refresh Jadebreak before expiry.
+A second Golden Body precedes the late Smolder, covering Smolder, the two-hit
+Poet chain, and Dragon Head's impact.
+Golden Body [Cancel] takes 0.5 seconds, ending when Shield attaches. Once that
+wait completes, any next skill is allowed; it does not require a Deflect, Fan Q,
+or pursuit cancel follow-up. The late Poet filler uses two hits to retain
+the final Fan Q dodge and fit the shielded Dragon Head hit before 30 seconds.
+Shield survival against incoming damage remains a model assumption.

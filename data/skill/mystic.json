@@ -1,7 +1,7 @@
 {
   "GoldenBodyCancel": {
     "name": "Golden Body [Cancel]",
-    "castTime": 0,
+    "castTime": 0.5,
     "cooldown": 20,
     "cooldownGroup": "GoldenBody",
     "action": [{ "type": "apply", "target": "self", "value": "Shield", "duration": 10, "reapply": true, "time": 0.5 }],

@@ -136,6 +136,25 @@ describe("Jade combat", () => {
       const tide = result.timeline.find(row => row.step.skill === "DragonHeadTide")!
       const damageIndex = tide.actions.findIndex(action => action.type === "damage")
       expect(tide.actionStates[damageIndex].debuffs.has("Exhausted")).toBe(true)
+      expect(tide.actionStates[damageIndex].buffs.has("Shield")).toBe(true)
+      expect(tide.startTime + Number(tide.actions[damageIndex].time)).toBeLessThan(result.anchorTime + 30)
+      const goldenBodies = result.timeline.filter(row => row.step.skill === "GoldenBodyCancel")
+      expect(goldenBodies).toHaveLength(2)
+      expect(goldenBodies[1].startTime - goldenBodies[0].startTime).toBeGreaterThanOrEqual(20)
+      const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
+      const lateSmolder = casts[casts.indexOf(goldenBodies[1]) + 1]
+      expect(lateSmolder.step.skill).toBe("DragonsBreathSmolder1")
+      expect(lateSmolder.startTime).toBeCloseTo(goldenBodies[1].startTime + 0.5, 9)
+      const smolderHit = lateSmolder.actions.findIndex(action => action.type === "damage")
+      expect(lateSmolder.actionStates[smolderHit].buffs.has("Shield")).toBe(true)
+      const latePoet = casts.find(row => row.step.skill === "DrunkenPoet2Hits")!
+      const poetHits = latePoet.actions.flatMap((action, index) =>
+        action.type === "damage" && latePoet.actionStates[index]?.combatOrder !== undefined
+          ? [latePoet.actionStates[index]]
+          : [],
+      )
+      expect(poetHits).toHaveLength(2)
+      for (const hit of poetHits) expect(hit.buffs.has("Shield")).toBe(true)
       expect(result.actionBreakdowns[tide.id + ":" + damageIndex]).toBeDefined()
       expect(result.duration).toBeCloseTo(30, 9)
     }
@@ -157,14 +176,12 @@ describe("Jade combat", () => {
       )
       const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
       for (const [index, row] of casts.entries()) {
-        if (!String(row.skill?.name).includes("[Cancel]")) continue
+        if (!String(row.skill?.name).includes("[Cancel]") || row.step.skill === "GoldenBodyCancel") continue
         const next = casts[index + 1]
         const allowed = ["EmeraldBarrierCancel", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? "")
           ? ["MoonShatterSpring"]
           : ["Deflect", "EmeraldBarrier", "EmeraldBarrierCancel", "MoonShatterSpring"]
-        expect(row.step.skill === "FluteOfTheTidesCancel" ? [...allowed, "GhostlyStepsUmbra"] : allowed).toContain(
-          next?.step.skill,
-        )
+        expect(allowed).toContain(next?.step.skill)
         expect(next.startTime).toBeLessThanOrEqual(row.startTime + row.effectiveCastTime + 0.040001)
       }
     }
@@ -562,7 +579,7 @@ describe("Jade combat", () => {
       for (const [index] of Array.from(authoredSkills.entries()).filter(([, step]) =>
         ["UnfadingFlowerCancel", "LeapingToad"].includes(step.skill ?? ""),
       ))
-        expect(authoredSkills[index + 1]?.skill).toBe("Deflect")
+        expect(["Deflect", "EmeraldBarrier"]).toContain(authoredSkills[index + 1]?.skill)
       for (const [index, step] of authoredSkills.entries()) {
         if (!["DragonsBreath1", "DrunkenPoet5HitsCancel"].includes(step.skill ?? "")) continue
         expect(["Deflect", "EmeraldBarrier", "EmeraldBarrierCancel", "MoonShatterSpring"]).toContain(
@@ -576,10 +593,11 @@ describe("Jade combat", () => {
         ),
       ))
         expect(casts[index + 1].startTime).toBeLessThanOrEqual(row.startTime + row.effectiveCastTime + 0.04 + 1e-8)
-      expect(casts.slice(0, 5).map(row => row.step.skill)).toEqual([
+      expect(casts.slice(0, 6).map(row => row.step.skill)).toEqual([
         "DrunkenPoetDrinkCancel",
         "Deflect",
         "FluteOfTheTidesCancel",
+        "Deflect",
         "GhostlyStepsUmbra",
         "EmeraldBarrier",
       ])
@@ -587,10 +605,11 @@ describe("Jade combat", () => {
         expect(poet.debuffs.has("Combustion") || poet.debuffs.has("Smolder")).toBe(true)
       const openingQ = casts.find(row => row.step.skill === "SpringSorrow")!
       const goldenBody = casts.find(row => row.step.skill === "GoldenBodyCancel")!
-      const cancelDeflect = casts[casts.indexOf(goldenBody) + 1]
-      expect(cancelDeflect.step.skill).toBe("Deflect")
-      expect(cancelDeflect.startTime).toBe(goldenBody.startTime)
-      expect(cancelDeflect.buffs.has("Shield")).toBe(false)
+      const openingFanQ = casts[casts.indexOf(goldenBody) - 1]
+      expect(openingFanQ.step.skill).toBe("EmeraldBarrier")
+      expect(goldenBody.startTime).toBeCloseTo(openingFanQ.startTime + openingFanQ.effectiveCastTime, 9)
+      expect(openingQ.startTime).toBeCloseTo(goldenBody.startTime + 0.5 + 0.04, 9)
+      expect(openingQ.buffs.has("Shield")).toBe(true)
       const shieldedHit = openingQ.actionStates[0].buffs.get("Shield")
       expect(shieldedHit?.expiresAt).toBeCloseTo(goldenBody.startTime + 0.5 + 10, 8)
       const withoutShield = calculateRotationBaseline({
