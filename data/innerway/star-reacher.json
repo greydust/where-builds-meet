@@ -16,9 +16,14 @@
                   { "target": "target", "value": "LingeringBone" }
                 ]
               ]
-            }
+            },
+            { "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }
           ],
           "action": [{ "type": "trigger", "value": "StarReacherGrant" }]
+        },
+        {
+          "requirement": [{ "target": "target", "value": "Airborne" }],
+          "action": [{ "type": "trigger", "value": "StarReacherAirborneGrant" }]
         }
       ]
     },
@@ -27,6 +32,10 @@
         {
           "target": "StarReacherBone",
           "modify": { "effect": [{ "requirement": [], "effect": { "physicalAttackBonus": 0.075 } }] }
+        },
+        {
+          "target": "StarReacherAirborne",
+          "modify": { "effect": [{ "requirement": [], "effect": { "physicalAttackBonus": 0.15 } }] }
         }
       ]
     },
@@ -94,7 +103,9 @@
     "StarReacherT4": {
       "effect": [
         { "target": "StarReacherBone", "modify": { "duration": 12 } },
-        { "target": "StarReacherBoneEnhanced", "modify": { "duration": 12 } }
+        { "target": "StarReacherBoneEnhanced", "modify": { "duration": 12 } },
+        { "target": "StarReacherAirborne", "modify": { "duration": 12 } },
+        { "target": "StarReacherAirborneEnhanced", "modify": { "duration": 12 } }
       ]
     },
     "StarReacherT5": { "effect": [{ "rawStat": { "physicalPenetration": 5.1 } }] },

@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-max-bp",
-  "name": "Fully Relayed Max Short Fight",
-  "order": 1,
+  "name": "Fully Relayed Max BP Mystic",
+  "order": 8,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {
@@ -40,7 +40,7 @@
           { "key": "maxPhys", "value": 73.132 },
           { "key": "power", "value": 46.436 },
           { "key": "agility", "value": 46.436 },
-          { "key": "crit", "value": 0.0846 }
+          { "key": "maxVoidAttack", "value": 41.548 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -92,7 +92,7 @@
           { "key": "maxPhys", "value": 73.132 },
           { "key": "power", "value": 46.436 },
           { "key": "agility", "value": 46.436 },
-          { "key": "crit", "value": 0.0846 }
+          { "key": "maxSilkbind", "value": 41.548 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.06 }
       },
@@ -146,7 +146,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "power", "value": 53.955999999999996 },
           { "key": "agility", "value": 53.955999999999996 },
-          { "key": "crit", "value": 0.09775999999999999 }
+          { "key": "maxVoidAttack", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -183,7 +183,7 @@
         "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 85.16399999999999 },
-          { "key": "power", "value": 53.955999999999996 },
+          { "key": "agility", "value": 53.955999999999996 },
           { "key": "allMysticDmgBoost", "value": 0.10715999999999999 },
           { "key": "precision", "value": 0.08836 }
         ],
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "power", "value": 53.955999999999996 },
           { "key": "allMysticDmgBoost", "value": 0.10715999999999999 },
-          { "key": "crit", "value": 0.09775999999999999 }
+          { "key": "agility", "value": 53.955999999999996 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.07 }
       },

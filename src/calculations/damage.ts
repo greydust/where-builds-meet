@@ -54,7 +54,6 @@ export type AttunementStats = {
   inkwellSpecialPursuitBoost: number
   vernalMartialBoost: number
   vernalProjectile280304Boost: number
-  vernalProjectile280305Boost: number
   vernalLightHeavyVariedComboBoost: number
   infernalMartialBoost: number
   infernalEmpoweredLightBoost: number

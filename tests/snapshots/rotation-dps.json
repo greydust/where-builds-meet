@@ -3307,6 +3307,180 @@
       "totalHealing": 2211720.020346783,
       "duration": 60
     },
+    "silkbindJade/jade-flying/jade-bp-max/18": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 57580.81480595907,
+      "totalDamage": 3454848.888357544,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-flying/jade-bp-max/19": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 61018.37746783866,
+      "totalDamage": 3661102.6480703196,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-flying/jade-bp-min/18": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 56453.254332977005,
+      "totalDamage": 3387195.2599786203,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-flying/jade-bp-min/19": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 59319.57931045439,
+      "totalDamage": 3559174.7586272634,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-flying/jade-full-bp/18": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 59503.05012244301,
+      "totalDamage": 3570183.0073465807,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-flying/jade-full-bp/19": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-flying",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 62477.185456159845,
+      "totalDamage": 3748631.1273695906,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
     "silkbindJade/jade-flying/jade-fully-relayed-max-bp/18": {
       "fixture": {
         "build": "jade-fully-relayed-max-bp",
@@ -3330,8 +3504,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 56848.54578751195,
-      "totalDamage": 3410912.7472507167,
+      "dps": 56564.03619924848,
+      "totalDamage": 3393842.171954909,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3359,8 +3533,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 59791.776193857426,
-      "totalDamage": 3587506.5716314455,
+      "dps": 60011.695751517516,
+      "totalDamage": 3600701.745091051,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3388,8 +3562,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 57782.93223858047,
-      "totalDamage": 3466975.9343148284,
+      "dps": 56869.70793222707,
+      "totalDamage": 3412182.4759336244,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3417,8 +3591,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 60941.20567921099,
-      "totalDamage": 3656472.3407526594,
+      "dps": 59985.965629693965,
+      "totalDamage": 3599157.937781638,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3446,8 +3620,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 56049.08324403984,
-      "totalDamage": 3362944.9946423904,
+      "dps": 55711.01716961458,
+      "totalDamage": 3342661.0301768747,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3475,8 +3649,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 58931.710958752075,
-      "totalDamage": 3535902.6575251245,
+      "dps": 58578.62170770012,
+      "totalDamage": 3514717.3024620074,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3504,8 +3678,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 56895.72009571041,
-      "totalDamage": 3413743.2057426246,
+      "dps": 56054.13608238566,
+      "totalDamage": 3363248.1649431395,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3533,8 +3707,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 59546.74093676649,
-      "totalDamage": 3572804.4562059892,
+      "dps": 58672.930732576664,
+      "totalDamage": 3520375.8439546,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3562,8 +3736,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 58260.926657763004,
-      "totalDamage": 3495655.5994657804,
+      "dps": 58519.73245169649,
+      "totalDamage": 3511183.947101789,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3591,8 +3765,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 61225.1235812067,
-      "totalDamage": 3673507.4148724023,
+      "dps": 61488.27830659733,
+      "totalDamage": 3689296.6983958394,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3620,8 +3794,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 59201.8972386389,
-      "totalDamage": 3552113.834318334,
+      "dps": 58269.270727470066,
+      "totalDamage": 3496156.243648204,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3649,8 +3823,182 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 62320.03891816656,
-      "totalDamage": 3739202.3350899937,
+      "dps": 61346.79524263864,
+      "totalDamage": 3680807.7145583183,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-bp-max/18": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 75488.20549626407,
+      "totalDamage": 4529292.329775844,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-bp-max/19": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 80002.1366025468,
+      "totalDamage": 4800128.196152808,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-bp-min/18": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 73911.58401362716,
+      "totalDamage": 4434695.04081763,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-bp-min/19": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 77668.69149671074,
+      "totalDamage": 4660121.489802645,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-full-bp/18": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 78051.62631881589,
+      "totalDamage": 4683097.579128954,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-grounded/jade-full-bp/19": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-grounded",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 81943.16085693933,
+      "totalDamage": 4916589.6514163595,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3678,8 +4026,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 67539.98155336553,
-      "totalDamage": 4052398.8932019323,
+      "dps": 73268.98656280882,
+      "totalDamage": 4396139.193768529,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3707,8 +4055,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 71043.19701516608,
-      "totalDamage": 4262591.820909965,
+      "dps": 77747.29700776657,
+      "totalDamage": 4664837.820465994,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3736,8 +4084,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 70289.37887243982,
-      "totalDamage": 4217362.732346389,
+      "dps": 73604.211336141,
+      "totalDamage": 4416252.68016846,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3765,8 +4113,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 74134.34891424785,
-      "totalDamage": 4448060.934854871,
+      "dps": 77636.67639069926,
+      "totalDamage": 4658200.583441955,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3794,8 +4142,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 66499.76517400682,
-      "totalDamage": 3989985.9104404096,
+      "dps": 72089.27971792445,
+      "totalDamage": 4325356.783075467,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3823,8 +4171,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 69941.07729600693,
-      "totalDamage": 4196464.637760416,
+      "dps": 75808.69193161385,
+      "totalDamage": 4548521.515896831,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3852,8 +4200,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 69091.51178902424,
-      "totalDamage": 4145490.707341454,
+      "dps": 72433.4039934093,
+      "totalDamage": 4346004.239604558,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3881,8 +4229,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 72317.7372729725,
-      "totalDamage": 4339064.23637835,
+      "dps": 75819.20597278966,
+      "totalDamage": 4549152.35836738,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3910,8 +4258,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 69184.81495673937,
-      "totalDamage": 4151088.897404362,
+      "dps": 75815.94743152012,
+      "totalDamage": 4548956.845891207,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3939,8 +4287,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 72711.71598386022,
-      "totalDamage": 4362702.959031614,
+      "dps": 79654.5879454508,
+      "totalDamage": 4779275.276727048,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3968,8 +4316,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 72043.38513954669,
-      "totalDamage": 4322603.108372802,
+      "dps": 75442.04354190742,
+      "totalDamage": 4526522.612514446,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -3997,8 +4345,182 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 75840.33240986845,
-      "totalDamage": 4550419.944592107,
+      "dps": 79425.3846662317,
+      "totalDamage": 4765523.079973902,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-bp-max/18": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 62297.46138427653,
+      "totalDamage": 3737847.683056592,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-bp-max/19": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 66001.00066561697,
+      "totalDamage": 3960060.0399370184,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-bp-min/18": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 61002.28286644811,
+      "totalDamage": 3660136.9719868866,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-bp-min/19": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 64087.63961589409,
+      "totalDamage": 3845258.3769536456,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-full-bp/18": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 64367.94887106733,
+      "totalDamage": 3862076.9322640398,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "silkbindJade/jade-hybrid/jade-full-bp/19": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-hybrid",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 67579.12331095122,
+      "totalDamage": 4054747.3986570733,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4026,8 +4548,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 60829.8465295819,
-      "totalDamage": 3649790.7917749137,
+      "dps": 61062.40235348373,
+      "totalDamage": 3663744.141209024,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4055,8 +4577,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 63951.218538285844,
-      "totalDamage": 3837073.112297151,
+      "dps": 64772.20850881441,
+      "totalDamage": 3886332.5105288643,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4084,8 +4606,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 61306.98721388612,
-      "totalDamage": 3678419.232833167,
+      "dps": 61131.94160449365,
+      "totalDamage": 3667916.496269619,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4113,8 +4635,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 64625.79860346266,
-      "totalDamage": 3877547.9162077596,
+      "dps": 64470.5084625082,
+      "totalDamage": 3868230.507750492,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4142,8 +4664,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 59884.39844821368,
-      "totalDamage": 3593063.9068928207,
+      "dps": 60083.037018133,
+      "totalDamage": 3604982.22108798,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4171,8 +4693,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 62929.96533391289,
-      "totalDamage": 3775797.9200347736,
+      "dps": 63166.81275470761,
+      "totalDamage": 3790008.7652824563,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4200,8 +4722,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 60230.08598575459,
-      "totalDamage": 3613805.159145275,
+      "dps": 60163.23705983269,
+      "totalDamage": 3609794.2235899614,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4229,8 +4751,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 63005.84286405068,
-      "totalDamage": 3780350.571843041,
+      "dps": 62965.37039756779,
+      "totalDamage": 3777922.2238540677,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4258,8 +4780,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 62347.84858715545,
-      "totalDamage": 3740870.915229327,
+      "dps": 63146.61786088631,
+      "totalDamage": 3788797.071653179,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4287,8 +4809,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 65491.57094033067,
-      "totalDamage": 3929494.2564198403,
+      "dps": 66345.6176808516,
+      "totalDamage": 3980737.060851096,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4316,8 +4838,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 62817.862892749596,
-      "totalDamage": 3769071.7735649757,
+      "dps": 62639.652799244235,
+      "totalDamage": 3758379.167954654,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -4345,11 +4867,185 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 66094.61479395539,
-      "totalDamage": 3965676.8876373232,
+      "dps": 65937.75349384997,
+      "totalDamage": 3956265.2096309983,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
+    },
+    "silkbindJade/jade-three-rounds/jade-bp-max/18": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 99455.86571986653,
+      "totalDamage": 2983675.971595996,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
+    },
+    "silkbindJade/jade-three-rounds/jade-bp-max/19": {
+      "fixture": {
+        "build": "jade-bp-max",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 105278.22494241221,
+      "totalDamage": 3158346.7482723664,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
+    },
+    "silkbindJade/jade-three-rounds/jade-bp-min/18": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 97265.70803500067,
+      "totalDamage": 2917971.2410500203,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
+    },
+    "silkbindJade/jade-three-rounds/jade-bp-min/19": {
+      "fixture": {
+        "build": "jade-bp-min",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 102069.39697877587,
+      "totalDamage": 3062081.909363276,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
+    },
+    "silkbindJade/jade-three-rounds/jade-full-bp/18": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 102798.21710011548,
+      "totalDamage": 3083946.5130034643,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
+    },
+    "silkbindJade/jade-three-rounds/jade-full-bp/19": {
+      "fixture": {
+        "build": "jade-full-bp",
+        "rotation": "jade-three-rounds",
+        "martialArts": ["vernalUmbrella", "inkwellFan"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 107785.32040794459,
+      "totalDamage": 3233559.6122383378,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 30
     },
     "silkbindJade/jade-three-rounds/jade-fully-relayed-max-bp/18": {
       "fixture": {
@@ -4374,8 +5070,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 108984.52972061792,
-      "totalDamage": 3269535.8916185377,
+      "dps": 107108.63647648337,
+      "totalDamage": 3213259.094294501,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4403,8 +5099,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 114424.2178995937,
-      "totalDamage": 3432726.536987811,
+      "dps": 113538.20108187509,
+      "totalDamage": 3406146.0324562527,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4432,8 +5128,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 97056.0849098274,
-      "totalDamage": 2911682.547294822,
+      "dps": 92447.43047372047,
+      "totalDamage": 2773422.914211614,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4461,8 +5157,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 102228.98448642864,
-      "totalDamage": 3066869.5345928594,
+      "dps": 97397.76003760395,
+      "totalDamage": 2921932.8011281183,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4490,8 +5186,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 107180.03242461476,
-      "totalDamage": 3215400.972738443,
+      "dps": 105391.66840133334,
+      "totalDamage": 3161750.0520400004,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4519,8 +5215,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 112513.11296642521,
-      "totalDamage": 3375393.388992756,
+      "dps": 110675.15372981812,
+      "totalDamage": 3320254.6118945437,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4548,8 +5244,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 95307.6911816881,
-      "totalDamage": 2859230.735450643,
+      "dps": 90902.48243581918,
+      "totalDamage": 2727074.4730745754,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4577,8 +5273,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 99610.12156956021,
-      "totalDamage": 2988303.6470868066,
+      "dps": 95028.24262346546,
+      "totalDamage": 2850847.278703964,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4606,8 +5302,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 111895.74955635707,
-      "totalDamage": 3356872.486690712,
+      "dps": 111081.07505582998,
+      "totalDamage": 3332432.2516748994,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4635,8 +5331,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 117381.21131769268,
-      "totalDamage": 3521436.3395307804,
+      "dps": 116513.43072609193,
+      "totalDamage": 3495402.921782758,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4664,8 +5360,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 99425.62497865551,
-      "totalDamage": 2982768.7493596654,
+      "dps": 94710.84034595014,
+      "totalDamage": 2841325.2103785044,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30
@@ -4693,8 +5389,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 104531.76877071748,
-      "totalDamage": 3135953.063121524,
+      "dps": 99598.53407813283,
+      "totalDamage": 2987956.022343985,
       "hps": 0,
       "totalHealing": 0,
       "duration": 30

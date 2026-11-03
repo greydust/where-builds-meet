@@ -4,6 +4,23 @@ import type { AttunementStats } from "./damage"
 
 export type AttunementOverrides = Partial<AttunementStats>
 
+/** Two official affix IDs describe the same Vernal projectile bonus. */
+export function canonicalAttunementKey(key: string) {
+  return key === "vernalProjectile280305Boost" ? "vernalProjectile280304Boost" : key
+}
+
+/** Preserve additive bonuses from saved sheets and profiles when merging the retired key. */
+export function migrateAttunementValues(value: unknown): Record<string, number> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {}
+  const migrated: Record<string, number> = {}
+  for (const [key, amount] of Object.entries(value)) {
+    if (typeof amount !== "number" || !Number.isFinite(amount)) continue
+    const canonical = canonicalAttunementKey(key)
+    migrated[canonical] = (migrated[canonical] ?? 0) + amount
+  }
+  return migrated
+}
+
 export type AttunementTagFilter = {
   /** All entries must match; a nested array matches any one of its tags. */
   tags?: Array<string | string[]>

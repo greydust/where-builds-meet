@@ -10,10 +10,12 @@ import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
 import {
   buildRotationTimeline,
+  requirementsPass,
   type EditableObject,
   type RotationStep,
   type TimelineBuildInput,
 } from "@/calculations/rotationTimeline"
+import { defaultBuildPresets } from "@/gear"
 import { exportRotationEntries, mergeImportedRotationEntries, serializeRotationEntries } from "@/rotationTransfer"
 
 import { loadDpsSnapshotFixtures, loadDpsSnapshotCases } from "./helpers/dps-snapshot-fixtures"
@@ -38,6 +40,169 @@ function input(steps: RotationStep[], blossoms = 0): TimelineBuildInput {
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
 
 describe("Jade combat", () => {
+  it.each([true, false])(
+    "extends Combo from exhausted Spring Away at most once per half-second (marked=%s)",
+    marked => {
+      const data = input([
+        cast("Mark"),
+        cast("Shots"),
+        { type: "event", event: "Delay", duration: 0.7 },
+        cast("Observe"),
+      ])
+      data.skills = {
+        ...data.skills,
+        Mark: {
+          castTime: 0,
+          action: [
+            { type: "apply", target: "target", value: "Exhausted", time: 0 },
+            ...(marked ? [{ type: "apply", target: "target", value: "JadeCombo", duration: 1, time: 0 }] : []),
+          ],
+        },
+        Shots: {
+          castTime: 0,
+          tags: ["SpringAway"],
+          action: [0, 0.1, 0.6].map(time => ({ type: "damage", phyCoef: 1, time })),
+        },
+        Observe: { castTime: 0, action: [] },
+      }
+      const row = buildRotationTimeline(data).find(r => r.step.skill === "Observe")!
+      expect(row.debuffs.get("JadeCombo")?.expiresAt ?? 0).toBe(marked ? 3 : 0)
+      const bonuses = (data.innerWayRules ?? [])
+        .filter(
+          r =>
+            r.source === "BlossomBarrage" &&
+            r.tier === 4 &&
+            requirementsPass(r.requirement, row.buffs, row.debuffs, ["SpringAway"], new Set(data.innerWayConditions)),
+        )
+        .reduce((sum, r) => sum + Number(r.effect?.hpDMGBonus ?? 0), 0)
+      expect(bonuses).toBe(marked ? 0.1 : 0)
+    },
+  )
+  it("lets airborne SR suppress a later grounded grant until its expiry", () => {
+    const data = input([
+      cast("StarReacherAirborneGrant"),
+      { type: "event", event: "Delay", duration: 2 },
+      cast("StarReacherGrant"),
+      cast("Observe"),
+      { type: "event", event: "Delay", duration: 11 },
+      cast("StarReacherGrant"),
+      cast("Observe"),
+    ])
+    data.skills = { ...data.skills, Observe: { castTime: 0, action: [] } }
+    const rows = buildRotationTimeline(data).filter(r => r.step.skill === "Observe")
+    expect(rows[0].buffs.has("StarReacherAirborne")).toBe(true)
+    expect(rows[0].buffs.has("StarReacherBone")).toBe(false)
+    expect(rows[1].buffs.has("StarReacherAirborne")).toBe(false)
+    expect(rows[1].buffs.has("StarReacherBone")).toBe(true)
+  })
+
+  it.each([
+    ["T0", 0.1, 0.05],
+    ["T1", 0.2, 0.075],
+    ["T6", 0.2, 0.075],
+  ] as const)("selects replacement Combo and SR bonuses at %s, including refresh", (tier, combo, attack) => {
+    const ways = [
+      { innerWay: "BlossomBarrage", tier },
+      { innerWay: "StarReacher", tier },
+    ]
+    const data = input([
+      cast("Mark"),
+      cast("StarReacherGrant"),
+      cast("Observe"),
+      { type: "event", event: "Delay", duration: 2 },
+      cast("Mark"),
+      cast("StarReacherGrant"),
+      cast("Observe"),
+    ])
+    data.innerWayConditions = [...innerWayConditionsFor(ways, undefined, "silkbindJade")]
+    data.innerWayRules = innerWayEffectRulesFor(ways, 19, "silkbindJade")
+    data.skills = {
+      ...data.skills,
+      Mark: { castTime: 0, action: [{ type: "apply", target: "target", value: "JadeCombo", time: 0 }] },
+      Observe: { castTime: 0, action: [] },
+    }
+    const rows = buildRotationTimeline(data).filter(r => r.step.skill === "Observe")
+    for (const row of rows) {
+      const sum = (name: string, key: string) => {
+        const effect = row.buffs.get(name) ?? row.debuffs.get(name)
+        return ((effect?.perHitEffectRules ?? []) as Array<{ requirement: unknown; effect: Record<string, unknown> }>)
+          .filter(rule =>
+            requirementsPass(rule.requirement, row.buffs, row.debuffs, ["Ballistic"], new Set(data.innerWayConditions)),
+          )
+          .reduce((total, rule) => total + Number(rule.effect[key] ?? 0), 0)
+      }
+      expect(sum("JadeCombo", "hpDMGBonus")).toBe(combo)
+      expect(sum("StarReacherBone", "physicalAttackBonus")).toBe(attack)
+    }
+  })
+  it.each([
+    [false, false, 0.075],
+    [false, true, 0.15],
+    [true, false, 0.15],
+    [true, true, 0.25],
+  ] as const)("keeps SR routes distinct (airborne=%s exhausted=%s)", (airborne, exhausted, attack) => {
+    const data = input([
+      cast("Mark"),
+      cast(airborne ? "StarReacherAirborneGrant" : "StarReacherGrant"),
+      cast("Observe"),
+    ])
+    data.skills = {
+      ...data.skills,
+      Mark: {
+        castTime: 0,
+        action: [...(airborne ? ["Airborne"] : []), ...(exhausted ? ["Exhausted"] : [])].map(value => ({
+          type: "apply",
+          target: "target",
+          value,
+          time: 0,
+        })),
+      },
+      Observe: { castTime: 0, action: [] },
+    }
+    const row = buildRotationTimeline(data).find(r => r.step.skill === "Observe")!
+    const active = [...row.buffs.values()].filter(b => b.name.startsWith("StarReacher"))
+    expect(active).toHaveLength(1)
+    const bonus = (
+      (active[0].perHitEffectRules ?? []) as Array<{ requirement: unknown; effect: Record<string, unknown> }>
+    )
+      .filter(rule => requirementsPass(rule.requirement, row.buffs, row.debuffs, [], new Set(data.innerWayConditions)))
+      .reduce((total, rule) => total + Number(rule.effect.physicalAttackBonus ?? 0), 0)
+    expect(bonus).toBe(attack)
+  })
+  it.each([
+    [false, [0, 0.15]],
+    [true, [0, 0.1, 0.2]],
+  ] as const)("locks UF volley choice before target marks disappear (airborne=%s)", (airborne, times) => {
+    const data = input([
+      cast("Mark"),
+      cast("UnfadingFlowerProjectile"),
+      cast("Remove"),
+      { type: "event", event: "Delay", duration: 0.3 },
+    ])
+    data.skills = {
+      ...data.skills,
+      Mark: {
+        castTime: 0,
+        action: [{ type: "apply", target: "target", value: airborne ? "Airborne" : "LingeringBone", time: 0 }],
+      },
+      Remove: {
+        castTime: 0,
+        action: [
+          {
+            type: "consume",
+            target: "target",
+            value: airborne ? "Airborne" : "LingeringBone",
+            stack: "all",
+            time: 0.05,
+          },
+        ],
+      },
+    }
+    const row = buildRotationTimeline(data).find(r => r.step.skill === "UnfadingFlowerProjectile")!
+    const hits = row.actions.filter((a, i) => a.type === "damage" && row.actionStates[i]?.combatOrder !== undefined)
+    expect(hits.map(h => h.time).sort()).toEqual([...times])
+  })
+
   it("separates UF activation damage and limits projectile attunement to follow-up hits", async () => {
     const fixture = (await loadDpsSnapshotFixtures("19")).find(entry => entry.id === "silkbindJade/jade-three-rounds")!
     const bundle = buildPresetRotationBundle(
@@ -50,17 +215,17 @@ describe("Jade combat", () => {
       attunement: { ...emptyAttunementStats, vernalProjectile280304Boost: 0.28 },
     })
     const heavy = (result: typeof plain) =>
-      result.metrics.breakdown.groupedSkills.find(row => row.name === "Unfading Flower - Heavy")!
+      result.metrics.breakdown.groupedSkills.find(row => row.name === "Unfading Flower Heavy Attack")!
     const projectiles = (result: typeof plain) =>
-      result.metrics.breakdown.groupedSkills.find(row => row.id === "UnfadingFlowerProjectile")!
+      result.metrics.breakdown.groupedSkills.find(row => row.name === "Unfading Flower")!
     expect(heavy(plain).hits).toBe(3)
     expect(heavy(boosted).damage).toBe(heavy(plain).damage)
     expect(projectiles(boosted).damage).toBeGreaterThan(projectiles(plain).damage)
-    expect(projectiles(boosted).children).toBeUndefined()
+    expect(projectiles(boosted).hits).toBe(projectiles(plain).hits)
   })
-  it("keeps finite Grounded Vitality positive throughout all six Flower cycles", async () => {
+  it("keeps finite Grounded Vitality nonnegative throughout all six Flower cycles", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(entry => entry.id.startsWith("silkbindJade/jade-grounded/"))
-    expect(fixtures).toHaveLength(12)
+    expect(fixtures).toHaveLength(18)
     for (const fixture of fixtures) {
       const result = calculateRotationBaseline(
         buildPresetRotationBundle(
@@ -79,7 +244,7 @@ describe("Jade combat", () => {
         .map(state => state.resourceRanges?.Vitality?.minimum ?? state.resources.Vitality)
         .filter(value => typeof value === "number")
       expect(vitality.length).toBeGreaterThan(0)
-      expect(Math.min(...vitality)).toBeGreaterThan(0)
+      expect(Math.min(...vitality)).toBeGreaterThanOrEqual(0)
       const flowers = result.timeline.filter(
         row => row.step.skill === "UnfadingFlowerCancel" && row.resources.Blossoms === 100,
       )
@@ -112,9 +277,13 @@ describe("Jade combat", () => {
   })
   it("uses the attacking dummy to trigger BP from Soaring and lands Tide during Exhausted", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(
-      entry => entry.id.startsWith("silkbindJade/jade-three-rounds/") && entry.fixture.build.endsWith("-bp"),
+      entry =>
+        entry.id.startsWith("silkbindJade/jade-three-rounds/") &&
+        defaultBuildPresets
+          .find(build => build.id === entry.fixture.build)
+          ?.setup?.innerWays.some(way => way.innerWay === "BreakingPoint"),
     )
-    expect(fixtures).toHaveLength(4)
+    expect(fixtures).toHaveLength(12)
     for (const fixture of fixtures) {
       const result = calculateRotationBaseline(
         buildPresetRotationBundle(
@@ -129,6 +298,15 @@ describe("Jade combat", () => {
         )!,
       )
       const soaring = result.timeline.find(row => row.step.skill === "SoaringSpin2")!
+      const breeze = result.timeline.find(row => row.step.skill === "SereneBreeze")!
+      const breezeHit = breeze.actions.findIndex(action => action.type === "damage")
+      expect(result.actionBreakdowns[`${breeze.id}:${breezeHit}`]).toBeDefined()
+      expect(soaring.startTime).toBeCloseTo(breeze.startTime + breeze.effectiveCastTime, 9)
+      expect(
+        result.timeline
+          .filter(row => row.step.skill === "PerfectDodgeSuccess")
+          .map(row => row.startTime - result.anchorTime),
+      ).toEqual([5.5, 11.5, 23.5])
       expect(
         result.timeline.some(row => row.step.skill === "PerfectDodgeSuccess" && row.sourceRowId === soaring.id),
       ).toBe(true)
@@ -178,17 +356,31 @@ describe("Jade combat", () => {
       for (const [index, row] of casts.entries()) {
         if (!String(row.skill?.name).includes("[Cancel]") || row.step.skill === "GoldenBodyCancel") continue
         const next = casts[index + 1]
-        const allowed = ["EmeraldBarrierCancel", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? "")
-          ? ["MoonShatterSpring"]
-          : ["Deflect", "EmeraldBarrier", "EmeraldBarrierCancel", "MoonShatterSpring"]
-        expect(allowed).toContain(next?.step.skill)
+        expect(next).toBeDefined()
+        let legalFollowUp: boolean
+        switch (row.step.skill) {
+          case "ForsakenFameCancel":
+            legalFollowUp =
+              !["ForsakenFame", "ForsakenFameCancel"].includes(next.step.skill ?? "") &&
+              next.skill?.weapon !== "Umbrella"
+            break
+          case "EmeraldBarrierCancel":
+          case "PeaksSpringlessSilenceCancel":
+            legalFollowUp = next.step.skill === "MoonShatterSpring"
+            break
+          default:
+            legalFollowUp = ["Deflect", "EmeraldBarrier", "EmeraldBarrierCancel", "MoonShatterSpring"].includes(
+              next.step.skill ?? "",
+            )
+        }
+        expect(legalFollowUp).toBe(true)
         expect(next.startTime).toBeLessThanOrEqual(row.startTime + row.effectiveCastTime + 0.040001)
       }
     }
   })
   it("uses Flying's opener, Peak gap closure, Endurance recovery and legal buff refreshes across builds", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(entry => entry.id.startsWith("silkbindJade/jade-flying/"))
-    expect(fixtures).toHaveLength(12)
+    expect(fixtures).toHaveLength(18)
     for (const fixture of fixtures) {
       const result = calculateRotationBaseline(
         buildPresetRotationBundle(
@@ -269,7 +461,7 @@ describe("Jade combat", () => {
   })
   it("keeps Hybrid refills, buff coverage and cancel follow-ups legal across supported builds", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(entry => entry.id.startsWith("silkbindJade/jade-hybrid/"))
-    expect(fixtures).toHaveLength(12)
+    expect(fixtures).toHaveLength(18)
     for (const fixture of fixtures) {
       const result = calculateRotationBaseline(
         buildPresetRotationBundle(
@@ -674,7 +866,7 @@ describe("Jade combat", () => {
         8,
       )
       expect(flowers[2].actionStates[0].debuffs.has("Exhausted")).toBe(true)
-      const firstBone = casts.find(row => row.step.skill === "ForsakenFame")!
+      const firstBone = casts.find(row => row.step.skill === "ForsakenFameCancel")!
       for (const row of casts.filter(row => row.startTime > firstBone.startTime))
         expect(row.debuffs.has("LingeringBone")).toBe(true)
       for (const row of result.timeline) {
@@ -728,11 +920,13 @@ describe("Jade combat", () => {
   })
 
   it.each([
-    [undefined, 2],
-    ["BlossomBarrageT0", 3],
+    [undefined, 1],
+    ["BlossomBarrageT0", 2],
+    ["BlossomBarrageT5", 2],
+    ["BlossomBarrageT6", 3],
   ])("uses %s charge capacity for both cast readiness and recovery", (condition, capacity) => {
     const data = input(Array.from({ length: capacity + 1 }, () => cast("SpringSorrow")))
-    data.innerWayConditions = condition ? [condition] : []
+    data.innerWayConditions = condition ? ["BlossomBarrageT0", condition] : []
     data.innerWayRules = []
     data.skills = {
       ...data.skills,

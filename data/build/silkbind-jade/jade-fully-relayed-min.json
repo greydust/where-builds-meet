@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-min",
-  "name": "Fully Relayed Min Long Fight",
-  "order": 4,
+  "name": "Fully Relayed Min Thunderous",
+  "order": 1,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

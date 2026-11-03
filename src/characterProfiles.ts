@@ -1,7 +1,8 @@
+import defaultSetupJson from "@gamedata/default-setup.json"
 import * as v from "valibot"
 
-import defaultSetupJson from "../data/default-setup.json"
 import { characterProfileStorageKey } from "./application/persistence/keys"
+import { migrateAttunementValues } from "./calculations/attunementStats"
 import type { AttunementStats } from "./calculations/damage"
 import type { CharacterStatOverrides } from "./calculations/statEffects"
 import { allStatDefinitions } from "./data/statDefinitions"
@@ -59,7 +60,10 @@ function parseProfile(value: unknown): CharacterProfile | undefined {
     id: source.id,
     name: source.name.trim(),
     statOverrides: finiteValues(source.statOverrides, characterStatKeys) as CharacterStatOverrides,
-    attunementOverrides: finiteValues(source.attunementOverrides, attunementKeys) as Partial<AttunementStats>,
+    attunementOverrides: finiteValues(
+      migrateAttunementValues(source.attunementOverrides),
+      attunementKeys,
+    ) as Partial<AttunementStats>,
     innerWays,
     buildSetup: { ...buildSetup, innerWays: innerWays.map(row => Object.assign({}, row)) },
   }

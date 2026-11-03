@@ -65,7 +65,7 @@ describe("attunement", () => {
       ).total
     const infernalSkills = (await import("@gamedata/skill/infernal-twinblades.json")).default
     const vernalSkills = (await import("@gamedata/skill/vernal-umbrella.json")).default
-    for (const key of ["vernalProjectile280304Boost", "vernalProjectile280305Boost"] as const) {
+    for (const key of ["vernalProjectile280304Boost"] as const) {
       for (const [skill, multiplier] of [
         [vernalSkills.UnfadingFlowerProjectile, 1.06],
         [vernalSkills.UnfadingFlowerRelease, 1],

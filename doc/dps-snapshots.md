@@ -1,5 +1,18 @@
 # DPS regression snapshots
 
+## Jade acceptance (November 3, 2026)
+
+The user approved the current Jade snapshots for commit and release. The accepted
+catalog covers all four rotations, nine builds, and breakthroughs 18/19 (72 cases).
+It includes the Thunderous, BP, and BP Mystic families, legal FF/UF cancel chains,
+the 35-Blossom Phoenix refill, and the consolidated Vernal frequent-projectile
+attunement. Grounded retains 146 UF projectile hits with its final UF at
+51.686921s and the Toad / Fan Q cancel / extra FF refresh sequence. The 30-second
+IV rotation uses Serene Breeze between FF cancel and Soaring to preserve dodges.
+The reviewed combat corrections and existing Flying/Hybrid presets are included;
+further Flying/Hybrid optimization requires a new snapshot review. Other paths'
+accepted values are not refreshed by this approval.
+
 `npm run test:dps` compares every non-empty preset rotation, including WIP paths
 against `tests/snapshots/rotation-dps.json`. The release deployment workflow
 runs this guard before publishing, including manual deployments. Ordinary build,

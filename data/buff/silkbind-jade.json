@@ -78,7 +78,12 @@
     "duration": 8,
     "maxStack": 1,
     "refresh": true,
-    "effect": [{ "requirement": [], "effect": { "physicalAttackBonus": 0.05 } }],
+    "effect": [
+      {
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "StarReacherT1" }] }],
+        "effect": { "physicalAttackBonus": 0.05 }
+      }
+    ],
     "showCoverage": true,
     "shortName": "SR"
   },
@@ -107,6 +112,7 @@
   },
   "StartlingSpring": {
     "name": "Startling Spring",
+    "shortName": "SS",
     "duration": 15,
     "maxStack": 5,
     "refresh": true,
@@ -132,5 +138,28 @@
         "onDepleted": [{ "type": "consume", "target": "self", "value": "SpringAwayChannel", "stack": "all", "time": 0 }]
       }
     ]
+  },
+  "StarReacherAirborne": {
+    "name": "Star Reacher (Airborne)",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      {
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "StarReacherT1" }] }],
+        "effect": { "physicalAttackBonus": 0.1 }
+      }
+    ],
+    "showCoverage": true,
+    "shortName": "SR (Airborne)"
+  },
+  "StarReacherAirborneEnhanced": {
+    "name": "Star Reacher (Airborne, enhanced)",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "requirement": [], "effect": { "physicalAttackBonus": 0.25 } }],
+    "showCoverage": true,
+    "shortName": "SR (Airborne)"
   }
 }

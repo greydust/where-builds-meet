@@ -1,9 +1,10 @@
-import type { AttunementOverrides } from "../../calculations/attunementStats"
-import type { AttunementStats } from "../../calculations/damage"
-import { attunementData } from "../../gear"
-import { getPersistentItem } from "../../persistentStorage"
-import { parseJson } from "../../schemas/json"
-import { attunementMapSchema } from "../../schemas/storage"
+import { migrateAttunementValues, type AttunementOverrides } from "@/calculations/attunementStats"
+import type { AttunementStats } from "@/calculations/damage"
+import { attunementData } from "@/gear"
+import { getPersistentItem } from "@/persistentStorage"
+import { parseJson } from "@/schemas/json"
+import { attunementMapSchema } from "@/schemas/storage"
+
 import { attunementOverrideStorageKey, attunementStorageKey } from "./keys"
 import { readLegacyAttunementStats } from "./legacy"
 
@@ -27,6 +28,7 @@ export function loadAttunementStats() {
     saved = parsed.success ? (parsed.output as Record<string, unknown>) : undefined
   }
   if (!saved) return { ...defaultAttunementStats }
+  saved = migrateAttunementValues(saved)
   return Object.fromEntries(
     Object.keys(defaultAttunementStats).map(key => {
       const statKey = key as keyof AttunementStats
@@ -41,9 +43,10 @@ export function loadAttunementOverrides(): AttunementOverrides {
   if (currentSaved !== null) {
     const values = parseJson(attunementMapSchema, currentSaved)
     if (!values.success) return {}
+    const migrated = migrateAttunementValues(values.output)
     return Object.fromEntries(
       Object.keys(defaultAttunementStats).flatMap(key => {
-        const value = values.output[key]
+        const value = migrated[key]
         return typeof value === "number" && Number.isFinite(value) ? [[key, value]] : []
       }),
     ) as AttunementOverrides

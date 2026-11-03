@@ -76,7 +76,7 @@ describe("attunement-import", () => {
       [280302, "inkwellSpecialPursuitBoost"],
       [280303, "vernalMartialBoost"],
       [280304, "vernalProjectile280304Boost"],
-      [280305, "vernalProjectile280305Boost"],
+      [280305, "vernalProjectile280304Boost"],
       [280306, "vernalLightHeavyVariedComboBoost"],
       [280501, "infernalMartialBoost"],
       [280502, "infernalEmpoweredLightBoost"],
@@ -276,9 +276,9 @@ describe("attunement-import", () => {
       close(healing(imported.get(id)) / healing({}), 1.047, `Imported ${id} retains existing healing behavior`)
       close(damage(imported.get(id), tags), damage({}, tags), `Healing attunement ${id} does not boost damage`)
     }
-    const panacea = asSkillRecords((await import("../data/skill/panacea-fan.json")).default)
-    const soulshade = asSkillRecords((await import("../data/skill/soulshade-umbrella.json")).default)
-    const delugeBuffs = asEffectDefinitions((await import("../data/buff/silkbind-deluge.json")).default)
+    const panacea = asSkillRecords((await import("@gamedata/skill/panacea-fan.json")).default)
+    const soulshade = asSkillRecords((await import("@gamedata/skill/soulshade-umbrella.json")).default)
+    const delugeBuffs = asEffectDefinitions((await import("@gamedata/buff/silkbind-deluge.json")).default)
     for (const [id, skills, supported] of [
       [
         280401,

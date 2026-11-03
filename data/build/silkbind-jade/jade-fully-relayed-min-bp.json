@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-min-bp",
-  "name": "Fully Relayed Min Short Fight",
-  "order": 2,
+  "name": "Fully Relayed Min BP Mystic",
+  "order": 7,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

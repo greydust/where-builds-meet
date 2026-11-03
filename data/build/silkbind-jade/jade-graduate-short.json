@@ -1,7 +1,7 @@
 {
   "id": "jade-graduate-short",
-  "name": "Graduate Short Fight",
-  "order": 5,
+  "name": "Full Max BP Mystic",
+  "order": 9,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": false,
   "setup": {
@@ -40,7 +40,7 @@
           { "key": "maxPhys", "value": 77.8 },
           { "key": "power", "value": 49.4 },
           { "key": "agility", "value": 49.4 },
-          { "key": "crit", "value": 0.09 }
+          { "key": "maxVoidAttack", "value": 44.2 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -92,7 +92,7 @@
           { "key": "maxPhys", "value": 77.8 },
           { "key": "power", "value": 49.4 },
           { "key": "agility", "value": 49.4 },
-          { "key": "crit", "value": 0.09 }
+          { "key": "maxSilkbind", "value": 44.2 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.06 }
       },
@@ -146,7 +146,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "agility", "value": 57.4 },
-          { "key": "crit", "value": 0.104 }
+          { "key": "maxVoidAttack", "value": 51.4 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -183,7 +183,7 @@
         "baseAffix": { "key": "crit", "value": 0.104 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 90.6 },
-          { "key": "power", "value": 57.4 },
+          { "key": "agility", "value": 57.4 },
           { "key": "allMysticDmgBoost", "value": 0.114 },
           { "key": "precision", "value": 0.094 }
         ],
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "allMysticDmgBoost", "value": 0.114 },
-          { "key": "crit", "value": 0.104 }
+          { "key": "agility", "value": 57.4 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.07 }
       },

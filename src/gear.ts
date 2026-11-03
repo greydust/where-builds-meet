@@ -9,7 +9,7 @@ import statJson from "@gamedata/stat.json"
 
 import { activeBuildStorageKey, buildListStorageKey, legacyGearStorageKey } from "./application/persistence/keys"
 import { readLegacyBuildSetup, readLegacyGearInventory } from "./application/persistence/legacy"
-import type { AttunementTagFilter } from "./calculations/attunementStats"
+import { canonicalAttunementKey, type AttunementTagFilter } from "./calculations/attunementStats"
 import type { AttunementStats } from "./calculations/damage"
 import { getPersistentItem } from "./persistentStorage"
 import {
@@ -486,6 +486,9 @@ function parseGearItem(value: unknown): GearItem | undefined {
   const validated = validateUnknown(gearItemInputSchema, value)
   if (!validated.success) return undefined
   const candidate = validated.output as Partial<GearItem>
+  if (candidate.attunement) {
+    candidate.attunement = { ...candidate.attunement, key: canonicalAttunementKey(candidate.attunement.key) }
+  }
   if (isGearLevel(candidate.level) && candidate.additionalAffixes) {
     candidate.additionalAffixes = candidate.additionalAffixes.map(affix => ({
       ...affix,

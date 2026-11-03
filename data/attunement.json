@@ -255,12 +255,6 @@
     "tags": ["Armor", "SilkbindJade", "VernalUmbrella"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["VernalUmbrella", "FrequentProjectile"] }
   },
-  "vernalProjectile280305Boost": {
-    "name": "Vernal Umbrella Frequent Projectile DMG Boost",
-    "percentage": true,
-    "tags": ["Armor", "SilkbindJade", "VernalUmbrella"],
-    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["VernalUmbrella", "FrequentProjectile"] }
-  },
   "vernalLightHeavyVariedComboBoost": {
     "name": "Vernal Umbrella - Light/Heavy Attack & Varied Combo DMG Boost",
     "percentage": true,

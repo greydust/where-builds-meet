@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-max",
-  "name": "Fully Relayed Max Long Fight",
-  "order": 3,
+  "name": "Fully Relayed Max Thunderous",
+  "order": 2,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

@@ -1,7 +1,7 @@
 {
   "id": "jade-graduate",
-  "name": "Graduate Long Fight",
-  "order": 6,
+  "name": "Full Max Thunderous",
+  "order": 3,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": false,
   "setup": {

@@ -13,6 +13,14 @@
     "maxStack": 1,
     "refresh": true,
     "showCoverage": true,
-    "effect": [{ "requirement": [{ "target": "skillTag", "value": "Ballistic" }], "effect": { "hpDMGBonus": 0.1 } }]
+    "effect": [
+      {
+        "requirement": [
+          { "target": "skillTag", "value": "Ballistic" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "BlossomBarrageT1" }] }
+        ],
+        "effect": { "hpDMGBonus": 0.1 }
+      }
+    ]
   }
 }

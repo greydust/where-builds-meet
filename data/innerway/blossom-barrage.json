@@ -55,14 +55,26 @@
       "effect": [
         {
           "requirement": [
-            { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "skillTag", "value": "SpringAway" }
+              ]
+            },
             { "target": "target", "value": "JadeCombo" }
           ],
           "effect": { "hpDMGBonus": 0.05 }
         },
         {
           "requirement": [
-            { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "skillTag", "value": "SpringAway" }
+              ]
+            },
             { "target": "target", "value": "JadeCombo" },
             { "target": "target", "value": "Exhausted" }
           ],
@@ -73,7 +85,13 @@
         {
           "cooldown": 0.5,
           "requirement": [
-            { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "skillTag", "value": "SpringAway" }
+              ]
+            },
             { "target": "target", "value": "JadeCombo" },
             { "target": "target", "value": "Exhausted" }
           ],
