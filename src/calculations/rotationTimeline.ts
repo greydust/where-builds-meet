@@ -4853,6 +4853,9 @@ export function buildRotationTimeline(
       continue
     }
     if (action.type === "damage") {
+      // Prepull damage markers cannot land a hit. Direct skill actions still run,
+      // but hit listeners, counters, recordings, and resource rewards do not.
+      if (!battleStarted) continue
       if ((resolvedAction?.selfRecovery ?? 0) > 0) setCurrentHP(currentHP + resolvedAction!.selfRecovery!)
       if ((resolvedAction?.damage ?? 0) > 0) {
         for (const rule of damageListeners) {

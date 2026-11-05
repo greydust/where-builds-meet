@@ -104,7 +104,7 @@ describe("comparison timeline reuse", () => {
     expect(baseline.baseline.some(entry => entry.replay)).toBe(true)
   })
 
-  it("includes prepull source damage without counting it as combat damage", () => {
+  it("excludes prepull hits from recordings and combat damage", () => {
     const bundle = fixture()
     bundle.timeline.rotation.steps.splice(
       2,
@@ -115,7 +115,7 @@ describe("comparison timeline reuse", () => {
     bundle.startAnchor = { rowId: "rotation-3" }
     const baseline = checkAgainstRebuild(bundle, 0)
     expect(baseline.baseline.some(entry => entry.id === "rotation-1:0")).toBe(false)
-    expect(baseline.baseline.find(entry => entry.replay)?.replay?.sourceActionIds).toContain("rotation-1:0")
+    expect(baseline.baseline.find(entry => entry.replay)?.replay?.sourceActionIds).toEqual(["rotation-3:0"])
   })
 
   it("keeps replacement recording windows separate", () => {
@@ -134,7 +134,7 @@ describe("comparison timeline reuse", () => {
     expect(payouts.map(entry => entry.replay?.sourceActionIds)).toEqual([["rotation-1:0"], ["rotation-4:0"]])
   })
 
-  it("recalculates prepull outcome buffs before recorded attunement comparisons", () => {
+  it("excludes prepull outcome buffs and recordings from attunement comparisons", () => {
     const bundle = fixture()
     bundle.stats.affinity = 0.5
     bundle.derivedStats = calculateDerivedStats(bundle.stats, 0)
@@ -168,7 +168,12 @@ describe("comparison timeline reuse", () => {
     ]
     bundle.startAnchor = { rowId: "rotation-5" }
     const baseline = checkAgainstRebuild(bundle, 0)
-    expect(baseline.baseline.find(entry => entry.replay)?.replay?.sourceActionIds).toHaveLength(3)
+    expect(baseline.baseline.find(entry => entry.replay)?.replay?.sourceActionIds).toEqual(["rotation-5:0"])
+    expect(
+      [...baseline.timeline.find(row => row.id === "rotation-5")!.buffs.values()].some(
+        buff => buff.name === "Hawkwing",
+      ),
+    ).toBe(false)
   })
 
   it("preserves the combat cutoff when recording settlement occurs later", () => {
