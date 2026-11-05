@@ -1,6 +1,6 @@
 {
   "id": "jade-fully-relayed-min",
-  "name": "Fully Relayed Min Thunderous",
+  "name": "Fully Relayed Min TB",
   "order": 1,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,

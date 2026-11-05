@@ -1,6 +1,6 @@
 {
   "id": "jade-fully-relayed-max",
-  "name": "Fully Relayed Max Thunderous",
+  "name": "Fully Relayed Max TB",
   "order": 2,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,

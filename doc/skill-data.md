@@ -782,27 +782,17 @@ Ordinary Dodge refreshes Mystic damage at 17.5s. The hold places the 23.5s
 attack inside Fan Q's defensive window. The first Umbrella Q hit anchors battle time.
 BP builds use relayed All Mystic damage rolls on tier-100 helmet and chestpiece;
 the affix is not available on their tier-96 gear.
-`jade-hybrid` replaces heavy/varied-combo refills with
-Spring Away (1.551s opening hold, then 1.871s holds). Fan charged light, or full
-Peak in the final refill, refreshes Lingering Bone immediately before each channel
-so it survives until UF's first refresh. Emerald Barrier refreshes Jadebreak during
-UF. Filler comparisons include pursuit, Peak/pursuit, Smolder, Poet, Toad,
-Bursting Nine and Soaring Spin; the saved selection retains three Flutes.
-This is the best tested local combination, not an exhaustive rotation optimum.
-Charged refills take about 3.20s including startup/recovery, versus 1.20s for
-heavy/full Colorful Phoenix. The longer refills reduce this 60s preset from seven
-UF casts to five; a higher per-cast refill damage does not imply higher rotation DPS.
+Hybrid replaces Grounded's opening QQ and its QQ before UF four with one
+Umbrella Q and a Spring Away hold (4s and 1.871s respectively). Both reach
+100 Blossoms. Peak returns to melee after each charged refill. UF five uses
+a partial single-Q refill, and UF six uses QHL.
 
-`jade-flying` begins with full Peak, Emerald Barrier and five-hit pursuit. It uses
-10s requested Spring Away holds, shortened by Endurance depletion when applicable.
-The exported 10s cap can end a channel with Endurance remaining, particularly when
-Startling Spring expires during that channel. It is not modeled as an unlimited
-channel. During every UF recovery window, Peak closes the distance to 1m and
-reapplies Lingering Bone before pursuit; pursuit itself does not cause the move.
-Flying excludes Forsaken Fame and Endurance-consuming fillers so ordinary
-Endurance regeneration continues throughout these recovery windows.
-Extra Emerald Barrier casts use the existing sequential charge rules to preserve
-Jadebreak after its opening application; the requested initial Peak is unbuffed.
+Flying opens with Flute and Fan Q before the first Umbrella Q impact. Each
+10s Spring Away ends with UF at 100 Blossoms and a Deflect cancel. In each
+completed recovery, Peak closes to 1m for three-hit pursuit. Mystic fillers
+allow Endurance to recover, followed by Fan Q and five-hit pursuit. The
+first recovery uses Smolder and Serene Breeze. The second uses Golden Body,
+Smolder and Flute. Fan Q and Combo can expire between applications.
 Both new presets attach a Move to 9m at Spring Away's start and attach the
 return to 1m immediately before Peak's main hit (action 1, at 0.557581475s).
 The earlier small hit at 0.35s remains at 9m and misses. Pursuit preserves the
@@ -1148,7 +1138,7 @@ Fan charged light. Subsequent rounds begin Umbrella Q, refill to 100 with Q or
 Heavy + Light VC, then activate Unfading Flower. Fillers are Fan charged light,
 Fan Special + five-hit pursuit, or Mystics. Umbrella attacks must not be cast
 during Unfading Flower. Maintain Jadebreak, Combo, and Lingering Bone; author
-the target break at the third round's Unfading Flower.
+the one-minute Grounded target break at the fourth round's Unfading Flower.
 
 Confirmed resource data is in `blossoms` on the October 28 01:03 skill export,
 with supporting analysis in `where-datas-mine-internal/reports/jade-blossoms.md`.
@@ -2365,12 +2355,6 @@ Jade's 30-second IV preset uses Fan Q / Golden Body [Cancel] before the opening
 Umbrella Q. Its second UF cancels directly into Fan Q to retain Jadebreak. Battle start remains that Q's first damage action,
 so the extra precombat Deflect does not shift the in-combat dodge or Qi clocks.
 
-With individual UF refunds, the 60-second finite Grounded and Hybrid presets
-fit six and four UF activations respectively. Their late Fan Q refreshes occur
-before the next refill or pursuit sequence so the longer exhausted UF window
-does not cause a Jadebreak gap. The 30-second IV sequence and its Qi-break
-anchor remain unchanged.
-
 Overlapping defensive response windows award success only to the most recently
 started active response. One incoming attack cannot award both a canceled dodge
 and the following Soaring Spin. Avoidance remains active for the whole window,
@@ -2409,23 +2393,9 @@ attack itself. Saved custom rotations retain their original skill selections.
 
 ### Jade one-minute rotation continuity
 
-The three one-minute Jade presets fill automatic cooldown and Unfading Flower
-recovery waits with attacks at their authored 40ms ping. Grounded uses the
-refill and exhaustion sequence documented below, including the 35-Blossom
-Phoenix cancel and Tide. Hybrid fills the post-Toad recovery window
-with Forsaken Fame, delays Fan Q until its charge is ready, and follows that
-refresh with Forsaken Fame before channeling to preserve Lingering Bone. Further
-Forsaken Fame casts fill the final Fan Q cooldown window. Flying uses two-shot
-Bursting Nine in its first recovery window and adds full two-hit Soaring Spin
-before its final Flute. Flying still avoids Forsaken Fame to preserve its
-Endurance recovery pattern.
-
-Across all six preset builds at breakthroughs 18 and 19, these sequences have
-no automatic waits or skipped casts before the 60-second cutoff. Every UF begins
-at 100 Blossoms, retaining two Flying, six Grounded, and four Hybrid activations.
-Existing buff-coverage, channel and finite-Vitality checks remain satisfied.
-The Grounded 30 Sec IV preset is unchanged. Existing fixed encounter events remain
-fixed; the attached Qi break continues to follow its owning UF hit.
+At 40ms ping, Grounded fits seven UF activations, Hybrid six and Flying
+three. Grounded uses two single-Q partial refills and Hybrid uses one.
+The Qi break lands on UF four for Grounded and Hybrid and UF two for Flying.
 
 ### Jade source-review boundaries
 
@@ -2511,22 +2481,16 @@ The name describes the refill requirement: the accepted four-Blossom pulses
 actually grant 36 before the cap. It omits the third hit and its resource grant
 at 0.7442s. The existing two-hit variant still ends at 0.53s and grants 32.
 
-Grounded keeps its Q-based battle start. Opening QQ / full Colorful Phoenix fills the meter.
-Forsaken Fame applies Lingering Bone after the first UF; only the first two
-volleys lack the mark. The mark then stays connected through subsequent UF
-windows and refills, and Combo remains present on every Q after the opener.
-The second refill uses the spare charge for QQ / UF [Cancel]. Remaining
-refills are uninterrupted Q / Heavy / Phoenix [35 Blossoms] / UF [Cancel].
-Every UF cancel in the one-minute Grounded preset is followed immediately by
-Deflect, including UF two before Fan Q. The opening FF uses its cancel variant
-into Peak to recover 0.44s, preserving Jadebreak through that later Fan Q refresh.
-Other Fan Q refreshes happen during UF rather than interrupting a refill.
-Jadebreak covers the full battle, and each completed refill reaches 100 Blossoms.
-
-The finite Grounded preset uses Golden Body before Dragon Head Tide during
-the third UF, then one-hit Soaring. Serene Breeze cancels FF in the fourth
-window. These fillers preserve continuous Jadebreak and Lingering Bone and
-keep Vitality nonnegative.
+Grounded starts on the first Umbrella Q hit after Fan Q. QQ / Heavy /
+Phoenix [35 Blossoms] fills the opener. Toad enables the three-hit pursuit
+in the first UF window and full Fan Q enables the five-hit pursuit in the
+second. Flute precedes the fourth UF, which breaks Qi at 28.890s. Fan Q,
+two-hit Smolder / Deflect and five-hit Poet / Deflect follow during exhaustion.
+Every UF cancel has an immediate Deflect. Single-Q refills start the fifth
+and seventh UFs at about 60 Blossoms. Grounded uses the attacking dummy. In UF three, full Forsaken Fame finishes
+before the timed successful Deflect catches the 23.5s attack. Fan Q dodges
+the 29.5s attack during UF four. Each response restores 3 Vitality on Max BP,
+funding both late two-hit Soaring Spins.
 
 Forsaken Fame [Cancel] ends at its 1.19-second damage hit, retaining Lingering
 Bone and the 10-Endurance grant at that same timestamp. It saves 0.44 seconds
@@ -2534,30 +2498,11 @@ over the full cast. Its immediate follow-up must be Deflect or another skill
 that is neither Forsaken Fame (including its cancel variant) nor an Umbrella
 skill. As with the other cancel variants, this is an authored-sequence contract
 checked for presets; the editor does not enforce follow-up selection.
-Grounded cancels FF into Leaping Toad, then Fan Q [Cancel] into pursuit
-during the fifth UF. Its alignment hold and late FF refresh keep the last UF
-at 51.687s with Lingering Bone and Jadebreak. All six UFs reach 100 Blossoms.
-The first exhaustion is attached to UF three.
-
 Grounded Dummy 1 Min BP has been removed from the bundled presets. Its historical
 video-comparison reports remain as audit evidence, not an available rotation.
 
 ### Jade one-minute filler review (2026-11-05)
 
-Grounded retains its current fillers: a two-pass local search of 1,344
-single/pair substitutions found no DPS improvement preserving six full-Blossom
-UF activations, continuous Jadebreak/Lingering Bone, readiness and finite Vitality.
-This is a constrained local comparison, not a global optimum.
-
-Hybrid uses Forsaken Fame [Cancel] / Leaping Toad / Deflect instead of the
-second UF window's pursuit. The late full Forsaken Fame becomes its cancel
-variant followed by Serene Breeze. Toad retains its required cancel follow-up.
-The four full-Blossom UFs, buff coverage and cooldown continuity remain valid
-across all nine builds at breakthroughs 18 and 19. On Fully Relayed Max BP at
-BT19 with Simmering Fish Slices, Fire and 40ms ping, DPS rises from
-73,213.90791767067 to 74,200.82842233639. Exhaustion remains attached to the
-third UF hit, now at 31.716175499s. The preceding 59.99% / 39.99% Qi markers
-are at 12.686470200s / 19.029705299s; the next 59.99% marker is at
-58.402645699s, after ten seconds of exhaustion and four seconds of immunity.
-Flying's two-UF sequence remains unchanged pending review of the damage tradeoff
-from moving exhaustion to a third UF within the minute.
+On Fully Relayed Max BP at BT19, Hybrid's fourth UF breaks Qi at 39.09s.
+On Fully Relayed Max TB, Flying starts its channels at 0.38s, 23.61s and
+48.02s. All three complete the full hold. The second UF breaks Qi at 35.57s.
