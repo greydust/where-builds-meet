@@ -1,5 +1,16 @@
 # DPS regression snapshots
 
+## Pre-battle hit correction acceptance (November 5, 2026)
+
+The user approved the lower damage results caused by excluding pre-battle hits
+from on-hit processing, including weapon-set buffs and Morale Chant stacks.
+Direct skill buffs remain available before battle. The accepted changes cover
+192 cases across Wind, Jade, Wings, Might, and Strength, with unchanged durations.
+DPS decreases range from 0.054–0.121% for Wind, 0.027–0.254% for Jade,
+0.036–0.262% for Wings, 0.378–0.380% for Might, and 0.152–0.992% for Strength.
+These snapshots use the committed presets; subsequent uncommitted Jade edits
+are excluded from this acceptance.
+
 ## Jade acceptance (November 3, 2026)
 
 The user approved the current Jade snapshots for commit and release. The accepted
