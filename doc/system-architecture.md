@@ -1454,6 +1454,14 @@ Fight-start detection activates its dependent clocks in the same traversal.
 
 ### Input latency (ping)
 
+An attack response may supply `successRecovery` as a number or dynamic switch.
+When success resolves while its source cast still owns the next ordered event,
+the timeline replaces that cast's end with success time plus the selected
+recovery and reschedules its pending continuation and cast-end callbacks. This
+can shorten or extend recovery; it neither changes the captured defensive
+window nor reopens an already-finished/canceled cast. The grounded Dual Blades
+dodge uses this mechanism for its 0.1s reaction. No next-skill lookahead is used.
+
 Settings persists a non-negative finite ping in milliseconds in the existing
 user-settings record, defaulting to 40 ms for new and legacy settings. Rotations
 may store an optional ping override. An absent override inherits Settings;

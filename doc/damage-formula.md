@@ -726,6 +726,13 @@ Shared Multiplier =
 
 `baseDMGBonus` applies to physical damage and all four attributes. It is a separate multiplier from Category 1.
 
+Authored `damageScale` also multiplies the complete physical and attribute hit.
+UF projectiles use 1.15 and Forsaken Fame uses 1.45 for their NPC target
+corrections, replacing the former additive `hpDMGBonus` entries. Every currently
+supported encounter target qualifies. These factors remain separate from
+Jadebreak's additive 30% projectile and 10% boss-target branches. FF qualifies
+for both Jadebreak branches without qualifying for Combo.
+
 Snowbreak Spring uses its unscaled level-100 baseline (2.07686 physical and
 attribute coefficients, 575 physical flat damage, 313 attribute flat damage).
 Its unconditional PvE `baseDMGBonus: 0.36` adds to Frost-Clad Night T4's

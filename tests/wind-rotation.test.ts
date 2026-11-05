@@ -135,7 +135,7 @@ describe("Wind dummy preset", () => {
       expect(row.buffs.has("Flamelash")).toBe(true)
     }
     for (const [index, row] of fullCasts.entries()) {
-      if (!row.step.skill?.includes("PerfectDodge")) continue
+      if (!row.step.skill?.includes("Dodge")) continue
       const cancel = fullCasts[index - 1]
       expect(
         cancel.step.skill?.endsWith("Rodent") ||
@@ -163,10 +163,16 @@ describe("Wind dummy preset", () => {
     const casts = timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
     const firstQ = rowCasting(casts, "BladeboundThreadCancel")
     const anchor = firstQ.startTime + Number(firstQ.actions[0].time)
-    const dodges = casts.filter(row => row.step.skill === "PerfectDodge")
-    expect(dodges.map(row => Number((row.startTime - anchor).toFixed(3)))).toEqual([
-      5.475, 11.475, 17.475, 23.475, 29.475, 41.475, 47.475,
+    const dodges = casts.filter(row => row.step.skill === "Dodge")
+    const successes = timeline.filter(row => row.step.skill === "PerfectDodgeSuccess")
+    expect(successes.map(row => Number((row.startTime - anchor).toFixed(3)))).toEqual([
+      5.5, 11.5, 17.5, 23.5, 29.5, 41.5, 47.5,
     ])
+    expect(dodges).toHaveLength(7)
+    for (const [index, dodge] of dodges.entries()) {
+      expect(successes[index].sourceRowId).toBe(dodge.id)
+      expect(dodge.startTime + dodge.effectiveCastTime).toBeCloseTo(successes[index].startTime + 0.1, 9)
+    }
     let worldUsed = false
     for (const [index, row] of casts.entries()) {
       const match = /^InfernalFlamelashLight([1-5])(Cancel|Rodent|Combo)?$/.exec(row.step.skill ?? "")
@@ -174,7 +180,7 @@ describe("Wind dummy preset", () => {
       const stage = Number(match[1])
       if (match[2] === "Rodent" || match[2] === "Combo") {
         const dodge = casts[index + 1]
-        assert(dodge.step.skill === "PerfectDodge" || (match[2] === "Combo" && dodge.step.skill?.endsWith("Combo")))
+        assert(dodge.step.skill === "Dodge" || (match[2] === "Combo" && dodge.step.skill?.endsWith("Combo")))
         assert.equal(
           row.actions.some(action => action.type === "damage"),
           false,
@@ -204,7 +210,7 @@ describe("Wind dummy preset", () => {
   it("completes opening FA2 before FA3 Rodent and the first dodge", () => {
     const { timeline } = calculateRotationBaseline(bundleFor())
     const casts = timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
-    const dodgeIndex = casts.findIndex(row => row.step.skill === "PerfectDodge")
+    const dodgeIndex = casts.findIndex(row => row.step.skill === "Dodge")
     const fa2 = casts[dodgeIndex - 2]
     const rodent = casts[dodgeIndex - 1]
     const dodge = casts[dodgeIndex]
@@ -223,7 +229,7 @@ describe("Wind dummy preset", () => {
     expect(combos).toHaveLength(2)
     for (const combo of combos) {
       const dodge = casts[casts.indexOf(combo) + 1]
-      expect(dodge.step.skill).toBe("PerfectDodge")
+      expect(dodge.step.skill).toBe("Dodge")
       expect(combo.startTime + combo.effectiveCastTime + rotation.ping / 1000).toBeLessThanOrEqual(
         dodge.startTime + 1e-9,
       )
@@ -272,9 +278,7 @@ describe("Wind dummy preset", () => {
     const casts = timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
     const firstQ = casts.find(row => row.step.skill === "BladeboundThreadCancel")!
     const anchor = firstQ.startTime + Number(firstQ.actions[0].time)
-    const dodge = casts.find(
-      row => row.step.skill === "PerfectDodge" && Math.abs(row.startTime - anchor - 23.475) < 1e-9,
-    )!
+    const dodge = casts.find(row => row.step.skill === "Dodge" && Math.abs(row.startTime - anchor - 23.4) < 1e-9)!
     expect(casts[casts.indexOf(dodge) + 1].step.skill).toBe("InfernalFlamelashLight1")
     const third = casts.filter(row => row.step.skill === "Flamelash")[2]
     const refill = casts.find(row => row.startTime > dodge.startTime && row.step.skill === "InfernalLight1")!
@@ -340,7 +344,7 @@ describe("Wind dummy preset", () => {
     const tail = casts.filter(row => row.startTime >= refill.startTime)
     expect(tail.every(row => row.buffs.has("BreakingPointCooldown"))).toBe(true)
     expect(tail.every(row => ![...row.buffs.keys()].some(name => name.startsWith("Mystery")))).toBe(true)
-    expect(tail.some(row => row.step.skill === "PerfectDodge" || row.step.skill?.endsWith("Rodent"))).toBe(false)
+    expect(tail.some(row => row.step.skill === "Dodge" || row.step.skill?.endsWith("Rodent"))).toBe(false)
     const fa2 = tail.findLast(row => row.step.skill === "InfernalFlamelashLight2")!
     const next = casts[casts.indexOf(fa2) + 1]
     expect(next.step.skill).toBe("InfernalFlamelashLight3")

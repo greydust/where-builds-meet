@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-02",
+  "scope": "Diagnostic calculations only. No production definitions, presets, or accepted DPS snapshots changed.",
+  "reference": "BT19, Fully Relayed Max Short Fight, Grounded Dummy 30 Sec IV, 40ms, Simmering Fish Slices, Fire Divinecraft; Boss Talent initially zero.",
+  "screenshotDps": 117255,
+  "skillComparison": [
+    {
+      "name": "Unfading Flower",
+      "screenshot": { "hits": 75, "damage": 1645405 },
+      "model": { "hits": 74, "damage": 1495065.6028154294 },
+      "shortfallPercent": 9.136923564992848,
+      "damagePerHitShortfallPercent": 7.909044153708966
+    },
+    {
+      "name": "Dragon Head",
+      "screenshot": { "hits": 1, "damage": 568058 },
+      "model": { "hits": 1, "damage": 484773.03498080355 },
+      "shortfallPercent": 14.661348844518773,
+      "damagePerHitShortfallPercent": 14.661348844518773
+    },
+    {
+      "name": "Drunken Poet",
+      "screenshot": { "hits": 18, "damage": 376904 },
+      "model": { "hits": 18, "damage": 362683.36652172497 },
+      "shortfallPercent": 3.773012087501071,
+      "damagePerHitShortfallPercent": 3.773012087501071
+    },
+    {
+      "name": "Spring Sorrow",
+      "screenshot": { "hits": 5, "damage": 289819 },
+      "model": { "hits": 5, "damage": 260572.71165651857 },
+      "shortfallPercent": 10.091225331493591,
+      "damagePerHitShortfallPercent": 10.091225331493591
+    }
+  ],
+  "buffCoverage": {
+    "ufHits": 74,
+    "shieldedUFHits": 20,
+    "fluteUFHits": 20,
+    "breakingPointUFHits": 51,
+    "ghostlyBoostUFHits": 59,
+    "ordinarySRUFHits": 37,
+    "enhancedSRUFHits": 35,
+    "tideSelfHPRatio": 0.996857594016859
+  },
+  "scenarios": [
+    { "name": "base", "dps": 109994.41055460903, "tideDamage": 484773.03498080355, "ufHits": 74 },
+    { "name": "lateHP0.25", "dps": 112004.38610085325, "tideDamage": 551712.8183558082, "ufHits": 74 },
+    { "name": "bossTalent15", "dps": 119035.04805355199, "tideDamage": 529324.6278643084, "ufHits": 74 },
+    { "name": "shieldAlwaysActual", "dps": 115492.23020534162, "tideDamage": 519606.9269907068, "ufHits": 74 },
+    { "name": "secondGoldenBeforeLastFanQ", "dps": 112476.36614079737, "tideDamage": 519606.9269907068, "ufHits": 74 },
+    { "name": "boss15LateHP25", "dps": 120989.55074966713, "tideDamage": 594600.2257354395, "ufHits": 74 }
+  ],
+  "scenarioNotes": {
+    "bossTalent15": "Adds 15% Category 1 damage, equivalent to the existing Boss Talent option. A setup difference, not evidence to enable it by default.",
+    "shieldAlwaysActual": "Removes the Shield condition from the existing Rain Whisper bonus in the probe only. Upper bound, not a claim of valid permanent shield uptime.",
+    "secondGoldenBeforeLastFanQ": "Adds GoldenBodyCancel immediately before the final existing EmeraldBarrier. Fan Q is its legal cancel follow-up. Shield application remains delayed 0.5 seconds and cooldown remains 20 seconds.",
+    "lateHP0_25": "Sets self HP to 25% at battle time 25 seconds; subsequent damage and leech still resolve normally.",
+    "boss15LateHP25": "Combines the Boss Talent and late low-HP diagnostic assumptions; not a validated match to the screenshot."
+  },
+  "simulation": {
+    "n": 300,
+    "mean": 109620.23146907869,
+    "min": 98337.5782353086,
+    "median": 109782.21722132139,
+    "p95": 116628.44798468963,
+    "max": 119640.27910728366,
+    "aboveScreenshot": 8,
+    "above120k": 0
+  },
+  "simulationMethod": "300 production calculateSimulatedRotationRun calls with an LCG seed 4097, multiplier 1664525, increment 1013904223, uint32 divided by 2^32. Screenshot exceedance counts are descriptive of this sample, not an exact probability.",
+  "unresolved": [
+    "Actual screenshot gear, Boss Talent, shield source/uptime, self HP and attack rolls are unknown.",
+    "The review did not independently validate Mystic enlightenment scaling or the complete general damage formula. These remain candidates for raw-source verification, not established errors.",
+    "Morale Chant controlled-target conditions are not activated by Exhausted in the current model; whether source control semantics include exhaustion requires consumer evidence before changing shared behavior.",
+    "One more UF shot explains only a small part of the UF total gap. Nominal projectile request and contact timing remain distinct."
+  ]
+}

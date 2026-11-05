@@ -51,14 +51,14 @@ describe("Kite preset release readiness", () => {
   })
 })
 
-it("Kite BP uses Perfect Dodge to cancel A6 and align with the first dummy attack", () => {
+it("Kite BP uses ordinary Dodge to cancel A6 and align with the first dummy attack", () => {
   const result = calculateKite({ ...bp, ping: 40 } as RotationRecord, "kite-fully-relayed-min-bp")
   const dodge = result.timeline.find(
-    row => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "PerfectDodge",
+    row => row.kind === "rotation" && row.step.type === "skill" && row.step.skill === "Dodge",
   )!
   const success = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "PerfectDodgeSuccess")!
-  expect(dodge.startTime - result.anchorTime).toBeCloseTo(5.1)
-  expect(dodge.startTime + dodge.effectiveCastTime - result.anchorTime).toBeCloseTo(5.6)
+  expect(dodge.startTime - result.anchorTime).toBeCloseTo(5.35)
+  expect(dodge.startTime + dodge.effectiveCastTime - result.anchorTime).toBeCloseTo(5.75)
   expect(success.startTime - result.anchorTime).toBeCloseTo(5.5)
   expect(success.sourceRowId).toBe(dodge.id)
   const attacks = result.timeline.filter(
@@ -77,7 +77,7 @@ it("Kite BP uses Perfect Dodge to cancel A6 and align with the first dummy attac
       row.step.automatic === "attack",
   )
   expect(waits).toHaveLength(1)
-  expect(waits[0].effectiveCastTime).toBeCloseTo(0.1365)
+  expect(waits[0].effectiveCastTime).toBeCloseTo(0.3865)
 })
 
 it("Kite BP's final Qi break follows Soaring Spin and enables the last VC reset", () => {

@@ -8,18 +8,18 @@ import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 // Ported from script/probe/check-default-rotation.mjs.
 describe("default-rotation", () => {
   it("Infinite Vitality default rotation sequence and calculation checks passed", async () => {
-    const rotation = (await import("../data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json"))
+    const rotation = (await import("@gamedata/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json"))
       .default
-    const snowparting = (await import("../data/skill/snowparting-blade.json")).default
-    const phalanxbane = (await import("../data/skill/phalanxbane-blade.json")).default
-    const mystic = (await import("../data/skill/mystic.json")).default
-    const general = (await import("../data/skill/general.json")).default
-    const mysticBuffs = (await import("../data/buff/mystic.json")).default
-    const generalBuffs = (await import("../data/buff/general.json")).default
-    const dots = (await import("../data/dot/mystic.json")).default
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const snowparting = (await import("@gamedata/skill/snowparting-blade.json")).default
+    const phalanxbane = (await import("@gamedata/skill/phalanxbane-blade.json")).default
+    const mystic = (await import("@gamedata/skill/mystic.json")).default
+    const general = (await import("@gamedata/skill/general.json")).default
+    const mysticBuffs = (await import("@gamedata/buff/mystic.json")).default
+    const generalBuffs = (await import("@gamedata/buff/general.json")).default
+    const dots = (await import("@gamedata/dot/mystic.json")).default
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
 
     const startSkillIndex = rotation.steps.findIndex(
       step => step.type === "skill" && step.skill === "SnowpartingSpecial",
@@ -81,8 +81,8 @@ describe("default-rotation", () => {
     ).toBeTruthy()
     const ghostlyCast = result.metrics.breakdown.casts.find(row => row.skillId === "GhostlySteps")
     expect(
-      (ghostlyCast?.damageWithBuff ?? 0) > (ghostlyCast?.damage ?? 0),
-      "Perfect Dodge should activate Mystery DMG Boost from its synthetic dodge.",
+      (ghostlyCast?.damageWithBuff ?? 0) === (ghostlyCast?.damage ?? 0),
+      "A non-attacking dummy must not grant synthetic Mystery DMG Boost.",
     ).toBeTruthy()
   })
 })

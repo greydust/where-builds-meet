@@ -149,22 +149,27 @@
       "function": "switch",
       "param1": "currentWeapon",
       "param2": {
-        "HengBlade": 0.5,
-        "MoBlade": 0.5,
-        "Spear": 0.5,
-        "Umbrella": 0.5,
-        "RopeDart": 0.5,
-        "Gauntlet": 0.5,
-        "Sword": 0.5,
+        "HengBlade": 0.4,
+        "MoBlade": 0.7,
+        "Spear": 0.4,
+        "Umbrella": 0.4,
+        "RopeDart": 0.4,
+        "Gauntlet": 0.4,
+        "Sword": 0.4,
         "Fan": 0.5,
-        "DualBlades": 0.125
+        "DualBlades": 0.3
       },
-      "fallback": 0.5
+      "fallback": 0.4
     },
     "action": [],
     "modifier": [],
     "tags": ["General", "PerfectDodge"],
-    "attackResponse": { "endMargin": 0.1, "onSuccess": "PerfectDodgeSuccess", "fallback": true }
+    "attackResponse": {
+      "endMargin": 0.1,
+      "onSuccess": "PerfectDodgeSuccess",
+      "fallback": true,
+      "successRecovery": { "param1": "currentWeapon", "param2": { "DualBlades": 0.1 }, "function": "switch" }
+    }
   },
   "Dodge": {
     "name": "Dodge",
@@ -172,22 +177,27 @@
       "function": "switch",
       "param1": "currentWeapon",
       "param2": {
-        "HengBlade": 0.5,
-        "MoBlade": 0.5,
-        "Spear": 0.5,
-        "Umbrella": 0.5,
-        "RopeDart": 0.5,
-        "Gauntlet": 0.5,
-        "Sword": 0.5,
+        "HengBlade": 0.4,
+        "MoBlade": 0.7,
+        "Spear": 0.4,
+        "Umbrella": 0.4,
+        "RopeDart": 0.4,
+        "Gauntlet": 0.4,
+        "Sword": 0.4,
         "Fan": 0.5,
-        "DualBlades": 0.125
+        "DualBlades": 0.3
       },
-      "fallback": 0.5
+      "fallback": 0.4
     },
     "action": [],
     "modifier": [],
     "tags": ["General", "Dodge", "PerfectDodge"],
-    "attackResponse": { "endMargin": 0.1, "onSuccess": "PerfectDodgeSuccess" }
+    "attackResponse": {
+      "endMargin": 0.1,
+      "duration": { "function": "switch", "param1": "currentWeapon", "param2": { "Gauntlet": 0.25 }, "fallback": 0.2 },
+      "onSuccess": "PerfectDodgeSuccess",
+      "successRecovery": { "param1": "currentWeapon", "param2": { "DualBlades": 0.1 }, "function": "switch" }
+    }
   },
   "PerfectDodgeSuccess": {
     "name": "Perfect Dodge",

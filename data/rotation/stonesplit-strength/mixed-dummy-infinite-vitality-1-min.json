@@ -33,7 +33,6 @@
     { "type": "event", "event": "Move", "before": { "action": 3 }, "distance": 2 },
     { "type": "skill", "skill": "PhalanxbaneHeavyCharged3" },
     { "type": "event", "event": "Move", "before": { "action": "start" }, "distance": 1 },
-    { "type": "skill", "skill": "PerfectDodgeCancel" },
     { "type": "event", "event": "Qi", "before": { "action": 1 }, "targetQiRatio": 0.5999 },
     { "type": "skill", "skill": "SoaringSpin2" },
     { "type": "skill", "skill": "PhalanxbaneQ" },

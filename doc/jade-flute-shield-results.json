@@ -1,0 +1,189 @@
+{
+  "date": "2026-11-02",
+  "changes": [
+    "Deflect after opening Flute, before Ghostly Step.",
+    "Golden Body Cancel duration 0.5 seconds; Shield applied at completion.",
+    "Opening Golden Body into Fan Q to retain Jadebreak.",
+    "Second Golden Body into final Fan Q; two-hit late Poet instead of three to retain the 23.5-second dodge and shielded Dragon Head inside 30 seconds."
+  ],
+  "snapshotStatus": "Awaiting review; accepted snapshots unchanged.",
+  "cases": [
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-max-bp/18",
+      "acceptedDps": 108984.52972061792,
+      "beforeOpenerChangeDps": 104742.97392178101,
+      "dps": 105594.79353460837,
+      "totalDamage": 3167843.806038251,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 496579.88824281655,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-max/18",
+      "acceptedDps": 97056.0849098274,
+      "beforeOpenerChangeDps": 92983.51630134186,
+      "dps": 92068.62212927006,
+      "totalDamage": 2762058.663878102,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 325087.3195369127,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-min-bp/18",
+      "acceptedDps": 107180.03242461476,
+      "beforeOpenerChangeDps": 103099.84950884662,
+      "dps": 103972.76261610098,
+      "totalDamage": 3119182.8784830295,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 487390.87112906517,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-min/18",
+      "acceptedDps": 95307.6911816881,
+      "beforeOpenerChangeDps": 91427.37089346403,
+      "dps": 90529.87423460814,
+      "totalDamage": 2715896.2270382443,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 317912.71497842215,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-graduate-short/18",
+      "acceptedDps": 111895.74955635707,
+      "beforeOpenerChangeDps": 107556.6997028268,
+      "dps": 108423.80873568263,
+      "totalDamage": 3252714.262070479,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 511821.728422141,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-graduate/18",
+      "acceptedDps": 99425.62497865551,
+      "beforeOpenerChangeDps": 95260.30159993739,
+      "dps": 94323.55972901308,
+      "totalDamage": 2829706.7918703924,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 332717.442081527,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-max-bp/19",
+      "acceptedDps": 114424.2178995937,
+      "beforeOpenerChangeDps": 109994.41055460903,
+      "dps": 110883.06387249332,
+      "totalDamage": 3326491.9161747997,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 519606.9269907068,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-max/19",
+      "acceptedDps": 102228.98448642864,
+      "beforeOpenerChangeDps": 97961.59408874842,
+      "dps": 97001.22991307195,
+      "totalDamage": 2910036.8973921584,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 341260.72364400525,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-min-bp/19",
+      "acceptedDps": 112513.11296642521,
+      "beforeOpenerChangeDps": 108251.75319062134,
+      "dps": 109183.69267212176,
+      "totalDamage": 3275510.7801636527,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 509781.3796590694,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-fully-relayed-min/19",
+      "acceptedDps": 99610.12156956021,
+      "beforeOpenerChangeDps": 95575.69784085792,
+      "dps": 94641.15014655182,
+      "totalDamage": 2839234.5043965545,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 331056.89918478444,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-graduate-short/19",
+      "acceptedDps": 117381.21131769268,
+      "beforeOpenerChangeDps": 112853.32370603984,
+      "dps": 113757.08118847499,
+      "totalDamage": 3412712.4356542495,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 535113.803651982,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    },
+    {
+      "id": "silkbindJade/jade-three-rounds/jade-graduate/19",
+      "acceptedDps": 104531.76877071748,
+      "beforeOpenerChangeDps": 100175.471969997,
+      "dps": 99193.7507385064,
+      "totalDamage": 2975812.5221551917,
+      "duration": 30,
+      "tideTime": 29.570330728226104,
+      "tideDamage": 348701.01373070973,
+      "tideShield": true,
+      "goldenCastTimes": [-2.3779487179487173, 22.692830728226106]
+    }
+  ],
+  "AoRComparison": [
+    {
+      "opener": "golden",
+      "filler": "poet2",
+      "dps": 110883.06387249332,
+      "tide": { "time": 29.570330728226104, "damage": 519606.9269907068, "shield": true },
+      "firstShieldExpiry": 8.122051282051283,
+      "uf": 74,
+      "poet": 16,
+      "dodge": [5.5, 11.5, 23.5]
+    },
+    {
+      "opener": "aorBeforeFlute",
+      "filler": "poet2",
+      "dps": 92394.99726821136,
+      "tide": null,
+      "firstShieldExpiry": 8.022051282051283,
+      "uf": 74,
+      "poet": 15,
+      "dodge": [5.499999999999999, 11.5, 23.5]
+    },
+    {
+      "opener": "aorBeforeDrink",
+      "filler": "poet2",
+      "dps": 110711.48358132545,
+      "tide": { "time": 29.570330728226104, "damage": 519606.9269907068, "shield": true },
+      "firstShieldExpiry": 7.722051282051281,
+      "uf": 74,
+      "poet": 16,
+      "dodge": [5.499999999999999, 11.5, 23.5]
+    }
+  ],
+  "AoRNotes": "Uses the existing fully buffed AoRT4Shield helper, including its three-second setup and 14-second shield from action start. Best tested AoR order is before Drink/Flute; inserting it after Drink shortens Intoxicated uptime and triggers another drink before the final Poet, pushing Tide beyond the cutoff. No AoR stat buffs or permanent Inner Way swap added."
+}

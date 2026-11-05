@@ -225,7 +225,7 @@ describe("infernal-twinblades-talents", () => {
       delayStep(29),
       castStep("PerfectDodge"),
       castStep("Observe"),
-      delayStep(0.5),
+      delayStep(0.6),
       castStep("PerfectDodgeCancel"),
       castStep("AddledMind"),
       delayStep(1),

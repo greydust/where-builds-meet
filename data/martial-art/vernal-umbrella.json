@@ -141,15 +141,25 @@
         "effect": [
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" }
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
             ],
             "effect": { "physicalResistance": -5 }
           },
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
               {
                 "operator": "or",
                 "operand": [
@@ -219,15 +229,25 @@
         "effect": [
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" }
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
             ],
             "effect": { "physicalResistance": -5 }
           },
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
               {
                 "operator": "or",
                 "operand": [
@@ -305,15 +325,25 @@
         "effect": [
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" }
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
             ],
             "effect": { "physicalResistance": -5 }
           },
           {
             "requirement": [
-              { "target": "skillTag", "value": "VernalUmbrella" },
-              { "target": "skillTag", "value": "Ballistic" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
               {
                 "operator": "or",
                 "operand": [

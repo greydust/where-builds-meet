@@ -21,7 +21,7 @@ describe("Jade one-minute preset continuity", () => {
     expect(result.duration).toBe(60)
     const delays = rows.filter(row => row.step.type === "event" && row.step.event === "Delay")
     expect(delays).toHaveLength(fixture.rotation === "jade-grounded" ? 1 : 0)
-    const expectedDelays = fixture.rotation === "jade-grounded" ? [0.209] : []
+    const expectedDelays = fixture.rotation === "jade-grounded" ? [0.199610808] : []
     expect(delays.map(row => row.effectiveCastTime)).toEqual(expectedDelays)
     for (const row of delays) {
       expect(row.step).not.toHaveProperty("automatic")
@@ -62,7 +62,7 @@ describe("Jade one-minute preset continuity", () => {
       }
       expect(flowers.at(-1)!.startTime - result.anchorTime).toBeCloseTo(51.687, 3)
       expect(result.metrics.breakdown.groupedSkills.find(skill => skill.id === "UnfadingFlowerProjectile")!.hits).toBe(
-        146,
+        153,
       )
       for (const [index, step] of rotation.steps.entries()) {
         if (step.type !== "skill") continue

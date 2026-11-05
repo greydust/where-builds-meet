@@ -72,10 +72,10 @@ describe("attack response windows", () => {
     )
     const [dodge] = rowsFor(rows, "PerfectDodgeCancel")
     const [follow] = rowsFor(rows, "Follow")
-    expect(dodge.startTime).toBeCloseTo(4.6)
+    expect(dodge.startTime).toBeCloseTo(4.7)
     expect(dodge.effectiveCastTime).toBe(0)
     expect(dodge.resources.Vitality).toBe(0)
-    expect(follow.startTime).toBeCloseTo(4.64)
+    expect(follow.startTime).toBeCloseTo(4.74)
     expect(follow.actionStates[0].buffs.has("Etherwrath")).toBe(false)
     for (const index of [1, 2]) {
       expect(follow.actionStates[index].resources.Vitality).toBe(3)
@@ -108,12 +108,62 @@ describe("attack response windows", () => {
     },
   )
 
-  it.each(["Dodge", "DeflectSuccessful"])("%s blocks for its cast duration and grants success at the attack", skill => {
-    const rows = buildRotationTimeline(input([cast(skill), cast("Follow"), attack(5), end(7)]))
-    const defense = rowsFor(rows, skill)[0]
+  it.each([
+    ["Spear", 0.4, 0.2],
+    ["Sword", 0.4, 0.2],
+    ["Fan", 0.5, 0.2],
+    ["MoBlade", 0.7, 0.2],
+    ["DualBlades", 0.3, 0.2],
+    ["Umbrella", 0.4, 0.2],
+    ["RopeDart", 0.4, 0.2],
+    ["HengBlade", 0.4, 0.2],
+    ["Gauntlet", 0.4, 0.25],
+  ] as const)("ends the %s Dodge window before its ordinary follow-up", (weapon, recovery, window) => {
+    const data = input([cast("Dodge"), cast("Follow"), attack(5), attack(5.1), attack(5.101), end(7)])
+    data.weapons = ["heavenwill"]
+    data.martialArtState = { heavenwill: { weapon } }
+    const rows = buildRotationTimeline(data)
+    const dodge = rowsFor(rows, "Dodge")[0]
+    expect(dodge.startTime + window).toBeCloseTo(5.1, 9)
+    const recoveryEnd = weapon === "DualBlades" ? 5.1 : dodge.startTime + recovery
+    expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(recoveryEnd + 0.04, 9)
+    expect(incoming(rows)).toEqual([0, 0, 200])
+    expect(rowsFor(rows, "PerfectDodgeSuccess").map(row => row.startTime)).toEqual([5])
+  })
+
+  it.each([0.15, 0.29])("ends Twinblades reaction exactly 0.1s after success at %s", hitTime => {
+    const data = input([cast("PerfectDodge"), cast("Follow"), attack(hitTime), attack(hitTime), attack(0.31), end(2)])
+    data.rotation.ping = 0
+    data.weapons = ["infernalTwinblades"]
+    data.martialArtState = { infernalTwinblades: { weapon: "DualBlades" } }
+    data.skills.PerfectDodge = {
+      ...data.skills.PerfectDodge,
+      attackResponse: { ...data.skills.PerfectDodge.attackResponse!, endMargin: undefined, fallback: false },
+    }
+    const rows = buildRotationTimeline(data)
+    expect(rowsFor(rows, "PerfectDodge")[0].effectiveCastTime).toBeCloseTo(hitTime + 0.1, 9)
+    expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(hitTime + 0.1, 9)
+    expect(rowsFor(rows, "PerfectDodgeSuccess")).toHaveLength(1)
+    // Recovery extension does not extend the original 0.30s defensive window.
+    expect(incoming(rows)).toEqual([0, 0, 200])
+  })
+
+  it("keeps Twinblades base recovery when no attack triggers a reaction", () => {
+    const data = input([cast("Dodge"), cast("Follow"), end(2)])
+    data.rotation.ping = 0
+    data.weapons = ["infernalTwinblades"]
+    data.martialArtState = { infernalTwinblades: { weapon: "DualBlades" } }
+    const rows = buildRotationTimeline(data)
+    expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(0.3, 9)
+    expect(rowsFor(rows, "PerfectDodgeSuccess")).toHaveLength(0)
+  })
+
+  it("blocks for the successful deflect cast and grants success at the attack", () => {
+    const rows = buildRotationTimeline(input([cast("DeflectSuccessful"), cast("Follow"), attack(5), end(7)]))
+    const defense = rowsFor(rows, "DeflectSuccessful")[0]
     expect(defense.startTime + defense.effectiveCastTime).toBeCloseTo(5.1)
     expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(5.14)
-    expect(rowsFor(rows, skill === "Dodge" ? "PerfectDodgeSuccess" : "DeflectSuccess")[0].startTime).toBe(5)
+    expect(rowsFor(rows, "DeflectSuccess")[0].startTime).toBe(5)
     expect(incoming(rows)).toEqual([0])
   })
 
@@ -121,7 +171,9 @@ describe("attack response windows", () => {
     const data = input([cast("Dodge"), cast("Dodge"), cast("Follow"), attack(5.5), end(13)])
     data.rotation.targetType = "DummyAttack"
     const rows = buildRotationTimeline(data)
-    expect(rowsFor(rows, "Dodge").map(row => row.startTime)).toEqual([5.1, 11.1])
+    const dodges = rowsFor(rows, "Dodge")
+    expect(dodges[0].startTime).toBeCloseTo(5.4, 9)
+    expect(dodges[1].startTime).toBeCloseTo(11.4, 9)
     expect(rowsFor(rows, "PerfectDodgeSuccess").map(row => row.startTime)).toEqual([5.5, 11.5])
     expect(incoming(rows)).toEqual([0, 0, 0, 0, 0])
   })
@@ -129,7 +181,7 @@ describe("attack response windows", () => {
   it("resolves the canceled window from the normal dodge's weapon timing and modifiers", () => {
     const data = input([cast("PerfectDodgeCancel"), cast("Follow"), attack(5), end(7)])
     data.skills.PerfectDodge = {
-      ...general.PerfectDodge,
+      ...data.skills.PerfectDodge,
       castTime: { function: "switch", param1: "currentWeapon", param2: { Gauntlet: 0.8 }, fallback: 1 },
       modifier: [{ effect: { castTimeMultiplier: 0.5 } }],
     }
@@ -179,9 +231,9 @@ describe("attack response windows", () => {
       data.initialBuffs = [{ name: "MysteryUmbra" }]
       const rows = buildRotationTimeline(data)
       const dodge = rowsFor(rows, skill)[0]
-      expect(dodge.startTime).toBeCloseTo(4.975)
-      expect(dodge.effectiveCastTime).toBe(skill === "PerfectDodge" ? 0.125 : 0)
-      expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(skill === "PerfectDodge" ? 5.14 : 5.015)
+      expect(dodge.startTime).toBeCloseTo(4.8)
+      expect(dodge.effectiveCastTime).toBeCloseTo(skill === "PerfectDodge" ? 0.3 : 0, 9)
+      expect(rowsFor(rows, "Follow")[0].startTime).toBeCloseTo(skill === "PerfectDodge" ? 5.14 : 4.84)
       const procs = rowsFor(rows, "GhostlyStepsUmbraDodgeDualBlades")
       expect(procs).toHaveLength(1)
       expect(procs[0].currentWeapon).toBe("DualBlades")
@@ -266,7 +318,7 @@ it("preserves legacy defense anchors on load and import without rewriting the so
 it("starts a late dodge immediately, but skips attacks that land before its ping gap ends", () => {
   for (const [lead, expected] of [
     [4.9, 4.98],
-    [5, 7.6],
+    [5, 7.7],
   ]) {
     const data = input([cast("Lead"), cast("PerfectDodgeCancel"), cast("Follow"), attack(5), attack(8), end(9)])
     data.skills.Lead = { castTime: lead, action: [] }

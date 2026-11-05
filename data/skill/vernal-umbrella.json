@@ -20,6 +20,7 @@
     "cooldown": 15,
     "cooldownUses": 1,
     "cooldownRecovery": "sequential",
+    "cooldownReductionCarries": true,
     "subAction": [
       {
         "value": "SpringSorrowBarrage",
@@ -68,51 +69,50 @@
     ],
     "silent": true
   },
-  "UnfadingFlowerProjectile": {
-    "name": "Unfading Flower",
-    "shortName": "UF",
+  "UnfadingFlowerVolley": {
+    "name": "Unfading Flower Volley",
     "castTime": 0,
+    "tags": ["Triggered"],
     "action": [
       {
-        "type": "damage",
-        "phyCoef": 0.51082875,
-        "attrCoef": 0.51082875,
-        "phyBonus": 141.375,
-        "attrBonus": 77,
-        "time": 0
+        "type": "trigger",
+        "value": "UnfadingFlowerProjectile",
+        "time": 0,
+        "requirement": [
+          { "target": "self", "value": "UnfadingFlowerMode" },
+          { "target": "resource", "value": "Blossoms", "comparison": ">", "amount": 0 }
+        ]
       },
       {
-        "type": "damage",
-        "phyCoef": 0.51082875,
-        "attrCoef": 0.51082875,
-        "phyBonus": 141.375,
-        "attrBonus": 77,
+        "type": "trigger",
+        "value": "UnfadingFlowerProjectile",
         "time": 0.15,
-        "requirement": {
-          "resolveAt": "skillStart",
-          "operand": [
-            { "target": "target", "value": "LingeringBone" },
-            { "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }
-          ]
-        }
+        "requirement": [
+          { "target": "self", "value": "UnfadingFlowerMode" },
+          { "target": "resource", "value": "Blossoms", "comparison": ">", "amount": 0 },
+          { "target": "target", "value": "LingeringBone", "resolveAt": "skillStart" },
+          { "operator": "not", "operand": [{ "target": "target", "value": "Airborne", "resolveAt": "skillStart" }] }
+        ]
       },
       {
-        "type": "damage",
-        "phyCoef": 0.51082875,
-        "attrCoef": 0.51082875,
-        "phyBonus": 141.375,
-        "attrBonus": 77,
+        "type": "trigger",
+        "value": "UnfadingFlowerProjectile",
         "time": 0.1,
-        "requirement": { "resolveAt": "skillStart", "operand": [{ "target": "target", "value": "Airborne" }] }
+        "requirement": [
+          { "target": "self", "value": "UnfadingFlowerMode" },
+          { "target": "resource", "value": "Blossoms", "comparison": ">", "amount": 0 },
+          { "target": "target", "value": "Airborne", "resolveAt": "skillStart" }
+        ]
       },
       {
-        "type": "damage",
-        "phyCoef": 0.51082875,
-        "attrCoef": 0.51082875,
-        "phyBonus": 141.375,
-        "attrBonus": 77,
+        "type": "trigger",
+        "value": "UnfadingFlowerProjectile",
         "time": 0.2,
-        "requirement": { "resolveAt": "skillStart", "operand": [{ "target": "target", "value": "Airborne" }] }
+        "requirement": [
+          { "target": "self", "value": "UnfadingFlowerMode" },
+          { "target": "resource", "value": "Blossoms", "comparison": ">", "amount": 0 },
+          { "target": "target", "value": "Airborne", "resolveAt": "skillStart" }
+        ]
       },
       {
         "type": "apply",
@@ -122,8 +122,32 @@
         "time": 0,
         "requirement": [{ "target": "target", "value": "LingeringBone" }]
       }
+    ]
+  },
+  "UnfadingFlowerProjectile": {
+    "name": "Unfading Flower",
+    "shortName": "UF",
+    "castTime": 0,
+    "action": [
+      {
+        "type": "consumeResource",
+        "value": "Blossoms",
+        "amount": 5,
+        "time": 0,
+        "creditResourceSpend": false,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.51082875,
+        "attrCoef": 0.51082875,
+        "phyBonus": 141.375,
+        "attrBonus": 77,
+        "time": 0,
+        "damageScale": 1.15
+      }
     ],
-    "modifier": [{ "effect": { "hpDMGBonus": 0.15 } }],
+    "modifier": [],
     "tags": [
       "MartialArts",
       "DirectDamage",
@@ -153,7 +177,7 @@
       { "type": "apply", "target": "self", "value": "UnfadingFlowerMode", "time": 0.6 }
     ],
     "modifier": [],
-    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Special"],
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Special", "SubAction"],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "ignorePing": true,
@@ -170,7 +194,16 @@
     "shortName": "Umbrella Q",
     "castTime": 1.4583333333333335,
     "ignorePing": true,
-    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "MartialArt", "Ballistic", "SpringSorrow"],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Umbrella",
+      "VernalUmbrella",
+      "MartialArt",
+      "Ballistic",
+      "SpringSorrow",
+      "SubAction"
+    ],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "action": [
@@ -218,7 +251,16 @@
     "shortName": "Umbrella Q",
     "castTime": 1.1217948717948718,
     "ignorePing": true,
-    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "MartialArt", "Ballistic", "SpringSorrow"],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Umbrella",
+      "VernalUmbrella",
+      "MartialArt",
+      "Ballistic",
+      "SpringSorrow",
+      "SubAction"
+    ],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "action": [
@@ -405,7 +447,7 @@
       { "type": "apply", "target": "self", "value": "UnfadingFlowerMode", "time": 0.6 }
     ],
     "modifier": [],
-    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Special"],
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "VernalUmbrella", "Special", "SubAction"],
     "martialArt": "vernalUmbrella",
     "weapon": "Umbrella",
     "ignorePing": true,

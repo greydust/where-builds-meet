@@ -106,7 +106,7 @@ export type DamageAction = {
   averageAttack?: unknown
   /** Outcome-rate route. Omitted actions use the normal route's four outcomes. */
   rateRoute?: unknown
-  /** Runtime periodic stack/probability weight, applied after resolving attack channels. */
+  /** Whole-hit multiplier, including authored PvE target corrections and runtime stack/probability weights. */
   damageScale?: unknown
   hitProbability?: unknown
   phyBonus?: unknown

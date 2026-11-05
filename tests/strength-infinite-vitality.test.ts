@@ -1,7 +1,8 @@
 import { expect, it } from "vitest"
 
-import { buildPresetRotationBundle } from "../src/application/graduation"
-import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
+import { buildPresetRotationBundle } from "@/application/graduation"
+import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
+
 import { loadDpsSnapshotFixtures } from "./helpers/dps-snapshot-fixtures"
 
 it("Infinite Vitality starts on Fleeting Trace's final hit and dodges the second dummy attack", async () => {
@@ -21,6 +22,7 @@ it("Infinite Vitality starts on Fleeting Trace's final hit and dodges the second
   expect(success).toBeDefined()
   expect(success!.startTime - result.anchorTime).toBeCloseTo(11.5, 8)
   const spin = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "SoaringSpin2")!
+  expect(success!.sourceRowId).toBe(spin.id)
   const hits = spin.actions.flatMap((action, index) => (action.type === "damage" ? [index] : []))
   expect(hits.length).toBeGreaterThan(0)
   for (const index of hits) expect(spin.actionStates[index].buffs.has("MysteryDMGBoost")).toBe(true)

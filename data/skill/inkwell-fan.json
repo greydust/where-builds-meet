@@ -24,12 +24,29 @@
     "shortName": "Fan Light Charged",
     "castTime": 1.63,
     "action": [
-      { "type": "damage", "phyCoef": 1.9044, "attrCoef": 1.9044, "phyBonus": 527, "attrBonus": 287, "time": 1.19 },
+      {
+        "type": "damage",
+        "phyCoef": 1.9044,
+        "attrCoef": 1.9044,
+        "phyBonus": 527,
+        "attrBonus": 287,
+        "time": 1.19,
+        "damageScale": 1.45
+      },
       { "type": "apply", "target": "target", "value": "LingeringBone", "time": 1.19 },
       { "type": "addResource", "value": "Endurance", "amount": 10, "time": 1.19 }
     ],
-    "modifier": [{ "effect": { "hpDMGBonus": 0.45 } }],
-    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Light", "Charged", "AppliesLingeringBone"],
+    "modifier": [],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Fan",
+      "InkwellFan",
+      "Light",
+      "Charged",
+      "AppliesLingeringBone",
+      "JadebreakProjectile"
+    ],
     "martialArt": "inkwellFan",
     "weapon": "Fan"
   },
@@ -39,12 +56,29 @@
     "description": "Ends at the damage hit. Follow immediately with Deflect or a skill other than Forsaken Fame or an Umbrella skill.",
     "castTime": 1.19,
     "action": [
-      { "type": "damage", "phyCoef": 1.9044, "attrCoef": 1.9044, "phyBonus": 527, "attrBonus": 287, "time": 1.19 },
+      {
+        "type": "damage",
+        "phyCoef": 1.9044,
+        "attrCoef": 1.9044,
+        "phyBonus": 527,
+        "attrBonus": 287,
+        "time": 1.19,
+        "damageScale": 1.45
+      },
       { "type": "apply", "target": "target", "value": "LingeringBone", "time": 1.19 },
       { "type": "addResource", "value": "Endurance", "amount": 10, "time": 1.19 }
     ],
-    "modifier": [{ "effect": { "hpDMGBonus": 0.45 } }],
-    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Light", "Charged", "AppliesLingeringBone"],
+    "modifier": [],
+    "tags": [
+      "MartialArts",
+      "DirectDamage",
+      "Fan",
+      "InkwellFan",
+      "Light",
+      "Charged",
+      "AppliesLingeringBone",
+      "JadebreakProjectile"
+    ],
     "martialArt": "inkwellFan",
     "weapon": "Fan",
     "skillBreakdownCategory": "Forsaken Fame"
@@ -198,7 +232,7 @@
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.197 }
     ],
-    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring"],
+    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring", "SubAction"],
     "martialArt": "inkwellFan",
     "weapon": "Fan",
     "skillBreakdownCategory": "Moon Shatter Spring",
@@ -278,7 +312,7 @@
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.864923076923077 }
     ],
-    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring"],
+    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring", "SubAction"],
     "martialArt": "inkwellFan",
     "weapon": "Fan",
     "skillBreakdownCategory": "Moon Shatter Spring",
@@ -288,7 +322,7 @@
     "name": "Moon Shatter Spring",
     "castTime": 0,
     "action": [],
-    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring"],
+    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "Heavy", "Pursuit", "MoonShatterSpring", "SubAction"],
     "martialArt": "inkwellFan",
     "weapon": "Fan",
     "skillBreakdownCategory": "Moon Shatter Spring",

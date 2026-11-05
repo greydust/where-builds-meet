@@ -77,8 +77,8 @@ describe("breaking-point", () => {
     ).toBeTruthy()
     for (const firstDodge of ["PerfectDodge", "PerfectDodgeCancel"]) {
       const secondDodge = firstDodge === "PerfectDodge" ? "PerfectDodgeCancel" : "PerfectDodge"
-      const firstCastTime = firstDodge === "PerfectDodge" ? 0.5 : 0
-      const secondCastTime = secondDodge === "PerfectDodge" ? 0.5 : 0
+      const firstCastTime = firstDodge === "PerfectDodge" ? 0.4 : 0
+      const secondCastTime = secondDodge === "PerfectDodge" ? 0.4 : 0
       const runDodgeProbe = (tier: number) =>
         buildRotationTimeline({
           rotation: {

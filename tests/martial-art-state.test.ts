@@ -9,7 +9,7 @@ import { rowWithId } from "./helpers/timelineRows"
 // Ported from script/probe/check-martial-art-state.mjs.
 describe("martial-art-state", () => {
   it("Current martial-art and weapon state checks passed", async () => {
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const general = JSON.parse(await readFile("data/skill/general.json", "utf8"))
     const mystic = JSON.parse(await readFile("data/skill/mystic.json", "utf8"))
     const ghostSkills = Object.fromEntries(
@@ -88,7 +88,7 @@ describe("martial-art-state", () => {
     assert(
       timeline
         .filter(row => row.step.type === "skill" && row.step.skill === "PerfectDodge")
-        .every(row => row.effectiveCastTime === 0.5),
+        .every(row => row.effectiveCastTime === (row.currentWeapon === "MoBlade" ? 0.7 : 0.4)),
       "Perfect Dodge must resolve its weapon-switched cast time when each cast starts.",
     )
 

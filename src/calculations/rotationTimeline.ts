@@ -90,9 +90,11 @@ export type SkillRecord = {
   silent?: boolean
   attackResponse?: {
     /** Maximum cast-relative response window, clipped by an earlier cast end. */
-    duration?: number
+    duration?: number | SwitchValue
     endMargin?: number
     durationFrom?: string
+    /** Replace the still-active cast's recovery with this delay after success. */
+    successRecovery?: number | SwitchValue
     onSuccess: string
     perAttack?: boolean
     /** Resolve success at cast start only when no incoming attack is selected. */
@@ -115,6 +117,7 @@ export type SkillRecord = {
   cooldownGroup?: string
   cooldownUses?: number
   cooldownRecovery?: "window" | "independent" | "sequential"
+  cooldownReductionCarries?: boolean
   duration?: number
   collectBoostDamage?: string
   subAction?: Array<string | SubActionReference>
@@ -2296,10 +2299,10 @@ export function buildRotationTimeline(
             break
           case "sequential": {
             const pending = state.readyTimes.filter(readyAt => compareTimelineTime(readyAt, time) > 0)
-            // Only the active recharge is reduced. Later charges start earlier,
-            // but each still takes its full duration; excess reduction is discarded.
-            const reduction = Math.min(seconds, Math.max(0, (pending[0] ?? time) - time))
-            state.readyTimes = pending.map(readyAt => readyAt - reduction)
+            const reduction = skills[skillId]?.cooldownReductionCarries
+              ? seconds
+              : Math.min(seconds, Math.max(0, (pending[0] ?? time) - time))
+            state.readyTimes = pending.map(readyAt => Math.max(time, readyAt - reduction))
             break
           }
         }
@@ -3142,6 +3145,13 @@ export function buildRotationTimeline(
       resolveSkillCastTime(durationSkill, { ...requirementState(), currentTime: time }),
     )
   }
+  const responseWindowLimit = (skill: SkillRecord) => {
+    const value = skill.attackResponse?.duration
+    if (value === undefined) return Infinity
+    const duration = typeof value === "number" ? value : resolveSwitchValue(value, requirementState())
+    if (typeof duration !== "number" || !Number.isFinite(duration)) throw new Error("Invalid attack response duration.")
+    return duration
+  }
   const attackReserved = (time: number) =>
     [...reservedAttacks].some(reserved => compareTimelineTime(reserved, time) === 0)
   const nextTargetAttackAt = (time: number, pattern: TargetAttackPattern, includeReserved: boolean) => {
@@ -3411,7 +3421,7 @@ export function buildRotationTimeline(
         if (attackTime !== undefined) {
           alignedAttacks.set(row, attackTime)
           reservedAttacks.add(attackTime)
-          const duration = responseDuration(row.skill, event.time)
+          const duration = Math.min(responseDuration(row.skill, event.time), responseWindowLimit(row.skill))
           const alignedStart = attackTime + row.skill.attackResponse.endMargin - duration - skillPing(row.skill)
           if (compareTimelineTime(alignedStart, event.time) > 0) {
             waitForOrdered(event, alignedStart, "attack")
@@ -3801,7 +3811,7 @@ export function buildRotationTimeline(
           endTime:
             event.time +
             Math.min(
-              event.row.skill.attackResponse.duration ?? Infinity,
+              responseWindowLimit(event.row.skill),
               event.row.skill.attackResponse.durationFrom
                 ? responseDuration(event.row.skill, event.time)
                 : event.row.effectiveCastTime,
@@ -4740,6 +4750,13 @@ export function buildRotationTimeline(
       continue
     }
     if (event.kind === "attackResponse") {
+      const recoveryValue = event.row.skill!.attackResponse!.successRecovery
+      const recovery =
+        typeof recoveryValue === "number" ? recoveryValue : resolveSwitchValue(recoveryValue, requirementState())
+      if (typeof recovery === "number" && Number.isFinite(recovery) && nextOrderedEvent?.row === event.row) {
+        event.row.effectiveCastTime = event.time + recovery - event.row.startTime
+        updateNextOrdered(event.row)
+      }
       runEffectTriggers("attackResponse")
       runEffectTriggers("attackResponse", true)
       enqueueTriggeredSkill(

@@ -163,7 +163,7 @@
       }
     ],
     "modifier": [],
-    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet"],
+    "tags": ["DirectDamage", "Mystic", "SingleTargetMystic", "DrunkenPoet", "SubAction"],
     "ignorePing": true,
     "skillBreakdownCategory": "Drunken Poet"
   },

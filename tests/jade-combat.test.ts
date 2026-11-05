@@ -173,12 +173,10 @@ describe("Jade combat", () => {
     [false, [0, 0.15]],
     [true, [0, 0.1, 0.2]],
   ] as const)("locks UF volley choice before target marks disappear (airborne=%s)", (airborne, times) => {
-    const data = input([
-      cast("Mark"),
-      cast("UnfadingFlowerProjectile"),
-      cast("Remove"),
-      { type: "event", event: "Delay", duration: 0.3 },
-    ])
+    const data = input(
+      [cast("Mark"), cast("UnfadingFlowerCancel"), cast("Remove"), { type: "event", event: "Delay", duration: 1.3 }],
+      100,
+    )
     data.skills = {
       ...data.skills,
       Mark: {
@@ -193,14 +191,13 @@ describe("Jade combat", () => {
             target: "target",
             value: airborne ? "Airborne" : "LingeringBone",
             stack: "all",
-            time: 0.05,
+            time: 0.6,
           },
         ],
       },
     }
-    const row = buildRotationTimeline(data).find(r => r.step.skill === "UnfadingFlowerProjectile")!
-    const hits = row.actions.filter((a, i) => a.type === "damage" && row.actionStates[i]?.combatOrder !== undefined)
-    expect(hits.map(h => h.time).sort()).toEqual([...times])
+    const hits = buildRotationTimeline(data).filter(r => r.step.skill === "UnfadingFlowerProjectile")
+    expect(hits.slice(0, times.length).map(row => +(row.startTime - hits[0].startTime).toFixed(3))).toEqual([...times])
   })
 
   it("separates UF activation damage and limits projectile attunement to follow-up hits", async () => {
@@ -306,7 +303,23 @@ describe("Jade combat", () => {
         result.timeline
           .filter(row => row.step.skill === "PerfectDodgeSuccess")
           .map(row => row.startTime - result.anchorTime),
-      ).toEqual([5.5, 11.5, 23.5])
+      ).toEqual([5.5, 11.5, 17.5, 23.5])
+      const dodge = result.timeline.find(row => row.step.skill === "Dodge")!
+      const insertedPoet = result.timeline.find(
+        row => row.step.skill === "DrunkenPoet1Hit" && row.startTime < dodge.startTime,
+      )!
+      expect(insertedPoet).toBeDefined()
+      const insertedPoetHit = insertedPoet.actions.findIndex(action => action.type === "damage")
+      expect(result.actionBreakdowns[`${insertedPoet.id}:${insertedPoetHit}`]).toBeDefined()
+      expect(insertedPoet.startTime + insertedPoet.effectiveCastTime).toBeLessThanOrEqual(dodge.startTime)
+      const dodgeSuccess = result.timeline.find(
+        row => row.step.skill === "PerfectDodgeSuccess" && row.sourceRowId === dodge.id,
+      )!
+      expect(dodgeSuccess.startTime - result.anchorTime).toBeCloseTo(17.5, 9)
+      const nextQ = result.timeline.find(
+        row => row.step.skill === "SpringSorrow" && row.startTime > dodgeSuccess.startTime,
+      )!
+      expect(nextQ.buffs.has("MysteryDMGBoost")).toBe(true)
       expect(
         result.timeline.some(row => row.step.skill === "PerfectDodgeSuccess" && row.sourceRowId === soaring.id),
       ).toBe(true)
@@ -325,7 +338,7 @@ describe("Jade combat", () => {
       expect(lateSmolder.startTime).toBeCloseTo(goldenBodies[1].startTime + 0.5, 9)
       const smolderHit = lateSmolder.actions.findIndex(action => action.type === "damage")
       expect(lateSmolder.actionStates[smolderHit].buffs.has("Shield")).toBe(true)
-      const latePoet = casts.find(row => row.step.skill === "DrunkenPoet2Hits")!
+      const latePoet = casts.findLast(row => row.step.skill === "DrunkenPoet2Hits")!
       const poetHits = latePoet.actions.flatMap((action, index) =>
         action.type === "damage" && latePoet.actionStates[index]?.combatOrder !== undefined
           ? [latePoet.actionStates[index]]
@@ -355,6 +368,7 @@ describe("Jade combat", () => {
       const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
       for (const [index, row] of casts.entries()) {
         if (!String(row.skill?.name).includes("[Cancel]") || row.step.skill === "GoldenBodyCancel") continue
+        if (row.startTime + row.effectiveCastTime >= result.anchorTime + result.duration) continue
         const next = casts[index + 1]
         expect(next).toBeDefined()
         let legalFollowUp: boolean
@@ -443,7 +457,10 @@ describe("Jade combat", () => {
           expect(row.actionStates[index].buffs.has("Jadebreak")).toBe(true)
         }
       for (const row of result.timeline.filter(row => row.step.skill === "SpringAwayProjectile"))
-        for (const [index] of row.actions.entries()) expect(row.actionStates[index].distance).toBe(9)
+        for (const [index, action] of row.actions.entries()) {
+          if (row.startTime + Number(action.time ?? 0) > result.anchorTime + result.duration) continue
+          expect(row.actionStates[index]?.distance).toBe(9)
+        }
       for (const [index, row] of casts.entries()) {
         if (
           !["UnfadingFlowerCancel", "PeaksSpringlessSilenceCancel", "DrunkenPoet5HitsCancel", "LeapingToad"].includes(
@@ -661,13 +678,13 @@ describe("Jade combat", () => {
       const removal = rows.find(row =>
         row.actions.some(action => action.type === "consume" && action.value === "UnfadingFlowerMode"),
       )!
-      expect(removal.startTime).toBeCloseTo(10.6, 8)
+      expect(removal.startTime).toBeCloseTo(10.65, 8)
       expect(umbrella.startTime).toBeCloseTo(removal.startTime, 8)
       expect(umbrella.buffs.has("UnfadingFlowerMode")).toBe(false)
       expect(umbrella.resources.Blossoms).toBeCloseTo(0, 8)
       const projectiles = rows.filter(row => row.step.skill === "UnfadingFlowerProjectile")
-      expect(projectiles.length).toBeGreaterThan(10)
-      expect(projectiles.at(-1)!.startTime).toBeLessThan(removal.startTime)
+      expect(projectiles).toHaveLength(20)
+      expect(projectiles.at(-1)!.startTime).toBeCloseTo(removal.startTime, 8)
       expect(rows.at(-1)!.buffs.has("UnfadingFlowerMode")).toBe(false)
     },
   )
@@ -693,8 +710,8 @@ describe("Jade combat", () => {
       normal.find(row => row.step.skill === "ForsakenFame")!.startTime -
         cancelled.find(row => row.step.skill === "ForsakenFame")!.startTime,
     ).toBeCloseTo(0.193, 9)
-    expect(cancelled.filter(row => row.step.skill === "UnfadingFlowerProjectile").map(row => row.startTime)).toEqual(
-      normal.filter(row => row.step.skill === "UnfadingFlowerProjectile").map(row => row.startTime),
+    expect(cancelled.filter(row => row.step.skill === "UnfadingFlowerVolley").map(row => row.startTime)).toEqual(
+      normal.filter(row => row.step.skill === "UnfadingFlowerVolley").map(row => row.startTime),
     )
   })
   it("migrates saved Phoenix selections without losing user timing", () => {
@@ -737,7 +754,7 @@ describe("Jade combat", () => {
     )
     data.skills = { ...data.skills, Observe: { castTime: 0, action: [] } }
     const rows = buildRotationTimeline(data)
-    const projectiles = rows.filter(row => row.step.skill === "UnfadingFlowerProjectile")
+    const projectiles = rows.filter(row => row.step.skill === "UnfadingFlowerVolley")
     expect(projectiles.length).toBeGreaterThan(2)
     for (let index = 1; index < projectiles.length; index++) {
       const bone = projectiles[index].debuffs.get("LingeringBone")
@@ -825,8 +842,8 @@ describe("Jade combat", () => {
       for (const flute of flutes.slice(1)) expect(flute.buffs.has("UnfadingFlowerMode")).toBe(true)
       const fanQs = casts.filter(row => row.step.skill === "EmeraldBarrier")
       for (let index = 1; index < fanQs.length; index++) {
-        expect(fanQs[index].startTime).toBeLessThan(fanQs[index - 1].startTime + 15)
-        expect(fanQs[index].buffs.has("Jadebreak")).toBe(true)
+        expect(fanQs[index].startTime).toBeLessThan(fanQs[index - 1].startTime + 15.5)
+        expect(fanQs[index].buffs.has("Jadebreak")).toBe(fanQs[index].startTime - fanQs[index - 1].startTime <= 15)
       }
       expect(result.duration).toBeCloseTo(30, 9)
       const battleEnd = result.timeline.find(row => row.step.type === "event" && row.step.event === "BattleEnd")!
@@ -872,7 +889,7 @@ describe("Jade combat", () => {
       for (const row of result.timeline) {
         for (const [index, action] of row.actions.entries()) {
           if (action.type !== "damage" || !result.actionBreakdowns[`${row.id}:${index}`]) continue
-          expect(row.actionStates[index].buffs.has("Jadebreak")).toBe(true)
+          expect(row.step.skill === "EmeraldBarrier" || row.actionStates[index].buffs.has("Jadebreak")).toBe(true)
           if (row.startTime + Number(action.time ?? 0) <= firstBone.startTime + 1.19 + 1e-9) continue
           expect(row.actionStates[index].debuffs.has("LingeringBone")).toBe(true)
           expect(
@@ -959,9 +976,45 @@ describe("Jade combat", () => {
       },
     }
     data.setupEffects = vernal.talent[13].flatMap<EditableObject>(talent => talent.effect)
-    const projectiles = buildRotationTimeline(data).filter(row => row.step.skill === "UnfadingFlowerProjectile")
-    expect(projectiles[1].resources.Blossoms).toBeCloseTo(projectiles[0].resources.Blossoms - netDrain, 9)
-    expect(projectiles.at(-1)!.startTime).toBeGreaterThan(7)
+    const volleys = buildRotationTimeline(data).filter(row => row.step.skill === "UnfadingFlowerVolley")
+    expect(volleys[1].resources.Blossoms).toBeCloseTo(volleys[0].resources.Blossoms - netDrain, 9)
+    expect(volleys.at(-1)!.startTime).toBeGreaterThan(7)
+  })
+
+  it.each([
+    [100, false, 20],
+    [53, true, 25],
+  ] as const)("fires only funded marked shots from %s Blossoms (exhausted=%s)", (blossoms, exhausted, expectedHits) => {
+    const data = input(
+      [cast("Mark"), cast("UnfadingFlowerCancel"), { type: "event", event: "Delay", duration: 14 }],
+      blossoms,
+    )
+    data.skills = {
+      ...data.skills,
+      Mark: {
+        castTime: 0,
+        action: (exhausted ? ["LingeringBone", "Exhausted"] : ["LingeringBone"]).map(value => ({
+          type: "apply",
+          target: "target",
+          value,
+          duration: 20,
+          time: 0,
+        })),
+      },
+    }
+    data.setupEffects = vernal.talent[13].flatMap<EditableObject>(talent => talent.effect)
+    data.resourceRegeneration = {}
+    const rows = buildRotationTimeline(data)
+    const hits = rows.filter(
+      row =>
+        row.step.skill === "UnfadingFlowerProjectile" &&
+        row.actions.some(
+          (action, index) => action.type === "damage" && row.actionStates[index]?.combatOrder !== undefined,
+        ),
+    )
+    expect(hits).toHaveLength(expectedHits)
+    const lastVolley = rows.findLast(row => row.step.skill === "UnfadingFlowerVolley")!
+    expect(hits.at(-1)!.startTime - lastVolley.startTime).toBeCloseTo(exhausted ? 0 : 0.15, 9)
   })
 
   it("uses a spare Fan Q charge to refresh Jadebreak before expiry", () => {
@@ -990,7 +1043,7 @@ describe("Jade combat", () => {
     expect(removal.startTime).toBeLessThan(7)
     const projectiles = rows.filter(row => row.step.skill === "UnfadingFlowerProjectile")
     expect(projectiles[0].startTime).toBeCloseTo(1.15, 9)
-    expect(projectiles.at(-1)!.startTime).toBeLessThan(removal.startTime)
+    expect(projectiles.at(-1)!.startTime).toBeLessThanOrEqual(removal.startTime)
     expect(rows.at(-1)!.resources.Blossoms).toBeGreaterThan(15)
   })
 

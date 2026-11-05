@@ -6,14 +6,26 @@
     "refresh": true,
     "showCoverage": true,
     "effect": [
-      { "requirement": [{ "target": "skillTag", "value": "Ballistic" }], "effect": { "hpDMGBonus": 0.3 } },
       {
         "requirement": [
           {
             "operator": "or",
             "operand": [
               { "target": "skillTag", "value": "Ballistic" },
-              { "target": "skillTag", "value": "Pursuit" }
+              { "target": "skillTag", "value": "JadebreakProjectile" }
+            ]
+          }
+        ],
+        "effect": { "hpDMGBonus": 0.3 }
+      },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "skillTag", "value": "Ballistic" },
+              { "target": "skillTag", "value": "Pursuit" },
+              { "target": "skillTag", "value": "JadebreakProjectile" }
             ]
           }
         ],
@@ -32,26 +44,17 @@
       {
         "resource": "Blossoms",
         "regeneration": 0,
-        "consumption": 10,
         "onDepleted": [
           { "type": "consume", "target": "self", "value": "UnfadingFlowerMode", "stack": "all", "time": 0 },
           { "type": "addResource", "value": "Blossoms", "amount": 15, "time": 0.2 }
         ]
       },
-      {
-        "resource": "Blossoms",
-        "consumption": 10,
-        "requirement": [
-          { "target": "target", "value": "LingeringBone" },
-          { "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }
-        ]
-      },
-      { "resource": "Blossoms", "consumption": 15, "requirement": [{ "target": "target", "value": "Airborne" }] }
+      { "resource": "Blossoms", "consumption": 25, "requirement": [{ "target": "target", "value": "Airborne" }] }
     ],
     "periodic": {
       "firstTick": 0.55,
       "interval": 0.5,
-      "action": [{ "type": "trigger", "value": "UnfadingFlowerProjectile", "time": 0 }]
+      "action": [{ "type": "trigger", "value": "UnfadingFlowerVolley", "time": 0 }]
     },
     "duration": 30,
     "action": [{ "type": "apply", "target": "self", "value": "UnfadingFlowerReturn", "time": "expire" }],
@@ -117,11 +120,37 @@
     "maxStack": 5,
     "refresh": true,
     "showCoverage": true,
-    "effect": [
-      {
-        "requirement": [{ "target": "skillTag", "value": "Charged" }],
-        "effect": { "hpDMGBonus": 0.04, "resourceCostBonus": { "Endurance": 0.04 } }
-      }
+    "stackEffects": [
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "hpDMGBonus": 0.04, "resourceCostBonus": { "Endurance": 0.04 } }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "hpDMGBonus": 0.08, "resourceCostBonus": { "Endurance": 0.08 } }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "hpDMGBonus": 0.12, "resourceCostBonus": { "Endurance": 0.12 } }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "hpDMGBonus": 0.16, "resourceCostBonus": { "Endurance": 0.16 } }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "Charged" }],
+          "effect": { "hpDMGBonus": 0.2, "resourceCostBonus": { "Endurance": 0.2 } }
+        }
+      ]
     ]
   },
   "SpringAwayChannel": {
