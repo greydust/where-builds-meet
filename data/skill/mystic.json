@@ -4,7 +4,17 @@
     "castTime": 0.5,
     "cooldown": 20,
     "cooldownGroup": "GoldenBody",
-    "action": [{ "type": "apply", "target": "self", "value": "Shield", "duration": 10, "reapply": true, "time": 0.5 }],
+    "action": [
+      { "type": "apply", "target": "self", "value": "Shield", "duration": 10, "reapply": true, "time": 0.5 },
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "Shield",
+        "duration": 2,
+        "time": 0.5,
+        "requirement": [{ "target": "self", "value": "FormBend4" }]
+      }
+    ],
     "modifier": [],
     "tags": ["Mystic", "Golden Body", "Shield"],
     "ignorePing": true

@@ -2348,7 +2348,8 @@ both cycles of fixed thresholds.
 
 Golden Body [Cancel] waits 0.5 seconds for Shield before its cancel follow-up and
 applies the shared Shield effect 0.5 seconds after cast start. Its upgraded
-shield lasts ten seconds (eight base plus two from Defense Boost), with the
+shield lasts ten seconds (eight base plus two from Defense Boost), extended to
+twelve seconds with four-piece Formbend, with the
 exported twenty-second cooldown. The delayed application survives cast completion
 through the existing timed-action mechanism. This entry models shield presence
 for Rain Whisper; shield absorption, defensive bonuses, healing on expiry, and
