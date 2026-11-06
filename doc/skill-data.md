@@ -2503,3 +2503,25 @@ checked for presets; the editor does not enforce follow-up selection.
 On Fully Relayed Max BP at BT19, Hybrid's fourth UF breaks Qi at 39.09s.
 On Fully Relayed Max TB, Flying starts its channels at 0.38s, 23.61s and
 48.02s. All three complete the full hold. The second UF breaks Qi at 35.57s.
+
+### Jade low-Qi filler review (2026-11-06)
+
+Flying sets distance to 9m before the opening Flute, Fan Q and Umbrella Q.
+Both Peak casts cancel directly into three-hit pursuit. Removing Golden Body
+from the exhausted filler window advances the third full channel and UF.
+A short automatic wait for UF expiry remains before the third Umbrella Q.
+All three channels retain their full ten-second hold.
+
+Hybrid uses FF cancel / Deflect pairs during UF three, with its final FF
+refresh moved after Umbrella Q and before the second charged-light refill.
+This preserves Lingering Bone through the fourth UF. Removing Serene Breeze
+and shortening the full FF casts advances the fourth and subsequent UFs.
+Fan Q cancel leads directly into pursuit during exhaustion.
+A final FF cancel into Fan Q refreshes Jadebreak through the cutoff.
+Pursuit follows that Fan Q at 59.319s; its first two hits land within 60 seconds.
+
+Both presets retain their second/fourth UF exhaust triggers. The 60%, 40%
+and 30% Qi events use the existing linear decline convention with the new
+break timing. These sequences were selected by comparing legal filler and
+cancel variants with finite Vitality, full intended Blossom refills, and
+normal production damage calculations.

@@ -20,7 +20,7 @@ describe("Jade one-minute preset continuity", () => {
     const rows = result.timeline.filter(row => row.startTime < end.startTime)
     expect(result.duration).toBe(60)
     const delays = rows.filter(row => row.step.type === "event" && row.step.event === "Delay")
-    const allowedDelays = fixture.rotation === "jade-flying" ? [] : ["cooldown", "requirement", "attack"]
+    const allowedDelays = fixture.rotation === "jade-flying" ? ["requirement"] : ["cooldown", "requirement", "attack"]
     for (const delay of delays)
       expect(allowedDelays).toContain(delay.step.event === "Delay" ? delay.step.automatic : undefined)
     expect(rows.filter(row => row.skipped)).toEqual([])

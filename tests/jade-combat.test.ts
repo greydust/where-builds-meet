@@ -442,6 +442,10 @@ describe("Jade combat", () => {
         expect(channel.effectiveCastTime).toBeCloseTo(10 + 0.74 + 0.5909090909090908, 8)
         expect(flower.resources.Blossoms).toBe(100)
       }
+      const openingQ = casts.find(row => row.step.skill === "SpringSorrow")!
+      expect(casts[0].distance).toBe(9)
+      expect(openingQ.distance).toBe(9)
+      expect(openingQ.actionStates[0].distance).toBe(9)
       const qi = result.timeline.filter(row => row.step.event === "Qi")
       const exhaustion = qi.find(row => row.step.event === "Qi" && row.step.targetQiRatio === 0)!
       expect(exhaustion.sourceRowId).toBe(flowers[1].id)
@@ -450,7 +454,9 @@ describe("Jade combat", () => {
       expect(qi[1].startTime - result.anchorTime).toBeCloseTo(breakTime * 0.6, 8)
       expect(casts.filter(row => row.step.skill === "FluteOfTheTidesCancel")).toHaveLength(2)
       expect(casts.filter(row => row.step.skill?.startsWith("ForsakenFame"))).toHaveLength(0)
-      for (const peak of casts.filter(row => row.step.skill === "PeaksSpringlessSilence")) {
+      for (const peak of casts.filter(row =>
+        ["PeaksSpringlessSilence", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? ""),
+      )) {
         expect(peak.distance).toBe(9)
         expect(peak.actionStates[0].distance).toBe(9)
         expect(peak.actionStates[0].combatOrder).toBeUndefined()
@@ -471,7 +477,11 @@ describe("Jade combat", () => {
             row.startTime >= flower.startTime &&
             row.startTime <= (nextChannel?.startTime ?? result.anchorTime + result.duration),
         )
-        expect(recovery.filter(row => row.step.skill === "PeaksSpringlessSilence")).toHaveLength(nextChannel ? 1 : 0)
+        expect(
+          recovery.filter(row =>
+            ["PeaksSpringlessSilence", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? ""),
+          ),
+        ).toHaveLength(nextChannel ? 1 : 0)
         expect(recovery.filter(row => row.step.skill === "MoonShatterSpring")).toHaveLength(nextChannel ? 2 : 0)
         for (const row of recovery) {
           expect(row.resourceConsumption?.Endurance ?? 0).toBe(0)
@@ -488,7 +498,7 @@ describe("Jade combat", () => {
       for (const row of casts.filter(row => row.step.skill === "MoonShatterSpring")) {
         expect(row.distance).toBe(1)
         const previous = casts[casts.indexOf(row) - 1].step.skill
-        expect(["EmeraldBarrier", "PeaksSpringlessSilence"]).toContain(previous)
+        expect(["EmeraldBarrier", "PeaksSpringlessSilence", "PeaksSpringlessSilenceCancel"]).toContain(previous)
         expect(row.effectiveCastTime).toBeCloseTo(previous === "EmeraldBarrier" ? 2.433 : 1.557, 9)
       }
       for (const row of result.timeline.filter(row => row.step.skill === "SpringAwayProjectile"))
