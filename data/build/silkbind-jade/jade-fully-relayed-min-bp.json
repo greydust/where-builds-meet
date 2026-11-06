@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-min-bp",
   "name": "Fully Relayed Min BP Mystic",
-  "order": 7,
+  "order": 1,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {
@@ -11,7 +11,7 @@
       { "innerWay": "StarReacher", "tier": "T6" },
       { "innerWay": "BreakingPoint", "tier": "T6" }
     ],
-    "weaponSets": { "RainWhisper": 4 },
+    "weaponSets": { "Mistwillow": 4 },
     "armorSets": { "Formbend": 0 },
     "bowRingSet": "Precision",
     "arsenal": "Silkbind"

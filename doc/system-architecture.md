@@ -15,6 +15,15 @@ former `silkbindWing` key in the selected path, active build and rotation maps,
 and path-scoped inventory and build maps before current loaders validate them.
 If both old and new keys exist in a map, the new key takes precedence.
 
+## Rotation preset ordering
+
+Rotation JSON files may define numeric `order` metadata. The catalog places
+ordinary presets before test presets, then sorts by ascending order and file
+path. An omitted order sorts after explicit orders. The picker puts custom
+rotations before presets. Order metadata is removed from the playable rotation
+record so changing list placement does not create migrated copies of stored
+presets. Filenames continue to define preset IDs.
+
 ## Spacing and sizing scale
 
 `src/styles/tokens.css` defines the scale: `--space-3xs` through `--space-xl`, at

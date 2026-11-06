@@ -1,5 +1,6 @@
 {
   "name": "Hybrid Dummy 1 Min",
+  "order": 100,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "ping": 40,
   "infiniteVitality": false,

@@ -1,7 +1,7 @@
 {
   "id": "jade-bp-max",
   "name": "Fully Relayed Max BP",
-  "order": 5,
+  "order": 10,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

@@ -1,5 +1,6 @@
 {
   "name": "Grounded Dummy 1 Min",
+  "order": 0,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "ping": 40,
   "infiniteVitality": false,

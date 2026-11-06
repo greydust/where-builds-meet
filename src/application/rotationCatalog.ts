@@ -320,7 +320,7 @@ export function migrateRotation(rotation: RotationRecord): RotationRecord {
   return migrated
 }
 
-export type RotationPresetRecord = RotationRecord & { martialArts?: WeaponId[]; test?: boolean }
+export type RotationPresetRecord = RotationRecord & { martialArts?: WeaponId[]; test?: boolean; order?: number }
 export const rotationPresetModules = import.meta.glob("../../data/rotation/**/*.json", {
   eager: true,
   import: "default",
@@ -344,9 +344,11 @@ export function rotationAvailableForWeapons(entry: RotationEntry, weapons: [Weap
 export const defaultRotationEntries = Object.entries(rotationPresetModules)
   .sort(
     ([leftPath, left], [rightPath, right]) =>
-      Number(left.test === true) - Number(right.test === true) || leftPath.localeCompare(rightPath),
+      Number(left.test === true) - Number(right.test === true) ||
+      (left.order ?? Number.MAX_SAFE_INTEGER) - (right.order ?? Number.MAX_SAFE_INTEGER) ||
+      leftPath.localeCompare(rightPath),
   )
-  .map(([path, rotation]): RotationEntry => ({
+  .map(([path, { order: _order, ...rotation }]): RotationEntry => ({
     id:
       path
         .split("/")

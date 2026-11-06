@@ -1,7 +1,7 @@
 {
   "id": "jade-full-bp",
   "name": "Full Max BP",
-  "order": 6,
+  "order": 91,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": false,
   "setup": {

@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-max-bp",
   "name": "Fully Relayed Max BP Mystic",
-  "order": 8,
+  "order": 0,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {

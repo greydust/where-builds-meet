@@ -1,7 +1,7 @@
 {
   "id": "jade-fully-relayed-min",
   "name": "Fully Relayed Min TB",
-  "order": 1,
+  "order": 22,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,
   "setup": {
