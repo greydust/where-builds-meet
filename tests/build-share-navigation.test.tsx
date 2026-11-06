@@ -61,9 +61,9 @@ it("offers links in an open tab and waits for Dev mode before importing a dev-pa
     const before = useGearStore.getState().buildState
     const pathBefore = useLoadoutStore.getState().pathId
     const exported = exportSharedBuild(
-      { id: "shared-jade", name: "Jade build", martialArts: ["vernalUmbrella", "inkwellFan"] },
+      { id: "shared-mixed", name: "Mixed build", martialArts: ["vernalUmbrella", "namelessSword"] },
       { items: [], equipped: {} },
-      "Jade build",
+      "Mixed build",
     )
     const link = new URL(await buildShareLink(exported))
     await act(async () => {
@@ -88,11 +88,11 @@ it("offers links in an open tab and waits for Dev mode before importing a dev-pa
     await act(async () => {
       dialog.querySelector<HTMLButtonElement>(".dialog-actions button:last-child")!.click()
       await vi.waitFor(() =>
-        expect(useGearStore.getState().buildState.entries.some(entry => entry.name === "Jade build")).toBe(true),
+        expect(useGearStore.getState().buildState.entries.some(entry => entry.name === "Mixed build")).toBe(true),
       )
     })
-    expect(useGearStore.getState().buildState.entries.some(entry => entry.name === "Jade build")).toBe(true)
-    expect(useLoadoutStore.getState().pathId).toBe("silkbindJade")
+    expect(useGearStore.getState().buildState.entries.some(entry => entry.name === "Mixed build")).toBe(true)
+    expect(useLoadoutStore.getState().pathId).toBe("mixed")
     expect(location.hash).toBe("")
   } finally {
     await act(async () => root.unmount())

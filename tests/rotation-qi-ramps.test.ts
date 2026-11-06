@@ -214,12 +214,13 @@ describe("preset Qi event attachments", () => {
 
 describe("preset Qi ramp coverage", () => {
   // The meter only ever moves where the rotation says so, so a preset's events have
-  // to read as a repeating descent: 0.5999 then 0.3999 then the 0 that applies
+  // to descend through the 60% and 40% thresholds, plus 30% for Jade, then 0 applies
   // Exhausted, whose expiry is what refills the meter for the next ramp. Values off
   // this cycle silently skew every target-Qi requirement that data gates on.
-  const RAMP = [0.5999, 0.3999, 0]
+  const standardRamp = [0.5999, 0.3999, 0]
+  const jadeRamp = [0.5999, 0.3999, 0.2999, 0]
 
-  it("descends each available path preset's meter in 0.5999 / 0.3999 / 0 ramps that land inside the fight", async () => {
+  it("descends each available preset through its Qi thresholds before exhaustion within the fight", async () => {
     // WIP paths can contain unmeasured drafts without an authored Qi schedule.
     // Keep the complete-ramp invariant on the available paths used for recommendations.
     const cases = (await loadDpsSnapshotFixtures()).filter(
@@ -227,6 +228,7 @@ describe("preset Qi ramp coverage", () => {
     )
     expect(cases.length).toBeGreaterThan(0)
     for (const { id, pathId, rotation, fixture } of cases) {
+      const ramp = pathId === "silkbindJade" ? jadeRamp : standardRamp
       const bundle = buildPresetRotationBundle(
         { pathId, ...fixture, rotation: { ...rotation, ping: fixture.ping }, skillOverrides: {}, previewId: null },
         fixture.build,
@@ -241,15 +243,15 @@ describe("preset Qi ramp coverage", () => {
         .filter(row => row.step.type === "event" && row.step.event === "Qi" && !row.skipped)
         .sort((left, right) => left.startTime - right.startTime)
         .map(row => ({ ratio: (row.step as { targetQiRatio: number }).targetQiRatio, at: row.startTime - battleStart }))
-      expect(rows.length, `${id}: the first ramp is ${RAMP.join(" / ")} and must be complete.`).toBeGreaterThanOrEqual(
-        RAMP.length,
+      expect(rows.length, `${id}: the first ramp is ${ramp.join(" / ")} and must be complete.`).toBeGreaterThanOrEqual(
+        ramp.length,
       )
       expect(
-        rows.slice(0, RAMP.length).map(row => row.ratio),
-        `${id}: the first ramp is ${RAMP.join(" / ")}.`,
-      ).toEqual(RAMP)
+        rows.slice(0, ramp.length).map(row => row.ratio),
+        `${id}: the first ramp is ${ramp.join(" / ")}.`,
+      ).toEqual(ramp)
       rows.forEach((row, index) => {
-        const ratio = RAMP[index % RAMP.length]
+        const ratio = ramp[index % ramp.length]
         expect(row.ratio, `${id}: Qi event ${index} must be ${ratio}.`).toBe(ratio)
         // An event at or past the cutoff can never fire, so it is dead data.
         expect(row.at, `${id}: Qi event ${index} falls outside the fight.`).toBeLessThan(window)

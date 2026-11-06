@@ -46,7 +46,7 @@
   "silkbindJade": {
     "name": "Jade",
     "tag": "SilkbindJade",
-    "status": "wip",
+    "status": "available",
     "buildGroup": "silkbind-jade",
     "defaultBuild": "jade-fully-relayed-max-bp",
     "graduated": ["jade-graduate", "jade-full-bp", "jade-graduate-short"],
