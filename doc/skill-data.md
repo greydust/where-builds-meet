@@ -599,6 +599,9 @@ At its authored 40ms ping, this moves the cast past the original Intoxicated
 expiry so Dragon's Breath grants a fresh buff rather than leaving one that
 expires mid-cast. The following Drunken Poet therefore skips its drink and
 avoids an extra 10 Vitality cost (7 after Turnaround's refund).
+Strategy Enhancement (export level 5, entry 305) refunds 4 Vitality on the
+fifth Poet hit. The refund resolves at impact, separately from the shared
+damage-event payout and Turnaround's cast-time refund.
 
 Consuming/removing the last stack cancels future periodic actions. A DOT deals
 one copy per active tick, independent of stack count, and ignores flat bonuses.
@@ -782,8 +785,8 @@ Ordinary Dodge refreshes Mystic damage at 17.5s. The hold places the 23.5s
 attack inside Fan Q's defensive window. The first Umbrella Q hit anchors battle time.
 BP builds use relayed All Mystic damage rolls on tier-100 helmet and chestpiece;
 the affix is not available on their tier-96 gear.
-Hybrid replaces Grounded's opening QQ and its QQ before UF four with one
-Umbrella Q and a Spring Away hold (4s and 1.871s respectively). Both reach
+Hybrid refills before UF one and four with one Umbrella Q and a Spring Away
+hold (4s and 1.871s respectively). Both reach
 100 Blossoms. Peak returns to melee after each charged refill. UF five uses
 a partial single-Q refill, and UF six uses QHL.
 
@@ -2481,16 +2484,12 @@ The name describes the refill requirement: the accepted four-Blossom pulses
 actually grant 36 before the cap. It omits the third hit and its resource grant
 at 0.7442s. The existing two-hit variant still ends at 0.53s and grants 32.
 
-Grounded starts on the first Umbrella Q hit after Fan Q. QQ / Heavy /
-Phoenix [35 Blossoms] fills the opener. Toad enables the three-hit pursuit
+Grounded opens with Fan Q [Miss]. Fan Q grants Jadebreak and Windrider while its charge recovers normally. The first Umbrella Q hit starts the clock. The opener uses Q / Heavy / two-hit Colorful Phoenix / Q. Light VC grants 28 Blossoms by its second impact at 0.4442s and 32 after the 0.53s pulse. The second Q fills Blossoms to 100 and benefits from Mistwillow on builds using the set. Toad enables the three-hit pursuit
 in the first UF window and full Fan Q enables the five-hit pursuit in the
-second. Flute precedes the fourth UF, which breaks Qi at 28.890s. Fan Q,
-two-hit Smolder / Deflect and five-hit Poet / Deflect follow during exhaustion.
+second. Flute cancel follows Forsaken Fame in the third UF window. Q / Heavy / Phoenix refills the fourth UF, which breaks Qi at 28.331s. Saving the Q charge lets the final Umbrella Q start as soon as UF mode ends and input latency clears. Fan Q,
+two-hit Smolder, and five-hit Poet / Deflect follow during exhaustion. Smolder starts sober, so Poet can follow its second impact directly.
 Every UF cancel has an immediate Deflect. Single-Q refills start the fifth
-and seventh UFs at about 60 Blossoms. Grounded uses the attacking dummy. In UF three, full Forsaken Fame finishes
-before the timed successful Deflect catches the 23.5s attack. Fan Q dodges
-the 29.5s attack during UF four. Each response restores 3 Vitality on Max BP,
-funding both late two-hit Soaring Spins.
+and seventh UFs at about 60 Blossoms. Poet's fifth hit refunds 4 Vitality. An extra Forsaken Fame cancel / Deflect after the seventh UF fills the time before the final two-hit Soaring Spin on the passive dummy.
 
 Forsaken Fame [Cancel] ends at its 1.19-second damage hit, retaining Lingering
 Bone and the 10-Endurance grant at that same timestamp. It saves 0.44 seconds
@@ -2498,8 +2497,6 @@ over the full cast. Its immediate follow-up must be Deflect or another skill
 that is neither Forsaken Fame (including its cancel variant) nor an Umbrella
 skill. As with the other cancel variants, this is an authored-sequence contract
 checked for presets; the editor does not enforce follow-up selection.
-Grounded Dummy 1 Min BP has been removed from the bundled presets. Its historical
-video-comparison reports remain as audit evidence, not an available rotation.
 
 ### Jade one-minute filler review (2026-11-05)
 

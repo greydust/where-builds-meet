@@ -69,6 +69,7 @@ describe("Jade one-minute preset continuity", () => {
       const thresholds = [
         0.4 * breakTime,
         0.6 * breakTime,
+        0.7 * breakTime,
         breakTime,
         14 + 1.4 * breakTime,
         14 + 1.6 * breakTime,
@@ -79,6 +80,31 @@ describe("Jade one-minute preset continuity", () => {
         if (step.type !== "skill") continue
         expect(rows.some(row => row.kind === "rotation" && row.rotationIndex === index)).toBe(true)
       }
+
+      const thirdFlowerShots = rows.filter(
+        row =>
+          row.step.skill === "UnfadingFlowerProjectile" &&
+          row.startTime >= flowers[2].startTime &&
+          row.startTime < flowers[3].startTime,
+      )
+      expect(
+        thirdFlowerShots.some(row =>
+          row.actions.some(
+            (action, i) =>
+              action.type === "damage" &&
+              row.actionStates[i].buffs.has("StarReacherBoneEnhanced") &&
+              !row.actionStates[i].debuffs.has("Exhausted"),
+          ),
+        ),
+      ).toBe(true)
+      const secondQ = rows.filter(row => row.step.skill === "SpringSorrow")[1]
+      const secondQHit = secondQ.actions.findIndex(action => action.type === "damage")
+      const wearsMistwillow = fixture.build === "jade-bp-max"
+      const hasMistwillow = secondQ.actionStates[secondQHit].buffs.has("Mistwillow")
+      expect(wearsMistwillow && !hasMistwillow).toBe(false)
+      const lastQ = rows.findLast(row => row.step.skill === "SpringSorrow")!
+      const refillWindow = rows.filter(row => row.startTime > flowers[5].startTime && row.startTime < lastQ.startTime)
+      expect(refillWindow.some(row => row.step.event === "Delay" && row.step.automatic === "cooldown")).toBe(false)
       const pursuits = rows.filter(row => row.step.skill === "MoonShatterSpring")
       expect(pursuits.map(row => row.buffs.has("Windrider"))).toEqual([false, true])
       expect(pursuits[0].debuffs.has("ToadVenom")).toBe(true)

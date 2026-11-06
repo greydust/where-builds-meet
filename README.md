@@ -114,3 +114,4 @@ The bundled Tabler Icons React package is licensed under the [MIT License](publi
 - **Kale**, for help with the Dust rotation
 - **kaezuma**, for help with the Splendor rotation
 - **NiNi'Piggy**, for help with the Umbra rotation
+- **ryvn**, for help with the Jade rotations

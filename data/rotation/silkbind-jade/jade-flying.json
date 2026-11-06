@@ -45,6 +45,7 @@
     { "type": "skill", "skill": "Deflect" },
     { "type": "event", "event": "Qi", "startTime": 14.228952558, "targetQiRatio": 0.5999 },
     { "type": "event", "event": "Qi", "startTime": 21.343428838, "targetQiRatio": 0.3999 },
+    { "type": "event", "event": "Qi", "startTime": 24.900666978, "targetQiRatio": 0.2999 },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ]
 }

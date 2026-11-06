@@ -50,6 +50,8 @@ describe("drunken-poet-composites", () => {
       const expectedPoetTime = componentTimes.slice(0, hitCount).reduce((total, value) => total + value, 0)
       const sober = timelineFor(skillId)
       const intoxicated = timelineFor(skillId, [{ name: "Intoxicated", stack: 1 }])
+      const refund = hitCount === 5 ? 4 : 0
+      expect(intoxicated.timelineResourceSummary?.Vitality.final).toBe(100 - 6 * hitCount + refund)
       expect(
         sober.actions.filter(action => action.type === "damage").length === hitCount &&
           intoxicated.actions.filter(action => action.type === "damage").length === hitCount,

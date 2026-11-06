@@ -19,6 +19,25 @@
     "skillBreakdownCategory": "Emerald Barrier",
     "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
   },
+  "EmeraldBarrierMiss": {
+    "name": "Emerald Barrier [Miss]",
+    "shortName": "Fan Q Miss",
+    "castTime": 1.02,
+    "action": [
+      { "type": "apply", "target": "self", "value": "Jadebreak", "time": 0.167 },
+      { "type": "apply", "target": "self", "value": "Windrider", "time": 1.02 }
+    ],
+    "modifier": [],
+    "tags": ["MartialArts", "DirectDamage", "Fan", "InkwellFan", "MartialArt"],
+    "martialArt": "inkwellFan",
+    "weapon": "Fan",
+    "cooldown": 15,
+    "cooldownUses": 2,
+    "cooldownRecovery": "sequential",
+    "cooldownGroup": "EmeraldBarrier",
+    "skillBreakdownCategory": "Emerald Barrier",
+    "attackResponse": { "duration": 0.4, "onSuccess": "PerfectDodgeSuccess" }
+  },
   "ForsakenFame": {
     "name": "Forsaken Fame",
     "shortName": "Fan Light Charged",

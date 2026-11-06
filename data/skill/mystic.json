@@ -529,7 +529,8 @@
         "reapply": true,
         "time": 0.5382,
         "requirement": [{ "target": "self", "value": "FuryHarvestT6" }]
-      }
+      },
+      { "type": "addResource", "value": "Vitality", "amount": 4, "time": 0.5382 }
     ],
     "modifier": [
       {
