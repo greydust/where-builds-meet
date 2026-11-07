@@ -2,7 +2,7 @@
 
 Source: `local/datamine/wwm-martial-arts-normal.json`, interpreted fields only.
 Selection uses each art's `unlockLevel: 13` and its ordered `talentIds` resolved
-against `definitions`. All 20 arts now contain their five selected talents at
+against `definitions`. All arts covered by this audit now contain their five selected talents at
 `talent[13]`; ranks 0–12 remain empty. Runtime talents contain effects only,
 with no display names or source IDs. Rank 14 is also implemented as a complete independent selection. It retains
 the supported non-stat mechanics and deliberate source exceptions described
