@@ -26,7 +26,7 @@ import {
   typedArmorSetDefinitions,
   typedArsenalDefinitions,
   typedBowRingSetDefinitions,
-  typedBreakthroughProfiles,
+  selectableBreakthroughs,
   typedDivinecraftDefinitions,
   typedFoodDefinitions,
   typedScriptDefinitions,
@@ -1029,7 +1029,7 @@ export function StatsTab({
               <label className="editor-field breakthrough-control">
                 <span className="visually-hidden">{t("ui.app.breakthrough")}</span>
                 <select value={settings.breakthrough} onChange={event => onBreakthroughChange(event.target.value)}>
-                  {Object.keys(typedBreakthroughProfiles).map(key => (
+                  {selectableBreakthroughs.map(key => (
                     <option key={key} value={key}>
                       {key}
                     </option>

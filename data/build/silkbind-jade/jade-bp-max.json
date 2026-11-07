@@ -40,7 +40,7 @@
           { "key": "maxPhys", "value": 73.132 },
           { "key": "power", "value": 46.436 },
           { "key": "agility", "value": 46.436 },
-          { "key": "maxVoidAttack", "value": 41.548 }
+          { "key": "minPhys", "value": 73.132 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -92,7 +92,7 @@
           { "key": "maxPhys", "value": 73.132 },
           { "key": "power", "value": 46.436 },
           { "key": "agility", "value": 46.436 },
-          { "key": "maxSilkbind", "value": 41.548 }
+          { "key": "minPhys", "value": 73.132 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.06 }
       },
@@ -145,8 +145,8 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "agility", "value": 53.955999999999996 },
-          { "key": "maxVoidAttack", "value": 48.315999999999995 }
+          { "key": "crit", "value": 0.09775999999999999 },
+          { "key": "minPhys", "value": 85.16399999999999 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "power", "value": 53.955999999999996 },
           { "key": "agility", "value": 53.955999999999996 },
-          { "key": "maxSilkbind", "value": 48.315999999999995 }
+          { "key": "minPhys", "value": 85.16399999999999 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.07 }
       },

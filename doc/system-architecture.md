@@ -2103,8 +2103,8 @@ tier 100. Its progression and rank values come from the normal layer-zero Solo
 Level and martial-art exports, with cumulative character talents from the grey
 Solo Level 19 progression. The existing level-96 enemy convention is retained.
 Equipment-derived set and bow/ring bonuses retain their tier-100 values;
-Enhancement and character talent totals advance independently. The default
-selection remains breakthrough 18.
+Enhancement and character talent totals advance independently. The selector offers breakthroughs 18 and 19 and defaults to 18.
+The BT17 profile supports historical calculations.
 
 ### Gear definition
 

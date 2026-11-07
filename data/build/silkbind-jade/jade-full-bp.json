@@ -40,7 +40,7 @@
           { "key": "maxPhys", "value": 77.8 },
           { "key": "power", "value": 49.4 },
           { "key": "agility", "value": 49.4 },
-          { "key": "maxVoidAttack", "value": 44.2 }
+          { "key": "minPhys", "value": 77.8 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -92,7 +92,7 @@
           { "key": "maxPhys", "value": 77.8 },
           { "key": "power", "value": 49.4 },
           { "key": "agility", "value": 49.4 },
-          { "key": "maxSilkbind", "value": 44.2 }
+          { "key": "minPhys", "value": 77.8 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.06 }
       },
@@ -146,7 +146,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "agility", "value": 57.4 },
-          { "key": "maxVoidAttack", "value": 51.4 }
+          { "key": "minPhys", "value": 90.6 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "agility", "value": 57.4 },
-          { "key": "maxSilkbind", "value": 51.4 }
+          { "key": "minPhys", "value": 90.6 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.07 }
       },

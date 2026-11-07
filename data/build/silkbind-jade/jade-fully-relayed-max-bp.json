@@ -145,7 +145,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "crit", "value": 0.09775999999999999 },
           { "key": "maxVoidAttack", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }

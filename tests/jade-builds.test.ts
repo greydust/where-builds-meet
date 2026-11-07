@@ -24,9 +24,11 @@ describe("Jade starter builds", () => {
       expect(item.relayed).not.toBe(true)
       const affixes = [item.baseAffix!, ...item.additionalAffixes]
       const source = reference.items[index]
-      expect(affixes.map(affix => affix.key)).toEqual(
-        [source.baseAffix!, ...source.additionalAffixes].map(affix => affix.key),
+      const graduateFan = tier === 100 && item.definitionId === "fan" && graduateId !== "jade-graduate"
+      const expectedKeys = [source.baseAffix!, ...source.additionalAffixes].map(affix =>
+        graduateFan && affix.key === "crit" ? "agility" : affix.key,
       )
+      expect(affixes.map(affix => affix.key)).toEqual(expectedKeys)
       for (const affix of affixes) expect(affix.value).toBe(maxGearRoll(affix.key, "affix", false, tier))
     }
   })
@@ -56,15 +58,12 @@ describe("Jade starter builds", () => {
       expect(result.stats.precision).toBeLessThanOrEqual(precisionBudget + 0.041)
       const bp = preset.setup!.innerWays.some(way => way.innerWay === "BreakingPoint")
       const critBudget = (reachableCrit - rates.directCrit) * (1 + resistance)
-      expect(result.stats.crit).toBeLessThanOrEqual(critBudget + (bp ? 0.055 : 0.105))
-    }
-    for (const preset of builds.filter(build => build.name.includes(" Max "))) {
-      const inventory = buildPresetInventory(preset, breakthrough === "17" ? 96 : 100)
-      expect(
-        inventory.items
-          .flatMap(item => [item.baseAffix].concat(item.additionalAffixes))
-          .filter(affix => affix.key === "agility"),
-      ).toHaveLength(3)
+      // Tier 100 Max BP trades one agility roll for crit to maximize BT18 rotation DPS.
+      const extraCritRoll =
+        breakthrough !== "17" && preset.relayed && bp && preset.name.includes(" Max ")
+          ? maxGearRoll("crit", "affix", true, 100)!
+          : 0
+      expect(result.stats.crit).toBeLessThanOrEqual(critBudget + (bp ? 0.055 : 0.105) + extraCritRoll)
     }
   })
   it.each([96, 100] as const)("reaches approximately 80% effective critical rate at gear tier %s", tier => {

@@ -755,14 +755,12 @@ Min/Max variants and a non-relayed Full Max graduation preset. Display names fol
 unchanged to preserve saved selections; the former Short Fight IDs identify BP Mystic.
 The three added BP IDs are `jade-bp-min`, `jade-bp-max`, and `jade-full-bp`.
 
-All Max builds have exactly three Agility affixes at both gear tiers. Rates use
-the shared stat pipeline with Simmering Fish Slices and the existing Precision
-bow/ring setup. BP gear uses one Precision roll rather than two. Full-value Critical
-rolls are removed instead of lowering a retained roll's value: relayed BP Max reaches
-87.77% final critical at BT18 and 89.30% at BT19; relayed BP Min reaches 88.28% and
-89.30%. Both BP families share these rates. Full Max BP reaches 89.67% and 89.30%.
-Thunderous reaches 88.95–89.20% at BT18 and 89.20% at BT19. All reach 100% effective
-precision; tests also bound uncapped sheet stats to catch redundant capped rolls.
+Tier-100 Fully Relayed Max BP and Max BP Mystic use eight Critical Rate and two Agility rolls
+for BT18. Their Graduate presets use seven Critical Rate and three Agility rolls
+at full roll value. BT19 shares tier-100 gear. Other Max configurations use three Agility
+rolls. Max BP also uses Minimum Physical Attack on the fan and chestpiece at
+both gear tiers. Rates use Simmering Fish Slices and the Precision bow/ring
+setup. BP gear uses one Precision roll and reaches 100% effective precision.
 Breaking Point T5 supplies the additional direct critical, not the weapon set.
 
 The 30-second IV preset uses

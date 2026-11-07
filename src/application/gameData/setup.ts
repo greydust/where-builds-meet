@@ -37,6 +37,7 @@ export type BreakthroughProfile = EnemyProfile & {
   }
 }
 export const typedBreakthroughProfiles = breakthroughProfiles as Record<string, BreakthroughProfile>
+export const selectableBreakthroughs = ["18", "19"] as const
 export const defaultBreakthrough = "18"
 export const defaultSettings: CalculatorSettings = {
   weapons: ["snowparting", "phalanxbane"],
