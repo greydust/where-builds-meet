@@ -185,7 +185,7 @@ The resolved bonuses therefore feed both raw-sourced talents and worker comparis
 
 1. Build `rawStats` from explicit `rawStat` permanent contributions, including
    flat martial-art min/max attribute bonuses, and five-attribute conversions.
-2. Build `stats`: remaining martial-art talent formulas read immutable `rawStats`; add
+2. Build `stats`: STEADY martial-art conversion formulas read immutable `rawStats`; action-resolved combat passives stay live; add
    ordinary talent bonuses change ordinary fields; food and other `effectiveStat`
    bonuses change only effective ranges and rates on this same object.
 3. Build `buffedStats` with selected global buff/debuff stat contributions.
@@ -725,6 +725,13 @@ Shared Multiplier =
 ```
 
 `baseDMGBonus` applies to physical damage and all four attributes. It is a separate multiplier from Category 1.
+
+Eonpour uses this multiplier for its PvE Inebriate bonuses (10%, 20% at T3,
+40% in Deepdaze at T6). The native event-34 handler adjusts the ratio of
+`SKILL.jm_numerial_ratio` via `FORMULA_DATA_ADJ_TARGET[4]`. Thus T6 multiplies
+eligible Deepdaze direct hits by 1.4 regardless of their Category 1 bonuses;
+it is not 0.4 added to that category. Recorded replay inherits this in its
+source damage and does not receive the multiplier a second time.
 
 Authored `damageScale` also multiplies the complete physical and attribute hit.
 UF projectiles use 1.15 and Forsaken Fame uses 1.45 for their NPC target

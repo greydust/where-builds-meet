@@ -1,0 +1,249 @@
+{
+  "HeroesBlood": {
+    "name": "Hero's Blood",
+    "shortName": "TB Special",
+    "castTime": 0.758888888888889,
+    "cooldown": 12,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.35897827388888887,
+        "phyCoef": 0.329365,
+        "phyBonus": 91.5,
+        "attrCoef": 0.329365,
+        "attrBonus": 50
+      },
+      {
+        "type": "damage",
+        "time": 0.35953183777777775,
+        "phyCoef": 0.329365,
+        "phyBonus": 91.5,
+        "attrCoef": 0.329365,
+        "attrBonus": 50
+      },
+      { "type": "addResource", "value": "Binge", "amount": 40, "time": 0.35897827388888887 },
+      { "type": "trigger", "value": "DraughtBingeCheck", "time": 0.35897827388888887 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "Drunkslay",
+        "stack": 1,
+        "time": 0.35897827388888887,
+        "requirement": [{ "target": "self", "value": "SkyspeakT6" }]
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "DualBlades",
+      "RivenTwinblades",
+      "HeroesBlood",
+      "Special",
+      "BamboocutDraught"
+    ],
+    "martialArt": "rivenTwinblades",
+    "weapon": "DualBlades"
+  },
+  "Reveldrift": {
+    "name": "Reveldrift",
+    "shortName": "TB Q",
+    "castTime": 1.1,
+    "cooldown": 15,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.331599348,
+        "phyCoef": 0.2640125,
+        "phyBonus": 73.25,
+        "attrCoef": 0.2640125,
+        "attrBonus": 40
+      },
+      {
+        "type": "damage",
+        "time": 0.40194170999999995,
+        "phyCoef": 0.2640125,
+        "phyBonus": 73.25,
+        "attrCoef": 0.2640125,
+        "attrBonus": 40
+      },
+      { "type": "apply", "target": "target", "value": "Strayhunt", "stack": 1, "time": 0.331599348 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "DualBlades",
+      "RivenTwinblades",
+      "Reveldrift",
+      "MartialArt",
+      "BamboocutDraught"
+    ],
+    "martialArt": "rivenTwinblades",
+    "weapon": "DualBlades",
+    "cooldownUses": 2
+  },
+  "HeroesBloodInebriate": {
+    "name": "Hero's Blood - Inebriate",
+    "shortName": "TB Deepdaze Special",
+    "castTime": 2.949090909090909,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.9546579000000001,
+        "phyCoef": 2.0394,
+        "phyBonus": 564,
+        "attrCoef": 2.0394,
+        "attrBonus": 307.5,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.38833947,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.46925877,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.59108859,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.6665579,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.7874780700000001,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 1.90930789,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 2.0302359699999997,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 2.09115088,
+        "phyCoef": 0.3399,
+        "phyBonus": 94,
+        "attrCoef": 0.3399,
+        "attrBonus": 51.25,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 2.5748394699999997,
+        "phyCoef": 1.0197,
+        "phyBonus": 282,
+        "attrCoef": 1.0197,
+        "attrBonus": 153.75,
+        "damageScale": 1.5
+      },
+      {
+        "type": "damage",
+        "time": 2.57574912,
+        "phyCoef": 1.0197,
+        "phyBonus": 282,
+        "attrCoef": 1.0197,
+        "attrBonus": 153.75,
+        "damageScale": 1.5
+      },
+      { "type": "apply", "target": "self", "value": "Carouse", "stack": 1, "time": 0 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "DualBlades",
+      "RivenTwinblades",
+      "HeroesBloodInebriate",
+      "Special",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "BamboocutDraught"
+    ],
+    "martialArt": "rivenTwinblades",
+    "weapon": "DualBlades"
+  },
+  "ReveldriftCancel": {
+    "name": "Reveldrift [Cancel]",
+    "shortName": "TB Q [Cancel]",
+    "castTime": 0.40194170999999995,
+    "cooldown": 15,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.331599348,
+        "phyCoef": 0.2640125,
+        "phyBonus": 73.25,
+        "attrCoef": 0.2640125,
+        "attrBonus": 40
+      },
+      {
+        "type": "damage",
+        "time": 0.40194170999999995,
+        "phyCoef": 0.2640125,
+        "phyBonus": 73.25,
+        "attrCoef": 0.2640125,
+        "attrBonus": 40
+      },
+      { "type": "apply", "target": "target", "value": "Strayhunt", "stack": 1, "time": 0.331599348 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "DualBlades",
+      "RivenTwinblades",
+      "Reveldrift",
+      "MartialArt",
+      "BamboocutDraught"
+    ],
+    "martialArt": "rivenTwinblades",
+    "weapon": "DualBlades",
+    "cooldownUses": 2,
+    "cooldownGroup": "Reveldrift"
+  },
+  "DrunkslayDamage": {
+    "name": "Drunkslay",
+    "castTime": 0,
+    "tags": ["Triggered", "Replayed"],
+    "action": [{ "type": "replay", "coef": 0.2, "time": 0 }]
+  }
+}

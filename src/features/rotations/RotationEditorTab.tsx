@@ -1234,6 +1234,11 @@ export function RotationEditorTab({
     settings.weapons.includes("vernalUmbrella") ||
     rotation.steps.some(step => step.type === "event" && step.event === "Blossoms")
   const displayedResources = [
+    ...(pathId === "bamboocutDraught" ||
+    settings.weapons.includes("skystrikeGauntlets") ||
+    settings.weapons.includes("rivenTwinblades")
+      ? [{ resource: "Binge", label: t("system.resource.binge") }]
+      : []),
     ...(showBlossoms ? [{ resource: "Blossoms", label: t("system.resource.blossoms") }] : []),
     ...(showBlossoms || rotationUsesEndurance(timeline)
       ? [{ resource: "Endurance", label: t("system.resource.endurance") }]

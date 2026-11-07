@@ -44,7 +44,9 @@ import namelessSpearSkills from "@gamedata/skill/nameless-spear.json"
 import namelessSwordSkills from "@gamedata/skill/nameless-sword.json"
 import panaceaSkills from "@gamedata/skill/panacea-fan.json"
 import phalanxbaneSkills from "@gamedata/skill/phalanxbane-blade.json"
+import rivenSkills from "@gamedata/skill/riven-twinblades.json"
 import skygraspSkills from "@gamedata/skill/skygrasp-rope-dart.json"
+import skystrikeSkills from "@gamedata/skill/skystrike-gauntlets.json"
 import snowpartingSkills from "@gamedata/skill/snowparting-blade.json"
 import soulshadeSkills from "@gamedata/skill/soulshade-umbrella.json"
 import stormbreakerSkills from "@gamedata/skill/stormbreaker-spear.json"
@@ -59,6 +61,8 @@ import type { EditorCategory, SkillCategory, SkillMap } from "@/skillOverrides"
 import type { WeaponId } from "@/types"
 
 export const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
+  Skystrike: skystrikeSkills as SkillMap,
+  Riven: rivenSkills as SkillMap,
   VernalUmbrella: vernalSkills as SkillMap,
   InkwellFan: inkwellSkills as SkillMap,
   MuseflowWaistDrum: drumSkills as SkillMap,
@@ -132,6 +136,8 @@ export const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   DOT: dotDefinitions,
 }
 export const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
+  skystrikeGauntlets: "Skystrike",
+  rivenTwinblades: "Riven",
   vernalUmbrella: "VernalUmbrella",
   inkwellFan: "InkwellFan",
   snowparting: "Snowparting",
@@ -155,6 +161,8 @@ export const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
 }
 export const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap
 export const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
+  Skystrike: "skystrikeGauntlets",
+  Riven: "rivenTwinblades",
   VernalUmbrella: "vernalUmbrella",
   InkwellFan: "inkwellFan",
   MuseflowWaistDrum: "museflowWaistDrum",
@@ -189,6 +197,8 @@ export const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).fl
 )
 export const editorSkillIds = Array.from(new Set(allSkillIds))
 export const martialArtBySkillId = new Map<string, WeaponId>([
+  ...Object.keys(skystrikeSkills).map(id => [id, "skystrikeGauntlets"] as const),
+  ...Object.keys(rivenSkills).map(id => [id, "rivenTwinblades"] as const),
   ...Object.keys(vernalSkills).map(id => [id, "vernalUmbrella"] as const),
   ...Object.keys(inkwellSkills).map(id => [id, "inkwellFan"] as const),
   ...Object.keys(strategicSwordSkills).map(id => [id, "strategicSword"] as const),

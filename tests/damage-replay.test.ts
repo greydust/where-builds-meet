@@ -10,14 +10,15 @@ import type { EditableObject, InnerWayEffectRule } from "@/calculations/rotation
 
 import { isClose } from "./helpers/floatEquality"
 import { castStep, delayStep } from "./helpers/rotationSteps"
+import { asEffectDefinitions } from "./helpers/shippedData"
 
 // Ported from script/probe/check-damage-replay.mjs.
 describe("damage-replay", () => {
   it("Damage-event replay checks passed", async () => {
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { simulateRotation } = await import("../src/calculations/simulationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { simulateRotation } = await import("@/calculations/simulationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
     const closeTo = (actual: number | undefined, expected: number) => isClose(actual, expected, 1e-7)
     // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
     const noEffect: EditableObject = {}
@@ -206,8 +207,8 @@ describe("damage-replay", () => {
       "A Charged hit without Heaven's Might must not spawn replay damage.",
     )
 
-    const draughtDebuffs = (await import("../data/debuff/bamboocut-draught.json")).default
-    const { defaultGlobalDebuffs, globalDebuffTimelineEffects } = await import("../src/globalDebuffs.ts")
+    const draughtDebuffs = asEffectDefinitions((await import("@gamedata/debuff/bamboocut-draught.json")).default)
+    const { defaultGlobalDebuffs, globalDebuffTimelineEffects } = await import("@/globalDebuffs.ts")
     for (const active of [[], ["Wildstride"], ["Strayhunt"], ["Wildstride", "Strayhunt"]]) {
       const bundle = createBundle()
       bundle.timeline.effectDefinitions = { ...bundle.timeline.effectDefinitions, ...draughtDebuffs }

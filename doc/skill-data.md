@@ -70,6 +70,97 @@ adds to the existing general damage bonus category; it has no target-type condit
 
 ## Datamine interpretation
 
+### Draught one-minute preset
+
+The initial Draught combat definitions use the Normal level-100 coefficients
+and authored hit/interrupt clocks from the confirmed export
+`where-datas-mine-internal/export/whaledraft-confirmed/2026-11-06_21-48-04-839_+0000-HH96uF`.
+The export remains a local reference, outside runtime imports. Collider clocks
+are the export's nominal immediate-contact model, not client measurements.
+
+Binge uses the shared resource pipeline, starts at the user-confirmed 60, and
+caps at the source resource-151 maximum of 200. Quick Whaledraft grants 25, or
+50 during Carouse, at 0.315s on the modeled dummy; its interrupt time is 0.68s.
+This is Quick Drink 209020061, rather than held drink 20902006. The checked-space
+0.301s branch is not used by this preset. The full-meter check applies Deepdaze
+at the grant timestamp with no additional delay, as confirmed by the user.
+Inebriate starts at the source 50-percent resource threshold. Peakfall and
+Castlink select their Jadeflush routes while Inebriate is active. Ordinary
+Castlink uses the confirmed 0.733s recovery; Jadeflush has its own four-hit route.
+
+Dragonquench's four explicit stages share the `Dragonquench - Inebriate`
+damage-breakdown category and ignore input ping, as confirmed by the user.
+Their animation clocks still use the existing cast-time multipliers for
+15% and 30% acceleration after completed cycles; the third cycle resets the
+speed. Skyspeak T3 extends Deepdaze from five to ten seconds, and T1 changes the exit drain from 200 Binge to 140. A full-meter exit therefore
+leaves 60; a 180-Binge exit leaves 40. Eonpour's PvE base-damage bonuses use `baseDMGBonus`,
+separate from Category 1: 10% initially, 20% from T3, and 40% during Deepdaze
+at T6. Native event 34 targets `SKILL.jm_numerial_ratio` through
+`FORMULA_DATA_ADJ_TARGET[4]`; it changes the whole direct-hit multiplier, not
+an ordinary additive damage bonus. Drunkslay records the resulting damage
+without applying Eonpour again at settlement. Eonpour T6 triggers once per 60 seconds against an exhausted
+boss via native tag 1125 (ordinary/enhanced Peakfall and Castlink), entering
+Deepdaze or extending it by six seconds and applying the three
+authored target marks. Drunkslay records eligible enhanced-hit damage during its mark. Reapplying
+the mark or reaching its 20-second expiry settles 20% of the recorded damage
+through the shared recording mechanism, with Wildstride evaluated at settlement.
+Battle End does not settle an unfinished window. Dragonquench stage four has
+three damage contacts (two smaller hits followed by the finisher); the four
+thirteen-cast chains therefore produce 76 Dragonquench hits.
+Nightwick - Tipsylay and Nightwick - Primepick carry the same native
+Inebriate-enhanced hit filter (calcpoints 2090210801 and 2090211001, tag 1121).
+They therefore receive the enhanced critical-damage talent and Tiltrim bonus
+and contribute to Drunkslay; neither is an ordinary unenhanced Special hit.
+
+Mistwing's cumulative authored tiers represent replacements explicitly. T4's
+six points of all-type penetration replace T1's three physical points. T6 adds
+another six all-type points during Inebriate. Its HP scaling is one point per
+10% missing HP, capped at four, plus the same scaling again during a martial-art
+enhancement. Both parts affect all penetration channels from T4 onward. Before
+T6, the HP interval is 20%; no HP-scaling bonus applies before the first interval.
+Source: Normal buffs 10270350/10270351 and passives 102703501–102703510 in the
+confirmed export. The shared Mistwing correction also affects Wind builds.
+
+Quick drinking's Falcon projectile is requested at the raw action's 0.3s
+timeline marker; its hit uses the same nominal immediate-contact convention.
+
+`draught-dummy-1-min` uses twelve Dragonquench casts in rounds one through
+three and thirteen in round four, for 49 casts and 73 damage contacts. Reveldrift
+[Cancel] precedes ordinary Hero's Blood after enhanced specials in rounds one,
+three, and four; its existing post-special cast is moved rather than duplicated.
+At 40ms ping, all four enhanced specials land their full damage, and the final
+ordinary Hero's Blood settles Drunkslay at 59.673466s before the 60-second cutoff.
+Its recovery extends beyond Battle End. Deepdaze expires before that ordinary cast.
+
+The Qi break remains attached to the tenth heavy of round two. Its revised
+26.838021s battle time defines the depletion rate. Thresholds at 59.99% and
+39.99% occur at 40% and 60% of that interval. After ten seconds of Exhausted
+and four seconds of Qi immunity, the same depletion rate resumes; the next
+break remains outside the minute. Battle start is the first ordinary Hero's
+Blood hit, after Flute / Deflect / Peakfall preparation.
+This initial implementation retains Draught's development-only WIP status.
+
+The four Fully Relayed builds derive from Dust's corresponding Min/Max gear at
+tiers 96 and 100, with Gauntlet and Dual Blades weapon arts, Tiltrim, Deepdaze
+armor attunements, and T6 Eonpour / Morale Chant / Skyspeak. The ordinary builds
+use T6 Mistwing; the BP variants replace only that Inner Way with T6 Breaking
+Point. Their catalog orders are 0 (Min BP), 1 (Max BP), 10 (Min), and 11 (Max).
+Min BP is the path default. Weapon and accessory Physical Penetration
+attunements remain unchanged.
+
+Rate tuning targets effective Precision after enemy Judgement Resistance and
+effective Critical Rate, rather than final critical outcome probability or
+stat-sheet Precision. At BT17–19, the standard Dummy snapshot environment
+(Simmering Fish Slices, Fire Divinecraft, no Script, default global debuffs)
+gives 99.85–100% effective Precision and 79.09–80% effective Critical Rate.
+Gear uses legal 94%-of-maximum relayed rolls. The selected one- or two-roll
+Critical/Precision substitutions maximize production-calculated rotation DPS
+among legal substitutions meeting at least 99% effective Precision and 79%
+effective Critical Rate, preserving main Physical Attack rolls and weapon
+arts. Tier 100 is tuned against BT18's stricter rates and also covers BT19.
+This is a rate-constrained search: meeting the Critical Rate target costs
+roughly 0.7–0.8% DPS in some BP profiles compared with their prior allocation.
+
 ### Strength mixed preset fillers
 
 The ordinary Mixed, Double Stab, and Infinite Vitality one-minute presets retain
@@ -471,9 +562,10 @@ attribute attack, before talent scaling. Temporary conditional buffs stay in
 their ordinary stat stage. `stat` changes ordinary stats; `effectiveStat` changes
 derived contributions. Do not duplicate calculations in UI components.
 
-Talent formulas read immutable raw stats, including flat attribute talents but
-excluding later talent/food bonuses. Use raw source names for these conversions.
-A formula source may be a stat name or `{ "max": ["body", "power"] }` to select the higher source value from the same stat snapshot. All named sources must be finite numbers. Formula values compute `source × multiplier + offset`, with optional `min`,
+By default, talent formulas read immutable raw stats, including flat attribute
+talents but excluding later talent/food bonuses. Use raw source names for STEADY
+rank conversions; native dynamic combat passives need explicit action binding.
+A formula source may be a stat name or `{ "max": ["body", "power"] }` to select the higher source value from the same stat snapshot. All named sources must be finite numbers. Formula values compute `source × multiplier + offset`, or `floor(source / step) × multiplier + offset` when a positive `step` is authored. `resolveAt: "action"` keeps dynamic combat-passive formulas live instead of freezing them against raw talent inputs. The formulas support optional `min`,
 `max`, and explicitly justified `round`. See the [stat pipeline](stat-pipeline.md)
 for effective-source resolution and final-value overrides.
 
@@ -904,9 +996,12 @@ below keeps cross-cutting blockers and outstanding skill evidence.
 - Enemy-healing reduction, movement slow, control immunity,
   breath-hold, and some talent-specific dodge-window changes remain unsupported.
   Existing incoming-attack response windows do not resolve all those mechanics.
-- Eonpour, Skyspeak, and Volutefit currently provide stat tiers only; other
-  mechanics await combat-skill and state wiring. See their JSON and the talent
-  audit. Mistwing is fully wired and is offered on Draught and Wind.
+- Draught's authored rotation now includes Eonpour's Inebriate damage bonuses
+  and exhausted-boss proc, plus Skyspeak's Deepdaze duration, conditional Binge exit drain and
+  Drunkslay replay. Light-attack Binge generation, held drinking, sober-up drain,
+  and the other Riven attack routes remain outside this initial rotation's
+  coverage. Volutefit still provides stat tiers only. Mistwing is fully wired
+  and is offered on Draught and Wind.
 - Yaksha Rush's defense-break rewards are unresolved: breaking the target's
   defense is not a modeled timeline state, so its extra damage, 10 Qi damage, and
   Tenacity grant have no representation. Do not attach them to the base hits.
@@ -2524,3 +2619,15 @@ and 30% Qi events use the existing linear decline convention with the new
 break timing. These sequences were selected by comparing legal filler and
 cancel variants with finite Vitality, full intended Blossom refills, and
 normal production damage calculations.
+
+### Draught audit follow-up
+
+The 7 November source review is tracked in [draught-audit-followup.md](draught-audit-followup.md).
+All current target profiles, including both dummy profiles, count as bosses for
+Draught's exhausted-target proc, as confirmed by the user. The existing generic
+Dummy selection is preserved. `DraughtExhaustedTrigger` represents source tag
+1125 on Peakfall and Castlink contacts; it is independent of Inebriate-enhanced
+eligibility. Successful Deflect responses grant 5 Binge through a separate
+one-second talent-trigger cooldown without a Carouse condition. Plain authored
+Deflect casts have no success reward. Quick Drink's unmarked-gain semantics and
+Drunkslay's Eonpour-refresh lifecycle remain provisional.

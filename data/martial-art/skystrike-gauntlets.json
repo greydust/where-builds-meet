@@ -24,8 +24,18 @@
               "event": "attackResponse",
               "requirement": [
                 { "target": "self", "value": "Carouse" },
-                { "target": "skillTag", "value": "PerfectDodge" }
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
               ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
               "cooldown": 1,
               "action": { "type": "addResource", "value": "Binge", "amount": 5 }
             }
@@ -39,7 +49,11 @@
         "effect": [
           {
             "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
-            "effect": { "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } } }
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
           }
         ]
       },
@@ -63,8 +77,18 @@
               "event": "attackResponse",
               "requirement": [
                 { "target": "self", "value": "Carouse" },
-                { "target": "skillTag", "value": "PerfectDodge" }
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
               ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
               "cooldown": 1,
               "action": { "type": "addResource", "value": "Binge", "amount": 5 }
             }
@@ -78,7 +102,11 @@
         "effect": [
           {
             "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
-            "effect": { "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } } }
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
           }
         ]
       },
@@ -97,7 +125,11 @@
         "effect": [
           {
             "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
-            "effect": { "flatAttackBonus": 0.0725, "coefficientBonusWithoutFlatAttack": 0.00725 }
+            "effect": { "flatAttackBonus": 0.0725 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.00725 }
           }
         ]
       }
@@ -110,8 +142,18 @@
               "event": "attackResponse",
               "requirement": [
                 { "target": "self", "value": "Carouse" },
-                { "target": "skillTag", "value": "PerfectDodge" }
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
               ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
               "cooldown": 1,
               "action": { "type": "addResource", "value": "Binge", "amount": 5 }
             }
@@ -125,7 +167,11 @@
         "effect": [
           {
             "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
-            "effect": { "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } } }
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
           }
         ]
       },
@@ -144,7 +190,11 @@
         "effect": [
           {
             "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
-            "effect": { "flatAttackBonus": 0.15, "coefficientBonusWithoutFlatAttack": 0.015 }
+            "effect": { "flatAttackBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.015 }
           }
         ]
       }

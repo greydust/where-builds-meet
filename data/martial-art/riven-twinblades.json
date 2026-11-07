@@ -52,8 +52,24 @@
             "requirement": [{ "target": "self", "value": "Inebriate" }],
             "effect": {
               "stat": {
-                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } },
-                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } }
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
               }
             }
           }
@@ -107,8 +123,24 @@
             "requirement": [{ "target": "self", "value": "Inebriate" }],
             "effect": {
               "stat": {
-                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } },
-                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } }
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
               }
             }
           }
@@ -170,8 +202,24 @@
             "requirement": [{ "target": "self", "value": "Inebriate" }],
             "effect": {
               "stat": {
-                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } },
-                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00012, "max": 0.09 } }
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
               }
             }
           }

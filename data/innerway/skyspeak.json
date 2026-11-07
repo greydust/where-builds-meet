@@ -39,7 +39,7 @@
         }
       ]
     },
-    "SkyspeakT3": {},
+    "SkyspeakT3": { "effect": [{ "target": "InebriateDeepdaze", "modify": { "duration": 10 } }] },
     "SkyspeakT4": {},
     "SkyspeakT5": { "effect": [{ "rawStat": { "critDmgBonus": 0.04 } }] },
     "SkyspeakT6": {}

@@ -22,11 +22,13 @@ base inputs / solved override offsets
    stats, without effective ranges or final outcome rates.
 2. `stats` adds the remaining martial-art `stat` bonuses to ordinary fields and
    collects `effectiveStat` bonuses, including food, as effective-only inputs.
-   This is the second martial-art pass: every talent formula reads the
-   same immutable `rawStats`, including talent amounts behind skill or combat
-   conditions. Thus all raw flat attribute bonuses are present before scaling,
-   but physical-attack talent results and food do not feed other talents.
-   Talent and food order cannot change those amounts. Effective bonuses do not
+   This is the second martial-art pass: STEADY rank-conversion formulas read the
+   same immutable `rawStats`, including conditional conversions. Dynamic native
+   combat passives explicitly marked `formula.resolveAt: "action"` remain live
+   for the action snapshot instead of binding here. All raw flat attribute bonuses
+   are present before STEADY conversions; physical-attack conversion results and
+   food do not feed another STEADY conversion. Talent and food order cannot
+   change those bound amounts. Effective bonuses do not
    change ordinary fields or feed formulas that read ordinary stats. Effective
    attack ranges and final rates are fields on this complete object, not a
    separate runtime stat map. This is the character-sheet and worker snapshot.
@@ -37,8 +39,10 @@ base inputs / solved override offsets
    action tags or equipped martial arts. Cache one immutable snapshot per tag
    signature. Multi-action components can have different signatures.
 5. `actionStats` copies the skill baseline and adds the current combat-effect
-   contribution. It recalculates effective fields and final rates, then damage
-   and healing consume this snapshot through a shared resolution boundary.
+   contribution. Action-resolved formula effects read these ordinary combat
+   fields; `formula.step` divides and floors the input before multiplication.
+   It recalculates effective fields and final rates, then damage and healing
+   consume this snapshot through a shared resolution boundary.
 
 The `derivedStats` property retained by compatibility callers aliases the same
 complete object as `stats`. It must not become a separately maintained map.
@@ -160,3 +164,15 @@ Legacy raw-input diagnostic bundles are normalized once at the worker boundary.
 - `tests/stat-stages.test.ts`: observable stage boundaries, food
   retention, raw talent sources, global application, buff expiration, comparisons,
   healing, and uncapped-input preservation.
+
+### Draught dynamic passive inputs
+
+Skystrike's enhanced critical damage and Riven's Inebriate channel bonuses
+are dynamic combat passives, not STEADY rank conversions. They evaluate
+`minPhys` on the action snapshot with `resolveAt: "action"`: complete 50-point
+pieces grant 2% critical damage, capped at 30%; complete 83.33-point pieces
+grant 1% to each specified channel, capped at 9%. The current native consumer
+uses `get_combat_attr(MIN_W_ATK)` and integer division. This corrects raw-stage
+freezing and continuous interpolation. Exact native assembly of food/effective
+bonuses and percentage attack into that combat attribute remains unaudited;
+ordinary action `minPhys` is the current explicit simulator mapping.

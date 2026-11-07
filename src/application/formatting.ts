@@ -6,6 +6,10 @@ import { allSkillDefinitions, dotDefinitions, skillDataNamespaceById } from "./g
 
 export function skillCategoryLabel(category: EditorCategory) {
   switch (category) {
+    case "Skystrike":
+      return "Skystrike Gauntlets"
+    case "Riven":
+      return "Riven Twinblades"
     case "Snowparting":
       return "Snowparting Blade"
     case "Phalanxbane":

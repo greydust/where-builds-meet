@@ -1079,7 +1079,7 @@
   },
   "Tiltrim": {
     "name": "Tiltrim",
-    "altersTimeline": false,
+    "altersTimeline": true,
     "tags": ["BamboocutDraught", "SkystrikeGauntlets", "RivenTwinblades"],
     "options": {
       "0": { "name": "0", "effect": {} },
@@ -1142,6 +1142,21 @@
                 90.6
               ]
             }
+          },
+          "trigger": {
+            "event": "damage",
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "Inebriate" },
+                  { "target": "self", "value": "InebriateDeepdaze" },
+                  { "target": "self", "value": "Flamelash" },
+                  { "target": "self", "value": "FlowerBurial" }
+                ]
+              }
+            ],
+            "action": { "type": "apply", "target": "self", "value": "Tiltrim", "stack": 1, "reapply": true }
           }
         }
       }

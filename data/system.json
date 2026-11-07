@@ -6,9 +6,17 @@
     "Hellfire": 0,
     "NobleWill": 100,
     "SwordsZenith": 40,
-    "Blossoms": 0
+    "Blossoms": 0,
+    "Binge": 60
   },
-  "resourceMaximums": { "HeavensWill": 4, "Hellfire": 80, "NobleWill": 100, "SwordsZenith": 100, "Blossoms": 100 },
+  "resourceMaximums": {
+    "HeavensWill": 4,
+    "Hellfire": 80,
+    "NobleWill": 100,
+    "SwordsZenith": 100,
+    "Blossoms": 100,
+    "Binge": 200
+  },
   "resourceRegeneration": { "Endurance": 10, "Blossoms": 0.3 },
   "resourceSpendRegenDelay": { "Endurance": 1.2 },
   "resourceEvents": [

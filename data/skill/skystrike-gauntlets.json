@@ -1,0 +1,586 @@
+{
+  "Peakfall": {
+    "name": "Peakfall",
+    "shortName": "Gauntlet Q1",
+    "castTime": 0.632,
+    "cooldown": 10,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.332085768,
+        "phyCoef": 0.91934,
+        "phyBonus": 255,
+        "attrCoef": 0.91934,
+        "attrBonus": 139,
+        "damageScale": 1.4
+      },
+      { "type": "apply", "target": "self", "value": "DraughtDrinkMarks", "stack": 1, "time": 0.332085768 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Peakfall",
+      "MartialArt",
+      "SubAction",
+      "BamboocutDraught",
+      "DraughtExhaustedTrigger"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "ignorePing": true
+  },
+  "Castlink": {
+    "name": "Castlink",
+    "shortName": "Gauntlet Q2",
+    "castTime": 0.733,
+    "cooldown": 2,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.34790840990909094,
+        "phyCoef": 0.616165,
+        "phyBonus": 171,
+        "attrCoef": 0.616165,
+        "attrBonus": 93,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.5615436235454546,
+        "phyCoef": 0.616165,
+        "phyBonus": 171,
+        "attrCoef": 0.616165,
+        "attrBonus": 93,
+        "damageScale": 1.4
+      },
+      { "type": "apply", "target": "self", "value": "DraughtDrinkMarks", "stack": 1, "time": 0.5615436235454546 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Castlink",
+      "MartialArt",
+      "SubAction",
+      "BamboocutDraught",
+      "DraughtExhaustedTrigger"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "ignorePing": true
+  },
+  "NightwickTipsylay": {
+    "name": "Nightwick - Tipsylay",
+    "shortName": "Gauntlet Special",
+    "castTime": 0.857,
+    "cooldown": 15,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.23912411,
+        "phyCoef": 0.9444,
+        "phyBonus": 262,
+        "attrCoef": 0.9444,
+        "attrBonus": 143,
+        "damageScale": 1.4
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "NightwickTipsylay",
+      "Special",
+      "BamboocutDraught",
+      "InebriateEnhanced"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet"
+  },
+  "NightwickPrimepick": {
+    "name": "Nightwick - Primepick",
+    "shortName": "Gauntlet Defense Break",
+    "castTime": 0.593,
+    "cooldown": 6,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.33006486,
+        "phyCoef": 0.64565,
+        "phyBonus": 180,
+        "attrCoef": 0.64565,
+        "attrBonus": 98,
+        "damageScale": 1.4
+      },
+      { "type": "apply", "target": "self", "value": "DraughtDrinkMarks", "stack": 1, "time": 0.33006486 },
+      { "type": "apply", "target": "target", "value": "Wildstride", "stack": 1, "time": 0.33006486 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "NightwickPrimepick",
+      "Special",
+      "BamboocutDraught",
+      "InebriateEnhanced"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet"
+  },
+  "PeakfallJadeflush": {
+    "name": "Peakfall - Jadeflush",
+    "shortName": "Gauntlet Q1 [Inebriate]",
+    "castTime": 0.86,
+    "cooldown": 10,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.33833164944444444,
+        "phyCoef": 0.78782,
+        "phyBonus": 218.5,
+        "attrCoef": 0.78782,
+        "attrBonus": 119,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.5676215611111111,
+        "phyCoef": 0.78782,
+        "phyBonus": 218.5,
+        "attrCoef": 0.78782,
+        "attrBonus": 119,
+        "damageScale": 1.4
+      },
+      { "type": "apply", "target": "self", "value": "DraughtDrinkMarks", "stack": 1, "time": 0.5676215611111111 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "PeakfallJadeflush",
+      "MartialArt",
+      "InebriateEnhanced",
+      "Peakfall",
+      "SubAction",
+      "BamboocutDraught",
+      "DraughtExhaustedTrigger"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "cooldownGroup": "Peakfall",
+    "ignorePing": true
+  },
+  "PeakfallSelect": {
+    "name": "Peakfall",
+    "shortName": "Gauntlet Q1",
+    "silent": true,
+    "subAction": [
+      {
+        "value": "PeakfallJadeflush",
+        "requirement": [{ "target": "self", "value": "Inebriate" }],
+        "fallback": "Peakfall"
+      }
+    ]
+  },
+  "CastlinkJadeflush": {
+    "name": "Castlink - Jadeflush",
+    "shortName": "Gauntlet Q2 [Inebriate]",
+    "castTime": 1.48,
+    "cooldown": 2,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.32711995555555556,
+        "phyCoef": 0.635355,
+        "phyBonus": 176,
+        "attrCoef": 0.635355,
+        "attrBonus": 95.75,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.5101227628282828,
+        "phyCoef": 0.635355,
+        "phyBonus": 176,
+        "attrCoef": 0.635355,
+        "attrBonus": 95.75,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.7247105919191918,
+        "phyCoef": 0.635355,
+        "phyBonus": 176,
+        "attrCoef": 0.635355,
+        "attrBonus": 95.75,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 1.22355507010101,
+        "phyCoef": 0.635355,
+        "phyBonus": 176,
+        "attrCoef": 0.635355,
+        "attrBonus": 95.75,
+        "damageScale": 1.4
+      },
+      { "type": "apply", "target": "self", "value": "DraughtDrinkMarks", "stack": 1, "time": 1.22355507010101 }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "CastlinkJadeflush",
+      "MartialArt",
+      "InebriateEnhanced",
+      "Castlink",
+      "SubAction",
+      "BamboocutDraught",
+      "DraughtExhaustedTrigger"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "cooldownGroup": "Castlink",
+    "ignorePing": true
+  },
+  "CastlinkSelect": {
+    "name": "Castlink",
+    "shortName": "Gauntlet Q2",
+    "silent": true,
+    "subAction": [
+      {
+        "value": "CastlinkJadeflush",
+        "requirement": [{ "target": "self", "value": "Inebriate" }],
+        "fallback": "Castlink"
+      }
+    ]
+  },
+  "Whaledraft": {
+    "name": "Whaledraft",
+    "shortName": "Gauntlet Heavy Drink",
+    "castTime": 0.68,
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "tags": ["MartialArts", "SkystrikeGauntlets", "Gauntlet", "Heavy", "Whaledraft", "BamboocutDraught"],
+    "action": [
+      { "type": "trigger", "value": "FalconsPursuit", "time": 0.3 },
+      {
+        "type": "addResource",
+        "value": "Binge",
+        "amount": 25,
+        "time": 0.315,
+        "requirement": [
+          { "target": "self", "value": "DraughtDrinkMarks" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "Carouse" }] }
+        ]
+      },
+      {
+        "type": "addResource",
+        "value": "Binge",
+        "amount": 50,
+        "time": 0.315,
+        "requirement": [
+          { "target": "self", "value": "DraughtDrinkMarks" },
+          { "target": "self", "value": "Carouse" }
+        ]
+      },
+      { "type": "consume", "target": "self", "value": "DraughtDrinkMarks", "stack": "all", "time": 0.315 },
+      { "type": "trigger", "value": "DraughtBingeCheck", "time": 0.315 }
+    ]
+  },
+  "DraughtBingeCheck": {
+    "name": "Binge Check",
+    "hidden": true,
+    "castTime": 0,
+    "tags": ["Triggered"],
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "Inebriate",
+        "stack": 1,
+        "time": 0,
+        "requirement": [{ "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "InebriateDeepdaze",
+        "stack": 1,
+        "time": 0,
+        "requirement": [
+          { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 200 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "InebriateDeepdaze" }] }
+        ]
+      }
+    ]
+  },
+  "FalconsPursuit": {
+    "name": "Falcon's Pursuit",
+    "castTime": 0,
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "tags": [
+      "Triggered",
+      "DirectDamage",
+      "MartialArts",
+      "SkystrikeGauntlets",
+      "Gauntlet",
+      "BamboocutDraught",
+      "MartialArtEffect",
+      "SkystrikeCoefficientEnhanced"
+    ],
+    "action": [{ "type": "damage", "phyCoef": 0.487872, "attrCoef": 0.487872, "time": 0 }]
+  },
+  "Dragonquench1": {
+    "name": "Dragonquench - Inebriate",
+    "shortName": "Gauntlet Deepdaze Heavy 1",
+    "castTime": 0.426,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.300090006,
+        "phyCoef": 0.68814,
+        "phyBonus": 191,
+        "attrCoef": 0.68814,
+        "attrBonus": 104,
+        "damageScale": 1.4
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Dragonquench1",
+      "Heavy",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "DragonquenchInebriate",
+      "BamboocutDraught"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }],
+        "effect": { "castTimeMultiplier": 0.7692307692307692 }
+      },
+      {
+        "requirement": [
+          { "target": "self", "value": "DragonquenchSpeed" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.8695652173913044 }
+      }
+    ],
+    "skillBreakdownCategory": "Dragonquench - Inebriate",
+    "ignorePing": true
+  },
+  "Dragonquench2": {
+    "name": "Dragonquench - Inebriate",
+    "shortName": "Gauntlet Deepdaze Heavy 2",
+    "castTime": 0.41,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.26208633299999995,
+        "phyCoef": 0.66144,
+        "phyBonus": 184,
+        "attrCoef": 0.66144,
+        "attrBonus": 100,
+        "damageScale": 1.4
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Dragonquench2",
+      "Heavy",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "DragonquenchInebriate",
+      "BamboocutDraught"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }],
+        "effect": { "castTimeMultiplier": 0.7692307692307692 }
+      },
+      {
+        "requirement": [
+          { "target": "self", "value": "DragonquenchSpeed" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.8695652173913044 }
+      }
+    ],
+    "skillBreakdownCategory": "Dragonquench - Inebriate",
+    "ignorePing": true
+  },
+  "Dragonquench3": {
+    "name": "Dragonquench - Inebriate",
+    "shortName": "Gauntlet Deepdaze Heavy 3",
+    "castTime": 0.43,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.316116016,
+        "phyCoef": 0.80698,
+        "phyBonus": 224,
+        "attrCoef": 0.80698,
+        "attrBonus": 122,
+        "damageScale": 1.4
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Dragonquench3",
+      "Heavy",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "DragonquenchInebriate",
+      "BamboocutDraught"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }],
+        "effect": { "castTimeMultiplier": 0.7692307692307692 }
+      },
+      {
+        "requirement": [
+          { "target": "self", "value": "DragonquenchSpeed" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.8695652173913044 }
+      }
+    ],
+    "skillBreakdownCategory": "Dragonquench - Inebriate",
+    "ignorePing": true
+  },
+  "Dragonquench4": {
+    "name": "Dragonquench - Inebriate",
+    "shortName": "Gauntlet Deepdaze Heavy 4",
+    "castTime": 1.12,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.248999982,
+        "phyCoef": 0.546408,
+        "phyBonus": 151.5,
+        "attrCoef": 0.546408,
+        "attrBonus": 82.5,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.364998788,
+        "phyCoef": 0.546408,
+        "phyBonus": 151.5,
+        "attrCoef": 0.546408,
+        "attrBonus": 82.5,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.4819980549999999,
+        "phyCoef": 0.728544,
+        "phyBonus": 202,
+        "attrCoef": 0.728544,
+        "attrBonus": 110,
+        "damageScale": 1.4
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "DragonquenchSpeed",
+        "stack": 1,
+        "time": 1.12,
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2, "resolveAt": "skillStart" }]
+          }
+        ]
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "DragonquenchSpeed",
+        "stack": "all",
+        "time": 1.12,
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2, "resolveAt": "skillStart" }]
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Dragonquench4",
+      "Heavy",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "DragonquenchInebriate",
+      "BamboocutDraught"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }],
+        "effect": { "castTimeMultiplier": 0.7692307692307692 }
+      },
+      {
+        "requirement": [
+          { "target": "self", "value": "DragonquenchSpeed" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.8695652173913044 }
+      }
+    ],
+    "skillBreakdownCategory": "Dragonquench - Inebriate",
+    "ignorePing": true
+  },
+  "EonpourExhausted": {
+    "name": "Eonpour Exhausted",
+    "castTime": 0,
+    "tags": ["Triggered"],
+    "action": [
+      {
+        "type": "extend",
+        "target": "self",
+        "value": "InebriateDeepdaze",
+        "duration": 6,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "InebriateDeepdaze" }]
+      },
+      { "type": "addResource", "value": "Binge", "amount": 200, "time": 0 },
+      { "type": "trigger", "value": "DraughtBingeCheck", "time": 0 },
+      { "type": "apply", "target": "self", "value": "EonpourExhaustedCooldown", "stack": 1, "time": 0 },
+      { "type": "apply", "target": "target", "value": "Wildstride", "stack": 1, "time": 0 },
+      { "type": "apply", "target": "target", "value": "Strayhunt", "stack": 1, "time": 0 },
+      { "type": "apply", "target": "target", "value": "Drunkslay", "stack": 1, "time": 0 }
+    ]
+  }
+}

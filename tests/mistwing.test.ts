@@ -12,15 +12,15 @@ import { asEffectDefinitions } from "./helpers/shippedData"
 
 describe("mistwing", () => {
   it("Mistwing missing-HP penetration, enhancement tiers, all-type T4/T6, and path eligibility passed", async () => {
-    const mistwing = (await import("../data/innerway/mistwing.json")).default
-    const windBuffs = (await import("../data/buff/bamboocut-wind.json")).default
+    const mistwing = (await import("@gamedata/innerway/mistwing.json")).default
+    const windBuffs = (await import("@gamedata/buff/bamboocut-wind.json")).default
     const { innerWayAvailableForTag, innerWayDefinitions, innerWayDefinitionForSoloLevel } =
-      await import("../src/data/innerWayDefinitions.ts")
-    const { calculateRotationBaseline } = await probeLoad<typeof import("../src/calculations/rotationCalculator")>(
+      await import("@/data/innerWayDefinitions.ts")
+    const { calculateRotationBaseline } = await probeLoad<typeof import("@/calculations/rotationCalculator")>(
       "/src/calculations/rotationCalculator.ts",
     )
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
 
     assert.equal(innerWayDefinitions.Mistwing, mistwing, "Mistwing must be registered as an Inner Way.")
     const definition = innerWayDefinitionForSoloLevel(mistwing, 17)
@@ -121,67 +121,41 @@ describe("mistwing", () => {
     }
     const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-6, message)
 
-    // T0 grants one Physical Penetration per completed 20% of missing target HP, capped at four.
-    for (const [targetHPRatio, expected] of [
-      [1, 1],
-      [0.8, 1],
-      [0.79, 2],
-      [0.6, 2],
-      [0.59, 3],
-      [0.4, 3],
-      [0.39, 4],
-      [0.2, 4],
+    // Normal raw passives grant nothing until a completed missing-HP interval.
+    for (const [hp, expected] of [
+      [1, 0],
+      [0.81, 0],
+      [0.79, 1],
+      [0.59, 2],
+      [0.39, 3],
+      [0.19, 4],
       [0, 4],
     ]) {
-      close(penetration("physical", 0, targetHPRatio), expected, `T0 at ${targetHPRatio * 100}% target HP`)
+      close(penetration("physical", 0, hp), expected, `T0 at ${hp * 100}% target HP`)
     }
-
-    // A target at 90% HP leaves 10% missing, the smallest band every tier still resolves.
-    const nearFull = 0.9
-    close(penetration("physical", 1, nearFull), 1 + 3, "T1 adds three flat Physical Penetration")
-    close(penetration("bamboocut", 1, nearFull), 0, "T0 and T1 never grant attribute penetration")
-    close(penetration("physical", 3, nearFull), 1 + 3, "T3 is inert without a Martial Art Special Enhancement")
-    close(penetration("physical", 3, nearFull, ["Flamelash"]), 1 + 3 + 2, "T3 grants two per 10% under Flamelash")
-    close(penetration("physical", 3, 0.6, ["Flamelash"]), 2 + 3 + 8, "T3 caps its Special Enhancement scaling at eight")
+    for (const [tier, hp, enhancement, physical, attribute] of [
+      [1, 0.99, "", 3, 0],
+      [3, 0.79, "", 4, 0],
+      [3, 0.79, "Flamelash", 5, 0],
+      [3, 0.19, "Flamelash", 11, 0],
+      [4, 0.99, "", 6, 6],
+      [4, 0.79, "", 7, 7],
+      [4, 0.79, "Inebriate", 8, 8],
+      [5, 0.79, "", 7, 7],
+      [6, 0.99, "Inebriate", 12, 12],
+      [6, 0.89, "", 7, 7],
+      [6, 0.79, "Inebriate", 16, 16],
+      [6, 0.59, "Inebriate", 20, 20],
+    ] as const) {
+      const buffs = enhancement ? [enhancement] : []
+      close(penetration("physical", tier, hp, buffs), physical, `T${tier} Physical at ${hp} HP`)
+      close(penetration("bamboocut", tier, hp, buffs), attribute, `T${tier} Bamboocut at ${hp} HP`)
+    }
     for (const enhancement of ["Flamelash", "FlowerBurial", "Inebriate"]) {
-      close(
-        penetration("physical", 3, nearFull, [enhancement]),
-        1 + 3 + 2,
-        `${enhancement} must count as a Martial Art Special Enhancement at T3`,
-      )
-    }
-    close(penetration("physical", 4, nearFull), 1 + 3 + 6, "T4 adds six Physical Penetration")
-    close(penetration("bamboocut", 4, nearFull), 6, "T4 adds six of every attribute penetration")
-    // T3's scaling is a Physical-only effect, so the enhancement can raise the
-    // physical channel without touching T4's flat all-type penetration.
-    close(penetration("physical", 4, nearFull, ["Inebriate"]), 1 + 3 + 6 + 2, "T4 retains the T3 scaling")
-    close(penetration("bamboocut", 4, nearFull, ["Inebriate"]), 6, "T4's flat penetration does not scale")
-    close(penetration("physical", 5, nearFull), 1 + 3 + 6, "T5 keeps the T4 penetration")
-
-    // T6 replaces the base 20% step with a 10% step instead of stacking both.
-    close(penetration("physical", 5, 0.8), 1 + 3 + 6, "T5 grants one base step at 20% missing")
-    close(penetration("physical", 6, 0.8), 2 + 3 + 6, "T6 grants two base steps at 20% missing")
-    close(penetration("physical", 6, 0.61), 4 + 3 + 6, "T6 base scaling still caps at four")
-    close(penetration("bamboocut", 6, nearFull), 6, "T6 keeps six of every attribute penetration by default")
-    // Inebriate is both a Special Enhancement and T6's own doubling condition, so it
-    // adds the T3 scaling and one more six of every penetration on top of T4.
-    close(
-      penetration("physical", 6, nearFull, ["Inebriate"]),
-      1 + 3 + 6 + 6 + 2,
-      "T6 doubles every flat penetration in Inebriate",
-    )
-    close(penetration("bamboocut", 6, nearFull, ["Inebriate"]), 12, "T6 doubles attribute penetration in Inebriate")
-    for (const enhancement of ["Flamelash", "FlowerBurial"]) {
-      close(
-        penetration("physical", 6, nearFull, [enhancement]),
-        1 + 3 + 6 + 2,
-        `T6 must not double penetration outside Inebriate (${enhancement})`,
-      )
-      close(
-        penetration("bamboocut", 6, nearFull, [enhancement]),
-        6,
-        `T6 must not double attribute penetration outside Inebriate (${enhancement})`,
-      )
+      close(penetration("physical", 3, 0.79, [enhancement]), 5, `${enhancement} doubles T3 HP scaling`)
+      const flat = enhancement === "Inebriate" ? 12 : 6
+      close(penetration("physical", 6, 0.79, [enhancement]), flat + 4, `${enhancement} T6 Physical scaling`)
+      close(penetration("bamboocut", 6, 0.79, [enhancement]), flat + 4, `${enhancement} T6 attribute scaling`)
     }
   })
 })

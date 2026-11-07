@@ -29,8 +29,12 @@ work; future audits must preserve it.
 | Maximum attribute attack to damage bonus                   | 0.000168   | 11%           |
 
 Every attribute talent adds 98 minimum and 196 maximum raw attack before
-conversions. Formula inputs use the existing immutable raw-stat stage. Food and
-other talent conversion results do not feed another talent's formula. Source
+conversions. STEADY rank-conversion inputs use the immutable raw-stat stage.
+Food and other conversion results do not feed another STEADY conversion.
+Skystrike/Riven dynamic combat passives are separate: their action-resolved
+minimum Physical Attack formulas use complete 50 / 83.33-point pieces, not
+continuous raw-stat scaling. See the stat pipeline for the native-input mapping
+and remaining food/percentage-attack assembly limitation. Source
 thresholds such as 328 and 655 are rounded; rates and caps govern actual results.
 Fixed bonuses and scaling bonuses are separate effects, without formula offsets
 or lower bounds. Descriptions explicitly saying “for every” a fixed quantity use
@@ -64,7 +68,7 @@ have empty effect arrays and do not apply a second multiplier.
 | Skygrasp Rope Dart   | Initial resource/cap and Unity behavior remain in existing system/skill data rather than rank-dependent effects. The exact-one-bar comparison changed from `>= 1` to `> 1` to match the source.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Snowparting Blade    | Tenacity interrupt, stagger, boss/mode distinctions, and General's Bane: Stab's 2/6-second Dread extension lack sufficient classification/state data.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Heavenwill Gauntlets | Wider dodge window, Arena Tenacity, other-mode invincibility and dodge-gated combo availability are not modeled. “Small amount” of Endurance recovery has no numeric value.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Skystrike Gauntlets  | Inebriate dodge/Bloombreak replacements and actual skill wiring are pending. Binge base/cap/spending data are missing; only the stated additive gain is authored. Deflect gain is non-Arena-specific and remains deferred because combat mode is unmodeled.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Skystrike Gauntlets  | Authored Draught skills, Binge and the successful non-Arena Deflect gain are implemented. Plain Deflect casts do not imply success. Bloombreak/light and held-drink coverage is incomplete; native dynamic combat-attribute assembly remains qualified in stat-pipeline.md. The tag-1123 coefficient exception is restricted to supported marked effects (currently Falcon), rather than every flat-free gauntlet proc.                                                                                                                                                                                                                                                         |
 
 ## Data wiring for pending skills
 

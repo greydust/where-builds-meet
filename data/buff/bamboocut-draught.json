@@ -1,5 +1,97 @@
 {
-  "Inebriate": { "name": "Inebriate", "maxStack": 1, "showCoverage": true },
-  "InebriateDeepdaze": { "name": "Inebriate - Deepdaze", "maxStack": 1, "showCoverage": true },
-  "Carouse": { "name": "Carouse", "duration": 20, "maxStack": 1, "refresh": true, "showCoverage": true }
+  "Inebriate": {
+    "name": "Inebriate",
+    "maxStack": 1,
+    "showCoverage": true,
+    "effect": [{ "effect": { "critDmgBonus": 0.05 } }],
+    "shortName": "Ine"
+  },
+  "InebriateDeepdaze": {
+    "name": "Inebriate - Deepdaze",
+    "maxStack": 1,
+    "showCoverage": true,
+    "duration": 5,
+    "action": [
+      {
+        "type": "consumeResource",
+        "value": "Binge",
+        "amount": 200,
+        "time": "expire",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "SkyspeakT1" }] }]
+      },
+      {
+        "type": "consumeResource",
+        "value": "Binge",
+        "amount": 140,
+        "time": "expire",
+        "requirement": [{ "target": "self", "value": "SkyspeakT1" }]
+      },
+      { "type": "consume", "target": "self", "value": "DragonquenchSpeed", "stack": "all", "time": "expire" },
+      { "type": "consume", "target": "self", "value": "Inebriate", "stack": "all", "time": "expire" }
+    ],
+    "shortName": "DD"
+  },
+  "Carouse": {
+    "name": "Carouse",
+    "duration": 20,
+    "maxStack": 1,
+    "refresh": true,
+    "showCoverage": true,
+    "shortName": "Car"
+  },
+  "DraughtDrinkMarks": {
+    "name": "Skill Binge Point Accumulation",
+    "duration": 2,
+    "maxStack": 1,
+    "refresh": true,
+    "hidden": true
+  },
+  "DragonquenchSpeed": { "name": "Dragonquench Speed Up", "maxStack": 2, "hidden": true },
+  "EonpourExhaustedCooldown": { "name": "Eonpour Exhausted Cooldown", "maxStack": 1, "duration": 60, "hidden": true },
+  "Tiltrim": {
+    "name": "Tiltrim",
+    "duration": 5.1,
+    "maxStack": 5,
+    "refresh": true,
+    "showCoverage": true,
+    "stackEffects": [
+      [
+        { "effect": { "physicalAttackBonus": 0.01 } },
+        { "effect": { "bellstrikeAttackBonus": 0.01 } },
+        { "effect": { "stonesplitAttackBonus": 0.01 } },
+        { "effect": { "silkbindAttackBonus": 0.01 } },
+        { "effect": { "bamboocutAttackBonus": 0.01 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.02 } },
+        { "effect": { "bellstrikeAttackBonus": 0.02 } },
+        { "effect": { "stonesplitAttackBonus": 0.02 } },
+        { "effect": { "silkbindAttackBonus": 0.02 } },
+        { "effect": { "bamboocutAttackBonus": 0.02 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.03 } },
+        { "effect": { "bellstrikeAttackBonus": 0.03 } },
+        { "effect": { "stonesplitAttackBonus": 0.03 } },
+        { "effect": { "silkbindAttackBonus": 0.03 } },
+        { "effect": { "bamboocutAttackBonus": 0.03 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.04 } },
+        { "effect": { "bellstrikeAttackBonus": 0.04 } },
+        { "effect": { "stonesplitAttackBonus": 0.04 } },
+        { "effect": { "silkbindAttackBonus": 0.04 } },
+        { "effect": { "bamboocutAttackBonus": 0.04 } }
+      ],
+      [
+        { "effect": { "physicalAttackBonus": 0.05 } },
+        { "effect": { "bellstrikeAttackBonus": 0.05 } },
+        { "effect": { "stonesplitAttackBonus": 0.05 } },
+        { "effect": { "silkbindAttackBonus": 0.05 } },
+        { "effect": { "bamboocutAttackBonus": 0.05 } },
+        { "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }], "effect": { "hpDMGBonus": 0.05 } }
+      ]
+    ],
+    "shortName": "Til"
+  }
 }

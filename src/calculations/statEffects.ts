@@ -1,5 +1,6 @@
-import { emptyStats } from "../data/statDefinitions"
-import type { CharacterStats, WeaponId } from "../types"
+import { emptyStats } from "@/data/statDefinitions"
+import type { CharacterStats, WeaponId } from "@/types"
+
 import { resolveSegmentValue, type SegmentMode } from "./dynamicValues"
 import { calculateDerivedStats, type DerivedStats } from "./effectiveStats"
 import { calculationStatMaximum } from "./statCaps"
@@ -7,6 +8,10 @@ import { calculationStatMaximum } from "./statCaps"
 export type StatFormula = {
   source: string | { max: string[] }
   multiplier?: number
+  /** Divide the input into complete pieces before applying the multiplier. */
+  step?: number
+  /** Action formulas remain live instead of freezing against the raw talent snapshot. */
+  resolveAt?: "action"
   offset?: number
   min?: number
   max?: number
@@ -81,7 +86,12 @@ export function resolveFormulaValue(formula: StatFormula, sources: Record<string
     source = Math.max(...(values as number[]))
   }
   if (typeof source !== "number" || !Number.isFinite(source)) return undefined
-  let value = source * (formula.multiplier ?? 1) + (formula.offset ?? 0)
+  let input = source
+  if (formula.step !== undefined) {
+    if (!Number.isFinite(formula.step) || formula.step <= 0) return undefined
+    input = Math.floor(input / formula.step)
+  }
+  let value = input * (formula.multiplier ?? 1) + (formula.offset ?? 0)
   if (typeof formula.min === "number") value = Math.max(formula.min, value)
   if (typeof formula.max === "number") value = Math.min(formula.max, value)
   if (typeof formula.round === "number") {
@@ -218,12 +228,13 @@ export function resolveCompleteStats(
   }
 }
 
-/** Talent amounts always read the same raw character snapshot, even inside conditional effect modifiers. */
+/** STEADY talent formulas freeze against raw inputs; explicitly action-resolved passives stay live. */
 export function resolveRawStatFormulas<T>(value: T, rawStats: CharacterStats): T {
   if (Array.isArray(value)) return value.map(item => resolveRawStatFormulas(item, rawStats)) as T
   if (!value || typeof value !== "object") return value
   const object = value as Record<string, unknown>
   if (object.formula && typeof object.formula === "object") {
+    if ((object.formula as StatFormula).resolveAt === "action") return value
     const resolved = resolveFormulaValue(object.formula as StatFormula, rawStats)
     if (resolved !== undefined) return resolved as T
   }

@@ -22,6 +22,7 @@ describe("weapon-set-four-piece", () => {
     const general = await load<Record<string, SkillRecord>>("/data/skill/general.json")
     const generalBuffs = await load<Record<string, EffectDefinition>>("/data/buff/general.json")
     const strengthBuffs = await load<Record<string, EffectDefinition>>("/data/buff/stonesplit-strength.json")
+    const draughtBuffs = await load<Record<string, EffectDefinition>>("/data/buff/bamboocut-draught.json")
     const { calculateRotationBaseline, calculateSimulatedRotationRun } = await probeLoad<
       typeof import("@/calculations/rotationCalculator")
     >("/src/calculations/rotationCalculator.ts")
@@ -93,6 +94,7 @@ describe("weapon-set-four-piece", () => {
           effectDefinitions: {
             ...generalBuffs,
             ...strengthBuffs,
+            ...draughtBuffs,
             BoneCorrosion: { duration: 10, maxStack: 1 },
             QiImbalance: { duration: 10, maxStack: 1 },
           },
@@ -126,6 +128,35 @@ describe("weapon-set-four-piece", () => {
     const hp = (ratio: number): EditableObject => ({ type: "setTargetHP", targetHPRatio: ratio, time: 0 })
     const qi = (ratio: number): EditableObject => ({ type: "setQi", targetQiRatio: ratio, time: 0 })
     const debuff = (value: string): EditableObject => ({ type: "apply", target: "target", value, time: 0 })
+    const tiltrimOptions: BundleOptions = {
+      prep: [{ type: "apply", target: "self", value: "Inebriate", stack: 1, time: 0 }],
+      steps: [...Array.from({ length: 7 }, () => castStep("Probe")), delayStep(6), delayStep(0.01)],
+    }
+    const tiltrim = run("Tiltrim", 4, tiltrimOptions)
+    const tiltrimCasts = tiltrim.timeline.filter(row => row.step.skill === "Probe")
+    assert.equal(tiltrimCasts[1].buffs.get("Tiltrim")?.stack, 1, "An enhanced hit funds the next hit's stack")
+    assert.equal(tiltrimCasts[5].buffs.get("Tiltrim")?.stack, 5, "Five enhanced hits reach five stacks")
+    assert.equal(tiltrimCasts[6].buffs.get("Tiltrim")?.stack, 5, "Further hits cannot exceed the source cap")
+    assert(!tiltrim.timeline.at(-1)?.buffs.has("Tiltrim"), "Tiltrim expires during an inactive gap")
+    close(
+      damage(run("Tiltrim", 4, { ...tiltrimOptions, tags: ["DirectDamage", "InebriateEnhanced"] })).total /
+        damage(tiltrim).total,
+      1.05,
+      "Five stacks add HP damage only to Inebriate-enhanced hits",
+    )
+    assert(
+      damage(tiltrim).total > damage(run("Tiltrim", 2, tiltrimOptions)).total,
+      "Four pieces increase enhanced-window damage",
+    )
+    close(
+      damage(run("Tiltrim", 4)).total,
+      damage(run("Tiltrim", 2)).total,
+      "Ordinary hits outside an enhancement cannot grant stacks",
+    )
+    assert(
+      !run("Tiltrim", 2, tiltrimOptions).timeline.some(row => row.buffs.has("Tiltrim")),
+      "Two pieces never grant the four-piece buff",
+    )
     for (const [ratio, bonus] of [
       [0.5, 0],
       [0.5001, 0.05],

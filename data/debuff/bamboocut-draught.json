@@ -36,5 +36,19 @@
       }
     ],
     "refresh": true
+  },
+  "Drunkslay": {
+    "name": "Drunkslay",
+    "duration": 20,
+    "maxStack": 1,
+    "refresh": true,
+    "showCoverage": true,
+    "shortName": "DS",
+    "recording": {
+      "event": "damage",
+      "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+      "action": { "type": "trigger", "value": "DrunkslayDamage" }
+    },
+    "action": [{ "type": "resolveRecording", "target": "target", "value": "Drunkslay", "time": "expire" }]
   }
 }

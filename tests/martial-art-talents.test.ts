@@ -325,12 +325,17 @@ describe("martial-art-talents", () => {
         Dodge: { castTime: 0, tags: ["PerfectDodge"], action: [] },
         Observe: observe,
       },
+      {
+        initialResources: { Binge: 100 },
+        resourceMaximums: { Binge: 200 },
+        weapons: ["skystrikeGauntlets", "rivenTwinblades"],
+      },
     )
     const final = rows.findLast(r => r.step.skill === "Observe")
     assert(final, "The rotation must observe at least once.")
     const carouse = final.buffs.get("Carouse")
     assert(carouse, "Observing must leave the Carouse buff applied.")
-    close(final.resources.Binge, 10, "Carouse dodge gain has a shared one-second cooldown")
+    close(final.resources.Binge, 110, "Eligible Inebriate Carouse dodge gain has a one-second cooldown")
     close(carouse.expiresAt, 20, "Carouse lasts twenty seconds")
     const soulRows = timeline(
       talentEffects("heavenquakerSpear", [0, 2]),

@@ -1,11 +1,27 @@
 import { assert, describe, it } from "vitest"
 
+import { typedPathDefinitions } from "@/application/gameData/paths"
 import type { InnerWayDefinition } from "@/data/innerWayDefinitions"
+import { innerWayAvailableForTag } from "@/data/innerWayDefinitions"
+import { defaultBuildPresets } from "@/gear"
 
 import { probeLoad } from "./helpers/probe-loader.js"
 
 // Ported from script/probe/check-innerway-filter.mjs.
 describe("innerway-filter", () => {
+  it("every path build preset uses eligible Inner Ways", () => {
+    for (const path of Object.values(typedPathDefinitions)) {
+      const builds = defaultBuildPresets.filter(build =>
+        path.lockedWeapons?.every(weapon => build.martialArts.includes(weapon)),
+      )
+      for (const build of builds)
+        for (const row of build.setup?.innerWays ?? [])
+          assert(
+            innerWayAvailableForTag(row.innerWay, path.tag),
+            `${build.id}: ${row.innerWay} must be selectable on ${path.name}`,
+          )
+    }
+  })
   it("Inner Way filter behavior checks passed", async () => {
     const { innerWayDefinitions, innerWayEntriesForTag } = await probeLoad<
       typeof import("../src/data/innerWayDefinitions")

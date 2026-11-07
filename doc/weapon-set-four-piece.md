@@ -21,6 +21,25 @@ The simulator currently treats its encounter as a boss. This pass does not add
 PvP or multiple-target hit tracking. Four-piece selections still include their
 two-piece stats once; zero- and two-piece selections do not activate these rules.
 
+## Tiltrim
+
+The confirmed 2026-11-06 Whaledraft export resolves the previous stack-cap
+blocker: Normal buff 2210001 explicitly caps at five stacks and has a 5.1-second
+authored lifetime. Four pieces now grant one refreshing stack on damage while
+Inebriate, Deepdaze, Flamelash, or Flower Burial is active. The shared tracked
+buff model handles refresh and expiry. Each stack increases Physical Attack
+and all four Attribute Attack channels by 1%; at five stacks, hits tagged
+`InebriateEnhanced` also gain 5% HP damage. Explicit stack-effect tables apply
+the attack bonus once at the current stack count.
+
+The Draught skill catalog supplies the enhanced-hit tags for its supported
+Jadeflush, Dragonquench and enhanced Hero's Blood attacks. Missing Flower
+Burial attack routes remain outside that catalog's coverage. Two-piece stats
+are retained once, and only four pieces enable the stack trigger. Tiltrim now
+sets `altersTimeline` so set comparisons rebuild the triggered buff history.
+The four-piece behavior is exercised through real damage calculations, stack
+cap and expiry checks in `tests/weapon-set-four-piece.test.ts`.
+
 ## Jadeware and player Qi
 
 Jadeware activates on Martial Art Skill casts, including canceled casts without a hit, for ten seconds with a twelve-second cooldown. While active, it always grants 10% Affinity DMG. Only its additional 7.5% Direct Affinity Rate requires Qi Imbalance, target Qi below player Qi, or target Qi below 40%. Conditions are evaluated at each hit.
@@ -57,7 +76,6 @@ then be the stronger set.
 | Swift Gale | There is no implemented Airborne Heavy Attack classification or knockdown lifecycle with a confirmed duration. Existing target Airborne/Controlled markers do not establish the attack category or the knockdown's behavior. The ten-second trigger cooldown alone is supported.                                                                                                                                                                                                                                                                                                                                                  |
 | Mistwillow | The upgraded Mistwillow description omits its damage percentage and does not settle whether the two-second refresh restriction is shared or per effect. Reciprocal buff merging and subsequent refresh ownership are also unclear. No replacement values or timer behavior are guessed.                                                                                                                                                                                                                                                                                                                                           |
 | Starweave  | Implemented for the Dust path. Adds one five-second stack per damage event, up to five, granting Martial Art Skills 3% increased damage per stack plus a distance-scaled bonus beyond 4 meters reaching 1% per stack at 8 meters. Gains are limited to two per second via the setup-trigger cooldown, and taking damage consumes one stack. The distance ramp uses a `segment` on `distance` at one-meter granularity, because the source states a linear ramp without specifying interpolation. The gain condition is an `or` of two branches, and the boss half is treated as always satisfied; see the target-role note below. |
-| Tiltrim    | The source mentions a bonus at five stacks but does not specify a maximum stack count. Flower Burial and its applicable skill mapping are absent, and the Inebriate-enhanced attack scope is not complete. The cap and missing enhancement semantics are not inferred.                                                                                                                                                                                                                                                                                                                                                            |
 
 ## Verification
 

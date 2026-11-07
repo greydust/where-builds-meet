@@ -6,20 +6,27 @@
     "MistwingT0": {
       "effect": [
         {
-          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MistwingT6" }] }],
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MistwingT4" }] }],
           "effect": {
             "physicalPenetration": {
               "function": "segment",
               "param1": "missingTargetHPPercentage",
-              "mode": "UpperBoundInclusive",
+              "mode": "LowerBoundInclusive",
               "param2": [20, 40, 60, 80],
-              "param3": [1, 2, 3, 4, 4]
+              "param3": [0, 1, 2, 3, 4]
             }
           }
         }
       ]
     },
-    "MistwingT1": { "effect": [{ "effect": { "physicalPenetration": 3 } }] },
+    "MistwingT1": {
+      "effect": [
+        {
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MistwingT4" }] }],
+          "effect": { "physicalPenetration": 3 }
+        }
+      ]
+    },
     "MistwingT2": {
       "effect": [
         {
@@ -84,10 +91,12 @@
       "effect": [
         {
           "requirement": [
+            { "operator": "not", "operand": [{ "target": "self", "value": "MistwingT4" }] },
             {
               "operator": "or",
               "operand": [
                 { "target": "self", "value": "Inebriate" },
+                { "target": "self", "value": "InebriateDeepdaze" },
                 { "target": "self", "value": "Flamelash" },
                 { "target": "self", "value": "FlowerBurial" }
               ]
@@ -97,9 +106,9 @@
             "physicalPenetration": {
               "function": "segment",
               "param1": "missingTargetHPPercentage",
-              "mode": "UpperBoundInclusive",
-              "param2": [10, 20, 30, 40, 50, 60, 70, 80],
-              "param3": [2, 4, 6, 8, 8, 8, 8, 8, 8]
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
             }
           }
         }
@@ -115,6 +124,97 @@
             "silkbindPenetration": 6,
             "bamboocutPenetration": 6
           }
+        },
+        {
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MistwingT6" }] }],
+          "effect": {
+            "physicalPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bellstrikePenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "stonesplitPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "silkbindPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bamboocutPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            }
+          }
+        },
+        {
+          "requirement": [
+            { "operator": "not", "operand": [{ "target": "self", "value": "MistwingT6" }] },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "self", "value": "Inebriate" },
+                { "target": "self", "value": "InebriateDeepdaze" },
+                { "target": "self", "value": "Flamelash" },
+                { "target": "self", "value": "FlowerBurial" }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bellstrikePenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "stonesplitPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "silkbindPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bamboocutPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [20, 40, 60, 80],
+              "param3": [0, 1, 2, 3, 4]
+            }
+          }
         }
       ]
     },
@@ -126,9 +226,87 @@
             "physicalPenetration": {
               "function": "segment",
               "param1": "missingTargetHPPercentage",
-              "mode": "UpperBoundInclusive",
+              "mode": "LowerBoundInclusive",
               "param2": [10, 20, 30, 40],
-              "param3": [1, 2, 3, 4, 4]
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bellstrikePenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "stonesplitPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "silkbindPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bamboocutPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            }
+          }
+        },
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "self", "value": "Inebriate" },
+                { "target": "self", "value": "InebriateDeepdaze" },
+                { "target": "self", "value": "Flamelash" },
+                { "target": "self", "value": "FlowerBurial" }
+              ]
+            }
+          ],
+          "effect": {
+            "physicalPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bellstrikePenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "stonesplitPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "silkbindPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
+            },
+            "bamboocutPenetration": {
+              "function": "segment",
+              "param1": "missingTargetHPPercentage",
+              "mode": "LowerBoundInclusive",
+              "param2": [10, 20, 30, 40],
+              "param3": [0, 1, 2, 3, 4]
             }
           }
         },

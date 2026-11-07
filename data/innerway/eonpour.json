@@ -3,7 +3,18 @@
   "altersTimeline": true,
   "tags": ["BamboocutDraught"],
   "effect": {
-    "EonpourT0": {},
+    "EonpourT0": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "self", "value": "Inebriate" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "EonpourT3" }] },
+            { "target": "skillTag", "value": "BamboocutDraught" }
+          ],
+          "effect": { "baseDMGBonus": 0.1 }
+        }
+      ]
+    },
     "EonpourT1": {},
     "EonpourT2": {
       "effect": [
@@ -39,9 +50,47 @@
         }
       ]
     },
-    "EonpourT3": {},
+    "EonpourT3": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "self", "value": "Inebriate" },
+            {
+              "operator": "or",
+              "operand": [
+                { "operator": "not", "operand": [{ "target": "self", "value": "EonpourT6" }] },
+                { "operator": "not", "operand": [{ "target": "self", "value": "InebriateDeepdaze" }] }
+              ]
+            },
+            { "target": "skillTag", "value": "BamboocutDraught" }
+          ],
+          "effect": { "baseDMGBonus": 0.2 }
+        }
+      ]
+    },
     "EonpourT4": {},
     "EonpourT5": { "effect": [{ "rawStat": { "directCrit": 0.046 } }] },
-    "EonpourT6": {}
+    "EonpourT6": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "self", "value": "InebriateDeepdaze" },
+            { "target": "skillTag", "value": "BamboocutDraught" }
+          ],
+          "effect": { "baseDMGBonus": 0.4 }
+        },
+        {
+          "trigger": {
+            "event": "damage",
+            "requirement": [
+              { "target": "skillTag", "value": "DraughtExhaustedTrigger" },
+              { "target": "target", "value": "Exhausted" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "EonpourExhaustedCooldown" }] }
+            ],
+            "action": { "type": "trigger", "value": "EonpourExhausted", "time": 0 }
+          }
+        }
+      ]
+    }
   }
 }

@@ -104,6 +104,7 @@ describe("preset Qi event attachments", () => {
   )
 
   const rotationPaths = [
+    "/data/rotation/bamboocut-draught/draught-dummy-1-min.json",
     "/data/rotation/bamboocut-wind/wind-dummy-1-min-infinite-vitality.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
