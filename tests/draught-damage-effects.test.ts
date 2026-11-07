@@ -41,7 +41,7 @@ describe("Draught enhancement eligibility", () => {
       ...original.timeline.skills,
       Probe: {
         ...falcon,
-        castTime: 0.1,
+        castTime: 0.6,
         tags: falcon.tags!.filter(tag => eligible || tag !== "SkystrikeCoefficientEnhanced"),
       },
     }

@@ -126,16 +126,9 @@ Final validation: `npm run build` passed all 1,937 tests, TypeScript and Vite;
 `npm run lint` and `npm run format:check` passed. The DPS guard reports only
 the eight missing Draught snapshots; no accepted snapshot was updated.
 
-## Falcon contact count remains provisional
+## Quick Drink contact timing confirmed after the audit
 
-The saved rotation has six quick drinks. `FalconsPursuit` currently authors one
-nominal contact per drink, hence six damage contacts; that is not a validated
-native contact count. The user expects three per drink, which would yield 18.
-Current Quick Drink graph-6 BulletAttack nodes for gauntlet hit 2090200602 allow
-six contacts per target with a 0.03-second repeat-admission interval. These are
-collision limits, not a fixed count or an authored contact schedule. The matching
-Physical/attribute coefficient is 0.487872 per admitted gauntlet contact, with no
-stored target correction on this calcpoint. Native Riven projectile branches use
-a different calcpoint and must not be conflated with the gauntlet branch.
-Observed contact count and spacing are needed before replacing the provisional
-single-contact model; do not turn the six-contact cap into six scheduled hits.
+The supplied gauntlet timing places one contact at the start of each collision
+window, 0.550–0.581s, 0.683–0.713s, and 0.816–0.846s after the drink starts.
+The projectile request occurs at 0.300s. Each contact uses 0.487872 for both
+Physical and Attribute damage coefficients. Six drinks produce 18 contacts.

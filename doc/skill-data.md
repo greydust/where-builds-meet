@@ -122,7 +122,8 @@ Source: Normal buffs 10270350/10270351 and passives 102703501–102703510 in the
 confirmed export. The shared Mistwing correction also affects Wind builds.
 
 Quick drinking's Falcon projectile is requested at the raw action's 0.3s
-timeline marker; its hit uses the same nominal immediate-contact convention.
+timeline marker. Three contacts land at 0.550s, 0.683s, and 0.816s from the
+drink start, each with 0.487872 Physical and Attribute coefficients and zero flat bonus.
 
 `draught-dummy-1-min` uses twelve Dragonquench casts in rounds one through
 three and thirteen in round four, for 49 casts and 73 damage contacts. Reveldrift

@@ -337,7 +337,11 @@
       "MartialArtEffect",
       "SkystrikeCoefficientEnhanced"
     ],
-    "action": [{ "type": "damage", "phyCoef": 0.487872, "attrCoef": 0.487872, "time": 0 }]
+    "action": [
+      { "type": "damage", "phyCoef": 0.487872, "attrCoef": 0.487872, "time": 0.25 },
+      { "type": "damage", "phyCoef": 0.487872, "attrCoef": 0.487872, "time": 0.383 },
+      { "type": "damage", "phyCoef": 0.487872, "attrCoef": 0.487872, "time": 0.516 }
+    ]
   },
   "Dragonquench1": {
     "name": "Dragonquench - Inebriate",
