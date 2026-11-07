@@ -115,7 +115,7 @@
     "status": "wip",
     "buildGroup": "bamboocut-draught",
     "defaultBuild": "draught-fully-relayed-min-bp",
-    "graduated": ["empty"],
+    "graduated": ["draught-full-min-bp", "draught-full-max-bp", "draught-full-min", "draught-full-max"],
     "defaultRotation": "draught-dummy-1-min",
     "lockedWeapons": ["skystrikeGauntlets", "rivenTwinblades"],
     "arsenal": "Bamboocut"

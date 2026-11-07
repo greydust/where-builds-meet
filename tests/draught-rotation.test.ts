@@ -146,6 +146,10 @@ describe("Draught timing", () => {
       "draught-fully-relayed-max-bp",
       "draught-fully-relayed-min",
       "draught-fully-relayed-max",
+      "draught-full-min-bp",
+      "draught-full-max-bp",
+      "draught-full-min",
+      "draught-full-max",
     ])
     expect(defaultBuildIdForPath("bamboocutDraught")).toBe(ids[0])
   })
