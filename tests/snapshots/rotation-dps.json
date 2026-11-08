@@ -1,6 +1,470 @@
 {
   "schemaVersion": 2,
   "cases": {
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-max-bp/18": {
+      "fixture": {
+        "build": "draught-full-max-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 93647.78215807062,
+      "totalDamage": 5618866.929484237,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-max-bp/19": {
+      "fixture": {
+        "build": "draught-full-max-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 98436.23658440595,
+      "totalDamage": 5906174.1950643575,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-max/18": {
+      "fixture": {
+        "build": "draught-full-max",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 89337.11799987682,
+      "totalDamage": 5360227.079992609,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-max/19": {
+      "fixture": {
+        "build": "draught-full-max",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 94225.54903068783,
+      "totalDamage": 5653532.94184127,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-min-bp/18": {
+      "fixture": {
+        "build": "draught-full-min-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 96642.19961174925,
+      "totalDamage": 5798531.976704955,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-min-bp/19": {
+      "fixture": {
+        "build": "draught-full-min-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 100892.07062767757,
+      "totalDamage": 6053524.237660655,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-min/18": {
+      "fixture": {
+        "build": "draught-full-min",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 93832.64848205376,
+      "totalDamage": 5629958.9089232255,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-full-min/19": {
+      "fixture": {
+        "build": "draught-full-min",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 98275.67964476217,
+      "totalDamage": 5896540.778685731,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-max-bp/18": {
+      "fixture": {
+        "build": "draught-fully-relayed-max-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 90579.76616425061,
+      "totalDamage": 5434785.969855037,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-max-bp/19": {
+      "fixture": {
+        "build": "draught-fully-relayed-max-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 95370.14133009278,
+      "totalDamage": 5722208.479805567,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-max/18": {
+      "fixture": {
+        "build": "draught-fully-relayed-max",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 86782.60940614161,
+      "totalDamage": 5206956.564368497,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-max/19": {
+      "fixture": {
+        "build": "draught-fully-relayed-max",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 91982.92475952947,
+      "totalDamage": 5518975.485571768,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-min-bp/18": {
+      "fixture": {
+        "build": "draught-fully-relayed-min-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 92307.26770422905,
+      "totalDamage": 5538436.0622537425,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-min-bp/19": {
+      "fixture": {
+        "build": "draught-fully-relayed-min-bp",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 97466.48170341189,
+      "totalDamage": 5847988.902204714,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-min/18": {
+      "fixture": {
+        "build": "draught-fully-relayed-min",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 90607.25172403066,
+      "totalDamage": 5436435.10344184,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bamboocutDraught/draught-dummy-1-min-bp/draught-fully-relayed-min/19": {
+      "fixture": {
+        "build": "draught-fully-relayed-min",
+        "rotation": "draught-dummy-1-min-bp",
+        "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 95120.5097043195,
+      "totalDamage": 5707230.58225917,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
     "bamboocutDraught/draught-dummy-1-min/draught-full-max-bp/18": {
       "fixture": {
         "build": "draught-full-max-bp",
@@ -24,8 +488,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 82466.78730205636,
-      "totalDamage": 4948007.2381233815,
+      "dps": 87118.48108023795,
+      "totalDamage": 5227108.864814277,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -53,8 +517,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 86753.54685926782,
-      "totalDamage": 5205212.811556069,
+      "dps": 91603.65343667503,
+      "totalDamage": 5496219.206200502,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -82,8 +546,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 82546.35633919292,
-      "totalDamage": 4952781.380351575,
+      "dps": 87407.01121148147,
+      "totalDamage": 5244420.672688888,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -111,8 +575,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 87068.81854512346,
-      "totalDamage": 5224129.112707407,
+      "dps": 92197.3689254502,
+      "totalDamage": 5531842.135527012,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -140,8 +604,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 85564.98607985728,
-      "totalDamage": 5133899.164791437,
+      "dps": 89972.88254446189,
+      "totalDamage": 5398372.952667713,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -169,8 +633,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 89375.51057266392,
-      "totalDamage": 5362530.634359835,
+      "dps": 93961.07288037131,
+      "totalDamage": 5637664.372822279,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -198,8 +662,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 85565.55231972998,
-      "totalDamage": 5133933.139183799,
+      "dps": 91804.33601197183,
+      "totalDamage": 5508260.16071831,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -227,8 +691,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 89581.88770478085,
-      "totalDamage": 5374913.262286851,
+      "dps": 96159.81358760204,
+      "totalDamage": 5769588.8152561225,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -256,8 +720,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 80251.66145988871,
-      "totalDamage": 4815099.687593322,
+      "dps": 84243.34909759561,
+      "totalDamage": 5054600.945855737,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -285,8 +749,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 84551.8723414156,
-      "totalDamage": 5073112.340484936,
+      "dps": 88725.79631048776,
+      "totalDamage": 5323547.778629266,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -314,8 +778,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 80113.54159579385,
-      "totalDamage": 4806812.495747631,
+      "dps": 84873.49795000324,
+      "totalDamage": 5092409.877000194,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -343,8 +807,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 84920.24976715648,
-      "totalDamage": 5095214.986029388,
+      "dps": 89968.16207997708,
+      "totalDamage": 5398089.724798624,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -372,8 +836,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 82527.02541236726,
-      "totalDamage": 4951621.524742036,
+      "dps": 85940.76802159187,
+      "totalDamage": 5156446.081295512,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -401,8 +865,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 86353.89891589836,
-      "totalDamage": 5181233.934953902,
+      "dps": 90742.12364120113,
+      "totalDamage": 5444527.418472068,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -430,8 +894,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 82523.34276799773,
-      "totalDamage": 4951400.566079864,
+      "dps": 88614.87420621674,
+      "totalDamage": 5316892.4523730045,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -459,8 +923,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 86600.41289169327,
-      "totalDamage": 5196024.773501596,
+      "dps": 93037.59110820314,
+      "totalDamage": 5582255.466492188,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
