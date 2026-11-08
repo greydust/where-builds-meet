@@ -139,9 +139,7 @@ Draught is available in the standard path selector.
 
 The four Fully Relayed builds derive from Dust's corresponding Min/Max gear at
 tiers 96 and 100, with Gauntlet and Dual Blades weapon arts, Tiltrim, Deepdaze
-armor attunements, and T6 Eonpour / Morale Chant / Skyspeak. The ordinary builds
-use T6 Envigorated Warrior; the BP variants replace that Inner Way with T6 Breaking
-Point. Both gear groups list Min, Max, Min BP, then Max BP.
+armor attunements, and T6 Eonpour / Morale Chant / Skyspeak. The ordinary Min builds use T6 Envigorated Warrior, the ordinary Max builds use T6 Mistwing, and the BP variants use T6 Breaking Point. Both gear groups list Min, Max, Min BP, then Max BP.
 The path defaults to Fully Relayed Min and Dummy 1 Min. Weapon and accessory Physical Penetration
 attunements remain unchanged.
 
