@@ -74,6 +74,7 @@
   },
   "NightwickTipsylay": {
     "name": "Nightwick - Tipsylay",
+    "attackResponse": { "duration": 0.3, "onSuccess": "PerfectDodgeSuccess" },
     "shortName": "Gauntlet Special",
     "castTime": 0.857,
     "cooldown": 15,
@@ -265,6 +266,7 @@
   "Whaledraft": {
     "name": "Whaledraft",
     "shortName": "Gauntlet Heavy Drink",
+    "attackResponse": { "duration": 0.2, "onSuccess": "PerfectDodgeSuccess" },
     "castTime": 0.68,
     "martialArt": "skystrikeGauntlets",
     "weapon": "Gauntlet",
@@ -533,6 +535,91 @@
         "value": "DragonquenchSpeed",
         "stack": "all",
         "time": 1.12,
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2, "resolveAt": "skillStart" }]
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Gauntlet",
+      "SkystrikeGauntlets",
+      "Dragonquench4",
+      "Heavy",
+      "Deepdaze",
+      "InebriateEnhanced",
+      "DragonquenchInebriate",
+      "BamboocutDraught"
+    ],
+    "martialArt": "skystrikeGauntlets",
+    "weapon": "Gauntlet",
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }],
+        "effect": { "castTimeMultiplier": 0.7692307692307692 }
+      },
+      {
+        "requirement": [
+          { "target": "self", "value": "DragonquenchSpeed" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2 }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.8695652173913044 }
+      }
+    ],
+    "skillBreakdownCategory": "Dragonquench - Inebriate",
+    "ignorePing": true
+  },
+  "Dragonquench4Cancel": {
+    "name": "Dragonquench - Inebriate [Cancel]",
+    "shortName": "Gauntlet Deepdaze Heavy 4 [Cancel]",
+    "castTime": 0.4819980549999999,
+    "cooldown": 0,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.248999982,
+        "phyCoef": 0.546408,
+        "phyBonus": 151.5,
+        "attrCoef": 0.546408,
+        "attrBonus": 82.5,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.364998788,
+        "phyCoef": 0.546408,
+        "phyBonus": 151.5,
+        "attrCoef": 0.546408,
+        "attrBonus": 82.5,
+        "damageScale": 1.4
+      },
+      {
+        "type": "damage",
+        "time": 0.4819980549999999,
+        "phyCoef": 0.728544,
+        "phyBonus": 202,
+        "attrCoef": 0.728544,
+        "attrBonus": 110,
+        "damageScale": 1.4
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "DragonquenchSpeed",
+        "stack": 1,
+        "time": 0.4819980549999999,
+        "requirement": [
+          {
+            "operator": "not",
+            "operand": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2, "resolveAt": "skillStart" }]
+          }
+        ]
+      },
+      {
+        "type": "consume",
+        "target": "self",
+        "value": "DragonquenchSpeed",
+        "stack": "all",
+        "time": 0.4819980549999999,
         "requirement": [{ "target": "self", "value": "DragonquenchSpeed", "stack": 2, "resolveAt": "skillStart" }]
       }
     ],

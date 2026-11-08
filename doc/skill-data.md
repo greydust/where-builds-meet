@@ -106,7 +106,7 @@ the mark or reaching its 20-second expiry settles 20% of the recorded damage
 through the shared recording mechanism, with Wildstride evaluated at settlement.
 Battle End does not settle an unfinished window. Dragonquench stage four has
 three damage contacts (two smaller hits followed by the finisher); the four
-thirteen-cast chains therefore produce 76 Dragonquench hits.
+fourteen-cast chains therefore produce 80 Dragonquench hits.
 Nightwick - Tipsylay and Nightwick - Primepick carry the same native
 Inebriate-enhanced hit filter (calcpoints 2090210801 and 2090211001, tag 1121).
 They therefore receive the enhanced critical-damage talent and Tiltrim bonus
@@ -125,42 +125,27 @@ Quick drinking's Falcon projectile is requested at the raw action's 0.3s
 timeline marker. Three contacts land at 0.550s, 0.683s, and 0.816s from the
 drink start, each with 0.487872 Physical and Attribute coefficients and zero flat bonus.
 
-`draught-dummy-1-min` uses twelve Dragonquench casts in rounds one through
-three and thirteen in round four, for 49 casts and 73 damage contacts. Reveldrift
-[Cancel] precedes ordinary Hero's Blood after enhanced specials in rounds one,
-three, and four; its existing post-special cast is moved rather than duplicated.
-At 40ms ping, all four enhanced specials land their full damage, and the final
-ordinary Hero's Blood settles Drunkslay at 59.673466s before the 60-second cutoff.
-Its recovery extends beyond Battle End. Deepdaze expires before that ordinary cast.
+`draught-dummy-1-min` uses fourteen Dragonquench heavies per round, for 56 casts and 80 damage contacts. Each stage-four cancel completes its cycle on the third hit (0.481998055s before acceleration), advances or resets the speed stack, and leads into plain Deflect. After the third cycle each round, use stage one, stage two, Reveldrift [Cancel], then enhanced Hero's Blood. All 44 enhanced Hero's Blood contacts land during Deepdaze at 40ms ping, and the final Drunkslay payout lands at 59.899180s.
+
+The attacking-dummy BP variant uses twelve heavies in round one and thirteen in each later round. A 0.35s delay before the opening Nightwick - Tipsylay puts the second Whaledraft at 5.301852s at 40ms ping. Its 0.2s dodge window triggers Breaking Point T6 at 5.5s. Round one ends with Reveldrift [Cancel], enhanced Hero's Blood, Peakfall, then ordinary Hero's Blood after Deepdaze expires. This order assumes Castlink remains available across that weapon swap. In round two, follow the first Heavy 4 [Cancel] with Deflect and Dodge to trigger Breaking Point at 23.5s. The 35.5s dodge falls inside its cooldown. After the second Flute and the next Heavy 4 cancel / Deflect, cast Ghostly Step - Umbra before the 35.5s dodge. Its 40 Vitality cost is covered at that point. Nightwick - Tipsylay uses the first 0.3s of its cast as its conditional dodge window (20902108, graph 14 node 70), triggering Breaking Point at 47.5s. The 53.5s dodge activates Umbra while Breaking Point is on cooldown. All 44 enhanced Hero's Blood contacts land during Deepdaze, and the final Drunkslay payout lands at 59.769155s.
 
 The Qi break remains attached to the tenth heavy of round two. Its revised
-26.838021s battle time defines the depletion rate. Thresholds at 59.99% and
+26.297678s battle time defines the depletion rate. Thresholds at 59.99% and
 39.99% occur at 40% and 60% of that interval. After ten seconds of Exhausted
 and four seconds of Qi immunity, the same depletion rate resumes; the next
 break remains outside the minute. Battle start is the first ordinary Hero's
 Blood hit, after Flute / Deflect / Peakfall preparation.
-This initial implementation retains Draught's development-only WIP status.
+Draught is available in the standard path selector.
 
 The four Fully Relayed builds derive from Dust's corresponding Min/Max gear at
 tiers 96 and 100, with Gauntlet and Dual Blades weapon arts, Tiltrim, Deepdaze
 armor attunements, and T6 Eonpour / Morale Chant / Skyspeak. The ordinary builds
-use T6 Mistwing; the BP variants replace only that Inner Way with T6 Breaking
-Point. Their catalog orders are 0 (Min BP), 1 (Max BP), 10 (Min), and 11 (Max).
-Min BP is the path default. Weapon and accessory Physical Penetration
+use T6 Envigorated Warrior; the BP variants replace that Inner Way with T6 Breaking
+Point. Both gear groups list Min, Max, Min BP, then Max BP.
+The path defaults to Fully Relayed Min and Dummy 1 Min. Weapon and accessory Physical Penetration
 attunements remain unchanged.
 
-Rate tuning targets effective Precision after enemy Judgement Resistance and
-effective Critical Rate, rather than final critical outcome probability or
-stat-sheet Precision. At BT17–19, the standard Dummy snapshot environment
-(Simmering Fish Slices, Fire Divinecraft, no Script, default global debuffs)
-gives 99.85–100% effective Precision and 79.09–80% effective Critical Rate.
-Gear uses legal 94%-of-maximum relayed rolls. The selected one- or two-roll
-Critical/Precision substitutions maximize production-calculated rotation DPS
-among legal substitutions meeting at least 99% effective Precision and 79%
-effective Critical Rate, preserving main Physical Attack rolls and weapon
-arts. Tier 100 is tuned against BT18's stricter rates and also covers BT19.
-This is a rate-constrained search: meeting the Critical Rate target costs
-roughly 0.7–0.8% DPS in some BP profiles compared with their prior allocation.
+The Draught gear presets target at least 99% effective Precision after enemy Judgement Resistance. The ordinary fully relayed builds target 79–80% effective Critical Rate. The BP Min and Max builds target approximately 76.24% because direct critical chance also contributes to the critical outcome after affinity. BP gear tuning replaces whole Critical rolls and preserves the existing Agility, Power, and physical attack rolls. At BT18 this yields 74.44% and 76.91% effective crit on fully relayed Min and Max, and 77.26% and 76.71% on full Min and Max. Each affix uses its tier maximum, multiplied by 94% on relayed gear. Tier 96 is tuned at BT17 and tier 100 at BT18. BT19 shares tier 100 and grants additional crit through level stats and talents.
 
 ### Strength mixed preset fillers
 

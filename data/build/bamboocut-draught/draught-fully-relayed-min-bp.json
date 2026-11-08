@@ -1,7 +1,7 @@
 {
   "id": "draught-fully-relayed-min-bp",
   "name": "Fully Relayed Min Build BP",
-  "order": 0,
+  "order": 10,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "relayed": true,
   "setup": {
@@ -28,7 +28,7 @@
           { "key": "minPhys", "value": 73.132 },
           { "key": "agility", "value": 46.436 },
           { "key": "gauntletDmgBoost", "value": 0.05828 },
-          { "key": "crit", "value": 0.0846 }
+          { "key": "maxVoidAttack", "value": 41.548 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -142,7 +142,7 @@
           { "key": "minPhys", "value": 85.16399999999999 },
           { "key": "agility", "value": 53.955999999999996 },
           { "key": "gauntletDmgBoost", "value": 0.06956 },
-          { "key": "crit", "value": 0.09775999999999999 }
+          { "key": "maxVoidAttack", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },

@@ -1,7 +1,7 @@
 {
   "id": "draught-full-min-bp",
   "name": "Full Min Build BP",
-  "order": 100,
+  "order": 110,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "setup": {
     "innerWays": [
@@ -26,7 +26,7 @@
           { "key": "minPhys", "value": 77.8 },
           { "key": "agility", "value": 49.4 },
           { "key": "gauntletDmgBoost", "value": 0.062 },
-          { "key": "crit", "value": 0.09 }
+          { "key": "maxVoidAttack", "value": 44.2 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -132,7 +132,7 @@
           { "key": "minPhys", "value": 90.6 },
           { "key": "agility", "value": 57.4 },
           { "key": "gauntletDmgBoost", "value": 0.074 },
-          { "key": "crit", "value": 0.104 }
+          { "key": "maxVoidAttack", "value": 51.4 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },

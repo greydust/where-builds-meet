@@ -1,14 +1,14 @@
 {
   "id": "draught-full-min",
   "name": "Full Min Build",
-  "order": 110,
+  "order": 100,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "setup": {
     "innerWays": [
       { "innerWay": "Eonpour", "tier": "T6" },
       { "innerWay": "MoraleChant", "tier": "T6" },
       { "innerWay": "Skyspeak", "tier": "T6" },
-      { "innerWay": "Mistwing", "tier": "T6" }
+      { "innerWay": "EnvigoratedWarrior", "tier": "T6" }
     ],
     "weaponSets": { "Tiltrim": 4 },
     "armorSets": {},

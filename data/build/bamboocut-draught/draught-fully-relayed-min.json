@@ -1,7 +1,7 @@
 {
   "id": "draught-fully-relayed-min",
   "name": "Fully Relayed Min Build",
-  "order": 10,
+  "order": 0,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "relayed": true,
   "setup": {
@@ -9,7 +9,7 @@
       { "innerWay": "Eonpour", "tier": "T6" },
       { "innerWay": "MoraleChant", "tier": "T6" },
       { "innerWay": "Skyspeak", "tier": "T6" },
-      { "innerWay": "Mistwing", "tier": "T6" }
+      { "innerWay": "EnvigoratedWarrior", "tier": "T6" }
     ],
     "weaponSets": { "Tiltrim": 4 },
     "armorSets": {},
