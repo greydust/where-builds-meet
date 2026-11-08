@@ -1,5 +1,20 @@
 # DPS regression snapshots
 
+## Draught Max Mistwing acceptance (November 8, 2026)
+
+The user approved replacing T6 Envigorated Warrior with T6 Mistwing in the
+ordinary Full Max and Fully Relayed Max builds. Min builds retain Envigorated
+Warrior, and BP builds retain Breaking Point. Across both one-minute rotations
+and breakthroughs 18/19, the eight affected Max cases lose 0.634–0.915% DPS.
+Durations remain 60 seconds; all other snapshots are unchanged.
+
+| Build / rotation            |   BT18 DPS before | BT18 DPS accepted |   BT19 DPS before | BT19 DPS accepted |
+| --------------------------- | ----------------: | ----------------: | ----------------: | ----------------: |
+| Full Max / regular          | 87407.01121148147 |  86651.9669841891 |  92197.3689254502 | 91400.72626228178 |
+| Fully Relayed Max / regular | 84873.49795000324 | 84097.25312916964 | 89968.16207997708 | 89144.69541584094 |
+| Full Max / BP               | 89337.11799987682 |  88770.5361606794 | 94225.54903068783 | 93627.77043914614 |
+| Fully Relayed Max / BP      | 86782.60940614161 | 86192.15091273491 | 91982.92475952947 | 91356.48075041253 |
+
 ## Pre-battle hit correction acceptance (November 5, 2026)
 
 The user approved the lower damage results caused by excluding pre-battle hits
