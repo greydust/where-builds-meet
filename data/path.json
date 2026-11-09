@@ -26,7 +26,7 @@
     "tag": "BellstrikeBolt",
     "status": "preview",
     "buildGroup": "bellstrike-bolt",
-    "defaultBuild": "bolt-fully-relayed",
+    "defaultBuild": "bolt-fully-relayed-hawkwing",
     "graduated": ["bolt-full"],
     "defaultRotation": "bolt-dummy-1-min",
     "arsenal": "Bellstrike",

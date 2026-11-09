@@ -1,5 +1,14 @@
 # DPS regression snapshots
 
+## Bolt Hawkwing presets (November 9, 2026)
+
+The user requested release of the Hawkwing variants and selected Fully Relayed Max Build Hawkwing as the default. Each variant uses four-piece Hawkwing and replaces only the right weapon additional Affinity with Max Void Attack. All existing snapshots remain unchanged. The four new 60-second baselines are:
+
+| Build                            |       Solo 18 DPS |       Solo 19 DPS |
+| -------------------------------- | ----------------: | ----------------: |
+| Full Max Build Hawkwing          | 90020.32271020804 |   94366.836061932 |
+| Fully Relayed Max Build Hawkwing | 86611.19095330361 | 91331.16241962161 |
+
 ## Bolt public Preview acceptance (November 9, 2026)
 
 The user accepted Bolt's completed Dummy 1 Min calculation and requested

@@ -1,7 +1,7 @@
 {
   "id": "bolt-fully-relayed",
   "name": "Fully Relayed Max Build",
-  "order": 1,
+  "order": 0,
   "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
   "relayed": true,
   "setup": {

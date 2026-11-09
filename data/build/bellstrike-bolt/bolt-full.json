@@ -1,7 +1,7 @@
 {
   "id": "bolt-full",
   "name": "Full Max Build",
-  "order": 0,
+  "order": 10,
   "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
   "relayed": false,
   "setup": {
