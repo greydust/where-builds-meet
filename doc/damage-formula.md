@@ -41,8 +41,10 @@ the supported effects without Bonus Attack.
 Solo Levels 20–25 select martial-art ranks 16–21 and equipment tiers
 105/110/115. Their progression tables include character talents,
 Enhancement, Arsenal, Inner Ways, and sets. New levels retain the fixed
-level-96, 500-defense Dummy and use their exported Judgement Resistance;
-they do not synthesize the absent Solo-24/25 enemy profiles. See
+level-96 Dummy and use their exported Judgement Resistance. Solo Levels
+20–21 use 558 defense and 22–23 use 619. Solo Level 24 retains the provisional
+500 defense; Solo Level 25 uses 687 Physical Defense. These corrections were
+supplied by the user on 9 November 2026. Other missing enemy fields are not synthesized. See
 [progression provenance](solo-progression.md).
 
 Each equipped martial art contributes only its `talent[rank]` effects; ranks are

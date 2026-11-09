@@ -136,7 +136,7 @@ it("rebuilds food stats before publishing DPS and restores the cached original o
   expect(localStorage.getItem("wwm-food-session-v1")).toBe("None")
 
   const dispatchesBeforeReturn = dpsDispatches("baseline").length
-  await choose("Food", "Clay Oven Flatbread")
+  await choose("Food", "Food")
   expect(dpsDispatches("baseline")).toHaveLength(dispatchesBeforeReturn)
   expect(useRotationStore.getState().result!.metrics.dps).toBeCloseTo(fishDps, 8)
 })
@@ -229,7 +229,7 @@ it("migrates legacy Endurance food and keeps both food controls independent", as
   expect(useLoadoutStore.getState().setupSelections).toMatchObject({ food: "None", enduranceFood: "SwallowsAgility" })
   expect(localStorage.getItem("wwm-food-session-v1")).toBe("None")
   expect(localStorage.getItem("wwm-endurance-food-session-v1")).toBe("SwallowsAgility")
-  await choose("Food", "Clay Oven Flatbread")
+  await choose("Food", "Food")
   expect(useLoadoutStore.getState().setupSelections).toMatchObject({
     food: "SimmeringFishSlices",
     enduranceFood: "SwallowsAgility",

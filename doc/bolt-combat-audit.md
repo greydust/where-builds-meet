@@ -142,8 +142,17 @@ A fresh full production calculation with the same BT19 fixture gives
 up 19.9402% from 74,016.13154807402. All 426 damage rows remain, including
 75 載戈 and four 鳴戈 contacts, and the rotation still consumes 24 槍勢.
 This agrees with the independent fixed-leaf estimate within floating-point
-rounding. It does not resolve native listener order, 王行's native duration
-override, Fire settlement, or network/contact-clock qualifications.
+rounding. A subsequent CN settlement trace supplied on 9 November 2026
+supports early-Tab damage using the caster's current 載戈 stacks before
+clearing them on the ordinary locally handled path: a sole queued 鳴戈
+request settles immediately before the graph resumes. Each active stack
+adds 10% in the event-damage bracket, capped at 150% for 15 stacks.
+If another hit is already queued, processing can be deferred with a 1 ms
+retry; queued or server-forwarded hits do not have a proven equivalent
+stack snapshot. The observed fight's queue states are unknown. The model
+retains damage before full stack consumption, without inventing queue
+delays. 王行's native duration override, Fire settlement, and other
+network/contact-clock qualifications remain unresolved.
 
 The old HTML/JSON/ZIP report is preserved as the frozen pre-correction input,
 not a live description of current damage. No accepted DPS snapshots are changed.

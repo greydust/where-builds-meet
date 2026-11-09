@@ -14,11 +14,16 @@ import type { ResolvedStats } from "@/calculations/statEffects"
 
 import { loadDpsSnapshotFixtures } from "./helpers/dps-snapshot-fixtures"
 
-async function foodSubject(enduranceFood: string, pathId: PathId = "bellstrikeSplendor", food = "SimmeringFishSlices") {
+async function foodSubject(
+  enduranceFood: string,
+  pathId: PathId = "bellstrikeSplendor",
+  food = "SimmeringFishSlices",
+  breakthrough?: string,
+) {
   const entry = (await loadDpsSnapshotFixtures()).find(row => row.pathId === "bellstrikeSplendor")!
   const settings = {
     weapons: entry.fixture.martialArts,
-    breakthrough: entry.fixture.breakthrough,
+    breakthrough: breakthrough ?? entry.fixture.breakthrough,
     ping: entry.fixture.ping,
   }
   const context: MeasurementContext = {
@@ -43,6 +48,26 @@ async function foodSubject(enduranceFood: string, pathId: PathId = "bellstrikeSp
 }
 
 describe("food selection and Endurance", () => {
+  it.each([
+    ["18", 140, 280],
+    ["19", 140, 280],
+    ["20", 160, 320],
+    ["21", 160, 320],
+    ["22", 200, 400],
+    ["23", 200, 400],
+    ["24", 240, 480],
+    ["25", 240, 480],
+  ])("adds level %s Food to effective attack through the shared pipeline", async (level, minimum, maximum) => {
+    const without = await foodSubject("None", "bellstrikeSplendor", "None", level)
+    const withFood = await foodSubject("None", "bellstrikeSplendor", "SimmeringFishSlices", level)
+    const foodStats = withFood.build.stats as ResolvedStats
+    const baseStats = without.build.stats as ResolvedStats
+    expect(foodStats.effectiveMinPhys - baseStats.effectiveMinPhys).toBeCloseTo(minimum, 8)
+    expect(foodStats.effectiveMaxPhys - baseStats.effectiveMaxPhys).toBeCloseTo(maximum, 8)
+    expect(foodStats.minPhys).toBe(baseStats.minPhys)
+    expect(foodStats.maxPhys).toBe(baseStats.maxPhys)
+  })
+
   it("applies the replacement attack food through the shared stat pipeline", async () => {
     const without = await foodSubject("None", "bellstrikeSplendor", "None")
     const withFood = await foodSubject("None")

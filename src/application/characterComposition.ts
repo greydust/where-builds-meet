@@ -189,7 +189,11 @@ export function selectedSetupEffects(
   const foodEffects = foodCategories.map(({ key }) =>
     Object.assign(
       {},
-      typedFoodDefinitions[foodSelectionForPath(overrides[key] ?? selections[key], pathId, key)]?.effect,
+      effectForSoloLevel(
+        typedFoodDefinitions[foodSelectionForPath(overrides[key] ?? selections[key], pathId, key)]?.effect ?? {},
+        breakthroughProfile(settings).soloLevel,
+        "Food",
+      ),
       { statStage: "food" as const },
     ),
   )

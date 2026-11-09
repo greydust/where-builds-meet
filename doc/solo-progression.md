@@ -27,11 +27,14 @@ Grey cumulative progression at the same level, then the stored Normal
 progression when Grey is absent. Level 25 has a complete Normal talent row;
 no lower-level talent fallback is used.
 
-New profiles use the existing fixed Dummy: level 96, defense 500 and
-zero channel resistance. Their `enemyProfileSource` records this choice.
+Enemy Physical Defense follows the user-confirmed progression supplied on
+9 November 2026: Solo 18–19 use 500, 20–21 use 558, 22–23 use 619, and
+25 uses 687. Solo 24 retains the provisional 500-defense Dummy until its
+value is confirmed; `enemyProfileSource: "fixedDummy"` records that choice.
+Enemy level 96 and zero channel resistances retain their existing values.
+The user-supplied 687 is not attributed to an exported enemy cap row.
 Judgement Resistance uses the selected Solo Level's exported combat profile.
-This is a progression comparison against that Dummy, not a claim about a
-level-25 NPC's defense. The export has no Solo-24/25 enemy cap row.
+The export has no Solo-24/25 enemy cap row.
 
 ## Gear and talents
 

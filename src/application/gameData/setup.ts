@@ -99,7 +99,8 @@ export const foodCategories = [
   { key: "enduranceFood", title: "Endurance" },
 ] as const
 export type FoodCategory = (typeof foodCategories)[number]["key"]
-export type FoodDefinition = ArsenalDefinition & {
+export type FoodDefinition = Omit<ArsenalDefinition, "effect"> & {
+  effect?: AuthoredSoloLevelEffect<SetupEffect>
   title?: string
   category?: FoodCategory
   paths?: PathId[]

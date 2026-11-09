@@ -13,6 +13,15 @@ short explanation only when it prevents a likely misinterpretation.
 
 ## Source of truth
 
+Physical attack Food resolves `effectiveStat` Solo Level tables through the
+shared progression resolver before character composition. It adds 140–280
+effective Physical Attack at Solo 18–19, 160–320 at 20–21, 200–400 at 22–23,
+and 240–480 at 24–25; Solo 17 retains 140–280. The displayed name is Food,
+while the persisted `SimmeringFishSlices` selection key is retained.
+Export `wwm-consumables-food.json` supplies the attack amounts (items
+220012, 220014, 220016 and 220020); level-band selection follows the user's
+instruction. Food stays in the effective-stat stage rather than raw attack.
+
 Startling Spring uses explicit `stackEffects` so charged damage and Endurance
 cost both increase by 4% per stack. Ordinary effect lists are not implicitly
 multiplied by stack count in the damage pipeline.

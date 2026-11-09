@@ -76,7 +76,7 @@
     "name": "20",
     "martialArtTalentRank": 16,
     "level": 96,
-    "defense": 500,
+    "defense": 558,
     "physicalResistance": 0,
     "bellstrikeResistance": 0,
     "stonesplitResistance": 0,
@@ -98,14 +98,13 @@
       }
     },
     "soloLevel": 20,
-    "gearTier": 105,
-    "enemyProfileSource": "fixedDummy"
+    "gearTier": 105
   },
   "21": {
     "name": "21",
     "martialArtTalentRank": 17,
     "level": 96,
-    "defense": 500,
+    "defense": 558,
     "physicalResistance": 0,
     "bellstrikeResistance": 0,
     "stonesplitResistance": 0,
@@ -127,14 +126,13 @@
       }
     },
     "soloLevel": 21,
-    "gearTier": 105,
-    "enemyProfileSource": "fixedDummy"
+    "gearTier": 105
   },
   "22": {
     "name": "22",
     "martialArtTalentRank": 18,
     "level": 96,
-    "defense": 500,
+    "defense": 619,
     "physicalResistance": 0,
     "bellstrikeResistance": 0,
     "stonesplitResistance": 0,
@@ -156,14 +154,13 @@
       }
     },
     "soloLevel": 22,
-    "gearTier": 110,
-    "enemyProfileSource": "fixedDummy"
+    "gearTier": 110
   },
   "23": {
     "name": "23",
     "martialArtTalentRank": 19,
     "level": 96,
-    "defense": 500,
+    "defense": 619,
     "physicalResistance": 0,
     "bellstrikeResistance": 0,
     "stonesplitResistance": 0,
@@ -185,8 +182,7 @@
       }
     },
     "soloLevel": 23,
-    "gearTier": 110,
-    "enemyProfileSource": "fixedDummy"
+    "gearTier": 110
   },
   "24": {
     "name": "24",
@@ -221,7 +217,7 @@
     "name": "25",
     "martialArtTalentRank": 21,
     "level": 96,
-    "defense": 500,
+    "defense": 687,
     "physicalResistance": 0,
     "bellstrikeResistance": 0,
     "stonesplitResistance": 0,
@@ -243,7 +239,6 @@
       }
     },
     "soloLevel": 25,
-    "gearTier": 115,
-    "enemyProfileSource": "fixedDummy"
+    "gearTier": 115
   }
 }

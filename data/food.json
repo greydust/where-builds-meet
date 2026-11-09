@@ -1,8 +1,71 @@
 {
   "None": { "name": "None", "effect": { "stat": {} } },
   "SimmeringFishSlices": {
-    "name": "Clay Oven Flatbread",
-    "effect": { "effectiveStat": { "minPhys": 140, "maxPhys": 280 } },
+    "name": "Food",
+    "effect": {
+      "effectiveStat": {
+        "minPhys": {
+          "bySoloLevel": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            140,
+            140,
+            140,
+            160,
+            160,
+            200,
+            200,
+            240,
+            240
+          ]
+        },
+        "maxPhys": {
+          "bySoloLevel": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            280,
+            280,
+            280,
+            320,
+            320,
+            400,
+            400,
+            480,
+            480
+          ]
+        }
+      }
+    },
     "title": "Physical Attack",
     "category": "food"
   },

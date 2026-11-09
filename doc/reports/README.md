@@ -25,4 +25,6 @@ The subsequent wielded-art requirement/cache fix raises that same rotation to
 
 The subsequent BT19-targeted greaves Affinity-to-Momentum swap raises the
 default BT19 result to 90,795.0264579321 DPS at 39.39% effective Affinity.
-The current Solo-25 report reflects that same updated layout.
+The Solo-25 report reflects that updated layout with the historical
+500-defense target. Solo Level 25 now uses the user-supplied 687 Physical
+Defense; that report's numbers remain a snapshot of the earlier target.
