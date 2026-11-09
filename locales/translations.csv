@@ -410,6 +410,7 @@ data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.description,"Increases Swor
 data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.name,Sword Slash Damage Boost,劍氣增傷,,,,,,,,,,
 data.debuff.bellstrikeUmbra.ShatteredStone.description,Reduces Physical Defense by 5% against non-player targets.,,,,,,,,,,,
 data.debuff.bellstrikeUmbra.ShatteredStone.name,Shattered Stone,,,,,,,,,,,
+data.debuff.bellstrikeUmbra.ShatteredStone.shortName,ShS,,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.description,"Ordinary DoT damage taken increases by 5% per stack, plus 5% for Strategic Sword or Heavenquaker Spear. High Bleed instead receives 10% per stack; these bonuses do not stack.",,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.name,Soul-Shaken,驚魂,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.shortName,SS,驚,,,,,,,,,,

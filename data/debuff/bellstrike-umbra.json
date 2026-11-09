@@ -1,7 +1,11 @@
 {
   "ShatteredStone": {
     "name": "Shattered Stone",
+    "shortName": "ShS",
     "description": "Reduces Physical Defense by 5% against non-player targets.",
+    "duration": 10,
+    "refresh": true,
+    "showCoverage": true,
     "maxStack": 1,
     "shared": true,
     "effect": [{ "effect": { "defenseBonus": -0.05 } }]

@@ -972,3 +972,12 @@ subsequent refills use Umbrella QQ and immediately activate Flower at 100 Blosso
 All six cases remain 60 seconds; total damage is DPS multiplied by 60.
 Other paths retain their accepted snapshots. Fan pursuit is excluded pending
 confirmed complete cast/cancel timing.
+
+## Sweep All Shattered Stone correction (November 9, 2026)
+
+The user accepted the eight Umbra snapshot changes at breakthroughs 18 and 19
+for both preset rotations and both builds. Spring Surge and River Flow Sweep All
+hits now apply the refreshing 10-second Shattered Stone debuff, reducing Physical
+Defense by 5%. DPS increases by 0.3351% to 0.3630%; durations remain unchanged.
+All other preset results are unchanged. The global Umbra support selection stays
+permanent and does not stack with rotation-applied Shattered Stone.

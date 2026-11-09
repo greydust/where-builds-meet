@@ -223,6 +223,7 @@
         "attrBonus": 323,
         "time": 0.30375544363636364
       },
+      { "type": "apply", "target": "target", "value": "ShatteredStone", "stack": 1, "time": 0.30375544363636364 },
       {
         "type": "trigger",
         "value": "BloodBurstDamage",
@@ -275,6 +276,7 @@
         "time": 0.30375544363636364
       },
       { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 5, "time": 0.30375544363636364 },
+      { "type": "apply", "target": "target", "value": "ShatteredStone", "stack": 1, "time": 0.30375544363636364 },
       {
         "type": "trigger",
         "value": "BloodBurstDamage",
