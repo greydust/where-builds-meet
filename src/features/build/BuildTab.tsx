@@ -271,7 +271,7 @@ export default function BuildTab({
   )
   const throughputs = useBuildThroughputs({
     targets: buildTargets,
-    gearItems: buildState.gearItems,
+    gearItems: visibleItems,
     context: measurement,
     rotation: activeRotation,
   })

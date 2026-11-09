@@ -478,6 +478,12 @@ separately, and it is read back in a fixed locale so the text stays parseable.
 - globally resolved stats and derived stats
 - the latest metrics published for the active rotation
 
+Inventory and build sharing are independent. With inventory sharing disabled,
+`visibleGearItems` returns only IDs assigned to the current path. Matching weapon
+types and equipment references in shared builds do not grant inventory access.
+Stored equipment references are preserved, but an item outside the current path's
+inventory is unavailable there until inventory sharing or its placement changes.
+
 Food, Script, and Divinecraft are parent-owned React state, initialized from
 persistent storage. The Main selectors, character-stat preparation, and rotation
 bundles consume the same selection snapshot; storage is only persistence.

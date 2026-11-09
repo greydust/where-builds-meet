@@ -92,10 +92,10 @@ describe("gear store scope", () => {
       const { buildState, scope } = useGearStore.getState()
       assert.equal(buildState.gearItems.length, 1)
       assert.deepEqual(
-        visibleGearItems({ buildState, scope, pathId: pathA, builds: [] }).map(item => item.id),
+        visibleGearItems({ buildState, scope, pathId: pathA }).map(item => item.id),
         ["imported-weapon"],
       )
-      assert.deepEqual(visibleGearItems({ buildState, scope, pathId: pathB, builds: [] }), [])
+      assert.deepEqual(visibleGearItems({ buildState, scope, pathId: pathB }), [])
     } finally {
       restore()
     }

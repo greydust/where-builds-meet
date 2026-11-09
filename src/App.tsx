@@ -160,10 +160,7 @@ export default function App() {
     () => visibleBuilds({ buildState, scope, pathId, buildGroup: pathBuildGroup, weapons: settings.weapons, devMode }),
     [buildState, scope, pathId, pathBuildGroup, settings.weapons, devMode],
   )
-  const visibleGear = useMemo(
-    () => visibleGearItems({ buildState, scope, pathId, builds: availableBuildEntries }),
-    [buildState, scope, pathId, availableBuildEntries],
-  )
+  const visibleGear = useMemo(() => visibleGearItems({ buildState, scope, pathId }), [buildState, scope, pathId])
   const activeBuild =
     availableBuildEntries.find(entry => entry.id === activeBuildIdsByPath[pathId]) ??
     availableBuildEntries.find(entry => entry.id === defaultBuildIdForPath(pathId)) ??

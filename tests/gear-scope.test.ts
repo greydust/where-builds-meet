@@ -235,26 +235,36 @@ describe("gear scope", () => {
   it("shows a private inventory only what the path names", () => {
     const items = [item("here"), item("elsewhere")]
     const scope = privateScope({ itemIdsByPath: { [pathA]: ["here"] } })
-    const visible = visibleGearItems({ buildState: buildState([], items), scope, pathId: pathA, builds: [] })
+    const visible = visibleGearItems({ buildState: buildState([], items), scope, pathId: pathA })
     assert(visible.map(entry => entry.id).join() === "here", "Only the named item may show.")
   })
 
-  it("keeps an item a visible build equips, so a private inventory does not punch a hole in a build", () => {
-    const items = [item("worn"), item("spare")]
-    const build = { ...userBuild("wearing"), equipped: { leftWeapon: "worn" } }
-    const scope = privateScope({ itemIdsByPath: { [pathA]: [] } })
-    // The inventory names nothing, so only a build's own reference can bring the item back.
-    const visible = visibleGearItems({ buildState: buildState([build], items), scope, pathId: pathA, builds: [build] })
-    assert(visible.map(entry => entry.id).join() === "worn", "A build's equipped item must stay visible with it.")
-    // And on a path that cannot see the build, the item goes with it rather than lingering.
-    const elsewhere = visibleGearItems({ buildState: buildState([build], items), scope, pathId: pathB, builds: [] })
-    assert(elsewhere.length === 0, "An item must not outlive the builds that bring it in.")
+  it("does not expose another path's equipped gear through a shared build with matching weapons", () => {
+    const items = [item("here"), item("worn-elsewhere"), item("spare-elsewhere")]
+    const build = { ...userBuild("shared-build"), equipped: { leftWeapon: "worn-elsewhere" } }
+    const scope = privateScope({
+      sharedBuilds: true,
+      itemIdsByPath: { [pathA]: ["here"], [pathB]: ["worn-elsewhere", "spare-elsewhere"] },
+    })
+    const state = buildState([build], items)
+    for (const [pathId, buildGroup, expected] of [
+      [pathA, groupA, "here"],
+      [pathB, groupB, "worn-elsewhere,spare-elsewhere"],
+    ] as const) {
+      const builds = visibleBuilds({ buildState: state, scope, pathId, buildGroup, weapons: pair, devMode: false })
+      assert(
+        builds.some(entry => entry.id === build.id),
+        "Both paths must see the shared build.",
+      )
+      const visible = visibleGearItems({ buildState: state, scope, pathId })
+      assert(visible.map(entry => entry.id).join() === expected, "Shared builds must not bypass inventory ownership.")
+    }
   })
 
   it("keeps the whole inventory when it is shared, whatever the builds map says", () => {
     const items = [item("a"), item("b")]
     const scope = { ...privateScope(), sharedInventory: true }
-    const visible = visibleGearItems({ buildState: buildState([], items), scope, pathId: pathA, builds: [] })
+    const visible = visibleGearItems({ buildState: buildState([], items), scope, pathId: pathA })
     assert(visible.length === 2, "A shared inventory must not be filtered at all.")
   })
 })

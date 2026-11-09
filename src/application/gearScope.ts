@@ -149,28 +149,11 @@ export function visibleBuilds(input: VisibleBuildsInput): BuildEntry[] {
   })
 }
 
-/**
- * The gear one path can see.
- *
- * An item is visible when the path's list names it, and also when a build the path can see
- * equips it. The second case is what keeps a build whole: a build records which item ids it
- * equips rather than carrying copies, so scoping an item away from a visible build would leave
- * a hole in that build's gear. A build's own references naming its items restores the pair, and
- * it is also the right reading of a gap that appears here at all, since the item was placed
- * elsewhere by an earlier decision rather than removed on purpose.
- */
-export function visibleGearItems(input: {
-  buildState: BuildState
-  scope: GearScope
-  pathId: PathId
-  builds: BuildEntry[]
-}): GearItem[] {
-  const { buildState, scope, pathId, builds } = input
+/** The inventory setting alone decides visibility; shared builds cannot expose another path's gear. */
+export function visibleGearItems(input: { buildState: BuildState; scope: GearScope; pathId: PathId }): GearItem[] {
+  const { buildState, scope, pathId } = input
   if (scope.sharedInventory) return buildState.gearItems
   const named = new Set(scope.itemIdsByPath[pathId] ?? [])
-  for (const build of builds) {
-    for (const itemId of Object.values(build.equipped ?? {})) if (itemId) named.add(itemId)
-  }
   return buildState.gearItems.filter(item => named.has(item.id))
 }
 
