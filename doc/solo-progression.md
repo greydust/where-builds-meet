@@ -31,7 +31,7 @@ Enemy Physical Defense follows the user-confirmed progression supplied on
 9 November 2026: Solo 18–19 use 500, 20–21 use 558, 22–23 use 619, and
 25 uses 687. Solo 24 retains the provisional 500-defense Dummy until its
 value is confirmed; `enemyProfileSource: "fixedDummy"` records that choice.
-Enemy level 96 and zero channel resistances retain their existing values.
+Enemy level is 96. Dummy Physical / attribute resistance is 0 / 0 at BT18–19 (黃鐘正響), 20 / 24 at BT20–21 (夾鐘奏雅), and 25 / 30 at BT22–23 (蕤賓疊奏) and BT24–25 (南呂相和). The attribute value applies to each of the four attribute channels.
 The user-supplied 687 is not attributed to an exported enemy cap row.
 Judgement Resistance uses the selected Solo Level's exported combat profile.
 The export has no Solo-24/25 enemy cap row.

@@ -1,6 +1,6 @@
 # Bolt Solo 25 damage eligibility audit
 
-This report describes the current calculator's **Dummy 1 Min** rotation with the supplied tier-115 gear, four pieces of 寒芒, rank-21 red and blue spears, and all four equipped Inner Ways at T6. The target has 687 Physical Defense and 180% Judgement Resistance. Food contributes 240–480 effective Physical Attack. Fire Divinecraft is selected. This is a map of modeled eligibility. Actual buff coverage depends on the individual contact.
+This report describes the current calculator's **Dummy 1 Min** rotation with the supplied tier-115 gear, four pieces of 寒芒, rank-21 red and blue spears, and all four equipped Inner Ways at T6. The target has 687 Physical Defense, 25 Physical Resistance, 30 resistance in each attribute channel and 180% Judgement Resistance. Food contributes 240–480 effective Physical Attack. Fire Divinecraft is selected. This is a map of modeled eligibility. Actual buff coverage depends on the individual contact.
 
 ## How to read the skill rows
 
