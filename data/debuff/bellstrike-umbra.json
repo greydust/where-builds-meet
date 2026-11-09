@@ -1,4 +1,11 @@
 {
+  "ShatteredStone": {
+    "name": "Shattered Stone",
+    "description": "Reduces Physical Defense by 5% against non-player targets.",
+    "maxStack": 1,
+    "shared": true,
+    "effect": [{ "effect": { "defenseBonus": -0.05 } }]
+  },
   "SoulShaken": {
     "name": "Soul-Shaken",
     "shortName": "SS",

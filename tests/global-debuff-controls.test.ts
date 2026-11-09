@@ -133,10 +133,31 @@ describe("global-debuff-controls", () => {
       phantomEffects[0]?.name === "PhantomChime" && phantomEffects[0]?.stack === 5 && phantomEffects[0]?.persistent,
       "Phantom Chime On must initialize a permanent maximum-stack debuff.",
     )
-    const soulEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, soulShaken: true })
+    const soulEffects = globalDebuffTimelineEffects(normalizeGlobalDebuffs({ soulShaken: true }))
     assert(
       soulEffects[0]?.name === "SoulShaken" && soulEffects[0]?.stack === 5 && soulEffects[0]?.persistent,
       "Soul-Shaken On must initialize a permanent maximum-stack debuff.",
+    )
+    assert.deepEqual(
+      soulEffects.map(effect => effect.name),
+      ["SoulShaken", "ShatteredStone"],
+    )
+    assert(
+      soulEffects.every(effect => effect.persistent),
+      "Both Umbra support debuffs must remain active.",
+    )
+    assert(
+      closeTo(result(soulEffects), result([], [], false, false, [], stats, [{ effect: { defenseBonus: -0.05 } }])),
+      "The saved Umbra toggle must reduce defense for ordinary non-Umbra hits by 5%.",
+    )
+    assert(
+      closeTo(
+        result(soulEffects, ["DOT"]),
+        result([{ name: "SoulShaken", stack: 5 }], ["DOT"], false, false, [], stats, [
+          { effect: { defenseBonus: -0.05 } },
+        ]),
+      ),
+      "The Umbra toggle must combine Soul-Shaken's DoT bonus with Shattered Stone's defense reduction.",
     )
     const qingyiEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, qingyisCharm: "T6" })
     assert(

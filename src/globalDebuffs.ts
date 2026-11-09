@@ -8,9 +8,9 @@ import qingyisCharmDefinitions from "@gamedata/debuff/innerway.json"
 import vulnerableDefinitions from "@gamedata/debuff/stonesplit-might.json"
 import fearfulBladeDefinitions from "@gamedata/debuff/stonesplit-strength.json"
 
-import { globalDebuffStorageKey } from "./application/persistence/keys"
-import type { TrackedEffect } from "./calculations/rotationTimeline"
-import { getPersistentItem } from "./persistentStorage"
+import { globalDebuffStorageKey } from "@/application/persistence/keys"
+import type { TrackedEffect } from "@/calculations/rotationTimeline"
+import { getPersistentItem } from "@/persistentStorage"
 
 export { globalDebuffStorageKey }
 
@@ -43,7 +43,7 @@ export const defaultGlobalDebuffs: GlobalDebuffState = {
 export const globalDebuffRows = [
   { key: "phantomChime", name: "Phantom Chime", path: "Dust" },
   { key: "qiImbalance", name: "Qi Imbalance", path: "Splendor" },
-  { key: "soulShaken", name: "Soul-Shaken", path: "Umbra" },
+  { key: "soulShaken", name: "Soul-Shaken + Shattered Stone", path: "Umbra" },
   { key: "vulnerable", name: "Vulnerable", path: "Might" },
   { key: "fearfulBlade", name: "Fearful Blade", path: "Strength" },
 ] as const
@@ -117,6 +117,7 @@ const definitions = {
   PhantomChime: phantomChimeDefinitions.PhantomChime,
   QiImbalance: qiImbalanceDefinitions.QiImbalance,
   SoulShaken: soulShakenDefinitions.SoulShaken,
+  ShatteredStone: soulShakenDefinitions.ShatteredStone,
   Vulnerable: vulnerableDefinitions.Vulnerable,
   FearfulBlade: fearfulBladeDefinitions.FearfulBlade,
   QingyisCharmT1: qingyisCharmDefinitions.QingyisCharmT1,
@@ -178,6 +179,7 @@ export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEf
     state.phantomChime ? (["PhantomChime", definitions.PhantomChime] as const) : undefined,
     state.qiImbalance ? (["QiImbalance", definitions.QiImbalance] as const) : undefined,
     state.soulShaken ? (["SoulShaken", definitions.SoulShaken] as const) : undefined,
+    state.soulShaken ? (["ShatteredStone", definitions.ShatteredStone] as const) : undefined,
     state.vulnerable ? (["Vulnerable", definitions.Vulnerable] as const) : undefined,
     state.fearfulBlade ? (["FearfulBlade", definitions.FearfulBlade] as const) : undefined,
     state.qingyisCharm === "T1"

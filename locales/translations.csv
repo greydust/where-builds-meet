@@ -406,6 +406,8 @@ data.debuff.bellstrikeSplendor.QiImbalance.name,Qi Imbalance,真氣失衡,,,진�
 data.debuff.bellstrikeSplendor.QiImbalance.shortName,QI,失,,,진기불균형,,,,,,,
 data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.description,"Increases SwordEnergy skill damage by 10% per stack, up to 3 stacks. Hits refresh the 8-second duration.",每層使劍氣技能傷害提高 10%，最多 3 層。命中時刷新 8 秒持續時間。,,,,,,,,,,
 data.debuff.bellstrikeSplendor.SwordSlashDamageBoost.name,Sword Slash Damage Boost,劍氣增傷,,,,,,,,,,
+data.debuff.bellstrikeUmbra.ShatteredStone.description,Reduces Physical Defense by 5% against non-player targets.,,,,,,,,,,,
+data.debuff.bellstrikeUmbra.ShatteredStone.name,Shattered Stone,,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.description,"Ordinary DoT damage taken increases by 5% per stack, plus 5% for Strategic Sword or Heavenquaker Spear. High Bleed instead receives 10% per stack; these bonuses do not stack.",,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.name,Soul-Shaken,驚魂,,,,,,,,,,
 data.debuff.bellstrikeUmbra.SoulShaken.shortName,SS,驚,,,,,,,,,,

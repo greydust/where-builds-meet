@@ -2809,3 +2809,11 @@ entry explicitly clears it. Ordinary effect duration `-1` is an expiry in the
 past, not the outcome machine's separate infinite-duration convention. A
 detonation consumes all 載戈 stacks after its damage snapshot. Tab and natural
 mode-end routes share that same marker, including comparisons without 神斷青鋒.
+
+## Umbra global support toggle
+
+The global **Soul-Shaken + Shattered Stone (Umbra)** control retains the persisted
+`soulShaken` key. Enabling it initializes permanent maximum-stack Soul-Shaken and
+single-stack Shattered Stone together. Shattered Stone uses `defenseBonus: -0.05`
+to reduce target Physical Defense for all attackers. This support toggle does not
+add automatic Shattered Stone application to simulated Sweep All casts.
