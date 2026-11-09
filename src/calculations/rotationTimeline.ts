@@ -1708,7 +1708,6 @@ export function buildRotationTimeline(
       sourceDamage: number
       sourceActionIds: string[]
       hasMatchedDamage: boolean
-      sourceRowId: string
       expiresAt: number
       definition: NonNullable<EffectDefinition["recording"]>
     }
@@ -4341,14 +4340,14 @@ export function buildRotationTimeline(
       }
     }
     // Both replacement and expiry settle the same activation exactly once.
-    const resolveRecording = (key: string, expectedId?: number) => {
+    const resolveRecording = (key: string, settlementSourceRowId: string, expectedId?: number) => {
       const recording = recordings.get(key)
       if (!recording || (expectedId !== undefined && recording.id !== expectedId)) return
       recordings.delete(key)
       if (recording.hasMatchedDamage)
         enqueueTriggeredSkill(
           recording.definition.action.value,
-          recording.sourceRowId,
+          settlementSourceRowId,
           undefined,
           "skill",
           undefined,
@@ -4371,13 +4370,12 @@ export function buildRotationTimeline(
       if (!definition.recording || appliedEffect.expiresAt === undefined) return
       const key = periodicEffectKey(target, name)
       const previous = resetRecording ? undefined : recordings.get(key)
-      if (!previous) resolveRecording(key)
+      if (!previous) resolveRecording(key, sourceRowId)
       recordings.set(key, {
         id: nextRecordingId++,
         sourceDamage: previous?.sourceDamage ?? 0,
         sourceActionIds: previous?.sourceActionIds ?? [],
         hasMatchedDamage: previous?.hasMatchedDamage ?? false,
-        sourceRowId,
         expiresAt: appliedEffect.expiresAt,
         definition: definition.recording,
       })
@@ -4966,6 +4964,7 @@ export function buildRotationTimeline(
       if (typeof action.recordingId === "number")
         resolveRecording(
           periodicEffectKey(action.target === "target" ? "target" : "self", action.value),
+          event.row.sourceRowId ?? event.row.id,
           action.recordingId,
         )
       continue

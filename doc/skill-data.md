@@ -105,8 +105,7 @@ Castlink select their Jadeflush routes while Inebriate is active. Ordinary
 Castlink uses the confirmed 0.733s recovery; Jadeflush has its own four-hit route.
 
 Dragonquench's four explicit stages share the `Dragonquench - Inebriate`
-damage-breakdown category and ignore input ping, as confirmed by the user.
-Their animation clocks still use the existing cast-time multipliers for
+damage-breakdown category. Each ordered stage, including Heavy 4 [Cancel], pays the configured input ping. This follows the user's 9 November 2026 timing decision and replaces the earlier ping exemption. Latency is an unscaled gap before cast start; animation and relative hit clocks still use the existing cast-time multipliers for
 15% and 30% acceleration after completed cycles; the third cycle resets the
 speed. Skyspeak T3 extends Deepdaze from five to ten seconds, and T1 changes the exit drain from 200 Binge to 140. A full-meter exit therefore
 leaves 60; a 180-Binge exit leaves 40. Eonpour's PvE base-damage bonuses use `baseDMGBonus`,
@@ -122,8 +121,7 @@ the mark with ordinary Hero's Blood or reaching its 20-second expiry settles 20%
 through the shared recording mechanism, with Wildstride evaluated at settlement.
 Eonpour refreshes the mark while preserving its accumulated damage until settlement.
 Battle End does not settle an unfinished window. Dragonquench stage four has
-three damage contacts (two smaller hits followed by the finisher); the four
-fourteen-cast chains therefore produce 80 Dragonquench hits.
+three damage contacts: two smaller hits followed by the finisher.
 Nightwick - Tipsylay and Nightwick - Primepick carry the same native
 Inebriate-enhanced hit filter (calcpoints 2090210801 and 2090211001, tag 1121).
 They therefore receive the enhanced critical-damage talent and Tiltrim bonus
@@ -142,12 +140,14 @@ Quick drinking's Falcon projectile is requested at the raw action's 0.3s
 timeline marker. Three contacts land at 0.550s, 0.683s, and 0.816s from the
 drink start, each with 0.487872 Physical and Attribute coefficients and zero flat bonus.
 
-`draught-dummy-1-min` uses fourteen Dragonquench heavies per round, for 56 casts and 80 damage contacts. Each stage-four cancel completes its cycle on the third hit (0.481998055s before acceleration), advances or resets the speed stack, and leads into plain Deflect. After the third cycle each round, use stage one, stage two, Reveldrift [Cancel], then enhanced Hero's Blood. All 44 enhanced Hero's Blood contacts land during Deepdaze at 40ms ping, and the final Drunkslay payout lands at 59.899180s.
+`draught-dummy-1-min` uses three full Heavy 1–4 chains, then Hero's Blood - Inebriate in every Deepdaze window: twelve heavy casts per window, 48 casts / 72 damage contacts overall. Every Heavy 4 [Cancel] retains all three contacts and is followed by Deflect. Q [Cancel] / Deflect follows the enhanced Special. At 40ms ping, all 44 enhanced Special contacts land during Deepdaze and the final ordinary Hero's Blood settles Drunkslay at 59.675180s before the 60-second cutoff. Three full chains are the highest-DPS eligible one-minute combination among the 256 tested arrangements of three full chains, 2+4, 3+3 and 3+4 around Special. See [the timing and numerical review](draught-rotation-cancel-review.md).
 
-The attacking-dummy BP variant uses twelve heavies in round one and thirteen in each later round. A 0.35s delay before the opening Nightwick - Tipsylay puts the second Whaledraft at 5.301852s at 40ms ping. Its 0.2s dodge window triggers Breaking Point T6 at 5.5s. Round one ends with Reveldrift [Cancel], enhanced Hero's Blood, Peakfall, then ordinary Hero's Blood after Deepdaze expires. This order assumes Castlink remains available across that weapon swap. In round two, follow the first Heavy 4 [Cancel] with Deflect and Dodge to trigger Breaking Point at 23.5s. The 35.5s dodge falls inside its cooldown. After the second Flute and the next Heavy 4 cancel / Deflect, cast Ghostly Step - Umbra before the 35.5s dodge. Its 40 Vitality cost is covered at that point. Nightwick - Tipsylay uses the first 0.3s of its cast as its conditional dodge window (20902108, graph 14 node 70), triggering Breaking Point at 47.5s. The 53.5s dodge activates Umbra while Breaking Point is on cooldown. All 44 enhanced Hero's Blood contacts land during Deepdaze, and the final Drunkslay payout lands at 59.769155s.
+The two 10 ms presets use 4–4–2–Special–4 in all four Deepdaze windows. All 56 heavy casts and 44 enhanced Special contacts land inside their windows. The ordinary preset settles its final Drunkslay payout at 59.987488s. The attacking-dummy BP preset casts Ghostly Step - Umbra before Heavy 4 of the third window's first chain, then uses Deflect and Dodge. A 0.40s wait replaces the Q refresh after the fourth chain in that window. Umbra triggers at 35.5s, 47.5s and 53.5s. Breaking Point activates at 5.5s, 23.5s and 47.5s. The final payout lands at 59.818368s after Strayhunt expires.
 
-The Qi break remains attached to the tenth heavy of round two. Its revised
-26.297678s battle time defines the depletion rate. Thresholds at 59.99% and
+Reveldrift's second contact at 0.401941710s is not an ordinary recovery gate: Deepdaze Special has the same native priority as Q, and the explicit early follow-up allowlist names Realmplay rather than Special. The initial Draught Q [Cancel] / Deflect pair remains unchanged.
+
+The Qi break remains attached to the tenth heavy of window two. Its current
+battle time defines the depletion rate. Thresholds at 59.99% and
 39.99% occur at 40% and 60% of that interval. After ten seconds of Exhausted
 and four seconds of Qi immunity, the same depletion rate resumes; the next
 break remains outside the minute. Battle start is the first ordinary Hero's
@@ -658,7 +658,7 @@ spawning its replay. Hits exactly at expiry are excluded; empty windows produce
 nothing. Replay coefficients apply to final source damage and cannot recurse.
 An `apply` action with `resetRecording: false` preserves recorded damage and source
 action IDs while refreshing expiry; a new activation ID invalidates the old expiry event.
-Ordinary applications still settle and restart.
+A replacement credits the replay to the cast that closes the window. A timer expiry credits it to the application that scheduled that expiry.
 Recording windows are not extended with ordinary `extend` actions.
 
 `damageGroup: { id, name }` assigns Inner Way damage to a runtime breakdown

@@ -77,7 +77,7 @@ describe("Draught enhancement eligibility", () => {
         entry.context.skillTags.includes("DragonquenchInebriate") ||
         entry.context.skillTags.includes("HeroesBloodInebriate"),
     )
-    expect(hits).toHaveLength(124)
+    expect(hits).toHaveLength(116)
     for (const hit of hits) {
       expect(active.actionBreakdowns[hit.id!].total / without.actionBreakdowns[hit.id!].total).toBeCloseTo(1.4, 12)
     }

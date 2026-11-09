@@ -1,5 +1,6 @@
 import eonpour from "@gamedata/innerway/eonpour.json"
 import skystrike from "@gamedata/martial-art/skystrike-gauntlets.json"
+import fastRotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min-10ms.json"
 import bpRotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min-bp.json"
 import rotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min.json"
 import { describe, expect, it } from "vitest"
@@ -136,7 +137,10 @@ describe("Draught timing", () => {
       Plain: { castTime: 0, action: [{ type: "damage", phyCoef: 1, time: 0 }] },
       Enhanced: { castTime: 0, tags: ["InebriateEnhanced"], action: [{ type: "damage", phyCoef: 1, time: 0 }] },
     }
-    const payouts = buildRotationTimeline(fixture).filter(row => row.step.skill === "DrunkslayDamage")
+    const rows = buildRotationTimeline(fixture)
+    const payouts = rows.filter(row => row.step.skill === "DrunkslayDamage")
+    const finalMark = rows.findLast(row => row.step.skill === "Mark")!
+    expect(payouts.map(row => row.sourceRowId)).toEqual([finalMark.id, finalMark.id])
     expect(payouts.map(row => row.startTime)).toEqual([2, 22])
   })
 
@@ -216,33 +220,61 @@ describe("Draught timing", () => {
       )
   })
 
-  it("does not charge input ping for any Dragonquench stage", () => {
-    const steps = Array.from({ length: 13 }, (_, index) => castStep(`Dragonquench${(index % 4) + 1}`))
-    const clocks = (ping: number) => {
-      const fixture = input(steps, 200)
-      fixture.rotation.ping = ping
-      return buildRotationTimeline(fixture).map(row => ({
-        start: row.startTime,
-        cast: row.effectiveCastTime,
-        hits: row.actions.filter(action => action.type === "damage").map(action => action.time),
-      }))
+  it.each([40, 150])("charges %sms input ping for every Dragonquench stage without stretching animations", ping => {
+    const skills = [
+      "Dragonquench1",
+      "Dragonquench2",
+      "Dragonquench3",
+      "Dragonquench4",
+      "Dragonquench1",
+      "Dragonquench2",
+      "Dragonquench3",
+      "Dragonquench4Cancel",
+      "Dragonquench1",
+      "Dragonquench2",
+      "Dragonquench3",
+      "Dragonquench4Cancel",
+    ]
+    const clocks = (inputPing: number) => {
+      const fixture = input(
+        skills.map(skill => castStep(skill)),
+        200,
+      )
+      fixture.rotation.ping = inputPing
+      return buildRotationTimeline(fixture).filter(row => row.kind === "rotation")
     }
-    expect(clocks(40)).toEqual(clocks(0))
-    expect(clocks(150)).toEqual(clocks(0))
+    const baseline = clocks(0)
+    const delayed = clocks(ping)
+    for (const [index, row] of delayed.entries()) {
+      expect(row.startTime - baseline[index].startTime).toBeCloseTo(((index + 1) * ping) / 1000, 12)
+      expect(row.effectiveCastTime).toBe(baseline[index].effectiveCastTime)
+      expect(row.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual(
+        baseline[index].actions.filter(action => action.type === "damage").map(action => action.time),
+      )
+    }
   })
 
-  it("lands three Breaking Point dodge procs and completes all four Deepdaze rounds on the attacking dummy", () => {
+  it.each([
+    { preset: fastRotation, build: "draught-fully-relayed-min", procsAt: [], umbraAt: [], payout: 59.98748755396665 },
+    {
+      preset: bpRotation,
+      build: "draught-fully-relayed-min-bp",
+      procsAt: [5.5, 23.5, 47.5],
+      umbraAt: [35.5, 47.5, 53.5],
+      payout: 59.818367986427745,
+    },
+  ])("lands all four accelerated chains and payouts in $preset.name", ({ preset, build, procsAt, umbraAt, payout }) => {
     const bundle = buildPresetRotationBundle(
       {
         ...dpsSnapshotEnvironment,
         breakthrough: "18",
         pathId: "bamboocutDraught",
         martialArts: ["skystrikeGauntlets", "rivenTwinblades"],
-        rotation: bpRotation as RotationRecord,
+        rotation: preset as RotationRecord,
         skillOverrides: {},
         previewId: null,
       },
-      "draught-fully-relayed-min-bp",
+      build,
     )!
     const result = calculateRotationBaseline(bundle)
     const start = result.timeline.find(row => row.battleStartTime !== undefined)!.battleStartTime!
@@ -250,11 +282,16 @@ describe("Draught timing", () => {
     const qiBreak = result.timeline.find(row => row.step.event === "Qi" && row.step.targetQiRatio === 0)!
     const firstThreshold = result.timeline.find(row => row.step.event === "Qi" && row.step.targetQiRatio === 0.5999)!
     expect(firstThreshold.startTime - start).toBeCloseTo((qiBreak.startTime - start) * 0.4, 10)
-    const drink = result.timeline.filter(row => row.step.skill === "Whaledraft")[1]
-    expect(drink.startTime - start).toBeCloseTo(5.301852325, 8)
     const ordinary = result.timeline.filter(row => row.step.skill === "HeroesBlood")
     expect(ordinary.every(row => !row.buffs.has("InebriateDeepdaze"))).toBe(true)
-    expect(procs.map(row => row.startTime - start)).toEqual([5.5, 23.5, 47.5])
+    const umbraDodges = result.timeline.filter(row => row.step.skill?.startsWith("GhostlyStepsUmbraDodge"))
+    expect(umbraDodges.map(row => row.startTime - start)).toEqual(umbraAt)
+    expect(ordinary.at(-1)!.debuffs.has("Strayhunt")).toBe(preset === fastRotation)
+    const heavies = result.timeline.filter(row => row.kind === "rotation" && row.step.skill?.startsWith("Dragonquench"))
+    expect(heavies).toHaveLength(56)
+    expect(heavies.every(row => row.buffs.has("InebriateDeepdaze"))).toBe(true)
+    expect(heavies.flatMap(row => row.actions.filter(action => action.type === "damage"))).toHaveLength(80)
+    expect(procs.map(row => row.startTime - start)).toEqual(procsAt)
     const enhanced = result.timeline.filter(row => row.step.skill === "HeroesBloodInebriate")
     expect(enhanced).toHaveLength(4)
     for (const row of enhanced) {
@@ -263,13 +300,18 @@ describe("Draught timing", () => {
       for (const hit of hits)
         expect(row.startTime + Number(hit.time)).toBeLessThan(row.buffs.get("InebriateDeepdaze")!.expiresAt!)
     }
-    const ghostlyStep = result.timeline.find(row => row.step.skill === "GhostlyStepsUmbra")!
-    expect(ghostlyStep.resources.Vitality).toBeGreaterThanOrEqual(40)
-    const umbraDodges = result.timeline.filter(row => row.step.skill === "GhostlyStepsUmbraDodgeGauntlet")
-    expect(umbraDodges.map(row => row.startTime - start)).toEqual([35.5, 47.5, 53.5])
+    const counts = new Map<number, number>()
+    for (const row of heavies) {
+      const expiry = row.buffs.get("InebriateDeepdaze")!.expiresAt!
+      counts.set(expiry, (counts.get(expiry) ?? 0) + 1)
+      for (const hit of row.actions.filter(action => action.type === "damage"))
+        expect(row.startTime + Number(hit.time)).toBeLessThan(expiry)
+    }
+    expect([...counts.values()]).toEqual([14, 14, 14, 14])
+    expect(result.timeline.every(row => (row.resources.Vitality ?? 0) >= 0)).toBe(true)
     const payouts = result.baseline.filter(entry => entry.replay)
     expect(payouts).toHaveLength(3)
-    expect(payouts.at(-1)!.timelineTime! - start).toBeCloseTo(59.76915485, 8)
+    expect(payouts.at(-1)!.timelineTime! - start).toBeCloseTo(payout, 8)
   })
 
   for (const build of [
@@ -346,10 +388,10 @@ describe("Draught timing", () => {
         expect(dragonGroups[0].children).toHaveLength(4)
         expect(dragonGroups[0].damage).toBe(dragonRows.reduce((sum, row) => sum + row.damage, 0))
         expect(casts[0].resources.Binge).toBe(60)
-        expect(heavies).toHaveLength(56)
+        expect(heavies).toHaveLength(48)
         expect(
           heavies.reduce((count, row) => count + row.actions.filter(action => action.type === "damage").length, 0),
-        ).toBe(80)
+        ).toBe(72)
         expect(heavies.every(row => row.buffs.has("InebriateDeepdaze"))).toBe(true)
         const cutoff = result.timeline.find(row => row.step.event === "BattleEnd")!.startTime
         const bladeSpecials = casts.filter(row => row.step.skill === "HeroesBloodInebriate")
@@ -368,7 +410,8 @@ describe("Draught timing", () => {
           ),
         ).toBe(true)
         expect(breaks).toHaveLength(1)
-        expect(breaks[0].startTime).toBeCloseTo(heavies[23].startTime + Number(heavies[23].actions[0].time), 12)
+        const breakingHeavy = heavies.find(row => row.step.type === "skill" && row.step.causesBreak)!
+        expect(breaks[0].startTime).toBeCloseTo(breakingHeavy.startTime + Number(breakingHeavy.actions[0].time), 12)
         expect(
           qiRows.map(row =>
             row.step.type === "event" && row.step.event === "Qi" ? row.step.targetQiRatio : undefined,
@@ -385,7 +428,7 @@ describe("Draught timing", () => {
         const ordinarySpecials = casts.filter(row => row.step.skill === "HeroesBlood")
         expect(ordinarySpecials.every(row => !row.buffs.has("InebriateDeepdaze"))).toBe(true)
         const finalPayout = result.baseline.findLast(entry => entry.replay)!
-        expect(finalPayout.timelineTime! - battleStart).toBeCloseTo(59.89917986165901, 10)
+        expect(finalPayout.timelineTime! - battleStart).toBeCloseTo(59.67517986165897, 10)
         expect(finalPayout.timelineTime!).toBeLessThan(cutoff)
 
         expect(result.timeline.filter(row => row.step.skill === "EonpourExhausted")).toHaveLength(1)
