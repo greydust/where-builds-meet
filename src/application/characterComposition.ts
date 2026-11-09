@@ -74,9 +74,10 @@ export function selectableRotationSkillGroups(weapons: [WeaponId, WeaponId]) {
   ] as SkillCategory[]
   return categories.map(category => ({
     category,
-    skillIds: Object.keys(defaultSkillMaps[category]).filter(
-      skillId => !allSkillDefinitions[skillId]?.tags?.some(tag => tag === "Triggered" || tag === "SubAction"),
-    ),
+    skillIds: Object.keys(defaultSkillMaps[category]).filter(skillId => {
+      const skill = allSkillDefinitions[skillId]
+      return !skill?.hideFromRotationEditor && !skill?.tags?.some(tag => tag === "Triggered" || tag === "SubAction")
+    }),
   }))
 }
 

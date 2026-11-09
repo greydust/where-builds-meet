@@ -1,5 +1,6 @@
 {
   "BoltRedCharged": {
+    "hideFromRotationEditor": true,
     "name": "星馳秋野",
     "castTime": 2.4,
     "editableCastTime": true,
@@ -45,7 +46,6 @@
   "BoltRedQ": {
     "name": "金科盡詔",
     "castTime": 0.63,
-    "editableCastTime": true,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoltExhaustedRefill", "JueyuXuanfengSpear"],
     "action": [
@@ -74,6 +74,7 @@
     "shortName": "Red Q"
   },
   "BoltRedSpecial": {
+    "hideFromRotationEditor": true,
     "name": "玉京崩騰",
     "castTime": 1.4,
     "editableCastTime": true,
@@ -104,7 +105,6 @@
   "BoltRedTab": {
     "name": "直貫其鋒",
     "castTime": 0.625,
-    "editableCastTime": true,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "DualWeapon", "Tab"],
     "action": [
@@ -127,6 +127,7 @@
     "shortName": "Tab to Red"
   },
   "BoltRedLight1": {
+    "hideFromRotationEditor": true,
     "name": "決獄輕擊1",
     "castTime": 0.5,
     "editableCastTime": true,
@@ -139,6 +140,7 @@
     "shortName": "Red Light 1"
   },
   "BoltRedHeavy1": {
+    "hideFromRotationEditor": true,
     "name": "決獄重擊1",
     "castTime": 0.36,
     "editableCastTime": true,

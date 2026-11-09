@@ -1,5 +1,7 @@
 # Skill and combat-effect data
 
+A skill with `hideFromRotationEditor: true` is omitted from the rotation skill picker. Existing rotation steps still resolve the skill by ID.
+
 Solo Level 20–25 tables and martial-art ranks 16–21 are documented in
 [progression provenance](solo-progression.md). Higher-level Inner Way
 bonuses select one same-level source curve; alternate CN layers are not

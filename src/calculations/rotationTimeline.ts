@@ -105,6 +105,7 @@ export type SkillRecord = {
    * A duration-controlled skill uses the step duration as its held cast duration and
    * can mirror that value onto an internal tracked effect.
    */
+  hideFromRotationEditor?: boolean
   editableCastTime?: EditableCastTimeOptions | boolean
   castTime?: number | SwitchValue
   /**
