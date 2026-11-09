@@ -116,8 +116,9 @@ without applying Eonpour again at settlement. Eonpour T6 triggers once per 60 se
 boss via native tag 1125 (ordinary/enhanced Peakfall and Castlink), entering
 Deepdaze or extending it by six seconds and applying the three
 authored target marks. Drunkslay records eligible enhanced-hit damage during its mark. Reapplying
-the mark or reaching its 20-second expiry settles 20% of the recorded damage
+the mark with ordinary Hero's Blood or reaching its 20-second expiry settles 20% of the recorded damage
 through the shared recording mechanism, with Wildstride evaluated at settlement.
+Eonpour refreshes the mark while preserving its accumulated damage until settlement.
 Battle End does not settle an unfinished window. Dragonquench stage four has
 three damage contacts (two smaller hits followed by the finisher); the four
 fourteen-cast chains therefore produce 80 Dragonquench hits.
@@ -653,6 +654,9 @@ action: { type: "trigger", value: "ReplaySkillId" } }` and an expiry
 `resolveRecording` action. Expiry or reapplication closes the old window before
 spawning its replay. Hits exactly at expiry are excluded; empty windows produce
 nothing. Replay coefficients apply to final source damage and cannot recurse.
+An `apply` action with `resetRecording: false` preserves recorded damage and source
+action IDs while refreshing expiry; a new activation ID invalidates the old expiry event.
+Ordinary applications still settle and restart.
 Recording windows are not extended with ordinary `extend` actions.
 
 `damageGroup: { id, name }` assigns Inner Way damage to a runtime breakdown

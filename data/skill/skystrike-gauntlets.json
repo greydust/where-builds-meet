@@ -671,7 +671,7 @@
       { "type": "apply", "target": "self", "value": "EonpourExhaustedCooldown", "stack": 1, "time": 0 },
       { "type": "apply", "target": "target", "value": "Wildstride", "stack": 1, "time": 0 },
       { "type": "apply", "target": "target", "value": "Strayhunt", "stack": 1, "time": 0 },
-      { "type": "apply", "target": "target", "value": "Drunkslay", "stack": 1, "time": 0 }
+      { "type": "apply", "target": "target", "value": "Drunkslay", "stack": 1, "time": 0, "resetRecording": false }
     ]
   }
 }

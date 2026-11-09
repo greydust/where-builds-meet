@@ -140,6 +140,28 @@ describe("Draught timing", () => {
     expect(payouts.map(row => row.startTime)).toEqual([2, 22])
   })
 
+  it("preserves recorded hits across Eonpour refresh and ignores the previous expiry", () => {
+    const fixture = input(
+      [
+        castStep("Mark"),
+        castStep("Enhanced"),
+        delayStep(10),
+        castStep("EonpourExhausted"),
+        castStep("Enhanced"),
+        delayStep(21),
+      ],
+      0,
+    )
+    fixture.skills = {
+      ...fixture.skills,
+      Mark: { castTime: 0, action: [{ type: "apply", target: "target", value: "Drunkslay", time: 0 }] },
+      Enhanced: { castTime: 0, tags: ["InebriateEnhanced"], action: [{ type: "damage", phyCoef: 1, time: 0 }] },
+    }
+    const rows = buildRotationTimeline(fixture)
+    const payouts = rows.filter(row => row.step.skill === "DrunkslayDamage")
+    expect(payouts.map(row => row.startTime)).toEqual([30])
+  })
+
   it("lists the ordinary presets first and defaults to Fully Relayed Min", () => {
     const ids = defaultBuildPresets.filter(build => build.id.startsWith("draught-")).map(build => build.id)
     expect(ids).toEqual([
@@ -246,7 +268,7 @@ describe("Draught timing", () => {
     const umbraDodges = result.timeline.filter(row => row.step.skill === "GhostlyStepsUmbraDodgeGauntlet")
     expect(umbraDodges.map(row => row.startTime - start)).toEqual([35.5, 47.5, 53.5])
     const payouts = result.baseline.filter(entry => entry.replay)
-    expect(payouts).toHaveLength(4)
+    expect(payouts).toHaveLength(3)
     expect(payouts.at(-1)!.timelineTime! - start).toBeCloseTo(59.76915485, 8)
   })
 
@@ -273,6 +295,23 @@ describe("Draught timing", () => {
           build,
         )!
         const result = calculateRotationBaseline(bundle)
+        const legacySkills = {
+          ...bundle.timeline.skills,
+          EonpourExhausted: {
+            ...bundle.timeline.skills.EonpourExhausted,
+            action: allSkillDefinitions.EonpourExhausted.action!.map(action =>
+              Object.assign({}, action, { resetRecording: true }),
+            ),
+          },
+        }
+        const legacy = calculateRotationBaseline({ ...bundle, timeline: { ...bundle.timeline, skills: legacySkills } })
+        const replayDamage = (value: typeof result) =>
+          value.baseline
+            .filter(entry => entry.replay)
+            .reduce((sum, entry) => sum + value.actionBreakdowns[entry.id!].total, 0)
+        expect(legacy.baseline.filter(entry => entry.replay)).toHaveLength(4)
+        expect(replayDamage(result)).toBeCloseTo(replayDamage(legacy), 7)
+        expect(result.metrics.dps).toBeCloseTo(legacy.metrics.dps, 7)
         const rates = calculateDerivedStats(bundle.stats, bundle.enemy.judgementResistance, {}, bundle.weapons)
         expect(rates.effectivePrecision).toBeGreaterThanOrEqual(0.99)
         expect(rates.effectivePrecision).toBeLessThanOrEqual(1)
@@ -297,7 +336,7 @@ describe("Draught timing", () => {
           row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
         )
         expect(result.duration).toBe(60)
-        expect(result.baseline.filter(entry => entry.replay)).toHaveLength(4)
+        expect(result.baseline.filter(entry => entry.replay)).toHaveLength(3)
         expect(result.metrics.dps).toBeGreaterThan(0)
         const dragonRows = result.metrics.breakdown.skills.filter(row => row.id.startsWith("Dragonquench"))
         const dragonGroups = result.metrics.breakdown.groupedSkills.filter(

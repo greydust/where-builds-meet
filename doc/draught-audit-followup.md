@@ -132,3 +132,12 @@ The supplied gauntlet timing places one contact at the start of each collision
 window, 0.550–0.581s, 0.683–0.713s, and 0.816–0.846s after the drink starts.
 The projectile request occurs at 0.300s. Each contact uses 0.487872 for both
 Physical and Attribute damage coefficients. Six drinks produce 18 contacts.
+
+## Recording lifecycle correction (9 November 2026)
+
+The table above describes the historical four-payout model. The user's video
+comparison (https://www.youtube.com/watch?v=Nm1f8Quqr64) confirms Eonpour refreshes
+Drunkslay without settlement or clearing recorded damage. Its application now
+preserves the recording until ordinary Hero's Blood or refreshed expiry settles
+it. The preset produces three payouts with unchanged total replay damage and DPS;
+the second historical payout merges into the following Hero's Blood payout.

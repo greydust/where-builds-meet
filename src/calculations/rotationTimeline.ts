@@ -4365,15 +4365,17 @@ export function buildRotationTimeline(
       target: "self" | "target" | "player",
       appliedEffect: TrackedEffect,
       sourceRowId: string,
+      resetRecording = true,
     ) => {
       if (!definition.recording || appliedEffect.expiresAt === undefined) return
       const key = periodicEffectKey(target, name)
-      resolveRecording(key)
+      const previous = resetRecording ? undefined : recordings.get(key)
+      if (!previous) resolveRecording(key)
       recordings.set(key, {
         id: nextRecordingId++,
-        sourceDamage: 0,
-        sourceActionIds: [],
-        hasMatchedDamage: false,
+        sourceDamage: previous?.sourceDamage ?? 0,
+        sourceActionIds: previous?.sourceActionIds ?? [],
+        hasMatchedDamage: previous?.hasMatchedDamage ?? false,
         sourceRowId,
         expiresAt: appliedEffect.expiresAt,
         definition: definition.recording,
@@ -4705,7 +4707,14 @@ export function buildRotationTimeline(
         }
       }
       if (appliedEffect) {
-        startRecording(triggerAction.value, definition, periodicTarget, appliedEffect, collection.sourceRowId)
+        startRecording(
+          triggerAction.value,
+          definition,
+          periodicTarget,
+          appliedEffect,
+          collection.sourceRowId,
+          triggerAction.resetRecording !== false,
+        )
         enqueueEffectActions(
           triggerAction.value,
           definition,
@@ -5275,7 +5284,14 @@ export function buildRotationTimeline(
         )
       }
       if (shouldApply && appliedEffect) {
-        startRecording(action.value, definition, periodicTarget, appliedEffect, collection.sourceRowId)
+        startRecording(
+          action.value,
+          definition,
+          periodicTarget,
+          appliedEffect,
+          collection.sourceRowId,
+          action.resetRecording !== false,
+        )
         if (definition.accumulator) {
           const threshold =
             typeof definition.accumulator.threshold === "number"
