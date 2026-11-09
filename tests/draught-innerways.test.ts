@@ -14,14 +14,14 @@ import { asTalentEffects } from "./helpers/shippedData"
 describe("draught-innerways", () => {
   it("Draught tier progression, damage/healing channels, and attunement override checks passed", async () => {
     const { innerWayEntriesForTag, innerWayDefinitionForSoloLevel } = await probeLoad<
-      typeof import("../src/data/innerWayDefinitions")
+      typeof import("@/data/innerWayDefinitions")
     >("/src/data/innerWayDefinitions.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { calculateHealingBreakdown } = await import("../src/calculations/healing.ts")
-    const { resolveAttunementStats } = await import("../src/calculations/attunementStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { calculateStatsWithEffects } = await import("@/calculations/statEffects.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { calculateHealingBreakdown } = await import("@/calculations/healing.ts")
+    const { resolveAttunementStats } = await import("@/calculations/attunementStats.ts")
     const base = {
       ...emptyStats,
       minPhys: 100,
@@ -119,11 +119,11 @@ describe("draught-innerways", () => {
       { formlessPenetration: 20 },
       { formlessPenetration: penetration },
     )
-    close(attunement.displayed.formlessPenetration, 20, "The displayed final attunement override must remain exact")
     close(
-      attunement.calculation.formlessPenetration + penetration,
-      20,
-      "The raw contribution must not be counted twice",
+      attunement.displayed.formlessPenetration,
+      20 + penetration,
+      "The displayed final attunement override must remain exact",
     )
+    close(attunement.calculation.formlessPenetration, 20, "The raw contribution must not be counted twice")
   })
 })

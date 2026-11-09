@@ -23,6 +23,7 @@ import {
   typedWeaponSetDefinitions,
 } from "@/application/gameData/setup"
 import { percentageAttunementKeys } from "@/application/persistence/attunements"
+import { correctedAttunement } from "@/calculations/attunementStats"
 import { innerWayDefinitions } from "@/data/innerWayDefinitions"
 import { setupSelectionChangesTimeline } from "@/data/scriptDefinitions"
 import { allStatDefinitions } from "@/data/statDefinitions"
@@ -154,7 +155,9 @@ export function buildRotationComparisonBundle(
       ? priorityAttunement.map(([key, amount]) => {
           const variantAttunement = {
             ...attunementStats,
-            [key]: attunementStats[key as keyof AttunementStats] + Number(amount),
+            [key]:
+              attunementStats[key as keyof AttunementStats] +
+              correctedAttunement(key as keyof AttunementStats, Number(amount), breakthroughProfile(settings)),
           }
           return {
             label: attunementData[key]?.name ?? key,

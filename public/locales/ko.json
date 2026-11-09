@@ -536,6 +536,7 @@
   "ui.app.duration": "길이",
   "ui.app.editRotationName": "로테이션 이름 수정",
   "ui.app.effect": "효과",
+  "ui.app.effective": "적용",
   "ui.app.effectiveAffinity": "적용 각성 확률",
   "ui.app.effectiveCritical": "적용 치명타 확률",
   "ui.app.effectiveMaxAttack": "적용 최대 {name} 공격",

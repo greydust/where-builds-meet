@@ -42,7 +42,9 @@
       }
     },
     "soloLevel": 18,
-    "gearTier": 100
+    "gearTier": 100,
+    "specificSkillDamageDivisor": 1,
+    "correctablePenetrationDivisor": 1
   },
   "19": {
     "name": "19",
@@ -70,7 +72,9 @@
       }
     },
     "soloLevel": 19,
-    "gearTier": 100
+    "gearTier": 100,
+    "specificSkillDamageDivisor": 1,
+    "correctablePenetrationDivisor": 1
   },
   "20": {
     "name": "20",
@@ -98,7 +102,9 @@
       }
     },
     "soloLevel": 20,
-    "gearTier": 105
+    "gearTier": 105,
+    "specificSkillDamageDivisor": 1,
+    "correctablePenetrationDivisor": 1
   },
   "21": {
     "name": "21",
@@ -126,7 +132,9 @@
       }
     },
     "soloLevel": 21,
-    "gearTier": 105
+    "gearTier": 105,
+    "specificSkillDamageDivisor": 1,
+    "correctablePenetrationDivisor": 1
   },
   "22": {
     "name": "22",
@@ -154,7 +162,9 @@
       }
     },
     "soloLevel": 22,
-    "gearTier": 110
+    "gearTier": 110,
+    "specificSkillDamageDivisor": 1.15,
+    "correctablePenetrationDivisor": 1.15
   },
   "23": {
     "name": "23",
@@ -182,7 +192,9 @@
       }
     },
     "soloLevel": 23,
-    "gearTier": 110
+    "gearTier": 110,
+    "specificSkillDamageDivisor": 1.15,
+    "correctablePenetrationDivisor": 1.15
   },
   "24": {
     "name": "24",
@@ -211,7 +223,9 @@
     },
     "soloLevel": 24,
     "gearTier": 115,
-    "enemyProfileSource": "fixedDummy"
+    "enemyProfileSource": "fixedDummy",
+    "specificSkillDamageDivisor": 1.3225,
+    "correctablePenetrationDivisor": 1.3225
   },
   "25": {
     "name": "25",
@@ -239,6 +253,8 @@
       }
     },
     "soloLevel": 25,
-    "gearTier": 115
+    "gearTier": 115,
+    "specificSkillDamageDivisor": 1.3225,
+    "correctablePenetrationDivisor": 1.3225
   }
 }

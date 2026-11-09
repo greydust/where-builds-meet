@@ -94,14 +94,26 @@
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT3" }],
-          "effect": { "physicalPenetration": 1, "formlessPenetration": 1 }
+          "effect": {
+            "physicalPenetration": 1,
+            "bellstrikePenetration": 1,
+            "stonesplitPenetration": 1,
+            "silkbindPenetration": 1,
+            "bamboocutPenetration": 1
+          }
         },
         {
           "requirement": [
             { "target": "self", "value": "MingFeiTongPanT6" },
             { "target": "skillTag", "value": "BoltVCSeries" }
           ],
-          "effect": { "physicalPenetration": 2, "formlessPenetration": 2 }
+          "effect": {
+            "physicalPenetration": 2,
+            "bellstrikePenetration": 2,
+            "stonesplitPenetration": 2,
+            "silkbindPenetration": 2,
+            "bamboocutPenetration": 2
+          }
         }
       ],
       [
@@ -121,14 +133,26 @@
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT3" }],
-          "effect": { "physicalPenetration": 2, "formlessPenetration": 2 }
+          "effect": {
+            "physicalPenetration": 2,
+            "bellstrikePenetration": 2,
+            "stonesplitPenetration": 2,
+            "silkbindPenetration": 2,
+            "bamboocutPenetration": 2
+          }
         },
         {
           "requirement": [
             { "target": "self", "value": "MingFeiTongPanT6" },
             { "target": "skillTag", "value": "BoltVCSeries" }
           ],
-          "effect": { "physicalPenetration": 4, "formlessPenetration": 4 }
+          "effect": {
+            "physicalPenetration": 4,
+            "bellstrikePenetration": 4,
+            "stonesplitPenetration": 4,
+            "silkbindPenetration": 4,
+            "bamboocutPenetration": 4
+          }
         }
       ],
       [
@@ -148,14 +172,26 @@
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT3" }],
-          "effect": { "physicalPenetration": 3, "formlessPenetration": 3 }
+          "effect": {
+            "physicalPenetration": 3,
+            "bellstrikePenetration": 3,
+            "stonesplitPenetration": 3,
+            "silkbindPenetration": 3,
+            "bamboocutPenetration": 3
+          }
         },
         {
           "requirement": [
             { "target": "self", "value": "MingFeiTongPanT6" },
             { "target": "skillTag", "value": "BoltVCSeries" }
           ],
-          "effect": { "physicalPenetration": 6, "formlessPenetration": 6 }
+          "effect": {
+            "physicalPenetration": 6,
+            "bellstrikePenetration": 6,
+            "stonesplitPenetration": 6,
+            "silkbindPenetration": 6,
+            "bamboocutPenetration": 6
+          }
         }
       ],
       [
@@ -175,14 +211,26 @@
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT3" }],
-          "effect": { "physicalPenetration": 4, "formlessPenetration": 4 }
+          "effect": {
+            "physicalPenetration": 4,
+            "bellstrikePenetration": 4,
+            "stonesplitPenetration": 4,
+            "silkbindPenetration": 4,
+            "bamboocutPenetration": 4
+          }
         },
         {
           "requirement": [
             { "target": "self", "value": "MingFeiTongPanT6" },
             { "target": "skillTag", "value": "BoltVCSeries" }
           ],
-          "effect": { "physicalPenetration": 8, "formlessPenetration": 8 }
+          "effect": {
+            "physicalPenetration": 8,
+            "bellstrikePenetration": 8,
+            "stonesplitPenetration": 8,
+            "silkbindPenetration": 8,
+            "bamboocutPenetration": 8
+          }
         }
       ],
       [
@@ -202,14 +250,26 @@
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT3" }],
-          "effect": { "physicalPenetration": 5, "formlessPenetration": 5 }
+          "effect": {
+            "physicalPenetration": 5,
+            "bellstrikePenetration": 5,
+            "stonesplitPenetration": 5,
+            "silkbindPenetration": 5,
+            "bamboocutPenetration": 5
+          }
         },
         {
           "requirement": [
             { "target": "self", "value": "MingFeiTongPanT6" },
             { "target": "skillTag", "value": "BoltVCSeries" }
           ],
-          "effect": { "physicalPenetration": 10, "formlessPenetration": 10 }
+          "effect": {
+            "physicalPenetration": 10,
+            "bellstrikePenetration": 10,
+            "stonesplitPenetration": 10,
+            "silkbindPenetration": 10,
+            "bamboocutPenetration": 10
+          }
         }
       ]
     ],

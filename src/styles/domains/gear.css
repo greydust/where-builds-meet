@@ -910,6 +910,7 @@
   }
 
   .attunement-input-wrap {
+    display: block;
     position: relative;
     min-inline-size: 0;
   }
@@ -918,6 +919,17 @@
     padding-inline-end: var(--desktop-space-1-5, 22px);
     text-align: end;
     appearance: textfield;
+  }
+
+  .attunement-field .inline-derived-value {
+    position: relative;
+    padding-inline: 0 var(--desktop-space-1-5, var(--space-lg));
+    text-align: end;
+  }
+
+  .attunement-field .inline-derived-value .effective-unit {
+    position: absolute;
+    inset-inline-end: var(--desktop-space-0-5, var(--space-xs));
   }
 
   .attunement-input-wrap i {

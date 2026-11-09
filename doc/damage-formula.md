@@ -17,6 +17,14 @@ or ordinary `DOT` ticks excluding High Bleed. Ordinary ticks receive 5% per stac
 plus another 5% for the current Strategic Sword or Heavenquaker Spear art. BB does not receive
 Insightful Strike's DOT-only T6 bonus; its normal direct-hit triggers remain active.
 
+The Attunement Stats inputs are raw equipment bonuses. Divide armor attunements
+by the dummy's specific-skill damage divisor, and physical or formless weapon
+penetration attunements by its correctable penetration divisor. Both are 1
+through BT21, 1.15 at BT22–23 and 1.3225 at BT24–25. The effective penetration
+readout adds the character's sheet penetration after this division. Conditional
+combat penetration is evaluated on each eligible hit. The worker receives the
+corrected equipment contribution and applies the character bonuses separately.
+
 Enemy defense, level, path resistances, Judgement Resistance, and level-derived
 character bonuses come from the selected entry in `data/breakthrough.json`.
 Breakthrough 17 uses 408 enemy defense, zero base resistance, 65% Judgement

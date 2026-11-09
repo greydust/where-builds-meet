@@ -1,3 +1,4 @@
+import { resolveAttunementStats } from "@/calculations/attunementStats"
 import { calculationFingerprint } from "@/calculations/calculationFingerprint"
 import { resolvePing } from "@/calculations/combatDefaults"
 import type { RotationSimulationBundle } from "@/calculations/rotationCalculator"
@@ -181,7 +182,7 @@ export function buildPresetRotationBundle(
     stats: statState.stats,
     rawStats: statState.rawStats,
     baseStats: statState.baseStats,
-    attunement: { ...defaultAttunementStats, ...equippedGear.attunement },
+    attunement: resolveAttunementStats(defaultAttunementStats, equippedGear.attunement, {}, {}, enemy).calculation,
     enemy,
     weapons,
     statPriority: [],

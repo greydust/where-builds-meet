@@ -1376,6 +1376,7 @@
   "ui.app.duration": "持續時間",
   "ui.app.editRotationName": "編輯循環名稱",
   "ui.app.effect": "效果",
+  "ui.app.effective": "生效",
   "ui.app.effectiveAffinity": "生效會意",
   "ui.app.effectiveCritical": "生效會心",
   "ui.app.effectiveMaxAttack": "生效最大{name}攻擊",

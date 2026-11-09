@@ -118,11 +118,23 @@
             { "target": "self", "value": "MingFeiTongPanT3" },
             { "operator": "not", "operand": [{ "target": "self", "value": "MingFeiTongPanT6" }] }
           ],
-          "effect": { "physicalPenetration": 2, "formlessPenetration": 2 }
+          "effect": {
+            "physicalPenetration": 2,
+            "bellstrikePenetration": 2,
+            "stonesplitPenetration": 2,
+            "silkbindPenetration": 2,
+            "bamboocutPenetration": 2
+          }
         },
         {
           "requirement": [{ "target": "self", "value": "MingFeiTongPanT6" }],
-          "effect": { "physicalPenetration": 5, "formlessPenetration": 5 }
+          "effect": {
+            "physicalPenetration": 5,
+            "bellstrikePenetration": 5,
+            "stonesplitPenetration": 5,
+            "silkbindPenetration": 5,
+            "bamboocutPenetration": 5
+          }
         }
       ],
       "trigger": [

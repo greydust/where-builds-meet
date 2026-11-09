@@ -75,25 +75,36 @@ export function attunementMatchesSkill(filter: AttunementTagFilter | undefined, 
   return included && !filter?.excludeTags?.some(tag => skillTags.includes(tag))
 }
 
-/** Keep UI overrides final while hit calculation inputs exclude bonuses applied through character stats. */
+type AttunementDivisors = Pick<
+  import("@/types").EnemyProfile,
+  "specificSkillDamageDivisor" | "correctablePenetrationDivisor"
+>
+
+export function correctedAttunement(key: keyof AttunementStats, raw: number, profile: AttunementDivisors) {
+  if (key === "physicalPenetration" || key === "formlessPenetration")
+    return raw / (profile.correctablePenetrationDivisor ?? 1)
+  if (attunementJson[key].tags.includes("Armor")) return raw / (profile.specificSkillDamageDivisor ?? 1)
+  return raw
+}
 export function resolveAttunementStats(
   defaults: AttunementStats,
   equipped: Partial<AttunementStats>,
   overrides: AttunementOverrides,
   characterStatBonuses: Partial<AttunementStats>,
+  profile: AttunementDivisors = {},
 ) {
+  const input = { ...defaults }
   const calculation = { ...defaults }
   const displayed = { ...defaults }
 
   for (const key of Object.keys(defaults) as Array<keyof AttunementStats>) {
     const bonus = characterStatBonuses[key] ?? 0
-    const hasOverride = Object.prototype.hasOwnProperty.call(overrides, key)
-    const displayedValue = hasOverride ? (overrides[key] ?? 0) : (equipped[key] ?? 0) + bonus
-    displayed[key] = displayedValue
-    calculation[key] = displayedValue - bonus
+    input[key] = overrides[key] ?? equipped[key] ?? defaults[key]
+    calculation[key] = correctedAttunement(key, input[key], profile)
+    displayed[key] = calculation[key] + bonus
   }
 
-  return { calculation, displayed }
+  return { input, calculation, displayed }
 }
 
 /** Only pure damage multipliers can use the fixed-timeline affine response. */

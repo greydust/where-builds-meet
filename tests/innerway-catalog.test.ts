@@ -16,17 +16,17 @@ import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 // Ported from script/probe/check-innerway-catalog.mjs.
 describe("innerway-catalog", () => {
   it("Inner Way catalog stat channels and Echoes of Oblivion lifecycle checks passed", async () => {
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { calculateHealingBreakdown } = await import("../src/calculations/healing.ts")
-    const { resolveAttunementStats } = await import("../src/calculations/attunementStats.ts")
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const echoes = await import("../data/innerway/echoes-of-oblivion.json")
-    const buffs = asEffectDefinitions((await import("../data/buff/bamboocut-wind.json")).default)
-    const debuffs = asEffectDefinitions((await import("../data/debuff/bamboocut-wind.json")).default)
-    const general = asSkillRecords((await import("../data/skill/general.json")).default)
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { calculateStatsWithEffects } = await import("@/calculations/statEffects.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { calculateHealingBreakdown } = await import("@/calculations/healing.ts")
+    const { resolveAttunementStats } = await import("@/calculations/attunementStats.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const echoes = await import("@gamedata/innerway/echoes-of-oblivion.json")
+    const buffs = asEffectDefinitions((await import("@gamedata/buff/bamboocut-wind.json")).default)
+    const debuffs = asEffectDefinitions((await import("@gamedata/debuff/bamboocut-wind.json")).default)
+    const general = asSkillRecords((await import("@gamedata/skill/general.json")).default)
     const stats = {
       ...emptyStats,
       minPhys: 100,
@@ -102,7 +102,18 @@ describe("innerway-catalog", () => {
       { formlessPenetration: 20 },
       { formlessPenetration: 6 },
     )
-    close(overridden.calculation.formlessPenetration + 6, 20, "Final attunement override must remain exact")
+    close(overridden.displayed.formlessPenetration, 26, "Raw override receives the separate character bonus")
+    const corrected = resolveAttunementStats(
+      defaults,
+      { boltVariedComboBoost: 0.424 },
+      { formlessPenetration: 77.6 },
+      { formlessPenetration: 6 },
+      { correctablePenetrationDivisor: 1.3225, specificSkillDamageDivisor: 1.15 },
+    )
+    close(corrected.input.formlessPenetration, 77.6, "Input shows the raw attunement override")
+    close(corrected.calculation.formlessPenetration, 77.6 / 1.3225, "Only weapon attunement is divided")
+    close(corrected.displayed.formlessPenetration, 77.6 / 1.3225 + 6, "Character bonus is added after division")
+    close(corrected.displayed.boltVariedComboBoost, 0.424 / 1.15, "Armor uses its own divisor")
     // An empty literal is not assignable to Record<string, unknown>, so the no-op effect is named.
     const noEffect: EditableObject = {}
     function run(

@@ -1,0 +1,1037 @@
+{
+  "setup": {
+    "innerWays": [
+      { "innerWay": "YueYongFangYuan", "tier": "T6" },
+      { "innerWay": "ShenDuanQingFeng", "tier": "T6" },
+      { "innerWay": "FuLiangYiYe", "tier": "T6" },
+      { "innerWay": "MingFeiTongPan", "tier": "T6" }
+    ],
+    "weaponSets": { "Hawkwing": 4 },
+    "armorSets": {},
+    "bowRingSet": "Affinity",
+    "arsenal": "Bellstrike"
+  },
+  "gear": {
+    "leftWeapon": {
+      "definitionId": "spear",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "maxPhys", "value": 139.6 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "spearDmgBoost", "value": 0.113 },
+        { "key": "maxVoidAttack", "value": 79.2 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 19.4 }
+    },
+    "rightWeapon": {
+      "definitionId": "spear",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "maxPhys", "value": 139.6 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "maxVoidAttack", "value": 79.2 },
+        { "key": "affinity", "value": 0.081 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 19.4 }
+    },
+    "disc": {
+      "definitionId": "disc",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "maxPhys", "value": 139.6 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "allMartialArts", "value": 0.056 },
+        { "key": "power", "value": 88.4 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 19.4 }
+    },
+    "pendant": {
+      "definitionId": "pendant",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "maxPhys", "value": 139.6 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "allMartialArts", "value": 0.056 },
+        { "key": "power", "value": 88.4 }
+      ],
+      "attunement": { "key": "physicalPenetration", "value": 19.4 }
+    },
+    "helmet": {
+      "definitionId": "helmet",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "affinity", "value": 0.081 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "power", "value": 88.4 },
+        { "key": "affinity", "value": 0.081 }
+      ],
+      "attunement": { "key": "boltVariedComboBoost", "value": 0.106 }
+    },
+    "chestpiece": {
+      "definitionId": "chestpiece",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "affinity", "value": 0.081 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "power", "value": 88.4 },
+        { "key": "affinity", "value": 0.081 }
+      ],
+      "attunement": { "key": "boltVariedComboBoost", "value": 0.106 }
+    },
+    "greaves": {
+      "definitionId": "greaves",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "power", "value": 88.4 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "vsBossDmg", "value": 0.059 },
+        { "key": "power", "value": 88.4 }
+      ],
+      "attunement": { "key": "boltVariedComboBoost", "value": 0.106 }
+    },
+    "bracer": {
+      "definitionId": "bracer",
+      "level": 115,
+      "rarity": "Gold",
+      "relayed": false,
+      "baseAffix": { "key": "power", "value": 88.4 },
+      "additionalAffixes": [
+        { "key": "maxPhys", "value": 139.6 },
+        { "key": "momentum", "value": 88.4 },
+        { "key": "vsBossDmg", "value": 0.059 },
+        { "key": "power", "value": 88.4 }
+      ],
+      "attunement": { "key": "boltVariedComboBoost", "value": 0.106 }
+    }
+  },
+  "script": "Clearfall held at 10 stacks",
+  "food": "BT25 Food",
+  "divinecraft": "Fire",
+  "enemy": {
+    "name": "25",
+    "martialArtTalentRank": 21,
+    "level": 96,
+    "defense": 687,
+    "physicalResistance": 25,
+    "bellstrikeResistance": 30,
+    "stonesplitResistance": 30,
+    "silkbindResistance": 30,
+    "bamboocutResistance": 30,
+    "judgementResistance": 1.8,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 38000,
+        "minPhys": 144,
+        "maxPhys": 288,
+        "physicalDefense": 72,
+        "agility": 282,
+        "power": 282,
+        "momentum": 282,
+        "body": 282,
+        "defense": 282,
+        "precision": 0.293
+      }
+    },
+    "soloLevel": 25,
+    "gearTier": 115
+  },
+  "stats": {
+    "minPhys": 1950.244,
+    "maxPhys": 7119.644,
+    "power": 1035.2,
+    "agility": 328,
+    "momentum": 1035.2,
+    "precision": 1.153,
+    "crit": 0.52928,
+    "directCrit": 0,
+    "affinity": 1.210632,
+    "directAffinity": 0.046,
+    "body": 328,
+    "defense": 328,
+    "maxHp": 365888,
+    "physicalDefense": 870.56,
+    "physicalDmgReduction": 0,
+    "maxEndurance": 120,
+    "maxVitality": 100,
+    "minBellstrike": 563,
+    "maxBellstrike": 1127,
+    "minStonesplit": 0,
+    "maxStonesplit": 0,
+    "minSilkbind": 0,
+    "maxSilkbind": 0,
+    "minBamboocut": 0,
+    "maxBamboocut": 0,
+    "minVoidAttack": 92.4,
+    "maxVoidAttack": 277.2,
+    "bellstrikePenetration": 30,
+    "silkbindPenetration": 0,
+    "stonesplitPenetration": 0,
+    "bamboocutPenetration": 0,
+    "physDmgBonus": 0.025,
+    "bellstrikeDmgBonus": 0.15,
+    "stonesplitDmgBonus": 0,
+    "silkbindDmgBonus": 0,
+    "silkbindHealingBonus": 0,
+    "criticalHealingBonus": 0.5,
+    "bamboocutDmgBonus": 0,
+    "physicalHealingBonus": 0,
+    "allMartialArts": 0.112,
+    "vsBossDmg": 0.118,
+    "moBladeDmgBoost": 0,
+    "hengBladeDmgBoost": 0,
+    "critDmgBonus": 0.5,
+    "affinityDmgBonus": 0.402,
+    "allMysticDmgBoost": 0,
+    "singleTargetMysticDmgBoost": 0,
+    "areaMysticDmgBoost": 0,
+    "umbrellaDmgBoost": 0,
+    "ropeDartDmgBoost": 0,
+    "gauntletDmgBoost": 0,
+    "spearDmgBoost": 0.113,
+    "swordDmgBoost": 0,
+    "ribbonAndDrumDmgBoost": 0,
+    "fanDmgBoost": 0,
+    "dualBladesDmgBoost": 0,
+    "effectiveCritBonus": 0,
+    "heavensWillRegen": 0.1,
+    "physicalPenetration": 0,
+    "formlessPenetration": 0,
+    "physicalResistance": 0,
+    "effectiveMinPhys": 2190.2439999999997,
+    "effectiveMaxPhys": 7599.644,
+    "effectiveMinBellstrike": 655.4,
+    "effectiveMaxBellstrike": 1404.2,
+    "effectiveMinSilkbind": 0,
+    "effectiveMaxSilkbind": 0,
+    "effectiveMinStonesplit": 0,
+    "effectiveMaxStonesplit": 0,
+    "effectiveMinBamboocut": 0,
+    "effectiveMaxBamboocut": 0,
+    "effectivePrecision": 0.8296428571428571,
+    "effectiveCrit": 0.18902857142857143,
+    "effectiveAffinity": 0.4,
+    "effectiveCritDmgBonus": 0.5,
+    "finalCrit": 0.15682620408163264,
+    "finalAffinity": 0.446,
+    "abrasionRate": 0.09437785714285717,
+    "normalRate": 0.30279593877551014,
+    "critRate": 0.15682620408163264,
+    "affinityRate": 0.446,
+    "uncappedDirectCrit": 0,
+    "effectiveStatBonuses": { "minPhys": 240, "maxPhys": 480 }
+  },
+  "attunement": {
+    "physicalPenetration": 77.6,
+    "formlessPenetration": 0,
+    "physicalResistance": 0,
+    "phalanxbaneChargedBoost": 0,
+    "phalanxbaneMartialBoost": 0,
+    "snowpartingChargedBoost": 0,
+    "snowpartingVariedComboBoost": 0,
+    "snowpartingMartialBoost": 0,
+    "thundercryChargedBoost": 0,
+    "thundercryShieldBoost": 0,
+    "thundercrySpecialBoost": 0,
+    "stormbreakerChargedBoost": 0,
+    "stormbreakerSpecialBoost": 0,
+    "everspringMartialBoost": 0,
+    "everspringSpecialBoost": 0,
+    "unfetteredChargedBoost": 0,
+    "unfetteredSpecialBoost": 0,
+    "unfetteredMartialBoost": 0,
+    "heavenwillChargedBoost": 0,
+    "heavenwillMartialBoost": 0,
+    "heavenwillLightVariedComboBoost": 0,
+    "skygraspHeavyBoost": 0,
+    "skygraspSpecialBoost": 0,
+    "panaceaMartialHealingBoost": 0,
+    "panaceaSpecialHealingBoost": 0,
+    "panaceaHealingSkillBoost": 0,
+    "soulshadeMartialHealingBoost": 0,
+    "soulshadeSpecialHealingBoost": 0,
+    "namelessSwordMartialBoost": 0,
+    "namelessSwordChargedBoost": 0,
+    "namelessSwordSpecialBoost": 0,
+    "namelessSpearChargedBoost": 0,
+    "namelessSpearSpecialBoost": 0,
+    "strategicSwordMartialBoost": 0,
+    "strategicSwordSpecialBoost": 0,
+    "strategicSwordBleedingBoost": 0,
+    "heavenquakerMartialBoost": 0,
+    "heavenquakerChargedBoost": 0,
+    "inkwellChargedBoost": 0,
+    "inkwellSpecialPursuitBoost": 0,
+    "vernalMartialBoost": 0,
+    "vernalProjectile280304Boost": 0,
+    "vernalLightHeavyVariedComboBoost": 0,
+    "infernalMartialBoost": 0,
+    "infernalEmpoweredLightBoost": 0,
+    "infernalSpecialBoost": 0,
+    "mortalMartialBoost": 0,
+    "mortalRodentBoost": 0,
+    "driftcleaveDeepdazeBoost": 0,
+    "skystrikeSpecialBoost": 0,
+    "skystrikeMartialBoost": 0,
+    "rivenLightBoost": 0,
+    "rivenMartialBoost": 0,
+    "museflowWaistDrumMartialBoost": 0,
+    "museflowWaistDrumSpecialBoost": 0,
+    "museflowWaistDrumLightHeavyVariedComboBoost": 0,
+    "willowbendFanMartialBoost": 0,
+    "willowbendFanHeavyVariedComboBoost": 0,
+    "boltVariedComboBoost": 0.424,
+    "jueyuXuanfengSpearMartialBoost": 0,
+    "jueyuXuanfengSpearSpecialBoost": 0,
+    "boshanQuyueSpearMartialBoost": 0,
+    "boshanQuyueSpearSpecialBoost": 0
+  },
+  "dps": 174009.42113957496,
+  "hits": [
+    {
+      "time": 12.273640171568621,
+      "qi": 0.5999,
+      "buffs": {
+        "BoltWangXing": 1,
+        "BoltTongPan": 5,
+        "Flute": 1,
+        "BoltFengRui": 1,
+        "DivinecraftFireEmber": 4,
+        "BoltMingFa": 1
+      },
+      "debuffs": { "DivinecraftFire": 1, "BoltZaigeStacks": 15, "BoltQuanWei": 1 },
+      "expectedStacks": { "BoltTongPan": 5, "Hawkwing": 4.999999979779578 },
+      "effects": [
+        { "minBreakthrough": 18 },
+        {
+          "affinityDmgBonus": {
+            "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+          }
+        },
+        { "condition": "BoltWangXingTalent" },
+        { "initialResourceBonus": { "SpearMomentum": 2 } },
+        { "NoAbrasion": true, "affinityDmgBonus": 0.1, "statStage": "talent" },
+        { "flatAttackBonus": 0.725, "statStage": "talent" },
+        {
+          "stat": {
+            "physDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            },
+            "bellstrikeDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            }
+          },
+          "statStage": "talent"
+        },
+        { "affinityDmgBonus": 0.05 },
+        { "leech": 0.05 },
+        { "baseDMGBonus": 0.3 },
+        { "stat": { "directAffinity": 0.03 } },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 10,
+          "bellstrikePenetration": 10,
+          "stonesplitPenetration": 10,
+          "silkbindPenetration": 10,
+          "bamboocutPenetration": 10
+        },
+        {
+          "dmgBonus": {
+            "function": "segment",
+            "param1": "distance",
+            "param2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 20],
+            "param3": [0.01, 0.02, 0.03, 0.04, 0.05, 0.08, 0.11, 0.14, 0.17, 0.2, 0],
+            "mode": "LowerBoundInclusive"
+          }
+        },
+        { "hpDMGBonus": 1.5 },
+        { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } },
+        { "targetCorrectionBonus": 0.6 },
+        { "GuaranteedAffinity": true }
+      ],
+      "unconditional": {
+        "stat.physDmgBonus": 0.08,
+        "stat.bellstrikeDmgBonus": 0.08,
+        "coefficientBonusWithoutFlatAttack": 0.05,
+        "affinityDmgBonus": 0.1,
+        "hpDMGBonus": 0.015
+      },
+      "outcomeEffects": { "physicalAttackBonus": 0.0899999996360324, "bellstrikeAttackBonus": 0.0899999996360324 },
+      "settlement": {
+        "coefficient": 1.8900000000000001,
+        "attributeCoefficient": 1.8900000000000001,
+        "physicalBonus": 0,
+        "attributeBonus": 0,
+        "adjustedEnemyDefense": 687,
+        "physicalAttackMultiplier": 1.0899999996360323,
+        "physicalPenetrationMultiplier": 1.363,
+        "physicalDamageMultiplier": 1.285,
+        "preparedAttributeRanges": [
+          {
+            "attribute": "bellstrike",
+            "attackMultiplier": 1.0899999996360323,
+            "penetration": 1.1,
+            "damageMultiplier": 1.41,
+            "pathMultiplier": 1.5,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "stonesplit",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "silkbind",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "bamboocut",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          }
+        ],
+        "physicalSharedBonus": 8.67250176,
+        "attributeSharedBonus": 8.67250176,
+        "globalMultiplier": 1,
+        "damageBonusCategory1": 1.928,
+        "attunementBonus": 0.424,
+        "skillWeaponArtBonus": 0.113,
+        "resolvedEffects": {
+          "attackBonus": {
+            "physical": 0.0899999996360324,
+            "bellstrike": 0.0899999996360324,
+            "stonesplit": 0,
+            "silkbind": 0,
+            "bamboocut": 0
+          },
+          "attributePenetration": { "bellstrike": 20, "stonesplit": 20, "silkbind": 20, "bamboocut": 20 },
+          "attributeResistance": { "bellstrike": 0, "stonesplit": 0, "silkbind": 0, "bamboocut": 0 },
+          "innerWayDmgBonus": 1.585,
+          "baseDmgBonus": 0.3,
+          "targetCorrectionBonus": 0.6,
+          "globalDmgBonus": 0,
+          "globalBellstrikeDmgBonus": 0,
+          "dotDamageBonus": 0,
+          "physicalPenetration": 20,
+          "defenseBonus": 0,
+          "physicalResistance": 0,
+          "critDmgBonus": 0,
+          "affinityDmgBonus": 0.43,
+          "attributeDmgBonus": 0,
+          "flatAttackBonus": 0.725,
+          "coefficientBonusWithoutFlatAttack": 0.05
+        },
+        "affinityBonus": 0.8320000000000001,
+        "maxPhys": 7599.644,
+        "maxBellstrike": 1404.2,
+        "rates": {
+          "effectivePrecision": 1,
+          "effectiveCrit": 0.18902857142857143,
+          "effectiveAffinity": 0.4,
+          "finalAffinity": 1,
+          "finalCrit": 0,
+          "abrasionRate": 0,
+          "normalRate": 0,
+          "critRate": 0,
+          "affinityRate": 1
+        },
+        "affinityDamage": {
+          "physical": 399531.1049929155,
+          "bellstrike": 106927.69217264855,
+          "stonesplit": 0,
+          "silkbind": 0,
+          "bamboocut": 0
+        }
+      },
+      "result": {
+        "physical": 399531.1049929155,
+        "bellstrike": 106927.69217264855,
+        "stonesplit": 0,
+        "silkbind": 0,
+        "bamboocut": 0,
+        "total": 506458.7971655641,
+        "outcomeRates": { "abrasion": 0, "normal": 0, "critical": 0, "affinity": 1 },
+        "selfRecovery": 25322.939858278205
+      }
+    },
+    {
+      "time": 31.44292588585433,
+      "qi": 0,
+      "buffs": {
+        "BoltWangXing": 1,
+        "BoltTongPan": 5,
+        "BoltFengRui": 1,
+        "Flute": 1,
+        "DivinecraftFireEmber": 3,
+        "BoltMingFa": 1
+      },
+      "debuffs": { "DivinecraftFire": 1, "BoltQuanWei": 1, "BoltZaigeStacks": 15, "Exhausted": 1 },
+      "expectedStacks": { "BoltTongPan": 5, "Hawkwing": 4.999999988351488 },
+      "effects": [
+        { "minBreakthrough": 18 },
+        {
+          "affinityDmgBonus": {
+            "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+          }
+        },
+        { "condition": "BoltWangXingTalent" },
+        { "initialResourceBonus": { "SpearMomentum": 2 } },
+        { "NoAbrasion": true, "affinityDmgBonus": 0.1, "statStage": "talent" },
+        {
+          "stat": {
+            "physDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            },
+            "bellstrikeDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            }
+          },
+          "statStage": "talent"
+        },
+        { "flatAttackBonus": 0.725, "statStage": "talent" },
+        { "affinityDmgBonus": 0.05 },
+        { "leech": 0.05 },
+        { "baseDMGBonus": 0.3 },
+        { "stat": { "directAffinity": 0.03 } },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 10,
+          "bellstrikePenetration": 10,
+          "stonesplitPenetration": 10,
+          "silkbindPenetration": 10,
+          "bamboocutPenetration": 10
+        },
+        {
+          "dmgBonus": {
+            "function": "segment",
+            "param1": "distance",
+            "param2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 20],
+            "param3": [0.01, 0.02, 0.03, 0.04, 0.05, 0.08, 0.11, 0.14, 0.17, 0.2, 0],
+            "mode": "LowerBoundInclusive"
+          }
+        },
+        { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } },
+        { "hpDMGBonus": 1.5 },
+        { "targetCorrectionBonus": 0.6 },
+        { "GuaranteedAffinity": true }
+      ],
+      "unconditional": {
+        "stat.physDmgBonus": 0.08,
+        "stat.bellstrikeDmgBonus": 0.08,
+        "globalDmgBonus": 0.1,
+        "coefficientBonusWithoutFlatAttack": 0.05,
+        "affinityDmgBonus": 0.1,
+        "hpDMGBonus": 0.015
+      },
+      "outcomeEffects": { "physicalAttackBonus": 0.08999999979032677, "bellstrikeAttackBonus": 0.08999999979032677 },
+      "settlement": {
+        "coefficient": 1.8900000000000001,
+        "attributeCoefficient": 1.8900000000000001,
+        "physicalBonus": 0,
+        "attributeBonus": 0,
+        "adjustedEnemyDefense": 687,
+        "physicalAttackMultiplier": 1.0899999997903267,
+        "physicalPenetrationMultiplier": 1.363,
+        "physicalDamageMultiplier": 1.285,
+        "preparedAttributeRanges": [
+          {
+            "attribute": "bellstrike",
+            "attackMultiplier": 1.0899999997903267,
+            "penetration": 1.1,
+            "damageMultiplier": 1.41,
+            "pathMultiplier": 1.5,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "stonesplit",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "silkbind",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "bamboocut",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          }
+        ],
+        "physicalSharedBonus": 8.67250176,
+        "attributeSharedBonus": 8.67250176,
+        "globalMultiplier": 1.1,
+        "damageBonusCategory1": 1.928,
+        "attunementBonus": 0.424,
+        "skillWeaponArtBonus": 0.113,
+        "resolvedEffects": {
+          "attackBonus": {
+            "physical": 0.08999999979032677,
+            "bellstrike": 0.08999999979032677,
+            "stonesplit": 0,
+            "silkbind": 0,
+            "bamboocut": 0
+          },
+          "attributePenetration": { "bellstrike": 20, "stonesplit": 20, "silkbind": 20, "bamboocut": 20 },
+          "attributeResistance": { "bellstrike": 0, "stonesplit": 0, "silkbind": 0, "bamboocut": 0 },
+          "innerWayDmgBonus": 1.585,
+          "baseDmgBonus": 0.3,
+          "targetCorrectionBonus": 0.6,
+          "globalDmgBonus": 0.1,
+          "globalBellstrikeDmgBonus": 0,
+          "dotDamageBonus": 0,
+          "physicalPenetration": 20,
+          "defenseBonus": 0,
+          "physicalResistance": 0,
+          "critDmgBonus": 0,
+          "affinityDmgBonus": 0.43,
+          "attributeDmgBonus": 0,
+          "flatAttackBonus": 0.725,
+          "coefficientBonusWithoutFlatAttack": 0.05
+        },
+        "affinityBonus": 0.8320000000000001,
+        "maxPhys": 7599.644,
+        "maxBellstrike": 1404.2,
+        "rates": {
+          "effectivePrecision": 1,
+          "effectiveCrit": 0.18902857142857143,
+          "effectiveAffinity": 0.4,
+          "finalAffinity": 1,
+          "finalCrit": 0,
+          "abrasionRate": 0,
+          "normalRate": 0,
+          "critRate": 0,
+          "affinityRate": 1
+        },
+        "affinityDamage": {
+          "physical": 439484.2155600441,
+          "bellstrike": 117620.46140656313,
+          "stonesplit": 0,
+          "silkbind": 0,
+          "bamboocut": 0
+        }
+      },
+      "result": {
+        "physical": 439484.2155600441,
+        "bellstrike": 117620.46140656313,
+        "stonesplit": 0,
+        "silkbind": 0,
+        "bamboocut": 0,
+        "total": 557104.6769666072,
+        "outcomeRates": { "abrasion": 0, "normal": 0, "critical": 0, "affinity": 1 },
+        "selfRecovery": 27855.23384833036
+      }
+    },
+    {
+      "time": 41.05292588585434,
+      "qi": 1,
+      "buffs": { "BoltWangXing": 1, "BoltTongPan": 5, "BoltFengRui": 1, "BoltMingFa": 1 },
+      "debuffs": { "DivinecraftFire": 1, "BoltQuanWei": 1, "BoltZaigeStacks": 15 },
+      "expectedStacks": { "BoltTongPan": 5, "Hawkwing": 4.9999999552173735 },
+      "effects": [
+        { "minBreakthrough": 18 },
+        {
+          "affinityDmgBonus": {
+            "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+          }
+        },
+        { "condition": "BoltWangXingTalent" },
+        { "initialResourceBonus": { "SpearMomentum": 2 } },
+        { "NoAbrasion": true, "affinityDmgBonus": 0.1, "statStage": "talent" },
+        { "flatAttackBonus": 0.725, "statStage": "talent" },
+        {
+          "stat": {
+            "physDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            },
+            "bellstrikeDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            }
+          },
+          "statStage": "talent"
+        },
+        { "affinityDmgBonus": 0.05 },
+        { "leech": 0.05 },
+        { "baseDMGBonus": 0.3 },
+        { "stat": { "directAffinity": 0.03 } },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 10,
+          "bellstrikePenetration": 10,
+          "stonesplitPenetration": 10,
+          "silkbindPenetration": 10,
+          "bamboocutPenetration": 10
+        },
+        { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } },
+        { "hpDMGBonus": 1.5 },
+        { "targetCorrectionBonus": 0.6 },
+        { "GuaranteedAffinity": true }
+      ],
+      "unconditional": {
+        "stat.physDmgBonus": 0.08,
+        "stat.bellstrikeDmgBonus": 0.08,
+        "coefficientBonusWithoutFlatAttack": 0.05,
+        "affinityDmgBonus": 0.1,
+        "hpDMGBonus": 0.015
+      },
+      "outcomeEffects": { "physicalAttackBonus": 0.08999999919391272, "bellstrikeAttackBonus": 0.08999999919391272 },
+      "settlement": {
+        "coefficient": 1.8900000000000001,
+        "attributeCoefficient": 1.8900000000000001,
+        "physicalBonus": 0,
+        "attributeBonus": 0,
+        "adjustedEnemyDefense": 687,
+        "physicalAttackMultiplier": 1.0899999991939127,
+        "physicalPenetrationMultiplier": 1.363,
+        "physicalDamageMultiplier": 1.285,
+        "preparedAttributeRanges": [
+          {
+            "attribute": "bellstrike",
+            "attackMultiplier": 1.0899999991939127,
+            "penetration": 1.1,
+            "damageMultiplier": 1.41,
+            "pathMultiplier": 1.5,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "stonesplit",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "silkbind",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "bamboocut",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          }
+        ],
+        "physicalSharedBonus": 8.61326336,
+        "attributeSharedBonus": 8.61326336,
+        "globalMultiplier": 1,
+        "damageBonusCategory1": 1.908,
+        "attunementBonus": 0.424,
+        "skillWeaponArtBonus": 0.113,
+        "resolvedEffects": {
+          "attackBonus": {
+            "physical": 0.08999999919391272,
+            "bellstrike": 0.08999999919391272,
+            "stonesplit": 0,
+            "silkbind": 0,
+            "bamboocut": 0
+          },
+          "attributePenetration": { "bellstrike": 20, "stonesplit": 20, "silkbind": 20, "bamboocut": 20 },
+          "attributeResistance": { "bellstrike": 0, "stonesplit": 0, "silkbind": 0, "bamboocut": 0 },
+          "innerWayDmgBonus": 1.565,
+          "baseDmgBonus": 0.3,
+          "targetCorrectionBonus": 0.6,
+          "globalDmgBonus": 0,
+          "globalBellstrikeDmgBonus": 0,
+          "dotDamageBonus": 0,
+          "physicalPenetration": 20,
+          "defenseBonus": 0,
+          "physicalResistance": 0,
+          "critDmgBonus": 0,
+          "affinityDmgBonus": 0.43,
+          "attributeDmgBonus": 0,
+          "flatAttackBonus": 0.725,
+          "coefficientBonusWithoutFlatAttack": 0.05
+        },
+        "affinityBonus": 0.8320000000000001,
+        "maxPhys": 7599.644,
+        "maxBellstrike": 1404.2,
+        "rates": {
+          "effectivePrecision": 1,
+          "effectiveCrit": 0.18902857142857143,
+          "effectiveAffinity": 0.4,
+          "finalAffinity": 1,
+          "finalCrit": 0,
+          "abrasionRate": 0,
+          "normalRate": 0,
+          "critRate": 0,
+          "affinityRate": 1
+        },
+        "affinityDamage": {
+          "physical": 396802.06721500086,
+          "bellstrike": 106197.31171855806,
+          "stonesplit": 0,
+          "silkbind": 0,
+          "bamboocut": 0
+        }
+      },
+      "result": {
+        "physical": 396802.06721500086,
+        "bellstrike": 106197.31171855806,
+        "stonesplit": 0,
+        "silkbind": 0,
+        "bamboocut": 0,
+        "total": 502999.37893355894,
+        "outcomeRates": { "abrasion": 0, "normal": 0, "critical": 0, "affinity": 1 },
+        "selfRecovery": 25149.96894667795
+      }
+    },
+    {
+      "time": 58.89721160014006,
+      "qi": 0.3999,
+      "buffs": { "BoltWangXing": 1, "BoltTongPan": 5, "BoltFengRui": 1, "DivinecraftFireEmber": 3, "BoltMingFa": 1 },
+      "debuffs": { "DivinecraftFire": 1, "BoltQuanWei": 1, "BoltZaigeStacks": 15 },
+      "expectedStacks": { "BoltTongPan": 5, "Hawkwing": 4.999999920785842 },
+      "effects": [
+        { "minBreakthrough": 18 },
+        {
+          "affinityDmgBonus": {
+            "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+          }
+        },
+        { "condition": "BoltWangXingTalent" },
+        { "initialResourceBonus": { "SpearMomentum": 2 } },
+        { "NoAbrasion": true, "affinityDmgBonus": 0.1, "statStage": "talent" },
+        { "flatAttackBonus": 0.725, "statStage": "talent" },
+        {
+          "stat": {
+            "physDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            },
+            "bellstrikeDmgBonus": {
+              "formula": { "source": "maxPhys", "step": 125, "multiplier": 0.01, "max": 0.12, "resolveAt": "action" }
+            }
+          },
+          "statStage": "talent"
+        },
+        { "affinityDmgBonus": 0.05 },
+        { "leech": 0.05 },
+        { "baseDMGBonus": 0.3 },
+        { "stat": { "directAffinity": 0.03 } },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 5,
+          "bellstrikePenetration": 5,
+          "stonesplitPenetration": 5,
+          "silkbindPenetration": 5,
+          "bamboocutPenetration": 5
+        },
+        {
+          "physicalPenetration": 10,
+          "bellstrikePenetration": 10,
+          "stonesplitPenetration": 10,
+          "silkbindPenetration": 10,
+          "bamboocutPenetration": 10
+        },
+        { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } },
+        { "hpDMGBonus": 1.5 },
+        { "targetCorrectionBonus": 0.6 },
+        { "GuaranteedAffinity": true }
+      ],
+      "unconditional": {
+        "stat.physDmgBonus": 0.08,
+        "stat.bellstrikeDmgBonus": 0.08,
+        "coefficientBonusWithoutFlatAttack": 0.05,
+        "affinityDmgBonus": 0.1,
+        "hpDMGBonus": 0.015
+      },
+      "outcomeEffects": { "physicalAttackBonus": 0.08999999857414515, "bellstrikeAttackBonus": 0.08999999857414515 },
+      "settlement": {
+        "coefficient": 1.8900000000000001,
+        "attributeCoefficient": 1.8900000000000001,
+        "physicalBonus": 0,
+        "attributeBonus": 0,
+        "adjustedEnemyDefense": 687,
+        "physicalAttackMultiplier": 1.089999998574145,
+        "physicalPenetrationMultiplier": 1.363,
+        "physicalDamageMultiplier": 1.285,
+        "preparedAttributeRanges": [
+          {
+            "attribute": "bellstrike",
+            "attackMultiplier": 1.089999998574145,
+            "penetration": 1.1,
+            "damageMultiplier": 1.41,
+            "pathMultiplier": 1.5,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "stonesplit",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "silkbind",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          },
+          {
+            "attribute": "bamboocut",
+            "attackMultiplier": 1,
+            "penetration": 0.9,
+            "damageMultiplier": 1,
+            "pathMultiplier": 1,
+            "flatBonus": 0
+          }
+        ],
+        "physicalSharedBonus": 8.61326336,
+        "attributeSharedBonus": 8.61326336,
+        "globalMultiplier": 1,
+        "damageBonusCategory1": 1.908,
+        "attunementBonus": 0.424,
+        "skillWeaponArtBonus": 0.113,
+        "resolvedEffects": {
+          "attackBonus": {
+            "physical": 0.08999999857414515,
+            "bellstrike": 0.08999999857414515,
+            "stonesplit": 0,
+            "silkbind": 0,
+            "bamboocut": 0
+          },
+          "attributePenetration": { "bellstrike": 20, "stonesplit": 20, "silkbind": 20, "bamboocut": 20 },
+          "attributeResistance": { "bellstrike": 0, "stonesplit": 0, "silkbind": 0, "bamboocut": 0 },
+          "innerWayDmgBonus": 1.565,
+          "baseDmgBonus": 0.3,
+          "targetCorrectionBonus": 0.6,
+          "globalDmgBonus": 0,
+          "globalBellstrikeDmgBonus": 0,
+          "dotDamageBonus": 0,
+          "physicalPenetration": 20,
+          "defenseBonus": 0,
+          "physicalResistance": 0,
+          "critDmgBonus": 0,
+          "affinityDmgBonus": 0.43,
+          "attributeDmgBonus": 0,
+          "flatAttackBonus": 0.725,
+          "coefficientBonusWithoutFlatAttack": 0.05
+        },
+        "affinityBonus": 0.8320000000000001,
+        "maxPhys": 7599.644,
+        "maxBellstrike": 1404.2,
+        "rates": {
+          "effectivePrecision": 1,
+          "effectiveCrit": 0.18902857142857143,
+          "effectiveAffinity": 0.4,
+          "finalAffinity": 1,
+          "finalCrit": 0,
+          "abrasionRate": 0,
+          "normalRate": 0,
+          "critRate": 0,
+          "affinityRate": 1
+        },
+        "affinityDamage": {
+          "physical": 396802.0669689776,
+          "bellstrike": 106197.31165817489,
+          "stonesplit": 0,
+          "silkbind": 0,
+          "bamboocut": 0
+        }
+      },
+      "result": {
+        "physical": 396802.0669689776,
+        "bellstrike": 106197.31165817489,
+        "stonesplit": 0,
+        "silkbind": 0,
+        "bamboocut": 0,
+        "total": 502999.37862715253,
+        "outcomeRates": { "abrasion": 0, "normal": 0, "critical": 0, "affinity": 1 },
+        "selfRecovery": 25149.968931357627
+      }
+    }
+  ]
+}

@@ -72,6 +72,8 @@ export type CharacterStats = {
 }
 
 export type EnemyProfile = {
+  specificSkillDamageDivisor?: number
+  correctablePenetrationDivisor?: number
   name: string
   level: number
   defense: number

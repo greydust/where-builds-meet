@@ -40,6 +40,7 @@ export type BuildStatState = {
    * screen must carry both or its reading would not match the sheet it came from.
    */
   attunement: AttunementStats
+  inputAttunement: AttunementStats
   displayedAttunement: AttunementStats
 }
 
@@ -91,10 +92,16 @@ export function resolveBuildStatState(input: BuildStatStateInput): BuildStatStat
     setupSelections,
     pathId,
   )
-  const attunement = resolveAttunementStats(defaultAttunementStats, equipped.attunement, attunementOverrides, {
-    physicalPenetration: globalStatState.stats.physicalPenetration,
-    formlessPenetration: globalStatState.stats.formlessPenetration,
-  })
+  const attunement = resolveAttunementStats(
+    defaultAttunementStats,
+    equipped.attunement,
+    attunementOverrides,
+    {
+      physicalPenetration: globalStatState.stats.physicalPenetration,
+      formlessPenetration: globalStatState.stats.formlessPenetration,
+    },
+    breakthroughProfile(settings),
+  )
 
   return {
     buildSetup,
@@ -104,6 +111,7 @@ export function resolveBuildStatState(input: BuildStatStateInput): BuildStatStat
     baseStats: globalStatState.baseStats,
     derivedStats: globalStatState.derivedStats,
     attunement: attunement.calculation,
+    inputAttunement: attunement.input,
     displayedAttunement: attunement.displayed,
   }
 }

@@ -235,6 +235,7 @@ export default function App() {
       rawStats: activeStatState.rawStats,
       baseStats: activeStatState.baseStats,
       attunementStats: activeStatState.attunement,
+      inputAttunementStats: activeStatState.inputAttunement,
       displayedAttunementStats: activeStatState.displayedAttunement,
       settings,
       enemy,

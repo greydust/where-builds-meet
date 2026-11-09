@@ -2703,8 +2703,7 @@ on top. These are sheet values; combat-only Direct Affinity increases resolve pe
 
 `bolt-dummy-1-min` encodes the supplied sequence, starting combat on the first
 平風掃寶 contact and ending at 60 seconds. The final blue V is interpreted as
-blue VC. The two Qi breaks attach to the last direct contact of the indicated
-聽雨斷罪·鋒銳 casts. The nominal CN clocks allow the entire sequence inside
+blue VC. The first Qi break attaches to the last direct contact of the indicated 聽雨斷罪·鋒銳 cast. The nominal CN clocks allow the entire sequence inside
 one minute. Editor skill #21 (zero-based skill numbering) uses Blue Special
 in place of Tab to Red to refresh 王行 through the middle window. Full charging
 windows alternate Blue VC and Red VC to consume 神斷青鋒’s opposite-VC damage
@@ -2718,13 +2717,7 @@ Battle End at 60 seconds. Heavy 1 cannot enter Blue VC; a fresh VC entry
 requires Red Q, Blue Special or Tab. The earlier Heavy 1 / VC ending was invalid.
 王行 remains active, all four 鋒銳 windows complete, and no cooldown waits occur.
 
-Qi events use the existing authored 60%/40% ramp convention, retaining both
-hit-attached breaks at 25.523 and 52.977 seconds. The first thresholds occur
-at 10.209 and 15.314 seconds. Exhausted restores Qi at 35.523 seconds;
-four seconds of immunity end at 39.523 seconds. The next segment's thresholds
-are 44.905 and 47.595 seconds. Each segment linearly places its thresholds
-at 40%/60% of the time to its planned break; these are encounter estimates,
-not calculated Qi damage. The second exhaustion continues through Battle End.
+Qi breaks at 25.523 s. Exhausted ends at 35.523 s and Qi protection ends at 39.523 s. Reusing the first depletion duration gives second-ramp thresholds at 49.732 and 54.837 s and a projected break at 65.046 s, beyond Battle End. The fourth 鳴戈 lands below 40% Qi outside Exhausted, consistent with the observed absence of Exhausted. Threshold times are estimates.
 Animation/contact clocks remain `audit-provisional` in the export.
 
 槍勢 uses `SpearMomentum`, base initial 2 and cap 6. 浮梁一夜 T0 supplies an

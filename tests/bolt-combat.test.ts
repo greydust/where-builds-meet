@@ -99,18 +99,18 @@ it.each(["19", "25"])(
     const breaks = qiEvents.filter(
       row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
     )
-    expect(breaks).toHaveLength(2)
+    expect(breaks).toHaveLength(1)
     const thresholds = qiEvents.filter(
       row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio > 0,
     )
     expect(thresholds).toHaveLength(4)
     const firstBreak = breaks[0].startTime
-    const secondBreak = breaks[1].startTime
+    const depletionDuration = firstBreak - result.anchorTime
     const recoveryEnd = firstBreak + 10
     const immunityEnd = recoveryEnd + 4
     for (const [start, end, expected] of [
       [result.anchorTime, firstBreak, thresholds.slice(0, 2)],
-      [immunityEnd, secondBreak, thresholds.slice(2)],
+      [immunityEnd, immunityEnd + depletionDuration, thresholds.slice(2)],
     ] as const) {
       for (const [index, row] of expected.entries())
         expect(row.startTime).toBeCloseTo(start + (end - start) * [0.4, 0.6][index], 9)
@@ -126,11 +126,14 @@ it.each(["19", "25"])(
     const restored = hits.filter(hit => hit.time > recoveryEnd && hit.time < immunityEnd)
     expect(restored.length).toBeGreaterThan(0)
     expect(restored.every(hit => hit.qi === 1)).toBe(true)
-    for (const start of [firstBreak, secondBreak]) {
+    {
+      const start = firstBreak
       const exhausted = hits.filter(hit => hit.time > start && hit.time < Math.min(start + 10, result.anchorTime + 60))
       expect(exhausted.length).toBeGreaterThan(0)
       expect(exhausted.every(hit => hit.qi === 0)).toBe(true)
     }
+    const finalDetonation = result.timeline.findLast(row => row.step.skill === "BoltMingGe")!
+    expect(finalDetonation.actionStates[0].targetQiRatio).toBe(0.3999)
     const firstBurst = ordered.find(row => row.id === "rotation-7")!
     expect(firstBurst.resources.SpearMomentum).toBe(6)
     expect(firstBurst.resourceConsumption?.SpearMomentum).toBe(1)

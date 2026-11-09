@@ -79,7 +79,7 @@ raw attributes, conversion ladders and Bonus Attack ratio. Existing fixed
 specialty effects and the higher-Body/Power choice remain in place.
 Rank 21 supplies 176–352 attribute attack, the applicable conversion cap
 of 528 input attributes, and 72.5% Bonus Attack enhancement; supported
-no-flat attacks receive 7.25% coefficient enhancement. Each equipped art
+Bolt no-flat procs receive a separate 5% coefficient enhancement from handler 32250271. Each equipped art
 uses one complete rank, not cumulative ranks.
 
 ## Verification

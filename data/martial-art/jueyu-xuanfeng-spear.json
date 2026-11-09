@@ -863,7 +863,7 @@
           },
           {
             "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
-            "effect": { "coefficientBonusWithoutFlatAttack": 0.0725 }
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.05 }
           },
           {
             "requirement": [

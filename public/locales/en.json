@@ -1645,6 +1645,7 @@
   "ui.app.duration": "Duration",
   "ui.app.editRotationName": "Edit rotation name",
   "ui.app.effect": "Effect",
+  "ui.app.effective": "Effective",
   "ui.app.effectiveAffinity": "Effective Affinity",
   "ui.app.effectiveCritical": "Effective Critical",
   "ui.app.effectiveMaxAttack": "Eff. Max {name} ATK",

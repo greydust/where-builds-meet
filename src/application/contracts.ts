@@ -29,6 +29,7 @@ export type CharacterState = {
   rawStats: CharacterStats
   baseStats: CharacterStats
   attunementStats: AttunementStats
+  inputAttunementStats: AttunementStats
   displayedAttunementStats: AttunementStats
   settings: CalculatorSettings
   enemy: EnemyProfile
