@@ -10,7 +10,7 @@ import { pathIcons } from "./application/gameData/pathIcons"
 import {
   defaultBuildIdForPath,
   defaultRotationIdForPath,
-  pathRequiresDev,
+  pathIsSelectable,
   pathStatusLabel,
   typedPathDefinitions,
   type PathDefinition,
@@ -306,7 +306,7 @@ export default function App() {
     nextPathId: PathId,
     options: { weapons?: [WeaponId, WeaponId]; rotationId?: string } = {},
   ) => {
-    if (pathRequiresDev(typedPathDefinitions[nextPathId]) && !devMode) return
+    if (!pathIsSelectable(typedPathDefinitions[nextPathId], devMode)) return
     const nextSettings =
       nextPathId === "mixed" && options.weapons
         ? { ...settingsForPath(settings, nextPathId), weapons: [...options.weapons] as [WeaponId, WeaponId] }
@@ -356,7 +356,7 @@ export default function App() {
     const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(
       ([candidateId, definition]) =>
         candidateId !== "mixed" &&
-        (!pathRequiresDev(definition) || devMode) &&
+        pathIsSelectable(definition, devMode) &&
         definition.lockedWeapons &&
         sameWeaponPair(definition.lockedWeapons, nextWeapons),
     )
@@ -369,7 +369,7 @@ export default function App() {
     const nextDevMode = !devMode
     useSettingsStore.getState().setDevMode(nextDevMode)
     if (nextDevMode && hasSharedBuild()) setSharedBuildOffered(true)
-    if (!nextDevMode && pathRequiresDev(typedPathDefinitions[pathId])) selectPath("stonesplitStrength")
+    if (!pathIsSelectable(typedPathDefinitions[pathId], nextDevMode)) selectPath("stonesplitStrength")
     if (!nextDevMode && isLocaleWip(locale)) void changeLocale("en")
   }
   const changeLocale = async (nextLocale: string) => {
@@ -480,7 +480,7 @@ export default function App() {
                         type="button"
                         key={value}
                         aria-pressed={pathId === value}
-                        disabled={pathRequiresDev(definition) && !devMode}
+                        disabled={!pathIsSelectable(definition, devMode)}
                         onClick={() => selectPath(value)}
                       >
                         {icon && <img src={icon} alt="" />}

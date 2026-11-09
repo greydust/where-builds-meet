@@ -1,8 +1,10 @@
+import boshanQuyueSpearMartialArt from "@gamedata/martial-art/boshan-quyue-spear.json"
 import everspringMartialArt from "@gamedata/martial-art/everspring-umbrella.json"
 import heavenquakerSpearMartialArt from "@gamedata/martial-art/heavenquaker-spear.json"
 import heavenwillMartialArt from "@gamedata/martial-art/heavenwill-gauntlets.json"
 import infernalTwinbladesMartialArt from "@gamedata/martial-art/infernal-twinblades.json"
 import inkwellFanMartialArt from "@gamedata/martial-art/inkwell-fan.json"
+import jueyuXuanfengSpearMartialArt from "@gamedata/martial-art/jueyu-xuanfeng-spear.json"
 import mortalRopeDartMartialArt from "@gamedata/martial-art/mortal-rope-dart.json"
 import museflowWaistDrumMartialArt from "@gamedata/martial-art/museflow-waist-drum.json"
 import namelessSpearMartialArt from "@gamedata/martial-art/nameless-spear.json"
@@ -34,6 +36,8 @@ export type MartialArtDefinition = {
   talent: MartialArtTalent<SetupEffect>[][]
 }
 export const martialArtDefinitions: Record<WeaponId, MartialArtDefinition> = {
+  jueyuXuanfengSpear: jueyuXuanfengSpearMartialArt as MartialArtDefinition,
+  boshanQuyueSpear: boshanQuyueSpearMartialArt as MartialArtDefinition,
   museflowWaistDrum: museflowWaistDrumMartialArt as MartialArtDefinition,
   willowbendFan: willowbendFanMartialArt as MartialArtDefinition,
   snowparting: snowpartingMartialArt as MartialArtDefinition,

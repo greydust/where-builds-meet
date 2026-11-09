@@ -30,6 +30,11 @@ function hasDamageFields(effect: Record<string, unknown>) {
 }
 
 export type AttunementStats = {
+  boltVariedComboBoost: number
+  jueyuXuanfengSpearMartialBoost: number
+  jueyuXuanfengSpearSpecialBoost: number
+  boshanQuyueSpearMartialBoost: number
+  boshanQuyueSpearSpecialBoost: number
   museflowWaistDrumMartialBoost: number
   museflowWaistDrumSpecialBoost: number
   museflowWaistDrumLightHeavyVariedComboBoost: number
@@ -163,6 +168,7 @@ type AdditiveBonusResponse = {
   attunementBonus: number
   resolvedEffects: {
     baseDmgBonus: number
+    targetCorrectionBonus: number
     attributeDmgBonus: number
     dotDamageBonus: number
     globalBellstrikeDmgBonus: number
@@ -300,10 +306,16 @@ function evaluateAdditiveBonusResponse(response: AdditiveBonusResponse, unresolv
     skillWeaponArtBonus +
     mysticSkillBonus +
     bonus
-  const physicalShared = damageScale * (1 + resolvedEffects.baseDmgBonus) * (1 + category) * (1 + attunementBonus)
+  const physicalShared =
+    damageScale *
+    (1 + resolvedEffects.baseDmgBonus) *
+    (1 + resolvedEffects.targetCorrectionBonus) *
+    (1 + category) *
+    (1 + attunementBonus)
   const attributeShared =
     damageScale *
     (1 + resolvedEffects.baseDmgBonus) *
+    (1 + resolvedEffects.targetCorrectionBonus) *
     (1 + category + resolvedEffects.attributeDmgBonus) *
     (1 + attunementBonus)
   const variants = bonusComponents.map(({ physicalDamage, attributeDamage, specialBonus }) => {
@@ -422,6 +434,7 @@ function calculateDamageBreakdownInternal(
     },
     innerWayDmgBonus: (unconditional.dmgBonus ?? 0) + (unconditional.hpDMGBonus ?? 0),
     baseDmgBonus: unconditional.baseDMGBonus ?? 0,
+    targetCorrectionBonus: unconditional.targetCorrectionBonus ?? 0,
     globalDmgBonus: (unconditional.globalDmgBonus ?? 0) + (unconditional.globalHPDMGBonus ?? 0),
     globalBellstrikeDmgBonus: unconditional.globalBellstrikeDMGBonus ?? 0,
     dotDamageBonus:
@@ -466,6 +479,7 @@ function calculateDamageBreakdownInternal(
     )
       resolvedEffects.innerWayDmgBonus += effectValue(effect.hpDMGBonus)
     resolvedEffects.baseDmgBonus += effectValue(effect.baseDMGBonus)
+    resolvedEffects.targetCorrectionBonus += effectValue(effect.targetCorrectionBonus)
     resolvedEffects.globalDmgBonus += effectValue(effect.globalDmgBonus) + effectValue(effect.globalHPDMGBonus)
     resolvedEffects.globalBellstrikeDmgBonus += effectValue(effect.globalBellstrikeDMGBonus)
     if (context.isDot) resolvedEffects.dotDamageBonus += effectValue(effect.dotDamage)
@@ -550,10 +564,15 @@ function calculateDamageBreakdownInternal(
     resolvedEffects.innerWayDmgBonus
   const damageScale = action.damageScale === undefined ? 1 : numberValue(action.damageScale)
   const physicalSharedBonus =
-    damageScale * (1 + resolvedEffects.baseDmgBonus) * (1 + damageBonusCategory1) * (1 + attunementBonus)
+    damageScale *
+    (1 + resolvedEffects.baseDmgBonus) *
+    (1 + resolvedEffects.targetCorrectionBonus) *
+    (1 + damageBonusCategory1) *
+    (1 + attunementBonus)
   const attributeSharedBonus =
     damageScale *
     (1 + resolvedEffects.baseDmgBonus) *
+    (1 + resolvedEffects.targetCorrectionBonus) *
     (1 + damageBonusCategory1 + resolvedEffects.attributeDmgBonus) *
     (1 + attunementBonus)
   if (import.meta.env.DEV) finishCalculationPhase("damageSharedMultiplierResolution", sharedMultiplierStartedAt)
@@ -985,6 +1004,8 @@ export function calculateDamageBreakdown(
   const [distribution, ...remaining] = context.expectedEffects ?? []
   if (!distribution) return resolvedDamage(action, resolveActionStatContext(context))
   let result: DamageBreakdown | undefined
+  let ratesDiffer = false
+  const rates: DamageOutcomeRates = { abrasion: 0, normal: 0, critical: 0, affinity: 0 }
   for (const outcome of distribution) {
     const current = calculateDamageBreakdown(
       action,
@@ -992,9 +1013,14 @@ export function calculateDamageBreakdown(
       resolvedDamage,
     )
     result ??= { ...current, physical: 0, bellstrike: 0, stonesplit: 0, silkbind: 0, bamboocut: 0, total: 0 }
+    for (const field of ["abrasion", "normal", "critical", "affinity"] as const) {
+      rates[field] += (current.outcomeRates?.[field] ?? 0) * outcome.probability
+      if (current.outcomeRates?.[field] !== result.outcomeRates?.[field]) ratesDiffer = true
+    }
     for (const field of ["physical", "bellstrike", "stonesplit", "silkbind", "bamboocut", "total"] as const)
       result[field] += current[field] * outcome.probability
   }
+  if (result && ratesDiffer) result.outcomeRates = rates
   return result!
 }
 

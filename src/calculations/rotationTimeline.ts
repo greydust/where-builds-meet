@@ -11,6 +11,7 @@ import {
   type TargetType,
 } from "./combatDefaults"
 import { resolveSegmentValue, resolveSwitchValue, type SwitchValue } from "./dynamicValues"
+import { OutcomeMachine, type OutcomeMachineDefinition } from "./outcomeMachine"
 import {
   ExpectedPeriodicTracker,
   OutcomeCooldownTracker,
@@ -256,6 +257,7 @@ export type InnerWayEffectRule = {
 }
 export type TimelineRowKind = "rotation" | "trigger" | "dot" | "periodic" | "damageGroup"
 export type TimelineRow = {
+  outcomeMachineToken?: string
   /** Resolved combat endpoint, including a final cast/Delay with no damage. */
   timelineEndTime?: number
   /** Internal clock timestamp of the detected battle start; -1 means no start was reached. */
@@ -532,6 +534,8 @@ export type EffectDefinition = {
   badgeColor?: "red"
   damageGroup?: { id: string; name: string }
   onMaxStack?: MaxStackAction
+  /** Opt numeric stack effects into the shared outcome-probability stack tracker. */
+  outcomeStack?: boolean
   name?: string
   shortName?: string
   description?: string
@@ -644,6 +648,11 @@ export type TimelineActionResolverFactory = (
       damage?: number
       selfRecovery?: number
       outcomeRates?: Record<string, number>
+      outcome?: string
+      outcomeRatesForState?: (
+        effects: EditableObject[],
+        distributionIndex: number,
+      ) => Record<string, number> | undefined
       accumulatorThreshold?: number
     }
   | undefined) & {
@@ -1183,6 +1192,14 @@ export function buildRotationTimeline(
     return step.event === "Delay" ? Math.max(0, step.duration) : 0
   }
   const innerWayConditions = new Set(input.innerWayConditions)
+  const machineDefinitions = input.innerWayRules.flatMap(rule =>
+    rule.effect.outcomeMachine && typeof rule.effect.outcomeMachine === "object"
+      ? [rule.effect.outcomeMachine as OutcomeMachineDefinition]
+      : [],
+  )
+  const outcomeMachine = machineDefinitions.length
+    ? new OutcomeMachine(machineDefinitions, Boolean(procRoll))
+    : undefined
   const conditionParameters = Object.fromEntries(input.innerWayConditions.map(condition => [condition, true]))
   const subActionChoices = new Map<string, boolean>()
   const rows: TimelineRow[] = []
@@ -1716,6 +1733,15 @@ export function buildRotationTimeline(
   let resources: ResourceState = Object.fromEntries(
     Object.entries({ Qi: 100, ...input.initialResources }).map(([name, value]) => [name, clampResource(name, value)]),
   )
+  for (const rule of innerWayRules) {
+    if (!requirementIsUnconditional(rule.requirement)) continue
+    const bonus = rule.effect.initialResourceBonus
+    if (!bonus || typeof bonus !== "object" || Array.isArray(bonus)) continue
+    for (const [name, amount] of Object.entries(bonus)) {
+      if (typeof amount === "number" && Number.isFinite(amount))
+        resources[name] = clampResource(name, (resources[name] ?? 0) + amount)
+    }
+  }
   infiniteResources.forEach(name => {
     resources[name] = resourceMaximums[name] ?? resources[name] ?? Number.MAX_SAFE_INTEGER
   })
@@ -3184,6 +3210,7 @@ export function buildRotationTimeline(
   const startBattle = (time: number) => {
     battleStarted = true
     battleStartTime = time
+    outcomeMachine?.startBattle(time)
     if (rotation.eventTimeReference === "battleStart")
       for (const entry of timed)
         entry.time = time + (typeof entry.step.startTime === "number" ? entry.step.startTime : 0)
@@ -3267,7 +3294,31 @@ export function buildRotationTimeline(
     resourceBoundaryQueued = true
     events.push({ kind: "resourceBoundary", row: source, time: boundary, sortOrder: [-2] })
   }
-  while ((events.length || timedCursor < timed.length || pendingCharge) && processedEvents < 5000) {
+  let machineWake: TimelineEvent | undefined
+  const queueMachineWake = (source: TimelineRow) => {
+    if (!outcomeMachine) return
+    const time = outcomeMachine.nextTime()
+    if (machineWake?.time === time) return
+    if (machineWake) events.remove(candidate => candidate === machineWake)
+    machineWake = undefined
+    if (!Number.isFinite(time)) return
+    const row: TimelineRow = {
+      ...source,
+      id: "__outcome-timer",
+      kind: "trigger",
+      startTime: time,
+      effectiveCastTime: 0,
+      step: { type: "skill", skill: "__outcome-timer" },
+      skill: { tags: ["OutcomeMachineInternal", "SubAction"] },
+      actions: [{ type: "outcomeMachineWake", time: 0 }],
+      actionStates: {},
+      modifierEffects: [],
+    }
+    machineWake = { kind: "action", row, actionIndex: 0, time, sortOrder: [-2] }
+    events.push(machineWake)
+  }
+  const eventLimit = outcomeMachine ? 20000 : 5000
+  while ((events.length || timedCursor < timed.length || pendingCharge) && processedEvents < eventLimit) {
     responseContext = undefined
     if (
       waitingCast?.delay.reason === "requirement" &&
@@ -3922,6 +3973,41 @@ export function buildRotationTimeline(
     if (action.type === "apply" && typeof action.value === "string" && (cooldowns[action.value] ?? 0) > event.time)
       continue
     if (event.kind === "action") event.row.actionStates[event.actionIndex ?? -1].combatOrder = nextCombatActionOrder++
+    outcomeMachine?.advance(event.time)
+    const machineEffectCache = new Map<string, EditableObject[]>()
+    const machineEffects = (name: string, stack: number) => {
+      const key = `${name}:${stack}`
+      const cached = machineEffectCache.get(key)
+      if (cached) return cached
+      const definition = getModifiedEffectDefinition(name, buffs, debuffs, skillTags)
+      const effects = effectsForTrackedEffect(stack, definition)
+        .filter(item =>
+          requirementsPass(
+            (item as EditableObject).requirement,
+            buffs,
+            debuffs,
+            skillTags,
+            innerWayConditions,
+            weapons,
+            resources,
+            requirementState(),
+          ),
+        )
+        .map(item => {
+          const value = item as EditableObject
+          return value.effect && typeof value.effect === "object" ? (value.effect as EditableObject) : value
+        })
+      machineEffectCache.set(key, effects)
+      return effects
+    }
+    let machineDistributionIndex = -1
+    if (outcomeMachine && event.kind === "action" && action.type === "damage") {
+      const state = event.row.actionStates[event.actionIndex ?? -1]
+      const distribution = outcomeMachine.distribution(machineEffects, event.row.outcomeMachineToken)
+      if (!distribution.length) continue
+      machineDistributionIndex = state.expectedEffects?.length ?? 0
+      state.expectedEffects = [...(state.expectedEffects ?? []), distribution]
+    }
     const resolvedAction = event.kind === "action" ? resolveAction?.(event.row, event.actionIndex ?? -1) : undefined
     if (action.type === "clearCD" && typeof action.value === "string") {
       if (action.seconds === undefined) cooldowns[action.value] = event.time
@@ -4022,6 +4108,7 @@ export function buildRotationTimeline(
       suppressFallback = false,
       queuedFrom?: string,
       replaySourceActionIds?: string[],
+      outcomeMachineToken?: string,
     ) => {
       const definition = skills[skillId]
       const triggeredSkill =
@@ -4041,6 +4128,7 @@ export function buildRotationTimeline(
       const row: TimelineRow = {
         id: `trigger-${derivedId}`,
         kind: "trigger",
+        ...(outcomeMachineToken ? { outcomeMachineToken } : {}),
         ...(expectedBranch ? { expectedBranch } : {}),
         sourceRowId,
         ...(queuedFrom ? { queuedFrom } : {}),
@@ -4738,6 +4826,31 @@ export function buildRotationTimeline(
         },
       )
     }
+    const flushMachine = () => {
+      if (!outcomeMachine) return
+      for (const emission of outcomeMachine.drainEmissions()) {
+        enqueueTriggeredSkill(
+          emission.skill,
+          emission.source,
+          undefined,
+          "innerWay",
+          emission.probability,
+          undefined,
+          undefined,
+          undefined,
+          false,
+          undefined,
+          undefined,
+          emission.token,
+        )
+      }
+      queueMachineWake(event.row)
+    }
+    if (action.type === "outcomeMachineWake") {
+      machineWake = undefined
+      flushMachine()
+      continue
+    }
     if (event.kind === "start" || action.type === "skillStart") {
       runEffectTriggers("skillStart")
       runEffectTriggers("skillStart", true)
@@ -4922,6 +5035,41 @@ export function buildRotationTimeline(
       runInnerWayTriggers("damage", event.row)
       runInnerWayTriggers("damageOutcome", event.row)
       runEffectTriggers("damage", true)
+      if (outcomeMachine && resolvedAction?.damage && battleStarted) {
+        const cache = new Map<string, number>()
+        const cost = outcomeMachine.settle(
+          event.time,
+          event.row.sourceRowId ?? event.row.id,
+          requirement =>
+            requirementsPass(
+              requirement,
+              buffs,
+              debuffs,
+              skillTags,
+              innerWayConditions,
+              weapons,
+              resources,
+              requirementState(),
+            ),
+          machineEffects,
+          effects => {
+            const key = JSON.stringify(effects)
+            let probability = cache.get(key)
+            if (probability === undefined) {
+              probability =
+                resolvedAction.outcomeRatesForState?.(effects, machineDistributionIndex)?.affinity ??
+                resolvedAction.outcomeRates?.affinity ??
+                0
+              cache.set(key, probability)
+            }
+            return probability
+          },
+          resolvedAction.outcome,
+          event.row.outcomeMachineToken,
+        )
+        if (cost > 0) setCurrentHP(currentHP * Math.max(0, 1 - cost))
+        flushMachine()
+      }
       if (procRoll || action.hitProbability === undefined) accumulateEventValue("damage", 1)
       if (event.row.expectedBranch) {
         const branch = event.row.expectedBranch
@@ -5163,8 +5311,10 @@ export function buildRotationTimeline(
     }
     if (typeof action.cooldown === "number") cooldowns[actionCooldownKey] = event.time + action.cooldown
   }
-  if (processedEvents >= 5000 && (events.length || timedCursor < timed.length))
-    throw new Error("Combat timeline exceeded its 5,000-event safety limit before reaching combat end.")
+  if (processedEvents >= eventLimit && (events.length || timedCursor < timed.length))
+    throw new Error(
+      `Combat timeline exceeded its ${eventLimit.toLocaleString("en-US")}-event safety limit before reaching combat end (time ${currentTimelineTime}, outcome states ${outcomeMachine?.maximumStates ?? 0}).`,
+    )
   regenerateResources(timelineEndTime)
   if (pendingCharge) resolvedRows.delete(pendingCharge.event.row)
   for (const row of rows)

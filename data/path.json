@@ -21,6 +21,17 @@
     "lockedWeapons": ["strategicSword", "heavenquakerSpear"],
     "arsenal": "Bellstrike"
   },
+  "bellstrikeBolt": {
+    "name": "Bolt",
+    "tag": "BellstrikeBolt",
+    "status": "preview",
+    "buildGroup": "bellstrike-bolt",
+    "defaultBuild": "bolt-fully-relayed",
+    "graduated": ["bolt-full"],
+    "defaultRotation": "bolt-dummy-1-min",
+    "arsenal": "Bellstrike",
+    "lockedWeapons": ["jueyuXuanfengSpear", "boshanQuyueSpear"]
+  },
   "stonesplitMight": {
     "name": "Might",
     "tag": "StonesplitMight",

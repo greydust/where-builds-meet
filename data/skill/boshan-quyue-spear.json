@@ -1,0 +1,761 @@
+{
+  "BoltBlueCharged": {
+    "name": "挑龍劈馬",
+    "castTime": 1.2,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Charged"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.387,
+        "phyBonus": 107.4,
+        "attrCoef": 0.387,
+        "attrBonus": 58.5,
+        "time": 0.381068615
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.903,
+        "phyBonus": 250.6,
+        "attrCoef": 0.903,
+        "attrBonus": 136.5,
+        "time": 0.848249831
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Charged"
+  },
+  "BoltBlueQ": {
+    "name": "英布列甲",
+    "castTime": 1.1,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoshanQuyueSpear"],
+    "action": [],
+    "cooldown": 15,
+    "martialArt": "boshanQuyueSpear",
+    "attackResponse": { "duration": 1.1, "onSuccess": "BoltBlueParrySuccess" },
+    "shortName": "Blue Q"
+  },
+  "BoltBlueQFollowup": {
+    "name": "霸王沉舟",
+    "castTime": 0.933,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoshanQuyueSpear"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.30984,
+        "phyBonus": 85.8,
+        "attrCoef": 0.30984,
+        "attrBonus": 46.8,
+        "time": 0.23307861900000001
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.30984,
+        "phyBonus": 85.8,
+        "attrCoef": 0.30984,
+        "attrBonus": 46.8,
+        "time": 0.38312871
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.92952,
+        "phyBonus": 257.4,
+        "attrCoef": 0.92952,
+        "attrBonus": 140.4,
+        "time": 0.6672248940000001
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
+    "shortName": "Blue Q Follow-up"
+  },
+  "BoltBlueSpecial": {
+    "name": "龍膽巡坡",
+    "castTime": 1.2142857142857144,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Special", "BoltExhaustedRefill", "BoshanQuyueSpear"],
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "BoltWangXing",
+        "stack": 1,
+        "duration": 24,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "BoltWangXingTalent" }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "BoltWangXing",
+        "stack": 1,
+        "duration": 12,
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "BoltWangXingTalent" }] }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3879,
+        "phyBonus": 107.4,
+        "attrCoef": 0.3879,
+        "attrBonus": 58.5,
+        "time": 0.4022305714285715
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3879,
+        "phyBonus": 107.4,
+        "attrCoef": 0.3879,
+        "attrBonus": 58.5,
+        "time": 0.5222585057142857
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3879,
+        "phyBonus": 107.4,
+        "attrCoef": 0.3879,
+        "attrBonus": 58.5,
+        "time": 0.6522871485714286
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.4223,
+        "phyBonus": 393.8,
+        "attrCoef": 1.4223,
+        "attrBonus": 214.5,
+        "time": 0.9766430314285715
+      }
+    ],
+    "cooldown": 10,
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Special"
+  },
+  "BoltBlueTab": {
+    "name": "盜跖踏梁",
+    "castTime": 0.85,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "DualWeapon", "Tab"],
+    "action": [
+      { "type": "switchMartialArt", "martialArt": "boshanQuyueSpear", "time": 0 },
+      {
+        "type": "trigger",
+        "value": "BoltEarlyMingGe",
+        "time": 1.2,
+        "requirement": [
+          { "target": "self", "value": "FuLiangYiYeT6" },
+          { "target": "self", "value": "BoltFengRui" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "BoltMingGeSpent" }] }
+        ]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.966,
+        "phyBonus": 268,
+        "attrCoef": 0.966,
+        "attrBonus": 146,
+        "time": 0.2225593975
+      },
+      { "type": "apply", "target": "target", "value": "BoltQuanWei", "stack": 1, "time": 0.2225593975 }
+    ],
+    "cooldown": 3,
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Tab to Blue"
+  },
+  "BoltBlueCounter": {
+    "name": "霸王破虜",
+    "castTime": 2.2727272727272725,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoshanQuyueSpear"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 0.3937100890909091
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 0.5455596436363637
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 0.6964935709090908
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 0.8483431254545455
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 1.0001878609090908
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.418526,
+        "phyBonus": 115.8,
+        "attrCoef": 0.418526,
+        "attrBonus": 63.1,
+        "time": 1.1511266072727273
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.674104,
+        "phyBonus": 463.2,
+        "attrCoef": 1.674104,
+        "attrBonus": 252.4,
+        "time": 1.93214971
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
+    "shortName": "Blue Counter"
+  },
+  "BoltBlueVCBase": {
+    "name": "平風掃寶",
+    "castTime": 1,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltBlueVC",
+      "VariedCombo",
+      "Heavy",
+      "SubAction",
+      "BoltVCSeries"
+    ],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.838704,
+        "phyBonus": 232.4,
+        "attrCoef": 0.838704,
+        "attrBonus": 126.4,
+        "time": 0.3413598284313726
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 0.3413598284313726 },
+      {
+        "type": "damage",
+        "phyCoef": 1.258056,
+        "phyBonus": 348.6,
+        "attrCoef": 1.258056,
+        "attrBonus": 189.6,
+        "time": 0.6289317034313726
+      },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 1,
+        "time": 0.6289317034313726,
+        "requirement": [{ "target": "self", "value": "BoltWangXing" }]
+      },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 0.5,
+        "time": 0.6289317034313726,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "BoltWangXing" }] }]
+      }
+    ],
+    "ignorePing": true,
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
+    "shortName": "Blue VC"
+  },
+  "BoltBlueVCSharp": {
+    "name": "平風掃寶·鋒銳",
+    "castTime": 1.2,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltBlueVC",
+      "VariedCombo",
+      "Heavy",
+      "BoltSharpVC",
+      "SubAction",
+      "BoltVCSeries"
+    ],
+    "action": [
+      {
+        "type": "trigger",
+        "value": "BoltEnterFengRui",
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "BoltFengRui" }] }]
+      },
+      {
+        "type": "consumeResource",
+        "value": "SpearMomentum",
+        "amount": 1,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "ShenDuanQingFengT6" }]
+      },
+      {
+        "type": "consumeResource",
+        "value": "SpearMomentum",
+        "amount": 1.5,
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.264312,
+        "phyBonus": 73.2,
+        "attrCoef": 0.264312,
+        "attrBonus": 40,
+        "time": 0.33425189011029416
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 0.3502518901102942 },
+      {
+        "type": "damage",
+        "phyCoef": 0.396468,
+        "phyBonus": 109.8,
+        "attrCoef": 0.396468,
+        "attrBonus": 60,
+        "time": 0.5611662894852941
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.66078,
+        "phyBonus": 183,
+        "attrCoef": 0.66078,
+        "attrBonus": 100,
+        "time": 0.9575278750686276
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 0.9735278750686276 }
+    ],
+    "ignorePing": true,
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }],
+    "shortName": "Blue VC"
+  },
+  "BoltBlueVC": {
+    "name": "平風掃寶",
+    "castTime": 0,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltBlueVC",
+      "VariedCombo",
+      "Heavy",
+      "BoltVCSeries"
+    ],
+    "action": [],
+    "subAction": [
+      {
+        "value": "BoltBlueVCSharp",
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "BoltFengRui" },
+              { "target": "resource", "comparison": ">=", "amount": 6, "value": "SpearMomentum" }
+            ]
+          }
+        ],
+        "fallback": "BoltBlueVCBase"
+      }
+    ],
+    "shortName": "Blue VC"
+  },
+  "BoltEnterFengRui": {
+    "name": "鋒銳啟動",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["BoltInternal", "SubAction", "Triggered"],
+    "action": [
+      { "type": "consume", "target": "self", "value": "BoltMingGeSpent" },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "BoltFengRui",
+        "stack": 1,
+        "duration": 15,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "FuLiangYiYeT3" }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "BoltFengRui",
+        "stack": 1,
+        "duration": 10,
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "FuLiangYiYeT3" }] }]
+      }
+    ]
+  },
+  "BoltEndFengRui": {
+    "name": "鋒銳結束",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["BoltInternal", "SubAction", "Triggered"],
+    "action": [
+      {
+        "type": "trigger",
+        "value": "BoltEarlyMingGe",
+        "time": 0,
+        "requirement": [
+          { "target": "self", "value": "FuLiangYiYeT6" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "BoltMingGeSpent" }] }
+        ]
+      },
+      { "type": "consume", "target": "self", "value": "BoltFengRui" },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 2,
+        "requirement": [{ "target": "self", "value": "FuLiangYiYeT1" }]
+      }
+    ]
+  },
+  "BoltEarlyMingGe": {
+    "name": "鳴戈引爆",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["BoltInternal", "SubAction", "Triggered"],
+    "action": [
+      { "type": "trigger", "value": "BoltMingGe", "time": 0 },
+      { "type": "apply", "target": "self", "value": "BoltMingGeSpent", "stack": 1 },
+      { "type": "consume", "target": "target", "value": "BoltZaigeStacks", "stack": "all" }
+    ]
+  },
+  "BoltZaige": {
+    "name": "載戈",
+    "castTime": 0,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltProc",
+      "BoltZaige",
+      "VariedCombo",
+      "Triggered",
+      "BoltNoFlat",
+      "BoltVCSeries",
+      "MartialArtEffect",
+      "SubAction"
+    ],
+    "action": [
+      { "type": "damage", "phyCoef": 0.276, "attrCoef": 0.276, "attrBonus": 0, "time": 0 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "BoltZaigeStacks",
+        "stack": 1,
+        "duration": 8,
+        "requirement": [{ "target": "self", "value": "FuLiangYiYeT6" }]
+      }
+    ],
+    "ignorePing": true,
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }]
+  },
+  "BoltMingGe": {
+    "name": "鳴戈",
+    "castTime": 0,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltProc",
+      "BoltMingGe",
+      "VariedCombo",
+      "Triggered",
+      "BoltNoFlat",
+      "BoltVCSeries",
+      "MartialArtEffect",
+      "SubAction"
+    ],
+    "action": [{ "type": "damage", "phyCoef": 1.8, "attrCoef": 1.8, "attrBonus": 0, "time": 0 }],
+    "ignorePing": true,
+    "modifier": [
+      { "effect": { "targetCorrectionBonus": 0.6 } },
+      { "requirement": [{ "target": "self", "value": "FuLiangYiYeT6" }], "effect": { "GuaranteedAffinity": true } }
+    ]
+  },
+  "BoltBlueLight1": {
+    "name": "撥山輕擊1",
+    "castTime": 0.89,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Light"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.31108,
+        "phyBonus": 86.5,
+        "attrCoef": 0.31108,
+        "attrBonus": 47,
+        "time": 0.46313758400000005
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Light 1"
+  },
+  "BoltBlueLight2": {
+    "name": "撥山輕擊2",
+    "castTime": 0.4,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Light"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.3287865,
+        "phyBonus": 91.05,
+        "attrCoef": 0.3287865,
+        "attrBonus": 49.65,
+        "time": 0.23732215909090906
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Light 2"
+  },
+  "BoltBlueLight3": {
+    "name": "撥山輕擊3",
+    "castTime": 0.7043478260869567,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Light"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.219191,
+        "phyBonus": 60.7,
+        "attrCoef": 0.219191,
+        "attrBonus": 33.1,
+        "time": 0.3022436300543478
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3287865,
+        "phyBonus": 91.05,
+        "attrCoef": 0.3287865,
+        "attrBonus": 49.65,
+        "time": 0.5857872439673912
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Light 3"
+  },
+  "BoltBlueLight4": {
+    "name": "撥山輕擊4",
+    "castTime": 0.9910714285714286,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Light"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.219191,
+        "phyBonus": 60.7,
+        "attrCoef": 0.219191,
+        "attrBonus": 33.1,
+        "time": 0.20808482678571427
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.219191,
+        "phyBonus": 60.7,
+        "attrCoef": 0.219191,
+        "attrBonus": 33.1,
+        "time": 0.37687515535714283
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.5479775,
+        "phyBonus": 151.75,
+        "attrCoef": 0.5479775,
+        "attrBonus": 82.75,
+        "time": 0.6680140892857143
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Light 4"
+  },
+  "BoltBlueHeavy1": {
+    "name": "撥山重擊1",
+    "castTime": 0.8,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Heavy"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.838872,
+        "phyBonus": 232.2,
+        "attrCoef": 0.838872,
+        "attrBonus": 126.6,
+        "time": 0.4221055
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Heavy 1"
+  },
+  "BoltBlueHeavy2": {
+    "name": "撥山重擊2",
+    "castTime": 0.7101688199999999,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Heavy"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.69906,
+        "phyBonus": 193.5,
+        "attrCoef": 0.69906,
+        "attrBonus": 105.5,
+        "time": 0.372088154
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Heavy 2"
+  },
+  "BoltBlueHeavy3": {
+    "name": "撥山重擊3",
+    "castTime": 1.1973457850000002,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Heavy"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.258308,
+        "phyBonus": 348.3,
+        "attrCoef": 1.258308,
+        "attrBonus": 189.9,
+        "time": 0.976282931
+      }
+    ],
+    "martialArt": "boshanQuyueSpear",
+    "shortName": "Blue Heavy 3"
+  },
+  "BoltBlueParrySuccess": {
+    "name": "英布列甲·招架成功",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "MartialArt",
+      "Triggered",
+      "SubAction",
+      "BoshanQuyueSpear"
+    ],
+    "action": [
+      { "type": "damage", "time": 0, "phyCoef": 0.29409, "phyBonus": 82, "attrCoef": 0.29409, "attrBonus": 45 },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 1,
+        "requirement": [{ "target": "self", "value": "FuLiangYiYeT0" }]
+      },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 0.5,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "FuLiangYiYeT0" }] }]
+      }
+    ],
+    "weapon": "Spear"
+  },
+  "BoltQuanWeiExtend": {
+    "name": "泉威延長",
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["BoltInternal", "SubAction", "Triggered"],
+    "action": [{ "type": "extend", "target": "target", "value": "BoltQuanWei", "duration": 2 }]
+  },
+  "BoltMoonTide": {
+    "name": "潮湧",
+    "damageGroup": { "id": "YueYongFangYuan", "name": "月湧方圓" },
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["Triggered", "SubAction", "InnerWayProc", "MoonDamage", "DOT", "MoonTide"],
+    "action": [{ "type": "damage", "phyCoef": 0.04, "phyBonus": 0, "attrCoef": 0.04, "attrBonus": 0, "time": 0 }],
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "YueYongFangYuanT6" }],
+        "effect": {
+          "targetCorrectionBonus": {
+            "formula": {
+              "source": "effectiveAffinity",
+              "multiplier": 0.01,
+              "max": 0.3,
+              "step": 0.01,
+              "resolveAt": "action"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "BoltMoonBurst": {
+    "name": "洪波萬仞",
+    "damageGroup": { "id": "YueYongFangYuan", "name": "月湧方圓" },
+    "castTime": 0,
+    "ignorePing": true,
+    "tags": ["Triggered", "SubAction", "InnerWayProc", "MoonDamage", "DirectDamage"],
+    "action": [{ "type": "damage", "phyCoef": 1.85, "phyBonus": 0, "attrCoef": 1.85, "attrBonus": 0, "time": 0 }],
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "YueYongFangYuanT6" }],
+        "effect": {
+          "targetCorrectionBonus": {
+            "formula": {
+              "source": "effectiveAffinity",
+              "multiplier": 0.01,
+              "max": 0.3,
+              "step": 0.01,
+              "resolveAt": "action"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

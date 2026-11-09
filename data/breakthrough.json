@@ -71,5 +71,179 @@
     },
     "soloLevel": 19,
     "gearTier": 100
+  },
+  "20": {
+    "name": "20",
+    "martialArtTalentRank": 16,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.15,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 11600,
+        "minPhys": 48,
+        "maxPhys": 96,
+        "physicalDefense": 24,
+        "agility": 192,
+        "power": 192,
+        "momentum": 192,
+        "body": 192,
+        "defense": 192,
+        "precision": 0.207
+      }
+    },
+    "soloLevel": 20,
+    "gearTier": 105,
+    "enemyProfileSource": "fixedDummy"
+  },
+  "21": {
+    "name": "21",
+    "martialArtTalentRank": 17,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.15,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 16300,
+        "minPhys": 66,
+        "maxPhys": 132,
+        "physicalDefense": 33,
+        "agility": 208,
+        "power": 208,
+        "momentum": 208,
+        "body": 208,
+        "defense": 208,
+        "precision": 0.223
+      }
+    },
+    "soloLevel": 21,
+    "gearTier": 105,
+    "enemyProfileSource": "fixedDummy"
+  },
+  "22": {
+    "name": "22",
+    "martialArtTalentRank": 18,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.45,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 21000,
+        "minPhys": 84,
+        "maxPhys": 168,
+        "physicalDefense": 42,
+        "agility": 224,
+        "power": 224,
+        "momentum": 224,
+        "body": 224,
+        "defense": 224,
+        "precision": 0.239
+      }
+    },
+    "soloLevel": 22,
+    "gearTier": 110,
+    "enemyProfileSource": "fixedDummy"
+  },
+  "23": {
+    "name": "23",
+    "martialArtTalentRank": 19,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.45,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 26200,
+        "minPhys": 102,
+        "maxPhys": 204,
+        "physicalDefense": 51,
+        "agility": 242,
+        "power": 242,
+        "momentum": 242,
+        "body": 242,
+        "defense": 242,
+        "precision": 0.256
+      }
+    },
+    "soloLevel": 23,
+    "gearTier": 110,
+    "enemyProfileSource": "fixedDummy"
+  },
+  "24": {
+    "name": "24",
+    "martialArtTalentRank": 20,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.8,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 32000,
+        "minPhys": 122,
+        "maxPhys": 244,
+        "physicalDefense": 61,
+        "agility": 262,
+        "power": 262,
+        "momentum": 262,
+        "body": 262,
+        "defense": 262,
+        "precision": 0.274
+      }
+    },
+    "soloLevel": 24,
+    "gearTier": 115,
+    "enemyProfileSource": "fixedDummy"
+  },
+  "25": {
+    "name": "25",
+    "martialArtTalentRank": 21,
+    "level": 96,
+    "defense": 500,
+    "physicalResistance": 0,
+    "bellstrikeResistance": 0,
+    "stonesplitResistance": 0,
+    "silkbindResistance": 0,
+    "bamboocutResistance": 0,
+    "judgementResistance": 1.8,
+    "levelBonusStats": {
+      "rawStat": {
+        "maxHp": 38000,
+        "minPhys": 144,
+        "maxPhys": 288,
+        "physicalDefense": 72,
+        "agility": 282,
+        "power": 282,
+        "momentum": 282,
+        "body": 282,
+        "defense": 282,
+        "precision": 0.293
+      }
+    },
+    "soloLevel": 25,
+    "gearTier": 115,
+    "enemyProfileSource": "fixedDummy"
   }
 }

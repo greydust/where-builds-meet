@@ -57,7 +57,13 @@ describe("Wings integration", () => {
     ).toBe(0.25)
   })
   it("expands a previously universal weapon list while preserving a specific saved pair", () => {
-    const oldUniversal = weaponIds.filter(id => id !== "museflowWaistDrum" && id !== "willowbendFan")
+    const oldUniversal = weaponIds.filter(
+      id =>
+        id !== "museflowWaistDrum" &&
+        id !== "willowbendFan" &&
+        id !== "jueyuXuanfengSpear" &&
+        id !== "boshanQuyueSpear",
+    )
     expect(normalizeStoredWeaponIds(oldUniversal)).toEqual([...weaponIds])
     expect(normalizeStoredWeaponIds(["panaceaFan", "soulshadeUmbrella"])).toEqual(["panaceaFan", "soulshadeUmbrella"])
   })

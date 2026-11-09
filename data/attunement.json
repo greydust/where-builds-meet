@@ -350,5 +350,35 @@
     "percentage": true,
     "tags": ["Armor", "SilkbindWings", "WillowbendFan"],
     "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["WillowbendFan", ["Heavy", "VariedCombo"]] }
+  },
+  "boltVariedComboBoost": {
+    "name": "懸鋒取月·輕重擊派生增傷",
+    "percentage": true,
+    "tags": ["Armor", "BellstrikeBolt", "JueyuXuanfengSpear", "BoshanQuyueSpear"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["BoltVCSeries"] }
+  },
+  "jueyuXuanfengSpearMartialBoost": {
+    "name": "決獄懸鋒槍·武學技增傷",
+    "percentage": true,
+    "tags": ["Armor", "BellstrikeBolt", "JueyuXuanfengSpear"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["JueyuXuanfengSpear", "MartialArt"] }
+  },
+  "jueyuXuanfengSpearSpecialBoost": {
+    "name": "決獄懸鋒槍·特殊技增傷",
+    "percentage": true,
+    "tags": ["Armor", "BellstrikeBolt", "JueyuXuanfengSpear"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["JueyuXuanfengSpear", "Special"] }
+  },
+  "boshanQuyueSpearMartialBoost": {
+    "name": "撥山取月槍·武學技增傷",
+    "percentage": true,
+    "tags": ["Armor", "BellstrikeBolt", "BoshanQuyueSpear"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["BoshanQuyueSpear", "MartialArt"] }
+  },
+  "boshanQuyueSpearSpecialBoost": {
+    "name": "撥山取月槍·特殊技增傷",
+    "percentage": true,
+    "tags": ["Armor", "BellstrikeBolt", "BoshanQuyueSpear"],
+    "effect": { "stat": { "attunementDMGBonus": 1 }, "tags": ["BoshanQuyueSpear", "Special"] }
   }
 }

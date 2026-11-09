@@ -21,6 +21,7 @@
   "data.official.profileMap.martialArts.20503.name": "断水双诀",
   "data.official.profileMap.martialArts.20902.name": "悬身拳法",
   "data.path.bamboocutDraught.name": "樽",
+  "data.path.bellstrikeBolt.name": "霆",
   "data.skill.heavenwillGauntlets.AllUnderJustice.shortName": "手甲 特殊技",
   "data.skill.heavenwillGauntlets.CelestialMandate.shortName": "手甲 Q2",
   "data.skill.heavenwillGauntlets.HeavenwillDeclared.shortName": "手甲 Q1",
@@ -77,5 +78,6 @@
   "system.innerWay.skyspeak": "飞仙醉言",
   "system.innerWay.volutefit": "大卷微身",
   "system.resource.binge": "狂饮值",
+  "system.resource.spearMomentum": "枪势",
   "ui.app.draughtDebuffs": "离猎 + 步乱 (樽)"
 }

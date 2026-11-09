@@ -1,5 +1,29 @@
 # DPS regression snapshots
 
+## Bolt public Preview acceptance (November 9, 2026)
+
+The user accepted Bolt's completed Dummy 1 Min calculation and requested
+release with the Preview badge retained and no Dev-mode requirement.
+The default preset and its public non-relayed graduate counterpart are accepted:
+
+| Build             | Solo Level | DPS               | Total damage       | Duration |
+| ----------------- | ---------- | ----------------- | ------------------ | -------- |
+| Full Max          | 18         | 89552.46117118334 | 5373147.670271001  | 60s      |
+| Full Max          | 19         | 93852.33120780764 | 5631139.8724684585 | 60s      |
+| Fully Relayed Max | 18         | 86112.86359537291 | 5166771.815722374  | 60s      |
+| Fully Relayed Max | 19         | 90795.0264579321  | 5447701.587475926  | 60s      |
+
+All 326 previously accepted fixtures remain bit-identical. Only Bolt's
+records were added. The user's subsequent Affinity-to-Momentum request
+replaces the greaves' additional Affinity roll in both layouts. At Solo 19,
+Fully Relayed changes from 90,478.44162539956 to 90,795.0264579321 DPS and
+39.390607567567564% effective Affinity; Full Max remains capped at 40%.
+The highest-only Art rule does not change these presets' baseline damage,
+because neither has duplicate Arts of the same family.
+The release guard retains its existing baseline
+levels 18/19; progression and preset tests cover the added levels through 25. The fully progressed Solo-25 result and per-skill breakdown are retained
+in [the Level 25 report](reports/bolt-solo-25-2026-11-09.md).
+
 ## Draught Max Mistwing acceptance (November 8, 2026)
 
 The user approved replacing T6 Envigorated Warrior with T6 Mistwing in the

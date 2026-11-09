@@ -165,6 +165,330 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246.0, "minBellstrike": 123.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 106.92 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266.0, "minBellstrike": 133.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 114.048 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286.0, "minBellstrike": 143.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 121.968 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306.0, "minBellstrike": 153.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 129.888 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328.0, "minBellstrike": 164.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                { "target": "skillTag", "value": "HeavenQuakerSpear" },
+                { "target": "skillTag", "value": "Charged" }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "SoulShaken", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "power", "multiplier": 0.264, "max": 139.392 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DOT" },
+                  { "target": "skillTag", "value": "HighBleed" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352.0, "minBellstrike": 176.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenQuakerSpear" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

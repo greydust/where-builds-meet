@@ -71,7 +71,7 @@ export async function loadDpsSnapshotFixtures(breakthrough = dpsSnapshotEnvironm
   return cases
 }
 
-/** Accepted regression cases cover every build/rotation pair at both current breakthroughs. */
+/** Accepted regression cases cover every build/rotation pair at baseline Solo Levels 18 and 19. */
 export async function loadDpsSnapshotCases() {
   const levels = await Promise.all(["18", "19"].map(breakthrough => loadDpsSnapshotFixtures(breakthrough)))
   const groups = [...new Set(levels.flat().map(entry => entry.buildGroup))]

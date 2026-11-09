@@ -161,6 +161,7 @@ it("keeps Script and Divinecraft selections in the same calculation as the chara
 
 it.each([
   { name: "breakthrough", selector: ".breakthrough-control select", value: "19" },
+  { name: "Solo Level 25", selector: ".breakthrough-control select", value: "25" },
   { name: "Inner Way tier", selector: ".inner-way-row select:nth-of-type(2)", value: "T0" },
 ])("rebuilds character stats when $name changes", async ({ selector, value }) => {
   await act(async () => root.render(<App />))
@@ -169,7 +170,16 @@ it.each([
   const beforeDps = useRotationStore.getState().result!.metrics.dps
   const select = container.querySelector<HTMLSelectElement>(selector)!
   const breakthrough = container.querySelector<HTMLSelectElement>(".breakthrough-control select")!
-  expect(Array.from(breakthrough.options, option => option.value)).toEqual(["18", "19"])
+  expect(Array.from(breakthrough.options, option => option.value)).toEqual([
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+  ])
   const original = select.value
   expect(original).not.toBe(value)
   await act(async () => {

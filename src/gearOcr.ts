@@ -5,10 +5,13 @@ import {
   attunementData,
   attunementsForGearDefinition,
   gearData,
+  gearLevels,
   type GearLevel,
   type GearRarity,
   type GearValue,
 } from "./gear"
+
+const gearTierPattern = new RegExp(`\\btier\\s*(${gearLevels.join("|")})\\b`, "i")
 
 export type GearOcrResult = {
   definitionId: string
@@ -163,7 +166,7 @@ function containsNumber(values: number[], expected: number) {
 export function inferGearLevelAndRarity(definitionId: string, rawText: string) {
   const definition = gearData.gear[definitionId]
   const normalizedText = normalize(rawText)
-  const levelMatch = normalizedText.match(/tier\s*(91|96|100)/)
+  const levelMatch = normalizedText.match(gearTierPattern)
   const level = (levelMatch ? Number(levelMatch[1]) : 96) as GearLevel
   const values = numericTokens(rawText)
   const rarities = (["Gold", "Purple"] as const).filter(rarity => {
@@ -365,7 +368,7 @@ export async function recognizeGearImage(
     )
     let rawText = `${metadataResult.data.text}\n${positionedResult.data.text}`
     const inlineWords = inlineValueWords(parseWords(positionedResult.data.tsv))
-    if (!/tier\s*(91|96|100)/i.test(rawText) && inlineWords.length >= 2) {
+    if (!gearTierPattern.test(rawText) && inlineWords.length >= 2) {
       // The progression page's tier banner uses dark text on a light strip.
       // Isolate it from the surrounding light-on-dark title and attributes.
       const gap = inlineWords[1].top - inlineWords[0].top
@@ -380,7 +383,7 @@ export async function recognizeGearImage(
           height: Math.min(dimensions.height - top, Math.max(1, Math.round(gap * 0.6))),
         },
       })
-      const tier = tierResult.data.text.match(/tier\s*(91|96|100)\b/i)
+      const tier = tierResult.data.text.match(gearTierPattern)
       if (tier) rawText += `\nTier ${tier[1]}`
     }
     try {

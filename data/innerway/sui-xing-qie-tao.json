@@ -1,0 +1,240 @@
+{
+  "name": "歲星竊桃",
+  "altersTimeline": true,
+  "tags": ["BellstrikeBolt"],
+  "sourceEdition": "CN",
+  "sourceId": 754,
+  "sourceTiers": [
+    [
+      { "text": "主、副武學使用#Y相同#E武器時，武學技能造成的氣血傷害提升#Y6%#E，奇術技能造成的氣血傷害則降低#Y4%#E。" }
+    ],
+    [
+      {
+        "text": "主、副武學使用#Y相同#E武器時，武學技能造成的氣血傷害提升#Y6%#E，且自身受到的武學技能傷害降低#Y6%#E。同時奇術造成的氣血傷害則降低#Y4%#E，且受到奇術技能造成的傷害提高#Y4%#E。"
+      }
+    ],
+    [
+      {
+        "text": "<無相攻擊|780|#C|209>提升，效果隨單人模式等級提升。",
+        "bullet": true,
+        "soloLevelValues": [
+          {
+            "referenceTag": "<無相攻擊|780|#C|209>",
+            "formats": ["1f", "1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              [2.5, 5.1],
+              [3.5, 6.9],
+              [4.5, 9.1],
+              [5.7, 11.5],
+              [6.7, 13.5],
+              [6.7, 13.5],
+              [6.7, 13.5],
+              [8, 16],
+              [9.3, 18.7],
+              [10.9, 21.7],
+              [12.1, 24.1],
+              [12.7, 25.3],
+              [13.3, 26.5],
+              [14.3, 28.5],
+              [15.4, 30.8],
+              [16.7, 33.3],
+              [17.9, 35.9],
+              [19.3, 38.5],
+              [20.7, 41.3],
+              null,
+              null
+            ]
+          },
+          {
+            "referenceTag": "<無相攻擊|780|#C|209>",
+            "formats": ["1f", "1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              [2.5, 5.1],
+              [3.5, 6.9],
+              [4.5, 9.1],
+              [5.7, 11.5],
+              [6.7, 13.5],
+              [6.7, 13.5],
+              [6.7, 13.5],
+              [8, 16],
+              [9.3, 18.7],
+              [10.9, 21.7],
+              [12.1, 24.1],
+              [12.7, 25.3],
+              [13.3, 26.5],
+              [14.3, 28.5],
+              [15.4, 30.8],
+              [16.7, 33.3],
+              [17.9, 35.9],
+              [19.3, 38.5],
+              [20.7, 41.3],
+              [22.1, 44.3],
+              [23.7, 47.5]
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "text": "主、副武學使用#Y相同#E武器時，武學技能造成的氣血傷害提升#Y6%#E，且自身受到的武學技能傷害降低#Y6%#E。同時奇術造成的氣血傷害則降低#Y4%#E，且受到奇術技能造成的傷害提高#Y4%#E。"
+      },
+      {
+        "text": "主、副武學使用#Y相同#E武器時，#Y易武技#E對目標造成傷害後自身獲得持續#Y5#E秒的#Y竊桃#E狀態：免疫本心法對自身的所有負面效果，竊桃每8秒最多獲得1次。 ",
+        "bullet": true
+      }
+    ],
+    [
+      {
+        "text": "主、副武學使用#Y相同#E武器時，武學技能造成的氣血傷害提升#Y6%#E，且自身受到的武學技能傷害降低#Y6%#E。同時奇術造成的氣血傷害則降低#Y4%#E，且受到奇術技能造成的傷害提高#Y4%#E。"
+      },
+      {
+        "text": "主、副武學使用#Y相同#E武器時，#Y易武技#E造成的氣血傷害提升#Y15%#E。同時#Y竊桃#E期間自身受到的真氣傷害降低#Y5%#E。",
+        "bullet": true
+      }
+    ],
+    [{ "text": "<無相穿透|780|#C|190>提升6點。", "bullet": true }],
+    [
+      {
+        "text": "主、副武學使用#Y相同#E武器時，武學技能造成的氣血傷害提升#Y6%#E，且自身受到的武學技能傷害降低#Y6%#E。同時奇術造成的氣血傷害則降低#Y4%#E，且受到奇術技能造成的傷害提高#Y4%#E。"
+      },
+      {
+        "text": "#Y竊桃#E持續時間提升至#Y10#E秒。主、副武學使用#Y相同#E武器時，#Y竊桃#E期間增益效果獲得強化：造成傷害提升和受到傷害降低效果強化至#Y10%#E。",
+        "bullet": true
+      }
+    ]
+  ],
+  "effect": {
+    "SuiXingQieTaoT0": {
+      "effect": [
+        { "requirement": [{ "target": "skillTag", "value": "MartialArts" }], "effect": { "hpDMGBonus": 0.06 } },
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "Mystic" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "BoltQieTao" }] }
+          ],
+          "effect": { "hpDMGBonus": -0.04 }
+        }
+      ]
+    },
+    "SuiXingQieTaoT1": {},
+    "SuiXingQieTaoT2": {
+      "effect": [
+        {
+          "rawStat": {
+            "minVoidAttack": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                2.5,
+                3.5,
+                4.5,
+                5.7,
+                6.7,
+                6.7,
+                6.7,
+                8,
+                9.3,
+                10.9,
+                12.1,
+                12.7,
+                13.3,
+                14.3,
+                15.4,
+                16.7,
+                17.9,
+                19.3,
+                20.7,
+                22.1,
+                23.7
+              ]
+            },
+            "maxVoidAttack": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                5.1,
+                6.9,
+                9.1,
+                11.5,
+                13.5,
+                13.5,
+                13.5,
+                16,
+                18.7,
+                21.7,
+                24.1,
+                25.3,
+                26.5,
+                28.5,
+                30.8,
+                33.3,
+                35.9,
+                38.5,
+                41.3,
+                44.3,
+                47.5
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "SuiXingQieTaoT3": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [{ "target": "skillTag", "value": "DualWeapon" }],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltQieTao",
+              "stack": 1,
+              "duration": 10,
+              "requirement": [{ "target": "self", "value": "SuiXingQieTaoT6" }]
+            },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltQieTao",
+              "stack": 1,
+              "duration": 5,
+              "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "SuiXingQieTaoT6" }] }]
+            }
+          ],
+          "cooldown": 8
+        }
+      ]
+    },
+    "SuiXingQieTaoT4": {
+      "effect": [{ "requirement": [{ "target": "skillTag", "value": "DualWeapon" }], "effect": { "hpDMGBonus": 0.15 } }]
+    },
+    "SuiXingQieTaoT5": { "effect": [{ "rawStat": { "formlessPenetration": 6 } }] },
+    "SuiXingQieTaoT6": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "MartialArts" },
+            { "target": "self", "value": "BoltQieTao" }
+          ],
+          "effect": { "hpDMGBonus": 0.04 }
+        }
+      ]
+    }
+  }
+}

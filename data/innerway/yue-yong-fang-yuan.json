@@ -1,0 +1,352 @@
+{
+  "name": "月湧方圓",
+  "altersTimeline": true,
+  "tags": ["BellstrikeBolt"],
+  "sourceEdition": "CN",
+  "sourceId": 83,
+  "sourceTiers": [
+    [
+      {
+        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。"
+      }
+    ],
+    [
+      {
+        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+      }
+    ],
+    [
+      {
+        "text": "<最大外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "bullet": true,
+        "soloLevelValues": [
+          {
+            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "formats": ["1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              14.9,
+              20.3,
+              26.7,
+              33.8,
+              39.6,
+              39.6,
+              39.6,
+              47,
+              54.8,
+              63.9,
+              70.9,
+              74.4,
+              77.9,
+              84,
+              90.6,
+              97.8,
+              105.5,
+              113.1,
+              121.3,
+              null,
+              null
+            ]
+          },
+          {
+            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "formats": ["1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              14.9,
+              20.3,
+              26.7,
+              33.8,
+              39.6,
+              39.6,
+              39.6,
+              47,
+              54.8,
+              63.9,
+              70.9,
+              74.4,
+              77.9,
+              84,
+              90.6,
+              97.8,
+              105.5,
+              113.1,
+              121.3,
+              130.1,
+              139.5
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+      },
+      {
+        "text": "湧潮為滿，天地作勢。#Y月引#E期間，造成直接傷害會為目標附加持續5秒的#Y暗潮#E：來自效果來源的所有傷害，結算時<直接會意率|780|#C|150>提升#Y0.3%#E，最多可疊加5層。",
+        "bullet": true
+      }
+    ],
+    [
+      {
+        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+      },
+      {
+        "text": "霜雪俱下，聽潮相擊。滿層#Y暗潮#E，會每秒對目標造成一次#Y潮湧#E傷害，並為其添加#Y30#E秒#Y潮信#E印記：持續期間，若#Y暗潮#E狀態結束且再次受到來自印記來源的會意傷害，會重新激活#Y5#E層#Y暗潮#E，並為來源添加#Y月引#E。",
+        "bullet": true
+      }
+    ],
+    [{ "text": "<直接會意率|780|#C|150>提升2.3%。", "bullet": true }],
+    [
+      {
+        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+      },
+      {
+        "text": "長風濤動，滂沛洶溶。潮波汨起，萬頃蔽日。目標的首次#Y潮湧#E會升級為#Y洪波萬仞#E，可對周圍最多五名敵人造成範圍傷害，其後每#Y10#E次#Y潮湧#E可觸發一次；#Y潮湧#E與#Y洪波萬仞#E對非玩家單位的傷害可基於<生效會意率|780|#C|23>額外提升，最高可提升#Y30%#E，達到提升上限需累積#Y30%#E<生效會意率|780|#C|23>。",
+        "bullet": true
+      }
+    ]
+  ],
+  "effect": {
+    "YueYongFangYuanT0": {
+      "effect": [
+        {
+          "effect": {
+            "outcomeMachine": {
+              "cells": { "MoonPhase": { "duration": 5, "maximum": 5, "effect": "BoltMoonPhase" } },
+              "rules": {
+                "phase": {
+                  "order": 20,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] }
+                  ],
+                  "operations": [{ "type": "add", "cell": "MoonPhase", "amount": 1 }],
+                  "requires": [{ "cell": "MoonPull", "maximum": 0 }],
+                  "outcome": "affinity",
+                  "read": "before"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "YueYongFangYuanT1": {
+      "effect": [
+        {
+          "effect": {
+            "outcomeMachine": {
+              "cells": {
+                "MoonPull": { "duration": 5, "effect": "BoltMoonPull", "refresh": { "extend": 2, "maximum": 15 } }
+              },
+              "rules": {
+                "extend": {
+                  "order": 21,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] }
+                  ],
+                  "operations": [{ "type": "add", "cell": "MoonPull", "amount": 1 }],
+                  "requires": [{ "cell": "MoonPull", "minimum": 1 }],
+                  "outcome": "affinity",
+                  "read": "before",
+                  "expectedRefresh": true
+                },
+                "convert": {
+                  "order": 30,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] }
+                  ],
+                  "operations": [
+                    { "type": "remove", "cell": "MoonPhase" },
+                    { "type": "add", "cell": "MoonPull", "amount": 1 },
+                    { "type": "consumeHP", "ratio": 0.05 }
+                  ],
+                  "requires": [{ "cell": "MoonPhase", "minimum": 5 }]
+                }
+              },
+              "expectedStackPromotion": {
+                "cell": "MoonPhase",
+                "threshold": 1e-5,
+                "requires": [{ "cell": "MoonPull", "maximum": 0 }],
+                "onMax": "convert"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "YueYongFangYuanT2": {
+      "effect": [
+        {
+          "rawStat": {
+            "maxPhys": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                14.9,
+                20.3,
+                26.7,
+                33.8,
+                39.6,
+                39.6,
+                39.6,
+                47,
+                54.8,
+                63.9,
+                70.9,
+                74.4,
+                77.9,
+                84,
+                90.6,
+                97.8,
+                105.5,
+                113.1,
+                121.3,
+                130.1,
+                139.5
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "YueYongFangYuanT3": {
+      "effect": [
+        {
+          "effect": {
+            "outcomeMachine": {
+              "cells": { "MoonDark": { "duration": 5, "maximum": 5, "effect": "BoltMoonDark" } },
+              "rules": {
+                "dark": {
+                  "order": 60,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] }
+                  ],
+                  "operations": [{ "type": "add", "cell": "MoonDark", "amount": 1 }],
+                  "requires": [{ "cell": "MoonPull", "minimum": 1 }],
+                  "read": "before"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "YueYongFangYuanT4": {
+      "effect": [
+        {
+          "effect": {
+            "outcomeMachine": {
+              "cells": {
+                "MoonMark": { "duration": 30 },
+                "MoonCarrier": {
+                  "duration": 5,
+                  "periodic": {
+                    "skill": "BoltMoonTide",
+                    "firstDelay": 1,
+                    "interval": 1,
+                    "expectedTickAlignment": "battle"
+                  }
+                }
+              },
+              "rules": {
+                "recover": {
+                  "order": 50,
+                  "requirement": [],
+                  "operations": [
+                    { "type": "remove", "cell": "MoonPhase" },
+                    { "type": "add", "cell": "MoonDark", "amount": 5 },
+                    { "type": "add", "cell": "MoonPull", "amount": 1 },
+                    { "type": "add", "cell": "MoonCarrier", "amount": 1 },
+                    { "type": "add", "cell": "MoonMark", "amount": 1 }
+                  ],
+                  "requires": [
+                    { "cell": "MoonMark", "minimum": 1 },
+                    { "cell": "MoonDark", "maximum": 0 }
+                  ],
+                  "outcome": "affinity",
+                  "read": "before"
+                },
+                "carrier": {
+                  "order": 70,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] }
+                  ],
+                  "operations": [
+                    { "type": "add", "cell": "MoonCarrier", "amount": 1 },
+                    { "type": "add", "cell": "MoonMark", "amount": 1 }
+                  ],
+                  "requires": [
+                    { "cell": "MoonDark", "minimum": 5 },
+                    { "cell": "MoonPull", "minimum": 1 }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "YueYongFangYuanT5": { "effect": [{ "rawStat": { "directAffinity": 0.023 } }] },
+    "YueYongFangYuanT6": {
+      "effect": [
+        {
+          "effect": {
+            "outcomeMachine": {
+              "cells": { "MoonBurstOnce": { "duration": -1 }, "MoonRepeat": { "duration": 60, "maximum": 10 } },
+              "rules": {
+                "initialBurst": {
+                  "order": 0,
+                  "requirement": [
+                    { "target": "skillTag", "value": "DirectDamage" },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "DOT" }] },
+                    { "operator": "not", "operand": [{ "target": "skillTag", "value": "MoonDamage" }] }
+                  ],
+                  "operations": [
+                    { "type": "add", "cell": "MoonBurstOnce", "amount": 1 },
+                    { "type": "emit", "skill": "BoltMoonBurst" }
+                  ],
+                  "requires": [
+                    { "cell": "MoonPull", "minimum": 1 },
+                    { "cell": "MoonDark", "minimum": 4 },
+                    { "cell": "MoonBurstOnce", "maximum": 0 }
+                  ],
+                  "read": "before"
+                },
+                "repeatCount": {
+                  "order": 80,
+                  "requirement": [{ "target": "skillTag", "value": "MoonTide" }],
+                  "operations": [{ "type": "add", "cell": "MoonRepeat", "amount": 1 }]
+                },
+                "repeatBurst": {
+                  "order": 90,
+                  "requirement": [{ "target": "skillTag", "value": "MoonTide" }],
+                  "operations": [
+                    { "type": "remove", "cell": "MoonRepeat" },
+                    { "type": "emit", "skill": "BoltMoonBurst" }
+                  ],
+                  "requires": [{ "cell": "MoonRepeat", "minimum": 10 }]
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

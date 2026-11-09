@@ -1,4 +1,9 @@
 @layer components {
+  .rotation-resource-feng-rui {
+    color: var(--error);
+    font-weight: 700;
+  }
+
   .rotation-editor-panel {
     min-block-size: 0;
   }

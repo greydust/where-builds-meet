@@ -4,7 +4,7 @@ import path from "node:path"
 import { assert, describe, it } from "vitest"
 
 import type { PathId } from "@/application/contracts"
-import { pathRequiresDev, typedPathDefinitions } from "@/application/gameData/paths"
+import { pathIsSelectable, typedPathDefinitions } from "@/application/gameData/paths"
 import type { PathDefinition } from "@/application/gameData/paths"
 import { gearData, statRollsForLevel } from "@/gear"
 import type { BuildPreset, BuildPresetGear, GearSlot } from "@/gear"
@@ -186,7 +186,7 @@ describe("preset-eligibility", () => {
           [...rotation.definition.martialArts].sort().join("|") === [...definition.lockedWeapons].sort().join("|"),
           `Path ${pathId}'s default rotation must use its locked martial-art pair.`,
         )
-      if (!pathRequiresDev(definition)) {
+      if (pathIsSelectable(definition, false)) {
         assert(build.definition.test !== true, `Available path ${pathId} cannot use a test-only default build.`)
         for (const graduateBuild of graduateBuilds)
           assert(

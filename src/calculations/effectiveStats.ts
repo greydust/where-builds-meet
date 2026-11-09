@@ -51,6 +51,8 @@ export function mainAttributeForWeapons(weapons: WeaponId[]) {
       case "thundercry":
       case "stormbreaker":
         return "stonesplit" as const
+      case "jueyuXuanfengSpear":
+      case "boshanQuyueSpear":
       case "namelessSword":
       case "namelessSpear":
       case "strategicSword":

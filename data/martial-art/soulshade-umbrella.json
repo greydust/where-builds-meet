@@ -199,6 +199,400 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 246.0, "minSilkbind": 123.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 266.0, "minSilkbind": 133.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 286.0, "minSilkbind": 143.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 306.0, "minSilkbind": 153.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 328.0, "minSilkbind": 164.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "equippedMartialArt", "value": "panaceaFan" },
+              { "target": "skillTag", "value": "Mystic" }
+            ],
+            "effect": { "dmgBonus": 0.2 }
+          },
+          {
+            "target": "FloatingGrace",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          },
+          {
+            "target": "FloatingGraceDeluge",
+            "modify": {
+              "effect": [
+                { "requirement": [{ "target": "target", "value": "Exhausted" }], "effect": { "dmgBonus": 0.05 } }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "Special" }], "effect": { "criticalHealingBonus": 0.05 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Special" }],
+            "effect": {
+              "criticalHealingBonus": {
+                "formula": { "source": "minPhys", "multiplier": 0.0003333333333333333, "max": 0.25 }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 352.0, "minSilkbind": 176.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SoulshadeUmbrella" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

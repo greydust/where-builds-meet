@@ -198,6 +198,406 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246.0, "minBamboocut": 123.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.0225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266.0, "minBamboocut": 133.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.03 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286.0, "minBamboocut": 143.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.04 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306.0, "minBamboocut": 153.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.05 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328.0, "minBamboocut": 164.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.06 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [
+                { "target": "self", "value": "Carouse" },
+                { "target": "skillTag", "value": "PerfectDodge" },
+                { "target": "resource", "value": "Binge", "comparison": ">=", "amount": 100 },
+                { "target": "currentMartialArt", "value": "skystrikeGauntlets" }
+              ],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          },
+          {
+            "trigger": {
+              "event": "attackResponse",
+              "requirement": [{ "target": "skillTag", "value": "Deflect" }],
+              "cooldown": 1,
+              "action": { "type": "addResource", "value": "Binge", "amount": 5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "InebriateEnhanced" }],
+            "effect": {
+              "critDmgBonus": {
+                "formula": { "source": "minPhys", "step": 50, "multiplier": 0.02, "max": 0.3, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352.0, "minBamboocut": 176.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeGauntlets" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SkystrikeCoefficientEnhanced" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

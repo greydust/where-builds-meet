@@ -1,0 +1,352 @@
+{
+  "BoltRedCharged": {
+    "name": "星馳秋野",
+    "castTime": 2.4,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Charged"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.474882,
+        "phyBonus": 131.4,
+        "attrCoef": 0.474882,
+        "attrBonus": 71.6,
+        "time": 0.53304714
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.474882,
+        "phyBonus": 131.4,
+        "attrCoef": 0.474882,
+        "attrBonus": 71.6,
+        "time": 0.9671403399999998
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.474882,
+        "phyBonus": 131.4,
+        "attrCoef": 0.474882,
+        "attrBonus": 71.6,
+        "time": 1.43323462
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.949764,
+        "phyBonus": 262.8,
+        "attrCoef": 0.949764,
+        "attrBonus": 143.2,
+        "time": 1.9613442859999999
+      }
+    ],
+    "martialArt": "jueyuXuanfengSpear",
+    "shortName": "Red Charged"
+  },
+  "BoltRedQ": {
+    "name": "金科盡詔",
+    "castTime": 0.63,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoltExhaustedRefill", "JueyuXuanfengSpear"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.5073,
+        "phyBonus": 141,
+        "attrCoef": 0.5073,
+        "attrBonus": 76.5,
+        "time": 0.30013827051626407
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.5073,
+        "phyBonus": 141,
+        "attrCoef": 0.5073,
+        "attrBonus": 76.5,
+        "time": 0.5672623482897734
+      }
+    ],
+    "cooldown": 12,
+    "martialArt": "jueyuXuanfengSpear",
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
+    "cooldownUses": 2,
+    "cooldownRecovery": "sequential",
+    "shortName": "Red Q"
+  },
+  "BoltRedSpecial": {
+    "name": "玉京崩騰",
+    "castTime": 1.4,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Special", "JueyuXuanfengSpear"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.54252,
+        "phyBonus": 150.3,
+        "attrCoef": 0.54252,
+        "attrBonus": 81.9,
+        "time": 0.39911755299999996
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.26588,
+        "phyBonus": 350.7,
+        "attrCoef": 1.26588,
+        "attrBonus": 191.1,
+        "time": 1.133332235
+      }
+    ],
+    "cooldown": 10,
+    "martialArt": "jueyuXuanfengSpear",
+    "shortName": "Red Special"
+  },
+  "BoltRedTab": {
+    "name": "直貫其鋒",
+    "castTime": 0.625,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "DualWeapon", "Tab"],
+    "action": [
+      { "type": "switchMartialArt", "martialArt": "jueyuXuanfengSpear", "time": 0 },
+      {
+        "type": "trigger",
+        "value": "BoltEarlyMingGe",
+        "time": 1.10375,
+        "requirement": [
+          { "target": "self", "value": "FuLiangYiYeT6" },
+          { "target": "self", "value": "BoltFengRui" },
+          { "operator": "not", "operand": [{ "target": "self", "value": "BoltMingGeSpent" }] }
+        ]
+      },
+      { "type": "damage", "phyCoef": 0.48, "phyBonus": 134, "attrCoef": 0.48, "attrBonus": 73, "time": 0.29135472375 },
+      { "type": "apply", "target": "target", "value": "BoltQuanWei", "stack": 1, "time": 0.29135472375 }
+    ],
+    "cooldown": 3,
+    "martialArt": "jueyuXuanfengSpear",
+    "shortName": "Tab to Red"
+  },
+  "BoltRedLight1": {
+    "name": "決獄輕擊1",
+    "castTime": 0.5,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Light"],
+    "action": [
+      { "type": "damage", "phyCoef": 0.3828, "phyBonus": 107, "attrCoef": 0.3828, "attrBonus": 58, "time": 0.367121333 }
+    ],
+    "martialArt": "jueyuXuanfengSpear",
+    "shortName": "Red Light 1"
+  },
+  "BoltRedHeavy1": {
+    "name": "決獄重擊1",
+    "castTime": 0.36,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Heavy"],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.50722,
+        "phyBonus": 141,
+        "attrCoef": 0.50722,
+        "attrBonus": 77,
+        "time": 0.13304143400000001
+      }
+    ],
+    "martialArt": "jueyuXuanfengSpear",
+    "shortName": "Red Heavy 1"
+  },
+  "BoltRedVC": {
+    "name": "聽雨斷罪",
+    "castTime": 0,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltRedVC",
+      "VariedCombo",
+      "Light",
+      "BoltVCSeries"
+    ],
+    "action": [],
+    "subAction": [
+      {
+        "value": "BoltRedVCSharp",
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "BoltFengRui" },
+              { "target": "resource", "comparison": ">=", "amount": 6, "value": "SpearMomentum" }
+            ]
+          }
+        ],
+        "fallback": "BoltRedVCBase"
+      }
+    ],
+    "shortName": "Red VC"
+  },
+  "BoltRedVCBase": {
+    "name": "聽雨斷罪",
+    "castTime": 1.3,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltRedVC",
+      "VariedCombo",
+      "Light",
+      "SubAction",
+      "BoltVCSeries"
+    ],
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.256899,
+        "phyBonus": 71.1,
+        "attrCoef": 0.256899,
+        "attrBonus": 38.7,
+        "time": 0.3111272507333333
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.3853485,
+        "phyBonus": 106.65,
+        "attrCoef": 0.3853485,
+        "attrBonus": 58.05,
+        "time": 0.4599584387333333
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 0.4599584387333333 },
+      {
+        "type": "damage",
+        "phyCoef": 0.8991465,
+        "phyBonus": 248.85,
+        "attrCoef": 0.8991465,
+        "attrBonus": 135.45,
+        "time": 0.7258316534969695
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.027596,
+        "phyBonus": 284.4,
+        "attrCoef": 1.027596,
+        "attrBonus": 154.8,
+        "time": 1.1153879804450215
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 1.1153879804450215 },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 1,
+        "time": 1.1153879804450215,
+        "requirement": [{ "target": "self", "value": "BoltWangXing" }]
+      },
+      {
+        "type": "addResource",
+        "value": "SpearMomentum",
+        "amount": 0.5,
+        "time": 1.1153879804450215,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "BoltWangXing" }] }]
+      }
+    ],
+    "ignorePing": true,
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
+    "shortName": "Red VC"
+  },
+  "BoltRedVCSharp": {
+    "name": "聽雨斷罪·鋒銳",
+    "castTime": 1.7,
+    "editableCastTime": true,
+    "weapon": "Spear",
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Spear",
+      "Bolt",
+      "BoltVC",
+      "BoltRedVC",
+      "VariedCombo",
+      "Light",
+      "BoltSharpVC",
+      "SubAction",
+      "BoltVCSeries"
+    ],
+    "action": [
+      {
+        "type": "trigger",
+        "value": "BoltEnterFengRui",
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "BoltFengRui" }] }]
+      },
+      {
+        "type": "consumeResource",
+        "value": "SpearMomentum",
+        "amount": 1,
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "ShenDuanQingFengT6" }]
+      },
+      {
+        "type": "consumeResource",
+        "value": "SpearMomentum",
+        "amount": 1.5,
+        "time": 0,
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }]
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.169328,
+        "phyBonus": 46.9,
+        "attrCoef": 0.169328,
+        "attrBonus": 25.6,
+        "time": 0.2322679721295627
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.169328,
+        "phyBonus": 46.9,
+        "attrCoef": 0.169328,
+        "attrBonus": 25.6,
+        "time": 0.4389779402872705
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 0.4389779402872705 },
+      {
+        "type": "damage",
+        "phyCoef": 0.338656,
+        "phyBonus": 93.8,
+        "attrCoef": 0.338656,
+        "attrBonus": 51.2,
+        "time": 0.7779370498441868
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.507984,
+        "phyBonus": 140.7,
+        "attrCoef": 0.507984,
+        "attrBonus": 76.8,
+        "time": 1.3336008847216998
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 1.3336008847216998 },
+      {
+        "type": "damage",
+        "phyCoef": 0.507984,
+        "phyBonus": 140.7,
+        "attrCoef": 0.507984,
+        "attrBonus": 76.8,
+        "time": 1.6845503658546128
+      },
+      { "type": "trigger", "value": "BoltZaige", "time": 1.6845503658546128 }
+    ],
+    "ignorePing": true,
+    "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }],
+    "shortName": "Red VC"
+  }
+}

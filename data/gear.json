@@ -31,27 +31,30 @@
     "crit": { "name": "Critical", "percentage": true },
     "affinity": { "name": "Affinity", "percentage": true },
     "allMartialArts": { "name": "All Martial Arts", "percentage": true },
-    "hengBladeDmgBoost": { "name": "Art of Heng", "percentage": true },
-    "moBladeDmgBoost": { "name": "Art of Mo", "percentage": true },
-    "umbrellaDmgBoost": { "name": "Art of Umbrella", "percentage": true },
-    "ropeDartDmgBoost": { "name": "Art of Rope Dart", "percentage": true },
-    "gauntletDmgBoost": { "name": "Art of Gauntlet", "percentage": true },
-    "spearDmgBoost": { "name": "Art of Spear", "percentage": true },
-    "swordDmgBoost": { "name": "Art of Sword", "percentage": true },
-    "fanDmgBoost": { "name": "Art of Fan", "percentage": true },
-    "dualBladesDmgBoost": { "name": "Art of Dual Blades", "percentage": true },
+    "hengBladeDmgBoost": { "name": "Art of Heng", "percentage": true, "aggregation": "max" },
+    "moBladeDmgBoost": { "name": "Art of Mo", "percentage": true, "aggregation": "max" },
+    "umbrellaDmgBoost": { "name": "Art of Umbrella", "percentage": true, "aggregation": "max" },
+    "ropeDartDmgBoost": { "name": "Art of Rope Dart", "percentage": true, "aggregation": "max" },
+    "gauntletDmgBoost": { "name": "Art of Gauntlet", "percentage": true, "aggregation": "max" },
+    "spearDmgBoost": { "name": "Art of Spear", "percentage": true, "aggregation": "max" },
+    "swordDmgBoost": { "name": "Art of Sword", "percentage": true, "aggregation": "max" },
+    "fanDmgBoost": { "name": "Art of Fan", "percentage": true, "aggregation": "max" },
+    "dualBladesDmgBoost": { "name": "Art of Dual Blades", "percentage": true, "aggregation": "max" },
     "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
     "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true },
     "maxHp": { "name": "Max HP", "pickable": false },
     "physicalDefense": { "name": "Physical Defense", "pickable": false },
-    "ribbonAndDrumDmgBoost": { "name": "Art of Ribbon & Drum", "percentage": true },
+    "ribbonAndDrumDmgBoost": { "name": "Art of Ribbon & Drum", "percentage": true, "aggregation": "max" },
     "allMysticDmgBoost": { "name": "All Mystic Skill DMG Boost", "percentage": true }
   },
   "universalAdditionalAffixes": {
     "91": ["body", "defense"],
     "96": ["maxHp", "physicalDefense", "body", "defense"],
-    "100": ["maxHp", "physicalDefense", "body", "defense"]
+    "100": ["maxHp", "physicalDefense", "body", "defense"],
+    "105": ["maxHp", "physicalDefense", "body", "defense"],
+    "110": ["maxHp", "physicalDefense", "body", "defense"],
+    "115": ["maxHp", "physicalDefense", "body", "defense"]
   },
   "gear": {
     "hengBlade": {
@@ -61,7 +64,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -78,6 +84,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -147,6 +186,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "hengBladeDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "hengBladeDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "hengBladeDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -166,7 +286,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -183,6 +306,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -252,6 +408,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "moBladeDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "moBladeDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "moBladeDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -271,7 +508,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -288,6 +528,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -357,6 +630,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "umbrellaDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "umbrellaDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "umbrellaDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -376,7 +730,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -393,6 +750,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -462,6 +852,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -481,7 +952,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -498,6 +972,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -567,6 +1074,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "gauntletDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "gauntletDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "gauntletDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -586,7 +1174,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -603,6 +1194,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -672,6 +1296,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ropeDartDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -691,7 +1396,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -708,6 +1416,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -777,6 +1518,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "spearDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "spearDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "spearDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -796,7 +1618,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -813,6 +1638,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "115Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -882,6 +1740,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "swordDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "swordDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "swordDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -901,7 +1840,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -918,6 +1860,39 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -987,6 +1962,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "fanDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "fanDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "fanDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -1006,7 +2062,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -1031,6 +2090,39 @@
           "maxSilkbind",
           "minBamboocut",
           "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ]
       },
       "additionalAffixes": {
@@ -1100,6 +2192,87 @@
           "maxSilkbind",
           "minBamboocut",
           "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "dualBladesDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "dualBladesDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "dualBladesDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ]
       },
       "attunements": ["Weapon"]
@@ -1110,9 +2283,19 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 71 }, "Purple": { "minPhys": 64 } },
         "96": { "Gold": { "minPhys": 86 }, "Purple": { "minPhys": 78 } },
-        "100": { "Gold": { "minPhys": 100 }, "Purple": { "minPhys": 90 } }
+        "100": { "Gold": { "minPhys": 100 }, "Purple": { "minPhys": 90 } },
+        "105": { "Purple": { "minPhys": 105 }, "Gold": { "minPhys": 116 } },
+        "110": { "Purple": { "minPhys": 120 }, "Gold": { "minPhys": 133 } },
+        "115": { "Purple": { "minPhys": 137 }, "Gold": { "minPhys": 152 } }
       },
-      "baseAffixes": { "91": ["minPhys", "maxPhys"], "96": ["minPhys", "maxPhys"], "100": ["minPhys", "maxPhys"] },
+      "baseAffixes": {
+        "91": ["minPhys", "maxPhys"],
+        "96": ["minPhys", "maxPhys"],
+        "100": ["minPhys", "maxPhys"],
+        "105": ["minPhys", "maxPhys"],
+        "110": ["minPhys", "maxPhys"],
+        "115": ["minPhys", "maxPhys"]
+      },
       "additionalAffixes": {
         "91": [
           "minPhys",
@@ -1158,6 +2341,75 @@
           "momentum",
           "minPhys",
           "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -1180,9 +2432,19 @@
       "baseStats": {
         "91": { "Gold": { "maxPhys": 106 }, "Purple": { "maxPhys": 96 } },
         "96": { "Gold": { "maxPhys": 129 }, "Purple": { "maxPhys": 116 } },
-        "100": { "Gold": { "maxPhys": 150 }, "Purple": { "maxPhys": 135 } }
+        "100": { "Gold": { "maxPhys": 150 }, "Purple": { "maxPhys": 135 } },
+        "105": { "Purple": { "maxPhys": 157 }, "Gold": { "maxPhys": 174 } },
+        "110": { "Purple": { "maxPhys": 179 }, "Gold": { "maxPhys": 199 } },
+        "115": { "Purple": { "maxPhys": 205 }, "Gold": { "maxPhys": 227 } }
       },
-      "baseAffixes": { "91": ["minPhys", "maxPhys"], "96": ["minPhys", "maxPhys"], "100": ["minPhys", "maxPhys"] },
+      "baseAffixes": {
+        "91": ["minPhys", "maxPhys"],
+        "96": ["minPhys", "maxPhys"],
+        "100": ["minPhys", "maxPhys"],
+        "105": ["minPhys", "maxPhys"],
+        "110": ["minPhys", "maxPhys"],
+        "115": ["minPhys", "maxPhys"]
+      },
       "additionalAffixes": {
         "91": [
           "minPhys",
@@ -1228,6 +2490,75 @@
           "momentum",
           "minPhys",
           "maxPhys",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "allMartialArts"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",
@@ -1250,12 +2581,21 @@
       "baseStats": {
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 18 }, "Purple": { "maxHp": 4153, "physicalDefense": 16 } },
         "96": { "Gold": { "maxHp": 5774, "physicalDefense": 22 }, "Purple": { "maxHp": 5196, "physicalDefense": 20 } },
-        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 25 }, "Purple": { "maxHp": 6192, "physicalDefense": 23 } }
+        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 25 }, "Purple": { "maxHp": 6192, "physicalDefense": 23 } },
+        "105": { "Purple": { "maxHp": 7402, "physicalDefense": 27 }, "Gold": { "maxHp": 8225, "physicalDefense": 29 } },
+        "110": { "Purple": { "maxHp": 8750, "physicalDefense": 30 }, "Gold": { "maxHp": 9723, "physicalDefense": 34 } },
+        "115": {
+          "Purple": { "maxHp": 10370, "physicalDefense": 35 },
+          "Gold": { "maxHp": 11522, "physicalDefense": 38 }
+        }
       },
       "baseAffixes": {
         "91": ["crit", "precision", "affinity"],
         "96": ["crit", "precision", "affinity", "maxHp", "physicalDefense"],
-        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity"]
+        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "105": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "110": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "115": ["maxHp", "physicalDefense", "precision", "crit", "affinity"]
       },
       "additionalAffixes": {
         "91": [
@@ -1316,6 +2656,77 @@
           "crit",
           "affinity",
           "allMysticDmgBoost"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost",
+          "singleTargetMysticDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost",
+          "singleTargetMysticDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost"
         ]
       },
       "attunements": ["Armor"]
@@ -1332,12 +2743,27 @@
         "100": {
           "Gold": { "maxHp": 13758, "physicalDefense": 25 },
           "Purple": { "maxHp": 12383, "physicalDefense": 23 }
+        },
+        "105": {
+          "Purple": { "maxHp": 14804, "physicalDefense": 27 },
+          "Gold": { "maxHp": 16449, "physicalDefense": 29 }
+        },
+        "110": {
+          "Purple": { "maxHp": 17500, "physicalDefense": 30 },
+          "Gold": { "maxHp": 19445, "physicalDefense": 34 }
+        },
+        "115": {
+          "Purple": { "maxHp": 20739, "physicalDefense": 35 },
+          "Gold": { "maxHp": 23043, "physicalDefense": 38 }
         }
       },
       "baseAffixes": {
         "91": ["crit", "precision", "affinity"],
         "96": ["crit", "precision", "affinity", "maxHp", "physicalDefense"],
-        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity"]
+        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "105": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "110": ["maxHp", "physicalDefense", "precision", "crit", "affinity"],
+        "115": ["maxHp", "physicalDefense", "precision", "crit", "affinity"]
       },
       "additionalAffixes": {
         "91": [
@@ -1398,6 +2824,77 @@
           "crit",
           "affinity",
           "allMysticDmgBoost"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost",
+          "singleTargetMysticDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost",
+          "singleTargetMysticDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "areaMysticDmgBoost"
         ]
       },
       "attunements": ["Armor"]
@@ -1408,12 +2905,21 @@
       "baseStats": {
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 36 }, "Purple": { "maxHp": 4153, "physicalDefense": 32 } },
         "96": { "Gold": { "maxHp": 5774, "physicalDefense": 44 }, "Purple": { "maxHp": 5196, "physicalDefense": 39 } },
-        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 50 }, "Purple": { "maxHp": 6192, "physicalDefense": 45 } }
+        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 50 }, "Purple": { "maxHp": 6192, "physicalDefense": 45 } },
+        "105": { "Purple": { "maxHp": 7402, "physicalDefense": 53 }, "Gold": { "maxHp": 8225, "physicalDefense": 58 } },
+        "110": { "Purple": { "maxHp": 8750, "physicalDefense": 60 }, "Gold": { "maxHp": 9723, "physicalDefense": 67 } },
+        "115": {
+          "Purple": { "maxHp": 10370, "physicalDefense": 69 },
+          "Gold": { "maxHp": 11522, "physicalDefense": 76 }
+        }
       },
       "baseAffixes": {
         "91": ["crit", "precision", "affinity", "power"],
         "96": ["crit", "precision", "affinity", "power", "maxHp", "physicalDefense", "body"],
-        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"]
+        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "105": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "110": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "115": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "power"]
       },
       "additionalAffixes": {
         "91": [
@@ -1471,6 +2977,76 @@
           "precision",
           "crit",
           "affinity",
+          "vsBossDmg"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
           "vsBossDmg"
         ]
       },
@@ -1482,12 +3058,21 @@
       "baseStats": {
         "91": { "Gold": { "maxHp": 4614, "physicalDefense": 18 }, "Purple": { "maxHp": 4153, "physicalDefense": 16 } },
         "96": { "Gold": { "maxHp": 5774, "physicalDefense": 22 }, "Purple": { "maxHp": 5196, "physicalDefense": 20 } },
-        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 25 }, "Purple": { "maxHp": 6192, "physicalDefense": 23 } }
+        "100": { "Gold": { "maxHp": 6879, "physicalDefense": 25 }, "Purple": { "maxHp": 6192, "physicalDefense": 23 } },
+        "105": { "Purple": { "maxHp": 7402, "physicalDefense": 27 }, "Gold": { "maxHp": 8225, "physicalDefense": 29 } },
+        "110": { "Purple": { "maxHp": 8750, "physicalDefense": 30 }, "Gold": { "maxHp": 9723, "physicalDefense": 34 } },
+        "115": {
+          "Purple": { "maxHp": 10370, "physicalDefense": 35 },
+          "Gold": { "maxHp": 11522, "physicalDefense": 38 }
+        }
       },
       "baseAffixes": {
         "91": ["crit", "precision", "affinity", "power"],
         "96": ["crit", "precision", "affinity", "power", "maxHp", "physicalDefense", "body"],
-        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"]
+        "100": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "105": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "110": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "body", "power"],
+        "115": ["maxHp", "physicalDefense", "precision", "crit", "affinity", "power"]
       },
       "additionalAffixes": {
         "91": [
@@ -1545,6 +3130,76 @@
           "precision",
           "crit",
           "affinity",
+          "vsBossDmg"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "vsBossDmg"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut",
+          "precision",
+          "crit",
+          "affinity",
+          "singleTargetMysticDmgBoost",
           "vsBossDmg"
         ]
       },
@@ -1557,7 +3212,10 @@
       "baseStats": {
         "91": { "Gold": { "minPhys": 53, "maxPhys": 124 }, "Purple": { "minPhys": 48, "maxPhys": 112 } },
         "96": { "Gold": { "minPhys": 65, "maxPhys": 151 }, "Purple": { "minPhys": 59, "maxPhys": 136 } },
-        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } }
+        "100": { "Gold": { "minPhys": 75, "maxPhys": 175 }, "Purple": { "minPhys": 68, "maxPhys": 158 } },
+        "105": { "Purple": { "minPhys": 79, "maxPhys": 183 }, "Gold": { "minPhys": 87, "maxPhys": 203 } },
+        "110": { "Purple": { "minPhys": 90, "maxPhys": 209 }, "Gold": { "minPhys": 100, "maxPhys": 232 } },
+        "115": { "Purple": { "minPhys": 103, "maxPhys": 239 }, "Gold": { "minPhys": 114, "maxPhys": 265 } }
       },
       "baseAffixes": {
         "91": ["minPhys", "maxPhys", "agility", "momentum", "minStonesplit", "maxStonesplit"],
@@ -1582,6 +3240,39 @@
           "maxSilkbind",
           "minBamboocut",
           "maxBamboocut"
+        ],
+        "105": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "110": ["minPhys", "maxPhys", "minVoidAttack", "maxVoidAttack", "agility", "momentum"],
+        "115": ["minPhys", "maxPhys", "maxVoidAttack", "agility", "momentum"],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
         ]
       },
       "additionalAffixes": {
@@ -1643,6 +3334,87 @@
           "maxBamboocut"
         ],
         "100Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "105": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ribbonAndDrumDmgBoost"
+        ],
+        "110": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ribbonAndDrumDmgBoost"
+        ],
+        "115": [
+          "body",
+          "power",
+          "defense",
+          "agility",
+          "momentum",
+          "maxHp",
+          "minPhys",
+          "maxPhys",
+          "physicalDefense",
+          "minVoidAttack",
+          "maxVoidAttack",
+          "precision",
+          "crit",
+          "affinity",
+          "ribbonAndDrumDmgBoost"
+        ],
+        "105Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "110Relayed": [
+          "minBellstrike",
+          "maxBellstrike",
+          "minStonesplit",
+          "maxStonesplit",
+          "minSilkbind",
+          "maxSilkbind",
+          "minBamboocut",
+          "maxBamboocut"
+        ],
+        "115Relayed": [
           "minBellstrike",
           "maxBellstrike",
           "minStonesplit",

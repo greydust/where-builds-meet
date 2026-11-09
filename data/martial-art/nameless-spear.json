@@ -178,6 +178,354 @@
           { "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }], "effect": { "flatAttackBonus": 0.15 } }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.05548 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246.0, "minBellstrike": 123.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.061560000000000004 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266.0, "minBellstrike": 133.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }], "effect": { "flatAttackBonus": 0.3 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.065664 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286.0, "minBellstrike": 143.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }], "effect": { "flatAttackBonus": 0.4 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.07022400000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306.0, "minBellstrike": 153.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }], "effect": { "flatAttackBonus": 0.5 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.074784 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328.0, "minBellstrike": 164.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }], "effect": { "flatAttackBonus": 0.6 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxEndurance": 10 } },
+          { "resourceRegenerationBonus": { "resource": "Endurance", "belowRatio": 0.3, "bonus": 0.2 } },
+          {
+            "stat": {
+              "maxEndurance": {
+                "function": "segment",
+                "param1": "affinity",
+                "param2": [0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3],
+                "param3": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.08025600000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "EndlessGale" },
+                  { "target": "endurancePercentage", "comparison": "<", "amount": 60 }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "affinity", "multiplier": 0.6, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352.0, "minBellstrike": 176.0 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "NamelessSpear" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

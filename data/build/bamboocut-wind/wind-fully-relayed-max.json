@@ -228,6 +228,324 @@
         ],
         "attunement": { "key": "mortalRodentBoost", "value": 0.07 }
       }
+    },
+    "105": {
+      "leftWeapon": {
+        "definitionId": "dualBlades",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "dualBladesDmgBoost", "value": 0.08084 },
+          { "key": "minPhys", "value": 99.264 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "rightWeapon": {
+        "definitionId": "unfetteredRopeDart",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "ropeDartDmgBoost", "value": 0.08084 },
+          { "key": "agility", "value": 62.791999999999994 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "allMartialArts", "value": 0.03948 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "allMartialArts", "value": 0.03948 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "precision", "value": 0.10152 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.08 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "precision", "value": 0.10152 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.08 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 62.791999999999994 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "vsBossDmg", "value": 0.04135999999999999 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.08 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 62.791999999999994 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 99.264 },
+          { "key": "power", "value": 62.791999999999994 },
+          { "key": "vsBossDmg", "value": 0.04135999999999999 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.08 }
+      }
+    },
+    "110": {
+      "leftWeapon": {
+        "definitionId": "dualBlades",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "dualBladesDmgBoost", "value": 0.09212000000000001 },
+          { "key": "minPhys", "value": 114.116 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "rightWeapon": {
+        "definitionId": "unfetteredRopeDart",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "ropeDartDmgBoost", "value": 0.09212000000000001 },
+          { "key": "agility", "value": 72.192 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "allMartialArts", "value": 0.04606 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "allMartialArts", "value": 0.04606 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "precision", "value": 0.11656 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.092 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "precision", "value": 0.11656 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.092 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 72.192 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "vsBossDmg", "value": 0.04793999999999999 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.092 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 72.192 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 114.116 },
+          { "key": "power", "value": 72.192 },
+          { "key": "vsBossDmg", "value": 0.04793999999999999 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.092 }
+      }
+    },
+    "115": {
+      "leftWeapon": {
+        "definitionId": "dualBlades",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "dualBladesDmgBoost", "value": 0.10622000000000001 },
+          { "key": "minPhys", "value": 131.224 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "rightWeapon": {
+        "definitionId": "unfetteredRopeDart",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "ropeDartDmgBoost", "value": 0.10622000000000001 },
+          { "key": "agility", "value": 83.096 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "allMartialArts", "value": 0.05264 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "maxPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "allMartialArts", "value": 0.05264 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "precision", "value": 0.13535999999999998 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.106 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "precision", "value": 0.13535999999999998 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.106 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 83.096 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "vsBossDmg", "value": 0.05545999999999999 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.106 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "power", "value": 83.096 },
+        "additionalAffixes": [
+          { "key": "maxPhys", "value": 131.224 },
+          { "key": "power", "value": 83.096 },
+          { "key": "vsBossDmg", "value": 0.05545999999999999 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "mortalRodentBoost", "value": 0.106 }
+      }
     }
   }
 }

@@ -1,0 +1,1042 @@
+{
+  "name": "撥山取月槍",
+  "weapon": "Spear",
+  "tag": "BoshanQuyueSpear",
+  "talent": [
+    [{ "effect": [] }],
+    [
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.002128 } } } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0038000000000000004 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 38, "minBellstrike": 19 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.02 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.007600000000000001 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 52, "minBellstrike": 26 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.028 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0114 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 68, "minBellstrike": 34 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.038 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.015200000000000002 } }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.04,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 86, "minBellstrike": 43 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.048 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.019 } } } },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.08,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.08,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.056 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0228 } } } },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.08,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.08,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.056 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0228 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.056 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0228 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 118, "minBellstrike": 59 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.066 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.026600000000000002 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 138, "minBellstrike": 69 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.076 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.030400000000000003 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 160, "minBellstrike": 80 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.09 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0342 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 196, "minBellstrike": 98 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.11 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.04256 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 212, "minBellstrike": 106 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.118 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0456 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 228, "minBellstrike": 114 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.126 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.0494 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246, "minBellstrike": 123 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.138 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.05548 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266, "minBellstrike": 133 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.148 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.061560000000000004 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286, "minBellstrike": 143 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.065664 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306, "minBellstrike": 153 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.07022400000000001 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328, "minBellstrike": 164 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          },
+          { "stat": { "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.074784 } } } },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352, "minBellstrike": 176 },
+            "stat": {
+              "bellstrikeDmgBonus": { "formula": { "source": "maxBellstrike", "multiplier": 0.000168, "max": 0.15 } }
+            }
+          },
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "momentum", "multiplier": 0.000152, "max": 0.08025600000000001 } }
+            }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "BoltFengRui" },
+                  { "target": "skillTag", "value": "BoltMingGe" }
+                ]
+              }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                },
+                "bellstrikeDmgBonus": {
+                  "formula": {
+                    "source": "maxPhys",
+                    "step": 125,
+                    "multiplier": 0.01,
+                    "max": 0.12,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          },
+          { "condition": "BoltWangXingTalent" },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
+    ]
+  ]
+}

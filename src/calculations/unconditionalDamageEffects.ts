@@ -21,6 +21,7 @@ export const unconditionalDamageEffectFields = [
   "dmgBonus",
   "hpDMGBonus",
   "baseDMGBonus",
+  "targetCorrectionBonus",
   "globalDmgBonus",
   "globalHPDMGBonus",
   "globalBellstrikeDMGBonus",

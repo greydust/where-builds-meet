@@ -121,6 +121,246 @@
           }
         ]
       }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 246.0, "minStonesplit": 123.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.225, "coefficientBonusWithoutFlatAttack": 0.0225 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.12312000000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 266.0, "minStonesplit": 133.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.3, "coefficientBonusWithoutFlatAttack": 0.03 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 286.0, "minStonesplit": 143.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.4, "coefficientBonusWithoutFlatAttack": 0.04 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.14044800000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 306.0, "minStonesplit": 153.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.5, "coefficientBonusWithoutFlatAttack": 0.05 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 328.0, "minStonesplit": 164.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.6, "coefficientBonusWithoutFlatAttack": 0.06 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.16051200000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "IronGuard" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } },
+              "stonesplitPenetration": { "formula": { "source": "minPhys", "multiplier": 0.016, "max": 12 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 352.0, "minStonesplit": 176.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "PhalanxbaneBlade" }],
+            "effect": { "flatAttackBonus": 0.725, "coefficientBonusWithoutFlatAttack": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

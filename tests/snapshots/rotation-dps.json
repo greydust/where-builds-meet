@@ -2495,6 +2495,122 @@
       "totalHealing": 0,
       "duration": 60
     },
+    "bellstrikeBolt/bolt-dummy-1-min/bolt-full/18": {
+      "fixture": {
+        "build": "bolt-full",
+        "rotation": "bolt-dummy-1-min",
+        "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 89552.46117118334,
+      "totalDamage": 5373147.670271001,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeBolt/bolt-dummy-1-min/bolt-full/19": {
+      "fixture": {
+        "build": "bolt-full",
+        "rotation": "bolt-dummy-1-min",
+        "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 93852.33120780764,
+      "totalDamage": 5631139.8724684585,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeBolt/bolt-dummy-1-min/bolt-fully-relayed/18": {
+      "fixture": {
+        "build": "bolt-fully-relayed",
+        "rotation": "bolt-dummy-1-min",
+        "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 86112.86359537291,
+      "totalDamage": 5166771.815722374,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeBolt/bolt-dummy-1-min/bolt-fully-relayed/19": {
+      "fixture": {
+        "build": "bolt-fully-relayed",
+        "rotation": "bolt-dummy-1-min",
+        "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 90795.0264579321,
+      "totalDamage": 5447701.587475926,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
     "bellstrikeSplendor/dummy-1-min-81-waves/splendor-full/18": {
       "fixture": {
         "build": "splendor-full",

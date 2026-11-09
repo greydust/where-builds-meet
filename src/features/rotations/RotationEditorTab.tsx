@@ -1240,6 +1240,7 @@ export function RotationEditorTab({
       ? [{ resource: "Binge", label: t("system.resource.binge") }]
       : []),
     ...(showBlossoms ? [{ resource: "Blossoms", label: t("system.resource.blossoms") }] : []),
+    ...(pathId === "bellstrikeBolt" ? [{ resource: "SpearMomentum", label: t("system.resource.spearMomentum") }] : []),
     ...(showBlossoms || rotationUsesEndurance(timeline)
       ? [{ resource: "Endurance", label: t("system.resource.endurance") }]
       : []),
@@ -2336,6 +2337,12 @@ export function RotationEditorTab({
                       Array.from(actionState?.debuffs.values() ?? []).filter(
                         effect => effect.expiresAt === undefined || effect.expiresAt > actionTime,
                       ) ?? []
+                    const fengRui = row.buffs.get("BoltFengRui")
+                    const fengRuiActive = Boolean(
+                      fengRui && (fengRui.expiresAt === undefined || fengRui.expiresAt > startTime),
+                    )
+                    const actionFengRuiActive = actionBuffs.some(effect => effect.name === "BoltFengRui")
+                    const fengRuiLabel = gameText(calculationDefinitions.effectDefinitions.BoltFengRui?.name ?? "鋒銳")
                     const skillDamageRows =
                       !isAction && row.kind === "rotation" ? (damageRowsByOwner.get(row.id) ?? [row]) : [row]
                     const skillExpectedStacks = skillDamageRows.reduce<
@@ -2773,7 +2780,18 @@ export function RotationEditorTab({
                               </span>
                             )}
                             {displayedResources.map(({ resource: displayedResource, label: resourceLabel }) => (
-                              <span key={displayedResource} data-mobile-label={resourceLabel}>
+                              <span
+                                key={displayedResource}
+                                data-mobile-label={resourceLabel}
+                                className={
+                                  displayedResource === "SpearMomentum" && fengRuiActive
+                                    ? "rotation-resource-feng-rui"
+                                    : undefined
+                                }
+                                title={
+                                  displayedResource === "SpearMomentum" && fengRuiActive ? fengRuiLabel : undefined
+                                }
+                              >
                                 {isManualEvent && step.event === "Blossoms" && displayedResource === "Blossoms" ? (
                                   rowReadOnly ? (
                                     <span>
@@ -3156,7 +3174,20 @@ export function RotationEditorTab({
                                   </span>
                                 )}
                                 {displayedResources.map(({ resource: displayedResource, label: resourceLabel }) => (
-                                  <span key={displayedResource} data-mobile-label={resourceLabel}>
+                                  <span
+                                    key={displayedResource}
+                                    data-mobile-label={resourceLabel}
+                                    className={
+                                      displayedResource === "SpearMomentum" && actionFengRuiActive
+                                        ? "rotation-resource-feng-rui"
+                                        : undefined
+                                    }
+                                    title={
+                                      displayedResource === "SpearMomentum" && actionFengRuiActive
+                                        ? fengRuiLabel
+                                        : undefined
+                                    }
+                                  >
                                     {formatResourceRange(
                                       actionState?.resources[displayedResource] ??
                                         row.resources[displayedResource] ??

@@ -11,6 +11,7 @@ export type PathId =
   | "mixed"
   | "bellstrikeSplendor"
   | "bellstrikeUmbra"
+  | "bellstrikeBolt"
   | "stonesplitStrength"
   | "stonesplitMight"
   | "silkbindJade"

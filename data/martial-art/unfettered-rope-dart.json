@@ -145,6 +145,294 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246.0, "minBamboocut": 123.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.12312000000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266.0, "minBamboocut": 133.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286.0, "minBamboocut": 143.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.14044800000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306.0, "minBamboocut": 153.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328.0, "minBamboocut": 164.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [{ "target": "skillTag", "value": "PiercingDart" }],
+              "cooldown": 0.5,
+              "action": { "type": "clearCD", "value": "SoulSweep", "seconds": 0.5 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.16051200000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "target", "value": "Soulbreak" }],
+            "effect": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.45, "max": 0.27 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352.0, "minBamboocut": 176.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "UnfetteredRopeDart" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

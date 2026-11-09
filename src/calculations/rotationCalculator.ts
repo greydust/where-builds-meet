@@ -36,6 +36,7 @@ import {
   insightfulStrikeEffectFor,
   type InsightfulStrikeEffect,
 } from "./insightfulStrike"
+import { outcomeStackBuffsFor, OutcomeStackBuffTracker, type OutcomeStackBuff } from "./outcomeStackBuffs"
 import { outcomeBuffTick, type ExpectedOutcomeBuffSchedule } from "./outcomeTriggeredBuffs"
 import { createPreparedEffectState } from "./preparedEffectState"
 import {
@@ -112,6 +113,8 @@ export type RotationDamageEntry = {
   replay?: { sourceDamage: number; coef: number; sourceActionIds?: string[] }
   criticalHealingBuff?: CriticalHealingBuff
   hawkwing?: HawkwingEffect
+  outcomeStackBuffs?: OutcomeStackBuff[]
+  stackBuffBaseExpectedEffects?: DamageContext["expectedEffects"]
   insightfulStrike?: InsightfulStrikeEffect
   seasonalEdge?: SeasonalEdgeEntryState
   healingRecipients?: { self: number; teammates: number; teammateOverhealRatio: number }
@@ -139,6 +142,7 @@ export type RotationCalculationBundle = {
     duration?: number
     damage?: number
     healing?: number
+    reference?: { dps: number; hps: number }
   }>
   attunementPriority: Array<{
     label: string
@@ -173,6 +177,8 @@ export type RotationSimulationVariant = {
   label: string
   maxRoll?: number
   stats?: CharacterStats
+  /** A stat priority can measure against a reference sheet instead of the equipped baseline. */
+  referenceStats?: CharacterStats
   attunement?: AttunementStats
   timeline?: TimelineBuildInput
   innerWayRules?: InnerWayEffectRule[]
@@ -414,6 +420,7 @@ function createRotationDamageResolver(
 ) {
   const expectedHawkwing = random ? undefined : new ExpectedHawkwingTracker()
   const simulatedHawkwing = random ? new SimulatedHawkwingTracker() : undefined
+  const outcomeStackTrackers = new Map<string, OutcomeStackBuffTracker>()
   const expectedInsightfulStrike = random ? undefined : new ExpectedInsightfulStrikeTracker()
   const simulatedInsightfulStrike = random ? new SimulatedInsightfulStrikeTracker() : undefined
   const healingBuffTracker = new CriticalHealingBuffTracker()
@@ -426,6 +433,28 @@ function createRotationDamageResolver(
   const resolve = (entry: RotationDamageEntry): ResolvedRotationDamage => {
     const tick = outcomeBuffTick(entry.timelineTime)
     const expectedBuffStacks: Record<string, number> = {}
+    if (entry.outcomeStackBuffs?.length) {
+      const distributions = entry.outcomeStackBuffs.map(effect => {
+        let tracker = outcomeStackTrackers.get(effect.name)
+        if (!tracker) {
+          tracker = new OutcomeStackBuffTracker(Boolean(random))
+          outcomeStackTrackers.set(effect.name, tracker)
+        }
+        const distribution = tracker.distribution(effect, tick)
+        expectedBuffStacks[effect.name] = distribution.reduce(
+          (total, state) => total + state.stack * state.probability,
+          0,
+        )
+        return distribution
+      })
+      entry = {
+        ...entry,
+        context: {
+          ...entry.context,
+          expectedEffects: [...(entry.stackBuffBaseExpectedEffects ?? []), ...distributions],
+        },
+      }
+    }
     let outcomeEffects: UnconditionalDamageEffects = {}
     if (entry.hawkwing) {
       const stack = random
@@ -626,6 +655,17 @@ function createRotationDamageResolver(
       }
     }
     if (!entry.replay && breakdown.total > 0) {
+      for (const effect of entry.outcomeStackBuffs ?? []) {
+        if (!effect.eligible) continue
+        outcomeStackTrackers
+          .get(effect.name)!
+          .advance(
+            effect,
+            tick,
+            (breakdown.outcomeRates?.[effect.outcome] ?? 0) * Number(entry.action.hitProbability ?? 1),
+            breakdown.outcome === effect.outcome,
+          )
+      }
       if (entry.hawkwing) {
         if (random && breakdown.outcome === entry.hawkwing.outcome)
           simulatedHawkwing!.resolveAffinity(entry.hawkwing, tick)
@@ -879,20 +919,23 @@ function calculatePriorityRows(
     duration?: number
     damage?: number
     healing?: number
+    reference?: { dps: number; hps: number }
   }>,
   order: "ascending" | "descending" = "descending",
 ) {
-  const rows = variants.map(({ label, maxRoll, entries, duration: variantDuration = duration, damage, healing }) => {
-    const totals = damage === undefined || healing === undefined ? sumEntries(entries) : undefined
-    return priorityRow(
-      label,
-      baselineDps,
-      variantDuration > 0 ? (damage ?? totals?.total ?? 0) / variantDuration : 0,
-      baselineHps,
-      variantDuration > 0 ? (healing ?? totals?.healing ?? 0) / variantDuration : 0,
-      maxRoll,
-    )
-  })
+  const rows = variants.map(
+    ({ label, maxRoll, entries, duration: variantDuration = duration, damage, healing, reference }) => {
+      const totals = damage === undefined || healing === undefined ? sumEntries(entries) : undefined
+      return priorityRow(
+        label,
+        reference?.dps ?? baselineDps,
+        variantDuration > 0 ? (damage ?? totals?.total ?? 0) / variantDuration : 0,
+        reference?.hps ?? baselineHps,
+        variantDuration > 0 ? (healing ?? totals?.healing ?? 0) / variantDuration : 0,
+        maxRoll,
+      )
+    },
+  )
   return sortRotationPriorityRows(rows, order)
 }
 
@@ -1798,6 +1841,8 @@ function createTimelineEntryBuilder(
       currentHPRatio: row.currentHPRatio,
       targetHPRatio: row.targetHPRatio,
       targetQiRatio: row.targetQiRatio,
+      currentMartialArt: row.currentMartialArt,
+      currentWeapon: row.currentWeapon,
       resources: row.resources,
       enduranceLost: row.enduranceLost,
       unconditionalDamageEffects: row.unconditionalDamageEffects,
@@ -1814,6 +1859,8 @@ function createTimelineEntryBuilder(
       targetHPPercentage: actionState.targetHPRatio * 100,
       targetQiPercentage: actionState.targetQiRatio * 100,
       targetType: resolveTargetType(input.rotation),
+      currentMartialArt: actionState.currentMartialArt,
+      currentWeapon: actionState.currentWeapon,
     }
     const componentModifiers = row.actionModifierEffects?.[actionIndex] ?? row.modifierEffects
     const modifierCacheKey = Array.isArray(action.modifier)
@@ -2020,6 +2067,19 @@ function createTimelineEntryBuilder(
         },
         ...(criticalHealingBuff ? { criticalHealingBuff } : {}),
         ...(hawkwing ? { hawkwing } : {}),
+        outcomeStackBuffs: outcomeStackBuffsFor(
+          rules,
+          input.effectDefinitions,
+          requirement =>
+            requirementsPass(requirement, buffs, debuffs, skillTags, conditions, state.weapons, resources, {
+              currentMartialArt: actionState.currentMartialArt,
+              currentWeapon: actionState.currentWeapon,
+              targetType: input.rotation.targetType,
+            }),
+          name => buffs.get(name),
+          state.weapons,
+        ),
+        stackBuffBaseExpectedEffects: context.expectedEffects ?? [],
         ...(insightfulStrike ? { insightfulStrike } : {}),
         ...(seasonalEdge
           ? { seasonalEdge: seasonalEdgeStateAt(actionTime, row.id, seasonalEdge, seasonalWindows) }
@@ -2215,6 +2275,17 @@ function resolveCombatTimeline(
         damage: result.breakdown.total,
         selfRecovery: result.selfRecovery,
         outcomeRates: result.breakdown.outcomeRates,
+        outcome: result.breakdown.outcome,
+        outcomeRatesForState: (effects: EditableObject[], distributionIndex: number) => {
+          const conditional = {
+            ...result.entry,
+            context: {
+              ...result.entry.context,
+              expectedEffects: result.entry.context.expectedEffects?.filter((_, index) => index !== distributionIndex),
+            },
+          }
+          return calculateRotationDamageEntry(conditional, result.outcomeEffects, 0, undefined, effects).outcomeRates
+        },
         ...(result.breakdown.healing
           ? {
               healing: {
@@ -2570,6 +2641,7 @@ function containsLeech(value: unknown): boolean {
 
 function requiresLiveRotationResolution(input: TimelineBuildInput, liveCollectors: boolean, timeline: TimelineRow[]) {
   return (
+    input.innerWayRules.some(rule => Boolean(rule.effect?.outcomeMachine)) ||
     Boolean(input.rotation.targetHP) ||
     // Damage changes leech recovery, which can change later HP requirements and events.
     containsLeech([input.setupEffects, input.innerWayRules, input.effectDefinitions, input.skills]) ||
@@ -2600,7 +2672,7 @@ function createRotationVariantCalculator(
   const state = rotationStatState(bundle)
   const preparedDamage = createPreparedDamageCalculator()
   const totalVariants =
-    bundle.statPriority.length +
+    bundle.statPriority.reduce((total, variant) => total + 1 + (variant.referenceStats ? 1 : 0), 0) +
     bundle.attunementPriority.length +
     bundle.innerWayPriority.length +
     Object.values(bundle.setupComparisons).reduce((total, variants) => total + variants.length, 0)
@@ -2821,11 +2893,27 @@ export function calculateRotationComparisons(
   const entryBundle: RotationCalculationBundle = {
     duration: baselineResult.duration,
     baseline: baselineResult.baseline,
-    statPriority: bundle.statPriority.map(variant => ({
-      label: variant.label,
-      maxRoll: variant.maxRoll,
-      ...calculationForVariant(variant),
-    })),
+    statPriority: bundle.statPriority.map(variant => {
+      const calculation = calculationForVariant(variant)
+      const referenceCalculation = variant.referenceStats
+        ? calculationForVariant({ ...variant, stats: variant.referenceStats, referenceStats: undefined })
+        : undefined
+      return {
+        label: variant.label,
+        maxRoll: variant.maxRoll,
+        ...calculation,
+        ...(referenceCalculation
+          ? {
+              reference: {
+                dps:
+                  referenceCalculation.duration > 0 ? referenceCalculation.damage / referenceCalculation.duration : 0,
+                hps:
+                  referenceCalculation.duration > 0 ? referenceCalculation.healing / referenceCalculation.duration : 0,
+              },
+            }
+          : {}),
+      }
+    }),
     attunementPriority: bundle.attunementPriority.map(variant => ({
       label: variant.label,
       maxRoll: variant.maxRoll,

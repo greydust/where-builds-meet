@@ -199,6 +199,400 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246.0, "minBamboocut": 123.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266.0, "minBamboocut": 133.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286.0, "minBamboocut": 143.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306.0, "minBamboocut": 153.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328.0, "minBamboocut": 164.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "EverspringUmbrella" },
+                { "target": "skillTag", "value": "PerfectCatch" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "FallingBlossoms", "stack": 1, "reapply": true }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "EverspringUmbrella" },
+              { "target": "skillTag", "value": "MartialArt" }
+            ],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                },
+                "bamboocutDmgBonus": {
+                  "function": "segment",
+                  "param1": "minPhys",
+                  "param2": [62.5, 125.0, 187.5, 250.0, 312.5, 375.0, 437.5, 500.0, 562.5, 625.0, 687.5, 750.0],
+                  "param3": [0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352.0, "minBamboocut": 176.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "EverspringUmbrella" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

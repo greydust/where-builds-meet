@@ -1,4 +1,5 @@
 import type { PathId } from "@/application/contracts"
+import boltIcon from "@/assets/path-icons/bolt.png?w=56&h=56&format=webp"
 import delugeIcon from "@/assets/path-icons/deluge.png?w=56&h=56&format=webp"
 import draughtIcon from "@/assets/path-icons/draught.png?w=56&h=56&format=webp"
 import dustIcon from "@/assets/path-icons/dust.png?w=56&h=56&format=webp"
@@ -24,6 +25,7 @@ export const pathIcons: Record<PathId, string | null> = {
   mixed: null,
   bellstrikeSplendor: splendorIcon,
   bellstrikeUmbra: umbraIcon,
+  bellstrikeBolt: boltIcon,
   stonesplitMight: mightIcon,
   stonesplitStrength: strengthIcon,
   silkbindJade: jadeIcon,

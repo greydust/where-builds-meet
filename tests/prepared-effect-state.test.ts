@@ -10,6 +10,29 @@ import {
 import { trackedEffectMetadata, effectState, effectKey } from "@/calculations/trackedEffectState"
 
 describe("prepared combat state", () => {
+  it("separates cached effects across martial-art and weapon-family switches", () => {
+    const rules = [
+      { requirement: [{ target: "currentMartialArt", value: "jueyuXuanfengSpear" }], effect: { hpDMGBonus: 0.1 } },
+      { requirement: [{ target: "currentWeapon", value: "Spear" }], effect: { flatAttackBonus: 0.15 } },
+    ]
+    const prepare = createPreparedEffectState(rules)
+    const empty = effectState()
+    const staticEffects = {}
+    const modifiers: object[] = []
+    const resolve = (currentMartialArt: "jueyuXuanfengSpear" | "boshanQuyueSpear", currentWeapon: "Spear" | "Fan") => {
+      const state = { currentMartialArt, currentWeapon }
+      return prepare(empty, empty, {}, state, staticEffects, modifiers, () =>
+        rules
+          .filter(rule => requirementsPass(rule.requirement, empty, empty, [], new Set(), [], {}, state))
+          .map(rule => rule.effect),
+      )
+    }
+    const redSpear = resolve("jueyuXuanfengSpear", "Spear")
+    expect(redSpear).toEqual([{ hpDMGBonus: 0.1 }, { flatAttackBonus: 0.15 }])
+    expect(resolve("boshanQuyueSpear", "Spear")).toEqual([{ flatAttackBonus: 0.15 }])
+    expect(resolve("boshanQuyueSpear", "Fan")).toEqual([])
+    expect(resolve("jueyuXuanfengSpear", "Spear")).toBe(redSpear)
+  })
   it.each([false, true])("tracks resource thresholds inside action modifiers (active first=%s)", activeFirst => {
     const prepare = createPreparedEffectState([])
     const skill = {}

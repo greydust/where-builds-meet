@@ -2,7 +2,7 @@ import defaultSetup from "@gamedata/default-setup.json"
 
 import type { CalculatorSettings, DisplaySizing, LayoutMode, PathId } from "@/application/contracts"
 import { isWeaponId } from "@/application/gameData/martialArts"
-import { pathRequiresDev, typedPathDefinitions } from "@/application/gameData/paths"
+import { pathIsSelectable, typedPathDefinitions } from "@/application/gameData/paths"
 import {
   defaultBreakthrough,
   defaultSettings,
@@ -69,7 +69,7 @@ export function loadSelectedPath(devMode = loadDevMode()): PathId {
   migrateWingsPathId()
   const saved = getPersistentItem(pathStorageKey)
   const definition = saved ? typedPathDefinitions[saved as PathId] : undefined
-  return definition && (!pathRequiresDev(definition) || devMode) ? (saved as PathId) : "stonesplitStrength"
+  return definition && pathIsSelectable(definition, devMode) ? (saved as PathId) : "stonesplitStrength"
 }
 
 export function loadFood() {

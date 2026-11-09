@@ -67,9 +67,9 @@ describe("gear progression", () => {
     },
   )
 
-  it("materializes valid maximum-roll inventories at both supported preset tiers", () => {
+  it("materializes valid maximum-roll inventories at every supported preset tier", () => {
     for (const preset of defaultBuildPresets)
-      for (const tier of [96, 100] as const) {
+      for (const tier of [96, 100, 105, 110, 115] as const) {
         const inventory = buildPresetInventory(preset, tier)
         expect(parseGearInventory(inventory)).toEqual(inventory)
         for (const item of inventory.items) {
@@ -90,7 +90,9 @@ describe("gear progression", () => {
               expect(affix.value).toBeCloseTo(maxGearRoll(affix.key, "affix", item.relayed, tier)!, 10)
             }
           }
-          expect(item.attunement!.value).toBe(maxGearRoll(item.attunement!.key, "attunement", false, tier))
+          expect(item.attunement?.value).toBe(
+            item.attunement ? maxGearRoll(item.attunement.key, "attunement", false, tier) : undefined,
+          )
         }
       }
   })

@@ -36,7 +36,7 @@ export const gearSlots = [
   "bracer",
 ] as const
 export type GearSlot = (typeof gearSlots)[number]
-export const gearLevels = [91, 96, 100] as const
+export const gearLevels = [91, 96, 100, 105, 110, 115] as const
 export type GearLevel = (typeof gearLevels)[number]
 export function isGearLevel(value: unknown): value is GearLevel {
   return typeof value === "number" && gearLevels.some(level => level === value)
@@ -106,7 +106,7 @@ export type BuildPresetGear = {
   relayed?: boolean
   baseAffix: GearValue
   additionalAffixes: GearValue[]
-  attunement: GearValue
+  attunement?: GearValue
 }
 
 export type BuildPreset = {
@@ -133,7 +133,7 @@ export type BuildEntry = {
 
 export type BuildState = { entries: BuildEntry[]; activeBuildId: string; gearItems: GearItem[] }
 
-export type GearValueDefinition = { name: string; percentage?: boolean; pickable?: boolean }
+export type GearValueDefinition = { name: string; percentage?: boolean; pickable?: boolean; aggregation?: "max" }
 
 export type AttunementDefinition = GearValueDefinition & {
   tags: string[]
@@ -416,6 +416,8 @@ export function buildEntryAvailableForPath(
 }
 
 const weaponDefinitionIds: Record<WeaponId, string> = {
+  boshanQuyueSpear: "spear",
+  jueyuXuanfengSpear: "spear",
   museflowWaistDrum: "ribbonAndDrum",
   willowbendFan: "fan",
   snowparting: "hengBlade",
@@ -617,7 +619,10 @@ export function buildPresetInventory(preset: BuildPreset, gearTier: GearLevel = 
       new Set(presetGear.additionalAffixes.map(affix => affix.key)).size !== 4
     )
       throw new Error(`Invalid additional affixes in build preset ${preset.id}.`)
-    if (!validGearValue(presetGear.attunement, attunementsForGearDefinition(definition), attunementData))
+    if (
+      presetGear.attunement !== undefined &&
+      !validGearValue(presetGear.attunement, attunementsForGearDefinition(definition), attunementData)
+    )
       throw new Error(`Invalid attunement in build preset ${preset.id}.`)
     return [
       {
@@ -631,7 +636,7 @@ export function buildPresetInventory(preset: BuildPreset, gearTier: GearLevel = 
           ...(relayed ? { relayed: true } : {}),
           baseAffix: { ...presetGear.baseAffix },
           additionalAffixes: presetGear.additionalAffixes.map(affix => ({ ...affix })),
-          attunement: { ...presetGear.attunement },
+          ...(presetGear.attunement ? { attunement: { ...presetGear.attunement } } : {}),
         },
       },
     ]
@@ -1118,7 +1123,13 @@ export function calculateEquippedGearEffects(
   const stats: Partial<CharacterStats> = {}
   const attunement: Partial<AttunementStats> = {}
   const addStat = (key: keyof CharacterStats, value: number) => {
-    stats[key] = (stats[key] ?? 0) + value
+    switch (gearData.affixes[key]?.aggregation) {
+      case "max":
+        stats[key] = Math.max(stats[key] ?? value, value)
+        break
+      default:
+        stats[key] = (stats[key] ?? 0) + value
+    }
   }
   const addAttunement = (key: keyof AttunementStats, value: number) => {
     attunement[key] = (attunement[key] ?? 0) + value

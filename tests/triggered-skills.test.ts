@@ -57,6 +57,9 @@ describe("triggered-skills", () => {
         if (typeof response?.onSuccess === "string") triggeredIds.add(response.onSuccess)
         const onMaxStack = objectAt(value.onMaxStack)
         if (typeof onMaxStack?.trigger === "string") triggeredIds.add(onMaxStack.trigger)
+        if (value.type === "emit" && typeof value.skill === "string") triggeredIds.add(value.skill)
+        const periodic = objectAt(value.periodic)
+        if (typeof periodic?.skill === "string") triggeredIds.add(periodic.skill)
         if (value.type !== "trigger") return
         if (typeof value.value === "string") {
           triggeredIds.add(value.value)

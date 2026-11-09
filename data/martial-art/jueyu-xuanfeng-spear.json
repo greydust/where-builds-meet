@@ -1,0 +1,880 @@
+{
+  "name": "決獄懸鋒槍",
+  "weapon": "Spear",
+  "tag": "JueyuXuanfengSpear",
+  "talent": [
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 3.696 } } } },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 6.6000000000000005 } }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.06, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 38, "minBellstrike": 19 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 4 } }
+            }
+          },
+          {
+            "stat": {
+              "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 13.200000000000001 } }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.06, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 52, "minBellstrike": 26 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 5.6 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 19.8 } } } },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.06, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 68, "minBellstrike": 34 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 7.6 } }
+            }
+          },
+          {
+            "stat": {
+              "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 26.400000000000002 } }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.06, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 86, "minBellstrike": 43 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 9.6 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 33.0 } } } },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.12, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 11.2 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 39.6 } } } },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.12, "resolveAt": "action" }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 11.2 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 39.6 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 100, "minBellstrike": 50 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 11.2 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 39.6 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 118, "minBellstrike": 59 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 13.2 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 46.2 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 138, "minBellstrike": 69 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 15.2 } }
+            }
+          },
+          {
+            "stat": {
+              "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 52.800000000000004 } }
+            }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 160, "minBellstrike": 80 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 18 } }
+            }
+          },
+          {
+            "stat": {
+              "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 59.400000000000006 } }
+            }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 196, "minBellstrike": 98 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 22 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 73.92 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 212, "minBellstrike": 106 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 23.6 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 79.2 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.0725 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.0072499999999999995 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 228, "minBellstrike": 114 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 25.2 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 85.8 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.15 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.015 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246, "minBellstrike": 123 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 27.6 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 96.36 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.225 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.0225 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266, "minBellstrike": 133 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 29.6 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 106.92 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.3 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.03 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286, "minBellstrike": 143 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 114.048 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.4 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.04 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306, "minBellstrike": 153 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 121.968 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.5 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.05 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328, "minBellstrike": 164 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 129.888 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.6 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.06 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352, "minBellstrike": 176 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          },
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 139.392 } } } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltVCSeries" }],
+            "effect": {
+              "affinityDmgBonus": {
+                "formula": { "source": "maxPhys", "step": 100, "multiplier": 0.012, "max": 0.18, "resolveAt": "action" }
+              }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" }
+            ],
+            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "Bolt" },
+              { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "BoltNoFlat" }] }
+            ],
+            "effect": { "flatAttackBonus": 0.725 }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "BoltNoFlat" }],
+            "effect": { "coefficientBonusWithoutFlatAttack": 0.0725 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "BoltVCSeries" },
+              { "target": "self", "value": "BoltFengRui" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT6" }] }
+            ],
+            "effect": { "baseDMGBonus": 0.15 }
+          }
+        ]
+      }
+    ]
+  ]
+}

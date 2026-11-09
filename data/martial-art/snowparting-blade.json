@@ -106,6 +106,214 @@
           }
         ]
       }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 246.0, "minStonesplit": 123.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 266.0, "minStonesplit": 133.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 286.0, "minStonesplit": 143.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 306.0, "minStonesplit": 153.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 328.0, "minStonesplit": 164.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "resource", "value": "BladeMomentum", "comparison": ">", "amount": 1 }],
+            "effectiveStat": { "critDmgBonus": { "formula": { "source": "crit", "multiplier": 0.35, "max": 0.21 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 352.0, "minStonesplit": 176.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "SnowpartingBlade" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }

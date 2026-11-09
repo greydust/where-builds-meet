@@ -415,6 +415,594 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 246.0, "minSilkbind": 123.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.12312000000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 266.0, "minSilkbind": 133.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 286.0, "minSilkbind": 143.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.14044800000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 306.0, "minSilkbind": 153.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 328.0, "minSilkbind": 164.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -5 }
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Ballistic" },
+                  { "target": "skillTag", "value": "JadebreakProjectile" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Immobilized" },
+                  { "target": "target", "value": "Airborne" }
+                ]
+              }
+            ],
+            "effect": { "physicalResistance": -10 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.16051200000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "VernalUmbrella" },
+              { "target": "skillTag", "value": "Ballistic" }
+            ],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 352.0, "minSilkbind": 176.0 },
+            "stat": {
+              "silkbindPenetration": { "formula": { "source": "minSilkbind", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VernalUmbrella" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "requirement": [
+                { "target": "skillTag", "value": "UnfadingFlowerProjectile" },
+                { "target": "target", "value": "Exhausted" }
+              ],
+              "action": [{ "type": "addResource", "value": "Blossoms", "amount": 3, "time": 0 }],
+              "event": "damage"
+            }
+          }
+        ]
+      }
     ]
   ]
 }

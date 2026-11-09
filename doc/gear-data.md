@@ -8,6 +8,19 @@ tags. UI code should not hard-code slot-specific option lists.
 
 ## Definitions
 
+Affix definitions can declare `aggregation: "max"`. Every weapon-family
+Art of X bonus uses this rule: equipped pieces contribute only their highest
+value for that family. Different families coexist, so Art of Sword does not
+suppress Art of Spear. Ordinary affixes, including All Martial Arts, still add.
+The shared equipped-gear pipeline applies the rule to sheets, simulations,
+equipment comparisons, and gear optimization; stored rolls are preserved.
+
+Art affix priority measures zero of that Art against one maximum roll,
+regardless of the current equipped value or manual override. Other stats
+retain their normal marginal-addition comparison. Both Art scenarios use
+the shared stat and combat pipeline, and their percentage gain is relative
+to the zero-Art scenario rather than the equipped build.
+
 Every `affixes` object key is directly a `CharacterStats` key. Attunement IDs
 are defined in `data/attunement.json`. Equipped values remain keyed by their
 definition ID so multiple armor attunements retain their individual skill-match
@@ -59,7 +72,8 @@ Chestpiece, Greaves, and Bracer select `Armor`. Path and martial-art filtering
 is applied afterward by the UI, so adding a tagged attunement does not require
 copying its ID into every compatible gear record.
 
-The current level keys are `91` and `96`; rarities are `Purple` and `Gold`.
+The current level keys are `91`, `96`, `100`, `105`, `110`, and `115`;
+rarities are `Purple` and `Gold`.
 Helmet, Chestpiece, Greaves, and Bracer define fixed Max HP and Physical Defense
 for every supported level and rarity. Chestpiece has the doubled HP profile;
 Greaves uses the higher Physical Defense profile. These fixed values are shown

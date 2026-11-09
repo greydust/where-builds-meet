@@ -26,7 +26,14 @@ import { percentageAttunementKeys } from "@/application/persistence/attunements"
 import { innerWayDefinitions } from "@/data/innerWayDefinitions"
 import { setupSelectionChangesTimeline } from "@/data/scriptDefinitions"
 import { allStatDefinitions } from "@/data/statDefinitions"
-import { attunementData, maxGearRoll, selectSetTier, setSelectionChangesTimeline, statRollsForLevel } from "@/gear"
+import {
+  attunementData,
+  gearData,
+  maxGearRoll,
+  selectSetTier,
+  setSelectionChangesTimeline,
+  statRollsForLevel,
+} from "@/gear"
 import type { BuildSetup } from "@/gear"
 import { globalDebuffRows } from "@/globalDebuffs"
 import type { CharacterStats } from "@/types"
@@ -129,13 +136,18 @@ export function buildRotationComparisonBundle(
     ...buildRotationCalculationBundle(subject),
     statPriority: includeDiffs
       ? Object.entries(priorityCharacter).map(([key, amount]) => {
-          const variantStats = applyPriorityStatLine(key as keyof CharacterStats, Number(amount))
+          const stat = key as keyof CharacterStats
+          const highestOnly = gearData.affixes[key]?.aggregation === "max"
+          const currentValue = subject.build.stats[stat]
+          const variantStats = applyPriorityStatLine(stat, Number(amount) - (highestOnly ? currentValue : 0))
           const definition = allStatDefinitions.find(candidate => candidate.key === key)
-          return {
+          const variant: RotationSimulationVariant = {
             label: definition?.label ?? key,
             maxRoll: Number(amount) * (definition?.unit === "%" ? 100 : 1),
             stats: variantStats,
           }
+          if (highestOnly && currentValue !== 0) variant.referenceStats = applyPriorityStatLine(stat, -currentValue)
+          return variant
         })
       : [],
     attunementPriority: includeDiffs

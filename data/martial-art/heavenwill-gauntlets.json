@@ -157,6 +157,316 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246.0, "minBamboocut": 123.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.225, "coefficientBonusWithoutFlatAttack": 0.0225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266.0, "minBamboocut": 133.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.3, "coefficientBonusWithoutFlatAttack": 0.03 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286.0, "minBamboocut": 143.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.4, "coefficientBonusWithoutFlatAttack": 0.04 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306.0, "minBamboocut": 153.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.5, "coefficientBonusWithoutFlatAttack": 0.05 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328.0, "minBamboocut": 164.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.6, "coefficientBonusWithoutFlatAttack": 0.06 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Falcon" },
+                  { "target": "skillTag", "value": "VileCondemned" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.0004, "max": 0.3 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352.0, "minBamboocut": 176.0 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "HeavenwillGauntlets" }],
+            "effect": { "flatAttackBonus": 0.725, "coefficientBonusWithoutFlatAttack": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

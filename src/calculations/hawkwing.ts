@@ -12,6 +12,8 @@ export type HawkwingEffect = {
   bellstrikeAttackBonusPerStack: number
 }
 
+export type OutcomeStackTiming = Pick<HawkwingEffect, "durationTicks" | "maxStack">
+
 type StackDistribution = Map<number, Map<number, number>>
 type ConcreteBuffState = { stack: number; expiresAtTick: number }
 
@@ -105,7 +107,14 @@ export class ExpectedHawkwingTracker {
     return this.expected
   }
 
-  resolveAffinity(effect: HawkwingEffect, tick: number, probability: number) {
+  distribution(tick: number) {
+    this.expire(tick)
+    const byStack = new Map<number, number>([[0, this.inactive]])
+    for (const state of this.active) byStack.set(state.stack, (byStack.get(state.stack) ?? 0) + state.probability)
+    return [...byStack].filter(([, probability]) => probability > 0)
+  }
+
+  resolveAffinity(effect: OutcomeStackTiming, tick: number, probability: number) {
     this.expire(tick)
     const chance = outcomeProbability(probability)
     const next: StackDistribution = new Map()
@@ -137,7 +146,7 @@ export class SimulatedHawkwingTracker {
     return this.state.stack
   }
 
-  resolveAffinity(effect: HawkwingEffect, tick: number) {
+  resolveAffinity(effect: OutcomeStackTiming, tick: number) {
     this.state = { stack: Math.min(effect.maxStack, this.stack(tick) + 1), expiresAtTick: tick + effect.durationTicks }
   }
 }

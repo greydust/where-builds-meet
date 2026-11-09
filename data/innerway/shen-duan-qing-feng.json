@@ -1,0 +1,277 @@
+{
+  "name": "神斷青鋒",
+  "altersTimeline": true,
+  "tags": ["BellstrikeBolt"],
+  "sourceEdition": "CN",
+  "sourceId": 751,
+  "sourceTiers": [
+    [
+      {
+        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+      }
+    ],
+    [
+      {
+        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+      },
+      {
+        "text": "釋放<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>後分別獲得#Y明法#E和#Y重道#E狀態：#Y明法#E使下一次<平風掃寶|781|#C|20205|20205201>造成的氣血傷害提升#Y5%#E，#Y重道#E使下一次<聽雨斷罪|781|#C|20204|20204201>造成的氣血傷害提升#Y5%#E，若目標為非玩家單位則以上傷害提升效果強化至#Y10%#E。",
+        "bullet": true
+      }
+    ],
+    [
+      {
+        "text": "<最大外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "bullet": true,
+        "soloLevelValues": [
+          {
+            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "formats": ["1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              14.9,
+              20.3,
+              26.7,
+              33.8,
+              39.6,
+              39.6,
+              39.6,
+              47,
+              54.8,
+              63.9,
+              70.9,
+              74.4,
+              77.9,
+              84,
+              90.6,
+              97.8,
+              105.5,
+              113.1,
+              121.3,
+              null,
+              null
+            ]
+          },
+          {
+            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "formats": ["1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              14.9,
+              20.3,
+              26.7,
+              33.8,
+              39.6,
+              39.6,
+              39.6,
+              47,
+              54.8,
+              63.9,
+              70.9,
+              74.4,
+              77.9,
+              84,
+              90.6,
+              97.8,
+              105.5,
+              113.1,
+              121.3,
+              130.1,
+              139.5
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+      },
+      {
+        "text": "#Y鋒銳#E狀態期間明法和重道強化為#Y明法·銳#E和#Y重道·銳#E。#Y明法·銳#E使下一次<平風掃寶|781|#C|20205|20205201>造成的氣血傷害提升10%，#Y重道·銳#E使下一次<聽雨斷罪|781|#C|20204|20204201>造成的氣血傷害提升10%，若目標為非玩家單位則傷害提升效果強化至#Y20%#E。",
+        "bullet": true
+      }
+    ],
+    [
+      {
+        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+      },
+      {
+        "text": "#Y明法#E和#Y重道#E系列狀態的持續時間提升至#Y8#E秒。若當前不處於#Y鋒銳#E狀態，<金科盡詔|781|#C|20204|20204101>或<龍膽巡坡|781|#C|20205|20205105>對氣竭單位的首領造成傷害時可回滿#Y槍勢#E，同時為目標附加泉威，該效果每#Y60#E秒最多觸發一次。",
+        "bullet": true
+      }
+    ],
+    [{ "text": "<直接會意率|780|#C|150>提升2.3%。", "bullet": true }],
+    [
+      {
+        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+      },
+      {
+        "text": "#Y鋒銳#E增傷效果強化：<聽雨平風系列技能|781|#C|20204|20204201>造成的基礎傷害對玩家單位提升至#Y10%#E，對非玩家單位提升至#Y30%#E。同時，非止戈玩法中釋放<聽雨平風系列技能|781|#C|20204|20204201>消耗的#Y槍勢#E降低至#Y1#E格。#Y鋒銳#E期間，以上技能與其觸發效果可同時獲得額外會意傷害提升和氣血吸取效果。",
+        "bullet": true
+      }
+    ]
+  ],
+  "effect": {
+    "ShenDuanQingFengT0": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "BoltVCSeries" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "currentMartialArt", "value": "jueyuXuanfengSpear" },
+                [
+                  { "target": "self", "value": "ShenDuanQingFengT6" },
+                  { "target": "self", "value": "BoltFengRui" }
+                ]
+              ]
+            }
+          ],
+          "effect": { "affinityDmgBonus": 0.05 }
+        },
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "BoltVCSeries" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "currentMartialArt", "value": "boshanQuyueSpear" },
+                [
+                  { "target": "self", "value": "ShenDuanQingFengT6" },
+                  { "target": "self", "value": "BoltFengRui" }
+                ]
+              ]
+            }
+          ],
+          "effect": { "leech": 0.05 }
+        }
+      ]
+    },
+    "ShenDuanQingFengT1": {
+      "trigger": [
+        {
+          "event": "skillEnd",
+          "requirement": [{ "target": "skillTag", "value": "BoltRedVC" }],
+          "action": [
+            { "type": "consume", "target": "self", "value": "BoltZhongDao" },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltMingFa",
+              "stack": 1,
+              "duration": 8,
+              "requirement": [{ "target": "self", "value": "ShenDuanQingFengT4" }]
+            },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltMingFa",
+              "stack": 1,
+              "duration": 5,
+              "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT4" }] }]
+            }
+          ]
+        },
+        {
+          "event": "skillEnd",
+          "requirement": [{ "target": "skillTag", "value": "BoltBlueVC" }],
+          "action": [
+            { "type": "consume", "target": "self", "value": "BoltMingFa" },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltZhongDao",
+              "stack": 1,
+              "duration": 8,
+              "requirement": [{ "target": "self", "value": "ShenDuanQingFengT4" }]
+            },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltZhongDao",
+              "stack": 1,
+              "duration": 5,
+              "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "ShenDuanQingFengT4" }] }]
+            }
+          ]
+        }
+      ]
+    },
+    "ShenDuanQingFengT2": {
+      "effect": [
+        {
+          "rawStat": {
+            "maxPhys": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                14.9,
+                20.3,
+                26.7,
+                33.8,
+                39.6,
+                39.6,
+                39.6,
+                47,
+                54.8,
+                63.9,
+                70.9,
+                74.4,
+                77.9,
+                84,
+                90.6,
+                97.8,
+                105.5,
+                113.1,
+                121.3,
+                130.1,
+                139.5
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ShenDuanQingFengT3": {},
+    "ShenDuanQingFengT4": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [
+            { "target": "skillTag", "value": "BoltExhaustedRefill" },
+            { "target": "target", "value": "Exhausted" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "BoltFengRui" }] }
+          ],
+          "action": [
+            { "type": "setResource", "value": "SpearMomentum", "amount": 6 },
+            { "type": "apply", "target": "target", "value": "BoltQuanWei", "stack": 1 }
+          ],
+          "cooldown": 60
+        }
+      ]
+    },
+    "ShenDuanQingFengT5": { "effect": [{ "rawStat": { "directAffinity": 0.023 } }] },
+    "ShenDuanQingFengT6": {
+      "effect": [
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "BoltVCSeries" },
+            { "target": "self", "value": "BoltFengRui" }
+          ],
+          "effect": { "baseDMGBonus": 0.3 }
+        }
+      ]
+    }
+  }
+}

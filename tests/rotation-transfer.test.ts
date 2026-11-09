@@ -5,11 +5,19 @@ import type { RotationEntry } from "@/rotationTransfer"
 // Ported from script/probe/check-rotation-transfer.mjs.
 describe("rotation-transfer", () => {
   it("Rotation export and import checks passed", async () => {
-    const transfer = await import("../src/rotationTransfer.ts")
+    const transfer = await import("@/rotationTransfer.ts")
     const { normalizeStoredWeaponIds, weaponIds } = await import("@/types")
 
     const previousUniversalMartialArts = weaponIds.filter(
-      weapon => !["skystrikeGauntlets", "rivenTwinblades", "museflowWaistDrum", "willowbendFan"].includes(weapon),
+      weapon =>
+        ![
+          "skystrikeGauntlets",
+          "rivenTwinblades",
+          "museflowWaistDrum",
+          "willowbendFan",
+          "jueyuXuanfengSpear",
+          "boshanQuyueSpear",
+        ].includes(weapon),
     )
     expect(
       normalizeStoredWeaponIds(previousUniversalMartialArts).length === weaponIds.length,
@@ -217,7 +225,7 @@ describe("rotation-transfer", () => {
       "Duration-less Scarlet Spin records must not cross the rotation import boundary.",
     ).toBeTruthy()
 
-    const { migrateRotation } = await import("../src/application/rotationCatalog.ts")
+    const { migrateRotation } = await import("@/application/rotationCatalog.ts")
     expect(
       migrateRotation({ name: "Duration-less Scarlet Spin", steps: [{ type: "skill", skill: "ScarletSpin" }] }).steps,
     ).toEqual([])

@@ -69,6 +69,8 @@ export function createPreparedEffectState(requirements: unknown[]) {
       modifierKey.key,
       trackedEffectMetadata(buffs).requirementKey,
       trackedEffectMetadata(debuffs).requirementKey,
+      state?.currentMartialArt,
+      state?.currentWeapon,
       predicates,
     ])
     let effects = states.get(key)

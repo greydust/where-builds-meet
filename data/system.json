@@ -7,7 +7,8 @@
     "NobleWill": 100,
     "SwordsZenith": 40,
     "Blossoms": 0,
-    "Binge": 60
+    "Binge": 60,
+    "SpearMomentum": 2
   },
   "resourceMaximums": {
     "HeavensWill": 4,
@@ -15,7 +16,8 @@
     "NobleWill": 100,
     "SwordsZenith": 100,
     "Blossoms": 100,
-    "Binge": 200
+    "Binge": 200,
+    "SpearMomentum": 6
   },
   "resourceRegeneration": { "Endurance": 10, "Blossoms": 0.3 },
   "resourceSpendRegenDelay": { "Endurance": 1.2 },
@@ -67,7 +69,13 @@
             null,
             240,
             258,
-            276
+            276,
+            294,
+            312,
+            330,
+            348,
+            370,
+            392
           ]
         },
         "maxPhys": {
@@ -91,7 +99,13 @@
             null,
             480,
             516,
-            552
+            552,
+            588,
+            624,
+            660,
+            696,
+            738,
+            780
           ]
         },
         "maxHp": {
@@ -115,7 +129,13 @@
             null,
             40070,
             43147,
-            46223
+            46223,
+            49437,
+            52648,
+            55921,
+            59192,
+            63069,
+            66944
           ]
         },
         "physicalDefense": {
@@ -139,7 +159,13 @@
             null,
             120,
             130,
-            138
+            138,
+            148,
+            156,
+            166,
+            174,
+            186,
+            196
           ]
         }
       }
@@ -204,6 +230,126 @@
         "affinityDmgBonus": 0.15,
         "minVoidAttack": 39.6,
         "maxVoidAttack": 39.6
+      }
+    },
+    "20": {
+      "rawStat": {
+        "maxHp": 9500,
+        "minPhys": 118.8,
+        "maxPhys": 118.8,
+        "physicalDefense": 125.4,
+        "agility": 30,
+        "power": 30,
+        "momentum": 30,
+        "body": 30,
+        "defense": 30,
+        "precision": 0.18,
+        "crit": 0.24,
+        "affinity": 0.12,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 52.8,
+        "maxVoidAttack": 52.8
+      }
+    },
+    "21": {
+      "rawStat": {
+        "maxHp": 10000,
+        "minPhys": 132,
+        "maxPhys": 132,
+        "physicalDefense": 132,
+        "agility": 34,
+        "power": 34,
+        "momentum": 34,
+        "body": 34,
+        "defense": 34,
+        "precision": 0.18,
+        "crit": 0.24,
+        "affinity": 0.12,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 66,
+        "maxVoidAttack": 66
+      }
+    },
+    "22": {
+      "rawStat": {
+        "maxHp": 11000,
+        "minPhys": 145.2,
+        "maxPhys": 158.4,
+        "physicalDefense": 138.6,
+        "agility": 37,
+        "power": 37,
+        "momentum": 37,
+        "body": 37,
+        "defense": 37,
+        "precision": 0.195,
+        "crit": 0.24,
+        "affinity": 0.12,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 66,
+        "maxVoidAttack": 66
+      }
+    },
+    "23": {
+      "rawStat": {
+        "maxHp": 11500,
+        "minPhys": 145.2,
+        "maxPhys": 158.4,
+        "physicalDefense": 151.8,
+        "agility": 41,
+        "power": 41,
+        "momentum": 41,
+        "body": 41,
+        "defense": 41,
+        "precision": 0.195,
+        "crit": 0.24,
+        "affinity": 0.12,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 79.2,
+        "maxVoidAttack": 92.4
+      }
+    },
+    "24": {
+      "rawStat": {
+        "maxHp": 12500,
+        "minPhys": 158.4,
+        "maxPhys": 184.8,
+        "physicalDefense": 158.4,
+        "agility": 42,
+        "power": 42,
+        "momentum": 42,
+        "body": 42,
+        "defense": 42,
+        "precision": 0.21,
+        "crit": 0.28,
+        "affinity": 0.14,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 79.2,
+        "maxVoidAttack": 92.4
+      }
+    },
+    "25": {
+      "rawStat": {
+        "maxHp": 13000,
+        "minPhys": 158.4,
+        "maxPhys": 184.8,
+        "physicalDefense": 171.6,
+        "agility": 46,
+        "power": 46,
+        "momentum": 46,
+        "body": 46,
+        "defense": 46,
+        "precision": 0.21,
+        "crit": 0.28,
+        "affinity": 0.14,
+        "critDmgBonus": 0.15,
+        "affinityDmgBonus": 0.15,
+        "minVoidAttack": 92.4,
+        "maxVoidAttack": 118.8
       }
     }
   },

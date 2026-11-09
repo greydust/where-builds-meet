@@ -1,0 +1,244 @@
+{
+  "name": "明非通判",
+  "altersTimeline": true,
+  "tags": ["BellstrikeBolt"],
+  "sourceEdition": "CN",
+  "sourceId": 753,
+  "sourceTiers": [
+    [
+      {
+        "text": "造成傷害結算時的外攻穿透提升#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的外攻穿透額外提升#Y0.6#E點。"
+      }
+    ],
+    [
+      {
+        "text": "造成傷害結算時的外攻穿透提升#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的外攻穿透額外提升#Y1#E點。"
+      }
+    ],
+    [
+      {
+        "text": "<外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "bullet": true,
+        "soloLevelValues": [
+          {
+            "referenceTag": "<外功攻擊|780|#C|15>",
+            "formats": ["1f", "1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              [4.5, 8.9],
+              [6.1, 12.1],
+              [8, 16],
+              [10.1, 20.3],
+              [11.9, 23.7],
+              [11.9, 23.7],
+              [11.9, 23.7],
+              [14.1, 28.3],
+              [16.5, 32.9],
+              [19.1, 38.3],
+              [21.3, 42.5],
+              [22.3, 44.7],
+              [23.3, 46.7],
+              [25.2, 50.4],
+              [27.2, 54.4],
+              [29.3, 58.7],
+              [31.7, 63.3],
+              [33.9, 67.9],
+              [36.4, 72.8],
+              null,
+              null
+            ]
+          },
+          {
+            "referenceTag": "<外功攻擊|780|#C|15>",
+            "formats": ["1f", "1f"],
+            "levels": [
+              null,
+              null,
+              null,
+              null,
+              [4.5, 8.9],
+              [6.1, 12.1],
+              [8, 16],
+              [10.1, 20.3],
+              [11.9, 23.7],
+              [11.9, 23.7],
+              [11.9, 23.7],
+              [14.1, 28.3],
+              [16.5, 32.9],
+              [19.1, 38.3],
+              [21.3, 42.5],
+              [22.3, 44.7],
+              [23.3, 46.7],
+              [25.2, 50.4],
+              [27.2, 54.4],
+              [29.3, 58.7],
+              [31.7, 63.3],
+              [33.9, 67.9],
+              [36.4, 72.8],
+              [39, 78],
+              [41.9, 83.7]
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "text": "造成傷害結算時的所有類型穿透#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點。"
+      }
+    ],
+    [
+      {
+        "text": "造成傷害結算時的所有類型穿透#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點。"
+      },
+      {
+        "text": "#Y通判#E持續時間提升至#Y10#E秒，同時#Y輕重擊派生技與其觸發效果#E造成任何類型傷害均可獲得通判效果。\n\n可生效的技能包括：<嗟夫刀法·輕擊派生|781|#C|20401|20401104>、<嗟夫刀法·重擊派生|781|#C|20401|20401114>、<月出驚春|781|#C|10302|20302105>、<彩鳳飛|781|#C|20601|20601101>、<風敲竹|781|#C|20601|20601104>、<泉下凍|781|#C|20801|20801201>、<撥雪尋春|781|#C|20801|20801206>、<鼓樂和|781|#C|21001|21001102>、<煞盡東風|781|#C|10306|20303206>、<聽雨平風系列技能|781|#C|20204|20204201>。",
+        "bullet": true
+      }
+    ],
+    [{ "text": "<外功傷害加成|780|#C|160>提升2.5%。", "bullet": true }],
+    [
+      {
+        "text": "造成傷害結算時的所有類型穿透#Y5#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點，若造成傷害的技能為<聽雨平風系列技能|781|#C|20204|20204201>則所有類型穿透提升至#Y3#E點。"
+      }
+    ]
+  ],
+  "effect": {
+    "MingFeiTongPanT0": {
+      "effect": [
+        {
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MingFeiTongPanT3" }] }],
+          "effect": { "physicalPenetration": 2 }
+        },
+        {
+          "requirement": [
+            { "target": "self", "value": "MingFeiTongPanT3" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "MingFeiTongPanT6" }] }
+          ],
+          "effect": { "physicalPenetration": 2, "formlessPenetration": 2 }
+        },
+        {
+          "requirement": [{ "target": "self", "value": "MingFeiTongPanT6" }],
+          "effect": { "physicalPenetration": 5, "formlessPenetration": 5 }
+        }
+      ],
+      "trigger": [
+        {
+          "event": "damageOutcome",
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                { "operator": "not", "operand": [{ "target": "self", "value": "MingFeiTongPanT4" }] },
+                { "operator": "not", "operand": [{ "target": "skillTag", "value": "VariedCombo" }] }
+              ]
+            }
+          ],
+          "action": [
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltTongPan",
+              "stack": 1,
+              "duration": 10,
+              "requirement": [{ "target": "self", "value": "MingFeiTongPanT4" }]
+            },
+            {
+              "type": "apply",
+              "target": "self",
+              "value": "BoltTongPan",
+              "stack": 1,
+              "duration": 5,
+              "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MingFeiTongPanT4" }] }]
+            }
+          ],
+          "outcome": "affinity"
+        }
+      ]
+    },
+    "MingFeiTongPanT1": {},
+    "MingFeiTongPanT2": {
+      "effect": [
+        {
+          "rawStat": {
+            "minPhys": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                4.5,
+                6.1,
+                8,
+                10.1,
+                11.9,
+                11.9,
+                11.9,
+                14.1,
+                16.5,
+                19.1,
+                21.3,
+                22.3,
+                23.3,
+                25.2,
+                27.2,
+                29.3,
+                31.7,
+                33.9,
+                36.4,
+                39,
+                41.9
+              ]
+            },
+            "maxPhys": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                8.9,
+                12.1,
+                16,
+                20.3,
+                23.7,
+                23.7,
+                23.7,
+                28.3,
+                32.9,
+                38.3,
+                42.5,
+                44.7,
+                46.7,
+                50.4,
+                54.4,
+                58.7,
+                63.3,
+                67.9,
+                72.8,
+                78,
+                83.7
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "MingFeiTongPanT3": {},
+    "MingFeiTongPanT4": {
+      "trigger": [
+        {
+          "event": "damage",
+          "requirement": [{ "target": "skillTag", "value": "VariedCombo" }],
+          "action": [{ "type": "apply", "target": "self", "value": "BoltTongPan", "stack": 1, "duration": 10 }]
+        }
+      ]
+    },
+    "MingFeiTongPanT5": { "effect": [{ "rawStat": { "physDmgBonus": 0.025 } }] },
+    "MingFeiTongPanT6": {}
+  }
+}

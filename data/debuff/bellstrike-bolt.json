@@ -1,0 +1,68 @@
+{
+  "BoltQuanWei": {
+    "name": "泉威",
+    "duration": 10,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      { "effect": { "stat": { "physDmgBonus": 0.08, "bellstrikeDmgBonus": 0.08 } } },
+      {
+        "requirement": [
+          { "target": "skillTag", "value": "BoltVCSeries" },
+          { "target": "self", "value": "FuLiangYiYeT3" }
+        ],
+        "effect": { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } }
+      }
+    ],
+    "description": "8% Physical and Bellstrike DMG from the applier; 14% for VC-series hits with 浮梁一夜 T3."
+  },
+  "BoltZaigeStacks": {
+    "name": "載戈",
+    "duration": 8,
+    "maxStack": 15,
+    "refresh": true,
+    "stackEffects": [
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.1 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.2 } }],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }],
+          "effect": { "hpDMGBonus": 0.30000000000000004 }
+        }
+      ],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.4 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.5 } }],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }],
+          "effect": { "hpDMGBonus": 0.6000000000000001 }
+        }
+      ],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }],
+          "effect": { "hpDMGBonus": 0.7000000000000001 }
+        }
+      ],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.8 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 0.9 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 1.0 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 1.1 } }],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }],
+          "effect": { "hpDMGBonus": 1.2000000000000002 }
+        }
+      ],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 1.3 } }],
+      [
+        {
+          "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }],
+          "effect": { "hpDMGBonus": 1.4000000000000001 }
+        }
+      ],
+      [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 1.5 } }]
+    ],
+    "description": "10% 鳴戈 DMG per stack."
+  }
+}

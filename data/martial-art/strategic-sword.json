@@ -160,6 +160,324 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.05548 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246.0, "minBellstrike": 123.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.225, "coefficientBonusWithoutFlatAttack": 0.0225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.061560000000000004 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266.0, "minBellstrike": 133.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.3, "coefficientBonusWithoutFlatAttack": 0.03 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.065664 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286.0, "minBellstrike": 143.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.4, "coefficientBonusWithoutFlatAttack": 0.04 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.07022400000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306.0, "minBellstrike": 153.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.5, "coefficientBonusWithoutFlatAttack": 0.05 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.074784 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328.0, "minBellstrike": 164.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.6, "coefficientBonusWithoutFlatAttack": 0.06 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [
+                { "target": "skillTag", "value": "StrategicSword" },
+                { "target": "skillTag", "value": "Special" }
+              ],
+              "action": { "type": "apply", "target": "self", "value": "StrategicBleedEnduranceReady", "stack": 1 }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "affinity": { "formula": { "source": "power", "multiplier": 0.000152, "max": 0.08025600000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Bleed" }],
+            "effect": {
+              "physicalPenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } },
+              "bellstrikePenetration": { "formula": { "source": "maxPhys", "multiplier": 0.01, "max": 15 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352.0, "minBellstrike": 176.0 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StrategicSword" }],
+            "effect": { "flatAttackBonus": 0.725, "coefficientBonusWithoutFlatAttack": 0.0725 }
+          }
+        ]
+      }
     ]
   ]
 }

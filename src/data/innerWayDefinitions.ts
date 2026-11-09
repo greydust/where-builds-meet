@@ -17,6 +17,7 @@ import eveningSnow from "@gamedata/innerway/evening-snow.json"
 import exquisiteScenery from "@gamedata/innerway/exquisite-scenery.json"
 import fivefoldBleed from "@gamedata/innerway/fivefold-bleed.json"
 import frostCladNight from "@gamedata/innerway/frost-clad-night.json"
+import fuLiangYiYe from "@gamedata/innerway/fu-liang-yi-ye.json"
 import furyHarvest from "@gamedata/innerway/fury-harvest.json"
 import gourdToss from "@gamedata/innerway/gourd-toss.json"
 import harmonySong from "@gamedata/innerway/harmony-song.json"
@@ -26,6 +27,7 @@ import insightfulStrike from "@gamedata/innerway/insightful-strike.json"
 import lightAndShadowAlike from "@gamedata/innerway/light-and-shadow-alike.json"
 import lightAnew from "@gamedata/innerway/light-anew.json"
 import mendingLoom from "@gamedata/innerway/mending-loom.json"
+import mingFeiTongPan from "@gamedata/innerway/ming-fei-tong-pan.json"
 import mistwing from "@gamedata/innerway/mistwing.json"
 import moraleChant from "@gamedata/innerway/morale-chant.json"
 import mountainsMight from "@gamedata/innerway/mountains-might.json"
@@ -37,6 +39,7 @@ import royalRemedy from "@gamedata/innerway/royal-remedy.json"
 import sandswirlTail from "@gamedata/innerway/sandswirl-tail.json"
 import seasonalEdge from "@gamedata/innerway/seasonal-edge.json"
 import shadowAssault from "@gamedata/innerway/shadow-assault.json"
+import shenDuanQingFeng from "@gamedata/innerway/shen-duan-qing-feng.json"
 import skyGripped from "@gamedata/innerway/sky-gripped.json"
 import skyspeak from "@gamedata/innerway/skyspeak.json"
 import soaringHigh from "@gamedata/innerway/soaring-high.json"
@@ -44,6 +47,7 @@ import songOfTang from "@gamedata/innerway/song-of-tang.json"
 import starReacher from "@gamedata/innerway/star-reacher.json"
 import steadfastDevotion from "@gamedata/innerway/steadfast-devotion.json"
 import steadfastStance from "@gamedata/innerway/steadfast-stance.json"
+import suiXingQieTao from "@gamedata/innerway/sui-xing-qie-tao.json"
 import swordHorizon from "@gamedata/innerway/sword-horizon.json"
 import swordMorph from "@gamedata/innerway/sword-morph.json"
 import throatPiercingArt from "@gamedata/innerway/throat-piercing-art.json"
@@ -57,6 +61,7 @@ import wildfireSpark from "@gamedata/innerway/wildfire-spark.json"
 import wildfireSurge from "@gamedata/innerway/wildfire-surge.json"
 import windBeneathWings from "@gamedata/innerway/wind-beneath-wings.json"
 import wolfchasersArt from "@gamedata/innerway/wolfchasers-art.json"
+import yueYongFangYuan from "@gamedata/innerway/yue-yong-fang-yuan.json"
 import zephyrWhispers from "@gamedata/innerway/zephyr-whispers.json"
 
 import { effectForSoloLevel } from "./soloLevelEffects"
@@ -81,6 +86,11 @@ export type InnerWayDefinition = {
 }
 
 export const innerWayDefinitions = {
+  YueYongFangYuan: yueYongFangYuan,
+  ShenDuanQingFeng: shenDuanQingFeng,
+  FuLiangYiYe: fuLiangYiYe,
+  MingFeiTongPan: mingFeiTongPan,
+  SuiXingQieTao: suiXingQieTao,
   BladesWill: bladesWill,
   InkAndStrings: inkAndStrings,
   ZephyrWhispers: zephyrWhispers,

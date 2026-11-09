@@ -142,11 +142,13 @@ describe("martial-art-talent-ranks", () => {
       )
       assert.equal(
         sheet.rawStats.minBamboocut,
-        ({ 13: 296, 14: 312, 15: 328 } as Record<number, number>)[profile.martialArtTalentRank],
+        ({ 13: 296, 14: 312, 15: 328, 16: 346, 17: 366, 18: 386, 19: 406, 20: 428, 21: 452 } as Record<number, number>)[
+          profile.martialArtTalentRank
+        ],
         `Breakthrough ${profile.name} selects both selected attribute talents`,
       )
       assert(
-        Math.abs(sheet.stats.bamboocutDmgBonus - sheet.rawStats.minBamboocut * 0.000336) < 1e-9,
+        Math.abs(sheet.stats.bamboocutDmgBonus - Math.min(sheet.rawStats.minBamboocut * 0.000336, 0.15)) < 1e-9,
         "Ranked talent formulas still read the shared raw-stat stage",
       )
     }

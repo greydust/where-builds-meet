@@ -2,6 +2,7 @@ import bamboocutDraughtBuffs from "@gamedata/buff/bamboocut-draught.json"
 import bamboocutDustBuffs from "@gamedata/buff/bamboocut-dust.json"
 import bamboocutKiteBuffs from "@gamedata/buff/bamboocut-kite.json"
 import bamboocutWindBuffs from "@gamedata/buff/bamboocut-wind.json"
+import boltBuffs from "@gamedata/buff/bellstrike-bolt.json"
 import bellstrikeSplendorBuffs from "@gamedata/buff/bellstrike-splendor.json"
 import bellstrikeUmbraBuffs from "@gamedata/buff/bellstrike-umbra.json"
 import generalBuffs from "@gamedata/buff/general.json"
@@ -16,6 +17,7 @@ import bamboocutDraughtDebuffs from "@gamedata/debuff/bamboocut-draught.json"
 import bamboocutDustDebuffs from "@gamedata/debuff/bamboocut-dust.json"
 import bamboocutKiteDebuffs from "@gamedata/debuff/bamboocut-kite.json"
 import bamboocutWindDebuffs from "@gamedata/debuff/bamboocut-wind.json"
+import boltDebuffs from "@gamedata/debuff/bellstrike-bolt.json"
 import bellstrikeSplendorDebuffs from "@gamedata/debuff/bellstrike-splendor.json"
 import bellstrikeUmbraDebuffs from "@gamedata/debuff/bellstrike-umbra.json"
 import generalDebuffs from "@gamedata/debuff/general.json"
@@ -30,12 +32,14 @@ import umbraDots from "@gamedata/dot/bellstrike-umbra.json"
 import divinecraftDots from "@gamedata/dot/divinecraft.json"
 import innerWayDots from "@gamedata/dot/innerway.json"
 import mysticDots from "@gamedata/dot/mystic.json"
+import boshanQuyueSpearSkills from "@gamedata/skill/boshan-quyue-spear.json"
 import everspringSkills from "@gamedata/skill/everspring-umbrella.json"
 import generalSkills from "@gamedata/skill/general.json"
 import heavenquakerSkills from "@gamedata/skill/heavenquaker-spear.json"
 import heavenwillSkills from "@gamedata/skill/heavenwill-gauntlets.json"
 import infernalSkills from "@gamedata/skill/infernal-twinblades.json"
 import inkwellSkills from "@gamedata/skill/inkwell-fan.json"
+import jueyuXuanfengSpearSkills from "@gamedata/skill/jueyu-xuanfeng-spear.json"
 import mechanismSkills from "@gamedata/skill/mechanism.json"
 import mortalSkills from "@gamedata/skill/mortal-rope-dart.json"
 import drumSkills from "@gamedata/skill/museflow-waist-drum.json"
@@ -61,6 +65,8 @@ import type { EditorCategory, SkillCategory, SkillMap } from "@/skillOverrides"
 import type { WeaponId } from "@/types"
 
 export const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
+  JueyuXuanfengSpear: jueyuXuanfengSpearSkills as SkillMap,
+  BoshanQuyueSpear: boshanQuyueSpearSkills as SkillMap,
   Skystrike: skystrikeSkills as SkillMap,
   Riven: rivenSkills as SkillMap,
   VernalUmbrella: vernalSkills as SkillMap,
@@ -88,6 +94,7 @@ export const defaultSkillMaps: Record<SkillCategory, SkillMap> = {
   Mechanism: mechanismSkills as SkillMap,
 }
 export const buffDefinitions = {
+  ...boltBuffs,
   ...jadeBuffs,
   ...wingBuffs,
   ...bellstrikeSplendorBuffs,
@@ -104,6 +111,7 @@ export const buffDefinitions = {
   ...mechanismBuffs,
 } as Record<string, EffectDefinition>
 export const debuffDefinitions = {
+  ...boltDebuffs,
   ...mechanismDebuffs,
   ...jadeDebuffs,
   ...wingDebuffs,
@@ -136,6 +144,8 @@ export const defaultEditorMaps: Record<EditorCategory, SkillMap> = {
   DOT: dotDefinitions,
 }
 export const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
+  jueyuXuanfengSpear: "JueyuXuanfengSpear",
+  boshanQuyueSpear: "BoshanQuyueSpear",
   skystrikeGauntlets: "Skystrike",
   rivenTwinblades: "Riven",
   vernalUmbrella: "VernalUmbrella",
@@ -161,6 +171,8 @@ export const skillCategoryByWeapon: Partial<Record<WeaponId, SkillCategory>> = {
 }
 export const allSkillDefinitions = Object.assign({}, ...Object.values(defaultSkillMaps)) as SkillMap
 export const skillDataNamespaceByCategory: Record<SkillCategory, string> = {
+  JueyuXuanfengSpear: "jueyuXuanfengSpear",
+  BoshanQuyueSpear: "boshanQuyueSpear",
   Skystrike: "skystrikeGauntlets",
   Riven: "rivenTwinblades",
   VernalUmbrella: "vernalUmbrella",
@@ -197,6 +209,8 @@ export const allSkillIds = (Object.keys(defaultSkillMaps) as SkillCategory[]).fl
 )
 export const editorSkillIds = Array.from(new Set(allSkillIds))
 export const martialArtBySkillId = new Map<string, WeaponId>([
+  ...Object.keys(boshanQuyueSpearSkills).map(id => [id, "boshanQuyueSpear"] as const),
+  ...Object.keys(jueyuXuanfengSpearSkills).map(id => [id, "jueyuXuanfengSpear"] as const),
   ...Object.keys(skystrikeSkills).map(id => [id, "skystrikeGauntlets"] as const),
   ...Object.keys(rivenSkills).map(id => [id, "rivenTwinblades"] as const),
   ...Object.keys(vernalSkills).map(id => [id, "vernalUmbrella"] as const),

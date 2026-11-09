@@ -1,5 +1,10 @@
 # Skill and combat-effect data
 
+Solo Level 20–25 tables and martial-art ranks 16–21 are documented in
+[progression provenance](solo-progression.md). Higher-level Inner Way
+bonuses select one same-level source curve; alternate CN layers are not
+summed and missing Global cells do not imply a zero bonus.
+
 This document keeps authoring constraints, source exceptions, and unresolved
 mechanics. The JSON is authoritative for implemented skill values, timing,
 tier effects, and preset sequences. Do not repeat those records here or append
@@ -297,7 +302,14 @@ All Mystic skills, including their composite components, and both castable
 Deflect variants ignore ping.
 Leaping Toad uses the user-confirmed 1.15-second lunge-hit cancel before
 Deflect. Keep this cancel boundary distinct from the export's contact-dependent
-recovery clocks.
+recovery clocks. Bolt VCs/basic attacks have incoming priority 1; its Q,
+Special, Tab and charged attacks have priority 2, equal to Toad. All select
+the ordinary low-priority code-3 MOVEPOST/POST gate because the high-priority
+route requires a strictly greater value. None replaces Deflect at the authored
+1.15-second lunge-hit cancel. The exported
+ordinary recovery marker is relative to hit recovery, not a 1.2-second cast.
+Source: the datamine repository's `notes/skill-state-timing.md` and
+`reports/leaping-toad-state-transitions.md` (Global Normal lunge configuration).
 `triggerPing: true` opts a triggered skill into paying the rotation ping when
 it is dispatched; ordinary triggered effects remain latency-free unless they
 declare it. Composite parents and components must declare exemptions
@@ -2615,3 +2627,177 @@ eligibility. Successful Deflect responses grant 5 Binge through a separate
 one-second talent-trigger cooldown without a Carouse condition. Plain authored
 Deflect casts have no success reward. Quick Drink's unmarked-gain semantics and
 Drunkslay's Eonpour-refresh lifecycle remain provisional.
+
+## Bellstrike Bolt preview
+
+Bolt (霆 in Chinese) follows Umbra with a Preview badge. It is selectable and
+restorable without Dev mode. Its martial arts are 決獄懸鋒槍
+(`jueyuXuanfengSpear`) and 撥山取月槍 (`boshanQuyueSpear`), both Bellstrike spears.
+The source-backed combat records and remaining gaps are described below. The
+default rotation is `bolt-dummy-1-min`. Legacy universal weapon lists expand to include these IDs;
+existing path-specific lists remain unchanged.
+
+The public preview has a non-relayed Full Max Build graduate alongside the
+default Fully Relayed Max Build. It uses the same affix choices at ordinary
+maximum rolls, with the same Inner Ways, 寒芒 selection, and attunements.
+
+The available weapon sets are Jadeware, Hawkwing, and 寒芒 (`HanMang`). The
+8 November export's set 85 has a Maximum Physical Attack two-piece bonus:
+77.8 at Solo Level 17 and 90.6 at levels 18–19. The four-piece selection retains
+the two-piece bonus and adds the same-weapon damage and VC/proc Affinity Damage bonus.
+
+Eligible Inner Ways are 神斷青鋒, 浮梁一夜, 明非通判, 歲星竊桃 (CN source IDs
+751–754), and 月湧方圓 (83). Names and retained source-tier text use Traditional
+Chinese. All five implement their unconditional T2/T5 bonuses through `rawStat`:
+
+| Inner Way           | T2                                 | T5                         |
+| ------------------- | ---------------------------------- | -------------------------- |
+| 神斷青鋒 / 月湧方圓 | Solo Level Maximum Physical Attack | 2.3% Direct Affinity each  |
+| 浮梁一夜            | Solo Level Affinity                | 5.2% Affinity Damage Bonus |
+| 明非通判            | Solo Level Min/Max Physical Attack | 2.5% Physical Damage Bonus |
+| 歲星竊桃            | Solo Level Min/Max Void Attack     | 6 Formless Penetration     |
+
+Additional combat tiers use the effect and outcome-state mechanisms described below. Export `soloLevelValues.levels` uses level
+minus one; runtime tables prepend the unused zero slot. The first source curve
+is used, matching the supported Solo Levels. Source:
+`local/datamine/2026-11-08_18-13-14-875_+0000-RWiW0j/wwm-inner-way-normal.json`
+and `wwm-item-sets.json` in the same export. The Romanized IDs are stable
+identifiers, not proposed English translations.
+
+`bolt-fully-relayed` derives from Splendor's Fully Relayed Max build, with both
+weapons changed to spears, Art of Sword replaced by Art of Spear, and the
+armor attunements changed to 懸鋒取月·輕重擊派生增傷. Each armor piece
+contributes 6% at gear tier 96 and 7% at tier 100 (CN affixes 279501/289501).
+The `BoltVCSeries` attunement match admits both spears’ light/heavy VC, including
+鋒銳 variants, plus 載戈 and 鳴戈, regardless of the wielded spear. Q and Special
+do not inherit it. `BoltVC` remains the primary-cast marker for resource and
+cross-VC triggers; proc hits are `VariedCombo`/`BoltVCSeries` without becoming
+additional primary casts.
+All five CN PvE attunements are exposed in attunement stats: 懸鋒取月’s
+light/heavy derivatives plus each spear’s 武學技 and 特殊技 bonuses. The latter
+four match their native martial-art tag and skill category; blue Q’s damage
+responses/follow-ups share its 武學技 attunement. Their caps are 5%/6%/7% per
+piece at gear tiers 91/96/100. The Fully Relayed preset retains the four VC rolls.
+The exact CN pool joins are retained in the export’s `wwm-attunements-cn.json`.
+Presets may omit attunements, as player gear already can; present values are validated.
+It uses 月湧方圓 / 神斷青鋒 / 浮梁一夜 / 明非通判 at T6 and 寒芒 4.
+The bracer uses a full Power affix at each gear tier in place of its extra Affinity roll. With the
+currently implemented bonuses, no sheet overrides, and the ordinary progression
+profile, effective affinity reaches the 40% cap at breakthroughs 17–19. T5 adds 4.6 percentage points of Direct Affinity
+on top. These are sheet values; combat-only Direct Affinity increases resolve per hit.
+
+### Bolt combat implementation
+
+`bolt-dummy-1-min` encodes the supplied sequence, starting combat on the first
+平風掃寶 contact and ending at 60 seconds. The final blue V is interpreted as
+blue VC. The two Qi breaks attach to the last direct contact of the indicated
+聽雨斷罪·鋒銳 casts. The nominal CN clocks allow the entire sequence inside
+one minute. Editor skill #21 (zero-based skill numbering) uses Blue Special
+in place of Tab to Red to refresh 王行 through the middle window. Full charging
+windows alternate Blue VC and Red VC to consume 神斷青鋒’s opposite-VC damage
+buffs. Flute Cancel → Deflect follows the Blue VC formerly numbered #24
+(zero-based editor numbering before moving the pair). At 40 ms ping,
+Flute starts at 22.64 seconds without a cooldown wait. The fourth 鋒銳 window
+completes at 58.90 seconds. Red Q → Blue VC closes the rotation:
+both Q contacts land at 59.237 / 59.504 seconds, then the first Blue VC
+contact lands at 59.949 seconds. The next hit and recovery are clipped by
+Battle End at 60 seconds. Heavy 1 cannot enter Blue VC; a fresh VC entry
+requires Red Q, Blue Special or Tab. The earlier Heavy 1 / VC ending was invalid.
+王行 remains active, all four 鋒銳 windows complete, and no cooldown waits occur.
+
+Qi events use the existing authored 60%/40% ramp convention, retaining both
+hit-attached breaks at 25.523 and 52.977 seconds. The first thresholds occur
+at 10.209 and 15.314 seconds. Exhausted restores Qi at 35.523 seconds;
+four seconds of immunity end at 39.523 seconds. The next segment's thresholds
+are 44.905 and 47.595 seconds. Each segment linearly places its thresholds
+at 40%/60% of the time to its planned break; these are encounter estimates,
+not calculated Qi damage. The second exhaustion continues through Battle End.
+Animation/contact clocks remain `audit-provisional` in the export.
+
+槍勢 uses `SpearMomentum`, base initial 2 and cap 6. 浮梁一夜 T0 supplies an
+unconditional `initialResourceBonus` of 2, giving the specified opening 4.
+The shared timeline applies these bonuses once at initialization, before clamps
+and the resource ledger snapshot. At 6, the next VC enters 鋒銳; T6 spends 1 per
+VC, otherwise 1.5. The enhanced last hit resolves before ending the mode.
+浮梁一夜 T1 restores 2 on exit. 王行 grants 1 per ordinary VC instead of 0.5;
+the supported talent extends it to 24 seconds. 神斷青鋒 T4 refills on red Q or
+blue Special against an exhausted boss, outside 鋒銳, once per 60 seconds.
+The supplied sequence spends six 槍勢 in each of four windows, with the third
+window enabled by the exhausted-target refill. The rotation editor exposes 槍勢.
+
+The source normal CN layer-one level-100 skill coefficients and local clocks
+are curated into the two spear maps. Zero-damage VC collision markers are not
+extra hits: the ordinary callback damage rows are selected without the separate
+240000113 buff's threefold branch. Source:
+`local/datamine/2026-11-08_18-13-14-875_+0000-RWiW0j/wwm-skills-normal-all.json`.
+Two saved red-Q uses use the shared sequential cooldown mechanism. Shared VCs
+preserve the wielded martial art, so a blue VC after tabbing to red remains a
+red-spear combat state. Triggered 載戈 and 鳴戈 have separate damage identities.
+
+Per-rank CN raw attribute conversions and supported-rank talents are registered
+from the same export. 明法/重道, 通判's deterministic T4 VC/proc stacks,
+竊桃, 泉威, and 鋒銳 effects use the shared effect pipeline. 寒芒 4 retains the
+2-piece attack and adds the same-weapon damage and VC/proc Affinity Damage bonus.
+
+月湧方圓 uses the refreshed export's native `procTiming`: in sampled fights,
+潮湧 first fires one second after its carrier is applied and keeps its clock on
+refresh. Expected calculations opt into `periodic.expectedTickAlignment: "battle"`,
+sharing the existing Weeping Blood/Poison approximation: 潮湧 runs on whole battle
+seconds with its actual active probability. Applications wait for the next strictly
+later boundary. Buff stacks, application-relative expiry, inactive probability and
+conditional burst counters remain tracked; the timer does not force full uptime. 洪波萬仞
+is additional damage, admitted by a direct non-proc hit while 月引 and at least
+four pre-hit 暗潮 stacks exist; the permanent marker is applied before the burst.
+It does not replace the first periodic tick. Ten real 潮湧 contacts remove the
+60-second repeat counter before emitting another burst. The initial burst does
+not reset that counter. Its PvE bonus scales with effective Affinity, capped at 30%.
+月相, 月引's capped extensions/current-HP cost, 暗潮 and 潮信 recovery remain
+linked in one outcome distribution. The expected model opts 月引's direct-hit
+extension rule into `expectedRefresh`: active duration gains `2 × P(Affinity)`
+seconds per qualifying hit, capped at 15 seconds remaining. Activation stays
+probabilistic, and sparse/low-Affinity sequences can still lose the buff.
+The T1 `expectedStackPromotion` policy sums each inactive 月相 stack count's
+probability (zero through four). Totals strictly below 1e-5 transfer upward;
+four stacks convert into 月引 with the normal weighted 5% current-HP cost.
+Probabilities are retained, conditional follow-ups finish before promotion,
+and sampled fights keep native stack and extension behavior. Five-stack
+conversion is automatic once full; the Affinity gate belongs to stack gain. Effects resolve before each hit; ordered
+operations resolve afterward. Same-contact listener ordering is a nominal model:
+the initial burst and active-月引 checks explicitly read pre-hit state rather than
+assuming an unconditional fifth-stack timestamp. No DPS snapshot has been accepted.
+
+Selectable skills carry capitalized rotation labels in `shortName` (Blue VC,
+Red Q, Blue Special and Tab to Blue), retaining their Traditional Chinese names. Shared red
+basic-chain stages without exported cast identities and the unactivated first-light
+C3 collision are not fabricated. Published clocks still carry the source's
+`audit-provisional` qualification.
+
+明非通判's Affinity-triggered stacks opt into `outcomeStack: true`. Numeric
+self-stack buffs reuse Hawkwing's stack/expiry transitions and the shared damage
+calculator's full expected-effect distributions. Guaranteed T4 applications are
+merged with chance applications instead of counting the observed stacks twice.
+Damage is evaluated per stack state, including states on opposite sides of the
+penetration/resistance breakpoint. Tiny merged states retain weighted stack
+effects. Legacy outcome mechanics do not opt into this adapter.
+
+The [9 November Bolt combat audit](bolt-combat-audit.md) records the source
+joins, corrections, and model boundaries. 泉威 supplies 8% channel damage
+generally and another 6% to the VC series with 浮梁一夜 T3. 載戈's per-stack
+鳴戈 bonus joins Category 1. 月湧方圓's T6 PvE bonus instead joins the
+CN target-correction bracket (`targetCorrectionBonus`), separate from
+Category 1 and 鋒銳's `baseDMGBonus` ratio. 通判's T6 series penetration includes 載戈/鳴戈.
+The spear talents use complete 100/125 Maximum Physical Attack thresholds;
+blue's live channel bonus applies during 鋒銳 or to 鳴戈 itself. Lower-rank
+caps and 王行/Abrasion-immunity upgrade boundaries follow the exported ranks.
+
+Bolt's buff/debuff tooltips have brief English descriptions in their definition
+records, with Traditional Chinese translations in the canonical CSV. They
+list granted bonuses through the existing localized tooltip path, without
+acquisition conditions or proc timing. 通判 uses the requested concise base
+summary; its higher-tier penetration still resolves from the effect rules.
+
+鳴戈's once-per-鋒銳 marker omits `duration` to persist until the next mode
+entry explicitly clears it. Ordinary effect duration `-1` is an expiry in the
+past, not the outcome machine's separate infinite-duration convention. A
+detonation consumes all 載戈 stacks after its damage snapshot. Tab and natural
+mode-end routes share that same marker, including comparisons without 神斷青鋒.

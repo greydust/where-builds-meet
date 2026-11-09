@@ -20,7 +20,11 @@
     "infernalTwinblades",
     "mortalRopeDart",
     "skystrikeGauntlets",
-    "rivenTwinblades"
+    "rivenTwinblades",
+    "jueyuXuanfengSpear",
+    "boshanQuyueSpear",
+    "museflowWaistDrum",
+    "willowbendFan"
   ],
   "test": true,
   "eventTimeReference": "battleStart",

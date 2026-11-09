@@ -25,7 +25,9 @@
     "skystrikeGauntlets",
     "rivenTwinblades",
     "museflowWaistDrum",
-    "willowbendFan"
+    "willowbendFan",
+    "jueyuXuanfengSpear",
+    "boshanQuyueSpear"
   ],
   "setup": {
     "innerWays": [
@@ -39,5 +41,5 @@
     "bowRingSet": "None",
     "arsenal": "Stonesplit"
   },
-  "gearByTier": { "96": {}, "100": {} }
+  "gearByTier": { "96": {}, "100": {}, "105": {}, "110": {}, "115": {} }
 }

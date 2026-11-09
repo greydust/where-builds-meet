@@ -176,3 +176,12 @@ uses `get_combat_attr(MIN_W_ATK)` and integer division. This corrects raw-stage
 freezing and continuous interpolation. Exact native assembly of food/effective
 bonuses and percentage attack into that combat attribute remains unaudited;
 ordinary action `minPhys` is the current explicit simulator mapping.
+
+## Wielded-art effect conditions
+
+Damage effect requirements receive the action snapshot's `currentMartialArt`
+and `currentWeapon`, matching timeline requirements. The fallback row snapshot
+provides the same fields. Prepared effect-state cache keys include both values,
+so a switch cannot reuse another art/family's conditional bonuses when tags and
+buffs otherwise match. This covers shared Bolt VCs as well as other art-gated
+flat-attack and damage bonuses.

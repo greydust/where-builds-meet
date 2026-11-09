@@ -1,5 +1,12 @@
 # System Architecture
 
+Bolt's CN damage definitions opt into the shared `targetCorrectionBonus`
+effect field for `TARGET_TAG_CORRECT + DAMAGE_UP`. It has its own multiplier,
+separate from event-34 `baseDMGBonus`, Category 1 and Mechanism. Static
+aggregates, full evaluation, prepared formulas and additive attribution all
+use the same bracket; effects that omit it retain their existing arithmetic.
+See [Bolt combat audit](bolt-combat-audit.md) for the source boundary.
+
 ## Purpose and deployment
 
 Where Builds Meet is a client-only Where Winds Meet build and rotation simulator.
@@ -830,6 +837,7 @@ conditional chances, owner-specific expiration, and probability conservation.
 peak combat states, and executed tick/expiration checks for dense distinct-cadence hits.
 The exact factorization reduces transition overhead without pruning rare outcomes.
 Weeping Blood and Qingyi's Poison opt into `periodic.expectedTickAlignment: "battle"`.
+Linked outcome machines use the same setting for 潮湧.
 Expected timelines use one shared cadence at battle seconds 1, 2, and so on,
 with one probability-weighted DOT row per active boundary. New applications wait
 for the next strictly later boundary; refreshes retain it. Expiration and threshold
@@ -1158,6 +1166,13 @@ base inputs / solved override offsets
 ```
 
 Equipped gear contributes one data-derived `rawStat` effect to this same pipeline.
+Affix definitions marked `aggregation: max` contribute only their highest
+equipped value per stat key. Weapon Arts use this rule; different families
+remain separate. Their priority rows carry a zero-Art reference sheet and
+a one-roll target through the same worker calculation. Each row uses its
+own reference DPS/HPS for the gain, while the displayed rotation baseline
+remains the equipped build. Ordinary stat priorities retain marginal-addition
+semantics, and comparison progress counts both Art scenarios when required.
 Direct Critical Rate is capped at `0.2` (20%) in this shared pipeline and again
 when effective per-action values are resolved, so displayed stats, overrides,
 setup effects, and damage calculations cannot bypass the cap. The complete
@@ -2090,6 +2105,11 @@ value means its removal can reuse baseline event state. Add path eligibility str
 `tags` array. Selection automatically activates all tiers through the selected
 tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
 
+Unconditional Inner Way rules may supply `effect.initialResourceBonus`, a map of
+resource names to additive starting amounts. The shared event loop applies these
+once before initializing its resource ledger and clamps them to the configured
+resource caps. This is used by 浮梁一夜's opening 槍勢 bonus.
+
 ### Breakthrough
 
 Add a complete breakthrough entry to `data/breakthrough.json`. Each entry combines
@@ -2103,8 +2123,17 @@ tier 100. Its progression and rank values come from the normal layer-zero Solo
 Level and martial-art exports, with cumulative character talents from the grey
 Solo Level 19 progression. The existing level-96 enemy convention is retained.
 Equipment-derived set and bow/ring bonuses retain their tier-100 values;
-Enhancement and character talent totals advance independently. The selector offers breakthroughs 18 and 19 and defaults to 18.
+Enhancement and character talent totals advance independently. The selector offers Solo Levels 18–25 and defaults to 18.
 The BT17 profile supports historical calculations.
+
+Solo Levels 20/21 select equipment 105 and martial-art ranks 16/17;
+22/23 select equipment 110 and ranks 18/19; 24/25 select equipment 115 and
+ranks 20/21. Character talents, Enhancement, Arsenal, Inner Way T2, and set
+bonuses resolve their own level tables through the existing stat pipeline.
+New profiles explicitly retain the fixed level-96, 500-defense Dummy
+(`enemyProfileSource: fixedDummy`), rather than inventing a missing CN
+Solo-25 enemy profile. Their Judgement Resistance is progression-specific.
+See [Solo Level 20–25 data](solo-progression.md) for provenance and selection rules.
 
 ### Gear definition
 
@@ -2525,3 +2554,79 @@ comparisons cannot recommend unavailable rolls. Stored inventory parsing
 migrates the old keys at tier 100 while
 preserving roll values; the editor also converts them when changing tier.
 New gear drafts default to tier 100 independently of the selected breakthrough.
+
+### Linked outcome-state effects
+
+`outcomeMachine` in an Inner Way effect declares named stack/expiry cells,
+optional periodic clocks, and ordered outcome/requirement-gated operations.
+`read: "before"` tests the pre-contact state; other rules see preceding operations.
+The shared timeline evaluates damage against the joint effect distribution,
+then settles the contact using the centralized calculator's conditional outcome
+rates. Emitted skills carry a token so their damage uses only the states that
+actually emitted them, normalized once and weighted once. Simulated runs follow
+their sampled outcomes. HP costs use the shared current-HP ledger.
+
+This mechanism extends outcome-triggered effects for linked buff/proc chains;
+numeric standalone stack buffs continue to use `outcomeStack`. It does not add
+an alternate damage formula. Comparisons with a machine rebuild their timeline.
+The machine advances ordinary expiries lazily at contacts and schedules only
+periodic work. `periodic.expectedTickAlignment: "battle"` reuses
+`nextBattlePeriodicTick` for a single per-cell clock at battle seconds 1, 2, etc.
+Aligned expected cells carry no individual next-tick timestamp. Applications wait
+for the next strictly later boundary; active mass alone emits one weighted row.
+An application at a boundary cannot join that boundary's tick. Refreshes retain
+the common clock, expiry remains application-relative, and sampled fights ignore
+the alignment setting. Distinct cell/stack combinations and inactive probability
+remain represented; low-probability inactive states are merged only with
+compatible states, never promoted to guaranteed uptime.
+
+Outcome rules may opt into `expectedRefresh: true`. An Affinity-gated refresh
+then advances an already-active cell's expiry by `refresh.extend × P(Affinity)`
+once per qualifying contact, clamped to `now + refresh.maximum`. That rule does
+not split expected histories into extended/unextended branches. The probability
+comes from the ordinary pre-hit conditional stat/damage pipeline. The rule must
+require the cell to be active; it does not grant initial uptime. Sampled combat
+ignores this setting and retains full extensions on actual Affinity outcomes.
+
+`expectedStackPromotion` optionally bounds negligible initial stack tails. It
+sums absolute probability across every eligible history at each integer stack
+count, including zero for a missing cell. A total strictly below its configured
+threshold advances to the next stack. Ascending evaluation combines that mass
+with the next count before testing the next cutoff. Pending causal follow-ups
+contribute to the total but wait until acknowledged before being promoted.
+At the cell maximum, the configured `onMax` rule's existing operations perform
+the conversion, including its probability-weighted HP cost. Promotion preserves
+other cells and all probability mass; sampled fights do not promote stacks.
+This is a user-selected expected-state approximation, separate from generic
+tiny-history expiry merging.
+
+Advancing unchanged state skips compaction. Rule requirements are evaluated once
+per contact, and branches without an eligible Affinity transition do not split
+or recalculate Affinity. Exact-cadence expected timelines retain their 20,000-event
+bound; ordinary timelines keep 5,000.
+
+Tiny states below the common 1e-5 threshold preserve probability, cell presence
+and integer stacks. Compatible tiny states merge expiry times by probability
+weight and periodic phases within the common 0.1-second bucket. A merged tiny
+periodic clock rounds forward to the bucket boundary, preventing repeated
+sub-bucket wakeups; high-probability clocks and sampled runs retain native times.
+This is an expected-state approximation confined to tiny branches. The per-contact
+effect lookup is cached by definition/stack; changing contact requirements gets
+a fresh cache. Outcome rates are blended alongside damage when states change
+rates; identical-rate distributions retain the original rates bit-for-bit.
+
+Bolt's Dummy 1 Min benchmark (BT19, Fully Relayed, 40 ms ping, 8 November 2026)
+measured 8.49 seconds before the shared clock and 1.58 seconds afterward. Peak
+joint states fell from 639 to 221; compaction calls from 10,014 to 655, and
+weighted Moon proc rows from 1,749 to 311. DPS changed from 66,928.65504641015
+to 66,931.9255250396 (+0.0048865%) because the expected tick phase changes.
+These are local development measurements, not a runtime guarantee or an accepted
+DPS snapshot. Sampled native timing remains covered separately.
+
+The subsequent expected-extension/phase-tail model on the same Bolt fixture
+measured 1.10 seconds before and 0.45 seconds afterward (two warmed runs each).
+Peak states fell from 221 to 71, with seven states at the end rather than 37.
+DPS changed from 66,931.9255250396 to 66,931.92686069098 (+0.00133565138 DPS,
+about +0.000002%). The global tiny-state cutoff remains 1e-5. These measurements
+are not accepted DPS snapshots. These figures precede the later bracer
+Affinity-to-Power swap and editor skill #21 Blue Special refresh.

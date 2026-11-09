@@ -244,6 +244,492 @@
           }
         ]
       }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246.0, "minBamboocut": 123.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.12312000000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266.0, "minBamboocut": 133.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286.0, "minBamboocut": 143.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.14044800000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306.0, "minBamboocut": 153.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328.0, "minBamboocut": 164.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "skillStart",
+              "requirement": [{ "target": "skillTag", "value": "HeroesBlood" }],
+              "action": { "type": "apply", "target": "self", "value": "Carouse", "stack": 1 }
+            }
+          },
+          {
+            "requirement": [
+              { "target": "self", "value": "InebriateDeepdaze" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "DragonquenchInebriate" },
+                  { "target": "skillTag", "value": "HeroesBloodInebriate" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.16051200000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "self", "value": "Inebriate" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                },
+                "bamboocutDmgBonus": {
+                  "formula": {
+                    "source": "minPhys",
+                    "step": 83.33,
+                    "multiplier": 0.01,
+                    "max": 0.09,
+                    "resolveAt": "action"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352.0, "minBamboocut": 176.0 },
+            "stat": {
+              "bamboocutPenetration": { "formula": { "source": "minBamboocut", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "RivenTwinblades" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
     ]
   ]
 }
