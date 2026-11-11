@@ -981,3 +981,21 @@ hits now apply the refreshing 10-second Shattered Stone debuff, reducing Physica
 Defense by 5%. DPS increases by 0.3351% to 0.3630%; durations remain unchanged.
 All other preset results are unchanged. The global Umbra support selection stays
 permanent and does not stack with rotation-applied Shattered Stone.
+
+## Sweep All first-hit correction (November 11, 2026)
+
+The one-hit cancel previously applied both hits' combined coefficients and flat
+attack terms. It now applies the first hit's 40% share. All eight changed cases
+are Umbra; other preset results are unchanged. Every duration remains 60 seconds.
+The user accepted these results and requested commit and release on November 11, 2026. The eight Umbra snapshots now use the corrected values below.
+
+| Rotation / build / breakthrough             |           Old DPS |           New DPS |   Old total damage |   New total damage |
+| ------------------------------------------- | ----------------: | ----------------: | -----------------: | -----------------: |
+| dummy-1-min-37-bb-dh/umbra-full/18          | 91606.61875425222 | 89696.21875727925 |  5496397.125255133 |  5381773.125436755 |
+| dummy-1-min-37-bb-dh/umbra-full/19          | 96249.48898536773 | 94241.61756739173 | 5774969.3391220635 | 5654497.0540435035 |
+| dummy-1-min-37-bb-dh/umbra-fully-relayed/18 | 89330.23617011528 | 87464.13072497067 |  5359814.170206917 |   5247847.84349824 |
+| dummy-1-min-37-bb-dh/umbra-fully-relayed/19 |  93947.6518013201 | 91984.50622936967 |  5636859.108079206 |   5519070.37376218 |
+| dummy-1-min-38-bb/umbra-full/18             | 89191.50813366375 | 87281.09240127429 |  5351490.488019825 |  5236865.544076458 |
+| dummy-1-min-38-bb/umbra-full/19             | 93769.22179041995 | 91761.33399910489 |  5626153.307425197 |  5505680.039946293 |
+| dummy-1-min-38-bb/umbra-fully-relayed/18    | 86951.68392583485 | 85085.56314200161 | 5217101.0355500905 |  5105133.788520097 |
+| dummy-1-min-38-bb/umbra-fully-relayed/19    | 91502.32392136187 | 89539.16237299758 |  5490139.435281712 |  5372349.742379855 |

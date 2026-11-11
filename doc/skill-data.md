@@ -1937,8 +1937,14 @@ Every Umbra skill includes its own current skill ID in its tags.
 
 Sober Sorrow's five-hit cancel and full six-hit route use the source five
 0.15 multipliers plus the final 0.25 multiplier. Sweep All uses the description's
-0.8/1/1.2 factors against `20101101`, rather than guessing from its separate
-parent curve. Water Drop, Spring Surge, River Flow, and Empowered River Flow
+0.8/1/1.2 full-cast factors against `20101101`, rather than guessing from its separate
+parent curve. Each stance has two hits with a 40%/60% split. The registered
+`Sweep All [1 Hit]` cancel includes only the first hit: factors 0.32/0.4/0.48
+for Water Drop/Spring Surge/River Flow, scaling both coefficients and flat attack
+terms. It excludes the second hit near 0.969 seconds. The November 9 export's
+`timings.hitCoefficients` records hit pairs `2010110701`/`02`, `2010110703`/`04`,
+and `2010110705`/`06`; heroic 200-suffix variants preserve the split.
+Collider timings remain provisional. Water Drop, Spring Surge, River Flow, and Empowered River Flow
 are selected automatically when Sober Sorrow ends, using its cast-scoped combo
 resource. Every DirectDamage hit during the cast counts, including Solid Foundation;
 DOT ticks do not. Wolfchaser adds an extra combo on Sober Sorrow hits with own Bleed

@@ -174,10 +174,10 @@
       { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
       {
         "type": "damage",
-        "phyCoef": 1.712176,
-        "attrCoef": 1.712176,
-        "phyBonus": 474.4,
-        "attrBonus": 258.4,
+        "phyCoef": 0.6848704,
+        "attrCoef": 0.6848704,
+        "phyBonus": 189.76,
+        "attrBonus": 103.36,
         "time": 0.26737638636363636
       },
       {
@@ -217,10 +217,10 @@
       { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
       {
         "type": "damage",
-        "phyCoef": 2.14022,
-        "attrCoef": 2.14022,
-        "phyBonus": 593,
-        "attrBonus": 323,
+        "phyCoef": 0.856088,
+        "attrCoef": 0.856088,
+        "phyBonus": 237.2,
+        "attrBonus": 129.2,
         "time": 0.30375544363636364
       },
       { "type": "apply", "target": "target", "value": "ShatteredStone", "stack": 1, "time": 0.30375544363636364 },
@@ -269,10 +269,10 @@
       { "type": "consumeResource", "value": "Endurance", "amount": 40, "time": 0 },
       {
         "type": "damage",
-        "phyCoef": 2.568264,
-        "attrCoef": 2.568264,
-        "phyBonus": 711.6,
-        "attrBonus": 387.6,
+        "phyCoef": 1.0273056,
+        "attrCoef": 1.0273056,
+        "phyBonus": 284.64,
+        "attrBonus": 155.04,
         "time": 0.30375544363636364
       },
       { "type": "apply", "target": "target", "value": "UmbraBleeding", "stack": 5, "time": 0.30375544363636364 },
