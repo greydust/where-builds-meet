@@ -148,10 +148,6 @@
     display: block;
   }
 
-  .layout-pc .middle-stats-column .setup-delta-label > span {
-    white-space: nowrap;
-  }
-
   .setup-active-label {
     color: var(--primary);
   }

@@ -11,7 +11,7 @@ const root = process.cwd()
 const catalogFile = path.join(root, "locales", "translations.csv")
 const generatedDirectory = path.join(root, "public", "locales")
 const checkOnly = process.argv.includes("--check")
-const publishedLocales = new Set(["en", "zh-Hant", "ko"])
+const publishedLocales = new Set(["en", "zh-Hans", "zh-Hant", "ja", "ko", "es", "fr", "de", "pt", "vi", "th", "ru"])
 const translatableDataFields = new Set(["name", "title", "shortName", "description", "skillBreakdownCategory"])
 const translatableJsxAttributes = new Set(["aria-label", "title", "placeholder", "alt", "label"])
 
@@ -268,7 +268,7 @@ const localeFiles = Object.fromEntries(
       `${JSON.stringify(Object.fromEntries(records.filter(record => record[locale]).map(record => [record.key, record[locale]])), null, 2)}\n`,
     ]),
 )
-const manifestLocales = headers.slice(1).filter(locale => publishedLocales.has(locale))
+const manifestLocales = [...publishedLocales].filter(locale => headers.includes(locale))
 const completion = Object.fromEntries(
   manifestLocales
     .filter(locale => locale !== "en")

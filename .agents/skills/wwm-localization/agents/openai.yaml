@@ -1,0 +1,4 @@
+interface:
+  display_name: "WWM Localization"
+  short_description: "Translate WWM UI with official game terminology"
+  default_prompt: "Use $wwm-localization to translate and independently review missing site messages using datamined terminology."

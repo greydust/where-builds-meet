@@ -1,8 +1,17 @@
 {
   "default": "en",
-  "locales": ["en", "zh-Hant", "ko"],
+  "locales": ["en", "zh-Hans", "zh-Hant", "ja", "ko", "es", "fr", "de", "pt", "vi", "th", "ru"],
   "completion": {
+    "zh-Hans": 100,
     "zh-Hant": 100,
-    "ko": 100
+    "ja": 100,
+    "ko": 100,
+    "es": 100,
+    "fr": 100,
+    "de": 100,
+    "pt": 100,
+    "vi": 100,
+    "th": 100,
+    "ru": 100
   }
 }

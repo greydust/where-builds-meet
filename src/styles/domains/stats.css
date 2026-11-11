@@ -373,8 +373,10 @@
   }
 
   .priority-header span {
+    min-inline-size: 0;
     line-height: 1.2;
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .attunement-panel {

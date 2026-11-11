@@ -13,14 +13,14 @@
       ],
       "action": [{ "type": "trigger", "value": "BoltEndFengRui", "time": 0 }]
     },
-    "description": "15% base VC DMG (30% with 神斷青鋒 T6) and 10% Affinity DMG. The upgraded red spear talent prevents Abrasion."
+    "description": "15% base VC DMG (30% with 神斷青鋒 T6) and 10% Affinity DMG. The upgraded red spear talent prevents 擦傷."
   },
   "BoltWangXing": {
     "name": "王行",
     "duration": 12,
     "maxStack": 1,
     "refresh": true,
-    "description": "1 Spear Momentum per ordinary VC. 浮梁一夜 T4 adds 3% Direct Affinity against bosses."
+    "description": "1 槍勢 per ordinary VC. 浮梁一夜 T4 adds 3% Direct Affinity against bosses."
   },
   "BoltMingGeSpent": {
     "name": "鳴戈已引爆",

@@ -10,7 +10,20 @@ type Messages = LocaleMessages
 export { developmentModeStorageKey }
 const fallbackManifest: LocaleManifest = { default: "en", locales: ["en"] }
 const wipLocales = new Set<string>()
-const localeDisplayNames: Record<string, string> = { en: "English", "zh-Hant": "繁體中文", ko: "한국어" }
+const localeDisplayNames: Record<string, string> = {
+  en: "English",
+  "zh-Hans": "简体中文",
+  "zh-Hant": "繁體中文",
+  ja: "日本語",
+  ko: "한국어",
+  es: "Español (Latinoamérica)",
+  fr: "Français",
+  de: "Deutsch",
+  pt: "Português (Brasil)",
+  vi: "Tiếng Việt",
+  th: "ภาษาไทย",
+  ru: "Русский язык",
+}
 
 let manifest = fallbackManifest
 let activeLocale = fallbackManifest.default
@@ -33,6 +46,16 @@ async function loadJson<T>(name: string, schema: v.GenericSchema<T>): Promise<T>
 function supportedLocale(candidate: string | null | undefined) {
   if (!candidate) return undefined
   const normalized = candidate.toLowerCase()
+  switch (normalized) {
+    case "zh":
+    case "zh-cn":
+    case "zh-sg":
+      return manifest.locales.find(locale => locale === "zh-Hans")
+    case "zh-tw":
+    case "zh-hk":
+    case "zh-mo":
+      return manifest.locales.find(locale => locale === "zh-Hant")
+  }
   return manifest.locales.find(locale => locale.toLowerCase() === normalized)
 }
 

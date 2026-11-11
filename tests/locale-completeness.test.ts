@@ -2,6 +2,27 @@ import { readFile } from "node:fs/promises"
 
 import { expect, it } from "vitest"
 
+it("every published locale covers the complete English catalog", async () => {
+  const manifest = JSON.parse(await readFile("public/locales/manifest.json", "utf8")) as { locales: string[] }
+  const catalogs = await Promise.all(
+    manifest.locales.map(async locale => ({
+      locale,
+      messages: JSON.parse(await readFile(`public/locales/${locale}.json`, "utf8")) as Record<string, string>,
+    })),
+  )
+  const english = catalogs.find(catalog => catalog.locale === "en")!
+  for (const { locale, messages } of catalogs) {
+    expect({ locale, keys: Object.keys(messages).sort() }).toEqual({
+      locale,
+      keys: Object.keys(english.messages).sort(),
+    })
+    expect({ locale, emptyKeys: Object.keys(messages).filter(key => !messages[key].trim()) }).toEqual({
+      locale,
+      emptyKeys: [],
+    })
+  }
+})
+
 const technicalTerms = new Set([
   "DPS",
   "HPS",

@@ -41,7 +41,7 @@
       }
     ],
     "martialArt": "jueyuXuanfengSpear",
-    "shortName": "Red Charged"
+    "shortName": "紅蓄力"
   },
   "BoltRedQ": {
     "name": "金科盡詔",
@@ -71,7 +71,7 @@
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
     "cooldownUses": 2,
     "cooldownRecovery": "sequential",
-    "shortName": "Red Q"
+    "shortName": "紅Q"
   },
   "BoltRedSpecial": {
     "hideFromRotationEditor": true,
@@ -100,7 +100,7 @@
     ],
     "cooldown": 10,
     "martialArt": "jueyuXuanfengSpear",
-    "shortName": "Red Special"
+    "shortName": "紅特殊"
   },
   "BoltRedTab": {
     "name": "直貫其鋒",
@@ -124,7 +124,7 @@
     ],
     "cooldown": 3,
     "martialArt": "jueyuXuanfengSpear",
-    "shortName": "Tab to Red"
+    "shortName": "切紅"
   },
   "BoltRedLight1": {
     "hideFromRotationEditor": true,
@@ -137,7 +137,7 @@
       { "type": "damage", "phyCoef": 0.3828, "phyBonus": 107, "attrCoef": 0.3828, "attrBonus": 58, "time": 0.367121333 }
     ],
     "martialArt": "jueyuXuanfengSpear",
-    "shortName": "Red Light 1"
+    "shortName": "紅輕1"
   },
   "BoltRedHeavy1": {
     "hideFromRotationEditor": true,
@@ -157,7 +157,7 @@
       }
     ],
     "martialArt": "jueyuXuanfengSpear",
-    "shortName": "Red Heavy 1"
+    "shortName": "紅重1"
   },
   "BoltRedVC": {
     "name": "聽雨斷罪",
@@ -191,7 +191,7 @@
         "fallback": "BoltRedVCBase"
       }
     ],
-    "shortName": "Red VC"
+    "shortName": "紅派生"
   },
   "BoltRedVCBase": {
     "name": "聽雨斷罪",
@@ -262,7 +262,7 @@
     ],
     "ignorePing": true,
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
-    "shortName": "Red VC"
+    "shortName": "紅派生"
   },
   "BoltRedVCSharp": {
     "name": "聽雨斷罪·鋒銳",
@@ -349,6 +349,6 @@
     ],
     "ignorePing": true,
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }],
-    "shortName": "Red VC"
+    "shortName": "紅派生"
   }
 }
