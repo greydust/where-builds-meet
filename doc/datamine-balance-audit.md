@@ -1,5 +1,7 @@
 # Refreshed datamine comparison, 2026-10-15
 
+> **Historical audit (2026-10-15).** This records an earlier comparison, not a current source of truth. See the [documentation index](README.md) for current references.
+
 This audit compares the current curated implementation with the refreshed
 `local/datamine/` exports. No earlier export snapshot is retained, so a
 disagreement establishes a current implementation difference, not when the game

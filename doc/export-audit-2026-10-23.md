@@ -1,5 +1,7 @@
 # Export verification, October 23, 2026
 
+> **Historical audit (2026-10-23).** This preserves an earlier export comparison, not a current source of truth. See the [documentation index](README.md) for current references.
+
 ## Evidence and scope
 
 Compared the curated implementation with
