@@ -112,6 +112,32 @@ those terms. Updating display text preserves the current skill and effect IDs.
 
 ## Message conventions
 
+Preset abbreviations must be resolved in their game context and reuse the
+existing localized catalog term:
+
+| Abbreviation | Context               | Meaning                                                  | Canonical catalog key                         |
+| ------------ | --------------------- | -------------------------------------------------------- | --------------------------------------------- |
+| BB           | Umbra rotation        | Blood Burst (`爆血`)                                     | `data.skill.strategicSword.BloodBurst.name`   |
+| DH           | Existing DH rotations | Dragon Head – Tide (the variant used by those rotations) | `data.skill.mystic.DragonHeadTide.name`       |
+| BP           | Build/rotation preset | Breaking Point Inner Way                                 | `system.innerWay.breakingPoint`               |
+| PC           | Dust rotation         | Phantom Chime, not Perfect Catch                         | `data.debuff.bamboocutDust.PhantomChime.name` |
+| IV           | Rotation name         | Infinite Vitality                                        | `ui.app.infiniteVitality`                     |
+
+English preset names retain their source abbreviations. Localized names expand
+them using the existing terms. Do not infer these meanings for unrelated keys
+or user-created names. These mappings follow the user's November 11, 2026
+clarification; DH skill references and BP build selections also confirm their
+identity.
+
+Every explicit `[Cancel]` skill-variant marker uses one consistent bracketed
+translation per locale. Both Chinese locales use exactly `[打斷]`, as requested
+by the user, including this intentional Traditional-character marker in
+Simplified Chinese. Other locales reuse their existing skill-marker wording:
+`[中断]` (ja), `[취소]` (ko), `[Cancelar]` (es/pt), `[Annuler]` (fr),
+`[Abbrechen]` (de), `[Hủy]` (vi), `[ยกเลิก]` (th), and `[Отмена]` (ru).
+This marker describes a simulator skill variant; ordinary Cancel buttons retain
+their interface translations.
+
 Chinese event labels use an ASCII colon followed by a space (`事件: 名稱`),
 not a full-width colon.
 

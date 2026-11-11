@@ -61,7 +61,7 @@ Review rejected misleading short-label matches: identical Chinese abbreviations
 can refer to unrelated concepts. Examples included Soul Return versus Star Reacher,
 light as illumination versus a light attack, and unrelated names matched by `Cad`.
 Other corrections preserved charged-attack meaning, cancel modifiers, timing,
-resource distinctions, stack caps, and negation. Preset `PC` means Perfect Catch;
+resource distinctions, stack caps, and negation. Dust preset `PC` means Phantom Chime;
 Jade preset `TB` means Thunderous Bloom. The `QingyisCharm` semantic IDs display
 Bitter Seasons, so new short labels use that concept rather than guessing from IDs.
 
@@ -69,6 +69,21 @@ Bitter Seasons, so new short labels use that concept rather than guessing from I
 `locales/translation-review.json` contains exact reviewed scope, correction keys,
 findings, uncertainties, retained-name keys, and compact reference/layer evidence.
 Neither file is loaded by the runtime.
+
+### Preset terminology follow-up (November 11, 2026)
+
+The user's acronym clarifications corrected 304 cells across 88 keys: localized
+preset names now reuse Blood Burst (`爆血`), Dragon Head – Tide, Breaking Point,
+Phantom Chime, and Infinite Vitality. The previous claim that Dust's `PC` meant
+Perfect Catch was incorrect; its historical review findings are explicitly
+superseded in the review JSON. English preset abbreviations remain unchanged.
+
+All 67 explicit `[Cancel]` skill-variant messages use a consistent marker in each
+locale. Both Chinese locales use exactly `[打斷]` per the user's preference.
+Ordinary Cancel controls keep their interface wording. Separate-author AI
+review covered each of the 11 target languages. Follow-up fixes removed four
+Japanese `[戻る]` markers and clarified two Russian activation counts. This
+follow-up did not receive native-speaker human approval or browser visual review.
 
 ## Limits and follow-up
 

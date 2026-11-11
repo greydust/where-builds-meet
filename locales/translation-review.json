@@ -85,7 +85,8 @@
           "sourceMeaning": "Dummy 1 Min 100% PC",
           "candidate": "木桩1分钟 100% 电脑",
           "proposedCorrection": "木桩1分钟 100%完美接伞",
-          "explanation": "PC in this rotation is Perfect Catch, not personal computer; see doc/skill-data.md and rotation everspring catch events."
+          "explanation": "PC in this rotation is Perfect Catch, not personal computer; see doc/skill-data.md and rotation everspring catch events.",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "zh-Hans",
@@ -4662,7 +4663,8 @@
           "originalTranslation": "Holzpfahl – 1 Min. 100% PC",
           "proposedCorrection": "Holzpfahl – 1 Min. – 100 % perfekte Fänge",
           "explanation": "PC denotes Perfect Catch in this rotation; expand the distinguishing generic modifier and use German percent spacing.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "de",
@@ -10214,7 +10216,8 @@
           "proposedCorrection": "หุ่นไม้ 1 นาที รับร่มอย่างสมบูรณ์แบบ 100%",
           "explanation": "Spell out the catch modifier so PC is not confused with computer/platform.",
           "evidence": "data/rotation/bamboocut-dust/; existing data.skill.everspringUmbrella.EverspringPerfectCatch.name",
-          "resolution": "accepted in reviewed candidate"
+          "resolution": "accepted in reviewed candidate",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "th",
@@ -13911,7 +13914,8 @@
           "previous": "Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13921,7 +13925,8 @@
           "previous": "Деревянный манекен 1 мин 10ms",
           "proposedCorrection": "Деревянный манекен — 1 мин, 10 мс",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13931,7 +13936,8 @@
           "previous": "Деревянный манекен 1 мин 10ms BP",
           "proposedCorrection": "Деревянный манекен — 1 мин, 10 мс, BP",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13941,7 +13947,8 @@
           "previous": "Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13951,7 +13958,8 @@
           "previous": "Деревянный манекен 1 мин 100% PC",
           "proposedCorrection": "Деревянный манекен — 1 мин, 100% «Идеальный улов»",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13961,7 +13969,8 @@
           "previous": "Деревянный манекен 1 мин Бесконечная живучесть",
           "proposedCorrection": "Деревянный манекен — 1 мин, бесконечная живучесть",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13971,7 +13980,8 @@
           "previous": "Деревянный манекен 1 мин IV BP",
           "proposedCorrection": "Деревянный манекен — 1 мин, IV, BP",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13981,7 +13991,8 @@
           "previous": "Деревянный манекен 1 мин IV BP DH",
           "proposedCorrection": "Деревянный манекен — 1 мин, IV, BP, DH",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -13991,7 +14002,8 @@
           "previous": "Деревянный манекен 1 мин Бесконечная живучесть",
           "proposedCorrection": "Деревянный манекен — 1 мин, бесконечная живучесть",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14001,7 +14013,8 @@
           "previous": "Деревянный манекен 1 мин IV Без уклонений",
           "proposedCorrection": "Деревянный манекен — 1 мин, IV, без уклонений",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14011,7 +14024,8 @@
           "previous": "Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14021,7 +14035,8 @@
           "previous": "Деревянный манекен 1 мин 37 BB DH",
           "proposedCorrection": "Деревянный манекен — 1 мин, 37 BB, DH",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14031,7 +14046,8 @@
           "previous": "Деревянный манекен 1 мин 39 BB",
           "proposedCorrection": "Деревянный манекен — 1 мин, 39 BB",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14041,7 +14057,8 @@
           "previous": "Деревянный манекен 1 мин Обычный огонь",
           "proposedCorrection": "Деревянный манекен — 1 мин, обычный огонь",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14051,7 +14068,8 @@
           "previous": "Деревянный манекен 1 мин Тлеть",
           "proposedCorrection": "Деревянный манекен — 1 мин, «Тлеть»",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14061,7 +14079,8 @@
           "previous": "Деревянный манекен 1 мин WTS",
           "proposedCorrection": "Деревянный манекен — 1 мин, WTS",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14071,7 +14090,8 @@
           "previous": "Деревянный манекен 1 мин WTS Команда",
           "proposedCorrection": "Деревянный манекен — 1 мин, WTS, команда",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14081,7 +14101,8 @@
           "previous": "Воздушный Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, в воздухе",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14091,7 +14112,8 @@
           "previous": "Наземный Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, на земле",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14101,7 +14123,8 @@
           "previous": "Гибридный Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, гибридная",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14111,7 +14134,8 @@
           "previous": "Наземный Деревянный манекен 30 сек IV",
           "proposedCorrection": "Деревянный манекен — 30 сек, на земле, IV",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14121,7 +14145,8 @@
           "previous": "Деревянный манекен 1 мин Рассвет",
           "proposedCorrection": "Деревянный манекен — 1 мин, Рассвет",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14131,7 +14156,8 @@
           "previous": "Деревянный манекен 1 мин Крушитель нефрита",
           "proposedCorrection": "Деревянный манекен — 1 мин, Крушитель нефрита",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14141,7 +14167,8 @@
           "previous": "Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14151,7 +14178,8 @@
           "previous": "Смешанный: Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, смешанная",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14161,7 +14189,8 @@
           "previous": "Смешанный: Деревянный манекен 1 мин Двойной укол",
           "proposedCorrection": "Деревянный манекен — 1 мин, смешанная, двойной укол",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14171,7 +14200,8 @@
           "previous": "Смешанный: Деревянный манекен Бесконечная живучесть 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, смешанная, бесконечная живучесть",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14181,7 +14211,8 @@
           "previous": "Смешанный: Деревянный манекен Тлеть Поэт 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, смешанная, «Тлеть» + Поэт",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14191,7 +14222,8 @@
           "previous": "Чистый: Деревянный манекен 1 мин",
           "proposedCorrection": "Деревянный манекен — 1 мин, чистая",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         },
         {
           "locale": "ru",
@@ -14201,7 +14233,8 @@
           "previous": "Чистый: Деревянный манекен 1 мин Бесконечная живучесть",
           "proposedCorrection": "Деревянный манекен — 1 мин, чистая, бесконечная живучесть",
           "explanation": "Compose rotation qualifier as a delimited list; resolve PC as Perfect Catch, distinguish airborne/grounded rotation from the dummy, and preserve numerical and technical variants.",
-          "status": "corrected"
+          "status": "corrected",
+          "terminologyCorrection": "Superseded: PC in the Dust preset means Phantom Chime, per user clarification on 2026-11-11; Perfect Catch is a different skill."
         }
       ],
       "remainingUncertainties": []
@@ -21535,5 +21568,123 @@
       "system.innerWay.yueYongFangYuan",
       "system.resource.spearMomentum"
     ]
+  },
+  "presetTerminologyCorrection": {
+    "date": "2026-11-11",
+    "evidence": "User clarification; DH presets contain DragonHeadTide; BP builds select BreakingPoint; IV rotations enable infiniteVitality.",
+    "terms": {
+      "BB": "data.skill.strategicSword.BloodBurst.name",
+      "DH": "data.skill.mystic.DragonHeadTide.name",
+      "BP": "system.innerWay.breakingPoint",
+      "PC": "data.debuff.bamboocutDust.PhantomChime.name",
+      "IV": "ui.app.infiniteVitality"
+    },
+    "cancelMarkers": {
+      "zh-Hant": "打斷",
+      "zh-Hans": "打斷",
+      "ja": "中断",
+      "ko": "취소",
+      "es": "Cancelar",
+      "fr": "Annuler",
+      "de": "Abbrechen",
+      "pt": "Cancelar",
+      "vi": "Hủy",
+      "th": "ยกเลิก",
+      "ru": "Отмена"
+    },
+    "scope": "Localized preset names and explicit [Cancel] simulator variant markers; ordinary Cancel controls unchanged. Chinese marker uses user-requested 打斷 in both locales.",
+    "changedCells": 304,
+    "changedKeys": [
+      "data.build.bamboocutDraught.draughtFullMaxBp.name",
+      "data.build.bamboocutDraught.draughtFullMinBp.name",
+      "data.build.bamboocutDraught.draughtFullyRelayedMaxBp.name",
+      "data.build.bamboocutDraught.draughtFullyRelayedMinBp.name",
+      "data.build.bamboocutKite.kiteFullMinBp.name",
+      "data.build.bamboocutKite.kiteFullyRelayedMaxBp.name",
+      "data.build.bamboocutKite.kiteFullyRelayedMinBp.name",
+      "data.build.silkbindJade.jadeBpMax.name",
+      "data.build.silkbindJade.jadeBpMin.name",
+      "data.build.silkbindJade.jadeFullBp.name",
+      "data.build.silkbindJade.jadeFullyRelayedMaxBp.name",
+      "data.build.silkbindJade.jadeFullyRelayedMinBp.name",
+      "data.build.silkbindJade.jadeGraduateShort.name",
+      "data.rotation.bamboocutDraught.draughtDummy1MinBp.name",
+      "data.rotation.bamboocutDust.dustDummy1Min100pc.name",
+      "data.rotation.bamboocutKite.dummy1MinIvBp.name",
+      "data.rotation.bamboocutKite.dummy1MinIvBpDh.name",
+      "data.rotation.bamboocutWind.windDummy1MinIvNoDodge.name",
+      "data.rotation.bellstrikeUmbra.dummy1Min37BbDh.name",
+      "data.rotation.bellstrikeUmbra.dummy1Min38Bb.name",
+      "data.rotation.silkbindJade.jadeThreeRounds.name",
+      "data.skill.general.PerfectDodgeCancel.name",
+      "data.skill.heavenwillGauntlets.RighteousReign6thHitCancel.name",
+      "data.skill.infernalTwinblades.InfernalFlamelashLight5Cancel.name",
+      "data.skill.infernalTwinblades.InfernalFlamelashLight5Cancel.shortName",
+      "data.skill.infernalTwinblades.InfernalLight1Cancel.name",
+      "data.skill.infernalTwinblades.InfernalLight1Cancel.shortName",
+      "data.skill.infernalTwinblades.InfernalLight2Cancel.name",
+      "data.skill.infernalTwinblades.InfernalLight2Cancel.shortName",
+      "data.skill.infernalTwinblades.InfernalLight3Cancel.name",
+      "data.skill.infernalTwinblades.InfernalLight3Cancel.shortName",
+      "data.skill.infernalTwinblades.InfernalLight4Cancel.name",
+      "data.skill.infernalTwinblades.InfernalLight4Cancel.shortName",
+      "data.skill.inkwellFan.EmeraldBarrierCancel.name",
+      "data.skill.inkwellFan.EmeraldBarrierCancel.shortName",
+      "data.skill.inkwellFan.ForsakenFameCancel.name",
+      "data.skill.inkwellFan.ForsakenFameCancel.shortName",
+      "data.skill.inkwellFan.PeaksSpringlessSilenceCancel.name",
+      "data.skill.inkwellFan.PeaksSpringlessSilenceCancel.shortName",
+      "data.skill.mortalRopeDart.BladeboundThreadCancel.name",
+      "data.skill.mystic.DragonsBreath1.name",
+      "data.skill.mystic.DragonsBreath2.name",
+      "data.skill.mystic.DragonsBreathSmolder1.name",
+      "data.skill.mystic.DragonsBreathSmolder2.name",
+      "data.skill.mystic.DrunkenPoet5.name",
+      "data.skill.mystic.DrunkenPoet5HitsCancel.name",
+      "data.skill.mystic.DrunkenPoetDrinkCancel.name",
+      "data.skill.mystic.FluteOfTheTidesCancel.name",
+      "data.skill.mystic.GoldenBodyCancel.name",
+      "data.skill.mystic.LeapingToad.name",
+      "data.skill.namelessSpear.QiankunsLockCancel.name",
+      "data.skill.namelessSpear.QiankunsLockCancel.shortName",
+      "data.skill.namelessSword.DauntingStrikeCancel.name",
+      "data.skill.namelessSword.ShadowStepCancel.name",
+      "data.skill.panaceaFan.CloudburstHealingCancel.name",
+      "data.skill.panaceaFan.CloudburstHealingCancel.shortName",
+      "data.skill.panaceaFan.EmeraldDewtouch2Cancel.name",
+      "data.skill.panaceaFan.EmeraldDewtouch2Cancel.shortName",
+      "data.skill.panaceaFan.EmeraldDewtouch3Cancel.name",
+      "data.skill.panaceaFan.EmeraldDewtouch3Cancel.shortName",
+      "data.skill.panaceaFan.EndlessCloudCancel.name",
+      "data.skill.panaceaFan.EndlessCloudCancel.shortName",
+      "data.skill.rivenTwinblades.ReveldriftCancel.name",
+      "data.skill.rivenTwinblades.ReveldriftCancel.shortName",
+      "data.skill.skygraspRopeDart.SnaringLashCancel.name",
+      "data.skill.skygraspRopeDart.SnaringLashCancel.shortName",
+      "data.skill.skystrikeGauntlets.Dragonquench4Cancel.name",
+      "data.skill.skystrikeGauntlets.Dragonquench4Cancel.shortName",
+      "data.skill.soulshadeUmbrella.EchoesOfAThousandPlantsCancel.name",
+      "data.skill.soulshadeUmbrella.EchoesOfAThousandPlantsCancel.shortName",
+      "data.skill.soulshadeUmbrella.EchoesOfAThousandPlantsFanQQ.shortName",
+      "data.skill.stormbreakerSpear.ThunderShock1.name",
+      "data.skill.strategicSword.CrisscrossInnerBalanceStrikeIIICancel.name",
+      "data.skill.strategicSword.InnerBalanceStrikeIII2.name",
+      "data.skill.strategicSword.InnerTrackSlash3Cancel.name",
+      "data.skill.strategicSword.InnerTrackSlashCancel.name",
+      "data.skill.strategicSword.InnerTrackSlashCancel.shortName",
+      "data.skill.strategicSword.SecondTrackSlash1Cancel.name",
+      "data.skill.strategicSword.SecondTrackSlash1ReleaseCancel.name",
+      "data.skill.thundercryBlade.Avalanche1.name",
+      "data.skill.thundercryBlade.StonebreakerCleave.name",
+      "data.skill.thundercryBlade.StonebreakerCleave1.name",
+      "data.skill.unfetteredRopeDart.SoulSweepCancel.name",
+      "data.skill.unfetteredRopeDart.SoulSweepCancel.shortName",
+      "data.skill.vernalUmbrella.UnfadingFlowerCancel.name",
+      "data.skill.vernalUmbrella.UnfadingFlowerCancel.shortName",
+      "data.skill.vernalUmbrella.UnfadingFlowerReleaseCancel.name",
+      "data.skill.vernalUmbrella.UnfadingFlowerReleaseCancel.shortName"
+    ],
+    "review": "Separate-author AI review for each of the 11 target languages; Japanese duplicate Back markers removed, Russian activation counts clarified. No native-speaker human review or browser visual review.",
+    "validation": "Canonical term reuse; every explicit Cancel variant checked for a consistent locale marker; published catalog coverage complete."
   }
 }
