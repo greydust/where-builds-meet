@@ -2636,3 +2636,22 @@ DPS changed from 66,931.9255250396 to 66,931.92686069098 (+0.00133565138 DPS,
 about +0.000002%). The global tiny-state cutoff remains 1e-5. These measurements
 are not accepted DPS snapshots. These figures precede the later bracer
 Affinity-to-Power swap and editor skill #21 Blue Special refresh.
+
+## Official dashboard import review
+
+The paste dialog parses the export without storing it, then closes and opens a
+separate build review with an editable import name and read-only gear and setup.
+Confirmation trims the name and requires it to be non-empty. Destination options use the exported martial-art
+pair and path availability, independently of Inner Ways. Unlocked paths accept
+any pair; Mixed is available only in developer mode. No matching destination
+blocks confirmation rather than falling back to the currently open path.
+
+Changing the review destination derives a new payload from the original parsed
+export and clears Inner Ways that lack the destination's eligibility tag. Mixed
+has no tag restriction. The shared `BuildOverview` renders both the build display and the review, with
+editing disabled in the review and the same layout and card containers. Its setup
+panels and equipped gear cards show
+this same payload that confirmation stores, so switching destinations does not
+permanently discard selections before import. Activation switches to the selected
+destination, including an explicitly selected Mixed path, and selects the new
+build after the workspace transition.

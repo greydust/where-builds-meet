@@ -12,12 +12,14 @@ import {
   type ChangeEvent,
   type Dispatch,
   type ReactElement,
+  type ReactNode,
   type SetStateAction,
 } from "react"
 
 import { buildShareLink } from "@/application/buildShare"
 import type { PathId } from "@/application/contracts"
 import { formatThroughput, formatThroughputDelta, throughputDeltaClass } from "@/application/formatting"
+import { martialArtDefinitions } from "@/application/gameData/martialArts"
 import { typedPathDefinitions } from "@/application/gameData/paths"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import { cancelGearOptimization, startGearOptimization } from "@/application/gearOptimization"
@@ -60,8 +62,10 @@ import {
 import { dataText, gameText, t } from "@/i18n"
 import { publishNotice, dismissNotice } from "@/notices"
 import { createOfficialGearBookmarklet } from "@/officialGearBookmarklet"
+import type { OfficialGearImport } from "@/officialGearImport"
 import { useGearOptimizationStore } from "@/stores/gearOptimizationStore"
 import { useGearStore } from "@/stores/gearStore"
+import { useSettingsStore } from "@/stores/settingsStore"
 import type { WeaponId } from "@/types"
 import { Button } from "@/ui/Button"
 import { ButtonGroup, ButtonGroupOption } from "@/ui/ButtonGroup"
@@ -81,9 +85,11 @@ import {
   normalizeDraftValue,
   type GearDraft,
 } from "./GearEditor"
+import { officialImportForPath, officialImportPaths } from "./officialImportReview"
 import { useBuildThroughputs } from "./useBuildThroughputs"
 import { useGearComparison } from "./useGearComparison"
 
+import importStyles from "./officialImport.module.css"
 import styles from "./optimization.module.css"
 
 function gearSlotLabel(slot: GearSlot) {
@@ -109,7 +115,7 @@ type BuildTabProps = {
   pathTag?: string
   graduatedBuildIds: string[]
   onActiveBuildChange: (id: string) => void
-  onSelectBuildWeapons: (weapons: [WeaponId, WeaponId]) => boolean
+  onSelectBuildWeapons: (weapons: [WeaponId, WeaponId], rotationId?: string, targetPathId?: PathId) => boolean
   /** The sheet and environment a build is measured against, and the rotation it runs. */
   measurement: MeasurementContext
   activeRotation?: RotationRecord
@@ -200,6 +206,26 @@ export default function BuildTab({
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId)
   const [editingName, setEditingName] = useState(false)
   const [officialImportText, setOfficialImportText] = useState("")
+  const [officialPreview, setOfficialPreview] = useState<OfficialGearImport>()
+  const [activateOfficialImport, setActivateOfficialImport] = useState(false)
+  const devMode = useSettingsStore(state => state.devMode)
+  const [officialTargetPath, setOfficialTargetPath] = useState<PathId | "">("")
+  const officialPaths = officialPreview ? officialImportPaths(officialPreview.weapons, devMode) : []
+  const reviewedOfficialExport =
+    officialPreview && officialTargetPath && officialPaths.includes(officialTargetPath)
+      ? officialImportForPath(officialPreview.exportValue, officialTargetPath)
+      : undefined
+  const officialInventory = useMemo<GearInventory>(
+    () => ({
+      items: reviewedOfficialExport?.gearItems ?? [],
+      equipped: reviewedOfficialExport?.builds[0].equipped ?? {},
+    }),
+    [reviewedOfficialExport],
+  )
+  const officialMartialArtTags = useMemo(
+    () => officialPreview?.weapons.map(weapon => martialArtDefinitions[weapon].tag) ?? [],
+    [officialPreview],
+  )
   const officialImportDialogRef = useRef<HTMLDialogElement>(null)
   const officialBookmarkletRef = useRef<HTMLAnchorElement>(null)
   const buildNameInputRef = useRef<HTMLInputElement>(null)
@@ -440,6 +466,8 @@ export default function BuildTab({
 
   function openOfficialImport() {
     setOfficialImportText("")
+    setOfficialPreview(undefined)
+    setActivateOfficialImport(false)
     dismissNotice("official-import")
     officialImportDialogRef.current?.showModal()
   }
@@ -449,14 +477,48 @@ export default function BuildTab({
     try {
       const { parseOfficialGearExport } = await import("@/officialGearImport")
       const official = parseOfficialGearExport(JSON.parse(officialImportText), weapons)
-      const result = mergeImportedBuildState(buildState, official.exportValue, { reuseIdenticalGear: true })
+      const paths = officialImportPaths(official.weapons, devMode)
+      setOfficialTargetPath(paths[0] ?? "")
+      officialImportDialogRef.current?.close()
+      setOfficialPreview(official)
+    } catch (error) {
+      publishNotice({
+        id: "official-import",
+        error: true,
+        message: error instanceof Error ? error.message : t("ui.buildTab.dashboardImportError"),
+      })
+    }
+  }
+
+  function confirmOfficialImport() {
+    if (
+      !officialPreview ||
+      !reviewedOfficialExport ||
+      !officialTargetPath ||
+      !officialPreview.exportValue.builds[0].name.trim()
+    )
+      return
+    const official = officialPreview
+    try {
+      const result = mergeImportedBuildState(
+        useGearStore.getState().buildState,
+        {
+          ...reviewedOfficialExport,
+          builds: reviewedOfficialExport.builds.map(build => ({ ...build, name: build.name.trim() })),
+        },
+        { reuseIdenticalGear: true },
+      )
       if (result.importedGearCount + result.reusedGearCount !== official.gearCount || result.importedBuildCount !== 1)
         throw new Error(t("ui.buildTab.dashboardValidationError"))
       if (official.warnings.length) publishNotice({ id: "official-import", message: official.warnings.join("\n") })
-      updateBuildState(pathId, () => result.state)
+      updateBuildState(officialTargetPath, () => result.state)
+      if (activateOfficialImport) {
+        onSelectBuildWeapons(official.weapons, undefined, officialTargetPath)
+        useGearStore.getState().selectBuildForPath(result.importedBuildIds[0], officialTargetPath)
+      }
       setEditingBuildId(result.importedBuildIds[0])
       setEditingName(false)
-      officialImportDialogRef.current?.close()
+      setOfficialPreview(undefined)
     } catch (error) {
       publishNotice({
         id: "official-import",
@@ -807,6 +869,7 @@ export default function BuildTab({
           value={officialImportText}
           onChange={event => {
             setOfficialImportText(event.target.value)
+            setOfficialPreview(undefined)
             dismissNotice("official-import")
           }}
         />
@@ -820,6 +883,135 @@ export default function BuildTab({
         </div>
         <p className="official-import-privacy">{t("ui.buildTab.theBookmarkRunsOnlyOnTheOfficialDashboard")}</p>
       </dialog>
+      <Dialog
+        open={Boolean(officialPreview)}
+        onClose={() => setOfficialPreview(undefined)}
+        className={officialPaths.length ? importStyles.previewModal : undefined}
+        label={t("ui.buildTab.officialImportPreview")}
+      >
+        {officialPreview &&
+          (officialPaths.length === 0 ? (
+            <>
+              <p>{t("ui.buildTab.officialImportNoPath")}</p>
+              <p>
+                {t("ui.buildTab.officialImportMainWeapon", {
+                  weapon: gameText(martialArtDefinitions[officialPreview.weapons[0]].name),
+                })}
+              </p>
+              <p>
+                {t("ui.buildTab.officialImportSecondaryWeapon", {
+                  weapon: gameText(martialArtDefinitions[officialPreview.weapons[1]].name),
+                })}
+              </p>
+              <div className="dialog-actions">
+                <Button variant="secondary" type="button" onClick={() => setOfficialPreview(undefined)}>
+                  {t("ui.buildTab.cancel")}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="dialog-heading">
+                <div>
+                  <span className="detail-kicker">{t("ui.buildTab.officialImportPreview")}</span>
+                  <h2>{t("ui.buildTab.officialImportPreview")}</h2>
+                </div>
+                <button
+                  className="icon-button"
+                  type="button"
+                  aria-label={t("ui.buildTab.closeOfficialImport")}
+                  onClick={() => setOfficialPreview(undefined)}
+                >
+                  <IconX size="1em" aria-hidden />
+                </button>
+              </div>
+              <label className={importStyles.field}>
+                {t("ui.buildTab.officialImportName")}
+                <input
+                  type="text"
+                  value={officialPreview.exportValue.builds[0].name}
+                  onChange={event => {
+                    const name = event.target.value
+                    setOfficialPreview(current => {
+                      if (!current) return current
+                      return {
+                        ...current,
+                        exportValue: {
+                          ...current.exportValue,
+                          builds: current.exportValue.builds.map(build => ({ ...build, name })),
+                        },
+                      }
+                    })
+                  }}
+                />
+              </label>
+              <div className={importStyles.destinationRow}>
+                <label className={importStyles.field}>
+                  {t("ui.buildTab.officialImportDestination")}
+                  <select
+                    value={officialTargetPath}
+                    onChange={event => setOfficialTargetPath(event.target.value as PathId)}
+                  >
+                    {officialPaths.map(id => (
+                      <option key={id} value={id}>
+                        {gameText(typedPathDefinitions[id].name)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <span>
+                  {officialPreview.weapons.map(weapon => gameText(martialArtDefinitions[weapon].name)).join(" / ")}
+                </span>
+              </div>
+              <div className={`dialog-actions ${importStyles.actions}`}>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={activateOfficialImport}
+                    disabled={!reviewedOfficialExport}
+                    onChange={event => setActivateOfficialImport(event.target.checked)}
+                  />
+                  {t("ui.buildTab.officialImportMakeActive")}
+                </label>
+
+                <Button
+                  variant="primary"
+                  type="button"
+                  disabled={
+                    !reviewedOfficialExport ||
+                    !officialPreview.exportValue.builds[0].name.trim() ||
+                    Boolean(optimization)
+                  }
+                  onClick={confirmOfficialImport}
+                >
+                  {t("ui.buildTab.importGear")}
+                </Button>
+              </div>
+              {reviewedOfficialExport && officialTargetPath && (
+                <div className="build-page">
+                  <BuildOverview
+                    inventory={officialInventory}
+                    weapons={officialPreview.weapons}
+                    setup={reviewedOfficialExport.builds[0].setup}
+                    martialArtTags={officialMartialArtTags}
+                    pathTag={typedPathDefinitions[officialTargetPath].tag}
+                    locked
+                  />
+                  {officialPreview.exportValue.builds[0].setup.innerWays.some(
+                    (row, index) => row.innerWay && !reviewedOfficialExport.builds[0].setup.innerWays[index].innerWay,
+                  ) && <p>{t("ui.buildTab.officialImportInnerWaysOmitted")}</p>}
+                </div>
+              )}
+              {officialPreview.warnings.length > 0 && (
+                <ul>
+                  {officialPreview.warnings.map(warning => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ))}
+      </Dialog>
     </Panel>
   )
 }
@@ -1009,6 +1201,95 @@ function BuildSetupPanel({
   )
 }
 
+function BuildOverview({
+  inventory,
+  weapons,
+  setup,
+  martialArtTags,
+  pathTag,
+  locked,
+  inventoryLocked,
+  selectedSlot,
+  onSelectSlot,
+  onSetupChange = ignoreSetupChange,
+  children,
+}: {
+  inventory: GearInventory
+  weapons: [WeaponId, WeaponId]
+  setup: BuildSetup
+  martialArtTags: string[]
+  pathTag?: string
+  locked: boolean
+  inventoryLocked?: boolean
+  selectedSlot?: GearSlot
+  onSelectSlot?: (slot: GearSlot) => void
+  onSetupChange?: (setup: BuildSetup) => void
+  children?: ReactNode
+}) {
+  const gearLocked = locked || inventoryLocked === true
+  const equippedItems = useMemo(
+    () =>
+      Object.fromEntries(
+        gearSlots.map(slot => {
+          const equippedId = inventory.equipped[slot]
+          const item = inventory.items.find(
+            candidate => candidate.id === equippedId && gearItemSupportsSlot(candidate, slot),
+          )
+          return [slot, item && (locked || isGearItemCompatible(item, slot, weapons)) ? item : undefined]
+        }),
+      ) as Partial<Record<GearSlot, GearItem>>,
+    [inventory, weapons, locked],
+  )
+  const affixSummary = useMemo(() => summarizeGearAffixes(gearSlots.map(slot => equippedItems[slot])), [equippedItems])
+  return (
+    <ResponsiveBuildOverview>
+      <BuildSetupPanel
+        key="setup"
+        setup={setup}
+        affixSummary={affixSummary}
+        martialArtTags={martialArtTags}
+        pathTag={pathTag}
+        locked={locked}
+        onChange={onSetupChange}
+      />
+      <div key="gear" className="build-management-grid">
+        <Panel className="build-equipped-panel">
+          <PanelHeading>
+            <div>
+              <h2>{t("ui.buildTab.equippedGear")}</h2>
+              <p>{gearLocked ? t("ui.buildTab.buildGearLocked") : t("ui.buildTab.selectASlotToEquipGearFromThe")}</p>
+            </div>
+          </PanelHeading>
+          <div className="gear-card-grid">
+            {gearSlots.map(slot => {
+              const item = equippedItems[slot]
+              const definition = item
+                ? gearData.gear[item.definitionId]
+                : gearDefinitionForSlot(slot, weapons).definition
+              return (
+                <EquippedGearCard
+                  key={slot}
+                  slot={slot}
+                  slotLabel={gearSlotLabel(slot)}
+                  item={item}
+                  name={item ? gameText(definition?.name) : undefined}
+                  selected={!gearLocked && selectedSlot === slot}
+                  disabled={gearLocked}
+                  onSelect={() => onSelectSlot?.(slot)}
+                />
+              )
+            })}
+          </div>
+        </Panel>
+
+        {children}
+      </div>
+    </ResponsiveBuildOverview>
+  )
+}
+
+function ignoreSetupChange() {}
+
 function BuildManagement({
   weapons,
   martialArtTags,
@@ -1051,20 +1332,6 @@ function BuildManagement({
       return next
     })
   }, [])
-  const equippedItems = useMemo(
-    () =>
-      Object.fromEntries(
-        gearSlots.map(slot => {
-          const equippedId = inventory.equipped[slot]
-          const item = inventory.items.find(
-            candidate => candidate.id === equippedId && gearItemSupportsSlot(candidate, slot),
-          )
-          return [slot, item && (locked || isGearItemCompatible(item, slot, weapons)) ? item : undefined]
-        }),
-      ) as Partial<Record<GearSlot, GearItem>>,
-    [inventory, weapons, locked],
-  )
-  const affixSummary = useMemo(() => summarizeGearAffixes(gearSlots.map(slot => equippedItems[slot])), [equippedItems])
 
   const equippedItemId = inventory.equipped[selectedSlot]
   const { reference, readingFor } = useGearComparison({
@@ -1238,127 +1505,98 @@ function BuildManagement({
 
   return (
     <div className="build-page">
-      <ResponsiveBuildOverview>
-        <BuildSetupPanel
-          key="setup"
-          setup={setup}
-          affixSummary={affixSummary}
-          martialArtTags={martialArtTags}
-          pathTag={pathTag}
-          locked={locked}
-          onChange={onSetupChange}
-        />
-        <div key="gear" className="build-management-grid">
-          <Panel className="build-equipped-panel">
+      <BuildOverview
+        inventory={inventory}
+        weapons={weapons}
+        setup={setup}
+        martialArtTags={martialArtTags}
+        pathTag={pathTag}
+        locked={locked}
+        inventoryLocked={inventoryLocked}
+        selectedSlot={selectedSlot}
+        onSelectSlot={selectSlot}
+        onSetupChange={onSetupChange}
+      >
+        {!gearLocked && (
+          <Panel className="build-inventory-panel">
             <PanelHeading>
               <div>
-                <h2>{t("ui.buildTab.equippedGear")}</h2>
-                <p>{gearLocked ? t("ui.buildTab.buildGearLocked") : t("ui.buildTab.selectASlotToEquipGearFromThe")}</p>
+                <h2>{gearSlotLabel(selectedSlot)}</h2>
+                <p>
+                  {t("ui.buildTab.shared")} {gameText(selected.definition?.name) || t("ui.buildTab.gear")}{" "}
+                  {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
+                </p>
               </div>
             </PanelHeading>
             <div className="gear-card-grid">
-              {gearSlots.map(slot => {
-                const item = equippedItems[slot]
-                const definition = item
-                  ? gearData.gear[item.definitionId]
-                  : gearDefinitionForSlot(slot, weapons).definition
+              {availableItems.map(item => {
+                const equipped = inventory.equipped[selectedSlot] === item.id
+                // The equipped card states that it is equipped, which is the whole reading; a
+                // candidate's difference from it goes in the same column as its usage count.
+                let status
+                if (!equipped) status = <GearDelta reading={readingFor(item.id)} reference={reference} />
                 return (
-                  <EquippedGearCard
-                    key={slot}
-                    slot={slot}
-                    slotLabel={gearSlotLabel(slot)}
+                  <AvailableGearCard
+                    key={item.id}
                     item={item}
-                    name={item ? gameText(definition?.name) : undefined}
-                    selected={!gearLocked && selectedSlot === slot}
-                    disabled={gearLocked}
-                    onSelect={() => selectSlot(slot)}
+                    name={gameText(selected.definition?.name)}
+                    equipped={equipped}
+                    usageCount={usageCounts.get(item.id) ?? 0}
+                    onEquip={() => equip(item)}
+                    onEdit={() => beginEdit(item)}
+                    onDelete={() => remove(item)}
+                    deleting={pendingDeleteId === item.id}
+                    onVisibilityChange={visible => reportVisibility(item.id, visible)}
+                    status={status}
                   />
                 )
               })}
+              <button
+                className="add-gear-card"
+                type="button"
+                onClick={beginAdd}
+                aria-label={t("ui.buildTab.addNamedGear", { name: gearSlotLabel(selectedSlot) })}
+                data-testid="add-gear"
+              >
+                <span>
+                  <IconPlus size="1em" aria-hidden />
+                </span>
+                <strong>{t("ui.buildTab.addGear")}</strong>
+              </button>
             </div>
           </Panel>
+        )}
 
-          {!gearLocked && (
-            <Panel className="build-inventory-panel">
-              <PanelHeading>
-                <div>
-                  <h2>{gearSlotLabel(selectedSlot)}</h2>
-                  <p>
-                    {t("ui.buildTab.shared")} {gameText(selected.definition?.name) || t("ui.buildTab.gear")}{" "}
-                    {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
-                  </p>
-                </div>
-              </PanelHeading>
-              <div className="gear-card-grid">
-                {availableItems.map(item => {
-                  const equipped = inventory.equipped[selectedSlot] === item.id
-                  // The equipped card states that it is equipped, which is the whole reading; a
-                  // candidate's difference from it goes in the same column as its usage count.
-                  let status
-                  if (!equipped) status = <GearDelta reading={readingFor(item.id)} reference={reference} />
-                  return (
-                    <AvailableGearCard
-                      key={item.id}
-                      item={item}
-                      name={gameText(selected.definition?.name)}
-                      equipped={equipped}
-                      usageCount={usageCounts.get(item.id) ?? 0}
-                      onEquip={() => equip(item)}
-                      onEdit={() => beginEdit(item)}
-                      onDelete={() => remove(item)}
-                      deleting={pendingDeleteId === item.id}
-                      onVisibilityChange={visible => reportVisibility(item.id, visible)}
-                      status={status}
-                    />
-                  )
-                })}
-                <button
-                  className="add-gear-card"
-                  type="button"
-                  onClick={beginAdd}
-                  aria-label={t("ui.buildTab.addNamedGear", { name: gearSlotLabel(selectedSlot) })}
-                  data-testid="add-gear"
-                >
-                  <span>
-                    <IconPlus size="1em" aria-hidden />
-                  </span>
-                  <strong>{t("ui.buildTab.addGear")}</strong>
-                </button>
-              </div>
-            </Panel>
-          )}
-
-          {!gearLocked && selected.definition && (
-            <Dialog
-              open={editing}
-              onClose={cancelEditing}
-              className="gear-editor-modal"
-              label={`${editingItemId !== null ? t("ui.buildTab.edit") : t("ui.buildTab.add")} ${gameText(selected.definition.name)}`}
-            >
-              {editing && (
-                <GearEditor
-                  definition={selected.definition}
-                  definitionId={selected.definitionId}
-                  definitionName={gameText(selected.definition.name)}
-                  editingExisting={editingItemId !== null}
-                  draft={draft}
-                  error={error}
-                  baseAffixOptions={baseAffixOptions}
-                  additionalAffixOptions={additionalAffixOptions}
-                  attunementOptions={attunementOptions}
-                  selectedAdditionalKeys={selectedAdditionalKeys}
-                  onDraftChange={setDraft}
-                  onImportSlot={importGearSlot}
-                  onLevelChange={updateLevel}
-                  onRelayedChange={updateRelayed}
-                  onCancel={cancelEditing}
-                  onSave={save}
-                />
-              )}
-            </Dialog>
-          )}
-        </div>
-      </ResponsiveBuildOverview>
+        {!gearLocked && selected.definition && (
+          <Dialog
+            open={editing}
+            onClose={cancelEditing}
+            className="gear-editor-modal"
+            label={`${editingItemId !== null ? t("ui.buildTab.edit") : t("ui.buildTab.add")} ${gameText(selected.definition.name)}`}
+          >
+            {editing && (
+              <GearEditor
+                definition={selected.definition}
+                definitionId={selected.definitionId}
+                definitionName={gameText(selected.definition.name)}
+                editingExisting={editingItemId !== null}
+                draft={draft}
+                error={error}
+                baseAffixOptions={baseAffixOptions}
+                additionalAffixOptions={additionalAffixOptions}
+                attunementOptions={attunementOptions}
+                selectedAdditionalKeys={selectedAdditionalKeys}
+                onDraftChange={setDraft}
+                onImportSlot={importGearSlot}
+                onLevelChange={updateLevel}
+                onRelayedChange={updateRelayed}
+                onCancel={cancelEditing}
+                onSave={save}
+              />
+            )}
+          </Dialog>
+        )}
+      </BuildOverview>
     </div>
   )
 }

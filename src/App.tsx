@@ -350,7 +350,7 @@ export default function App() {
     setInnerWayRevision(current => current + 1)
   }
   const selectPath = (nextPathId: PathId) => transitionPath(nextPathId)
-  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId], rotationId?: string) => {
+  const selectBuildWeapons = (nextWeapons: [WeaponId, WeaponId], rotationId?: string, targetPathId?: PathId) => {
     const matchingPath = (Object.entries(typedPathDefinitions) as Array<[PathId, PathDefinition]>).find(
       ([candidateId, definition]) =>
         candidateId !== "mixed" &&
@@ -358,7 +358,7 @@ export default function App() {
         definition.lockedWeapons &&
         sameWeaponPair(definition.lockedWeapons, nextWeapons),
     )
-    const nextPathId = matchingPath?.[0] ?? (devMode ? "mixed" : undefined)
+    const nextPathId = targetPathId ?? matchingPath?.[0] ?? (devMode ? "mixed" : undefined)
     if (!nextPathId) return false
     transitionPath(nextPathId, { weapons: nextWeapons, rotationId })
     return true

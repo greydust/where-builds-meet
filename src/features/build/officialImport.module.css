@@ -1,0 +1,39 @@
+@layer components {
+  .previewModal {
+    inline-size: min(100rem, calc(100dvw - var(--space-xl) * 4));
+  }
+
+  @media (max-width: 50em) {
+    .previewModal {
+      inline-size: calc(100dvw - var(--space-xl));
+    }
+  }
+
+  .destinationRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .actions {
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-block: var(--space-sm);
+  }
+
+  .field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-xs);
+    margin-block: var(--space-xs);
+
+    input {
+      min-inline-size: 0;
+      max-inline-size: 100%;
+    }
+  }
+}
