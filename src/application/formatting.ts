@@ -1,37 +1,35 @@
 import type { SkillRecord } from "@/calculations/rotationTimeline"
-import { dataText, gameText, getLocale } from "@/i18n"
+import { dataText, gameText, getLocale, t } from "@/i18n"
 import type { EditorCategory } from "@/skillOverrides"
+import type { WeaponId } from "@/types"
 
-import { allSkillDefinitions, dotDefinitions, skillDataNamespaceById } from "./gameData/skills"
+import { martialArtDefinitions } from "./gameData/martialArts"
+import {
+  allSkillDefinitions,
+  defaultEditorMaps,
+  dotDefinitions,
+  skillCategoryByWeapon,
+  skillDataNamespaceById,
+} from "./gameData/skills"
 
 export function skillCategoryLabel(category: EditorCategory) {
   switch (category) {
-    case "Skystrike":
-      return "Skystrike Gauntlets"
-    case "Riven":
-      return "Riven Twinblades"
-    case "Snowparting":
-      return "Snowparting Blade"
-    case "Phalanxbane":
-      return "Phalanxbane Blade"
-    case "Infernal":
-      return "Infernal Twinblades"
-    case "Everspring":
-      return "Everspring Umbrella"
-    case "Unfettered":
-      return "Unfettered Rope Dart"
-    case "Mortal":
-      return "Mortal Rope Dart"
-    case "Soulshade":
-      return "Soulshade Umbrella"
-    case "Panacea":
-      return "Panacea Fan"
-    case "StrategicSword":
-      return "Strategic Sword"
-    case "HeavenQuakerSpear":
-      return "Heavenquaker Spear"
-    default:
-      return category
+    case "Mystic":
+      return t("system.damageType.mystic")
+    case "General":
+      return t("ui.app.generalCategory")
+    case "Mechanism":
+      return t("ui.app.mechanismCategory")
+    case "Buff":
+      return t("ui.app.buff")
+    case "Debuff":
+      return t("ui.app.debuff")
+    case "DOT":
+      return t("ui.app.dotCategory")
+    default: {
+      const weapon = Object.entries(skillCategoryByWeapon).find(([, value]) => value === category)?.[0]
+      return weapon ? gameText(martialArtDefinitions[weapon as WeaponId].name) : category
+    }
   }
 }
 
@@ -122,19 +120,20 @@ export function throughputDeltaClass(value: number, channel: ThroughputChannel) 
 }
 
 export function skillFieldText(skillId: string, skill: SkillRecord | undefined, field: "name" | "shortName") {
-  const definition = skill ?? dotDefinitions[skillId]
+  const defaultEffect = defaultEditorMaps.Debuff[skillId] ?? defaultEditorMaps.Buff[skillId]
+  const definition = skill ?? dotDefinitions[skillId] ?? defaultEffect
   const value = definition?.[field]?.trim()
   if (!value) return field === "name" ? skillId : ""
   const namespace = skillDataNamespaceById.get(skillId)
   const defaultValue = allSkillDefinitions[skillId]?.[field]?.trim()
-  if (!namespace && value === dotDefinitions[skillId]?.[field]?.trim()) return gameText(value)
+  if (!namespace && value === (dotDefinitions[skillId] ?? defaultEffect)?.[field]?.trim()) return gameText(value)
   return namespace && value === defaultValue ? dataText(`data.skill.${namespace}.${skillId}.${field}`, value) : value
 }
 
 export function skillDisplayName(skill: SkillRecord | undefined, fallback = "", skillId = fallback) {
   const name = skillFieldText(skillId, skill, "name")
   const shortName = skillFieldText(skillId, skill, "shortName")
-  return shortName ? `${name} (${shortName})` : name
+  return shortName && shortName !== name ? `${name} (${shortName})` : name
 }
 
 export function formatResourceRange(value: number, range: { minimum: number; maximum: number } | undefined) {

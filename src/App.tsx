@@ -171,8 +171,8 @@ export default function App() {
   )
   const selectedRotationId = activeRotationIdsByPath[pathId] ?? defaultRotationIdForPath(pathId)
   const activeBuildDisplayName = activeBuild
-    ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || "Unnamed Build"
-    : "Unnamed Build"
+    ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || t("ui.app.unnamedBuild")
+    : t("ui.app.unnamedBuild")
   const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild])
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() =>
     loadBuildSetupOverrides(activeBuildSetup),
@@ -295,7 +295,11 @@ export default function App() {
     (id: string, targetPathId = pathId) => useRotationStore.getState().selectRotationForPath(id, targetPathId),
     [pathId],
   )
-  const activeRotationDisplayName = activeResult?.rotationName ?? "—"
+  const activeRotationName = activeResult?.rotationName ?? "—"
+  const activeRotationIsDefault = useRotationStore(state =>
+    state.entries.some(entry => entry.id === selectedRotationId && entry.isDefault),
+  )
+  const activeRotationDisplayName = activeRotationIsDefault ? gameText(activeRotationName) : activeRotationName
   const activateBuildForPath = useCallback(
     (id: string, targetPathId = pathId) => useGearStore.getState().selectBuildForPath(id, targetPathId),
     [pathId],

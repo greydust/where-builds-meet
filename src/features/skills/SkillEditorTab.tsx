@@ -12,7 +12,7 @@ import {
   type EditableObject,
   type SkillRecord,
 } from "@/calculations/rotationTimeline"
-import { t } from "@/i18n"
+import { gameText, t } from "@/i18n"
 import { publishNotice, dismissNotice } from "@/notices"
 import { type EditorCategory, type SkillMap, type SkillOverrides } from "@/skillOverrides"
 import { type WeaponId } from "@/types"
@@ -115,13 +115,14 @@ function itemSummary(item: string, index: number, kind: "action" | "modifier" | 
           ? (parsed.effect as EditableObject)
           : parsed
       const fields = Object.keys(payload).filter(field => field !== "requirement")
-      return `${index + 1}. ${fields.join(", ") || "effect"}`
+      return `${index + 1}. ${fields.join(", ") || t("ui.app.effect")}`
     }
-    const type = typeof parsed.type === "string" ? parsed.type : kind
-    const time = typeof parsed.time === "number" ? ` at ${parsed.time}s` : ""
+    const type =
+      typeof parsed.type === "string" ? parsed.type : t(kind === "modifier" ? "ui.app.modifiers" : "ui.app.effect")
+    const time = typeof parsed.time === "number" ? t("ui.app.atTime", { time: parsed.time }) : ""
     return `${index + 1}. ${type}${time}`
   } catch {
-    return `${index + 1}. ${kind}`
+    return `${index + 1}. ${t("ui.app.effect")}`
   }
 }
 
@@ -1266,7 +1267,7 @@ export function SkillEditorTab({
       const optionalNumber = (value: string, label: string) => {
         if (!value.trim()) return undefined
         const number = Number(value)
-        if (!Number.isFinite(number)) throw new Error(`${label} must be a number.`)
+        if (!Number.isFinite(number)) throw new Error(t("ui.app.numericFieldError", { label }))
         return number
       }
       let updatedSkill: SkillRecord
@@ -1276,9 +1277,9 @@ export function SkillEditorTab({
           name: draft.name,
           description: draft.description,
           refresh: draft.refresh,
-          duration: optionalNumber(draft.duration, "Duration"),
-          cooldown: optionalNumber(draft.cooldown, "Cooldown"),
-          maxStack: optionalNumber(draft.maxStack, "Max stack"),
+          duration: optionalNumber(draft.duration, t("ui.app.duration")),
+          cooldown: optionalNumber(draft.cooldown, t("ui.app.cooldown")),
+          maxStack: optionalNumber(draft.maxStack, t("ui.app.maxStack")),
           effect: draft.effectItems,
           stackEffects: draft.stackEffectGroups,
         }
@@ -1287,20 +1288,18 @@ export function SkillEditorTab({
         const modifier = draft.modifierItems
         const actionTimes = action.map(item => item.time)
         if (actionTimes.some(time => typeof time !== "number" || !Number.isFinite(time))) {
-          throw new Error("Every action must have a numeric time.")
+          throw new Error(t("ui.app.actionTimeError"))
         }
         const numericActionTimes = actionTimes as number[]
         const firstOutOfOrder = numericActionTimes.findIndex(
           (time, index) => index > 0 && time < numericActionTimes[index - 1],
         )
         if (firstOutOfOrder !== -1) {
-          throw new Error(
-            `Actions are out of order: action ${firstOutOfOrder + 1} occurs before action ${firstOutOfOrder}.`,
-          )
+          throw new Error(t("ui.app.actionOrderError", { current: firstOutOfOrder + 1, previous: firstOutOfOrder }))
         }
         const parsedCastTime = category === "DOT" ? undefined : Number(draft.castTime)
         if (parsedCastTime !== undefined && !Number.isFinite(parsedCastTime))
-          throw new Error("Cast time must be a number.")
+          throw new Error(t("ui.app.numericFieldError", { label: t("ui.app.castTime") }))
         const originalFallback = baseSkillCastTime({ castTime: draft.originalCastTime })
         const castTime =
           parsedCastTime !== undefined && draft.castTime === String(originalFallback)
@@ -1311,7 +1310,7 @@ export function SkillEditorTab({
           name: draft.name,
           shortName: draft.shortName.trim() || undefined,
           ...(castTime === undefined ? {} : { castTime }),
-          cooldown: optionalNumber(draft.cooldown, "Cooldown"),
+          cooldown: optionalNumber(draft.cooldown, t("ui.app.cooldown")),
           action,
           modifier,
           tags: draft.tags
@@ -1322,13 +1321,13 @@ export function SkillEditorTab({
             ? {
                 action: undefined,
                 periodic: {
-                  interval: optionalNumber(draft.periodicInterval, "Periodic interval"),
-                  firstTick: optionalNumber(draft.firstTick, "First tick"),
+                  interval: optionalNumber(draft.periodicInterval, t("ui.app.interval")),
+                  firstTick: optionalNumber(draft.firstTick, t("ui.app.firstTick")),
                   resetOnRefresh: draft.resetOnRefresh,
                   action,
                 },
-                duration: optionalNumber(draft.duration, "Duration"),
-                maxStack: optionalNumber(draft.maxStack, "Max stack"),
+                duration: optionalNumber(draft.duration, t("ui.app.duration")),
+                maxStack: optionalNumber(draft.maxStack, t("ui.app.maxStack")),
                 refresh: draft.refresh,
               }
             : {}),
@@ -1406,7 +1405,7 @@ export function SkillEditorTab({
           </Tab>
         </div>
         <div className="skill-editor-layout">
-          <aside className="skill-list" aria-label={t("ui.app.namedSkills", { name: category })}>
+          <aside className="skill-list" aria-label={t("ui.app.namedSkills", { name: skillCategoryLabel(category) })}>
             {skillIds.map(id => (
               <Tab
                 key={id}
@@ -1423,7 +1422,7 @@ export function SkillEditorTab({
           <div className="skill-detail">
             <div className="skill-detail-heading">
               <div>
-                <span className="detail-kicker">{category}</span>
+                <span className="detail-kicker">{skillCategoryLabel(category)}</span>
                 <h3>{skillDisplayName(skills[selectedSkill], selectedSkill)}</h3>
               </div>
             </div>
@@ -1432,7 +1431,10 @@ export function SkillEditorTab({
                 <div className="skill-basic-fields definition-basic-fields">
                   <label className="editor-field">
                     <span>{t("ui.app.name")}</span>
-                    <input value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} />
+                    <input
+                      value={gameText(draft.name)}
+                      onChange={event => setDraft({ ...draft, name: event.target.value })}
+                    />
                   </label>
                   <label className="editor-field">
                     <span>{t("ui.app.maxStack")}</span>
@@ -1447,7 +1449,7 @@ export function SkillEditorTab({
                   <label className="editor-field editor-field-wide">
                     <span>{t("ui.app.description")}</span>
                     <input
-                      value={draft.description}
+                      value={gameText(draft.description)}
                       onChange={event => setDraft({ ...draft, description: event.target.value })}
                     />
                   </label>
@@ -1500,12 +1502,15 @@ export function SkillEditorTab({
                 <div className="skill-basic-fields">
                   <label className="editor-field">
                     <span>{t("ui.app.name")}</span>
-                    <input value={draft.name} onChange={event => setDraft({ ...draft, name: event.target.value })} />
+                    <input
+                      value={gameText(draft.name)}
+                      onChange={event => setDraft({ ...draft, name: event.target.value })}
+                    />
                   </label>
                   <label className="editor-field">
                     <span>{t("ui.app.shortName")}</span>
                     <input
-                      value={draft.shortName}
+                      value={gameText(draft.shortName)}
                       onChange={event => setDraft({ ...draft, shortName: event.target.value })}
                     />
                   </label>

@@ -3,9 +3,11 @@ import { readFile } from "node:fs/promises"
 
 import { afterEach, beforeEach, expect, it, vi } from "vitest"
 
-import { skillDisplayName } from "@/application/formatting"
-import { allSkillDefinitions, dotDefinitions } from "@/application/gameData/skills"
-import { initializeI18n, selectLocale } from "@/i18n"
+import { skillCategoryLabel, skillDisplayName } from "@/application/formatting"
+import { martialArtDefinitions } from "@/application/gameData/martialArts"
+import { allSkillDefinitions, dotDefinitions, skillCategoryByWeapon } from "@/application/gameData/skills"
+import { gameText, initializeI18n, selectLocale } from "@/i18n"
+import type { WeaponId } from "@/types"
 
 beforeEach(async () => {
   vi.stubGlobal("fetch", async (url: string) => ({
@@ -28,4 +30,15 @@ it("preserves custom DOT names and unknown identifiers", () => {
     "Custom fire",
   )
   expect(skillDisplayName(undefined, "UnknownSkill", "UnknownSkill")).toBe("UnknownSkill")
+})
+
+it.each(["zh-Hant", "ko"])("localizes martial-art categories and effect-only damage rows in %s", async locale => {
+  await selectLocale(locale)
+  for (const [weapon, category] of Object.entries(skillCategoryByWeapon)) {
+    expect(skillCategoryLabel(category)).toBe(gameText(martialArtDefinitions[weapon as WeaponId].name))
+    expect(skillCategoryLabel(category)).not.toMatch(/[A-Za-z]{2,}/)
+  }
+  for (const id of ["ToadVenom", "LesserToadVenom"]) {
+    expect(skillDisplayName(undefined, id, id)).not.toMatch(/[A-Za-z]{2,}/)
+  }
 })

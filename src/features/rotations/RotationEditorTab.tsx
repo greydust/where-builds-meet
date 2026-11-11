@@ -125,7 +125,7 @@ import { Button } from "@/ui/Button"
 import { CalculationStatus } from "@/ui/CalculationStatus"
 
 function rotationEntryDisplayName(entry: RotationEntry) {
-  const name = entry.rotation.name || "Unnamed Rotation"
+  const name = entry.rotation.name || t("ui.app.unnamedRotation")
   return entry.isDefault ? gameText(name) : name
 }
 import { Chip } from "@/ui/Chip"
@@ -312,7 +312,8 @@ export function RotationEditorTab({
     resolvedActiveRotationIdRef.current = activeRotationId
   }, [activeRotationId])
   const rotationLocked = editingEntry?.isDefault === true
-  const editingRotationDisplayName = (rotationLocked ? gameText(rotation.name) : rotation.name) || "Unnamed Rotation"
+  const editingRotationDisplayName =
+    (rotationLocked ? gameText(rotation.name) : rotation.name) || t("ui.app.unnamedRotation")
   const {
     food: currentFood,
     enduranceFood: currentEnduranceFood,
@@ -1006,7 +1007,7 @@ export function RotationEditorTab({
     const id = createRotationId()
     const source = migrateRotation(rotation)
     const duplicate: RotationRecord = JSON.parse(
-      JSON.stringify({ ...source, name: `${source.name || "Rotation"} Copy` }),
+      JSON.stringify({ ...source, name: t("ui.app.copyOfName", { name: editingRotationDisplayName }) }),
     ) as RotationRecord
     const sourceEntry = rotationEntries.find(entry => entry.id === editingRotationId)
     const nextEntries = [

@@ -97,7 +97,7 @@ function gearSlotLabel(slot: GearSlot) {
 }
 
 function buildEntryDisplayName(entry: Pick<BuildEntry, "name" | "isDefault">) {
-  return (entry.isDefault ? gameText(entry.name) : entry.name) || "Unnamed Build"
+  return (entry.isDefault ? gameText(entry.name) : entry.name) || t("ui.app.unnamedBuild")
 }
 
 function createBuildId() {

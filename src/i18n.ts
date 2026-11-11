@@ -86,6 +86,7 @@ async function loadLocale(locale: string) {
       .map(([key, english]) => [english, activeMessages[key] ?? english]),
   )
   document.documentElement.lang = locale
+  document.title = t("ui.app.documentTitle")
 }
 
 export async function initializeI18n() {
@@ -134,7 +135,7 @@ export function getLocaleDisplayName(locale: string) {
   const displayName = localeDisplayNames[locale] ?? locale
   if (locale === manifest.default) return displayName
   const completion = manifest.completion?.[locale]
-  return completion === undefined ? displayName : `${displayName} (${completion}%)`
+  return completion === undefined || completion === 100 ? displayName : `${displayName} (${completion}%)`
 }
 
 export function t(key: string, parameters: Record<string, string | number> = {}) {

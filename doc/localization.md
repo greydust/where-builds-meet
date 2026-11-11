@@ -51,8 +51,23 @@ messages fall back per key. The `<html lang>` attribute is updated after load.
 Traditional Chinese (`zh-Hant`) and Korean (`ko`) are published locales
 available without development mode. Locale selector names are fixed autonyms
 in `src/i18n.ts` rather than translated messages, so every language is always
-named in its own language. Every non-English name is followed by the generated
-catalog completion percentage; English remains unadorned.
+named in its own language. Incomplete non-English locales show their generated
+catalog completion percentage; fully translated locales and English show only
+their names.
+
+Traditional Chinese and Korean cover the complete catalog. Game terminology uses
+the datamined localization's shared-reference translations; ambiguous English
+names are resolved in their skill, effect, or equipment context. Site-specific
+copy and simulator-only variants are translated separately. Chinese-only Bolt
+preview names use Korean readings when no decoded Korean localization exists.
+Technical abbreviations, file formats, service names, keyboard bindings, and
+schema identifiers remain unchanged. `tests/locale-completeness.test.ts` guards
+catalog coverage and unexpected English words in these two locales.
+
+Localization applies to editor display fields without rewriting the underlying
+draft until the user edits that field. Custom build, rotation, and profile names
+are preserved. Skill category labels resolve through the martial-art registry;
+damage rows emitted by effects resolve through the existing effect registries.
 
 Locale state belongs to the UI. Calculation bundles, worker messages, cache
 keys, IDs, formulas, and persisted game data remain language-neutral.

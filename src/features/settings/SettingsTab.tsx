@@ -201,7 +201,7 @@ export function SettingsTab({
               <option value="">{t("ui.app.previewCurrent")}</option>
               {previewCatalog.map(preview => (
                 <option key={preview.id} value={preview.id}>
-                  {preview.name}
+                  {preview.name.replace(/^CN /, `${t("ui.app.chinaServer")} `)}
                 </option>
               ))}
             </select>
