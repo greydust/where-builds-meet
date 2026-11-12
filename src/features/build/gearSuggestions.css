@@ -1,0 +1,107 @@
+@layer components {
+  .gear-editor-panel {
+    container-type: inline-size;
+  }
+
+  .gear-editor-layout {
+    display: grid;
+    gap: var(--space-lg);
+    align-items: start;
+  }
+
+  .gear-editor-fields {
+    min-inline-size: 0;
+  }
+
+  .gear-editor-fields .gear-additional-affixes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gear-additional-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-xs);
+  }
+
+  .gear-turn-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    min-block-size: 2.75rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .gear-suggestions {
+    display: grid;
+    gap: var(--space-md);
+    min-inline-size: 0;
+    padding: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-alt);
+    overflow-wrap: anywhere;
+
+    & h3,
+    & h4,
+    & p {
+      margin: 0;
+    }
+
+    & section {
+      display: grid;
+      gap: var(--space-xs);
+    }
+
+    & section + section {
+      padding-block-start: var(--space-md);
+      border-block-start: 1px solid var(--border);
+    }
+
+    & p {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  .gear-retune-outcomes,
+  .gear-relay-affixes {
+    display: grid;
+    gap: var(--space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    & li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: baseline;
+      gap: var(--space-xs);
+      font-size: 0.875rem;
+    }
+  }
+
+  @container (inline-size >= 56rem) {
+    .gear-editor-layout:has(.gear-suggestions) {
+      grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    }
+  }
+
+  @container (inline-size < 40rem) {
+    .gear-editor-fields .gear-editor-meta {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gear-editor-fields .gear-editor-roll-controls {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @container (inline-size < 32rem) {
+    .gear-additional-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-2xs);
+    }
+  }
+}

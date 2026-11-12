@@ -158,6 +158,7 @@ describe("gear-ocr", () => {
       { key: "minBellstrike", value: 35.7 },
     ])
     assert.equal(result.level, 91)
+    assert.equal(result.turnedAffixIndex, 1, "The [Turn] prefix must identify the additional affix already retuned.")
     assert.equal(result.definitionId, "pendant", "The item name overrides an incorrect editor slot.")
     assert.equal(result.attunement, undefined, "Unavailable attunements still require manual correction.")
   })

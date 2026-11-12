@@ -1,4 +1,4 @@
-import { useState, type Dispatch, type SetStateAction } from "react"
+import { useState, type Dispatch, type SetStateAction, type ReactNode } from "react"
 
 import {
   affixOptionsForGearDefinition,
@@ -24,6 +24,8 @@ import { Select } from "@/ui/Select"
 
 import { GearOcrModal } from "./GearOcrModal"
 
+import "./gearSuggestions.css"
+
 export type GearValueDraft = { key: string; value: string }
 
 export function gearRarityLabel(rarity: GearRarity) {
@@ -34,6 +36,7 @@ export type GearDraft = {
   level: GearLevel
   rarity: GearRarity
   relayed: boolean
+  turnedAffixIndex?: number
   baseAffix: GearValueDraft
   additionalAffixes: GearValueDraft[]
   attunement: GearValueDraft
@@ -115,6 +118,11 @@ export function capAndFilterGearDraft(
     additionalAffixes: capped.additionalAffixes.map(affix =>
       allowedAdditional.includes(affix.key) ? affix : blankValue(),
     ),
+    turnedAffixIndex:
+      capped.turnedAffixIndex !== undefined &&
+      allowedAdditional.includes(capped.additionalAffixes[capped.turnedAffixIndex]?.key)
+        ? capped.turnedAffixIndex
+        : undefined,
   }
 }
 
@@ -220,6 +228,7 @@ export function itemToDraft(item: GearItem): GearDraft {
     level: item.level,
     rarity: item.rarity,
     relayed: item.relayed === true,
+    turnedAffixIndex: item.turnedAffixIndex,
     baseAffix: savedValueToDraft(item.baseAffix, gearData.affixes),
     additionalAffixes: [...additionalAffixes, ...Array.from({ length: 4 - additionalAffixes.length }, blankValue)],
     attunement: item.attunement ? savedValueToDraft(item.attunement, attunementData) : blankValue(),
@@ -242,6 +251,7 @@ export function GearEditor({
   onRelayedChange,
   onCancel,
   onSave,
+  suggestions,
 }: {
   definition: GearDefinition
   definitionId: string
@@ -259,6 +269,7 @@ export function GearEditor({
   onRelayedChange: (relayed: boolean) => void
   onCancel: () => void
   onSave: () => void
+  suggestions?: ReactNode
 }) {
   const [ocrOpen, setOcrOpen] = useState(false)
 
@@ -273,6 +284,7 @@ export function GearEditor({
         level: result.level,
         rarity: result.rarity,
         relayed: result.relayed,
+        turnedAffixIndex: result.turnedAffixIndex,
         baseAffix: result.baseAffix ? savedValueToDraft(result.baseAffix, gearData.affixes) : blankValue(),
         additionalAffixes: [
           ...importedAdditional,
@@ -318,92 +330,114 @@ export function GearEditor({
           </Button>
         )}
       </PanelHeading>
-      <div className="gear-editor-meta">
-        <label className="editor-field">
-          <span>{t("ui.buildTab.level")}</span>
-          <Select value={draft.level} onChange={event => onLevelChange(Number(event.target.value) as GearLevel)}>
-            {gearLevels.toReversed().map(level => (
-              <option key={level} value={level}>
-                {level}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <label className="editor-field">
-          <span>{t("ui.buildTab.rarity")}</span>
-          <Select
-            value={draft.rarity}
-            onChange={event => onDraftChange(current => ({ ...current, rarity: event.target.value as GearRarity }))}
-          >
-            <option value="Gold">{gearRarityLabel("Gold")}</option>
-            <option value="Purple">{gearRarityLabel("Purple")}</option>
-          </Select>
-        </label>
-        <div className="gear-editor-roll-controls">
-          <label className="gear-relayed-toggle">
-            <Checkbox checked={draft.relayed} onChange={event => onRelayedChange(event.target.checked)} />
-            <span>{t("ui.buildTab.relayedOptionLabel")}</span>
-          </label>
-          <Button variant="secondary" size="small" type="button" onClick={applyMax}>
-            {t("ui.buildTab.max")}
-          </Button>
-        </div>
-      </div>
-      <div className="gear-editor-sections">
-        <div>
-          <h3>{t("ui.buildTab.baseAffix")}</h3>
-          <GearValueEditor
-            label={t("ui.buildTab.baseAffix")}
-            value={draft.baseAffix}
-            options={baseAffixOptions}
-            definitions={gearData.affixes}
-            category="affix"
-            relayed={draft.relayed}
-            level={draft.level}
-            onChange={baseAffix => onDraftChange(current => ({ ...current, baseAffix }))}
-          />
-        </div>
-        <div>
-          <h3>{t("ui.buildTab.additionalAffixesOptional")}</h3>
-          <div className="gear-additional-affixes">
-            {draft.additionalAffixes.map((affix, index) => (
+      <div className="gear-editor-layout">
+        <div className="gear-editor-fields">
+          <div className="gear-editor-meta">
+            <label className="editor-field">
+              <span>{t("ui.buildTab.level")}</span>
+              <Select value={draft.level} onChange={event => onLevelChange(Number(event.target.value) as GearLevel)}>
+                {gearLevels.toReversed().map(level => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </Select>
+            </label>
+            <label className="editor-field">
+              <span>{t("ui.buildTab.rarity")}</span>
+              <Select
+                value={draft.rarity}
+                onChange={event => onDraftChange(current => ({ ...current, rarity: event.target.value as GearRarity }))}
+              >
+                <option value="Gold">{gearRarityLabel("Gold")}</option>
+                <option value="Purple">{gearRarityLabel("Purple")}</option>
+              </Select>
+            </label>
+            <div className="gear-editor-roll-controls">
+              <label className="gear-relayed-toggle">
+                <Checkbox checked={draft.relayed} onChange={event => onRelayedChange(event.target.checked)} />
+                <span>{t("ui.buildTab.relayedOptionLabel")}</span>
+              </label>
+              <Button variant="secondary" size="small" type="button" onClick={applyMax}>
+                {t("ui.buildTab.max")}
+              </Button>
+            </div>
+          </div>
+          <div className="gear-editor-sections">
+            <div>
+              <h3>{t("ui.buildTab.baseAffix")}</h3>
               <GearValueEditor
-                key={index}
-                label={t("ui.buildTab.additionalAffixNumber", { number: index + 1 })}
-                value={affix}
-                options={additionalAffixOptions}
+                label={t("ui.buildTab.baseAffix")}
+                value={draft.baseAffix}
+                options={baseAffixOptions}
                 definitions={gearData.affixes}
                 category="affix"
                 relayed={draft.relayed}
                 level={draft.level}
-                optional
-                disabledKeys={selectedAdditionalKeys}
-                onChange={nextAffix =>
-                  onDraftChange(current => ({
-                    ...current,
-                    additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) =>
-                      currentIndex === index ? nextAffix : currentAffix,
-                    ),
-                  }))
-                }
+                onChange={baseAffix => onDraftChange(current => ({ ...current, baseAffix }))}
               />
-            ))}
+            </div>
+            <div>
+              <h3>{t("ui.buildTab.additionalAffixesOptional")}</h3>
+              <div className="gear-additional-affixes">
+                {draft.additionalAffixes.map((affix, index) => (
+                  <div className="gear-additional-row" key={index}>
+                    <label className="gear-turn-toggle">
+                      <Checkbox
+                        aria-label={t("ui.gearSuggestions.turnAffix", { number: index + 1 })}
+                        checked={draft.turnedAffixIndex === index}
+                        disabled={
+                          !affix.key || (draft.turnedAffixIndex !== undefined && draft.turnedAffixIndex !== index)
+                        }
+                        onChange={event => {
+                          const checked = event.target.checked
+                          onDraftChange(current => ({ ...current, turnedAffixIndex: checked ? index : undefined }))
+                        }}
+                      />
+                      <span>{t("ui.gearSuggestions.turn")}</span>
+                    </label>
+                    <GearValueEditor
+                      label={t("ui.buildTab.additionalAffixNumber", { number: index + 1 })}
+                      value={affix}
+                      options={additionalAffixOptions}
+                      definitions={gearData.affixes}
+                      category="affix"
+                      relayed={draft.relayed}
+                      level={draft.level}
+                      optional
+                      disabledKeys={selectedAdditionalKeys}
+                      onChange={nextAffix =>
+                        onDraftChange(current => ({
+                          ...current,
+                          turnedAffixIndex:
+                            current.turnedAffixIndex === index && !nextAffix.key ? undefined : current.turnedAffixIndex,
+                          additionalAffixes: current.additionalAffixes.map((currentAffix, currentIndex) =>
+                            currentIndex === index ? nextAffix : currentAffix,
+                          ),
+                        }))
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3>{t("ui.buildTab.attunementOptional")}</h3>
+              <GearValueEditor
+                label={t("ui.buildTab.attunement")}
+                value={draft.attunement}
+                options={attunementOptions}
+                definitions={attunementData}
+                category="attunement"
+                relayed={draft.relayed}
+                level={draft.level}
+                optional
+                onChange={attunement => onDraftChange(current => ({ ...current, attunement }))}
+              />
+            </div>
           </div>
         </div>
-        <div>
-          <h3>{t("ui.buildTab.attunementOptional")}</h3>
-          <GearValueEditor
-            label={t("ui.buildTab.attunement")}
-            value={draft.attunement}
-            options={attunementOptions}
-            definitions={attunementData}
-            category="attunement"
-            relayed={draft.relayed}
-            level={draft.level}
-            optional
-            onChange={attunement => onDraftChange(current => ({ ...current, attunement }))}
-          />
-        </div>
+        {suggestions}
       </div>
       {error && (
         <p className="editor-error" role="alert">

@@ -1,0 +1,774 @@
+{
+  "items": {
+    "91/Purple/helmet": "91/all",
+    "91/Purple/chestpiece": "91/all",
+    "91/Purple/bracer": "91/all",
+    "91/Purple/greaves": "91/all",
+    "91/Purple/disc": "91/all",
+    "91/Purple/pendant": "91/all",
+    "91/Purple/sword": "91/all",
+    "91/Purple/spear": "91/all",
+    "91/Purple/fan": "91/all",
+    "91/Purple/moBlade": "91/all",
+    "91/Purple/dualBlades": "91/all",
+    "91/Purple/umbrella": "91/all",
+    "91/Purple/unfetteredRopeDart": "91/all",
+    "91/Purple/hengBlade": "91/all",
+    "91/Purple/gauntlet": "91/all",
+    "91/Purple/ribbonAndDrum": "91/all",
+    "91/Gold/helmet": "91/all",
+    "91/Gold/chestpiece": "91/all",
+    "91/Gold/bracer": "91/all",
+    "91/Gold/greaves": "91/all",
+    "91/Gold/disc": "91/all",
+    "91/Gold/pendant": "91/all",
+    "91/Gold/sword": "91/all",
+    "91/Gold/spear": "91/all",
+    "91/Gold/fan": "91/all",
+    "91/Gold/moBlade": "91/all",
+    "91/Gold/dualBlades": "91/all",
+    "91/Gold/umbrella": "91/all",
+    "91/Gold/unfetteredRopeDart": "91/all",
+    "91/Gold/hengBlade": "91/all",
+    "91/Gold/gauntlet": "91/all",
+    "91/Gold/ribbonAndDrum": "91/all",
+    "96/Purple/helmet": "96/armor",
+    "96/Purple/chestpiece": "96/armor",
+    "96/Purple/bracer": "96/armor",
+    "96/Purple/greaves": "96/armor",
+    "96/Purple/disc": "96/armor",
+    "96/Purple/pendant": "96/armor",
+    "96/Purple/sword": "96/weapon",
+    "96/Purple/spear": "96/weapon",
+    "96/Purple/fan": "96/weapon",
+    "96/Purple/moBlade": "96/weapon",
+    "96/Purple/dualBlades": "96/weapon",
+    "96/Purple/umbrella": "96/weapon",
+    "96/Purple/unfetteredRopeDart": "96/weapon",
+    "96/Purple/hengBlade": "96/weapon",
+    "96/Purple/gauntlet": "96/weapon",
+    "96/Purple/ribbonAndDrum": "96/weapon",
+    "96/Gold/helmet": "96/armor",
+    "96/Gold/chestpiece": "96/armor",
+    "96/Gold/bracer": "96/armor",
+    "96/Gold/greaves": "96/armor",
+    "96/Gold/disc": "96/armor",
+    "96/Gold/pendant": "96/armor",
+    "96/Gold/sword": "96/weapon",
+    "96/Gold/spear": "96/weapon",
+    "96/Gold/fan": "96/weapon",
+    "96/Gold/moBlade": "96/weapon",
+    "96/Gold/dualBlades": "96/weapon",
+    "96/Gold/umbrella": "96/weapon",
+    "96/Gold/unfetteredRopeDart": "96/weapon",
+    "96/Gold/hengBlade": "96/weapon",
+    "96/Gold/gauntlet": "96/weapon",
+    "96/Gold/ribbonAndDrum": "96/weapon",
+    "100/Purple/helmet": "100/armor",
+    "100/Purple/chestpiece": "100/armor",
+    "100/Purple/bracer": "100/armor",
+    "100/Purple/greaves": "100/armor",
+    "100/Purple/disc": "100/armor",
+    "100/Purple/pendant": "100/armor",
+    "100/Purple/sword": "100/weapon",
+    "100/Purple/spear": "100/weapon",
+    "100/Purple/fan": "100/weapon",
+    "100/Purple/moBlade": "100/weapon",
+    "100/Purple/dualBlades": "100/weapon",
+    "100/Purple/umbrella": "100/weapon",
+    "100/Purple/unfetteredRopeDart": "100/weapon",
+    "100/Purple/hengBlade": "100/weapon",
+    "100/Purple/gauntlet": "100/weapon",
+    "100/Purple/ribbonAndDrum": "100/weapon",
+    "100/Gold/helmet": "100/armor",
+    "100/Gold/chestpiece": "100/armor",
+    "100/Gold/bracer": "100/armor",
+    "100/Gold/greaves": "100/armor",
+    "100/Gold/disc": "100/armor",
+    "100/Gold/pendant": "100/armor",
+    "100/Gold/sword": "100/weapon",
+    "100/Gold/spear": "100/weapon",
+    "100/Gold/fan": "100/weapon",
+    "100/Gold/moBlade": "100/weapon",
+    "100/Gold/dualBlades": "100/weapon",
+    "100/Gold/umbrella": "100/weapon",
+    "100/Gold/unfetteredRopeDart": "100/weapon",
+    "100/Gold/hengBlade": "100/weapon",
+    "100/Gold/gauntlet": "100/weapon",
+    "100/Gold/ribbonAndDrum": "100/weapon",
+    "105/Purple/helmet": "105/armor",
+    "105/Purple/chestpiece": "105/armor",
+    "105/Purple/bracer": "105/armor",
+    "105/Purple/greaves": "105/armor",
+    "105/Purple/disc": "105/armor",
+    "105/Purple/pendant": "105/armor",
+    "105/Purple/sword": "105/weapon",
+    "105/Purple/spear": "105/weapon",
+    "105/Purple/fan": "105/weapon",
+    "105/Purple/moBlade": "105/weapon",
+    "105/Purple/dualBlades": "105/weapon",
+    "105/Purple/umbrella": "105/weapon",
+    "105/Purple/unfetteredRopeDart": "105/weapon",
+    "105/Purple/hengBlade": "105/weapon",
+    "105/Purple/gauntlet": "105/weapon",
+    "105/Purple/ribbonAndDrum": "105/weapon",
+    "105/Gold/helmet": "105/armor",
+    "105/Gold/chestpiece": "105/armor",
+    "105/Gold/bracer": "105/armor",
+    "105/Gold/greaves": "105/armor",
+    "105/Gold/disc": "105/armor",
+    "105/Gold/pendant": "105/armor",
+    "105/Gold/sword": "105/weapon",
+    "105/Gold/spear": "105/weapon",
+    "105/Gold/fan": "105/weapon",
+    "105/Gold/moBlade": "105/weapon",
+    "105/Gold/dualBlades": "105/weapon",
+    "105/Gold/umbrella": "105/weapon",
+    "105/Gold/unfetteredRopeDart": "105/weapon",
+    "105/Gold/hengBlade": "105/weapon",
+    "91/Purple/skygraspRopeDart": "91/all",
+    "91/Gold/skygraspRopeDart": "91/all",
+    "96/Purple/skygraspRopeDart": "96/weapon",
+    "96/Gold/skygraspRopeDart": "96/weapon",
+    "100/Purple/skygraspRopeDart": "100/weapon",
+    "100/Gold/skygraspRopeDart": "100/weapon",
+    "105/Purple/skygraspRopeDart": "105/weapon",
+    "105/Gold/skygraspRopeDart": "105/weapon"
+  },
+  "pools": {
+    "91/all": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "momentum", "min": 20.2, "max": 40.4 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBellstrike", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 },
+        { "key": "affinity", "min": 0.018, "max": 0.036 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxStonesplit", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxSilkbind", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBamboocut", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "momentum", "min": 20.2, "max": 40.4 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBellstrike", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 },
+        { "key": "affinity", "min": 0.018, "max": 0.036 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxStonesplit", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxSilkbind", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBamboocut", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBamboocut", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxSilkbind", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 20.2, "max": 40.4 },
+        { "key": "agility", "min": 20.2, "max": 40.4 },
+        { "key": "minPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxPhys", "min": 31.9, "max": 63.8 },
+        { "key": "maxBamboocut", "min": 18.1, "max": 36.2 },
+        { "key": "crit", "min": 0.037, "max": 0.074 }
+      ]
+    },
+    "96/armor": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "momentum", "min": 24.7, "max": 49.4 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBellstrike", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 },
+        { "key": "affinity", "min": 0.022, "max": 0.044 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxStonesplit", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxSilkbind", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBamboocut", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "momentum", "min": 24.7, "max": 49.4 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBellstrike", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 },
+        { "key": "affinity", "min": 0.022, "max": 0.044 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxStonesplit", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxSilkbind", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBamboocut", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBamboocut", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxSilkbind", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxBamboocut", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ]
+    },
+    "96/weapon": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "momentum", "min": 24.7, "max": 49.4 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 },
+        { "key": "affinity", "min": 0.022, "max": 0.044 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "momentum", "min": 24.7, "max": 49.4 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 },
+        { "key": "affinity", "min": 0.022, "max": 0.044 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 24.7, "max": 49.4 },
+        { "key": "agility", "min": 24.7, "max": 49.4 },
+        { "key": "minPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxPhys", "min": 38.9, "max": 77.8 },
+        { "key": "maxVoidAttack", "min": 22.1, "max": 44.2 },
+        { "key": "crit", "min": 0.045, "max": 0.09 }
+      ]
+    },
+    "100/armor": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "momentum", "min": 28.7, "max": 57.4 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBellstrike", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 },
+        { "key": "affinity", "min": 0.026, "max": 0.052 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxStonesplit", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxSilkbind", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBamboocut", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "momentum", "min": 28.7, "max": 57.4 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBellstrike", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 },
+        { "key": "affinity", "min": 0.026, "max": 0.052 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxStonesplit", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxSilkbind", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBamboocut", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBamboocut", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxSilkbind", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxBamboocut", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ]
+    },
+    "100/weapon": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "momentum", "min": 28.7, "max": 57.4 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 },
+        { "key": "affinity", "min": 0.026, "max": 0.052 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "momentum", "min": 28.7, "max": 57.4 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 },
+        { "key": "affinity", "min": 0.026, "max": 0.052 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 28.7, "max": 57.4 },
+        { "key": "agility", "min": 28.7, "max": 57.4 },
+        { "key": "minPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxPhys", "min": 45.3, "max": 90.6 },
+        { "key": "maxVoidAttack", "min": 25.7, "max": 51.4 },
+        { "key": "crit", "min": 0.052, "max": 0.104 }
+      ]
+    },
+    "105/armor": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "momentum", "min": 33.4, "max": 66.8 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBellstrike", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 },
+        { "key": "affinity", "min": 0.03, "max": 0.06 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxStonesplit", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxSilkbind", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBamboocut", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "momentum", "min": 33.4, "max": 66.8 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBellstrike", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 },
+        { "key": "affinity", "min": 0.03, "max": 0.06 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxStonesplit", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxSilkbind", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBamboocut", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBamboocut", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxSilkbind", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxBamboocut", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ]
+    },
+    "105/weapon": {
+      "bellstrikeSplendor": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "momentum", "min": 33.4, "max": 66.8 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 },
+        { "key": "affinity", "min": 0.03, "max": 0.06 }
+      ],
+      "stonesplitStrength": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindJade": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutWind": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bellstrikeUmbra": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "momentum", "min": 33.4, "max": 66.8 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 },
+        { "key": "affinity", "min": 0.03, "max": 0.06 }
+      ],
+      "stonesplitMight": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindDeluge": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutDust": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutKite": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "silkbindWings": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ],
+      "bamboocutDraught": [
+        { "key": "power", "min": 33.4, "max": 66.8 },
+        { "key": "agility", "min": 33.4, "max": 66.8 },
+        { "key": "minPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxPhys", "min": 52.8, "max": 105.6 },
+        { "key": "maxVoidAttack", "min": 29.9, "max": 59.8 },
+        { "key": "crit", "min": 0.061, "max": 0.122 }
+      ]
+    }
+  },
+  "exclusiveAffixGroups": [
+    ["minVoidAttack", "minBellstrike", "minStonesplit", "minSilkbind", "minBamboocut"],
+    ["maxVoidAttack", "maxBellstrike", "maxStonesplit", "maxSilkbind", "maxBamboocut"]
+  ]
+}

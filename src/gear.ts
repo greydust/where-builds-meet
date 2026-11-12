@@ -62,6 +62,8 @@ export type GearItem = {
   level: GearLevel
   rarity: GearRarity
   relayed?: boolean
+  /** Zero-based position of the only additional affix that can be retuned. */
+  turnedAffixIndex?: number
   baseAffix: GearValue
   additionalAffixes: GearValue[]
   attunement?: GearValue
@@ -527,6 +529,12 @@ function parseGearItem(value: unknown): GearItem | undefined {
   )
     return undefined
   if (new Set(additionalAffixes.map(affix => affix.key)).size !== additionalAffixes.length) return undefined
+  const turnedAffixIndex = candidate.turnedAffixIndex
+  if (
+    turnedAffixIndex !== undefined &&
+    (!Number.isInteger(turnedAffixIndex) || turnedAffixIndex < 0 || turnedAffixIndex >= additionalAffixes.length)
+  )
+    return undefined
   const attunement =
     candidate.attunement === undefined
       ? undefined
@@ -543,6 +551,7 @@ function parseGearItem(value: unknown): GearItem | undefined {
     ...(relayed ? { relayed: true } : {}),
     baseAffix: candidate.baseAffix,
     additionalAffixes,
+    ...(turnedAffixIndex !== undefined ? { turnedAffixIndex } : {}),
     ...(attunement ? { attunement } : {}),
   }
 }
@@ -894,6 +903,8 @@ function gearItemsExactlyMatch(left: GearItem, right: GearItem) {
     left.level !== right.level ||
     left.rarity !== right.rarity ||
     Boolean(left.relayed) !== Boolean(right.relayed) ||
+    (left.turnedAffixIndex === undefined ? undefined : left.additionalAffixes[left.turnedAffixIndex]?.key) !==
+      (right.turnedAffixIndex === undefined ? undefined : right.additionalAffixes[right.turnedAffixIndex]?.key) ||
     comparableGearValue(left.baseAffix) !== comparableGearValue(right.baseAffix) ||
     (left.attunement ? comparableGearValue(left.attunement) : "") !==
       (right.attunement ? comparableGearValue(right.attunement) : "")

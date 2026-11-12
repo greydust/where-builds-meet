@@ -20,6 +20,7 @@ export type GearOcrResult = {
   relayed: boolean
   baseAffix?: GearValue
   additionalAffixes: GearValue[]
+  turnedAffixIndex?: number
   attunement?: GearValue
   rawText: string
 }
@@ -269,14 +270,19 @@ export function parseGearOcrTsv(
   let baseAffix: GearValue | undefined
   let attunement: GearValue | undefined
   const additionalAffixes: GearValue[] = []
+  let turnedAffixIndex: number | undefined
+  const addAdditional = (key: string, row: { label: string; value: number }) => {
+    if (additionalAffixes.some(affix => affix.key === key)) return
+    if (/\bturn\b/i.test(row.label) && turnedAffixIndex === undefined) turnedAffixIndex = additionalAffixes.length
+    additionalAffixes.push(storedValue(key, row.value, gearData.affixes))
+  }
 
   if (rows.length === 6) {
     const baseKey = optionalValueForLabel(rows[0].label, baseKeys, gearData.affixes)
     if (baseKey) baseAffix = storedValue(baseKey, rows[0].value, gearData.affixes)
     for (const row of rows.slice(1, 5)) {
       const key = optionalValueForLabel(row.label, additionalKeys, gearData.affixes)
-      if (key && !additionalAffixes.some(affix => affix.key === key))
-        additionalAffixes.push(storedValue(key, row.value, gearData.affixes))
+      if (key) addAdditional(key, row)
     }
     const attunementKey = optionalValueForLabel(rows[5].label, attunementKeys, attunementData)
     if (attunementKey) attunement = storedValue(attunementKey, rows[5].value, attunementData)
@@ -294,8 +300,7 @@ export function parseGearOcrTsv(
           if (!baseAffix && baseKey) baseAffix = storedValue(baseKey, row.value, gearData.affixes)
           break
         case "additional":
-          if (additionalKey && !additionalAffixes.some(affix => affix.key === additionalKey))
-            additionalAffixes.push(storedValue(additionalKey, row.value, gearData.affixes))
+          if (additionalKey) addAdditional(additionalKey, row)
           break
         case "attunement":
           if (!attunement && attunementKey) attunement = storedValue(attunementKey, row.value, attunementData)
@@ -310,6 +315,7 @@ export function parseGearOcrTsv(
     relayed,
     ...(baseAffix ? { baseAffix } : {}),
     additionalAffixes,
+    ...(turnedAffixIndex !== undefined ? { turnedAffixIndex } : {}),
     ...(attunement ? { attunement } : {}),
     rawText,
   }

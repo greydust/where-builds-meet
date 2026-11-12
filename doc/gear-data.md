@@ -174,6 +174,72 @@ map. Every attunement definition tagged `Armor` instead shares the generic
 `attunement.armor` cap, so new path-specific armor attunements do not require a
 new priority key.
 
+## Relay and retune suggestions
+
+The gear editor shows a suggestion column on wide dialogs and places it below
+the fields on narrower dialogs. Every reading equips the current unsaved draft
+in the selected slot of the inspected build, using that build's setup and the
+current rotation/environment. Moving a weapon already equipped in the other
+slot removes its old assignment. Suggestions never change saved items.
+
+Relay compares the draft with the same selected base and additional affixes
+fully modulated to their 94% relay caps. It preserves attunement and the Turn
+marker. Relayed drafts offer no relay or retune suggestions.
+
+`data/retuning.json` contains curated path-specific pools imported from the
+dataminer's `site/public/data/processed-retuning.json`, joined to
+`processed-items.json` by item ID. The resolved source follows
+`equip_items.re_group -> equip_toning_group -> affix definitions`, filtered by
+retune path and equipment eligibility. `det_swap_group` is exchange compatibility
+and is not used. The bundled source covers ordinary Purple/Gold gear at tiers
+91, 96, 100 and 105. Tier 110/115 and Bolt have no resolved pool here; the UI
+reports missing outcomes rather than guessing. Normal variants are preferred;
+special/relay-only item names are excluded. Only positive-weight, matched,
+unambiguous ranges are retained. Identical pools share a named tier/family record,
+with explicit tier/rarity/gear-definition selectors. The two Rope Dart
+definitions share the physical weapon family's pool. No raw weights are shipped
+or interpreted as probabilities.
+
+Retune candidates replace exactly one occupied additional row with a different
+affix, retaining all other rolls. Additional affixes must be distinct; the JSON's exclusive groups
+also prohibit two minimum attribute attacks or two maximum attribute attacks,
+including Formless/Void. Minimum and maximum groups are separate. Base affixes
+may repeat an additional affix, as with existing gear. These rules constrain
+suggestions without deleting historical inventory that violates them.
+
+The retune reference is the better DPS of the draft and that same draft fully
+relayed and modulated. Each legal destination is evaluated at its maximum roll,
+both before relay and fully relayed/modulated afterward. Ranking uses the better
+of those two results; ties retain the unrelayed state. The action heading names
+the source affix to retune, appending Then relay when the best outcome needs
+relay afterward. Destination rows show only the affix name and DPS delta against
+the chosen reference, without values or a Relayed suffix. These are potential
+results, not guaranteed rolls or expected returns.
+If no legal outcome improves the chosen reference, the panel says no retuning is
+needed instead of recommending a loss or a tie. Relay preview lists each changed
+base/additional affix and its signed stat difference on one row, using the shared
+yellow-positive/red-negative styles. Percentage differences use percentage points
+at the display boundary. Unchanged rows are omitted. It also shows the overall DPS
+delta, without the two absolute DPS readings.
+Every candidate uses the shared build measurement and centralized worker pipeline
+with its own full timeline. Editor sweeps wait 300ms after changes and submit one reading at
+a time; superseding or closing a draft stops further submissions and stale
+readings are hidden by calculation fingerprint.
+
+The panel omits explanatory copy and the Suggestions heading. A relayed draft
+shows only the message that relayed gear cannot be retuned.
+
+An optional zero-based `turnedAffixIndex` on a shared item records the single
+additional row already retuned. Only that row is eligible for future retune
+suggestions. The editor's Turn checkboxes are data entry controls: unchecking
+corrects recorded history and allows another row to be marked. The marker is
+preserved after relay, through export/import, duplication and inventory reload.
+Absent markers on older items remain absent. Empty editor rows are removed on
+save and the marker is remapped to the compacted position. Exact-item reuse
+includes the marked affix identity so distinct retune histories do not merge.
+Picture import recognizes `[Turn]` before an additional-affix label and records
+its position while continuing to parse the label normally.
+
 ## Image import
 
 The add-gear editor can populate a draft from a selected, dropped, or

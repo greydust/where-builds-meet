@@ -11,6 +11,7 @@ export const gearItemInputSchema = v.looseObject({
   additionalAffixes: v.optional(v.array(unknownRecord)),
   slot: v.optional(v.string()),
   relayed: v.optional(v.boolean()),
+  turnedAffixIndex: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(3))),
   attunement: v.optional(unknownRecord),
 })
 

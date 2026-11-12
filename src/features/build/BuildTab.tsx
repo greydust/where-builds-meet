@@ -85,6 +85,7 @@ import {
   normalizeDraftValue,
   type GearDraft,
 } from "./GearEditor"
+import { GearSuggestions } from "./GearSuggestions"
 import { officialImportForPath, officialImportPaths } from "./officialImportReview"
 import { useBuildThroughputs } from "./useBuildThroughputs"
 import { useGearComparison } from "./useGearComparison"
@@ -1446,6 +1447,9 @@ function BuildManagement({
       level: draft.level,
       rarity: draft.rarity,
       ...(draft.relayed ? { relayed: true } : {}),
+      ...(draft.turnedAffixIndex !== undefined && draft.additionalAffixes[draft.turnedAffixIndex]?.key
+        ? { turnedAffixIndex: additionalAffixDrafts.indexOf(draft.additionalAffixes[draft.turnedAffixIndex]) }
+        : {}),
       baseAffix,
       additionalAffixes: normalizedAdditional,
       ...(attunement ? { attunement } : {}),
@@ -1501,6 +1505,32 @@ function BuildManagement({
   const selectedAdditionalKeys = useMemo(
     () => new Set(draft.additionalAffixes.map(affix => affix.key).filter(Boolean)),
     [draft.additionalAffixes],
+  )
+  const gearSuggestions = useMemo(
+    () =>
+      editing ? (
+        <GearSuggestions
+          draft={draft}
+          definitionId={selected.definitionId}
+          slot={selectedSlot}
+          build={build}
+          gearItems={inventory.items}
+          context={measurement}
+          rotation={activeRotation}
+          editingItemId={editingItemId ?? undefined}
+        />
+      ) : undefined,
+    [
+      editing,
+      draft,
+      selected.definitionId,
+      selectedSlot,
+      build,
+      inventory.items,
+      measurement,
+      activeRotation,
+      editingItemId,
+    ],
   )
 
   return (
@@ -1592,6 +1622,7 @@ function BuildManagement({
                 onRelayedChange={updateRelayed}
                 onCancel={cancelEditing}
                 onSave={save}
+                suggestions={gearSuggestions}
               />
             )}
           </Dialog>

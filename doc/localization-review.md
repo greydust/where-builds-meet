@@ -157,3 +157,17 @@ generation limit; their glossary provenance is reviewed wording based on the
 official text. Verified names remain unchanged. The two proc labels inherit
 the existing Mending Loom translations. No browser inspection or human language
 review was performed for this addition.
+
+## Gear suggestions (November 12, 2026)
+
+Thirteen site messages cover compact relay/retune suggestions, statuses and Turn
+history in all eleven non-English locales. Separate fresh-context AI reviewers
+checked each language, including the action headings and the no-improvement status used when neither
+normal nor relayed retune outcomes improve the chosen baseline. Existing
+Attunement, build and affix terminology is retained. Traditional and Simplified
+Chinese Retuning terminology was checked against reference
+`3201690222815843613` in the 9 November datamine; other new retune terms remain
+reviewed site wording, not verified official translations. The catalog contains
+2,087 fully populated messages per published locale. Structural batch checks
+passed. A local-browser connection timed out, so no rendered layout or human
+language review is claimed for these additions.

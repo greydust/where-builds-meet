@@ -7,7 +7,7 @@ import type { BuildEntry, GearItem } from "@/gear"
 import { useDpsStore } from "@/stores/dpsStore"
 
 /** Something to measure, under a name the caller chose. The name is not part of the identity. */
-export type ThroughputTarget = { key: string; build: BuildEntry | undefined }
+export type ThroughputTarget = { key: string; build: BuildEntry | undefined; gearItems?: GearItem[] }
 
 type Measured = { key: string; cacheKey?: string; bundle?: ReturnType<typeof buildMeasurement>["bundle"] }
 
@@ -81,8 +81,10 @@ export function useBuildThroughputs(input: {
   gearItems: GearItem[]
   context: MeasurementContext
   rotation: RotationRecord | undefined
+  /** Editor sweeps wait for typing to pause and schedule one candidate at a time. */
+  editorSweep?: boolean
 }): Record<string, ThroughputReading | undefined> {
-  const { targets, gearItems, context, rotation } = input
+  const { targets, gearItems, context, rotation, editorSweep = false } = input
   const [settled, setSettled] = useState<Record<string, { cacheKey: string; reading: ThroughputReading }>>({})
 
   const measured = useMemo<Measured[]>(
@@ -91,7 +93,13 @@ export function useBuildThroughputs(input: {
         if (!target.build || !rotation) return { key: target.key }
         return {
           key: target.key,
-          ...measurementFor({ key: target.key, build: target.build, gearItems, context, rotation }),
+          ...measurementFor({
+            key: target.key,
+            build: target.build,
+            gearItems: target.gearItems ?? gearItems,
+            context,
+            rotation,
+          }),
         }
       }),
     [targets, gearItems, context, rotation],
@@ -103,11 +111,17 @@ export function useBuildThroughputs(input: {
 
   useEffect(() => {
     let current = true
-    for (const entry of measured) {
+    const measure = async (entry: Measured) => {
       // A reading already held costs nothing to ask for, and is the common case on a revisit.
-      if (!entry.cacheKey || useDpsStore.getState().peek("throughput", entry.cacheKey)) continue
+      if (!entry.cacheKey) return
       const { key, cacheKey, bundle } = entry
-      void useDpsStore
+      const cached = useDpsStore.getState().peek("throughput", cacheKey)
+      if (cached) {
+        // Keep the editor's reference even if other readings evict it during the sweep.
+        if (editorSweep && current) setSettled(previous => ({ ...previous, [key]: { cacheKey, reading: cached } }))
+        return
+      }
+      await useDpsStore
         .getState()
         .ensure({ kind: "throughput", cacheKey, build: () => bundle!, priority: 120 })
         .then(reading => {
@@ -118,10 +132,25 @@ export function useBuildThroughputs(input: {
           // something asks again, which is the same as never having measured it.
         })
     }
+    const run = () => {
+      if (editorSweep) {
+        void (async () => {
+          for (const entry of measured) {
+            if (!current) return
+            // Bound obsolete work to the current request when typing supersedes a sweep.
+            // oxlint-disable-next-line no-await-in-loop
+            await measure(entry)
+          }
+        })()
+      } else for (const entry of measured) void measure(entry)
+    }
+    const timer = editorSweep ? setTimeout(run, 300) : undefined
+    if (!editorSweep) run()
     return () => {
       current = false
+      clearTimeout(timer)
     }
-  }, [requested, measured])
+  }, [requested, measured, editorSweep])
 
   return Object.fromEntries(
     measured.map(entry => {

@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Catalog: 2,074 English messages. Updated November 11, 2026.
+Catalog: 2,087 English messages. Updated November 12, 2026.
 
 All twelve published locales have a populated value for every English catalog key.
 English, Traditional Chinese, and Korean were already complete; the other nine
@@ -9,15 +9,15 @@ and simulator labels. Existing populated translations were preserved.
 
 | Locale  | Populated | Missing game text | Missing site copy | Coverage |
 | ------- | --------: | ----------------: | ----------------: | -------: |
-| zh-Hans |      2074 |                 0 |                 0 |     100% |
-| ja      |      2074 |                 0 |                 0 |     100% |
-| es      |      2074 |                 0 |                 0 |     100% |
-| fr      |      2074 |                 0 |                 0 |     100% |
-| de      |      2074 |                 0 |                 0 |     100% |
-| pt      |      2074 |                 0 |                 0 |     100% |
-| vi      |      2074 |                 0 |                 0 |     100% |
-| th      |      2074 |                 0 |                 0 |     100% |
-| ru      |      2074 |                 0 |                 0 |     100% |
+| zh-Hans |      2087 |                 0 |                 0 |     100% |
+| ja      |      2087 |                 0 |                 0 |     100% |
+| es      |      2087 |                 0 |                 0 |     100% |
+| fr      |      2087 |                 0 |                 0 |     100% |
+| de      |      2087 |                 0 |                 0 |     100% |
+| pt      |      2087 |                 0 |                 0 |     100% |
+| vi      |      2087 |                 0 |                 0 |     100% |
+| th      |      2087 |                 0 |                 0 |     100% |
+| ru      |      2087 |                 0 |                 0 |     100% |
 
 Coverage counts non-empty cells, not linguistic accuracy or official-name availability.
 Technical input notation, service names, and some proper names deliberately remain
