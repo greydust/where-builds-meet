@@ -334,7 +334,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -473,7 +472,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -801,7 +799,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -3159,7 +3156,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -4481,7 +4477,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -5533,7 +5528,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -8787,7 +8781,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -10096,7 +10089,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -11342,7 +11334,6 @@
         "data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name",
         "data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName",
-        "system.abrasion",
         "system.attunement.boltVariedComboBoost",
         "system.attunement.boshanQuyueSpearMartialBoost",
         "system.attunement.boshanQuyueSpearSpecialBoost",
@@ -21710,5 +21701,24 @@
     "correctionLocales": ["es", "fr", "de", "pt", "vi", "th", "ru"],
     "humanReview": false,
     "browserReview": false
+  },
+  "breakdownCorrection": {
+    "date": "2026-11-12",
+    "keys": ["system.abrasion", "data.buff.bellstrikeBolt.BoltFengRui.description"],
+    "cause": "The shared combat outcome was incorrectly classified as a Chinese-only Bolt name.",
+    "evidence": "Combat heading reference 4080480071151560224 in the 9 November datamine; base translations decoded in every published locale. French second heading uses Usure; selected the Abrasion heading matching the source wording.",
+    "scope": "All published locales; preserve Bolt-specific names.",
+    "additionalCorrections": {
+      "system.affinity": { "zh-Hans": "会意", "ja": "会意", "vi": "Hiểu ý" },
+      "ui.app.triggers": {
+        "ja": "発動回数",
+        "fr": "Déclenchements",
+        "de": "Auslösungen",
+        "ru": "Срабатывания",
+        "ko": "발동 횟수",
+        "th": "จำนวนครั้งที่เกิดผล"
+      }
+    },
+    "review": "Independent targeted AI terminology/context review; not a full native-language review of the catalog."
   }
 }

@@ -171,3 +171,26 @@ reviewed site wording, not verified official translations. The catalog contains
 2,087 fully populated messages per published locale. Structural batch checks
 passed. A local-browser connection timed out, so no rendered layout or human
 language review is claimed for these additions.
+
+## DPS Breakdown terminology correction (November 12, 2026)
+
+Reviewed the static Breakdown labels in every published locale and scanned the
+English catalog for Chinese text outside Bolt terminology. Abrasion was wrongly
+classified as a Chinese-only Bolt name. Restored the shared outcome and its Bolt
+buff-description occurrence using combat heading reference
+`4080480071151560224` in the 9 November datamine (decoded base records in all
+published languages, heading markup removed). French also has a separate Usure
+heading; the selected Abrasion heading supports the retained French wording.
+Removed Abrasion from the retained-name review lists and corrected its glossary
+provenance. Bolt-specific names, including the Bolt-tagged HanMang gear set,
+remain Chinese.
+
+An independent targeted AI terminology/context review also identified social
+Affinity homonyms in Simplified Chinese, Japanese and Vietnamese. Those labels
+now use the combat concept from the existing Affinity Rate terminology
+(reference `10018761170712956558`). Japanese, French, German and Russian Triggers
+labels now describe activation counts; Korean and Thai also make the count
+explicit. Other static Breakdown labels required no concrete semantic correction.
+Catalog coverage remains 2,087 messages per published locale. This was a targeted
+terminology and context review, not full native-language approval of the catalog.
+No browser visual review or human language review was performed.

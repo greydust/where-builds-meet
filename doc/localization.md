@@ -187,6 +187,12 @@ readings. Keep Chinese terminology inside otherwise localized descriptions;
 surrounding prose and general interface controls remain localized. This is an
 explicit user terminology preference, not missing translation work.
 
+Shared combat outcomes such as Abrasion are general terminology, even when a
+Bolt description mentions them. They must remain localized in every language;
+do not classify them as Chinese-only Bolt names. Affinity in combat means the
+damage outcome associated with Affinity Rate, not social affinity. Breakdown's
+Triggers column counts activations rather than listing trigger conditions.
+
 The repository skill `.agents/skills/wwm-localization/SKILL.md` defines the
 terminology recovery, translation, independent AI review, and UI checks used for
 new translations. It preserves already populated cells unless a correction is

@@ -146,11 +146,17 @@
   {
     "locale": "zh-Hans",
     "key": "system.abrasion",
-    "source": "擦傷",
+    "source": "Abrasion",
     "translation": "擦伤",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "zh_cn",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "zh-Hans",
@@ -749,11 +755,17 @@
   {
     "locale": "ja",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "軽傷",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "ja",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "ja",
@@ -1604,11 +1616,17 @@
   {
     "locale": "es",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Abrasión",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "es",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "es",
@@ -3026,11 +3044,17 @@
   {
     "locale": "fr",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Abrasion",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "fr",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "fr",
@@ -4511,11 +4535,17 @@
   {
     "locale": "de",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Abnutzung",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "de",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "de",
@@ -5906,11 +5936,17 @@
   {
     "locale": "pt",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Abrasão",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "pt_br",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "pt",
@@ -7166,11 +7202,17 @@
   {
     "locale": "vi",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Vết xước",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "vi",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "vi",
@@ -8984,11 +9026,17 @@
   {
     "locale": "th",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "บาดแผลถลอก",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "th",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "th",
@@ -10262,11 +10310,17 @@
   {
     "locale": "ru",
     "key": "system.abrasion",
-    "source": "擦傷",
-    "translation": "擦傷",
+    "source": "Abrasion",
+    "translation": "Истирание",
     "context": "system.abrasion",
-    "origin": "reviewed",
-    "evidence": { "kind": "user-terminology-policy", "report": "doc/localization.md", "date": "2026-11-11" }
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "4080480071151560224",
+      "language": "ru",
+      "layer": "base",
+      "note": "Combat Abrasion heading; heading markup removed."
+    }
   },
   {
     "locale": "ru",
@@ -12125,6 +12179,123 @@
       "reference": "2327400898258542303",
       "language": "ru",
       "layer": "base"
+    }
+  },
+  {
+    "key": "system.affinity",
+    "locale": "zh-Hans",
+    "source": "Affinity",
+    "translation": "会意",
+    "context": "Combat outcome",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "system.affinity",
+    "locale": "ja",
+    "source": "Affinity",
+    "translation": "会意",
+    "context": "Combat outcome",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "system.affinity",
+    "locale": "vi",
+    "source": "Affinity",
+    "translation": "Hiểu ý",
+    "context": "Combat outcome",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "ja",
+    "source": "Triggers",
+    "translation": "発動回数",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "fr",
+    "source": "Triggers",
+    "translation": "Déclenchements",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "de",
+    "source": "Triggers",
+    "translation": "Auslösungen",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "ru",
+    "source": "Triggers",
+    "translation": "Срабатывания",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "ko",
+    "source": "Triggers",
+    "translation": "발동 횟수",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
+    }
+  },
+  {
+    "key": "ui.app.triggers",
+    "locale": "th",
+    "source": "Triggers",
+    "translation": "จำนวนครั้งที่เกิดผล",
+    "context": "DPS Breakdown activation count",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "targeted-independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-12"
     }
   }
 ]

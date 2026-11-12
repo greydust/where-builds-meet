@@ -13,7 +13,7 @@
       ],
       "action": [{ "type": "trigger", "value": "BoltEndFengRui", "time": 0 }]
     },
-    "description": "15% base VC DMG (30% with 神斷青鋒 T6) and 10% Affinity DMG. The upgraded red spear talent prevents 擦傷."
+    "description": "15% base VC DMG (30% with 神斷青鋒 T6) and 10% Affinity DMG. The upgraded red spear talent prevents Abrasion."
   },
   "BoltWangXing": {
     "name": "王行",
