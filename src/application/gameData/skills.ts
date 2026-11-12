@@ -244,6 +244,8 @@ export const rotationEventOptionIds = [
   "__event:Debuff",
 ]
 export const expectedOutcomeBuffPlateDefinitions = [
+  { name: "RestoringBlossomNurturing", maxStack: 6 },
+  { name: "RestoringBlossomConcentration", maxStack: 6 },
   { name: "Hawkwing", maxStack: 5 },
   { name: "Concentration", maxStack: 1 },
   { name: "Bloom", maxStack: 1 },

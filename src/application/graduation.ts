@@ -169,6 +169,7 @@ export function buildPresetRotationBundle(
         Endurance: statState.stats.maxEndurance,
       },
       resourceRegeneration: { HeavensWill: statState.stats.heavensWillRegen, ...typedSystemStats.resourceRegeneration },
+      resourceRegenerationOutOfCombat: typedSystemStats.resourceRegenerationOutOfCombat,
       resourceSpendRegenDelay: typedSystemStats.resourceSpendRegenDelay,
       resourceMaximums: {
         ...typedSystemStats.resourceMaximums,

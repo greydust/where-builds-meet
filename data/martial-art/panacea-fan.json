@@ -3,21 +3,187 @@
   "weapon": "Fan",
   "tag": "PanaceaFan",
   "talent": [
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.08512 } } } }
@@ -59,7 +225,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
@@ -106,7 +282,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0988 } } } }
@@ -153,7 +339,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
@@ -200,7 +396,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           {
@@ -251,7 +457,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
@@ -298,7 +514,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           {
@@ -349,7 +575,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
@@ -396,7 +632,17 @@
       }
     ],
     [
-      { "effect": [] },
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "heal",
+              "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
+              "action": [{ "type": "addResource", "value": "Dew", "amount": 2 }]
+            }
+          }
+        ]
+      },
       {
         "effect": [
           {

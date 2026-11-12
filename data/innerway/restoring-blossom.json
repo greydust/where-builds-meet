@@ -1,10 +1,25 @@
 {
   "name": "Restoring Blossom",
   "altersTimeline": true,
-  "tags": [],
+  "tags": ["SilkbindDeluge"],
   "effect": {
-    "RestoringBlossomT0": {},
-    "RestoringBlossomT1": {},
+    "RestoringBlossomT0": {
+      "effect": [
+        {
+          "effect": {
+            "criticalHealingStacks": {
+              "recipientBuff": "RestoringBlossomNurturing",
+              "casterBuff": "RestoringBlossomConcentration",
+              "duration": 6,
+              "maxStack": 3,
+              "receivedPerStack": 0.02,
+              "dealtPerStack": 0
+            }
+          }
+        }
+      ]
+    },
+    "RestoringBlossomT1": { "effect": [{ "effect": { "criticalHealingStacks": { "duration": 10 } } }] },
     "RestoringBlossomT2": {
       "effect": [
         {
@@ -43,9 +58,11 @@
         }
       ]
     },
-    "RestoringBlossomT3": {},
-    "RestoringBlossomT4": {},
+    "RestoringBlossomT3": { "effect": [{ "effect": { "criticalHealingStacks": { "dealtPerStack": 0.02 } } }] },
+    "RestoringBlossomT4": { "effect": [{ "effect": { "criticalHealingStacks": { "maxStack": 6 } } }] },
     "RestoringBlossomT5": { "effect": [{ "rawStat": { "criticalHealingBonus": 0.04 } }] },
-    "RestoringBlossomT6": {}
+    "RestoringBlossomT6": {
+      "effect": [{ "effect": { "criticalHealingStacks": { "lowHPThreshold": 0.3, "additionalLowHPStacks": 2 } } }]
+    }
   }
 }

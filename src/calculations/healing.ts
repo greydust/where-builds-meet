@@ -1,4 +1,5 @@
-import attunementJson from "../../data/attunement.json"
+import attunementJson from "@gamedata/attunement.json"
+
 import { resolveActionStatContext } from "./actionStats"
 import { attunementMatchesSkill, type AttunementTagFilter } from "./attunementStats"
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults"
@@ -94,17 +95,33 @@ function calculateHealingBreakdownInternal(
   random?: () => number,
 ): HealingBreakdown {
   const { stats, derivedStats, averagePhysicalAttack, averageSilkbindAttack } = resolveHealingAttackState(context)
+  const percentageHealing = Math.max(0, stats.maxHp * numberValue(action.maxHPRatio))
+  const hasAttackHealing = [action.phyCoef, action.silkbindCoef, action.phyBonus, action.attrBonus].some(
+    value => numberValue(value) !== 0,
+  )
+  if (typeof action.maxHPRatio === "number" && !hasAttackHealing) {
+    return {
+      physical: percentageHealing,
+      silkbind: 0,
+      total: percentageHealing,
+      normalRate: 1,
+      criticalRate: 0,
+      ...(random ? { outcome: "normal" as const } : {}),
+    }
+  }
   const unconditional = context.unconditionalDamageEffects ?? {}
   let physicalPenetration = stats.physicalPenetration + (unconditional.physicalPenetration ?? 0)
   let silkbindPenetration = stats.silkbindPenetration + (unconditional.silkbindPenetration ?? 0)
   let healingBonus = 0
   let criticalHealingBonus = 0
+  let healingReceivedBonus = 0
 
   for (const effect of context.effects) {
     physicalPenetration += effectValue(effect.physicalPenetration, context, stats, derivedStats)
     silkbindPenetration += effectValue(effect.silkbindPenetration, context, stats, derivedStats)
     healingBonus += effectValue(effect.healingBonus, context, stats, derivedStats)
     criticalHealingBonus += effectValue(effect.criticalHealingBonus, context, stats, derivedStats)
+    healingReceivedBonus += effectValue(effect.healingReceivedBonus, context, stats, derivedStats)
   }
 
   const attunement = matchingAttunementStats(context)
@@ -138,12 +155,12 @@ function calculateHealingBreakdownInternal(
     ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
     : 0
   const generalMultiplier = 1 + healingBonus + martialArtHealingBonus
-  const finalMultiplier = criticalMultiplier * generalMultiplier * fluctuationMultiplier
+  const finalMultiplier = criticalMultiplier * generalMultiplier * fluctuationMultiplier * (1 + healingReceivedBonus)
 
   return {
-    physical: Math.max(0, physical * finalMultiplier),
+    physical: Math.max(0, physical * finalMultiplier) + percentageHealing,
     silkbind: Math.max(0, silkbind * finalMultiplier),
-    total: Math.max(0, (physical + silkbind) * finalMultiplier),
+    total: Math.max(0, (physical + silkbind) * finalMultiplier) + percentageHealing,
     normalRate: rates.normalRate,
     criticalRate,
     ...(random ? { outcome } : {}),

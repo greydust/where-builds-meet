@@ -4,7 +4,8 @@
     "shortName": "Fan Special",
     "castTime": 0.7625,
     "action": [
-      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.55 }
+      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.55 },
+      { "type": "consumeResource", "value": "Dew", "amount": 50, "required": true, "time": 0 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "Special", "Fan", "PanaceaFan", "MorningDrizzle"],
@@ -79,7 +80,8 @@
         "attrBonus": 327,
         "time": 6.9,
         "silkbindCoef": 2.1705
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 20, "time": 0 }
     ],
     "modifier": [],
     "tags": ["Heal", "HOT", "MartialArts", "MartialArt", "Fan", "PanaceaFan", "CloudburstHealing"],
@@ -154,7 +156,8 @@
         "attrBonus": 327,
         "time": 6.9,
         "silkbindCoef": 2.1705
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 20, "time": 0 }
     ],
     "modifier": [],
     "tags": ["Heal", "HOT", "MartialArts", "MartialArt", "Fan", "PanaceaFan", "CloudburstHealing"],
@@ -176,14 +179,31 @@
         "time": 0.3125,
         "silkbindCoef": 11.7766
       },
-      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.3125 },
-      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.3125 },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125,
+        "requirement": [{ "target": "self", "value": "RoyalRemedyT3" }]
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125,
+        "requirement": [{ "target": "self", "value": "RoyalRemedyT3" }]
+      },
       {
         "type": "trigger",
         "value": "EchoesOfAThousandPlantsFanQQ",
         "time": 0.9375,
         "requirement": [{ "target": "equippedMartialArt", "value": "soulshadeUmbrella" }]
-      }
+      },
+      { "type": "consumeResource", "value": "Dew", "amount": 100, "required": true, "time": 0 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "MartialArt", "Fan", "PanaceaFan", "EndlessCloud"],
@@ -205,8 +225,25 @@
         "time": 0.3125,
         "silkbindCoef": 11.7766
       },
-      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.3125 },
-      { "type": "apply", "target": "player", "value": "MorningDrizzle", "stack": 1, "reapply": true, "time": 0.3125 }
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125,
+        "requirement": [{ "target": "self", "value": "RoyalRemedyT3" }]
+      },
+      {
+        "type": "apply",
+        "target": "player",
+        "value": "MorningDrizzle",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.3125,
+        "requirement": [{ "target": "self", "value": "RoyalRemedyT3" }]
+      },
+      { "type": "consumeResource", "value": "Dew", "amount": 100, "required": true, "time": 0 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "MartialArt", "Fan", "PanaceaFan", "EndlessCloud"],
@@ -302,7 +339,8 @@
         "attrBonus": 283,
         "time": 0.325,
         "silkbindCoef": 1.8767
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 3, "time": 0.325 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
@@ -322,7 +360,8 @@
         "attrBonus": 364,
         "time": 0.25,
         "silkbindCoef": 2.4129
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 5, "time": 0.25 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
@@ -342,7 +381,8 @@
         "attrBonus": 364,
         "time": 0.25,
         "silkbindCoef": 2.4129
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 5, "time": 0.25 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],
@@ -362,7 +402,8 @@
         "attrBonus": 506,
         "time": 0.3375,
         "silkbindCoef": 3.3512
-      }
+      },
+      { "type": "addResource", "value": "Dew", "amount": 12, "time": 0.3375 }
     ],
     "modifier": [],
     "tags": ["Heal", "MartialArts", "Heavy", "Fan", "PanaceaFan", "EmeraldDewtouch"],

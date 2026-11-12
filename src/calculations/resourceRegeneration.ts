@@ -1,6 +1,30 @@
 /** A permanent setup bonus to natural regeneration below a fraction of the resource cap. */
 export type ResourceRegenerationBonus = { resource: string; belowRatio: number; bonus: number }
 
+/** Time to fund a direct cost from natural recovery, including the shared below-cap bonus. */
+export function resourceRegenerationDelay(
+  value: number,
+  target: number,
+  rate: number,
+  maximum: number | undefined,
+  bonus: ResourceRegenerationBonus | undefined,
+) {
+  if (target <= value) return 0
+  if (rate <= 0 || (maximum !== undefined && target > maximum)) return Infinity
+  let delay = 0
+  if (bonus && maximum !== undefined && maximum > 0) {
+    const threshold = maximum * bonus.belowRatio
+    const lowAmount = Math.max(0, Math.min(target, threshold) - value)
+    if (lowAmount > 0) {
+      const lowRate = rate * (1 + bonus.bonus)
+      if (lowRate <= 0) return Infinity
+      delay += lowAmount / lowRate
+      value += lowAmount
+    }
+  }
+  return delay + Math.max(0, target - value) / rate
+}
+
 /** Integrate one constant-rate span, splitting exactly where its bonus changes. */
 export function regenerateResource(
   value: number,

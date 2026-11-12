@@ -16,7 +16,7 @@
         "time": 0.625
       }
     ],
-    "modifier": [],
+    "modifier": [{ "requirement": [{ "target": "self", "value": "MendingLoomT1" }], "effect": { "cooldown": 1 } }],
     "tags": ["DirectDamage", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella", "EchoesOfAThousandPlants"],
     "martialArt": "soulshadeUmbrella",
     "weapon": "Umbrella"
@@ -38,7 +38,7 @@
         "time": 0.625
       }
     ],
-    "modifier": [],
+    "modifier": [{ "requirement": [{ "target": "self", "value": "MendingLoomT1" }], "effect": { "cooldown": 1 } }],
     "tags": ["DirectDamage", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella", "EchoesOfAThousandPlants"],
     "martialArt": "soulshadeUmbrella",
     "weapon": "Umbrella"
@@ -59,7 +59,7 @@
         "time": 0.625
       }
     ],
-    "modifier": [],
+    "modifier": [{ "requirement": [{ "target": "self", "value": "MendingLoomT1" }], "effect": { "cooldown": 1 } }],
     "tags": ["Triggered", "EchoesOfAThousandPlants"]
   },
   "FloatingGrace": {
@@ -103,5 +103,13 @@
     "tags": ["Heal", "MartialArts", "MartialArt", "Umbrella", "SoulshadeUmbrella", "FloatingGrace"],
     "martialArt": "soulshadeUmbrella",
     "weapon": "Umbrella"
+  },
+  "MendingLoomHealing": {
+    "name": "Mending Loom",
+    "hideFromRotationEditor": true,
+    "castTime": 0,
+    "damageGroup": { "id": "MendingLoom", "name": "Mending Loom" },
+    "action": [{ "type": "heal", "maxHPRatio": 0.1, "time": 0, "phyCoef": 0.01, "silkbindCoef": 0.01 }],
+    "tags": ["Heal", "Triggered", "InnerWay", "MendingLoom"]
   }
 }

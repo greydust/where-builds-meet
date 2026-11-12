@@ -1235,6 +1235,7 @@ export function RotationEditorTab({
     settings.weapons.includes("vernalUmbrella") ||
     rotation.steps.some(step => step.type === "event" && step.event === "Blossoms")
   const displayedResources = [
+    ...(pathId === "silkbindDeluge" ? [{ resource: "Dew", label: t("system.resource.dew") }] : []),
     ...(pathId === "bamboocutDraught" ||
     settings.weapons.includes("skystrikeGauntlets") ||
     settings.weapons.includes("rivenTwinblades")

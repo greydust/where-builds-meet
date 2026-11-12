@@ -125,3 +125,35 @@ values, and glossary agreement. Numeric-format warnings require semantic inspect
 decimal commas, grouping spaces, and number words can differ without changing values.
 The published-locale test enforces the complete English key set, and the runtime
 fallback test explicitly removes a message from a locale asset.
+
+## Restoring Blossom buff tooltips (November 11, 2026)
+
+Added four messages per target language (44 cells across eleven languages):
+Nurturing and Concentration names plus their received/dealt healing descriptions.
+The 9 November export supplies the official names through buff 10235211,
+reference `104426730756145859`, and buff 10235221, reference
+`2154095943519966125`. The Concentration label appends the existing localized
+Restoring Blossom name to distinguish it from Insightful Strike's buff.
+
+Separate fresh-context AI reviewers checked all four messages in each language.
+The Vietnamese outgoing-healing description adopts the reviewer's more natural
+wording. The Japanese numeric-check warnings come from explicitly saying
+"one stack"; every description retains the 2% bonus and duration refresh.
+Official terminology and reviewed site copy are distinguished in
+`locales/glossary.json`, with scope in `locales/translation-review.json`.
+The catalog now has 2,069 fully populated messages in every published locale.
+No human language review or browser visual review was performed for these additions.
+
+## Dew resource and Mending Loom (November 11, 2026)
+
+Five added messages per target locale bring the catalog to 2,074 messages:
+the Dew column, Chill Beneath the Cloak's name/description, and two Mending Loom
+proc labels that reuse the existing canonical term. The Dew and weapon-switch
+buff text came from shared references `2327400898258542303`,
+`18193664421151597536` and `7126743673987064969` in the 9 November export.
+Separate fresh-context AI reviewers checked those three messages in all eleven
+languages. Seven descriptions clarify outgoing healing and the 30-Dew total
+generation limit; their glossary provenance is reviewed wording based on the
+official text. Verified names remain unchanged. The two proc labels inherit
+the existing Mending Loom translations. No browser inspection or human language
+review was performed for this addition.

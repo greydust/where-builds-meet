@@ -595,6 +595,7 @@ priority; ordinary `skillEnd` dispatch follows it at the same timestamp.
 
 Ordinary Inner Way triggers default to `damage`; supported event-specific setup
 rules include `heal`, `takeDamage`, `skillStart`, and `attackResponse`.
+
 Skill-start triggers run after cast acceptance but before timed actions, including
 empty and triggered skills, excluding silent components and periodic rows.
 Use `attackResponse` for successful defense rewards, not attempted cast start. The
@@ -605,6 +606,23 @@ requires an overlapping hit for rewards. The window is 0.20 seconds, or 0.25
 for Gauntlets (the lower bound of the reported 0.25–0.30 range). The weapon's
 cast time separately determines when the next ordinary attack can start.
 
+`effect.criticalHealingStacks` defines a recipient/caster critical-healing stack
+pair. Cumulative tier records patch `recipientBuff`, `casterBuff`, `duration`,
+`maxStack`, `receivedPerStack`, and `dealtPerStack`; optional `lowHPThreshold`
+and `additionalLowHPStacks` apply only to tracked Self HP. Restoring Blossom is
+the current user. Its records are based on global source Inner Way 352 and
+buffs 10235210–10235219 in the 9 November export. Nurturing's exported tooltip
+explicitly refreshes duration on stacking. Display definitions in
+`buff/silkbind-deluge.json` supply labels; the stack mechanic supplies numerical
+effects, avoiding a second timeline application.
+
+The existing critical-healing resolver owns this state alongside Ivorybloom.
+Heals use the pre-action state, then advance each recipient from its critical
+outcome. Group heals resolve all recipients before applying their stacks.
+Player-target HOTs retain their assigned recipient index. `healingReceivedBonus`
+is a calculation-time effect in the separate final received-healing bracket;
+`healingBonus` stays in the ordinary additive outgoing bracket. See the
+[healing formula](damage-formula.md#healing) for the ally-HP limitation.
 A trigger's `cooldown` is independent of the cooldown of its actions. A setup
 effect's `trigger` may be a single rule or an array of rules that each react to
 their own event; each rule keeps its own cooldown. An active self-buff may
@@ -770,11 +788,98 @@ ignores expected-state merging. Runtime `damageScale` and `hitProbability` are
 not authored fields. See the [event-loop reference](rotation-event-loop.md)
 for probability storage, correlation, and cutoff behavior.
 
+## Deluge Dew and Mending Loom
+
+Dew starts at zero and caps at 100, as confirmed by the user. Its base natural
+regeneration is 1/s in combat and 2/s out of combat, before regeneration bonuses.
+`system.json.resourceRegenerationOutOfCombat` supplies the prepull rate; the
+existing natural-resource integrator applies modifiers and splits at combat
+start. These rates add to skill-generated Dew rather than replacing it.
+Emerald Dewtouch's
+three healing contacts grant 3/5/12 Dew. Cloudburst Healing, including its cancel,
+grants 20 at cast start. The Panacea Fan water-clone talent grants 2 per received
+Cloudburst tick; Royal Remedy adds 1 at T0, replaced by 3 at T1 (alongside its
+existing 2 Vitality). The model retains its existing assumption that Self stays
+within the clone's range; party size never multiplies these personal gains.
+
+Morning Drizzle spends 50 Dew. Endless Cloud and its cancel spend 100, reduced
+to 50 by Royal Remedy T4's existing `resourceCostMultiplier` mechanism. These
+fixed costs override the ambiguous exported "consume all" text, as confirmed by
+the user. Royal Remedy T3 gates Endless Cloud's two Morning Drizzle applications.
+New resource actions are appended to the skill arrays at their authored times,
+preserving existing action indexes used by saved anchors and attachments.
+
+`required: true` on a numeric `consumeResource` action opts its ordered cast into
+the existing readiness wait. Pending resource gains and timed events continue
+while it waits. An unfundable cast with no future event is skipped; Battle End
+clips unfinished waits. Natural recovery also supplies an exact funding wakeup,
+including the shared below-cap regeneration bonus. Triggered casts retain their
+existing availability policy.
+
+Herbal Resonance retains the simulator's `EchoesOfAThousandPlants` IDs, including
+the automatic Fan QQ alias. Its Dew clock begins 1.113 seconds after buff
+application and grants 1 every second. There are 59 grants before the 60-second
+carrier expires. A hidden parent-bound periodic effect keeps this clock separate
+from the existing healing cadence. Floating Grace removes the mode and cancels
+the child's scheduled grants; refresh resets the child's cadence. Existing
+explicit recasts refresh the mode; hidden-sword recall/input
+variants are not reconstructed by this change.
+
+An explicit Switch Martial Art event into Soulshade Umbrella dispatches the
+shared `martialArtSwitch` setup trigger. Its Chill Beneath the Cloak buff grants
+2 Dew immediately and then once per second, for exactly 15 grants at offsets
+0 through 14, and 5% healing. Both Normal/Grey processed `resourceGeneration`
+records agree on that first delay, interval and tick limit. Merely casting a skill from the other
+weapon does not impersonate the native weapon-switch skill. Same-weapon switch
+events do not grant or refresh the buff. The ordinary switch event still has
+its existing zero cast time; the native attack animation/damage is not added.
+
+Mending Loom grants 5 Dew per accepted Herbal Resonance cast, including the
+automatic alias, and T1 sets their shared cooldown to one second through skill
+modifiers. A hidden permanent accumulator listens to actual `resourceSpent:Dew`
+events. It pays out at 100 consumed, or 50 at T3, retaining remainder and paying
+multiple thresholds from a single spend. Clamped/unavailable and infinite-mode
+Dew are not credited. `accumulator.preserveRemainder` opts into subtraction;
+existing accumulators retain their reset-to-zero settlement behavior.
+
+The proc resolves as one combined healing event: `heal.maxHPRatio: 0.1` adds
+10% of Self Max HP after the ordinary healing calculation, while `phyCoef: 0.01`
+and `silkbindCoef: 0.01` use the shared attack-based healing formula. Only those
+ordinary terms roll Critical healing, sampled fluctuation and ordinary healing
+bonuses. The percentage part stays outside those multipliers. Native buff
+109574 points to calcpoint 2037703 and numerical 20389001; flow 3 sums
+`BFB_QX_HEAL` and `ZD_QX_HEAL`. Dedicated percentage-heal/target/final corrections
+are distinct; they are neutral in the current model, which has no authored
+non-neutral modifier for them. Both components feed Self HP and overheal
+collectors together, and a critical ordinary component can trigger existing
+critical-healing mechanics. T2/T5 retain their sheet stats.
+T6 changes Herbal Resonance's periodic heal to Self plus one eligible ally in
+Team/Group mode using `heal.recipientCount: 2`, capped by party size. It does not
+multiply that heal by all five/ten players, or duplicate the separate Self-only
+combined recovery proc. Limited-recipient heals use the existing single-target teammate
+overheal convention. As agreed, allies are assumed eligible; T4's 50% detection
+range increase cannot alter results without ally positions or individual HP.
+
+Sources: global source skills 20301055/20301101/20301102/20301121/20602103,
+Royal Remedy 351, Mending Loom 354, and raw buffs/passives 10235110–10235113,
+10235410–10235414 and 109574 in the 9 November export. Resource 14 is Dew.
+The confirmed two-component formula is documented in
+`where-datas-mine-internal/notes/mending-loom-healing.md`. Dew clocks come from
+`export/dew-generation/2026-11-11_23-33-49-383_+0000-keH3Pw/wwm-skills-normal-all.json`
+in that repository. Natural regeneration rates are user-confirmed from both
+Normal/Grey configurations.
+
+The WTS Solo/Team presets open with Fan H1 / H2 / H3 [Cancel] / Deflect before
+Serene Breeze. Serene remains the battle-start anchor, so the refill and its
+out-of-combat recovery are prepull. The first Endless Cloud is funded without
+an automatic Dew wait, preserving the intended 20/30/50-second Qi segment.
+
 ## Resources and rotation records
 
 Resources default to zero unless initialized. Actions clamp to the named maximum
-when supplied; Vitality may go negative to expose deficits. Regeneration starts
-at battle start, not prepull. `infiniteResources` skips gains, costs, and regen
+when supplied; Vitality may go negative to expose deficits. Resources without
+an out-of-combat rate begin natural recovery at battle start; Endurance keeps
+its existing full-clock recovery. `infiniteResources` skips gains, costs, and regen
 for those resources. Universal gains belong in `system.json.resourceEvents`.
 Apply direct Mystic costs once; triggered follow-ups must not pay them again.
 

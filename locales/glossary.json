@@ -11068,5 +11068,1063 @@
     "context": "system.weapon.gauntlet",
     "origin": "reviewed",
     "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "凝心 (杏花不見)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "zh_tw",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "每層使造成的治療提高2%。獲得新層數時刷新持續時間。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "養心",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "zh_tw",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "每層使受到的治療提高2%。獲得新層數時刷新持續時間。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "凝心 (杏花不见)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "zh_cn",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "每层使造成的治疗提高2%。获得新层数时刷新持续时间。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "养心",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "zh_cn",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "每层使受到的治疗提高2%。获得新层数时刷新持续时间。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "凝心 (散花不滅)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "ja",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "1スタックにつき与える治療量が2%増加します。スタックを獲得すると持続時間が更新されます。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "養心",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "ja",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "1スタックにつき受ける治療量が2%増加します。スタックを獲得すると持続時間が更新されます。",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "집중 (만개한 복사꽃)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "ko",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "중첩당 주는 치유량이 2% 증가합니다. 중첩을 얻으면 지속 시간이 갱신됩니다.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "양심",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "ko",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "중첩당 받는 치유량이 2% 증가합니다. 중첩을 얻으면 지속 시간이 갱신됩니다.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Concentración (Flor Restauradora)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "es",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Aumenta la curación realizada un 2% por acumulación. Las nuevas acumulaciones renuevan la duración.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Crianza",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "es",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Aumenta la curación recibida un 2% por acumulación. Las nuevas acumulaciones renuevan la duración.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Concentration (Fleur Restauratrice)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "fr",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Augmente les soins prodigués de 2% par cumul. Les nouveaux cumuls réinitialisent la durée.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Éducation",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "fr",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Augmente les soins reçus de 2% par cumul. Les nouveaux cumuls réinitialisent la durée.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Konzentration (Heilende Blüte)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "de",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Erhöht die gewirkte Heilung pro Stapel um 2%. Neue Stapel setzen die Dauer zurück.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Pflege",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "de",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Erhöht die erhaltene Heilung pro Stapel um 2%. Neue Stapel setzen die Dauer zurück.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Concentração (Florescer Restaurador)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "pt_br",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Aumenta a cura realizada em 2% por acúmulo. Novos acúmulos renovam a duração.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Nutrir",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "pt_br",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Aumenta a cura recebida em 2% por acúmulo. Novos acúmulos renovam a duração.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Tập trung tâm trí (Hoa hồi phục)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "vi",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Mỗi tầng tăng 2% lượng trị liệu thực hiện. Nhận thêm tầng sẽ làm mới thời gian hiệu lực.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Dưỡng tâm",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "vi",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Mỗi tầng tăng 2% lượng trị liệu nhận được. Nhận thêm tầng sẽ làm mới thời gian hiệu lực.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "รวมใจ (ดอกแอปริคอทที่มองไม่เห็น)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "th",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "เพิ่มปริมาณการรักษาที่ทำได้ 2% ต่อชั้น เมื่อได้รับชั้นใหม่จะรีเซ็ตระยะเวลา",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "การบำรุงจิตใจ",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "th",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "เพิ่มปริมาณการรักษาที่ได้รับ 2% ต่อชั้น เมื่อได้รับชั้นใหม่จะรีเซ็ตระยะเวลา",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.name",
+    "source": "Concentration (Restoring Blossom)",
+    "translation": "Концентрация (Восстанавливающий цветок)",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialBuffName": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "2154095943519966125",
+        "language": "ru",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomConcentration.description",
+    "source": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "translation": "Увеличивает исходящее исцеление на 2% за каждый заряд. Новые заряды обновляют время действия.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.name",
+    "source": "Nurturing",
+    "translation": "Воспитание",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "104426730756145859",
+      "language": "ru",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.RestoringBlossomNurturing.description",
+    "source": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "translation": "Увеличивает получаемое исцеление на 2% за каждый заряд. Новые заряды обновляют время действия.",
+    "context": "Restoring Blossom critical-healing buff; caster dealt versus recipient received healing",
+    "origin": "reviewed",
+    "evidence": { "kind": "independent-ai-review", "report": "doc/localization-review.md", "date": "2026-11-11" }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "造成的治療效果提升5%，持續獲得露水（獲得上限30點）。",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "7126743673987064969",
+      "language": "zh_tw",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "造成的治疗效果提升5%，持续获得露水（获得上限30点）。",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "7126743673987064969",
+      "language": "zh_cn",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "与える治療効果+5%。持続的に露水を獲得（30まで）",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "7126743673987064969",
+      "language": "ja",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "주는 치유 효과 5% 증가, 지속적으로 이슬을 획득한다(최대 30 획득).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "7126743673987064969",
+      "language": "ko",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Aumenta la curación realizada en un 5% y genera Rocío continuamente (hasta un total de 30 puntos).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "es",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Augmente les soins prodigués de 5 % et génère continuellement de la Rosée (jusqu’à 30 points au total).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "fr",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Erhöht die bewirkte Heilung um 5% und erzeugt kontinuierlich Tau (insgesamt bis zu 30).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "de",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Aumenta a cura realizada em 5% e gera Orvalho continuamente (até um total de 30).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "pt_br",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Tăng lượng trị liệu thực hiện thêm 5% và liên tục nhận được Sương sớm (tổng cộng tối đa 30 điểm).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "vi",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "เพิ่มประสิทธิภาพการรักษาที่ทำได้ 5% และได้รับน้ำค้างอย่างต่อเนื่อง รวมสูงสุด 30 หน่วย",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "th",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.description",
+    "source": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "translation": "Увеличивает исходящее исцеление на 5% и непрерывно создаёт Росу (до 30 ед. суммарно).",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "reviewed",
+    "evidence": {
+      "kind": "independent-ai-review",
+      "report": "doc/localization-review.md",
+      "date": "2026-11-11",
+      "officialSource": {
+        "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+        "reference": "7126743673987064969",
+        "language": "ru",
+        "layer": "base"
+      }
+    }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "披衣寒",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "zh_tw",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "披衣寒",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "zh_cn",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "寒衣を纏う",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "ja",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "피의한",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "ko",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "es",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Frescor Bajo el Manto",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "es",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Frisson sous le Manteau",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "fr",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "de",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Kühle unter dem Mantel",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "de",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Frio Sob o Manto",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "pt_br",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Áo Lạnh",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "vi",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "th",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "เสื้อคลุมหนาว",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "th",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "data.buff.silkbindDeluge.ChillBeneathTheCloak.name",
+    "source": "Chill Beneath the Cloak",
+    "translation": "Холод под плащом",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "18193664421151597536",
+      "language": "ru",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "露水",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "zh_tw",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "露水",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "zh_cn",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "露",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "ja",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "이슬",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "ko",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "es",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Rocío",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "es",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Rosée",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "fr",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "de",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Tau",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "de",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Orvalho",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "pt_br",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Sương sớm",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "vi",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "th",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "น้ำค้าง",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "th",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "system.resource.dew",
+    "source": "Dew",
+    "translation": "Роса",
+    "context": "Panacea Fan and Soulshade Umbrella resource; weapon-switch buff 1058050",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+      "reference": "2327400898258542303",
+      "language": "ru",
+      "layer": "base"
+    }
   }
 ]

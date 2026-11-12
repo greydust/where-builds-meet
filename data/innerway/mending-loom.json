@@ -1,9 +1,22 @@
 {
   "name": "Mending Loom",
   "altersTimeline": true,
-  "tags": [],
+  "tags": ["SilkbindDeluge"],
   "effect": {
-    "MendingLoomT0": {},
+    "MendingLoomT0": {
+      "trigger": [
+        {
+          "event": "skillStart",
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MendingLoomCounter" }] }],
+          "action": [{ "type": "apply", "target": "self", "value": "MendingLoomCounter", "stack": 1 }]
+        },
+        {
+          "event": "skillStart",
+          "requirement": [{ "target": "skillTag", "value": "EchoesOfAThousandPlants" }],
+          "action": [{ "type": "addResource", "value": "Dew", "amount": 5 }]
+        }
+      ]
+    },
     "MendingLoomT1": {},
     "MendingLoomT2": {
       "effect": [
@@ -73,7 +86,22 @@
         }
       ]
     },
-    "MendingLoomT3": {},
+    "MendingLoomT3": {
+      "effect": [
+        {
+          "target": "MendingLoomCounter",
+          "modify": {
+            "accumulator": {
+              "threshold": 50,
+              "event": "resourceSpent:Dew",
+              "checkEvent": "MendingLoomHeal",
+              "resetOnRefresh": false,
+              "preserveRemainder": true
+            }
+          }
+        }
+      ]
+    },
     "MendingLoomT4": {},
     "MendingLoomT5": { "effect": [{ "rawStat": { "physicalHealingBonus": 0.025 } }] },
     "MendingLoomT6": {}

@@ -46,6 +46,9 @@ describe("deluge-wts-rotation", () => {
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
+      // This fixture isolates the authored sequence/cooldowns without a build setup.
+      // Finite production Dew is covered by dew-resource.test.ts and the DPS guard.
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     }
     const timeline = buildRotationTimeline(timelineInput)

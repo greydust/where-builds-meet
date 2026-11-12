@@ -747,6 +747,32 @@ being read from the timeline, so every setup comparison variant built for that
 rotation inherits it. The rotation participates in the worker fingerprint as a
 whole, so toggling it invalidates cached results.
 
+Restoring Blossom extends `criticalHealingBuff.ts` with joint caster/recipient
+stack marginals. Each recipient retains its Nurturing count/expiry paired with
+the shared Concentration count/expiry and Ivorybloom retention expiry. This
+preserves the correlations needed for healing without enumerating all party
+stack combinations. Identical states merge without discarding probability.
+The live shared resolver calculates healing, updates Self HP/overheal collectors,
+and advances critical-heal state for subsequent events. Comparisons resolve
+their own critical probabilities and Inner Way selection; rate-only shortcuts
+exclude these stack-sensitive entries. The Rotation Editor displays expected
+Self Nurturing and caster Concentration through its existing buff plates.
+
+Deluge's Dew meter uses the same numeric resource ledger and displayed-resource
+columns as the other paths. Required direct costs reuse ordered readiness waits;
+queued gains continue during the wait, and comparisons rebuild their own resource
+timeline. Accepted skill-start triggers initialize Mending Loom's hidden counter
+and grant its cast refund. Actual direct spending emits a targeted accumulator
+event, and threshold settlement uses the existing triggered-skill path. The
+healing calculator adds fixed Max-HP recovery after its ordinary attack-based
+term, preserving one outcome/event for their sum. Limited-recipient healing
+uses the same live calculator, Self HP meter and overheal collectors. Dew's
+separate in/out-of-combat natural rates use the shared integrator and modifiers.
+Herbal Resonance's parent-bound resource carrier owns its exported clock;
+removing the parent cancels the child's pending periodic rows. See
+[Dew and Mending Loom](skill-data.md#deluge-dew-and-mending-loom) for source
+boundaries, confirmed timings and the agreed ally limitation.
+
 Timeline construction records an auditable numeric-resource ledger alongside
 the first sorted row. The worker uses the ledger's consumed and final Vitality
 to apply any rotation-wide Mystic damage sustainability correction only to the
