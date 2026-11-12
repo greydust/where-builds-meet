@@ -55,6 +55,7 @@ export type SystemStatsDefinition = {
   initialResources: Record<string, number>
   resourceMaximums: Record<string, number>
   resourceRegeneration?: Record<string, number>
+  resourceRegenerationOutOfCombat?: Record<string, number>
   resourceSpendRegenDelay?: Record<string, number>
   resourceEvents: ResourceEventRule[]
   baseStats: SetupEffect

@@ -123,6 +123,7 @@ describe("attunement-import", () => {
     }
     const stats = {
       ...emptyStats,
+      maxHp: 10000,
       minPhys: 100,
       maxPhys: 100,
       minBellstrike: 100,

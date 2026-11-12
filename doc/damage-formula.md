@@ -692,6 +692,7 @@ Final Healing =
   (Physical Healing + Silkbind Healing)
   × Expected Critical Multiplier
   × (1 + Healing Bonus Category)
+  × (1 + Healing Received Bonus)
 ```
 
 The base Critical Healing Bonus is the `0.5` character stat supplied by
@@ -704,6 +705,41 @@ DPS. A skill marked `group: true` reports `Final Healing × Group Size`, where
 Group Size is 1, 5, or 10. Per-skill healing breakdowns report the average
 Normal and Critical outcome rates across that skill's healing actions; abrasion
 and affinity are always absent.
+
+Restoring Blossom's Nurturing adds 2% Healing Received Bonus per recipient
+stack; Concentration adds 2% per caster stack to the Healing Bonus Category
+from T3. Each critical recipient grants a stack after the heal resolves, so a
+group heal can grant several caster stacks while recipients keep separate
+Nurturing counts. New stacks refresh the whole buff, including at the cap.
+T0 lasts six seconds and caps at three; T1 lasts ten seconds; T4 caps both at
+six. T2/T5 retain their existing sheet bonuses.
+
+T6 adds two additional stacks of each buff when the healed Self is strictly
+below 30% HP **before** the heal. Allies have no tracked HP; their low-HP T6
+procs are deliberately omitted, as agreed. Expected calculations use the
+existing mean Self HP meter, not a distribution of HP across critical histories.
+Other healers' contributions and their Nurturing applications are not modeled.
+
+Mending Loom's spending-triggered recovery is one healing event with two terms:
+`Recovery = Self Max HP × 0.1 + Ordinary Healing(Physical coefficient 0.01,
+Silkbind coefficient 0.01)`. Ordinary healing uses the formula above, including
+Critical healing, Physical/Silkbind healing bonuses, received-healing effects
+and sampled fluctuation. The percentage term is added afterward and does not
+receive those multipliers. A critical ordinary term therefore does not turn
+the 10%-HP portion into 15%. The source's dedicated percentage-heal correction,
+target correction and shared final adjustments are distinct; the current model
+uses their neutral values because no non-neutral modifier is authored.
+Both terms restore Self HP and feed overheal collectors as one event, including
+World to Sword. T6 adds one eligible ally to Herbal Resonance's periodic heal;
+it does not duplicate the separate Self-only combined recovery. See
+[Dew and Mending Loom](skill-data.md#deluge-dew-and-mending-loom) for provenance.
+
+Expected healing retains the joint caster/recipient stack counts and refresh
+deadlines, including their correlation with Ivorybloom's critical-heal retention.
+It evaluates `E[(G + C)(1 + N)]`, where `G` is the ordinary outgoing healing
+bracket and `C`/`N` are Concentration/Nurturing bonuses; multiplying independent
+average stacks would lose the shared-critical contribution. Sampled fights use
+each recipient's actual critical outcome through the same healing calculator.
 Simulation independently rolls each recipient's Normal or Critical result and
 a uniform final-healing multiplier from `0.92` through `1.08`. This fluctuation
 is applied after the outcome and healing-bonus multipliers. It does not affect

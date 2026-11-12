@@ -1,15 +1,14 @@
+import paths from "@gamedata/path.json"
+import regularFire from "@gamedata/rotation/silkbind-deluge/dummy-1-min-regular-fire.json"
+import smolder from "@gamedata/rotation/silkbind-deluge/dummy-1-min-smolder.json"
+import wtsTeam from "@gamedata/rotation/silkbind-deluge/dummy-1-min-wts-team.json"
+import wts from "@gamedata/rotation/silkbind-deluge/dummy-1-min-wts.json"
 import { assert, describe, expect, it } from "vitest"
 
+import { buildPresetRotationBundle } from "@/application/graduation"
+import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
+import { compareTimelineTime, type RotationRecord } from "@/calculations/rotationTimeline"
 import { defaultGlobalDebuffs } from "@/globalDebuffs"
-
-import paths from "../data/path.json"
-import regularFire from "../data/rotation/silkbind-deluge/dummy-1-min-regular-fire.json"
-import smolder from "../data/rotation/silkbind-deluge/dummy-1-min-smolder.json"
-import wtsTeam from "../data/rotation/silkbind-deluge/dummy-1-min-wts-team.json"
-import wts from "../data/rotation/silkbind-deluge/dummy-1-min-wts.json"
-import { buildPresetRotationBundle } from "../src/application/graduation"
-import { calculateRotationBaseline } from "../src/calculations/rotationCalculator"
-import { compareTimelineTime, type RotationRecord } from "../src/calculations/rotationTimeline"
 
 describe("Deluge Qi timing", () => {
   it.each([
@@ -42,6 +41,24 @@ describe("Deluge Qi timing", () => {
     const ordered = timeline
       .filter(row => row.kind === "rotation" && row.step.type === "skill" && !row.skipped)
       .sort((a, b) => (a.rotationIndex ?? 0) - (b.rotationIndex ?? 0))
+    if (preset === wts || preset === wtsTeam) {
+      const firstCloud = ordered.find(row => row.step.skill?.startsWith("EndlessCloud"))!
+      assert(anchor.resources.Dew >= 20, "The prepull refill must generate Dew before combat.")
+      assert(
+        firstCloud.resources.Dew >= firstCloud.resourceConsumption!.Dew,
+        "The first Endless Cloud must be fully funded.",
+      )
+      assert(
+        !timeline.some(
+          row =>
+            row.startTime < firstCloud.startTime &&
+            row.step.type === "event" &&
+            row.step.event === "Delay" &&
+            row.step.automatic === "requirement",
+        ),
+        "The opener must fund the first Endless Cloud without a resource wait.",
+      )
+    }
     const attacks = timeline.filter(row => row.step.type === "event" && row.step.event === "TakeDamage")
     for (let index = 0; index < ordered.length; index++) {
       const row = ordered[index]

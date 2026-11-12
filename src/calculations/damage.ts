@@ -99,6 +99,8 @@ export type AttunementStats = {
 export const ENEMY_DEFENSE = 405
 
 export type DamageAction = {
+  /** Additive Max-HP recovery. Only the ordinary attack terms roll/scale with healing bonuses. */
+  maxHPRatio?: unknown
   type?: unknown
   phyCoef?: unknown
   attrCoef?: unknown

@@ -6,6 +6,16 @@
     "RoyalRemedyT0": {
       "effect": [
         { "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }], "effect": { "healingBonus": 0.1 } }
+      ],
+      "trigger": [
+        {
+          "event": "heal",
+          "requirement": [
+            { "target": "skillTag", "value": "CloudburstHealing" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "RoyalRemedyT1" }] }
+          ],
+          "action": [{ "type": "addResource", "value": "Dew", "amount": 1 }]
+        }
       ]
     },
     "RoyalRemedyT1": {
@@ -13,7 +23,10 @@
         {
           "event": "heal",
           "requirement": [{ "target": "skillTag", "value": "CloudburstHealing" }],
-          "action": [{ "type": "addResource", "value": "Vitality", "amount": 2 }]
+          "action": [
+            { "type": "addResource", "value": "Vitality", "amount": 2 },
+            { "type": "addResource", "value": "Dew", "amount": 3 }
+          ]
         }
       ]
     },
@@ -56,7 +69,14 @@
       ]
     },
     "RoyalRemedyT3": {},
-    "RoyalRemedyT4": {},
+    "RoyalRemedyT4": {
+      "effect": [
+        {
+          "requirement": [{ "target": "skillTag", "value": "EndlessCloud" }],
+          "effect": { "resourceCostMultiplier": { "Dew": 0.5 } }
+        }
+      ]
+    },
     "RoyalRemedyT5": { "effect": [{ "rawStat": { "directCrit": 0.046 } }] },
     "RoyalRemedyT6": {}
   }

@@ -4258,10 +4258,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 52285.313869694925,
-      "totalDamage": 3137118.8321816954,
-      "hps": 108110.48926221201,
-      "totalHealing": 6486629.35573272,
+      "dps": 52351.69870984719,
+      "totalDamage": 3141101.9225908313,
+      "hps": 108212.96890743409,
+      "totalHealing": 6492778.134446045,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-full-max-ib/19": {
@@ -4287,10 +4287,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 55134.46413471706,
-      "totalDamage": 3308067.848083024,
-      "hps": 112108.63681116965,
-      "totalHealing": 6726518.208670179,
+      "dps": 55204.23197483014,
+      "totalDamage": 3312253.918489808,
+      "hps": 112214.63503412386,
+      "totalHealing": 6732878.102047431,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-affinity/18": {
@@ -4316,10 +4316,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 48484.43088214814,
-      "totalDamage": 2909065.8529288885,
-      "hps": 85706.52777144985,
-      "totalHealing": 5142391.666286991,
+      "dps": 48550.031384672926,
+      "totalDamage": 2913001.8830803754,
+      "hps": 85787.45111997417,
+      "totalHealing": 5147247.06719845,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-affinity/19": {
@@ -4345,10 +4345,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 51152.19634526208,
-      "totalDamage": 3069131.7807157245,
-      "hps": 89531.50260253195,
-      "totalHealing": 5371890.156151917,
+      "dps": 51221.19110142641,
+      "totalDamage": 3073271.466085585,
+      "hps": 89615.83828267056,
+      "totalHealing": 5376950.296960234,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-hw/18": {
@@ -4374,10 +4374,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 47551.99501802421,
-      "totalDamage": 2853119.7010814524,
-      "hps": 92781.19995568639,
-      "totalHealing": 5566871.997341183,
+      "dps": 47614.63539523419,
+      "totalDamage": 2856878.123714051,
+      "hps": 92867.05153886713,
+      "totalHealing": 5572023.092332028,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-hw/19": {
@@ -4403,10 +4403,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 50146.790595836785,
-      "totalDamage": 3008807.435750207,
-      "hps": 96927.93281100011,
-      "totalHealing": 5815675.968660006,
+      "dps": 50212.69270445691,
+      "totalDamage": 3012761.5622674148,
+      "hps": 97017.40436471626,
+      "totalHealing": 5821044.261882976,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-ib/18": {
@@ -4432,10 +4432,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 50710.61439271237,
-      "totalDamage": 3042636.8635627422,
-      "hps": 105982.14054889858,
-      "totalHealing": 6358928.4329339145,
+      "dps": 50775.166395055065,
+      "totalDamage": 3046509.983703304,
+      "hps": 106082.65688877624,
+      "totalHealing": 6364959.4133265745,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-max-ib/19": {
@@ -4461,10 +4461,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 53564.985847060605,
-      "totalDamage": 3213899.1508236364,
-      "hps": 110058.92219754434,
-      "totalHealing": 6603535.3318526605,
+      "dps": 53632.94801759993,
+      "totalDamage": 3217976.881055996,
+      "hps": 110163.03942067908,
+      "totalHealing": 6609782.365240745,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-min-ew/18": {
@@ -4490,10 +4490,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 47809.91535522284,
-      "totalDamage": 2868594.92131337,
-      "hps": 102899.42830973951,
-      "totalHealing": 6173965.69858437,
+      "dps": 47870.067147894646,
+      "totalDamage": 2872204.0288736788,
+      "hps": 102993.18299734635,
+      "totalHealing": 6179590.979840781,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-min-ew/19": {
@@ -4519,10 +4519,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 50067.3613674663,
-      "totalDamage": 3004041.682047978,
-      "hps": 106146.86088323625,
-      "totalHealing": 6368811.652994175,
+      "dps": 50130.13691852936,
+      "totalDamage": 3007808.2151117614,
+      "hps": 106243.2932635523,
+      "totalHealing": 6374597.595813138,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-min-ib/18": {
@@ -4548,10 +4548,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 50227.370464215484,
-      "totalDamage": 3013642.227852929,
-      "hps": 105434.89774866814,
-      "totalHealing": 6326093.864920088,
+      "dps": 50287.81717454786,
+      "totalDamage": 3017269.030472872,
+      "hps": 105532.43671574174,
+      "totalHealing": 6331946.202944505,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts-team/deluge-fully-relayed-min-ib/19": {
@@ -4577,10 +4577,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 52656.2726604264,
-      "totalDamage": 3159376.359625584,
-      "hps": 108800.82165446026,
-      "totalHealing": 6528049.299267616,
+      "dps": 52719.457433302225,
+      "totalDamage": 3163167.4459981336,
+      "hps": 108901.20102234306,
+      "totalHealing": 6534072.0613405835,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-full-max-ib/18": {
@@ -4606,10 +4606,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 47178.0526211552,
-      "totalDamage": 2830683.157269312,
-      "hps": 36615.75678817916,
-      "totalHealing": 2196945.4072907497,
+      "dps": 46330.57901985369,
+      "totalDamage": 2779834.7411912214,
+      "hps": 36648.58379305246,
+      "totalHealing": 2198915.0275831474,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-full-max-ib/19": {
@@ -4635,10 +4635,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 49745.46550614525,
-      "totalDamage": 2984727.930368715,
-      "hps": 37972.01818741863,
-      "totalHealing": 2278321.091245118,
+      "dps": 48850.97788367166,
+      "totalDamage": 2931058.6730202995,
+      "hps": 38005.972648699404,
+      "totalHealing": 2280358.358921964,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-affinity/18": {
@@ -4664,10 +4664,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 43374.95162596677,
-      "totalDamage": 2602497.097558006,
-      "hps": 29016.285531915142,
-      "totalHealing": 1740977.1319149085,
+      "dps": 43440.55249932394,
+      "totalDamage": 2606433.149959436,
+      "hps": 29041.79215194114,
+      "totalHealing": 1742507.5291164683,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-affinity/19": {
@@ -4693,10 +4693,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 45759.66975223262,
-      "totalDamage": 2745580.1851339573,
-      "hps": 30328.48013348582,
-      "totalHealing": 1819708.8080091493,
+      "dps": 45828.66489335638,
+      "totalDamage": 2749719.8936013826,
+      "hps": 30355.083966709346,
+      "totalHealing": 1821305.0380025608,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-hw/18": {
@@ -4722,10 +4722,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 43491.87248500997,
-      "totalDamage": 2609512.349100598,
-      "hps": 31636.62214811267,
-      "totalHealing": 1898197.3288867602,
+      "dps": 43072.6191150551,
+      "totalDamage": 2584357.1469033062,
+      "hps": 31660.491279883914,
+      "totalHealing": 1899629.476793035,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-hw/19": {
@@ -4751,10 +4751,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 45864.85040029173,
-      "totalDamage": 2751891.024017504,
-      "hps": 33067.007371244836,
-      "totalHealing": 1984020.4422746901,
+      "dps": 45422.79176896608,
+      "totalDamage": 2725367.506137965,
+      "hps": 33091.99645437001,
+      "totalHealing": 1985519.7872622006,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-ib/18": {
@@ -4780,10 +4780,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 45760.9384465069,
-      "totalDamage": 2745656.3067904143,
-      "hps": 35904.440829339655,
-      "totalHealing": 2154266.4497603793,
+      "dps": 44939.555877745086,
+      "totalDamage": 2696373.3526647054,
+      "hps": 35936.64185182291,
+      "totalHealing": 2156198.5111093745,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-max-ib/19": {
@@ -4809,10 +4809,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 48333.223265479704,
-      "totalDamage": 2899993.3959287824,
-      "hps": 37289.293702666684,
-      "totalHealing": 2237357.622160001,
+      "dps": 47464.776118330075,
+      "totalDamage": 2847886.5670998045,
+      "hps": 37322.65080266035,
+      "totalHealing": 2239359.0481596207,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-min-ew/18": {
@@ -4838,10 +4838,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 43835.923371978555,
-      "totalDamage": 2630155.4023187133,
-      "hps": 34973.55221672258,
-      "totalHealing": 2098413.1330033545,
+      "dps": 43436.67660801323,
+      "totalDamage": 2606200.596480794,
+      "hps": 35003.88164282443,
+      "totalHealing": 2100232.898569466,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-min-ew/19": {
@@ -4867,10 +4867,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 45903.006174309216,
-      "totalDamage": 2754180.370458553,
-      "hps": 36078.929603732526,
-      "totalHealing": 2164735.7762239515,
+      "dps": 45484.387222271085,
+      "totalDamage": 2729063.233336265,
+      "hps": 36110.126010098465,
+      "totalHealing": 2166607.560605908,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-min-ib/18": {
@@ -4896,10 +4896,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 44437.58966496491,
-      "totalDamage": 2666255.3798978943,
-      "hps": 35719.87782855832,
-      "totalHealing": 2143192.669713499,
+      "dps": 44480.17965681511,
+      "totalDamage": 2668810.7794089066,
+      "hps": 35751.12926112347,
+      "totalHealing": 2145067.755667408,
       "duration": 60
     },
     "silkbindDeluge/dummy-1-min-wts/deluge-fully-relayed-min-ib/19": {
@@ -4925,10 +4925,10 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 46582.84976987051,
-      "totalDamage": 2794970.9861922306,
-      "hps": 36862.00033911305,
-      "totalHealing": 2211720.020346783,
+      "dps": 46627.30325928455,
+      "totalDamage": 2797638.1955570728,
+      "hps": 36894.16217960136,
+      "totalHealing": 2213649.7307760813,
       "duration": 60
     },
     "silkbindJade/jade-flying/jade-bp-max/18": {

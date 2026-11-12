@@ -1,4 +1,14 @@
 {
+  "RestoringBlossomNurturing": {
+    "name": "Nurturing",
+    "description": "Increases healing received by 2% per stack. New stacks refresh the duration.",
+    "maxStack": 6
+  },
+  "RestoringBlossomConcentration": {
+    "name": "Concentration (Restoring Blossom)",
+    "description": "Increases healing dealt by 2% per stack. New stacks refresh the duration.",
+    "maxStack": 6
+  },
   "EchoesOfAThousandPlants": {
     "name": "Echoes of a Thousand Plants",
     "shortName": "Echoes",
@@ -18,13 +28,29 @@
           "phyBonus": 214,
           "attrBonus": 116,
           "time": 0,
-          "silkbindCoef": 0.7721
+          "silkbindCoef": 0.7721,
+          "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "MendingLoomT6" }] }]
+        },
+        {
+          "type": "heal",
+          "averageAttack": true,
+          "phyCoef": 0.7721,
+          "phyBonus": 214,
+          "attrBonus": 116,
+          "time": 0,
+          "silkbindCoef": 0.7721,
+          "requirement": [{ "target": "self", "value": "MendingLoomT6" }],
+          "recipientCount": 2
         }
-      ]
+      ],
+      "tickOnExpire": true
     },
     "effect": [{ "effect": { "healingBonus": 0.15 } }],
     "modifier": [],
-    "tags": ["Heal", "HOT", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"]
+    "tags": ["Heal", "HOT", "MartialArts", "Special", "Umbrella", "SoulshadeUmbrella"],
+    "action": [
+      { "type": "apply", "target": "self", "value": "HerbalResonanceDew", "stack": 1, "reapply": true, "time": 0 }
+    ]
   },
   "MorningDrizzle": {
     "name": "Morning Drizzle",
@@ -68,5 +94,59 @@
     "maxStack": 1,
     "refresh": true,
     "effect": [{ "effect": { "dmgBonus": 0.24 } }]
+  },
+  "MendingLoomCounter": {
+    "hidden": true,
+    "maxStack": 1,
+    "accumulator": {
+      "event": "resourceSpent:Dew",
+      "threshold": 100,
+      "checkEvent": "MendingLoomHeal",
+      "resetOnRefresh": false,
+      "preserveRemainder": true
+    },
+    "listen": [{ "event": "MendingLoomHeal", "action": { "type": "trigger", "value": "MendingLoomHealing" } }]
+  },
+  "ChillBeneathTheCloak": {
+    "name": "Chill Beneath the Cloak",
+    "description": "Increases healing by 5% and generates Dew continuously (up to 30).",
+    "duration": 15,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [{ "effect": { "healingBonus": 0.05 } }],
+    "periodic": {
+      "interval": 1,
+      "firstTick": 0,
+      "resetOnRefresh": true,
+      "action": [{ "type": "addResource", "value": "Dew", "amount": 2, "time": 0 }],
+      "tickOnExpire": false
+    }
+  },
+  "SoulshadeDewRules": {
+    "global": { "equippedMartialArt": "soulshadeUmbrella" },
+    "effect": [
+      {
+        "trigger": {
+          "event": "martialArtSwitch",
+          "requirement": [{ "target": "currentMartialArt", "value": "soulshadeUmbrella" }],
+          "action": [
+            { "type": "apply", "target": "self", "value": "ChillBeneathTheCloak", "stack": 1, "reapply": true }
+          ]
+        }
+      }
+    ]
+  },
+  "HerbalResonanceDew": {
+    "hidden": true,
+    "parentEffect": "EchoesOfAThousandPlants",
+    "duration": 60,
+    "maxStack": 1,
+    "refresh": true,
+    "periodic": {
+      "interval": 1,
+      "firstTick": 1.113,
+      "resetOnRefresh": true,
+      "action": [{ "type": "addResource", "value": "Dew", "amount": 1, "time": 0 }]
+    }
   }
 }

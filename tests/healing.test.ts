@@ -1,30 +1,30 @@
+import mysticBuffsJson from "@gamedata/buff/mystic.json"
 import { describe, expect, it } from "vitest"
 
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import type { DamageContext } from "@/calculations/damage"
 import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
 import type { TimelineBuildInput } from "@/calculations/rotationTimeline"
-
-import mysticBuffsJson from "../data/buff/mystic.json"
 const mysticBuffs = asEffectDefinitions(mysticBuffsJson)
-import delugeBuffsJson from "../data/buff/silkbind-deluge.json"
+import delugeBuffsJson from "@gamedata/buff/silkbind-deluge.json"
 const delugeBuffs = asEffectDefinitions(delugeBuffsJson)
-import royalRemedy from "../data/innerway/royal-remedy.json"
-import mysticSkillsJson from "../data/skill/mystic.json"
+import royalRemedy from "@gamedata/innerway/royal-remedy.json"
+import mysticSkillsJson from "@gamedata/skill/mystic.json"
 const mysticSkills = asSkillRecords(mysticSkillsJson)
-import panaceaFanSkillsJson from "../data/skill/panacea-fan.json"
+import panaceaFanSkillsJson from "@gamedata/skill/panacea-fan.json"
 const panaceaFanSkills = asSkillRecords(panaceaFanSkillsJson)
-import soulshadeUmbrellaSkillsJson from "../data/skill/soulshade-umbrella.json"
+import soulshadeUmbrellaSkillsJson from "@gamedata/skill/soulshade-umbrella.json"
 const soulshadeUmbrellaSkills = asSkillRecords(soulshadeUmbrellaSkillsJson)
-import { calculateDerivedStats } from "../src/calculations/effectiveStats"
-import { calculateHealingAttackSnapshot, calculateHealingBreakdown } from "../src/calculations/healing"
+import { calculateDerivedStats } from "@/calculations/effectiveStats"
+import { calculateHealingAttackSnapshot, calculateHealingBreakdown } from "@/calculations/healing"
 import {
   calculateRotationBaseline,
   calculateRotationSimulation,
   calculateSimulatedRotationRun,
-} from "../src/calculations/rotationCalculator"
-import { buildRotationTimeline, mergeCalculatedTimelineState } from "../src/calculations/rotationTimeline"
-import { emptyStats } from "../src/data/statDefinitions"
+} from "@/calculations/rotationCalculator"
+import { buildRotationTimeline, mergeCalculatedTimelineState } from "@/calculations/rotationTimeline"
+import { emptyStats } from "@/data/statDefinitions"
+
 import { isClose } from "./helpers/floatEquality"
 import { castStep } from "./helpers/rotationSteps"
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
@@ -358,6 +358,7 @@ describe("healing", () => {
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
     const morningDrizzleTicks = morningDrizzleTimeline
@@ -379,6 +380,7 @@ describe("healing", () => {
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
     const refreshedMorningDrizzleTicks = refreshedMorningDrizzleTimeline
@@ -400,9 +402,10 @@ describe("healing", () => {
       eventDefinitions: {},
       dots: {},
       effectDefinitions: { MorningDrizzle: delugeBuffs.MorningDrizzle },
-      innerWayConditions: [],
+      innerWayConditions: ["RoyalRemedyT0", "RoyalRemedyT1", "RoyalRemedyT2", "RoyalRemedyT3"],
       innerWayRules: [],
       setupEffects: [],
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
     const teamMorningDrizzleTicks = teamEndlessCloudTimeline.filter(
@@ -430,6 +433,7 @@ describe("healing", () => {
       innerWayConditions: [],
       innerWayRules: [],
       setupEffects: [],
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
     })
     const replacementObservation = rowCasting(replacedMorningDrizzleTimeline, "Observe")
@@ -463,7 +467,11 @@ describe("healing", () => {
     const echoesTimeline = buildRotationTimeline(echoesTimelineInput)
     const echoesTicks = echoesTimeline
       .filter(
-        row => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "EchoesOfAThousandPlants",
+        row =>
+          row.kind === "periodic" &&
+          row.step.type === "skill" &&
+          row.step.skill === "EchoesOfAThousandPlants" &&
+          row.actions.some(action => action.type === "heal"),
       )
       .map(row => row.startTime)
     expect(
@@ -524,7 +532,11 @@ describe("healing", () => {
     })
     expect(
       !consumedEchoesTimeline.some(
-        row => row.kind === "periodic" && row.step.type === "skill" && row.step.skill === "EchoesOfAThousandPlants",
+        row =>
+          row.kind === "periodic" &&
+          row.step.type === "skill" &&
+          row.step.skill === "EchoesOfAThousandPlants" &&
+          row.actions.some(action => action.type === "heal"),
       ),
       "Casting Floating Grace must consume Echoes of a Thousand Plants before its pending healing ticks resolve.",
     ).toBeTruthy()
@@ -828,9 +840,10 @@ describe("healing", () => {
       eventDefinitions: { Delay: { name: "Delay", castTime: 0, action: [], tags: ["Event"] } },
       dots: {},
       effectDefinitions: delugeBuffs,
-      innerWayConditions: [],
+      innerWayConditions: ["RoyalRemedyT0", "RoyalRemedyT1", "RoyalRemedyT2", "RoyalRemedyT3"],
       innerWayRules: [],
       setupEffects: [],
+      infiniteResources: ["Dew"],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
       martialArtState: { panaceaFan: { weapon: "Fan" }, soulshadeUmbrella: { weapon: "Umbrella" } },
     })

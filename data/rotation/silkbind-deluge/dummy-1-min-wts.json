@@ -3,8 +3,12 @@
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "targetType": "DummyAttack",
   "eventTimeReference": "battleStart",
-  "start": { "step": 0 },
+  "start": { "step": 4 },
   "steps": [
+    { "type": "skill", "skill": "EmeraldDewtouch1" },
+    { "type": "skill", "skill": "EmeraldDewtouch2" },
+    { "type": "skill", "skill": "EmeraldDewtouch3Cancel" },
+    { "type": "skill", "skill": "Deflect" },
     { "type": "skill", "skill": "SereneBreeze" },
     { "type": "skill", "skill": "FloatingGrace" },
     { "type": "event", "event": "Delay", "duration": 0.05 },

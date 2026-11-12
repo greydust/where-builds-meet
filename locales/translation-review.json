@@ -21686,5 +21686,29 @@
     ],
     "review": "Separate-author AI review for each of the 11 target languages; Japanese duplicate Back markers removed, Russian activation counts clarified. No native-speaker human review or browser visual review.",
     "validation": "Canonical term reuse; every explicit Cancel variant checked for a consistent locale marker; published catalog coverage complete."
+  },
+  "restoringBlossom": {
+    "date": "2026-11-11",
+    "sourceSnapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+    "messagesPerLocale": 4,
+    "locales": ["zh-Hant", "zh-Hans", "ja", "ko", "es", "fr", "de", "pt", "vi", "th", "ru"],
+    "sourceBuffs": {
+      "Nurturing": { "id": 10235211, "reference": "104426730756145859" },
+      "Concentration": { "id": 10235221, "reference": "2154095943519966125" }
+    },
+    "review": "Separate fresh-context AI reviewer per target language reviewed all four messages. Preserved official buff names; reused existing localized Restoring Blossom name as a qualifier. Adopted Vietnamese outgoing-healing wording improvement. Japanese numeric warnings are the explicit 1 in 1 stack, not a changed bonus.",
+    "humanReview": false,
+    "browserReview": false,
+    "correctionKeys": ["vi:data.buff.silkbindDeluge.RestoringBlossomConcentration.description"]
+  },
+  "dewAndMendingLoom": {
+    "date": "2026-11-11",
+    "sourceSnapshot": "2026-11-09_05-54-00-540_+0000-FVu9ar",
+    "newMessages": 5,
+    "locales": ["zh-Hant", "zh-Hans", "ja", "ko", "es", "fr", "de", "pt", "vi", "th", "ru"],
+    "review": "Separate fresh-context AI reviewer per language checked the Dew label and both weapon-switch buff strings. Verified official names retained. Seven descriptions clarified outgoing healing and total generation. Two Mending Loom labels reuse the existing canonical translations.",
+    "correctionLocales": ["es", "fr", "de", "pt", "vi", "th", "ru"],
+    "humanReview": false,
+    "browserReview": false
   }
 }

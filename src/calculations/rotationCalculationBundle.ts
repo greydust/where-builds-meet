@@ -127,6 +127,7 @@ export function buildRotationTimeline(
       Endurance: build.stats.maxEndurance,
     },
     resourceRegeneration: { HeavensWill: build.stats.heavensWillRegen, ...typedSystemStats.resourceRegeneration },
+    resourceRegenerationOutOfCombat: typedSystemStats.resourceRegenerationOutOfCombat,
     resourceSpendRegenDelay: typedSystemStats.resourceSpendRegenDelay,
     resourceMaximums: {
       ...typedSystemStats.resourceMaximums,

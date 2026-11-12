@@ -7,6 +7,7 @@
     "NobleWill": 100,
     "SwordsZenith": 40,
     "Blossoms": 0,
+    "Dew": 0,
     "Binge": 60,
     "SpearMomentum": 2
   },
@@ -16,10 +17,11 @@
     "NobleWill": 100,
     "SwordsZenith": 100,
     "Blossoms": 100,
+    "Dew": 100,
     "Binge": 200,
     "SpearMomentum": 6
   },
-  "resourceRegeneration": { "Endurance": 10, "Blossoms": 0.3 },
+  "resourceRegeneration": { "Endurance": 10, "Blossoms": 0.3, "Dew": 1 },
   "resourceSpendRegenDelay": { "Endurance": 1.2 },
   "resourceEvents": [
     {
@@ -385,5 +387,6 @@
     "hiddenMountain": { "rawStat": { "maxHp": 2100, "minPhys": 8, "maxPhys": 16, "physicalDefense": 8 } },
     "imperialPalace": { "rawStat": { "maxHp": 500, "minPhys": 4, "maxPhys": 8, "physicalDefense": 4 } },
     "qingzhou": { "minBreakthrough": 18, "rawStat": { "maxHp": 500, "minPhys": 4, "maxPhys": 8, "physicalDefense": 4 } }
-  }
+  },
+  "resourceRegenerationOutOfCombat": { "Dew": 2 }
 }
