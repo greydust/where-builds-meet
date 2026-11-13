@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "Relayed gear",
   "ui.buildTab.relayedOptionLabel": "Relayed",
   "ui.buildTab.removeNamedBuild": "Remove {name}",
+  "ui.buildTab.removeUnusedGear": "Remove unused items",
+  "ui.buildTab.removeUnusedGearConfirmation": "Remove {count} unused items from the {category} inventory? Items used in any saved build will be kept. This cannot be undone.",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "Return here and paste the copied JSON below.",
   "ui.buildTab.rotationUsed": "Rotation Used",
   "ui.buildTab.save": "Save",

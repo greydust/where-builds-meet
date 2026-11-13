@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "Trang bị truyền thừa",
   "ui.buildTab.relayedOptionLabel": "Truyền thừa",
   "ui.buildTab.removeNamedBuild": "Bỏ {name}",
+  "ui.buildTab.removeUnusedGear": "Xóa trang bị không được sử dụng",
+  "ui.buildTab.removeUnusedGearConfirmation": "Xóa {count} trang bị không được sử dụng khỏi kho {category}? Trang bị đang dùng trong bất kỳ bộ trang bị đã lưu nào sẽ được giữ lại. Không thể hoàn tác thao tác này.",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "Quay lại đây rồi dán JSON đã sao chép bên dưới.",
   "ui.buildTab.rotationUsed": "Chuỗi chiêu sử dụng",
   "ui.buildTab.save": "Lưu",

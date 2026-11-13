@@ -475,6 +475,17 @@
     gap: var(--space-2xs);
   }
 
+  .gear-card-topline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .gear-card-usage {
+    margin-inline-start: auto;
+    color: var(--text-muted);
+  }
+
   .gear-slot-name {
     color: var(--primary);
     font-weight: 750;
@@ -594,16 +605,6 @@
     text-transform: uppercase;
   }
 
-  .gear-card-status > small {
-    color: var(--text-muted);
-    overflow-wrap: anywhere;
-  }
-
-  /* The relayed badge sits in the corner the status column would otherwise occupy. */
-  .gear-card--item:has(.gear-relayed-indicator) .gear-card-status {
-    margin-block-start: var(--desktop-space-1, 18px);
-  }
-
   .gear-card-actions {
     display: flex;
     flex-wrap: wrap;
@@ -683,15 +684,17 @@
   }
 
   .gear-relayed-indicator {
-    position: absolute;
-    inset-block-start: var(--desktop-space-0-5, 8px);
-    inset-inline-end: var(--desktop-space-0-5, 9px);
-    z-index: 1;
+    flex-shrink: 0;
+    margin-inline-start: auto;
     color: var(--primary);
     font-size: 1.125rem;
     font-weight: 800;
     line-height: 1;
     text-shadow: 0 0 var(--desktop-size-0-5, 8px) oklch(from var(--primary) l c h / 0.45);
+  }
+
+  .gear-card-usage + .gear-relayed-indicator {
+    margin-inline-start: 0;
   }
 
   /* The badge is decorative on a card whose whole surface is the control, so it must not

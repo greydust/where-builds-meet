@@ -125,7 +125,7 @@ function RelayedIndicator({ item }: { item?: GearItem }) {
  *
  * The two grids ask different questions of the same object, so they differ only in what they put
  * in these slots. The equipped grid names the slot in the heading and leaves the status and
- * footer empty; the inventory grid leaves the heading empty and fills the status and footer. A
+ * footer empty; the inventory grid adds usage information and fills the status and footer. A
  * value added to a slot therefore appears in both grids or neither, rather than in whichever one
  * happened to be written first.
  */
@@ -136,6 +136,8 @@ export type GearCardContent = {
   name: string | undefined
   /** A line above the name. The equipped grid puts the slot here. */
   eyebrowLabel?: string
+  /** Usage information beside the slot label and relay indicator. */
+  usageCount?: number
   /** The header's right-hand column, opposite the name. */
   status?: ReactNode
   /** Below the affix separator, pinned to the bottom of the card. */
@@ -144,16 +146,27 @@ export type GearCardContent = {
   compact?: boolean
 }
 
-export function GearCard({ item, name, eyebrowLabel, status, footer, compact = false }: GearCardContent) {
+export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer, compact = false }: GearCardContent) {
   return (
     <div className="gear-card-body">
-      <RelayedIndicator item={item} />
-      {eyebrowLabel && <span className="gear-slot-name">{eyebrowLabel}</span>}
+      {(eyebrowLabel || usageCount !== undefined || item?.relayed) && (
+        <div className="gear-card-topline">
+          {eyebrowLabel && <span className="gear-slot-name">{eyebrowLabel}</span>}
+          {usageCount !== undefined && <strong>{name}</strong>}
+          {usageCount !== undefined && (
+            <small className="gear-card-usage">
+              {t("ui.buildTab.usedIn")} {usageCount}{" "}
+              {usageCount === 1 ? t("ui.buildTab.build") : t("ui.buildTab.buildCountNoun")}
+            </small>
+          )}
+          <RelayedIndicator item={item} />
+        </div>
+      )}
       {item ? (
         <>
           <div className="gear-card-heading">
             <div className="gear-card-identity">
-              <strong>{name}</strong>
+              {usageCount === undefined && <strong>{name}</strong>}
               <small>
                 {item.level} {gearRarityLabel(item.rarity)}
               </small>
@@ -233,10 +246,6 @@ export function AvailableGearCard(props: {
   const status = (
     <>
       {props.equipped && <span>{t("ui.buildTab.equippedGearStatus")}</span>}
-      <small>
-        {t("ui.buildTab.usedIn")} {props.usageCount}{" "}
-        {props.usageCount === 1 ? t("ui.buildTab.build") : t("ui.buildTab.buildCountNoun")}
-      </small>
       {props.status}
     </>
   )
@@ -280,7 +289,7 @@ export function AvailableGearCard(props: {
   )
   return (
     <article ref={ref} className={`gear-card gear-card--item ${props.equipped ? "gear-card--equipped" : ""}`}>
-      <GearCard item={props.item} name={props.name} status={status} footer={footer} />
+      <GearCard item={props.item} name={props.name} usageCount={props.usageCount} status={status} footer={footer} />
     </article>
   )
 }

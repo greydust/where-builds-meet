@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "Équipement transmis",
   "ui.buildTab.relayedOptionLabel": "Transmis",
   "ui.buildTab.removeNamedBuild": "Retirer {name}",
+  "ui.buildTab.removeUnusedGear": "Supprimer les objets inutilisés",
+  "ui.buildTab.removeUnusedGearConfirmation": "Supprimer {count} objets inutilisés de l’inventaire {category} ? Les objets utilisés dans une configuration enregistrée seront conservés. Cette action est irréversible.",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "Revenez ici et collez le JSON copié ci-dessous.",
   "ui.buildTab.rotationUsed": "Rotation utilisée",
   "ui.buildTab.save": "Enregistrer",

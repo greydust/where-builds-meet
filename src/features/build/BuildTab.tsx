@@ -333,7 +333,7 @@ export default function BuildTab({
   const inventory = resolveBuildInventory(editingEntry, visibleItems, weapons, gearTier)
   const setup = resolveBuildSetup(editingEntry)
   const usageCounts = new Map<string, number>()
-  for (const entry of listedEntries) {
+  for (const entry of buildState.entries) {
     if (entry.isDefault) continue
     for (const itemId of new Set(Object.values(entry.equipped ?? {}))) {
       if (itemId) usageCounts.set(itemId, (usageCounts.get(itemId) ?? 0) + 1)
@@ -1390,6 +1390,7 @@ function BuildManagement({
   const [editing, setEditing] = useState(false)
   const [editingItemId, setEditingItemId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const [removeUnusedOpen, setRemoveUnusedOpen] = useState(false)
   const [draft, setDraft] = useState<GearDraft>(() => newDraft())
   const [error, setError] = useState("")
   // The candidates currently on screen. Each card reports its own, so the set is what bounds how
@@ -1414,6 +1415,7 @@ function BuildManagement({
   }, [])
 
   const equippedItemId = inventory.equipped[selectedSlot]
+  const unusedItemIds = new Set(availableItems.filter(item => !usageCounts.get(item.id)).map(item => item.id))
   const { reference, readingFor } = useGearComparison({
     build,
     slot: selectedSlot,
@@ -1426,6 +1428,7 @@ function BuildManagement({
   })
 
   function selectSlot(slot: GearSlot) {
+    setRemoveUnusedOpen(false)
     setSelectedSlot(slot)
     setEditing(false)
     setEditingItemId(null)
@@ -1574,6 +1577,19 @@ function BuildManagement({
     }
   }
 
+  function removeUnusedItems() {
+    setRemoveUnusedOpen(false)
+    if (unusedItemIds.size === 0) return
+    onInventoryChange(current => ({ ...current, items: current.items.filter(item => !unusedItemIds.has(item.id)) }))
+    setPendingDeleteId(null)
+    if (editingItemId && unusedItemIds.has(editingItemId)) {
+      setEditing(false)
+      setEditingItemId(null)
+      setDraft(newDraft())
+      setError("")
+    }
+  }
+
   const baseAffixOptions = selected.definition
     ? affixOptionsForGearDefinition(selected.definition, "baseAffixes", draft.level, draft.relayed)
     : noGearOptions
@@ -1636,12 +1652,21 @@ function BuildManagement({
                   {t("ui.buildTab.inventoryEditsAndDeletionsApplyToEveryBuild")}
                 </p>
               </div>
+              <Button
+                variant="danger"
+                size="small"
+                type="button"
+                disabled={unusedItemIds.size === 0}
+                onClick={() => setRemoveUnusedOpen(true)}
+              >
+                {t("ui.buildTab.removeUnusedGear")}
+              </Button>
             </PanelHeading>
             <div className="gear-card-grid">
               {availableItems.map(item => {
                 const equipped = inventory.equipped[selectedSlot] === item.id
                 // The equipped card states that it is equipped, which is the whole reading; a
-                // candidate's difference from it goes in the same column as its usage count.
+                // candidate's difference from it goes in the status column.
                 let status
                 if (!equipped) status = <GearDelta reading={readingFor(item.id)} reference={reference} />
                 return (
@@ -1676,6 +1701,29 @@ function BuildManagement({
           </Panel>
         )}
 
+        {!gearLocked && (
+          <Dialog
+            open={removeUnusedOpen}
+            onClose={() => setRemoveUnusedOpen(false)}
+            label={t("ui.buildTab.removeUnusedGear")}
+          >
+            <h2>{t("ui.buildTab.removeUnusedGear")}</h2>
+            <p>
+              {t("ui.buildTab.removeUnusedGearConfirmation", {
+                count: unusedItemIds.size,
+                category: gameText(selected.definition?.name) || gearSlotLabel(selectedSlot),
+              })}
+            </p>
+            <div className="dialog-actions">
+              <Button variant="secondary" type="button" onClick={() => setRemoveUnusedOpen(false)}>
+                {t("ui.buildTab.cancel")}
+              </Button>
+              <Button variant="danger" type="button" disabled={unusedItemIds.size === 0} onClick={removeUnusedItems}>
+                {t("ui.buildTab.removeUnusedGear")}
+              </Button>
+            </div>
+          </Dialog>
+        )}
         {!gearLocked && selected.definition && (
           <Dialog
             open={editing}

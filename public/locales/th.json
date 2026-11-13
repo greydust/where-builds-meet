@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "อุปกรณ์ถ่ายทอด",
   "ui.buildTab.relayedOptionLabel": "ถ่ายทอด",
   "ui.buildTab.removeNamedBuild": "นำ {name} ออก",
+  "ui.buildTab.removeUnusedGear": "ลบอุปกรณ์ที่ไม่ได้ใช้",
+  "ui.buildTab.removeUnusedGearConfirmation": "ลบอุปกรณ์ที่ไม่ได้ใช้ {count} ชิ้นออกจากคลัง {category} หรือไม่? อุปกรณ์ที่ใช้ในบิลด์ที่บันทึกไว้จะถูกเก็บไว้ การดำเนินการนี้ไม่สามารถย้อนกลับได้",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "กลับมาที่นี่แล้ววาง JSON ที่คัดลอกไว้ด้านล่าง",
   "ui.buildTab.rotationUsed": "ชุดลำดับทักษะที่ใช้",
   "ui.buildTab.save": "บันทึก",

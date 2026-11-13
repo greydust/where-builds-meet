@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "Übertragene Ausrüstung",
   "ui.buildTab.relayedOptionLabel": "Übertragen",
   "ui.buildTab.removeNamedBuild": "{name} entfernen",
+  "ui.buildTab.removeUnusedGear": "Unbenutzte Gegenstände entfernen",
+  "ui.buildTab.removeUnusedGearConfirmation": "{count} unbenutzte Gegenstände aus dem Inventar für {category} entfernen? Gegenstände, die in einem gespeicherten Build verwendet werden, bleiben erhalten. Dies kann nicht rückgängig gemacht werden.",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "Kehre hierher zurück und füge das kopierte JSON unten ein.",
   "ui.buildTab.rotationUsed": "Verwendete Rotation",
   "ui.buildTab.save": "Speichern",

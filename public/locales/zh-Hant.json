@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "承音裝備",
   "ui.buildTab.relayedOptionLabel": "承音",
   "ui.buildTab.removeNamedBuild": "移除{name}",
+  "ui.buildTab.removeUnusedGear": "移除未使用的裝備",
+  "ui.buildTab.removeUnusedGearConfirmation": "從{category}裝備庫中移除{count}件未使用的裝備？任何已儲存配裝中使用的裝備都會保留。此操作無法復原。",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "返回此處並在下方貼上已複製的 JSON。",
   "ui.buildTab.rotationUsed": "使用的輪轉",
   "ui.buildTab.save": "儲存",

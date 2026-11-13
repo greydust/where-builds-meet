@@ -25,25 +25,41 @@ vi.mock("@/i18n", () => ({
   dataText: (_key: string, value: string) => value,
 }))
 
-it.each([false, true])("deletes gear immediately and changes only builds wearing it (equipped: %s)", async equipped => {
+it.each([
+  { equipped: false, bulk: false, confirmed: true },
+  { equipped: true, bulk: false, confirmed: true },
+  { equipped: false, bulk: true, confirmed: false },
+  { equipped: false, bulk: true, confirmed: true },
+  { equipped: true, bulk: true, confirmed: true },
+])("deletes gear safely: %j", async ({ equipped, bulk, confirmed }) => {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
+  HTMLDialogElement.prototype.showModal = function () {
+    this.open = true
+  }
+  HTMLDialogElement.prototype.close = function () {
+    this.open = false
+  }
   vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
   const preset = defaultBuildPresets[0]
   const weapons = weaponPair(preset.martialArts)
   const settings = { weapons, breakthrough: "17", ping: 40 }
   const inventory = buildPresetInventory(preset)
   const item = inventory.items.find(item => item.id === inventory.equipped.leftWeapon)!
+  const usedItem = { ...item, id: "used-in-other-build" }
+  const otherCategory = inventory.items.find(item => item.id === inventory.equipped.helmet)!
   const builds = [
     { id: "mine", name: "Mine", martialArts: [...weapons], equipped: {}, setup: normalizeBuildSetup({}) },
     {
       id: "other",
       name: "Other",
       martialArts: [...weapons],
-      equipped: equipped ? { leftWeapon: item.id } : {},
+      equipped: { leftWeapon: usedItem.id, ...(equipped ? { rightWeapon: item.id } : {}) },
       setup: normalizeBuildSetup({}),
     },
   ]
-  useGearStore.setState({ buildState: { entries: builds, gearItems: [item], activeBuildId: "mine" } })
+  useGearStore.setState({
+    buildState: { entries: builds, gearItems: [item, usedItem, otherCategory], activeBuildId: "mine" },
+  })
   const container = document.createElement("div")
   document.body.appendChild(container)
   const root = createRoot(container)
@@ -51,7 +67,7 @@ it.each([false, true])("deletes gear immediately and changes only builds wearing
     const state = useGearStore(store => store.buildState)
     return createElement(BuildTab, {
       pathId: "stonesplitStrength",
-      builds: state.entries,
+      builds: bulk ? state.entries.filter(entry => entry.id === "mine") : state.entries,
       visibleItems: state.gearItems,
       weapons,
       martialArtTags: [],
@@ -82,18 +98,41 @@ it.each([false, true])("deletes gear immediately and changes only builds wearing
         expect(button).not.toBeNull()
         button!.click()
       })
-    await click("ui.buildTab.deleteGear")
-    expect(useGearStore.getState().buildState.gearItems).toHaveLength(1)
-    await click("ui.buildTab.confirmDeleteGear")
+    const button = [...container.querySelectorAll<HTMLButtonElement>(".build-inventory-panel button")].find(
+      button => button.textContent === "ui.buildTab.removeUnusedGear",
+    )!
+    expect(button.disabled).toBe(equipped)
+    let countBeforeRemoval = 3
+    if (bulk) {
+      await act(async () => button.click())
+      countBeforeRemoval = useGearStore.getState().buildState.gearItems.length
+      const dialog = container.querySelector<HTMLDialogElement>('dialog[aria-label="ui.buildTab.removeUnusedGear"]')!
+      const action = [...dialog.querySelectorAll("button")].find(
+        button => button.textContent === (confirmed ? "ui.buildTab.removeUnusedGear" : "ui.buildTab.cancel"),
+      )!
+      await act(async () => {
+        if (dialog.open) action.click()
+      })
+    } else {
+      await click("ui.buildTab.deleteGear")
+      countBeforeRemoval = useGearStore.getState().buildState.gearItems.length
+      await click("ui.buildTab.confirmDeleteGear")
+    }
+    expect(countBeforeRemoval).toBe(3)
+    expect(container.querySelector('dialog[aria-label="ui.buildTab.removeUnusedGear"][open]')).toBeNull()
     const next = useGearStore.getState().buildState
-    expect(container.querySelector(".gear-card--item")).toBeNull()
-    expect(next.gearItems).toHaveLength(0)
+    const removed = !bulk || (confirmed && !equipped)
+    expect(next.gearItems).toEqual(removed ? [usedItem, otherCategory] : [item, usedItem, otherCategory])
     expect(next.entries[0]).toBe(builds[0])
-    expect(next.entries[1] === builds[1]).toBe(!equipped)
-    expect(next.entries[1].equipped).toEqual({})
+    expect(next.entries[1] === builds[1]).toBe(bulk || !equipped)
+    expect(next.entries[1].equipped).toEqual({
+      leftWeapon: usedItem.id,
+      ...(equipped && !removed ? { rightWeapon: item.id } : {}),
+    })
   } finally {
     await act(async () => root.unmount())
     container.remove()
     vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   }
 })

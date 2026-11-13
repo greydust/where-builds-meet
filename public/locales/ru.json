@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "Переданное снаряжение",
   "ui.buildTab.relayedOptionLabel": "Переданное",
   "ui.buildTab.removeNamedBuild": "Убрать {name}",
+  "ui.buildTab.removeUnusedGear": "Удалить неиспользуемые предметы",
+  "ui.buildTab.removeUnusedGearConfirmation": "Удалить неиспользуемые предметы ({count}) из инвентаря категории «{category}»? Предметы, используемые в любом сохранённом билде, останутся. Это действие нельзя отменить.",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "Вернитесь сюда и вставьте скопированный JSON ниже.",
   "ui.buildTab.rotationUsed": "Используемая ротация",
   "ui.buildTab.save": "Сохранить",

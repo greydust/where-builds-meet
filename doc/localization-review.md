@@ -204,3 +204,15 @@ in Chinese, Japanese and Korean, build labels in Portuguese, Vietnamese and
 Thai, and preset/path wording in German and Vietnamese. No datamined game
 names were introduced. Coverage is now 2,095 populated messages per published
 locale. No browser visual review or human language review was performed.
+
+## Unused inventory removal (November 13, 2026)
+
+Added two site UI messages in all eleven non-English published locales (22 cells).
+Separate AI reviewers checked each language against the bulk-removal behavior:
+only items unused by every saved build are deleted, after confirmation, without
+undo. Review aligned Traditional Chinese inventory and Portuguese build wording
+with the catalog, clarified current non-use in Vietnamese, and made Russian count
+wording independent of grammatical number. All concrete corrections were applied;
+no unresolved findings remain. Coverage is 2,097 messages per published locale.
+No datamined game names were introduced. No browser visual review or human
+language review was performed.

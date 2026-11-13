@@ -2014,6 +2014,8 @@
   "ui.buildTab.relayedGear": "継承装備",
   "ui.buildTab.relayedOptionLabel": "継承",
   "ui.buildTab.removeNamedBuild": "{name}を削除",
+  "ui.buildTab.removeUnusedGear": "未使用の装備を削除",
+  "ui.buildTab.removeUnusedGearConfirmation": "{category}の所持品から未使用の装備を{count}個削除しますか？保存済みのいずれかのビルドで使用中の装備は保持されます。この操作は取り消せません。",
   "ui.buildTab.returnHereAndPasteTheCopiedJsonBelow": "この画面に戻り、コピーしたJSONを下に貼り付けてください。",
   "ui.buildTab.rotationUsed": "使用するスキル回し",
   "ui.buildTab.save": "保存",
