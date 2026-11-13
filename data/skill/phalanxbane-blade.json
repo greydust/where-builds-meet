@@ -1,4 +1,24 @@
 {
+  "PhalanxbaneLight1": {
+    "name": "Mo Blade A1",
+    "shortName": "Mo A1",
+    "castTime": 0.9363636363636363,
+    "cooldown": 0.1,
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.5909812036363635,
+        "phyCoef": 0.763704,
+        "attrCoef": 0.763704,
+        "phyBonus": 211.2,
+        "attrBonus": 115.2
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "Light", "MoBlade", "PhalanxbaneBlade"],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
+  },
   "PhalanxbaneHeavyPreCharge": {
     "name": "Burning Heart Pre Charge",
     "castTime": 0.4,

@@ -1071,6 +1071,8 @@
   "data.skill.phalanxbaneBlade.PhalanxbaneHeavySlam1.name": "เผาไหม้หัวใจนี้ ฟาด 1",
   "data.skill.phalanxbaneBlade.PhalanxbaneHeavySlam2.name": "เผาไหม้หัวใจนี้ ฟาด 2",
   "data.skill.phalanxbaneBlade.PhalanxbaneHeavySlam3.name": "เผาไหม้หัวใจนี้ ฟาด 3",
+  "data.skill.phalanxbaneBlade.PhalanxbaneLight1.name": "ดาบโม่ A1",
+  "data.skill.phalanxbaneBlade.PhalanxbaneLight1.shortName": "ดาบโม่ A1",
   "data.skill.phalanxbaneBlade.PhalanxbaneQ.name": "ต้านป่าแปดทิศ",
   "data.skill.phalanxbaneBlade.PhalanxbaneQ.shortName": "ดาบโม่ QQ",
   "data.skill.phalanxbaneBlade.PhalanxbaneSpecial.name": "เรียกทัพ",

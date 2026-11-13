@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Catalog: 2,087 English messages. Updated November 12, 2026.
+Catalog: 2,089 English messages. Updated November 13, 2026.
 
 All twelve published locales have a populated value for every English catalog key.
 English, Traditional Chinese, and Korean were already complete; the other nine
@@ -9,15 +9,15 @@ and simulator labels. Existing populated translations were preserved.
 
 | Locale  | Populated | Missing game text | Missing site copy | Coverage |
 | ------- | --------: | ----------------: | ----------------: | -------: |
-| zh-Hans |      2087 |                 0 |                 0 |     100% |
-| ja      |      2087 |                 0 |                 0 |     100% |
-| es      |      2087 |                 0 |                 0 |     100% |
-| fr      |      2087 |                 0 |                 0 |     100% |
-| de      |      2087 |                 0 |                 0 |     100% |
-| pt      |      2087 |                 0 |                 0 |     100% |
-| vi      |      2087 |                 0 |                 0 |     100% |
-| th      |      2087 |                 0 |                 0 |     100% |
-| ru      |      2087 |                 0 |                 0 |     100% |
+| zh-Hans |      2089 |                 0 |                 0 |     100% |
+| ja      |      2089 |                 0 |                 0 |     100% |
+| es      |      2089 |                 0 |                 0 |     100% |
+| fr      |      2089 |                 0 |                 0 |     100% |
+| de      |      2089 |                 0 |                 0 |     100% |
+| pt      |      2089 |                 0 |                 0 |     100% |
+| vi      |      2089 |                 0 |                 0 |     100% |
+| th      |      2089 |                 0 |                 0 |     100% |
+| ru      |      2089 |                 0 |                 0 |     100% |
 
 Coverage counts non-empty cells, not linguistic accuracy or official-name availability.
 Technical input notation, service names, and some proper names deliberately remain
@@ -31,3 +31,8 @@ Future missing messages still fall back to English.
 The datamine importer fills only empty cells and does not establish human approval.
 Use the repository localization skill for translation/review and run
 `npm run i18n:extract` to regenerate runtime assets and selector percentages.
+
+Mo A1 adds two simulator labels by reusing each locale’s existing
+`system.weapon.moBlade` term and appending the input notation `A1`. These are
+composed site labels, not newly recovered official skill names; no new prose
+translation or independent language review was performed.

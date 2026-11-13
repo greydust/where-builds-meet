@@ -186,6 +186,21 @@ QQ in that order so the final Anxi Soldier VC follow-up lands before 60 seconds.
 
 ### Export interpretation
 
+Phalanxbane's `PhalanxbaneLight1` is the ordinary first light hit, numerical
+20401001 / calcpoint2040100101 (ratio .2), not the full three-part baseline.
+The November 9 normal export resolves skill Lv100 to .763704 Physical and
+attribute coefficients, 211.2 Physical flat and 115.2 attribute flat. Its selected
+shared action20401011 graph1/node156 route uses a .3-second startup followed by
+the C1 marker at .29098120363636354 seconds and timeline457 graph83's ordinary
+interrupt at .6363636363636362 seconds. Thus the cast-relative hit is
+.5909812036363635 seconds and the boundary .9363636363636363 seconds, before
+rotation ping. This is the exported provisional ordinary A1 route; held and later
+combo alternatives are not merged into it. It uses the fixed modeled cast time;
+rotation steps cannot customize its duration. Graph2's held-charge Endurance cost is not assigned to this first
+light hit. A1 does not consume Inner Passion, summon Anxi soldiers or apply
+Mountain Splitter; its damage uses the ordinary Light and equipped-Phalanxbane
+pipeline and normal on-hit Vitality recovery.
+
 Local references are under `local/datamine/`: `wwm-skills-normal-all.json`,
 `wwm-skills-mystic-skills-all.json`, `wwm-skills-mechanism-all.json`,
 `wwm-inner-way-normal.json`, and
