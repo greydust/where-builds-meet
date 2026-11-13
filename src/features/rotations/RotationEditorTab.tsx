@@ -96,7 +96,9 @@ import {
   type TimelineRow,
 } from "@/calculations/rotationTimeline"
 import { sameEditorRevision, type EditorRevision } from "@/editorTimelinePreview"
-import { gameText, t } from "@/i18n"
+import { ExportSelection, TransferSelectionDialog } from "@/features/transfer/ExportSelection"
+import { transferItemGroup } from "@/features/transfer/transferItemGroup"
+import { gameText, getLocale, t } from "@/i18n"
 import { publishNotice, dismissNotice } from "@/notices"
 import { displayEntryKey, visibleTimelineEffects } from "@/rotationDisplay"
 import {
@@ -232,6 +234,7 @@ export function RotationEditorTab({
     }
     return maxStacks
   }, [calculationDefinitions.effectDefinitions, innerWayEffectRules])
+  const [importPreview, setImportPreview] = useState<RotationEntry[]>()
   const rotationEntries = useRotationStore(state => state.entries)
   const updateRotationEntries = useRotationStore(state => state.updateEntries)
   const persistEntries = useRotationStore(state => state.persistEntries)
@@ -1072,8 +1075,8 @@ export function RotationEditorTab({
     )
   }
 
-  function exportRotations() {
-    const entries = currentRotationEntries()
+  function exportRotations(ids: Set<string>) {
+    const entries = currentRotationEntries().filter(entry => ids.has(entry.id))
     const exportedCount = entries.filter(entry => !entry.isDefault).length
     const blob = new Blob([exportRotationEntries(entries)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
@@ -1093,38 +1096,8 @@ export function RotationEditorTab({
     input.value = ""
     if (!file) return
     try {
-      const result = mergeImportedRotationEntries(currentRotationEntries(), JSON.parse(await file.text()) as unknown)
-      const migratedEntries = result.entries.map(entry =>
-        result.importedIds.includes(entry.id) ? { ...entry, rotation: migrateRotation(entry.rotation) } : entry,
-      )
-      result.importedIds.forEach(id => {
-        const imported = migratedEntries.find(entry => entry.id === id)
-        if (imported)
-          savedRotationSnapshotsRef.current?.set(id, JSON.parse(JSON.stringify(imported.rotation)) as RotationRecord)
-      })
-      updateRotationEntries(() => migratedEntries)
-      const importedEntry = migratedEntries.find(entry => entry.id === result.importedIds[0])
-      if (importedEntry) {
-        setEditingRotationId(importedEntry.id)
-        setRotation(JSON.parse(JSON.stringify(importedEntry.rotation)) as RotationRecord)
-        setStartAnchor(
-          importedEntry.rotation.start
-            ? {
-                rowId: `rotation-${importedEntry.rotation.start.step}`,
-                actionIndex: importedEntry.rotation.start.action,
-              }
-            : { rowId: "rotation-0" },
-        )
-        setEventTimeDrafts({})
-        setEventDurationDrafts({})
-        setEditingName(false)
-        setStatus("")
-        setError("")
-      }
-      publishNotice({
-        id: "rotation-transfer",
-        message: t("ui.app.rotationsImported", { count: result.importedCount }),
-      })
+      const result = mergeImportedRotationEntries([], JSON.parse(await file.text()) as unknown)
+      setImportPreview(result.entries)
     } catch (error) {
       publishNotice({
         id: "rotation-transfer",
@@ -1132,6 +1105,39 @@ export function RotationEditorTab({
         error: true,
       })
     }
+  }
+
+  function confirmRotationImport(ids: Set<string>) {
+    if (!importPreview) return
+    const result = mergeImportedRotationEntries(
+      currentRotationEntries(),
+      JSON.parse(exportRotationEntries(importPreview.filter(entry => ids.has(entry.id)))) as unknown,
+    )
+    const migratedEntries = result.entries.map(entry =>
+      result.importedIds.includes(entry.id) ? { ...entry, rotation: migrateRotation(entry.rotation) } : entry,
+    )
+    result.importedIds.forEach(id => {
+      const imported = migratedEntries.find(entry => entry.id === id)
+      if (imported)
+        savedRotationSnapshotsRef.current?.set(id, JSON.parse(JSON.stringify(imported.rotation)) as RotationRecord)
+    })
+    updateRotationEntries(() => migratedEntries)
+    const importedEntry = migratedEntries.find(entry => entry.id === result.importedIds[0])
+    if (importedEntry) {
+      setEditingRotationId(importedEntry.id)
+      setRotation(JSON.parse(JSON.stringify(importedEntry.rotation)) as RotationRecord)
+      setStartAnchor(
+        importedEntry.rotation.start
+          ? { rowId: `rotation-${importedEntry.rotation.start.step}`, actionIndex: importedEntry.rotation.start.action }
+          : { rowId: "rotation-0" },
+      )
+      setEventTimeDrafts({})
+      setEventDurationDrafts({})
+      setEditingName(false)
+      setStatus("")
+      setError("")
+    }
+    publishNotice({ id: "rotation-transfer", message: t("ui.app.rotationsImported", { count: result.importedCount }) })
   }
 
   const currentCachedEntry = rotationResults[editingRotationId]
@@ -1729,8 +1735,50 @@ export function RotationEditorTab({
     previewId,
     settings.weapons,
   ])
+  const exportLocale = getLocale()
+  const exportItems = useMemo(() => {
+    // Rebuild localized names when the selected language changes.
+    void exportLocale
+    return rotationEntries
+      .filter(entry => !entry.isDefault)
+      .map(entry =>
+        Object.assign(
+          {
+            id: entry.id,
+            name: rotationEntryDisplayName(entry),
+            detail: entry.martialArts.map(weapon => gameText(martialArtDefinitions[weapon].name)).join(" / "),
+          },
+          transferItemGroup(entry.martialArts),
+        ),
+      )
+  }, [rotationEntries, exportLocale])
+
+  const importItems = useMemo(() => {
+    void exportLocale
+    return (importPreview ?? []).map(entry =>
+      Object.assign(
+        {
+          id: entry.id,
+          name: rotationEntryDisplayName(entry),
+          detail: entry.martialArts.map(weapon => gameText(martialArtDefinitions[weapon].name)).join(" / "),
+        },
+        transferItemGroup(entry.martialArts),
+      ),
+    )
+  }, [importPreview, exportLocale])
+
   return (
     <Panel className="rotation-editor-panel">
+      {importPreview && (
+        <TransferSelectionDialog
+          title={t("ui.app.importRotations")}
+          items={importItems}
+          confirmLabel={t("ui.app.import")}
+          onConfirm={confirmRotationImport}
+          onClose={() => setImportPreview(undefined)}
+        />
+      )}
+
       <div className="rotation-editor-layout">
         <aside className="rotation-list">
           <div className="rotation-list-heading">
@@ -1794,9 +1842,11 @@ export function RotationEditorTab({
           </div>
           <div className="rotation-transfer-actions">
             <div>
-              <Button variant="secondary" size="small" type="button" onClick={exportRotations}>
-                {t("ui.app.export")}
-              </Button>
+              <ExportSelection
+                title={t("ui.exportSelection.rotations")}
+                items={exportItems}
+                onExport={exportRotations}
+              />
               <Button
                 variant="secondary"
                 size="small"

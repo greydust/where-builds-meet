@@ -26,6 +26,8 @@ import { cancelGearOptimization, startGearOptimization } from "@/application/gea
 import type { MeasurementContext } from "@/calculations/rotationCalculationBundle"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
 import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
+import { ExportSelection, TransferSelectionDialog } from "@/features/transfer/ExportSelection"
+import { transferItemGroup } from "@/features/transfer/transferItemGroup"
 import {
   defaultBuildSetup,
   defaultBuildPresets,
@@ -52,6 +54,7 @@ import {
   summarizeGearAffixes,
   weaponSetDefinitions,
   type BuildSetup,
+  type BuildState,
   type GearAffixSummary,
   type BuildEntry,
   type GearInventory,
@@ -59,7 +62,7 @@ import {
   type GearLevel,
   type GearSlot,
 } from "@/gear"
-import { dataText, gameText, t } from "@/i18n"
+import { dataText, gameText, getLocale, t } from "@/i18n"
 import { publishNotice, dismissNotice } from "@/notices"
 import { createOfficialGearBookmarklet } from "@/officialGearBookmarklet"
 import type { OfficialGearImport } from "@/officialGearImport"
@@ -204,6 +207,7 @@ export default function BuildTab({
   const buildState = useGearStore(state => state.buildState)
   const updateBuildState = useGearStore(state => state.updateBuildState)
   const optimization = useGearOptimizationStore(state => state.run)
+  const [importPreview, setImportPreview] = useState<BuildState>()
   const [editingBuildId, setEditingBuildId] = useState(buildState.activeBuildId)
   const [editingName, setEditingName] = useState(false)
   const [officialImportText, setOfficialImportText] = useState("")
@@ -414,8 +418,11 @@ export default function BuildTab({
     if (editingBuildId === id) setEditingBuildId(fallback?.id ?? "")
   }
 
-  function exportBuilds() {
-    const blob = new Blob([exportBuildState(buildState)], { type: "application/json" })
+  function exportBuilds(ids: Set<string>) {
+    const blob = new Blob(
+      [exportBuildState({ ...buildState, entries: buildState.entries.filter(entry => ids.has(entry.id)) })],
+      { type: "application/json" },
+    )
     const url = URL.createObjectURL(blob)
     const link = document.createElement("a")
     link.href = url
@@ -450,18 +457,31 @@ export default function BuildTab({
     if (!file) return
     dismissNotice("build-import")
     try {
-      const result = mergeImportedBuildState(buildState, JSON.parse(await file.text()) as unknown)
-      updateBuildState(pathId, () => result.state)
-      if (result.importedBuildIds[0]) {
-        setEditingBuildId(result.importedBuildIds[0])
-        setEditingName(false)
-      }
+      const result = mergeImportedBuildState(
+        { entries: [], gearItems: [], activeBuildId: "" },
+        JSON.parse(await file.text()) as unknown,
+      )
+      setImportPreview(result.state)
     } catch (error) {
       publishNotice({
         id: "build-import",
         error: true,
         message: error instanceof Error ? error.message : t("ui.notices.buildImportError"),
       })
+    }
+  }
+
+  function confirmBuildImport(ids: Set<string>) {
+    if (!importPreview) return
+    const payload = exportBuildState({
+      ...importPreview,
+      entries: importPreview.entries.filter(entry => ids.has(entry.id)),
+    })
+    const result = mergeImportedBuildState(useGearStore.getState().buildState, JSON.parse(payload) as unknown)
+    updateBuildState(pathId, () => result.state)
+    if (result.importedBuildIds[0]) {
+      setEditingBuildId(result.importedBuildIds[0])
+      setEditingName(false)
     }
   }
 
@@ -538,8 +558,63 @@ export default function BuildTab({
     setEditingName(false)
   }
 
+  const exportLocale = getLocale()
+  const exportItems = useMemo(() => {
+    // Rebuild localized names when the selected language changes.
+    void exportLocale
+    return buildState.entries
+      .filter(entry => !entry.isDefault)
+      .map(entry =>
+        Object.assign(
+          {
+            id: entry.id,
+            name: buildEntryDisplayName(entry),
+            detail: buildEntryMartialArts(entry)
+              .map(weapon => gameText(martialArtDefinitions[weapon].name))
+              .join(" / "),
+          },
+          transferItemGroup(buildEntryMartialArts(entry)),
+        ),
+      )
+  }, [buildState.entries, exportLocale])
+
+  const importItems = useMemo(() => {
+    void exportLocale
+    if (importPreview && !importPreview.entries.length && importPreview.gearItems.length) {
+      return [
+        {
+          id: "inventory",
+          name: t("ui.buildTab.importGear"),
+          detail: `${importPreview.gearItems.length} ${t("ui.buildTab.gear")}`,
+        },
+      ]
+    }
+    return (importPreview?.entries ?? []).map(entry =>
+      Object.assign(
+        {
+          id: entry.id,
+          name: buildEntryDisplayName(entry),
+          detail: buildEntryMartialArts(entry)
+            .map(weapon => gameText(martialArtDefinitions[weapon].name))
+            .join(" / "),
+        },
+        transferItemGroup(buildEntryMartialArts(entry)),
+      ),
+    )
+  }, [importPreview, exportLocale])
+
   return (
     <Panel className="build-manager-panel">
+      {importPreview && (
+        <TransferSelectionDialog
+          title={t("ui.buildTab.importBuildsAndGear")}
+          items={importItems}
+          confirmLabel={t("ui.app.import")}
+          onConfirm={confirmBuildImport}
+          onClose={() => setImportPreview(undefined)}
+        />
+      )}
+
       <div className="build-manager-layout">
         <aside className="build-list">
           <div className="build-list-heading">
@@ -623,9 +698,7 @@ export default function BuildTab({
           </div>
           <div className="build-transfer-actions">
             <div>
-              <Button variant="secondary" size="small" type="button" onClick={exportBuilds}>
-                {t("ui.buildTab.export")}
-              </Button>
+              <ExportSelection title={t("ui.exportSelection.builds")} items={exportItems} onExport={exportBuilds} />
               <Button
                 variant="secondary"
                 size="small"

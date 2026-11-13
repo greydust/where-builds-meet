@@ -1,8 +1,8 @@
-import type { InputHTMLAttributes } from "react"
+import type { ComponentPropsWithRef } from "react"
 
 import styles from "./style.module.css"
 
-type CheckboxProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type">
+type CheckboxProps = Omit<ComponentPropsWithRef<"input">, "type">
 
 // Native checkbox shell with the primitive structure class. Accent color and
 // layout live one level up (checkbox-field and domain wrappers). Never

@@ -194,3 +194,13 @@ explicit. Other static Breakdown labels required no concrete semantic correction
 Catalog coverage remains 2,087 messages per published locale. This was a targeted
 terminology and context review, not full native-language approval of the catalog.
 No browser visual review or human language review was performed.
+
+## Export selection controls (November 13, 2026)
+
+Added seven site UI messages in all eleven non-English published locales.
+The 77 translations were AI-translated and AI-reviewed for export-dialog
+context and existing catalog terminology. Review corrected rotation labels
+in Chinese, Japanese and Korean, build labels in Portuguese, Vietnamese and
+Thai, and preset/path wording in German and Vietnamese. No datamined game
+names were introduced. Coverage is now 2,095 populated messages per published
+locale. No browser visual review or human language review was performed.
