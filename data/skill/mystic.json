@@ -1082,7 +1082,22 @@
   },
   "SereneBreeze": {
     "name": "Serene Breeze",
-    "castTime": 0.4375,
+    "castTime": {
+      "function": "switch",
+      "param1": "currentWeapon",
+      "param2": {
+        "Spear": 0.452,
+        "Sword": 0.475,
+        "Fan": 0.412,
+        "DualBlades": 0.721,
+        "MoBlade": 0.475,
+        "Umbrella": 0.721,
+        "RopeDart": 0.475,
+        "HengBlade": 0.721,
+        "Gauntlet": 0.721
+      },
+      "fallback": 0.475
+    },
     "cooldown": 30,
     "action": [
       {
@@ -1090,7 +1105,22 @@
         "phyCoef": 1.0906992,
         "phyBonus": 538.107521404384,
         "attrBonus": 0,
-        "time": 0.4375,
+        "time": {
+          "function": "switch",
+          "param1": "currentWeapon",
+          "param2": {
+            "Spear": 0.315,
+            "Sword": 0.342,
+            "Fan": 0.403,
+            "DualBlades": 0.4,
+            "MoBlade": 0.351,
+            "Umbrella": 0.35,
+            "RopeDart": 0.351,
+            "HengBlade": 0.342,
+            "Gauntlet": 0.342
+          },
+          "fallback": 0.342
+        },
         "attrCoef": 1.0906992
       },
       {
@@ -1099,11 +1129,47 @@
         "value": "Turnaround",
         "stack": 1,
         "reapply": true,
-        "time": 0.4375,
+        "time": {
+          "function": "switch",
+          "param1": "currentWeapon",
+          "param2": {
+            "Spear": 0.315,
+            "Sword": 0.342,
+            "Fan": 0.403,
+            "DualBlades": 0.4,
+            "MoBlade": 0.351,
+            "Umbrella": 0.35,
+            "RopeDart": 0.351,
+            "HengBlade": 0.342,
+            "Gauntlet": 0.342
+          },
+          "fallback": 0.342
+        },
         "requirement": [{ "target": "self", "value": "FuryHarvestT6" }]
       }
     ],
-    "modifier": [],
+    "modifier": [
+      {
+        "requirement": [
+          { "target": "currentWeapon", "value": "Umbrella" },
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "UnfadingFlowerMode" },
+              { "target": "self", "value": "EchoesOfAThousandPlants" }
+            ]
+          }
+        ],
+        "effect": {
+          "castTimeModifier": {
+            "function": "segment",
+            "param1": "actionTime",
+            "param2": [0.41],
+            "param3": [-0.008, -0.246]
+          }
+        }
+      }
+    ],
     "tags": ["DirectDamage", "Mystic", "SereneBreeze"],
     "ignorePing": true
   },

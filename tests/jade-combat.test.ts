@@ -313,10 +313,8 @@ describe("Jade combat", () => {
         )!,
       )
       const soaring = result.timeline.find(row => row.step.skill === "SoaringSpin2")!
-      const breeze = result.timeline.find(row => row.step.skill === "SereneBreeze")!
-      const breezeHit = breeze.actions.findIndex(action => action.type === "damage")
-      expect(result.actionBreakdowns[`${breeze.id}:${breezeHit}`]).toBeDefined()
-      expect(soaring.startTime).toBeCloseTo(breeze.startTime + breeze.effectiveCastTime, 9)
+      const forsaken = result.timeline.find(row => row.step.skill === "ForsakenFame")!
+      expect(soaring.startTime).toBeGreaterThanOrEqual(forsaken.startTime + forsaken.effectiveCastTime)
       expect(
         result.timeline
           .filter(row => row.step.skill === "PerfectDodgeSuccess")
@@ -927,7 +925,7 @@ describe("Jade combat", () => {
         8,
       )
       expect(flowers[2].actionStates[0].debuffs.has("Exhausted")).toBe(true)
-      const firstBone = casts.find(row => row.step.skill === "ForsakenFameCancel")!
+      const firstBone = casts.find(row => ["ForsakenFame", "ForsakenFameCancel"].includes(row.step.skill ?? ""))!
       for (const row of casts.filter(row => row.startTime > firstBone.startTime))
         expect(row.debuffs.has("LingeringBone")).toBe(true)
       for (const row of result.timeline) {

@@ -9,6 +9,7 @@ import {
   expandedSkillActionLayout,
   isFixedTimeEvent,
   resolveSkillStepCastTime,
+  resolveActionTime,
   type AttachedEventTarget,
   type EditableObject,
   type RotationRecord,
@@ -118,14 +119,16 @@ export function baseAttachedEventTime(rotation: RotationRecord, eventStepIndex: 
       if (stepIndex > eventStepIndex) {
         if (target.action === "start") return elapsed
         const actions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : []
-        if (target.trigger === undefined) return elapsed + Number(actions[target.action]?.time ?? 0)
+        if (target.trigger === undefined) return elapsed + resolveActionTime(actions[target.action]?.time)
         const triggerAction = actions.filter(action => action.type === "trigger")[target.trigger]
         if (!triggerAction || typeof triggerAction.value !== "string") return elapsed
         const triggeredSkill = allSkillDefinitions[triggerAction.value]
         const triggeredActions = Array.isArray(triggeredSkill?.action)
           ? (triggeredSkill.action as EditableObject[])
           : []
-        return elapsed + Number(triggerAction.time ?? 0) + Number(triggeredActions[target.action]?.time ?? 0)
+        return (
+          elapsed + resolveActionTime(triggerAction.time) + resolveActionTime(triggeredActions[target.action]?.time)
+        )
       }
       elapsed += baseStepCastTime(step)
     } else if (step.event === "Delay") {
@@ -246,7 +249,7 @@ export function migrateRotation(rotation: RotationRecord): RotationRecord {
       const actions = Array.isArray(skill?.action) ? (skill.action as EditableObject[]) : []
       return [{ index, time: castStart - anchor, before: { action: "start" } as AttachedEventTarget }].concat(
         actions.flatMap((action, actionIndex) => {
-          const time = castStart + Number(action.time ?? 0) - anchor
+          const time = castStart + resolveActionTime(action.time) - anchor
           const direct = { index, time, before: { action: actionIndex } as AttachedEventTarget }
           if (action.type !== "trigger" || typeof action.value !== "string") return [direct]
           const triggered = allSkillDefinitions[action.value]
@@ -256,7 +259,7 @@ export function migrateRotation(rotation: RotationRecord): RotationRecord {
           return [direct].concat(
             triggeredActions.map((triggeredAction, triggeredActionIndex) => ({
               index,
-              time: time + Number(triggeredAction.time ?? 0),
+              time: time + resolveActionTime(triggeredAction.time),
               before: { trigger: triggerOrdinal, action: triggeredActionIndex } as AttachedEventTarget,
             })),
           )

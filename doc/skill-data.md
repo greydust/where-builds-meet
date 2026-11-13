@@ -463,7 +463,9 @@ boundary semantics while simplifying a definition. `actionTime` refers to the
 original cast/action time, allowing a segmented modifier to move different hits
 by different offsets. Timing resolves as
 `max(0, originalTime + sum(castTimeModifier)) × product(castTimeMultiplier)`.
-A switched cast time is locked at cast start. Switched action values can also
+Switched cast times and action `time` fields are locked at cast start (at each
+component start for multi-action skills), before timing modifiers. Queued action
+events and action anchors use those resolved times. Switched action values can also
 use `resolveAt: "skillStart"`.
 
 ### Actions
@@ -2766,12 +2768,11 @@ space before ordinary Dodge. At the preset's 40ms ping, Dodge begins around
 following Umbrella Q. The extra hit preserves all four perfect dodges and the
 late Dragon Head impact before the 30-second cutoff.
 
-The 30-second IV preset uses Forsaken Fame [Cancel] / Serene Breeze / Soaring
-Spin. Breeze is a legal non-Umbrella follow-up and its 0.4375-second cast
-replaces almost all of FF's 0.44-second recovery. Soaring starts at 5.396541s
-at 40ms ping, preserving the 5.5s perfect dodge; Phoenix and Fan Q also retain
-their 11.5s and 23.5s dodges.
-Its 76-hit UF result uses the temporarily restored per-projectile Blossom cost.
+The 30-second IV preset uses full Forsaken Fame followed by Soaring Spin,
+without Serene Breeze. Forsaken Fame's normal 0.44-second recovery replaces the
+removed filler's timing and preserves perfect dodges at 5.5, 11.5, 17.5 and
+23.5 seconds at the preset's 40ms ping. This keeps the third Unfading Flower
+window and shielded Dragon Head impact inside the 30-second cutoff.
 
 ### Grounded Jade refill and exhaustion sequence
 
@@ -3019,3 +3020,17 @@ to reduce target Physical Defense for all attackers. Sweep All applies Shattered
 Empowered River Flow), after damage resolves. The single-stack debuff lasts 10
 seconds and refreshes on reapplication. Water Drop does not apply it. A global
 Shattered Stone selection stays permanent and does not stack with rotation applications.
+
+### Serene Breeze weapon timing
+
+Serene Breeze uses the measured MOVEPOST interrupt as its cast duration and the
+hit marker for damage and Turnaround application. Cast-start timing modifiers
+snapshot the active weapon: Spear 0.315/0.452s, Sword 0.342/0.475s, Fan
+0.403/0.412s, Dual Blades 0.400/0.721s, Mo Blade 0.351/0.475s, Umbrella
+0.350/0.721s, Rope Dart 0.351/0.475s, Heng Blade and Gauntlets 0.342/0.721s
+(hit/cast). An active Umbrella with UnfadingFlowerMode or
+EchoesOfAThousandPlants uses the sword-animation branch, 0.342/0.475s.
+POST and full action end are recovery markers beyond the chosen interrupt.
+The cast duration and action hit times each switch directly on `currentWeapon`.
+One segmented modifier selects the buff-dependent umbrella sword-animation branch,
+shifting its hit by -0.008s and its cast duration by -0.246s.

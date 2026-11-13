@@ -1,11 +1,13 @@
 import mysticBuffs from "@gamedata/buff/mystic.json"
-import mysticSkills from "@gamedata/skill/mystic.json"
+import mysticSkillData from "@gamedata/skill/mystic.json"
 import { describe, expect, it } from "vitest"
 
-import type { RotationRecord, RotationStep, TrackedEffect } from "@/calculations/rotationTimeline"
+import type { RotationRecord, RotationStep, TrackedEffect, SkillRecord } from "@/calculations/rotationTimeline"
 import { buildRotationTimeline } from "@/calculations/rotationTimeline"
 
 import { isClose } from "./helpers/floatEquality"
+
+const mysticSkills = mysticSkillData as unknown as Record<string, SkillRecord>
 
 /** The action an attached event names, when the step is one. */
 function attachedActionOf(step: RotationStep | undefined) {
@@ -15,7 +17,7 @@ function attachedActionOf(step: RotationStep | undefined) {
 // Ported from script/probe/check-drunken-poet-composites.mjs.
 describe("drunken-poet-composites", () => {
   it("Drunken Poet composite behavior and persisted-chain migration checks passed", async () => {
-    const skills = (await import("@gamedata/skill/mystic.json")).default
+    const skills = mysticSkills
     const buffs = (await import("@gamedata/buff/mystic.json")).default
     const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const { migrateDrunkenPoetSequences } = await import("@/rotationEditing.ts")

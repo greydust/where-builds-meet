@@ -1,5 +1,27 @@
 # DPS regression snapshots
 
+## Serene Breeze timing acceptance (November 13, 2026)
+
+The user approved the weapon-specific Serene Breeze hit markers and MOVEPOST
+interrupt durations, the retimed Grounded Dummy 30 Sec IV sequence, and release.
+The reviewed snapshot update covers the four Deluge one-minute rotations,
+Jade Flying, and Jade Three Rounds across their builds at breakthroughs 18/19.
+Other snapshots retain their accepted values.
+
+Grounded removes Serene and uses full Forsaken Fame recovery before Soaring
+Spin. All 18 build/level cases retain perfect dodges at 5.5, 11.5, 17.5 and
+23.5 seconds. Fully Relayed Max BP at level 19 changes from
+121328.09076923382 to 120843.5593414214 DPS, or 3639842.7230770146 to
+3625306.780242642 total damage over the same 30 seconds. Across Grounded
+builds the decrease is 0.321–0.403%, replacing the rejected delayed-dodge sequence.
+
+Deluge's reviewed changes range from -0.0691% to +0.0029%, and Flying loses
+0.0129–0.0155%, through shifted hit and follow-up timings. Flying's fixed
+Qi thresholds are realigned with the new break time; this preserves exactly
+the reviewed DPS and total damage across all 18 cases. All durations remain
+60 seconds. Switched action times resolve at cast/component start, and legacy
+event migration uses the switch fallback when weapon context is unavailable.
+
 ## Bolt Hawkwing presets (November 9, 2026)
 
 The user requested release of the Hawkwing variants and selected Fully Relayed Max Build Hawkwing as the default. Each variant uses four-piece Hawkwing and replaces only the right weapon additional Affinity with Max Void Attack. All existing snapshots remain unchanged. The four new 60-second baselines are:

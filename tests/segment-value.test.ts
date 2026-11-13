@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from "vitest"
 
-import type { EditableObject } from "@/calculations/rotationTimeline"
+import type { EditableObject, SkillRecord } from "@/calculations/rotationTimeline"
 import type { SkillOverrides } from "@/skillOverrides"
 
 /**
@@ -29,8 +29,8 @@ function actionNumber(action: EditableObject, key: string) {
 // Ported from script/probe/check-segment-value.mjs.
 describe("segment-value", () => {
   it("Segment boundary, overflow, and per-action timing checks passed", async () => {
-    const { resolveSegmentValue } = await import("../src/calculations/dynamicValues.ts")
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { resolveSegmentValue } = await import("@/calculations/dynamicValues.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const segment = { function: "segment", param1: "actionTime", param2: [1.5, 2.5], param3: [-0.7, -1, -1.2] }
     expect(
       resolveSegmentValue(segment, { actionTime: 1.5 }) === -1,
@@ -55,7 +55,7 @@ describe("segment-value", () => {
         "Exclusive segment boundary failed at " + input,
       )
     }
-    const { deserializeSkillOverrides, serializeSkillOverrides } = await import("../src/skillOverrides.ts")
+    const { deserializeSkillOverrides, serializeSkillOverrides } = await import("@/skillOverrides.ts")
     for (const threshold of [-2, 0, 1.3375, Number.MAX_VALUE]) {
       const legacy = { function: "segment", param1: "distance", param2: [threshold], param3: [2, 3] }
       for (const version of [undefined, 2]) {
@@ -111,7 +111,7 @@ describe("segment-value", () => {
     expect(row.effectiveCastTime === 1, "The cast end above 1.5s must receive the overflow modifier.").toBeTruthy()
     expect(row.actions[0].time === 0.5, "An action equal to 1.5s must receive the next segment modifier.").toBeTruthy()
     expect(row.actions[1].time === 1, "An action above 1.5s must receive the overflow modifier.").toBeTruthy()
-    const mystic = (await import("../data/skill/mystic.json")).default
+    const mystic = (await import("@gamedata/skill/mystic.json")).default as unknown as Record<string, SkillRecord>
     for (const id of ["DragonsBreath2", "DragonsBreathSmolder2"]) {
       const rows = buildRotationTimeline({
         rotation: { name: "Dragon Intoxicated timing", infiniteVitality: true, steps: [{ type: "skill", skill: id }] },

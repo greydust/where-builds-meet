@@ -690,6 +690,11 @@ export type RequirementState = {
   battleStarted?: boolean
 }
 
+export function resolveActionTime(value: unknown, state: RequirementState = {}, fallback = 0): number {
+  const resolved = typeof value === "number" ? value : resolveSwitchValue(value, state)
+  return typeof resolved === "number" && Number.isFinite(resolved) ? resolved : fallback
+}
+
 function resolveSkillCastTime(skill: SkillRecord | undefined, state: RequirementState = {}): number {
   const castTime = skill?.castTime
   if (typeof castTime === "number" && Number.isFinite(castTime)) return castTime
@@ -859,7 +864,7 @@ export function expandedSkillActionLayout(skillId: string, skills: Record<string
     const fallback = Array.isArray(fallbackSkill?.action) ? (fallbackSkill.action as EditableObject[]) : []
     return segment.actionIndexes.map((_, index) => {
       const action = primary[index] ?? fallback[index]
-      return segment.baseStartOffset + (action && typeof action.time === "number" ? action.time : segment.baseCastTime)
+      return segment.baseStartOffset + resolveActionTime(action?.time, {}, segment.baseCastTime)
     })
   })
   return {
@@ -3008,9 +3013,10 @@ export function buildRotationTimeline(
   const applyCastTimingModifiers = (row: TimelineRow, baseCastTime: number) => {
     const adjust = castTimingAdjuster(row.modifierEffects)
     row.effectiveCastTime = adjust(baseCastTime)
-    row.actions = row.actions.map(action =>
-      Object.assign({}, action, typeof action.time === "number" ? { time: adjust(action.time) } : {}),
-    )
+    row.actions = row.actions.map(action => {
+      const time = resolveActionTime(action.time, requirementState(), Number.NaN)
+      return Object.assign({}, action, Number.isFinite(time) ? { time: adjust(time) } : {})
+    })
     events.mutate(queued => {
       if (queued.row !== row) return
       if (queued.kind === "action")
@@ -3805,7 +3811,7 @@ export function buildRotationTimeline(
       registerEnduranceRates(segment.skill, event.time, segment.baseCastTime)
       segment.localActionTimes = segment.actionIndexes.map((_, localIndex) => {
         const action = selectedActions[localIndex]
-        return action && typeof action.time === "number" ? action.time : segment.baseCastTime
+        return resolveActionTime(action?.time, requirementState(), segment.baseCastTime)
       })
       segment.actionIndexes.forEach((actionIndex, localIndex) => {
         const selectedAction = selectedActions[localIndex]

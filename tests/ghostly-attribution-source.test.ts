@@ -1,12 +1,11 @@
+import effects from "@gamedata/buff/mystic.json"
 import { describe, expect, it } from "vitest"
 
 import { defaultSkillMaps } from "@/application/gameData/skills"
 
-import effects from "../data/buff/mystic.json"
-
 const general = defaultSkillMaps.General
-import mystic from "../data/skill/mystic.json"
-import { buildRotationTimeline, type TimelineBuildInput } from "../src/calculations/rotationTimeline"
+const mystic = defaultSkillMaps.Mystic
+import { buildRotationTimeline, type TimelineBuildInput } from "@/calculations/rotationTimeline"
 
 describe("explicit Ghostly Step attribution", () => {
   it.each([
