@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react"
 import { baselineMetricsWithPreviousComparisons } from "@/application/comparison"
 import type { PathId } from "@/application/contracts"
 import { typedPathDefinitions } from "@/application/gameData/paths"
+import type { PreviewId } from "@/application/gameData/previews"
 import { buildGraduationBundleSet, selectHighestGraduationResult } from "@/application/graduation"
 import { resolveBaseline, resolveComparisonMetrics } from "@/application/resolveRotationMetrics"
 import { rotationAvailableForWeapons, rotationRecordForEntry } from "@/application/rotationCatalog"
@@ -46,6 +47,7 @@ type ActiveRotationInput = {
 function resolveActiveRotation(
   input: Pick<ActiveRotationInput, "devMode" | "weapons" | "activeRotationId" | "defaultRotationId">,
   storedEntries: RotationEntry[],
+  previewId: PreviewId | null,
 ) {
   const entries = storedEntries.filter(
     entry => (input.devMode || !entry.test) && rotationAvailableForWeapons(entry, input.weapons as never),
@@ -55,7 +57,7 @@ function resolveActiveRotation(
     entries.find(candidate => candidate.id === input.defaultRotationId) ??
     entries[0]
   if (!entry) return undefined
-  const rotation = rotationRecordForEntry(entry)
+  const rotation = rotationRecordForEntry(entry, previewId)
   return { entry, rotation, name: rotation.name || "Active rotation" }
 }
 
@@ -83,9 +85,10 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
     comparisonsActive,
   } = input
   const entries = useRotationStore(state => state.entries)
+  const previewId = measurement.environment.previewId
   const active = useMemo(
-    () => resolveActiveRotation({ activeRotationId, defaultRotationId, devMode, weapons }, entries),
-    [activeRotationId, defaultRotationId, devMode, weapons, entries],
+    () => resolveActiveRotation({ activeRotationId, defaultRotationId, devMode, weapons }, entries, previewId),
+    [activeRotationId, defaultRotationId, devMode, weapons, entries, previewId],
   )
   // A published editor draft is the current rotation even after leaving the editor. Rebuild it
   // against new gear rather than letting the old draft block a shared baseline refresh.

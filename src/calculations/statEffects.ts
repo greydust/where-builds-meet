@@ -7,6 +7,8 @@ import { calculationStatMaximum } from "./statCaps"
 
 export type StatFormula = {
   source: string | { max: string[] }
+  /** Select a conversion branch against the same (steady, for talents) input snapshot. */
+  when?: { left: string; comparison: ">" | "<="; right: string }
   multiplier?: number
   /** Divide the input into complete pieces before applying the multiplier. */
   step?: number
@@ -76,6 +78,20 @@ export function applyStatConversions<T extends Record<string, number>>(
 }
 
 export function resolveFormulaValue(formula: StatFormula, sources: Record<string, unknown>) {
+  if (formula.when) {
+    const left = sources[formula.when.left]
+    const right = sources[formula.when.right]
+    if (typeof left !== "number" || typeof right !== "number" || !Number.isFinite(left) || !Number.isFinite(right))
+      return undefined
+    switch (formula.when.comparison) {
+      case ">":
+        if (!(left > right)) return 0
+        break
+      case "<=":
+        if (!(left <= right)) return 0
+        break
+    }
+  }
   let source: unknown
   if (typeof formula.source === "string") {
     source = sources[formula.source]

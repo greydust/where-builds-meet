@@ -1,0 +1,12 @@
+{
+  "EmptyPeak": {
+    "name": "Empty Peak",
+    "duration": 10,
+    "maxStack": 1,
+    "refresh": true,
+    "showCoverage": true,
+    "description": "The applier deals 5% more Qi damage. Reapplication renews the ten-second duration.",
+    "effect": [{ "qiDMGBonus": 0.05 }],
+    "shared": false
+  }
+}

@@ -237,7 +237,7 @@ export function RotationEditorTab({
   const persistEntries = useRotationStore(state => state.persistEntries)
   const globalDebuffs = useLoadoutStore(state => state.globalDebuffs)
   const [initialState] = useState(() =>
-    initialRotationEditorState(devMode, selectedRotationId || defaultRotationId, settings.weapons),
+    initialRotationEditorState(devMode, selectedRotationId || defaultRotationId, settings.weapons, previewId),
   )
   const savedRotationSnapshotsRef = useRef<Map<string, RotationRecord> | null>(null)
   if (savedRotationSnapshotsRef.current === null)
@@ -939,7 +939,7 @@ export function RotationEditorTab({
     )
     const nextEntry = nextEntries.find(entry => entry.id === id)
     if (!nextEntry) return
-    const nextRotation = rotationRecordForEntry(nextEntry)
+    const nextRotation = rotationRecordForEntry(nextEntry, previewId)
     updateRotationEntries(() => nextEntries)
     onActiveRotationChange(id)
     setEditingRotationId(id)
@@ -959,7 +959,7 @@ export function RotationEditorTab({
     )
     const nextEntry = nextEntries.find(entry => entry.id === id)
     if (!nextEntry) return
-    const nextRotation = rotationRecordForEntry(nextEntry)
+    const nextRotation = rotationRecordForEntry(nextEntry, previewId)
     updateRotationEntries(() => nextEntries)
     setEditingRotationId(id)
     setRotation(JSON.parse(JSON.stringify(nextRotation)) as RotationRecord)
@@ -1710,7 +1710,8 @@ export function RotationEditorTab({
       entries[0]
     if (!activeEntry) return
     if (activeEntry.id === editingRotationId && !editorTimelineReady) return
-    const activeRotation = activeEntry.id === editingRotationId ? rotation : rotationRecordForEntry(activeEntry)
+    const activeRotation =
+      activeEntry.id === editingRotationId ? rotation : rotationRecordForEntry(activeEntry, previewId)
     const prepared = prepareBaselineCalculation(activeRotation)
     void (async () => {
       const outcome = await resolveRotationForEditor(activeEntry.id, activeRotation, prepared)
@@ -1725,6 +1726,7 @@ export function RotationEditorTab({
     editorTimelineReady,
     rotation,
     rotationEntries,
+    previewId,
     settings.weapons,
   ])
   return (

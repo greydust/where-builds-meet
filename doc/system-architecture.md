@@ -1,5 +1,12 @@
 # System Architecture
 
+The Global 2.4 preview uses a generic `beforeDamage` setup trigger for outgoing
+adjustments such as Empty Peak. It executes after hit eligibility but before
+damage settlement and refreshes the action's effect snapshot. Existing damage
+listeners still run after settlement. Talent stat formulas may declare a `when`
+comparison between two input fields; the condition and amount both freeze against
+the raw talent snapshot, so temporary combat stats cannot switch Might's branch.
+
 Bolt's CN damage definitions opt into the shared `targetCorrectionBonus`
 effect field for `TARGET_TAG_CORRECT + DAMAGE_UP`. It has its own multiplier,
 separate from event-34 `baseDMGBonus`, Category 1 and Mechanism. Static
@@ -1042,6 +1049,7 @@ result per id. Merge depth follows how each registry is keyed:
 | Buffs, debuffs, DOTs | Record id           | The whole record                     |
 | Inner Ways           | Definition and tier | Individual tiers within a definition |
 | Martial arts         | Weapon id           | The whole definition                 |
+| Rotation presets     | Preset id           | Whole rotation, or null to hide it   |
 
 A preview supplies a version of a record rather than a delta, so a previewed
 record reads exactly as it would in `data/` and an omitted field is genuinely
@@ -1051,6 +1059,18 @@ data does not define, which keeps the selectors enumerating the same names.
 Records resolve in one order: shipped data, then the preview, then the user's own
 Skill Editor overrides. The preview therefore sets the baseline a user edits
 against, and an explicit user override still wins over it.
+
+Rotation overlays use `data/preview/<id>/rotation/<group>.json`, mapping preset
+IDs to whole rotations or null. They apply only to bundled default entries;
+custom rotations retain their saved content. The rotation store derives the
+visible preset list for its selected preview, rebuilding the shipped defaults
+when returning to Current. Its existing serializer persists only custom entries,
+so preview presets never become saved custom data. Selection falls back to a
+visible compatible preset without overwriting the saved Current selection.
+The editor and shared active result resolve the same preview record. Preset
+editors remount when their preview changes; custom editor drafts stay mounted.
+Rotation records enter the existing calculation and fingerprint pipeline after
+resolution; no second damage pipeline or persisted preview-specific list exists.
 
 The resolved set is passed to the calculation bundle, the graduation bundles, and
 the Skill Editor rather than being read from module state, so every consumer sees

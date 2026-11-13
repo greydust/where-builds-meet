@@ -28,6 +28,7 @@ import type { RotationEntry } from "@/rotationTransfer"
 import { migrateSkillId } from "@/skillIdMigrations"
 import { normalizeStoredWeaponIds, weaponIds as allWeaponIds, type WeaponId } from "@/types"
 
+import { rotationOverridesFor, type PreviewId } from "./gameData/previews"
 import { rotationEventDefinitions } from "./gameData/rotationEffects"
 import { allSkillDefinitions, dotDefinitions, effectDefinitions, martialArtBySkillId } from "./gameData/skills"
 
@@ -363,8 +364,20 @@ export const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "D
 export const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation"
 export const formerDefaultRotationIds = new Set(["dummy-1-min"])
 
-export function rotationRecordForEntry(entry: RotationEntry) {
+export function rotationEntriesForPreview(entries: RotationEntry[], previewId: PreviewId | null): RotationEntry[] {
+  const overrides = rotationOverridesFor(previewId)
+  if (!Object.keys(overrides).length) return entries
+  return entries.flatMap(entry => {
+    if (!entry.isDefault || !Object.hasOwn(overrides, entry.id)) return [entry]
+    const rotation = overrides[entry.id]
+    return rotation ? [{ ...entry, rotation: migrateRotation(rotation) }] : []
+  })
+}
+
+export function rotationRecordForEntry(entry: RotationEntry, previewId: PreviewId | null = null) {
   if (!entry.isDefault) return entry.rotation
+  const override = rotationOverridesFor(previewId)[entry.id]
+  if (override) return migrateRotation(override)
   return defaultRotationEntries.find(preset => preset.id === entry.id)?.rotation ?? entry.rotation
 }
 

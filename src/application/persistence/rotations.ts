@@ -1,10 +1,6 @@
 import * as v from "valibot"
 
-import type { RotationRecord } from "../../calculations/rotationTimeline"
-import { getPersistentItem } from "../../persistentStorage"
-import type { RotationEntry } from "../../rotationTransfer"
-import { parseJson } from "../../schemas/json"
-import type { WeaponId } from "../../types"
+import type { PreviewId } from "@/application/gameData/previews"
 import {
   defaultRotationEntries,
   defaultRotationId,
@@ -13,17 +9,33 @@ import {
   migrateRotation,
   rotationAvailableForWeapons,
   rotationMartialArts,
-} from "../rotationCatalog"
+  rotationEntriesForPreview,
+} from "@/application/rotationCatalog"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+import { getPersistentItem } from "@/persistentStorage"
+import type { RotationEntry } from "@/rotationTransfer"
+import { parseJson } from "@/schemas/json"
+import type { WeaponId } from "@/types"
+
 import { rotationListStorageKey } from "./keys"
 import { readLegacyRotation } from "./legacy"
 
-export function loadRotationEntries(): RotationEntry[] {
+export function loadRotationEntries(
+  previewId: PreviewId | null = null,
+  currentEntries?: RotationEntry[],
+): RotationEntry[] {
+  if (currentEntries)
+    return rotationEntriesForPreview(
+      [...defaultRotationEntries, ...currentEntries.filter(entry => !entry.isDefault)],
+      previewId,
+    )
   const bundledDefaults = (): RotationEntry[] =>
-    defaultRotationEntries.map(entry => ({
-      ...entry,
-      martialArts: [...entry.martialArts],
-      rotation: JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord,
-    }))
+    rotationEntriesForPreview(defaultRotationEntries, previewId).map(entry =>
+      Object.assign({}, entry, {
+        martialArts: [...entry.martialArts],
+        rotation: JSON.parse(JSON.stringify(entry.rotation)) as RotationRecord,
+      }),
+    )
   try {
     const saved = parseJson(v.array(v.unknown()), getPersistentItem(rotationListStorageKey) ?? "null")
     const customEntries: RotationEntry[] = []
@@ -88,8 +100,9 @@ export function initialRotationEditorState(
   devMode: boolean,
   preferredRotationId: string,
   weapons: [WeaponId, WeaponId],
+  previewId: PreviewId | null = null,
 ) {
-  const entries = loadRotationEntries()
+  const entries = loadRotationEntries(previewId)
   const selectableEntries = entries.filter(entry => devMode || !entry.test)
   const activeId = initialRotationId(selectableEntries, preferredRotationId, weapons)
   const activeRotation =

@@ -1,5 +1,15 @@
 # Damage Formula Specification
 
+In the Global 2.4 preview, Might's talent conversion formulas select one branch
+with `when: { left: "body", comparison: ">" | "<=", right: "power" }`.
+Both the comparison and amount use immutable STEADY/raw inputs. Constitution
+strictly greater than Power selects Thundercry Defense (.132 per point) or
+Stormbreaker HP (10 per point); otherwise Power selects Thundercry Max Physical
+Attack or Stormbreaker Min Physical Attack (.264 per point). Rank-specific input
+caps are expressed as output caps after multiplying. This replaces, rather than
+adds to, the former max(Constitution, Power) conversion; Current retains its old
+data. A false formula condition contributes zero.
+
 Equipped Art of X affixes are highest-only within each weapon family.
 Different families coexist and apply to their matching skills; All Martial
 Arts remains additive. The gear pipeline resolves this before the damage
@@ -843,7 +853,22 @@ bracket: 1% per complete percentage point of effective Affinity, capped at
 載戈 retains coefficient 0.276 and receives its 50% NPC correction here.
 Enhanced primary VC uses 1.50 × 1.30 during T6 鋒銳. These definitions
 assume the supported monster targets; native predicate 8 excludes players
-and AI avatars. Existing other-path correction definitions are unchanged.
+and AI avatars. The Global 2.4 preview also places Nameless Sword's stepped
+Sword Energy bonus (up to 20%), Jadebreak's 10% boss bonus and Fragrant Song's
+20% Scarlet Spin/Resonance bonus in `targetCorrectionBonus`. They add to other
+eligible corrections in this bracket and multiply Category 1 separately.
+Jadebreak's 30% projectile branch remains in Category 1. Other-path corrections
+outside these preview records are unchanged.
+
+The Global 2.4 preview replaces Thunderous Bloom's active 15% HP bonus with
+10 Physical/Silkbind Penetration, increased to 20 at T4. Its existing eligible
+skill and active-window conditions remain intact. Inkwell Fan's low-Qi pursuit
+talent replaces 30% Critical Rate with 15% Critical DMG; the existing 8% HP
+bonus and other talents remain intact. Bone Corrosion adds 5% Category 1 HP
+damage to Light Attacks below 40% target Qi. Kite's new Soaring High T6 debuff
+adds 8% Category 1 HP damage per stack to the applier's End hits, capped at 16%;
+the triggering hit resolves before its new stack is applied. These bonuses use
+the existing damage pipeline and preview data, not UI-side calculations.
 See [Bolt combat audit](bolt-combat-audit.md) for source IDs and scope.
 
 Adaptive Steel grants its Heng Blade buff on a successful deflection while Heng

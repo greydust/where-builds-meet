@@ -1,4 +1,5 @@
 import effects from "@gamedata/buff/stonesplit-strength.json"
+import previewEffects from "@gamedata/preview/cn-2.8.5/buff/stonesplit-strength.json"
 import preview from "@gamedata/preview/cn-2.8.5/skill/Snowparting.json"
 import skills from "@gamedata/skill/snowparting-blade.json"
 import { describe, expect, it } from "vitest"
@@ -17,7 +18,11 @@ function run(steps: RotationStep[], exhausted = false, usePreview = false) {
     skills: asSkillRecords(usePreview ? { ...skills, ...preview } : skills),
     eventDefinitions: {},
     dots: {},
-    effectDefinitions: asEffectDefinitions({ ...effects, Exhausted: { duration: 30, maxStack: 1 } }),
+    effectDefinitions: asEffectDefinitions({
+      ...effects,
+      ...(usePreview ? previewEffects : {}),
+      Exhausted: { duration: 30, maxStack: 1 },
+    }),
     innerWayConditions: ["FrostCladNightT6"],
     innerWayRules: [],
     setupEffects: [],
@@ -42,6 +47,10 @@ describe.each([false, true])("Forgetfulness cooldown (preview=%s)", usePreview =
   it("allows a new grant after the cooldown expires", () => {
     const rows = run([vc, lc, delay(6), vc, lc], false, usePreview)
     expect(rows[3].effectiveCastTime).toBeCloseTo(0.955, 8)
+  })
+  it("allows the Global preview to regrant between 5.5 and 6 seconds after consumption", () => {
+    const rows = run([vc, lc, delay(4), vc, lc], false, usePreview)
+    expect(rows[3].effectiveCastTime).toBeCloseTo(usePreview ? 0.955 : 1.605, 8)
   })
   it("removes the cooldown before granting Forgetfulness on an exhausted target", () => {
     const rows = run([vc, lc, vc, lc], true, usePreview)

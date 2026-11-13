@@ -1,0 +1,23 @@
+{
+  "BoneCorrosion": {
+    "name": "Bone Corrosion",
+    "shortName": "BC",
+    "description": "Increases Qi damage from the applier by 2%, with an additional 10% for Light Attacks. Light Attacks gain 5% HP damage against targets below 40% Qi.",
+    "duration": 20,
+    "maxStack": 1,
+    "refresh": true,
+    "shared": false,
+    "showCoverage": true,
+    "effect": [
+      { "qiDMGBonus": 0.02 },
+      { "requirement": [{ "target": "skillTag", "value": "Light" }], "effect": { "qiDMGBonus": 0.1 } },
+      {
+        "requirement": [
+          { "target": "skillTag", "value": "Light" },
+          { "target": "targetQiPercentage", "comparison": "<", "amount": 40 }
+        ],
+        "effect": { "hpDMGBonus": 0.05 }
+      }
+    ]
+  }
+}

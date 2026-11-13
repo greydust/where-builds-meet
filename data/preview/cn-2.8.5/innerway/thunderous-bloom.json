@@ -1,0 +1,121 @@
+{
+  "ThunderousBloom": {
+    "effect": {
+      "ThunderousBloomT0": {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Heavy" },
+                  { "target": "skillTag", "value": "Pursuit" },
+                  { "target": "skillTag", "value": "Light" },
+                  { "target": "skillTag", "value": "Ballistic" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "SpringThunder" },
+                  { "target": "self", "value": "SpringThunderDamage" }
+                ]
+              }
+            ],
+            "effect": { "physicalPenetration": 10, "silkbindPenetration": 10 }
+          }
+        ],
+        "trigger": [
+          {
+            "event": "skillEnd",
+            "cooldown": 15,
+            "requirement": [{ "target": "skillTag", "value": "MartialArt" }],
+            "action": [{ "type": "apply", "target": "self", "value": "SpringThunder", "time": 0, "stack": 5 }]
+          },
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Heavy" },
+                  { "target": "skillTag", "value": "Pursuit" },
+                  { "target": "skillTag", "value": "Light" },
+                  { "target": "skillTag", "value": "Ballistic" }
+                ]
+              },
+              { "target": "self", "value": "SpringThunder" },
+              { "operator": "not", "operand": [{ "target": "self", "value": "SpringThunderDamage" }] }
+            ],
+            "action": [
+              { "type": "consume", "target": "self", "value": "SpringThunder" },
+              { "type": "apply", "target": "self", "value": "SpringThunderDamage", "time": 0 },
+              { "type": "apply", "target": "self", "value": "SpringThunderSpent" }
+            ]
+          }
+        ]
+      },
+      "ThunderousBloomT1": { "effect": [{ "target": "SpringThunder", "modify": { "maxStack": 5 } }] },
+      "ThunderousBloomT4": {
+        "effect": [
+          {
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Heavy" },
+                  { "target": "skillTag", "value": "Pursuit" },
+                  { "target": "skillTag", "value": "Light" },
+                  { "target": "skillTag", "value": "Ballistic" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "SpringThunder" },
+                  { "target": "self", "value": "SpringThunderDamage" }
+                ]
+              }
+            ],
+            "effect": { "physicalPenetration": 10, "silkbindPenetration": 10 }
+          }
+        ]
+      },
+      "ThunderousBloomT6": {
+        "trigger": [
+          {
+            "cooldown": 2,
+            "requirement": [
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Heavy" },
+                  { "target": "skillTag", "value": "Pursuit" },
+                  { "target": "skillTag", "value": "Light" },
+                  { "target": "skillTag", "value": "Ballistic" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "self", "value": "SpringThunder" },
+                  { "target": "self", "value": "SpringThunderSpent" }
+                ]
+              },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "target", "value": "Exhausted" },
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 30 },
+                  { "target": "target", "value": "QiImbalance" },
+                  { "target": "target", "value": "BoneCorrosion" },
+                  { "target": "target", "value": "EmptyPeak" }
+                ]
+              }
+            ],
+            "action": [{ "type": "apply", "target": "self", "value": "SpringThunder" }]
+          }
+        ]
+      }
+    }
+  }
+}

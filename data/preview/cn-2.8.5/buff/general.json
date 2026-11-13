@@ -1,0 +1,57 @@
+{
+  "Jadeware": {
+    "name": "Jadeware",
+    "duration": 12,
+    "maxStack": 1,
+    "refresh": true,
+    "effect": [
+      { "effect": { "affinityDmgBonus": 0.1 } },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "target", "value": "QiImbalance" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 100 }
+            ]
+          }
+        ],
+        "stat": { "directAffinity": 0.075 }
+      }
+    ]
+  },
+  "Bloom": {
+    "name": "Bloom",
+    "shortName": "Bloom",
+    "description": "Restores 10 Endurance on application and 5 per qualifying hit while active.",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true,
+    "action": [{ "type": "addResource", "value": "Endurance", "amount": 10, "time": 0 }],
+    "trigger": { "event": "damage", "action": { "type": "addResource", "value": "Endurance", "amount": 5 } }
+  },
+  "Frost": {
+    "name": "Frost",
+    "shortName": "Frost",
+    "description": "Reduces incoming damage by 10%; sprint, dodge and jump Endurance costs increase by 50%.",
+    "duration": 8,
+    "maxStack": 1,
+    "refresh": true,
+    "incomingDamageReduction": { "chance": 1, "reduction": 0.1 },
+    "effect": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "skillTag", "value": "Dodge" },
+              { "target": "skillTag", "value": "Jump" },
+              { "target": "skillTag", "value": "Sprint" }
+            ]
+          }
+        ],
+        "effect": { "resourceCostBonus": { "Endurance": 0.5 } }
+      }
+    ]
+  }
+}

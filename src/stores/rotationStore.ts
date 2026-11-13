@@ -65,6 +65,8 @@ export type RotationStore = {
    * and storing it are the same act.
    */
   entries: RotationEntry[]
+  previewId: string | null
+  setPreview: (previewId: string | null) => void
   activeRotationIdsByPath: PathSelectionIds
   /** Null until a rotation resolves, and again on a path switch, which invalidates it. */
   result: ActiveRotationResult | null
@@ -76,7 +78,7 @@ export type RotationStore = {
    * contents depend on when the module happened to be imported — which a lazily loaded editor
    * decides. The application boots it explicitly instead, once per mount.
    */
-  initialise: (pathId: PathId) => void
+  initialise: (pathId: PathId, previewId?: string | null) => void
   /** Applies a change to the rotation list and stores the result, which cannot drift apart. */
   updateEntries: (update: (entries: RotationEntry[]) => RotationEntry[]) => void
   /** Writes the list unchanged, for when something outside it is about to replace what loads it. */
@@ -94,19 +96,33 @@ export type RotationStore = {
 
 const persist = (ids: PathSelectionIds) => setPersistentItem(activeRotationByPathStorageKey, JSON.stringify(ids))
 
+function previewState(state: RotationStore, previewId: string | null) {
+  return {
+    previewId,
+    entries: loadRotationEntries(previewId, state.entries),
+    result: state.result?.rotationIsDefault ? null : state.result,
+  }
+}
+
+function loadRotationState(pathId: PathId, previewId: string | null) {
+  return {
+    previewId,
+    entries: loadRotationEntries(previewId),
+    activeRotationIdsByPath: loadActiveRotationIds(pathId),
+    result: null,
+    status: idleStatus(),
+  }
+}
+
 export const useRotationStore = create<RotationStore>()((set, get) => ({
   entries: [],
+  previewId: null,
+  setPreview: previewId => set(state => previewState(state, previewId)),
   activeRotationIdsByPath: {},
   result: null,
   status: idleStatus(),
 
-  initialise: pathId =>
-    set({
-      entries: loadRotationEntries(),
-      activeRotationIdsByPath: loadActiveRotationIds(pathId),
-      result: null,
-      status: idleStatus(),
-    }),
+  initialise: (pathId, previewId = null) => set(loadRotationState(pathId, previewId)),
 
   updateEntries: update => {
     const next = update(get().entries)

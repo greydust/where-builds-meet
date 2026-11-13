@@ -1,0 +1,188 @@
+{
+  "VagrantSword2": {
+    "name": "Vagrant Sword",
+    "shortName": "Sword Charged",
+    "castTime": 0,
+    "subAction": [
+      {
+        "value": "VagrantSwordPreCharge",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "EnergySurge" }] }]
+      },
+      {
+        "value": "VagrantSwordCharge",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "EnergySurge" }] }]
+      },
+      {
+        "value": "VagrantSwordShootThree",
+        "requirement": [
+          { "target": "self", "value": "SwordMorphT0" },
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "self", "value": "Shield" },
+              [
+                { "target": "self", "value": "SwordMorphT1" },
+                { "operator": "not", "operand": [{ "target": "battleStarted" }] }
+              ],
+              [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "self", "value": "SwordMorphT1" },
+                    { "target": "self", "value": "SwordMorphT4" }
+                  ]
+                },
+                { "target": "self", "value": "SwordMorphWindow" }
+              ],
+              { "target": "self", "value": "EnergySurge" },
+              { "target": "self", "value": "PeerlessStance" }
+            ]
+          }
+        ],
+        "fallback": "VagrantSwordShootSingle"
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SwordEnergy"
+    ],
+    "martialArt": "namelessSword",
+    "weapon": "Sword",
+    "ignorePing": true
+  },
+  "VagrantSwordCharge": {
+    "name": "Vagrant Sword [Charging]",
+    "shortName": "Sword Charging",
+    "castTime": 1.2,
+    "endurance": { "regeneration": 0.001, "consumption": 20 },
+    "tags": [
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SubAction",
+      "SwordEnergy",
+      "VagrantSwordCharging"
+    ],
+    "ignorePing": true,
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "PeerlessStance" }],
+        "effect": { "castTimeMultiplier": 0.6666666666666666 }
+      }
+    ]
+  },
+  "VagrantSwordShootThree": {
+    "name": "Vagrant Sword [Three Waves]",
+    "shortName": "Sword Three Waves",
+    "castTime": 0.85,
+    "endurance": { "regeneration": 0.001 },
+    "action": [
+      { "type": "consume", "target": "self", "value": "PeerlessStance", "stack": "all", "time": 0 },
+      { "type": "consumeResource", "value": "Endurance", "amount": 20, "resourceCostTags": [], "time": 0 },
+      {
+        "type": "damage",
+        "phyCoef": 1.30656,
+        "attrCoef": 1.30656,
+        "phyBonus": 361.6,
+        "attrBonus": 197.2,
+        "time": 0.101
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.567872,
+        "attrCoef": 1.567872,
+        "phyBonus": 433.92,
+        "attrBonus": 236.64,
+        "time": 0.267
+      },
+      {
+        "type": "damage",
+        "phyCoef": 1.829184,
+        "attrCoef": 1.829184,
+        "phyBonus": 506.24,
+        "attrBonus": 276.08,
+        "time": 0.755,
+        "modifier": [
+          {
+            "requirement": [
+              { "target": "self", "value": "SwordMorphT3" },
+              { "target": "target", "value": "Exhausted" }
+            ],
+            "effect": { "GuaranteedAffinity": true }
+          }
+        ]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "SwordMorphWindow",
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordMorphT4" }]
+      },
+      { "type": "consume", "target": "self", "value": "EnergySurge", "stack": "all", "time": 0 },
+      {
+        "type": "trigger",
+        "value": "SwordMorphEnergySurge",
+        "time": 0,
+        "requirement": [{ "target": "self", "value": "SwordMorphT6" }]
+      },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.101 },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.267 },
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.755 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SwordEnergy",
+      "SubAction"
+    ],
+    "ignorePing": true
+  },
+  "DauntingStrikeCancel": {
+    "name": "Daunting Strike [Cancel]",
+    "shortName": "Sword Q",
+    "cooldown": 12,
+    "castTime": 0.293,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 1.025314,
+        "attrCoef": 1.025314,
+        "phyBonus": 283.6,
+        "attrBonus": 154.6,
+        "time": 0.293
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "PeerlessStance",
+        "duration": 3,
+        "time": 0.293,
+        "requirement": [
+          { "target": "self", "value": "MountainsMightT0" },
+          { "operator": "not", "operand": [{ "target": "targetType", "value": "Boss" }] }
+        ]
+      }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "Sword", "NamelessSword", "DauntingStrike"],
+    "martialArt": "namelessSword",
+    "weapon": "Sword"
+  }
+}

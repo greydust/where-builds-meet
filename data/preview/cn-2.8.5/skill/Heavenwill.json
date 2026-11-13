@@ -1,0 +1,197 @@
+{
+  "VileCondemnedEndHit": {
+    "ignorePing": true,
+    "name": "Vile Condemned End Hit",
+    "castTime": 2.8375,
+    "action": [
+      {
+        "type": "consumeResource",
+        "value": "HeavensWill",
+        "amount": 1,
+        "time": 0.375,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SoaringHighT6" },
+            { "target": "resource", "value": "HeavensWill", "comparison": "==", "amount": 4 }
+          ]
+        }
+      },
+      { "type": "consumeResource", "value": "HeavensWill", "amount": 3, "time": 0.375 },
+      { "type": "apply", "target": "self", "value": "VileCondemnedEndCooldown", "time": 0.7375 },
+      { "type": "damage", "phyCoef": 11.7527, "phyBonus": 3250, "attrBonus": 1771, "time": 1.9, "attrCoef": 11.7527 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "SoaringHighEndVulnerability",
+        "stack": 1,
+        "time": 1.9,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SoaringHighT6" },
+            { "target": "resource", "value": "HeavensWill", "comparison": "==", "amount": 4 }
+          ]
+        }
+      }
+    ],
+    "modifier": [
+      {
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT6" },
+          { "target": "resource", "value": "HeavensWill", "comparison": "==", "amount": 4 }
+        ],
+        "effect": { "baseDMGBonus": 0.3, "critDmgBonus": 0.1 }
+      }
+    ],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "VileCondemnedEnd",
+      "MartialArtEffect",
+      "SubAction"
+    ],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "SoaringHighT6Refund": {
+    "name": "Soaring High T6 Refund",
+    "castTime": 0,
+    "cooldown": 0,
+    "action": [{ "type": "addResource", "value": "HeavensWill", "amount": 1, "time": 0.001 }],
+    "modifier": [],
+    "tags": ["Triggered", "BamboocutKite"]
+  },
+  "VileCondemnedEndFastCharge": {
+    "silent": true,
+    "name": "Vile Condemned End [Fast Charge]",
+    "castTime": 0.455,
+    "action": [],
+    "modifier": [],
+    "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "MartialArtEffect", "SubAction"]
+  },
+  "VileCondemnedEnd": {
+    "silent": true,
+    "ignorePing": true,
+    "name": "Vile Condemned End",
+    "shortName": "Gauntlet End",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "VileCondemnedEndFastCharge",
+        "fallback": "VileCondemnedCharge",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ]
+      },
+      {
+        "value": "VileCondemnedEndHit",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ],
+        "waitForRequirement": true
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "MartialArtEffect"
+    ],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VileCondemnedEnd4": {
+    "silent": true,
+    "ignorePing": true,
+    "name": "Vile Condemned End [4 HW]",
+    "shortName": "Gauntlet End [4 HW]",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "VileCondemnedEndFastCharge",
+        "fallback": "VileCondemnedCharge",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ]
+      },
+      {
+        "value": "VileCondemnedEndHit",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 4 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ],
+        "waitForRequirement": true
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "MartialArtEffect"
+    ],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  },
+  "VileCondemned": {
+    "silent": true,
+    "ignorePing": true,
+    "name": "Vile Condemned",
+    "shortName": "Gauntlet Charged",
+    "castTime": 0,
+    "action": [],
+    "subAction": [
+      {
+        "value": "VileCondemnedEndFastCharge",
+        "fallback": "VileCondemnedCharge",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ]
+      },
+      {
+        "value": "VileCondemnedEndHit",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ],
+        "fallback": "VileCondemnedHit"
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "Charged",
+      "Gauntlet",
+      "HeavenwillGauntlets",
+      "VileCondemned",
+      "MartialArtEffect"
+    ],
+    "martialArt": "heavenwill",
+    "weapon": "Gauntlet"
+  }
+}

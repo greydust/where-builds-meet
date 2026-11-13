@@ -1,6 +1,6 @@
 import previewManifest from "@gamedata/preview/previews.json"
 
-import type { EffectDefinition } from "@/calculations/rotationTimeline"
+import type { EffectDefinition, RotationRecord } from "@/calculations/rotationTimeline"
 import { innerWayDefinitions, type InnerWayDefinition, type InnerWayTierEffect } from "@/data/innerWayDefinitions"
 import type { SkillCategory, SkillMap } from "@/skillOverrides"
 import type { WeaponId } from "@/types"
@@ -29,6 +29,7 @@ export type CombatDefinitions = {
  * each registry is keyed; the flat effect registries merge by record id.
  */
 type PreviewOverlay = {
+  rotations: Record<string, RotationRecord | null>
   skillMaps: Partial<Record<SkillCategory, SkillMap>>
   effectDefinitions: Record<string, EffectDefinition>
   dotDefinitions: SkillMap
@@ -68,7 +69,14 @@ const previewFiles = import.meta.glob("../../../data/preview/*/*/*.json", { eage
 >
 
 function emptyOverlay(): PreviewOverlay {
-  return { skillMaps: {}, effectDefinitions: {}, dotDefinitions: {}, innerWayTiers: {}, martialArtDefinitions: {} }
+  return {
+    rotations: {},
+    skillMaps: {},
+    effectDefinitions: {},
+    dotDefinitions: {},
+    innerWayTiers: {},
+    martialArtDefinitions: {},
+  }
 }
 
 /** `../../../data/preview/<previewId>/<registry>/<key>.json` */
@@ -88,6 +96,9 @@ function buildOverlay(previewId: PreviewId): PreviewOverlay {
     if (filePreviewId !== previewId || !records || typeof records !== "object") continue
     const entries = records as Record<string, unknown>
     switch (registry) {
+      case "rotation":
+        Object.assign(overlay.rotations, entries)
+        break
       case "skill":
         overlay.skillMaps[key as SkillCategory] = entries as SkillMap
         break
@@ -151,6 +162,21 @@ function applyOverlay(base: CombatDefinitions, overlay: PreviewOverlay): CombatD
 }
 
 const resolvedPreviews = new Map<PreviewId, CombatDefinitions>()
+const overlays = new Map<PreviewId, PreviewOverlay>()
+const noRotationOverrides: Readonly<Record<string, RotationRecord | null>> = {}
+
+function overlayFor(id: PreviewId) {
+  const cached = overlays.get(id)
+  if (cached) return cached
+  const overlay = buildOverlay(id)
+  overlays.set(id, overlay)
+  return overlay
+}
+
+/** Whole preset replacements; null hides a shipped preset only while this preview is selected. */
+export function rotationOverridesFor(previewId: PreviewId | null): Readonly<Record<string, RotationRecord | null>> {
+  return previewId && isPreviewId(previewId) ? overlayFor(previewId).rotations : noRotationOverrides
+}
 
 /**
  * The shipped data for no selection, or the shipped data with one preview laid over it. An
@@ -161,7 +187,7 @@ export function combatDefinitionsFor(previewId: PreviewId | null): CombatDefinit
   if (!previewId || !isPreviewId(previewId)) return currentCombatDefinitions
   const cached = resolvedPreviews.get(previewId)
   if (cached) return cached
-  const resolved = applyOverlay(currentCombatDefinitions, buildOverlay(previewId))
+  const resolved = applyOverlay(currentCombatDefinitions, overlayFor(previewId))
   resolvedPreviews.set(previewId, resolved)
   return resolved
 }

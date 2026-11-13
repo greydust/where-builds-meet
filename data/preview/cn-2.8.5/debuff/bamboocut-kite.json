@@ -1,0 +1,14 @@
+{
+  "SoaringHighEndVulnerability": {
+    "name": "Soaring High End Vulnerability",
+    "duration": 25,
+    "maxStack": 2,
+    "refresh": true,
+    "shared": false,
+    "showCoverage": true,
+    "stackEffects": [
+      [{ "requirement": [{ "target": "skillTag", "value": "VileCondemnedEnd" }], "effect": { "hpDMGBonus": 0.08 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "VileCondemnedEnd" }], "effect": { "hpDMGBonus": 0.16 } }]
+    ]
+  }
+}

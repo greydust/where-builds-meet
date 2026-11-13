@@ -1,0 +1,538 @@
+{
+  "name": "Inkwell Fan",
+  "weapon": "Fan",
+  "tag": "InkwellFan",
+  "talent": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 73.92 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 196, "minSilkbind": 98 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.11 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 212, "minSilkbind": 106 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.0725 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 85.8 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 228, "minSilkbind": 114 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.126 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.15 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 96.36 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 246, "minSilkbind": 123 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.225 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 266, "minSilkbind": 133 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.3 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 286, "minSilkbind": 143 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.4 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 306, "minSilkbind": 153 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.5 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 328, "minSilkbind": 164 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.6 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "MoonShatterSpring" },
+              { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+            ],
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "minPhys": { "formula": { "source": "agility", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+            "effect": {
+              "critDmgBonus": {
+                "function": "segment",
+                "param1": "minPhys",
+                "param2": [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750],
+                "param3": [
+                  0, 0.024, 0.048, 0.072, 0.096, 0.12, 0.144, 0.168, 0.192, 0.216, 0.24, 0.264, 0.288, 0.312, 0.336,
+                  0.36
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxSilkbind": 352, "minSilkbind": 176 },
+            "stat": {
+              "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "InkwellFan" }], "effect": { "flatAttackBonus": 0.725 } }
+        ]
+      }
+    ]
+  ]
+}

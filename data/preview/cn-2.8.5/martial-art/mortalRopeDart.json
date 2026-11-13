@@ -1,0 +1,582 @@
+{
+  "name": "Mortal Rope Dart",
+  "weapon": "RopeDart",
+  "tag": "MortalRopeDart",
+  "talent": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.08512 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 196, "minBamboocut": 98 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.11 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0912 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 212, "minBamboocut": 106 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.0725, "coefficientBonusWithoutFlatAttack": 0.00725 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.0988 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 228, "minBamboocut": 114 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.126 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.15, "coefficientBonusWithoutFlatAttack": 0.015 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.11096 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 246, "minBamboocut": 123 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.225, "coefficientBonusWithoutFlatAttack": 0.0225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.12312000000000001 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 266, "minBamboocut": 133 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.3, "coefficientBonusWithoutFlatAttack": 0.03 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.131328 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 286, "minBamboocut": 143 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.4, "coefficientBonusWithoutFlatAttack": 0.04 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.14044800000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 306, "minBamboocut": 153 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.5, "coefficientBonusWithoutFlatAttack": 0.05 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.149568 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 328, "minBamboocut": 164 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.6, "coefficientBonusWithoutFlatAttack": 0.06 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "trigger": {
+              "event": "damage",
+              "requirement": [
+                {
+                  "operator": "or",
+                  "operand": [
+                    { "target": "skillTag", "value": "BladeboundThread" },
+                    { "target": "skillTag", "value": "CoiledDragon" }
+                  ]
+                }
+              ],
+              "action": { "type": "apply", "target": "target", "value": "BoneCorrosion" }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "crit": { "formula": { "source": "agility", "multiplier": 0.000304, "max": 0.16051200000000002 } }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": { "stat": { "physDmgBonus": 0.09, "bamboocutDmgBonus": 0.09 } }
+          },
+          {
+            "requirement": [{ "target": "skillTag", "value": "Rodent" }],
+            "effect": {
+              "stat": {
+                "physDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } },
+                "bamboocutDmgBonus": { "formula": { "source": "minPhys", "multiplier": 0.00016, "max": 0.12 } }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBamboocut": 352, "minBamboocut": 176 },
+            "stat": {
+              "bamboocutDmgBonus": { "formula": { "source": "minBamboocut", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "MortalRopeDart" }],
+            "effect": { "flatAttackBonus": 0.725, "coefficientBonusWithoutFlatAttack": 0.0725 }
+          }
+        ]
+      }
+    ]
+  ]
+}

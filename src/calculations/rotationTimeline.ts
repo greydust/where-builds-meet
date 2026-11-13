@@ -4093,7 +4093,9 @@ export function buildRotationTimeline(
       machineDistributionIndex = state.expectedEffects?.length ?? 0
       state.expectedEffects = [...(state.expectedEffects ?? []), distribution]
     }
-    const resolvedAction = event.kind === "action" ? resolveAction?.(event.row, event.actionIndex ?? -1) : undefined
+    const beforeDamage = action.type === "damage" && battleStarted && effectTriggersByEvent.has("beforeDamage")
+    let resolvedAction =
+      event.kind === "action" && !beforeDamage ? resolveAction?.(event.row, event.actionIndex ?? -1) : undefined
     if (action.type === "clearCD" && typeof action.value === "string") {
       if (action.seconds === undefined) cooldowns[action.value] = event.time
       clearSkillCooldown(
@@ -4934,6 +4936,12 @@ export function buildRotationTimeline(
         )
       }
       queueMachineWake(event.row)
+    }
+    if (beforeDamage) {
+      runEffectTriggers("beforeDamage")
+      runEffectTriggers("beforeDamage", true)
+      Object.assign(event.row.actionStates[event.actionIndex ?? -1], { buffs, debuffs, unconditionalDamageEffects })
+      resolvedAction = resolveAction?.(event.row, event.actionIndex ?? -1)
     }
     if (action.type === "outcomeMachineWake") {
       machineWake = undefined

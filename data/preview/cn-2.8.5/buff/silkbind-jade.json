@@ -1,0 +1,37 @@
+{
+  "Jadebreak": {
+    "name": "Jadebreak",
+    "duration": 15,
+    "maxStack": 1,
+    "refresh": true,
+    "showCoverage": true,
+    "effect": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "skillTag", "value": "Ballistic" },
+              { "target": "skillTag", "value": "JadebreakProjectile" }
+            ]
+          }
+        ],
+        "effect": { "hpDMGBonus": 0.3 }
+      },
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "skillTag", "value": "Ballistic" },
+              { "target": "skillTag", "value": "Pursuit" },
+              { "target": "skillTag", "value": "JadebreakProjectile" }
+            ]
+          }
+        ],
+        "effect": { "targetCorrectionBonus": 0.1 }
+      }
+    ],
+    "shortName": "JB"
+  }
+}

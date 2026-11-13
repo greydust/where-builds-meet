@@ -1,0 +1,747 @@
+{
+  "name": "Stormbreaker Spear",
+  "weapon": "Spear",
+  "tag": "StormbreakerSpear",
+  "talent": [
+    [],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 140.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 3.696
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 250.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 6.6000000000000005
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 500.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 13.200000000000001
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 750.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 19.8
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1000.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 26.400000000000002
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1250.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 33.0
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1500.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1500.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1500.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 1750.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 46.2
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 2000.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 52.800000000000004
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 2250.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 59.400000000000006
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 2800.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 73.92
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 196, "minStonesplit": 98 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.11 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 3000.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 79.2
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 212, "minStonesplit": 106 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.118 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 3250.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 85.8
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 228, "minStonesplit": 114 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.126 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 3650.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 96.36
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 246.0, "minStonesplit": 123.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.138 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 4050.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 106.92
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 266.0, "minStonesplit": 133.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.148 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 4320.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 114.048
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 286.0, "minStonesplit": 143.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 4620.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 121.968
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 306.0, "minStonesplit": 153.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 4920.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 129.888
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 328.0, "minStonesplit": 164.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "maxHp": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 10,
+                  "max": 5280.0
+                }
+              },
+              "minPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 139.392
+                }
+              }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 352.0, "minStonesplit": 176.0 },
+            "stat": {
+              "stonesplitDmgBonus": { "formula": { "source": "minStonesplit", "multiplier": 0.000336, "max": 0.15 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "StormbreakerSpear" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
+    ]
+  ]
+}

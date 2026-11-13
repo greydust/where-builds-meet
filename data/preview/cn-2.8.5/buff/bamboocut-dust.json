@@ -1,0 +1,10 @@
+{
+  "DreamwroughtHoldDrain": {
+    "name": "Dreamwrought Hold Drain",
+    "duration": 1.3,
+    "maxStack": 1,
+    "hidden": true,
+    "refresh": true,
+    "resourceRates": [{ "resource": "Endurance", "consumption": 14 }]
+  }
+}

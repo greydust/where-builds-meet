@@ -1,0 +1,524 @@
+{
+  "name": "Nameless Sword",
+  "weapon": "Sword",
+  "tag": "NamelessSword",
+  "talent": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 73.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 196, "minBellstrike": 98 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 22 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 79.2 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 212, "minBellstrike": 106 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "NamelessSword" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [{ "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 85.8 } } } }]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 228, "minBellstrike": 114 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 25.2 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSword" }], "effect": { "flatAttackBonus": 0.15 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 96.36 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 246, "minBellstrike": 123 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "NamelessSword" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 106.92 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 266, "minBellstrike": 133 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSword" }], "effect": { "flatAttackBonus": 0.3 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 114.048 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 286, "minBellstrike": 143 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSword" }], "effect": { "flatAttackBonus": 0.4 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 121.968 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 306, "minBellstrike": 153 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSword" }], "effect": { "flatAttackBonus": 0.5 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 129.888 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 328, "minBellstrike": 164 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          { "requirement": [{ "target": "skillTag", "value": "NamelessSword" }], "effect": { "flatAttackBonus": 0.6 } }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          { "effect": { "qiDMGBonus": 0.1 } },
+          {
+            "requirement": [{ "target": "skillTag", "value": "SwordEnergy" }],
+            "effect": {
+              "targetCorrectionBonus": {
+                "function": "segment",
+                "param1": "maxPhys",
+                "param2": [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
+                "param3": [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          { "stat": { "maxPhys": { "formula": { "source": "momentum", "multiplier": 0.264, "max": 139.392 } } } }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "SwordEnergy" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "targetQiPercentage", "comparison": "<", "amount": 40 },
+                  { "target": "target", "value": "QiImbalance" }
+                ]
+              }
+            ],
+            "effect": { "affinityDmgBonus": { "formula": { "source": "maxPhys", "multiplier": 0.00012, "max": 0.18 } } }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxBellstrike": 352, "minBellstrike": 176 },
+            "stat": {
+              "bellstrikePenetration": { "formula": { "source": "maxBellstrike", "multiplier": 0.0336, "max": 30 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "NamelessSword" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
+    ]
+  ]
+}

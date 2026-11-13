@@ -1,0 +1,1485 @@
+{
+  "name": "Thundercry Blade",
+  "weapon": "MoBlade",
+  "tag": "ThundercryBlade",
+  "talent": [
+    [],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 1.848
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 3.696
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 3.3000000000000003
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 6.6000000000000005
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 6.6000000000000005
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 13.200000000000001
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 9.9
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 19.8
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 13.200000000000001
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 26.400000000000002
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 16.5
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 33.0
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 23.1
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 46.2
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 26.400000000000002
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 52.800000000000004
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 29.700000000000003
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 59.400000000000006
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 36.96
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 73.92
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 196, "minStonesplit": 98 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 22 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 39.6
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 79.2
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 212, "minStonesplit": 106 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 23.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.0725 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 42.9
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 85.8
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 228, "minStonesplit": 114 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 25.2 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.15 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 48.18
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 96.36
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 246.0, "minStonesplit": 123.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 27.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.225 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 53.46
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 106.92
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 266.0, "minStonesplit": 133.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 29.6 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.3 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 57.024
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 114.048
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 286.0, "minStonesplit": 143.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.4 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 60.984
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 121.968
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 306.0, "minStonesplit": 153.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.5 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 64.944
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 129.888
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 328.0, "minStonesplit": 164.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.6 }
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "critDmgBonus": 0.1,
+              "maxPhys": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000, 65000, 70000,
+                  75000, 80000, 85000, 90000, 95000, 100000, 105000, 110000, 115000, 120000, 125000, 130000, 135000,
+                  140000, 145000, 150000
+                ],
+                "param3": [
+                  0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100,
+                  104, 108, 112, 116, 120
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 69.696
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 139.392
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": { "effectiveCritBonus": 0.09 }
+          },
+          {
+            "requirement": [
+              { "target": "skillTag", "value": "ThundercryBlade" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "VariedCombo" }
+                ]
+              }
+            ],
+            "effectiveStat": {
+              "effectiveCritBonus": {
+                "function": "segment",
+                "param1": "maxHp",
+                "param2": [
+                  6000, 12000, 18000, 24000, 30000, 36000, 42000, 48000, 54000, 60000, 66000, 72000, 78000, 84000, 90000
+                ],
+                "param3": [0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "effect": [
+          {
+            "rawStat": { "maxStonesplit": 352.0, "minStonesplit": 176.0 },
+            "stat": {
+              "stonesplitPenetration": { "formula": { "source": "minStonesplit", "multiplier": 0.0672, "max": 30.0 } }
+            }
+          }
+        ]
+      },
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "ThundercryBlade" }],
+            "effect": { "flatAttackBonus": 0.725 }
+          }
+        ]
+      }
+    ]
+  ]
+}

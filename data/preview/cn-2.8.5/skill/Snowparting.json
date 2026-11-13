@@ -163,5 +163,56 @@
     ],
     "martialArt": "snowparting",
     "weapon": "HengBlade"
+  },
+  "SnowpartingQ": {
+    "name": "General's Bane",
+    "shortName": "Heng Q",
+    "castTime": 0.6153846153846154,
+    "cooldown": 12,
+    "cooldownUses": 2,
+    "action": [
+      { "type": "damage", "phyCoef": 1.2338, "phyBonus": 342, "attrBonus": 186, "time": 0.526, "attrCoef": 1.2338 }
+    ],
+    "modifier": [],
+    "tags": ["DirectDamage", "MartialArts", "MartialArt", "HengBlade", "SnowpartingBlade", "General's Bane"],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
+  },
+  "SnowpartingQSlash": {
+    "name": "General's Bane: Slash",
+    "shortName": "Heng Q",
+    "castTime": 0.5769230769230769,
+    "cooldown": 12,
+    "cooldownUses": 2,
+    "action": [
+      {
+        "type": "damage",
+        "phyCoef": 0.596352,
+        "phyBonus": 165.2,
+        "attrBonus": 90,
+        "time": 0.234,
+        "attrCoef": 0.596352
+      },
+      {
+        "type": "damage",
+        "phyCoef": 0.894528,
+        "phyBonus": 247.8,
+        "attrBonus": 135,
+        "time": 0.491,
+        "attrCoef": 0.894528
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "General's Bane",
+      "General's Bane: Slash"
+    ],
+    "martialArt": "snowparting",
+    "weapon": "HengBlade"
   }
 }

@@ -54,9 +54,43 @@ describe("preview definitions", () => {
     const changed = (Object.keys(preview.skillMaps) as Array<keyof typeof preview.skillMaps>).filter(
       category => preview.skillMaps[category] !== shipped.skillMaps[category],
     )
-    expect(changed.sort()).toEqual(["Phalanxbane", "Snowparting"])
+    expect(changed.sort()).toEqual([
+      "Everspring",
+      "Heavenwill",
+      "InkwellFan",
+      "NamelessSpear",
+      "NamelessSword",
+      "Phalanxbane",
+      "Snowparting",
+    ])
     // The records a preview restates, and the skills it introduces beside them.
-    const restated = new Set(["AnxiSoldierSnowbreakSpring", "SnowpartingHeavyVC", "SnowpartingQStab", "PhalanxbaneQ"])
+    const restated = new Set([
+      "AnxiSoldierSnowbreakSpring",
+      "SnowpartingHeavyVC",
+      "SnowpartingQStab",
+      "PhalanxbaneQ",
+      "ScarletSpinStage1",
+      "ScarletSpinStage2",
+      "ScarletSpinStage3",
+      "ScarletSpinStage4",
+      "Resonance",
+      "VileCondemnedEndHit",
+      "SoaringHighT6Refund",
+      "QiankunsLock",
+      "QiankunsLockCancel",
+      "MoonShatterSpringNormal",
+      "MoonShatterSpringWindrider",
+      "VileCondemned",
+      "VileCondemnedEnd",
+      "VileCondemnedEnd4",
+      "DreamwroughtBubblesCharge",
+      "SnowpartingQ",
+      "SnowpartingQSlash",
+      "VagrantSword2",
+      "VagrantSwordCharge",
+      "VagrantSwordShootThree",
+      "DauntingStrikeCancel",
+    ])
     for (const category of changed) {
       const previewed = preview.skillMaps[category]
       const altered = Object.entries(shipped.skillMaps[category])
@@ -75,10 +109,26 @@ describe("preview definitions", () => {
 
   it("leaves the registries a preview does not name identical to the shipped ones", () => {
     for (const category of Object.keys(shipped.skillMaps) as Array<keyof typeof shipped.skillMaps>) {
-      if (category === "Phalanxbane" || category === "Snowparting") continue
+      if (
+        [
+          "Phalanxbane",
+          "Snowparting",
+          "Everspring",
+          "Heavenwill",
+          "NamelessSpear",
+          "NamelessSword",
+          "InkwellFan",
+        ].includes(category)
+      )
+        continue
       expect(preview.skillMaps[category]).toBe(shipped.skillMaps[category])
     }
-    expect(preview.martialArtDefinitions).toBe(shipped.martialArtDefinitions)
+    for (const weapon of Object.keys(shipped.martialArtDefinitions) as Array<
+      keyof typeof shipped.martialArtDefinitions
+    >) {
+      if (["namelessSword", "inkwellFan", "mortalRopeDart", "thundercry", "stormbreaker"].includes(weapon)) continue
+      expect(preview.martialArtDefinitions[weapon]).toBe(shipped.martialArtDefinitions[weapon])
+    }
     expect(preview.dotDefinitions).toBe(shipped.dotDefinitions)
   })
 

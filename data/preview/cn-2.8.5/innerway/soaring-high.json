@@ -1,0 +1,24 @@
+{
+  "SoaringHigh": {
+    "effect": {
+      "SoaringHighT4": {
+        "effect": [
+          {
+            "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
+            "effect": { "convert": { "from": "finalAffinity", "to": "directCrit", "ratio": 1, "max": 0.12 } }
+          }
+        ],
+        "trigger": [
+          {
+            "target": "self",
+            "requirement": [{ "target": "skillTag", "value": "VileCondemnedEnd" }],
+            "action": [{ "type": "trigger", "value": "SoaringHighT6Refund" }],
+            "event": "damage",
+            "oncePerSkill": true
+          }
+        ]
+      },
+      "SoaringHighT6": {}
+    }
+  }
+}

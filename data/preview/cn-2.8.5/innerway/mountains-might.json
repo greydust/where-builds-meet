@@ -1,0 +1,24 @@
+{
+  "MountainsMight": {
+    "effect": {
+      "MountainsMightT0": {
+        "effect": [
+          { "target": "EndlessGale", "modify": { "duration": 12 } },
+          {
+            "requirement": [
+              { "target": "self", "value": "EndlessGale" },
+              {
+                "operator": "or",
+                "operand": [
+                  { "target": "skillTag", "value": "Charged" },
+                  { "target": "skillTag", "value": "Sprint" }
+                ]
+              }
+            ],
+            "effect": { "resourceCostBonus": { "Endurance": -0.1 } }
+          }
+        ]
+      }
+    }
+  }
+}
