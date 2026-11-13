@@ -2705,3 +2705,14 @@ this same payload that confirmation stores, so switching destinations does not
 permanently discard selections before import. Activation switches to the selected
 destination, including an explicitly selected Mixed path, and selects the new
 build after the workspace transition.
+
+### Inventory edits and calculation identity
+
+Calculation consumers use `application/buildGearItems.ts` to select only the
+items named by a build's equipped slots. The selection retains its array identity
+while those item objects remain unchanged. Presets resolve their own gear and do
+not depend on the shared inventory. Removing an unused item therefore keeps the
+active sheet and surviving gear-comparison bundles cached. Inventory updates also
+preserve build objects whose equipped assignments have not changed; deleting worn
+gear still clears its assignments in every editable build and refreshes affected
+calculations.

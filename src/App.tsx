@@ -1,6 +1,8 @@
 import { IconBrandDiscord, IconBrandGithub, IconX } from "@tabler/icons-react"
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react"
 
+import { buildGearItems } from "@/application/buildGearItems"
+
 import { clearSharedBuild, hasSharedBuild, readSharedBuild } from "./application/buildShare"
 import { resolveBuildStatState } from "./application/buildStatState"
 import { settingsForPath } from "./application/characterComposition"
@@ -178,6 +180,7 @@ export default function App() {
   const activeBuildDisplayName = activeBuild
     ? (activeBuild.isDefault ? gameText(activeBuild.name) : activeBuild.name) || t("ui.app.unnamedBuild")
     : t("ui.app.unnamedBuild")
+  const activeGear = buildGearItems(activeBuild, visibleGear)
   const activeBuildSetup = useMemo(() => resolveBuildSetup(activeBuild), [activeBuild])
   const [buildSetupOverrides, setBuildSetupOverrides] = useState<BuildSetupOverrides>(() =>
     loadBuildSetupOverrides(activeBuildSetup),
@@ -186,7 +189,7 @@ export default function App() {
     () =>
       resolveBuildStatState({
         build: activeBuild,
-        gearItems: visibleGear,
+        gearItems: activeGear,
         settings,
         statOverrides,
         attunementOverrides,
@@ -196,7 +199,7 @@ export default function App() {
       }),
     [
       activeBuild,
-      visibleGear,
+      activeGear,
       settings,
       statOverrides,
       attunementOverrides,
@@ -253,7 +256,7 @@ export default function App() {
     comparisonsActive: activeTab === "main",
     pathId,
     build: activeBuild,
-    gearItems: visibleGear,
+    gearItems: activeGear,
     measurement: buildMeasurementContext,
     activeRotationId: selectedRotationId,
     defaultRotationId: defaultRotationIdForPath(pathId),

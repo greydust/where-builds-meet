@@ -210,15 +210,56 @@ describe("a sheet that has moved", () => {
     expect(measurements.count).toBe(first * 2)
   })
 
-  it("builds every candidate again when the gear list is replaced", async () => {
+  it("reuses measurements when only the inventory array changes", async () => {
     const world = fixture()
     const visible = [world.worn.id, ...spareIds(world)]
 
     await show(world, visible)
     const first = measurements.count
 
-    // An edited item is a new object in a new list, which is how the app hands one over.
+    // Replacing the container does not change any equipped item.
     await show(world, visible, { gearItems: [...world.gearItems] })
-    expect(measurements.count).toBe(first * 2)
+    expect(measurements.count).toBe(first)
+  })
+})
+
+describe("inventory deletion", () => {
+  it("does not prepare DPS again when an unequipped candidate is deleted", async () => {
+    const world = fixture()
+    const visible = [world.worn.id, ...spareIds(world)]
+    await show(world, visible)
+    const first = measurements.count
+    const deleted = spareIds(world)[0]
+    await show(
+      world,
+      visible.filter(id => id !== deleted),
+      { gearItems: world.gearItems.filter(item => item.id !== deleted) },
+    )
+    expect(measurements.count).toBe(first)
+  })
+
+  it("updates the reference and remaining comparisons when equipped gear is deleted", async () => {
+    const world = fixture()
+    const visible = spareIds(world)
+    await show(world, visible)
+    const first = measurements.count
+    await show(world, visible, { gearItems: world.gearItems.filter(item => item.id !== world.worn.id) })
+    // Each spare still supplies its own helmet, so only the now-empty reference changes.
+    expect(measurements.count).toBe(first + 1)
+  })
+
+  it("updates only the comparison that uses an edited spare", async () => {
+    const world = fixture()
+    const visible = spareIds(world)
+    await show(world, visible)
+    const first = measurements.count
+    await show(world, visible, {
+      gearItems: world.gearItems.map(item =>
+        item.id === visible[0]
+          ? Object.assign({}, item, { baseAffix: { ...item.baseAffix, value: item.baseAffix.value * 1.1 } })
+          : item,
+      ),
+    })
+    expect(measurements.count).toBe(first + 1)
   })
 })

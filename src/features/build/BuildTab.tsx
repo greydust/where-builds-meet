@@ -361,6 +361,12 @@ export default function BuildTab({
               return item && gearItemSupportsSlot(item, slot) ? [[slot, itemId]] : []
             }),
           ) as Partial<Record<GearSlot, string>>
+          const previous = entry.equipped ?? {}
+          if (
+            Object.keys(previous).length === Object.keys(equipped).length &&
+            gearSlots.every(slot => previous[slot] === equipped[slot])
+          )
+            return entry
           return { ...entry, equipped }
         }),
       }

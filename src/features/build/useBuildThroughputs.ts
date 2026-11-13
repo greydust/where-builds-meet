@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
+import { buildGearItems } from "@/application/buildGearItems"
 import { buildMeasurement, type MeasurementContext } from "@/calculations/rotationCalculationBundle"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
 import type { ThroughputReading } from "@/calculations/rotationWorkerTransport"
@@ -41,6 +42,7 @@ function measurementFor(input: {
   context: MeasurementContext
   rotation: RotationRecord
 }): Pick<Measured, "cacheKey" | "bundle"> {
+  input = { ...input, gearItems: buildGearItems(input.build, input.gearItems) }
   const held = bundlesByContext.get(input.context) ?? new Map<string, Resolved>()
   bundlesByContext.set(input.context, held)
   const previous = held.get(input.key)
