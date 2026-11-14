@@ -1432,31 +1432,20 @@ Splendor is `available`: it has talent, Inner Way, attunement, and skill data,
 preset builds, and the accepted `dummy-1-min-81-waves` DPS snapshot. Its path
 status is not proof that any timing is verified.
 
-`Dummy 1 Min 84 Waves` retains the `dummy-1-min-81-waves` preset ID so
-stored selections continue to resolve. The accepted Global 2.4 sequence uses
-28 tier-2 Vagrant Sword casts, with battle start on the first cast's first
-damage hit (after its Endurance-spend action). It starts at 12 m and reasserts
-12 m on Flute Full's last direct hit. The target is the non-attacking dummy,
-with preset ping of 15 ms. Qi break remains attached after wave 3 of the
-Vagrant cast immediately before the second full Qiankun's Lock (the 11th
-Vagrant cast). The break lands at 21.227s; Exhausted ends at 31.227s and
-Qi immunity ends at 35.227s. The matching first-cycle 60%/40% thresholds are
-8.4908s/12.7362s, and the next cycle uses 43.7178s/47.9632s.
+`Dummy 1 min 81 waves` preserves the user-proposed sequence: 27 tier-2 Vagrant
+Sword casts, with battle start on the first cast's first damage hit (after its
+Endurance-spend action). It starts at 12 m and reasserts 12 m on Flute Full's
+last direct hit. The target is the non-attacking dummy, with preset ping of 15 ms. Qi break is attached after wave 3 of the Vagrant cast immediately before the
+second full Qiankun's Lock (the 11th Vagrant cast). The last Spear Q is a cancel.
 Battle ends at 60 seconds relative to the first-hit battle anchor. No
-additional movement is inferred.
-
-The second Daunting Strike follows the Energy Surge instant release, rather
-than preceding it, and uses an explicit Deflect before the next charged
-Vagrant Sword. This refreshes Qi Imbalance at 14.672s, before its prior
-16.057s expiry, while preserving Peerless Stance for a real charge. Every
-Qiankun's Lock Cancel is followed by Deflect. A closing Spear Q Cancel,
-Deflect and Vagrant Sword begins at 57.782s, with the final wave at 59.837s.
-The production calculation verifies all 84 waves before the cutoff and a
-minimum modeled Endurance of approximately 4.17 across both preset builds
-at Solo Levels 18 and 19. This leaves only 0.163s of final-hit margin.
-Qi Imbalance is absent for the three opening waves and expires at 57.160s,
-leaving five late waves uncovered; canceled Spear Q has no damage hit to
-refresh it. These are accepted encounter limitations, not full buff coverage.
+additional movement is inferred. The break resolves at 21.338s after battle start.
+Qi 60% and 40% thresholds retain proportional timing at 8.5352s and 12.8028s.
+After Exhausted ends at 31.338s, Qi damage immunity lasts until 35.338s.
+The same depletion rate places the next 60% and 40% thresholds at 43.8732s
+and 48.1408s. No second break is authored.
+The production calculation verifies 81 waves before the cutoff: all 27 casts
+use the three-wave route, which requires Sword Morph and either Shield, the T1
+out-of-combat exception, or the T4 follow-up window.
 
 Ghostly Step - Umbra is cast immediately after the fourth Vagrant Sword.
 Both Ghostly Step variants' 30-second Mystery buffs reduce all Endurance costs

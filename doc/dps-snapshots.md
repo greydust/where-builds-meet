@@ -1,22 +1,15 @@
 # DPS regression snapshots
 
-## Splendor 84-wave acceptance (November 14, 2026)
+## Splendor original-rotation fallback (November 14, 2026)
 
-The user accepted the one-cast Daunting Strike delay, explicit Deflects after
-that strike and every Spear Q Cancel, and a closing Spear Q Cancel / Deflect /
-Vagrant Sword. The display name becomes `Dummy 1 Min 84 Waves`; the persisted
-`dummy-1-min-81-waves` ID stays unchanged. Only its four build/level snapshots
-change. All retain a 60-second duration, gain three waves, and keep modeled
-Endurance above 4. The last wave lands at 59.837s at the preset's 15 ms ping.
-The shorter delay preserves the middle Qi Imbalance refresh; the opening three
-and final five waves remain uncovered. See [skill data](skill-data.md#bellstrike-splendor).
-
-| Build         | Solo Level | Previous DPS      | Accepted DPS      |
-| ------------- | ---------- | ----------------- | ----------------- |
-| Full          | 18         | 91013.41147213621 | 93952.82225121447 |
-| Full          | 19         | 95378.39312587763 | 98460.6442157275  |
-| Fully Relayed | 18         | 87923.96461133318 | 90763.36645632681 |
-| Fully Relayed | 19         | 92256.60382730719 | 95237.7363840711  |
+The user requested reverting the 84-wave rotation after identifying that the
+practice dummy has boss classification and should not grant Peerless Stance.
+Restore the original `Dummy 1 Min 81 Waves` sequence, translated display names,
+and its four previously accepted build/level snapshots. The 84-wave candidate
+and its timing-dependent regression test are withdrawn. This is a preset
+rollback; the simulator's existing target-classification behavior is unchanged
+and still requires a separate correction and DPS review. Other paths retain
+their current accepted rotations and snapshots.
 
 ## Dust Global 2.4 filler acceptance (November 14, 2026)
 
