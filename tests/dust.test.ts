@@ -496,7 +496,7 @@ describe("Dust mechanics", () => {
   })
   it.each(
     ["18", "19"].flatMap(breakthrough => [
-      { name: "100% PC", rotation: dustPhantomChimeRotation, expectedResonances: 84, breakthrough },
+      { name: "100% PC", rotation: dustPhantomChimeRotation, expectedResonances: 85, breakthrough },
       { name: "regular", rotation: defaultDustRotation, expectedResonances: 86, breakthrough },
     ]),
   )(
@@ -523,6 +523,15 @@ describe("Dust mechanics", () => {
       expect(rows.find(row => row.name === "Scarlet Spin")!.hits).toBe(84)
       expect(rows.find(row => row.name === "Resonance")!.hits).toBe(expectedResonances)
       expect(result.duration).toBe(60)
+
+      const burns = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "BurnAndBury")
+      expect(burns).toHaveLength(4)
+      for (const row of burns) {
+        expect(row.actionStates[0].debuffs.has("Soulbreak")).toBe(true)
+        const hitIndex = row.actions.findIndex(action => action.type === "damage" && action.phyCoef === 2.298686)
+        expect(result.actionBreakdowns[`${row.id}:${hitIndex}`]?.total).toBeGreaterThan(0)
+        expect(row.startTime + Number(row.actions[hitIndex].time) - result.anchorTime).toBeLessThan(60)
+      }
     },
   )
 

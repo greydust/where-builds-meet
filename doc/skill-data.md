@@ -1720,6 +1720,15 @@ The queued final throw lands after Flower Burial expires, without a Perfect
 Catch or its Resonance. This retains fourteen throws and 84 direct hits across
 the three batches. The 100% PC preset resolves 84 Resonances, including three
 from Bubbles; the regular preset resolves 86, including five from Bubbles.
+The Global 2.4 filler review adds one Delicate Bubbles immediately before full
+Flute in the 100% PC preset, raising its Resonance count to 85. This trades the
+closing Soaring Spin's single landed hit for two Bubbles hits and one Resonance.
+At 40ms ping, the third Scarlet Spin starts at 45.103490s instead of 44.063490s;
+all 84 direct Spin hits, post-opening Phantom Chime coverage and four Soulbreak
+connections remain intact. The final Burn and Bury hits at 59.691806s. Adding
+another Bubbles loses the closing Burn and Bury and reduces DPS. The regular
+preset retains its existing filler counts.
+
 These counts arise from events, not a hit-count override. Battle End still
 filters damage at 60 seconds.
 

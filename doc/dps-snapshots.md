@@ -1,5 +1,16 @@
 # DPS regression snapshots
 
+## Dust Global 2.4 filler acceptance (November 14, 2026)
+
+The user approved one additional Bubbles before full Flute in the 100% Phantom
+Chime preset. Its six build/level cases gain 0.29–0.31% DPS while retaining
+60-second duration, 84 Scarlet Spin hits, Phantom Chime coverage after the
+opening ramp, and all four Burn and Bury connections. Fully Relayed Min at
+level 19 changes from 79446.53793446165 to 79678.73961182867 DPS, or
+4766792.276067699 to 4780724.37670972 total damage. The extra Bubbles and its
+Resonance replace the closing Soaring Spin's single landed hit. The regular
+Dust preset and other paths' accepted snapshots remain unchanged.
+
 ## Serene Breeze timing acceptance (November 13, 2026)
 
 The user approved the weapon-specific Serene Breeze hit markers and MOVEPOST

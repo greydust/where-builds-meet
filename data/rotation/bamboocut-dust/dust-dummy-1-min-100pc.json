@@ -30,6 +30,7 @@
     { "type": "skill", "skill": "BurnAndBury" },
     { "type": "skill", "skill": "DreamwroughtBubbles" },
     { "type": "event", "event": "Move", "before": { "action": 2 }, "distance": 9 },
+    { "type": "skill", "skill": "DreamwroughtBubbles" },
     { "type": "skill", "skill": "FluteOfTheTides" },
     { "type": "event", "event": "Qi", "startTime": 27.4354, "targetQiRatio": 0 },
     { "type": "skill", "skill": "ScarletSpin", "duration": 12 },
