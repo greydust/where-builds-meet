@@ -1078,3 +1078,34 @@ The 42 retired cases belong to the three Mixed presets already hidden by the
 preview. Their IDs remain recognized as former defaults for saved-rotation
 migration. The one Mixed preset now uses the preview's Infinite Vitality sequence.
 The reviewed snapshots were refreshed and the 42 retired cases removed.
+
+## Jade pursuit rotation acceptance (November 14, 2026)
+
+The user accepted the corrected Grounded and Hybrid sequences after the cancel
+and cooldown audit, then requested commit and release. Only these two rotations'
+36 build/tier cases are refreshed. Every duration remains 60 seconds.
+
+Grounded increases from two pursuits to six, with five Windrider casts. It keeps
+all seven Flower activations and their immediate Deflects. Peak/pursuit replaces
+charged-light fillers and the former second Soaring Spin ending. The sixth
+Flower's Deflect was restored during review; the earlier, higher search estimate
+without it is not accepted. DPS increases by 3.7688–5.3929% across nine builds at
+breakthroughs 18/19.
+
+Hybrid increases from four pursuits to five and replaces its final
+charged-light/Fan-Q/pursuit with Peak cancel/pursuit. It keeps six Flower
+activations. The ending intentionally lets Jadebreak expire for the last
+0.529994802s; the accepted calculation includes that coverage loss. DPS increases
+by 0.4671–0.5718% across the same builds and tiers.
+
+| Rotation / Fully Relayed Max / BT19 |           Old DPS |           New DPS |  Old total damage |   New total damage |
+| ----------------------------------- | ----------------: | ----------------: | ----------------: | -----------------: |
+| Grounded                            | 88011.19418598611 | 92703.46381355003 | 5280671.651159166 | 5562207.8288130015 |
+| Hybrid                              | 84135.63691741215 | 84602.23270496307 | 5048138.215044729 |  5076133.962297784 |
+
+All supported cases preserve immediate cancel follow-ups, pursuit's six-second
+cooldown, Peak's shared twelve-second cooldown, and Fan Q's two sequential
+charges. Neither rotation has automatic cooldown waits. Grounded's estimated Qi
+thresholds now follow its later fourth-Flower break; this retiming leaves all 18
+Grounded DPS values unchanged. The unreachable tail steps are removed. Flying,
+the 30-second IV preset, skill coefficients, and cast clocks remain unchanged.

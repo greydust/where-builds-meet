@@ -1199,8 +1199,8 @@ The filler sequence uses three Flute cancels. The first Bursting Nine uses one
 seven-hit volley; the second uses two. Smolder one-hit and Poet five-hit cancel
 require Deflect or Fan Q immediately afterward in the authored preset. Smolder
 can lead directly into Fan Q to avoid a separate Deflect. Fan heavy pursuit
-is another user-confirmed cancel follow-up, but its complete cast duration
-remains unconfirmed and unmodeled. Emerald Barrier applies Jadebreak at
+is another user-confirmed cancel follow-up; its modeled route clocks are described
+below. Emerald Barrier applies Jadebreak at
 0.167s and Windrider at 1.02s. Its cancel variant ends at 0.167s, retains
 the hit at 0.15006s, and does not grant Windrider. Both variants share their
 charge pool and breakdown category. The cancel variant requires Fan heavy
@@ -1242,7 +1242,8 @@ earliest interruption times, not animation-end times. The old numerical-owner
 20302103 action is not a separate cast or an extra hit sequence. The shared
 six-second cooldown begins at cast start, and pursuit requires LB or Airborne.
 Windrider selects the route at cast start and is not consumed by the cast.
-NPC hit coefficients already include the 45% bonus; it must not be added twice.
+NPC hit coefficients already include the current Global 2.4 weights described
+under Global 2.4 source boundaries; do not apply the former 45% bonus again.
 Each hit grants Startling Spring (export buff 200177), up to five stacks for
 15 seconds. Each stack adds 4% charged-skill damage and Endurance cost, scoped
 to Charged-tagged skills rather than all damage. Enhanced pursuit uses the
@@ -1250,13 +1251,38 @@ export's distinct second-hit timing against Airborne targets.
 The route is selected once: Windrider expiring during an enhanced cast must not
 append the ordinary route. Internal dispatch and attack components ignore
 additional ping; the ordered pursuit pays input latency once. The current
-preset replaces two consecutive Fan charged lights after the fourth Flower
-with Peak cancel followed by the enhanced pursuit. All six Jade build/tier
-combinations improve; Max BT19 rises from 81,053.74333518809 to
-81,455.47574941137 DPS. The search compares replacements of up to four
-consecutive fillers while preserving required follow-ups, seven full-Blossom
-Flower casts, and JB/LB/SR coverage. This is a constrained local search, not
-a claim of an exhaustive global optimum.
+Grounded preset uses six pursuits: one ordinary and five Windrider routes. Three
+Peak cancels supply additional Windrider windows, replacing Fan charged-light
+fillers. Every Flower activation retains its immediate Deflect, including the
+sixth activation before pursuit. Seven Flower activations remain: five full and
+two partial at roughly 60 Blossoms. The final enhanced pursuit lands all five
+contacts before Battle End; its recovery is clipped at 60 seconds. The earlier
+second Soaring Spin and charged-light tail are displaced by this ending.
+The fourth Flower still anchors the Qi break at 29.131806391s. Fixed estimated
+Qi thresholds follow that depletion duration: 11.652722557 / 17.479083835 /
+20.392264474s before the break and 54.784528948s after recovery/protection. The
+next 40% threshold falls beyond Battle End. Retiming these estimates does not
+change DPS for any supported Grounded build at breakthroughs 18/19.
+
+Hybrid uses five pursuits. An ordinary pursuit replaces a charged-light/Deflect
+filler pair after the third Flower, and Peak cancel/pursuit replaces the final
+charged-light/Fan-Q/pursuit ending. All six Flower activations and their Deflect
+follow-ups remain. The last Peak starts in melee, so its preliminary hit lands;
+the earlier ranged Peaks retain their gap-close behavior.
+All Flower activations start with Jadebreak, but replacing the final Fan Q lets
+Jadebreak expire at 59.470005198s. The last pursuit contact and two final Flower
+projectiles land without it. The accepted DPS already includes this short loss
+of coverage; restoring Fan Q to the ending was not the selected candidate.
+
+At 40ms ping, the minimum observed pursuit gaps are 8.008576347s for Grounded
+and 7.110994872s for Hybrid, both above the six-second cooldown. Peak's minimum
+gaps are 14.233465927s and 19.677718734s, above its shared twelve-second cooldown.
+Both sequences have no cooldown waits across all nine builds at breakthroughs
+18/19. Existing requirement waits for Flower mode remain. These are constrained
+local improvements, not a claim of an exhaustive global optimum or a rule to
+cast pursuit immediately on cooldown. Flying and the 30-second IV preset retain
+their existing sequences. Accepted numerical results are recorded in
+[DPS snapshots](dps-snapshots.md).
 
 Peak's Springless Silence uses the October 30 13:23 export's resolved action 20302101. The full variant uses its 1.1133333333333333s interruption boundary;
 Cancel ends at the 0.557581475s main contact/Windrider application and must be

@@ -20,7 +20,7 @@ describe("Jade one-minute preset continuity", () => {
     const rows = result.timeline.filter(row => row.startTime < end.startTime)
     expect(result.duration).toBe(60)
     const delays = rows.filter(row => row.step.type === "event" && row.step.event === "Delay")
-    const allowedDelays = fixture.rotation === "jade-flying" ? ["requirement"] : ["cooldown", "requirement", "attack"]
+    const allowedDelays = ["requirement"]
     for (const delay of delays)
       expect(allowedDelays).toContain(delay.step.event === "Delay" ? delay.step.automatic : undefined)
     expect(rows.filter(row => row.skipped)).toEqual([])
@@ -31,18 +31,59 @@ describe("Jade one-minute preset continuity", () => {
       expect(row.resources.Blossoms).toBeLessThan(partial ? 61 : 100 + 0.0000005)
     }
     let expectedFlowers = 0
+    let expectedPursuits = 0
     switch (fixture.rotation) {
       case "jade-flying":
         expectedFlowers = 3
+        expectedPursuits = 4
         break
       case "jade-grounded":
         expectedFlowers = 7
+        expectedPursuits = 6
         break
       case "jade-hybrid":
         expectedFlowers = 6
+        expectedPursuits = 5
         break
     }
     expect(flowers).toHaveLength(expectedFlowers)
+
+    const casts = rows.filter(row => row.kind === "rotation" && row.step.type === "skill")
+    const pursuits = casts.filter(row => row.step.skill === "MoonShatterSpring")
+    expect(pursuits).toHaveLength(expectedPursuits)
+    for (const [index, pursuit] of pursuits.slice(1).entries())
+      expect(pursuit.startTime - pursuits[index].startTime).toBeGreaterThanOrEqual(6 - 1e-9)
+    for (const pursuit of pursuits) {
+      expect(pursuit.debuffs.has("LingeringBone") || pursuit.debuffs.has("Airborne")).toBe(true)
+      const enhanced = pursuit.buffs.has("Windrider")
+      expect(pursuit.effectiveCastTime).toBeCloseTo(enhanced ? 2.433 : 1.557, 9)
+      const hits = pursuit.actions.filter(
+        (action, i) => action.type === "damage" && result.actionBreakdowns[`${pursuit.id}:${i}`],
+      )
+      expect(hits).toHaveLength(enhanced ? 5 : 3)
+      const next = casts[casts.indexOf(pursuit) + 1]
+      if (!next) continue
+      expect(next.startTime).toBeGreaterThanOrEqual(pursuit.startTime + pursuit.effectiveCastTime - 1e-9)
+    }
+    const peaks = casts.filter(row =>
+      ["PeaksSpringlessSilence", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? ""),
+    )
+    for (const [index, peak] of peaks.slice(1).entries())
+      expect(peak.startTime - peaks[index].startTime).toBeGreaterThanOrEqual(12 - 1e-9)
+    for (const peak of peaks.filter(row => row.step.skill === "PeaksSpringlessSilenceCancel")) {
+      const next = casts[casts.indexOf(peak) + 1]
+      expect(next.step.skill).toBe("MoonShatterSpring")
+      expect(next.startTime - peak.startTime - peak.effectiveCastTime).toBeLessThanOrEqual(0.040001)
+    }
+    // Both Fan Q variants and the precombat miss spend the same two sequential charges.
+    const recoveries: number[] = []
+    for (const row of casts.filter(row =>
+      ["EmeraldBarrier", "EmeraldBarrierMiss", "EmeraldBarrierCancel"].includes(row.step.skill ?? ""),
+    )) {
+      while (recoveries.length && recoveries[0] <= row.startTime + 1e-9) recoveries.shift()
+      expect(recoveries.length).toBeLessThan(2)
+      recoveries.push(Math.max(row.startTime, recoveries.at(-1) ?? row.startTime) + 15)
+    }
   })
   it.each(cases.filter(entry => entry.fixture.rotation === "jade-grounded"))(
     "$id resolves the fourth UF break, Qi recovery and pursuit routes",
@@ -106,7 +147,7 @@ describe("Jade one-minute preset continuity", () => {
       const refillWindow = rows.filter(row => row.startTime > flowers[5].startTime && row.startTime < lastQ.startTime)
       expect(refillWindow.some(row => row.step.event === "Delay" && row.step.automatic === "cooldown")).toBe(false)
       const pursuits = rows.filter(row => row.step.skill === "MoonShatterSpring")
-      expect(pursuits.map(row => row.buffs.has("Windrider"))).toEqual([false, true])
+      expect(pursuits.map(row => row.buffs.has("Windrider"))).toEqual([false, true, true, true, true, true])
       expect(pursuits[0].debuffs.has("ToadVenom")).toBe(true)
     },
   )

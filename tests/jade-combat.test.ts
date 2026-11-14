@@ -220,7 +220,7 @@ describe("Jade combat", () => {
     expect(projectiles(boosted).damage).toBeGreaterThan(projectiles(plain).damage)
     expect(projectiles(boosted).hits).toBe(projectiles(plain).hits)
   })
-  it("funds both Grounded Soaring Spins on a passive dummy", async () => {
+  it("funds Grounded's retained Soaring Spin on a passive dummy", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(entry => entry.id.startsWith("silkbindJade/jade-grounded/"))
     expect(fixtures).toHaveLength(18)
     for (const fixture of fixtures) {
@@ -260,7 +260,7 @@ describe("Jade combat", () => {
       expect(Math.min(...vitality)).toBeGreaterThanOrEqual(0)
       expect(result.timeline.some(row => row.step.event === "TakeDamage")).toBe(false)
       const spins = result.timeline.filter(row => row.step.skill === "SoaringSpin2")
-      expect(spins).toHaveLength(2)
+      expect(spins).toHaveLength(1)
       for (const spin of spins) {
         expect(spin.resources.Vitality).toBeGreaterThanOrEqual(15)
         expect(
@@ -391,6 +391,9 @@ describe("Jade combat", () => {
         if (row.step.skill === "DragonsBreathSmolder2" && !row.buffs.has("Intoxicated")) continue
         let legalFollowUp: boolean
         switch (row.step.skill) {
+          case "UnfadingFlowerCancel":
+            legalFollowUp = next.step.skill === "Deflect"
+            break
           case "ForsakenFameCancel":
             legalFollowUp =
               !["ForsakenFame", "ForsakenFameCancel"].includes(next.step.skill ?? "") &&
@@ -532,10 +535,11 @@ describe("Jade combat", () => {
       for (const peak of casts.filter(row =>
         ["PeaksSpringlessSilence", "PeaksSpringlessSilenceCancel"].includes(row.step.skill ?? ""),
       )) {
-        expect(peak.distance).toBe(9)
-        expect(peak.actionStates[0].combatOrder).toBeUndefined()
+        const ranged = peak.distance === 9
+        expect([1, 9]).toContain(peak.distance)
+        expect(peak.actionStates[0].combatOrder === undefined).toBe(ranged)
         expect(peak.actionStates[1].distance).toBe(1)
-        expect(result.actionBreakdowns[`${peak.id}:0`]).toBeUndefined()
+        expect(result.actionBreakdowns[`${peak.id}:0`] === undefined).toBe(ranged)
         expect(result.actionBreakdowns[`${peak.id}:1`]).toBeDefined()
       }
       for (const index of [0, 3]) {
@@ -551,14 +555,25 @@ describe("Jade combat", () => {
       )
       for (const flower of flowers) {
         expect(casts[casts.indexOf(flower) + 1].step.skill).toBe("Deflect")
+        expect(flower.buffs.has("Jadebreak")).toBe(true)
       }
       for (const row of casts.filter(row => row.skill?.weapon === "Umbrella"))
         expect(row.buffs.has("UnfadingFlowerMode")).toBe(false)
       const firstBone = casts.find(row => row.step.skill?.startsWith("ForsakenFame"))!
+      const lastFanQ = casts.findLast(row => ["EmeraldBarrier", "EmeraldBarrierCancel"].includes(row.step.skill ?? ""))!
+      const jadebreakApplication = lastFanQ.actions.find(
+        action => action.type === "apply" && action.value === "Jadebreak",
+      )!
+      const jadebreakEnd =
+        lastFanQ.startTime + Number(jadebreakApplication.time) + Number(effectDefinitions.Jadebreak.duration)
+      // The stronger Peak/pursuit ending trades the last sub-second of JB for more damage.
+      expect(result.anchorTime + result.duration - jadebreakEnd).toBeGreaterThan(0)
+      expect(result.anchorTime + result.duration - jadebreakEnd).toBeLessThan(1)
       for (const row of result.timeline)
         for (const [index, action] of row.actions.entries()) {
           if (action.type !== "damage" || !result.actionBreakdowns[`${row.id}:${index}`]) continue
-          expect(row.actionStates[index].buffs.has("Jadebreak")).toBe(true)
+          const hitTime = row.startTime + Number(action.time ?? 0)
+          expect(row.actionStates[index].buffs.has("Jadebreak")).toBe(hitTime < jadebreakEnd)
           if (row.startTime + Number(action.time ?? 0) <= firstBone.startTime + 1.19 + 1e-9) continue
           expect(row.actionStates[index].debuffs.has("LingeringBone")).toBe(true)
         }
