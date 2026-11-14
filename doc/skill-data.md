@@ -165,9 +165,12 @@ The Draught gear presets target at least 99% effective Precision after enemy Jud
 ### Strength mixed preset fillers
 
 The ordinary Mixed, Double Stab, and Infinite Vitality one-minute presets retain
-fifteen Burning Heart charged casts. Snowbreak Spring (VC) must immediately follow
-Snowparting Conversion (Tab) or Grave Frost (LC), ignoring attached events. Tab
-must immediately follow a Mo Blade ability.
+fifteen Burning Heart charged casts. Snowbreak Spring (VC) is enabled by
+Snowparting Conversion (Tab), Grave Frost (LC), or a successful Deflect. Tab's
+enable window lasts roughly five seconds, so intervening skills such as Fleeting
+Trace or General's Bane: Stab do not by themselves invalidate the subsequent VC.
+Do not restrict rotation searches to immediately adjacent Tab/VC or LC/VC pairs.
+Tab must immediately follow a Mo Blade ability.
 
 Ordinary Mixed uses Leaping Toad/Deflect followed by seven-arrow Bursting Nine
 2 Shots before the second-round Snowparting Q, and omits the former final

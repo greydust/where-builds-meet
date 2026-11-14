@@ -70,8 +70,10 @@ original list and saved selection. Current damage snapshots are unchanged.
 
 Battle End remains at 60 seconds. The faster regular Q brings the final LC's
 last hit inside the window (about 59.992 seconds) at baseline 40 ms. The final
-VC is still outside; excluded damage is not counted. Lower latency can bring
-more of the ending into the minute.
+VC was outside and has been removed from the Current Mixed preset, together
+with its attached movement event. Mixed now ends with Grave Frost. At baseline
+40 ms this removes no counted damage; lower-latency runs also use this shorter
+sequence.
 
 The subsequent CN report establishes branch-specific General's Bane/Slash clocks,
 not a universal replacement timing or proof of Global activation. The preview now
@@ -79,3 +81,25 @@ uses .615384615 seconds for the regular Q and .576923077 for Slash; slower Q2 is
 unchanged. The prep delay compensates for Q's shorter duration. Only the initial
 19m movement attachment remains; the battle anchor follows the sixth Fleeting
 Trace hit after the redundant attachments are removed. Current timings stay unchanged.
+
+## Pure ending review (November 14, 2026)
+
+Ordinary Pure now appends Snowbreak Spring after its existing final Grave Frost.
+At Solo 19, Pure Fully Relayed Min, 40 ms and the snapshot environment, this
+raises DPS from 84,261.44610330438 to 86,641.71613698362. The added VC's direct
+hit lands at 59.15237352062631 seconds. At 60 ms it contributes no damage within
+the fixed minute. Pure Infinite Vitality is unchanged.
+
+The subsequent Pure spacing search treats Tab's VC enable as a roughly
+five-second window, not an adjacency requirement. Intervening Fleeting Trace
+and Stab casts are therefore allowed. Local moves, intact filler and summon/Tab
+blocks, LC/VC insertions, and cooldown-aligned waits did not establish a damage
+gain with both a fourteenth buffed LC and a twenty-fourth damaging VC. The
+installed Solo 19 baseline retains thirteen buffed LCs out of sixteen and
+twenty-three direct VC hits. This bounded search does not prove optimality.
+
+One rearrangement measured 87,206.59518564648 DPS with the same cast counts,
+but moved the attached exhaustion break roughly 33 ms earlier. Holding the
+break at its original time instead left its earlier VC outside exhaustion,
+preventing that VC from clearing Forgetfulness's cooldown. That arrangement is
+not installed; its apparent gain depends on the authored Qi timing.

@@ -1121,3 +1121,21 @@ across five builds at breakthroughs 18/19. The BP Dragon Head preset is unchange
 | ----------------------------------- | ----------------: | ----------------: |
 | Regular Infinite Vitality           | 73946.66292438935 | 76787.18707630887 |
 | BP Infinite Vitality                | 82435.76041121784 | 83883.36299618313 |
+
+## Strength rotation endings acceptance (November 14, 2026)
+
+The user approved removing Mixed's unreachable final VC, adding a VC after
+Pure's existing final Grave Frost, and committing and releasing these changes.
+Mixed's removal changes no accepted damage. Pure's added VC and linked soldier
+hits increase damage within the fixed sixty-second window at the baseline
+40 ms ping. See [Strength rotation review](strength-global24-rotation.md) for
+timings, the corrected Tab enable window, and the uninstalled spacing searches.
+
+Only ordinary Pure's fourteen build/tier cases are refreshed: seven Strength
+builds at breakthroughs 18/19. DPS increases by 2.7474–2.8249%; every duration
+remains sixty seconds. Pure Infinite Vitality and all other snapshots are unchanged.
+
+| Pure Fully Relayed Min |           Old DPS |           New DPS |  Old total damage |   New total damage |
+| ---------------------- | ----------------: | ----------------: | ----------------: | -----------------: |
+| BT18                   | 80057.71822870248 | 82318.25645277694 | 4803463.093722149 | 4939095.3871666165 |
+| BT19                   | 84261.44610330438 | 86641.71613698362 | 5055686.766198263 |  5198502.968219018 |
