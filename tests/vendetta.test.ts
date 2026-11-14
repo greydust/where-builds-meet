@@ -4,10 +4,10 @@ import { describe, it } from "vitest"
 
 import { martialArtDefinitions } from "@/application/gameData/martialArts"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
+import type { RotationSimulationBaseline } from "@/calculations/rotationCalculator.ts"
 import type { EditableObject, InnerWayEffectRule, TimelineRow, RotationStep } from "@/calculations/rotationTimeline"
 import type { WeaponId } from "@/types"
 
-import type { RotationSimulationBaseline } from "../src/calculations/rotationCalculator.ts"
 import { assertClose } from "./helpers/floatEquality"
 import { castStep, delayStep } from "./helpers/rotationSteps"
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
@@ -25,11 +25,11 @@ describe("vendetta", () => {
      */
     const weapons: WeaponId[] = ["infernalTwinblades", "mortalRopeDart"]
     const talentOrder: WeaponId[] = ["mortalRopeDart", "infernalTwinblades"]
-    const vendetta = await import("../data/innerway/vendetta.json")
-    const buffs = asEffectDefinitions((await import("../data/buff/bamboocut-wind.json")).default)
-    const debuffs = asEffectDefinitions((await import("../data/debuff/bamboocut-wind.json")).default)
-    const mortal = asSkillRecords((await import("../data/skill/mortal-rope-dart.json")).default)
-    const infernal = asSkillRecords((await import("../data/skill/infernal-twinblades.json")).default)
+    const vendetta = await import("@gamedata/innerway/vendetta.json")
+    const buffs = asEffectDefinitions((await import("@gamedata/buff/bamboocut-wind.json")).default)
+    const debuffs = asEffectDefinitions((await import("@gamedata/debuff/bamboocut-wind.json")).default)
+    const mortal = asSkillRecords((await import("@gamedata/skill/mortal-rope-dart.json")).default)
+    const infernal = asSkillRecords((await import("@gamedata/skill/infernal-twinblades.json")).default)
     const vendettaTiers = Object.entries(vendetta.default.effect).sort(
       ([left], [right]) => Number(left.slice("VendettaT".length)) - Number(right.slice("VendettaT".length)),
     ) as Array<[string, { effect?: EditableObject[] }]>
@@ -45,7 +45,7 @@ describe("vendetta", () => {
                 Object.assign({ effect: noEffect }, effect, { source: "Vendetta", tier: index }),
               ),
             )
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const build = (tier: number, steps: RotationStep[], roll?: () => number): TimelineRow[] =>
       buildRotationTimeline(
         {
@@ -116,9 +116,9 @@ describe("vendetta", () => {
       Math.abs((onlyRefresh.expiresAt ?? 0) - 30.082) < 1e-9,
       "Refresh expiration is measured from the new application",
     )
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
     const stats = { ...emptyStats, minPhys: 100, maxPhys: 100, minBamboocut: 80, maxBamboocut: 80, precision: 1 }
     const enemy = {
       name: "Vendetta target",
@@ -244,7 +244,7 @@ describe("vendetta", () => {
         close(tokenExpiry(before), 0.385 + duration, "Token duration uses the selected tier")
       }
     }
-    const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
+    const { martialArtEffectsForRank } = await import("@/data/martialArtTalents.ts")
     for (const rank of [12, 13]) {
       const rows = buildRotationTimeline({
         rotation: {
@@ -266,7 +266,7 @@ describe("vendetta", () => {
       })
       const corrosion = rowCasting(rows, "InfernalLight1").actionStates[0].debuffs.get("BoneCorrosion")
       assert.equal(Boolean(corrosion), rank === 13, "Bladebound Thread activates Bone Corrosion only with the talent")
-      if (corrosion) close(corrosion.expiresAt, 5.385, "Bone Corrosion starts its five-second lifetime at the hit")
+      if (corrosion) close(corrosion.expiresAt, 20.385, "Bone Corrosion starts its twenty-second lifetime at the hit")
     }
   })
 })

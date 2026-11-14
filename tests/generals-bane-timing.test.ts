@@ -1,11 +1,11 @@
+import skillsJson from "@gamedata/skill/snowparting-blade.json"
 import { expect, it } from "vitest"
-
-import skillsJson from "../data/skill/snowparting-blade.json"
 const skills = asSkillRecords(skillsJson)
-import { buildRotationTimeline } from "../src/calculations/rotationTimeline"
-import type { RotationRecord } from "../src/calculations/rotationTimeline"
-import { migrateGeneralsBaneSlides } from "../src/rotationEditing"
-import { mergeImportedRotationEntries, rotationExportFormat } from "../src/rotationTransfer"
+import { buildRotationTimeline } from "@/calculations/rotationTimeline"
+import type { RotationRecord } from "@/calculations/rotationTimeline"
+import { migrateGeneralsBaneSlides } from "@/rotationEditing"
+import { mergeImportedRotationEntries, rotationExportFormat } from "@/rotationTransfer"
+
 import { asSkillRecords } from "./helpers/shippedData"
 
 it("General's Bane variants share two uses while Slash retains its independent follow-up timing", () => {
@@ -35,8 +35,8 @@ it("General's Bane variants share two uses while Slash retains its independent f
     "SnowpartingQ",
   ])
   expect(casts[0].startTime).toBeCloseTo(0.04)
-  expect(casts[1].startTime).toBeCloseTo(0.772)
-  expect(casts[2].startTime).toBeCloseTo(1.52)
+  expect(casts[1].startTime).toBeCloseTo(0.6953846153846155)
+  expect(casts[2].startTime).toBeCloseTo(1.4433846153846155)
   expect(casts[3].startTime).toBeCloseTo(12.08)
   for (const [castIndex, offsets] of [
     [0, [0.526]],

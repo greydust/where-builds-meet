@@ -24,7 +24,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -69,7 +76,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -119,7 +133,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -169,7 +190,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -197,7 +225,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 246.0, "minSilkbind": 123.0 },
+            "rawStat": { "maxSilkbind": 246, "minSilkbind": 123 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.138 } }
             }
@@ -219,7 +247,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -249,7 +284,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 266.0, "minSilkbind": 133.0 },
+            "rawStat": { "maxSilkbind": 266, "minSilkbind": 133 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.148 } }
             }
@@ -271,7 +306,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -301,7 +343,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 286.0, "minSilkbind": 143.0 },
+            "rawStat": { "maxSilkbind": 286, "minSilkbind": 143 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
             }
@@ -323,7 +365,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -353,7 +402,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 306.0, "minSilkbind": 153.0 },
+            "rawStat": { "maxSilkbind": 306, "minSilkbind": 153 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
             }
@@ -375,7 +424,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -405,7 +461,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 328.0, "minSilkbind": 164.0 },
+            "rawStat": { "maxSilkbind": 328, "minSilkbind": 164 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
             }
@@ -427,7 +483,14 @@
               { "target": "skillTag", "value": "MoonShatterSpring" },
               { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
             ],
-            "effect": { "stat": { "crit": 0.3 }, "hpDMGBonus": 0.08 }
+            "effect": { "hpDMGBonus": 0.08, "critDmgBonus": 0.15 }
+          },
+          {
+            "trigger": {
+              "event": "beforeDamage",
+              "requirement": [{ "target": "skillTag", "value": "MoonShatterSpring" }],
+              "action": { "type": "apply", "target": "target", "value": "EmptyPeak" }
+            }
           }
         ]
       },
@@ -457,7 +520,7 @@
       {
         "effect": [
           {
-            "rawStat": { "maxSilkbind": 352.0, "minSilkbind": 176.0 },
+            "rawStat": { "maxSilkbind": 352, "minSilkbind": 176 },
             "stat": {
               "silkbindDmgBonus": { "formula": { "source": "minSilkbind", "multiplier": 0.000336, "max": 0.15 } }
             }

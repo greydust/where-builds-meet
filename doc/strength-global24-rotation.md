@@ -1,4 +1,4 @@
-# Strength Global 2.4 preview rotation review
+# Strength Global 2.4 rotation review
 
 Global 2.4's Mixed Dummy 1 Min uses the user's sequence, including an explicit
 switch to Phalanxbane before Dragon's Breath and **Infinite Vitality**. It
@@ -22,7 +22,7 @@ filler experiment, not the later preview timing revision. The Vitality columns
 are finite-budget diagnostics, not limits on the installed
 Infinite Vitality preset.
 
-| Global 2.4 preview arrangement                           |                DPS | Finite minimum Vitality | Finite final Vitality |
+| Global 2.4 arrangement                                   |                DPS | Finite minimum Vitality | Finite final Vitality |
 | -------------------------------------------------------- | -----------------: | ----------------------: | --------------------: |
 | Installed user sequence                                  | 90,339.78491496266 |                      -9 |                     5 |
 | Replace late Toad/Deflect with seven-arrow Bursting Nine | 90,372.82704973263 |                     -14 |                     0 |

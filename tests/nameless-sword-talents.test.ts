@@ -14,14 +14,14 @@ import { probeLoad } from "./helpers/probe-loader.js"
 // Ported from script/probe/check-nameless-sword-talents.mjs.
 describe("nameless-sword-talents", () => {
   it("Nameless Sword talent calculation checks passed", async () => {
-    const namelessSword = (await import("../data/martial-art/nameless-sword.json")).default
+    const namelessSword = (await import("@gamedata/martial-art/nameless-sword.json")).default
     const { calculateStatsWithEffects, resolveRawStatFormulas } = await probeLoad<
-      typeof import("../src/calculations/statEffects")
+      typeof import("@/calculations/statEffects")
     >("/src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { requirementsPass } = await import("../src/calculations/rotationTimeline.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { requirementsPass } = await import("@/calculations/rotationTimeline.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
 
     /**
      * Rank 13's authored numbers are whole values reached through float maths, so
@@ -55,7 +55,7 @@ describe("nameless-sword-talents", () => {
     // Rank 13's conditional damage sheets. The app declares a talent effect as a
     // stat sheet, so these have no declared shape and are read as the untyped
     // objects the damage pipeline already reads them as.
-    const hpRule = rank.find(rule => "hpDMGBonus" in rule.effect)
+    const hpRule = rank.find(rule => "targetCorrectionBonus" in rule.effect)
     const affinityRule = rank.find(rule => "affinityDmgBonus" in rule.effect)
     if (!hpRule || !affinityRule) throw new Error("Nameless Sword conditional damage talent rules were not found.")
 

@@ -605,10 +605,17 @@
   "PhalanxbaneQ": {
     "name": "Total Annihilation",
     "shortName": "Mo QQ",
-    "castTime": 0.7,
+    "castTime": 0,
     "cooldown": 15,
+    "ignorePing": true,
+    "subAction": [
+      {
+        "value": "PhalanxbaneQSoul",
+        "requirement": [{ "target": "self", "value": "IronGuard" }],
+        "fallback": "PhalanxbaneQBase"
+      }
+    ],
     "action": [
-      { "type": "damage", "phyCoef": 1.8948, "phyBonus": 525, "attrBonus": 286, "time": 0.311, "attrCoef": 1.8948 },
       {
         "type": "trigger",
         "requirement": [{ "target": "self", "value": "IronGuard" }],
@@ -616,7 +623,6 @@
         "time": 0.913
       }
     ],
-    "modifier": [],
     "tags": [
       "DirectDamage",
       "MartialArts",
@@ -718,5 +724,61 @@
       "Triggered"
     ],
     "skillBreakdownCategory": "Mo Blade Anxi Soldier"
+  },
+  "PhalanxbaneQBase": {
+    "name": "Total Annihilation",
+    "castTime": 0.7,
+    "action": [
+      { "type": "damage", "phyCoef": 1.8948, "phyBonus": 525, "attrBonus": 286, "time": 0.311, "attrCoef": 1.8948 }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "TotalAnnihilation",
+      "SubAction"
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
+  },
+  "PhalanxbaneQSoul": {
+    "name": "Total Annihilation - Soul",
+    "castTime": 0.7,
+    "action": [
+      { "type": "damage", "phyCoef": 3.5256, "phyBonus": 975, "attrBonus": 532, "time": 0.311, "attrCoef": 3.5256 },
+      {
+        "type": "apply",
+        "requirement": [{ "target": "self", "value": "SteadfastDevotionT1" }],
+        "target": "self",
+        "value": "IronGuard",
+        "stack": 1,
+        "duration": 40,
+        "time": 0.311
+      },
+      {
+        "type": "apply",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "SteadfastDevotionT1" }] }],
+        "target": "self",
+        "value": "IronGuard",
+        "stack": 1,
+        "duration": 30,
+        "time": 0.311
+      }
+    ],
+    "modifier": [],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArt",
+      "MoBlade",
+      "PhalanxbaneBlade",
+      "TotalAnnihilation",
+      "SubAction"
+    ],
+    "martialArt": "phalanxbane",
+    "weapon": "MoBlade"
   }
 }

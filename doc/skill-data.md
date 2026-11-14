@@ -2391,44 +2391,42 @@ The triggered skill remains the authority for cooldown eligibility.
 ### Forgetfulness cooldown
 
 Forgetfulness's application has no internal cooldown. Grave Frost consumes the
-active Forgetfulness at cast start and applies the six-second Forgetfulness
+active Forgetfulness at cast start and applies the 5.5-second Forgetfulness
 Cooldown (忘機調息) only when that cast used Forgetfulness. Snowbreak Spring at
 Frost-Clad Night T6 removes this cooldown buff on an Exhausted target, then
 checks the live buff state before granting Forgetfulness. Other targets cannot
 receive a new grant while the cooldown buff is active. An unused Forgetfulness
-expiring does not start cooldown. The Global 2.4 preview uses the same rules with
-a 5.5-second cooldown instead of six seconds. Its stored id and folder remain
-`cn-2.8.5` so existing saved preview selections continue to resolve. The preview
-contains the Strength changes, the confirmed target-correction moves and the
-known-value updates below; it does not imply full coverage of the November 13 update.
+expiring does not start cooldown. The Global 2.4 values now belong to Current.
+Saved `cn-2.8.5` selections fall back to Current because the preview is retired.
+The implemented changes do not imply full coverage of the November 13 update.
 
 ### Global 2.4 target-specific damage bonuses
 
-The Global 2.4 preview moves Nameless Sword’s Sword Energy talent bonus (the
+Global 2.4 moves Nameless Sword’s Sword Energy talent bonus (the
 existing Maximum Physical Attack steps, capped at 20%), Jadebreak’s 10% boss
 branch, and Fragrant Song’s 20% bonus into `targetCorrectionBonus`. The latter
 applies to all four Scarlet Spin stages and their Fragrant Song Resonance hit.
 Existing requirements, guaranteed critical hits and casting speed remain intact.
 Jadebreak’s separate 30% projectile bonus stays in Category 1. The simulator’s
 existing PvE target assumptions remain unchanged. Unspecified timings,
-coefficients and other balance changes are not added by these overlays.
+coefficients and other balance changes are not inferred from these changes.
 
 ### Global 2.4 Strength rotation
 
 Global 2.4 replaces Mixed Dummy 1 Min with the user-provided Infinite Vitality
-sequence, including a manual switch to Mo before Dragon's Breath. It hides the
-Double Stab, old Mixed Infinite Vitality and Mixed Smolder Poet presets only in this preview.
-Current data, Current presets and custom rotations are unchanged. The new
+sequence, including a manual switch to Mo before Dragon's Breath. The bundled
+Double Stab, old Mixed Infinite Vitality and Mixed Smolder Poet presets are retired;
+saved custom rotations are preserved. The replacement
 rotation still uses the sixth Fleeting Trace hit as its battle anchor and a
 60-second cutoff. See [the filler/Vitality review](strength-global24-rotation.md).
 
 ### Global 2.4 known-value updates
 
 The [November 13 English balance announcement](https://www.wherewindsmeetgame.com/news/official/1113PathBalance.html)
-supplies the following additional preview changes. Existing hit, cast and charge
-clocks remain unchanged.
+supplies the following balance changes. Timing changes are documented separately
+below.
 
-| Area                | Preview behavior                                                                                                                                                                                                                                                                                                            |
+| Area                | Current behavior                                                                                                                                                                                                                                                                                                            |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Splendor            | Jadeware lasts 12 seconds. Mountain's Might T0 makes Endless Gale last 12 seconds. Both Qiankun's Lock variants require Nameless Sword equipped to grant Endless Gale.                                                                                                                                                      |
 | Jade pursuit talent | The existing low-Qi pursuit condition grants 15% Critical DMG instead of 30% Critical Rate. Other talent bonuses and the existing low-Qi threshold remain unchanged.                                                                                                                                                        |
@@ -2438,24 +2436,24 @@ clocks remain unchanged.
 
 Qi bonuses remain data-only: they do not reschedule authored Qi depletion events.
 
-### Global 2.4 resolved CN implementation
+### Global 2.4 source boundaries
 
 The November 12 datamine report `global-24-cn-balance.md` supplies the following
-preview-only values, with original row/action evidence in its adjacent JSON.
-These implement the requested CN-based preview; they do not establish Global
-server activation. Current definitions and accepted DPS snapshots remain unchanged.
+current values, with original row/action evidence in its adjacent JSON.
+The November 13 Global export confirms the selected changed records. These values
+now apply to Current; the Global 2.4 preview selection has been retired.
 
-| Area                             | Implementation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Moon Shatter Spring              | NPC weights are .75/.75/1 for the ordinary route and .4375 four times plus .75 for Windrider. These replace the old 1.45 total, rather than stacking with it. Coefficients and flats scale together; hit clocks and Airborne alternatives stay intact. At skill Lv100 the Windrider totals are 7.54635 per coefficient, 2087.5 Physical flat and 1137.5 attribute flat.                                                                                                                                                          |
-| Empty Peak                       | Inkwell Fan's existing talent applies a caster-owned, one-stack ten-second target debuff on outgoing pursuit damage adjustment. It grants 5% Qi damage to the applier; later applications renew the deadline. A generic `beforeDamage` setup trigger runs before settlement and refreshes that action's tracked-effect snapshot. Thunderous Bloom recognizes the anomaly. Exhaustive other Qi-Anomaly consumers are not inferred from this classification.                                                                       |
-| Might conversions                | Thundercry selects .132 Defense per steady Constitution when Constitution exceeds Power, otherwise .264 Max Physical Attack per steady Power. Stormbreaker selects 10 HP per Constitution or .264 Min Physical Attack per Power. Ties select Power. The old max-stat conversion is replaced. All recovered rank 1–21 input caps are represented without changing Global rank availability. Conditional formulas freeze against the same raw talent snapshot as existing STEADY formulas.                                         |
-| Formless T2                      | Celestial Vigor, Blade's Will and Volutefit use the complete curve1421 world-level mapping, including empty levels 1–4, instead of curve1521. Other tier effects remain intact.                                                                                                                                                                                                                                                                                                                                                  |
-| Peerless Stance                  | Named Daunting Strike/Qiankun's Lock routes under Mountain's Might grant three seconds against modeled non-boss targets. Only Vagrant's charge phase runs at 1.5× speed; the .2-second opening and release clocks remain intact. Sword Morph admits the three-wave route without Shield while Peerless is active, and that release consumes it. The absent Legion Crusher action route is not fabricated.                                                                                                                        |
-| Vile Condemned                   | A separate fast End charge reduces the existing authored charge by .32 seconds (.40→.08 gate), only with Soaring High, at least three Heaven's Will and no End cooldown at entry. The other charge branch retains its original timing. Existing overhead and hit clocks remain unchanged.                                                                                                                                                                                                                                        |
-| Dreamwrought Bubbles             | The charge threshold reduction removes .14 seconds from the retained .743-second charge, producing .603 seconds including existing .003-second overhead. Continuous drain is 14 Endurance/second after the unchanged .24-second opening. The hold-drain buff is bounded to 1.3 seconds; the preset uses the threshold release. Delicate still skips charging. Release hit/recovery clocks remain unchanged.                                                                                                                      |
-| General's Bane                   | The regular faster Q branch uses .615384615 seconds and Slash uses .576923077 seconds; the slower .708-second Q2 is unchanged. Alternate faster animation branches are not globally substituted. Strength's prep delay absorbs the Q reduction to retain Drink's countdown placement.                                                                                                                                                                                                                                            |
-| Seasonal Edge branch definitions | Spring restores 10 Endurance on application and 5 per qualifying hit; Winter reduces incoming damage by 10% and adds 50% Endurance cost to Dodge (class13), Jump (classes21/22/23) and Sprint. Explicit branch-buff applications use these rules. The random-outcome evaluator still supports damage and Yield Vitality, not Spring/Winter Endurance budgeting; these resource consequences must not be claimed for automatically sampled/expected Seasonal windows. The unknown continuous-control threshold remains untouched. |
+| Area                             | Implementation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Moon Shatter Spring              | NPC weights are .75/.75/1 for the ordinary route and .4375 four times plus .75 for Windrider. These replace the old 1.45 total, rather than stacking with it. Coefficients and flats scale together; hit clocks and Airborne alternatives stay intact. At skill Lv100 the Windrider totals are 7.54635 per coefficient, 2087.5 Physical flat and 1137.5 attribute flat.                                                                                                                                                                                             |
+| Empty Peak                       | Inkwell Fan's existing talent applies a caster-owned, one-stack ten-second target debuff on outgoing pursuit damage adjustment. It grants 5% Qi damage to the applier; later applications renew the deadline. A generic `beforeDamage` setup trigger runs before settlement and refreshes that action's tracked-effect snapshot. Thunderous Bloom recognizes the anomaly. Exhaustive other Qi-Anomaly consumers are not inferred from this classification.                                                                                                          |
+| Might conversions                | Thundercry selects .132 Defense per steady Constitution when Constitution exceeds Power, otherwise .264 Max Physical Attack per steady Power. Stormbreaker selects 10 HP per Constitution or .264 Min Physical Attack per Power. Ties select Power. The old max-stat conversion is replaced. All recovered rank 1–21 input caps are represented without changing Global rank availability. Conditional formulas freeze against the same raw talent snapshot as existing STEADY formulas.                                                                            |
+| Formless T2                      | Celestial Vigor, Blade's Will and Volutefit use the complete curve1421 world-level mapping, including empty levels 1–4, instead of curve1521. Other tier effects remain intact.                                                                                                                                                                                                                                                                                                                                                                                     |
+| Peerless Stance                  | Named Daunting Strike/Qiankun's Lock routes under Mountain's Might grant three seconds against modeled non-boss targets. Only Vagrant's charge phase runs at 1.5× speed; the .2-second opening and release clocks remain intact. Sword Morph admits the three-wave route without Shield while Peerless is active, and that release consumes it. The absent Legion Crusher action route is not fabricated.                                                                                                                                                           |
+| Vile Condemned                   | An End charging prefix conditionally reduces the existing authored charge by .32 seconds (.40→.08 gate), only with Soaring High, at least three Heaven's Will and no End cooldown at entry. The other charge branch retains its original timing. Existing overhead and hit clocks remain unchanged.                                                                                                                                                                                                                                                                 |
+| Dreamwrought Bubbles             | The charge threshold reduction removes .14 seconds from the retained .743-second charge, producing .603 seconds including existing .003-second overhead. Continuous drain is 14 Endurance/second after the unchanged .24-second opening. The hold-drain buff is bounded to 1.3 seconds; the preset uses the threshold release. Delicate still skips charging. Release recovery is 1.0 second in the changed Global route; authored hit clocks remain unchanged.                                                                                                     |
+| General's Bane                   | The regular faster Q branch uses .615384615 seconds and Slash uses .576923077 seconds; the slower .708-second Q2 is unchanged. Alternate faster animation branches are not globally substituted. Strength's prep delay absorbs the Q reduction to retain Drink's countdown placement.                                                                                                                                                                                                                                                                               |
+| Seasonal Edge branch definitions | Spring restores 10 Endurance on application and 5 per qualifying hit, capped at 40 additional Endurance; Winter reduces incoming damage by 10% and adds 50% Endurance cost to Dodge (class13), Jump (classes21/22/23) and Sprint. Explicit branch-buff applications use these rules. The random-outcome evaluator still supports damage and Yield Vitality, not Spring/Winter Endurance budgeting; these resource consequences must not be claimed for automatically sampled/expected Seasonal windows. The unknown continuous-control threshold remains untouched. |
 
 The reported Zenith follow-up .946→.650 MOVEPOST / 1.22→1 POST gates do not map
 to a currently authored full follow-up skill: the preset uses its existing

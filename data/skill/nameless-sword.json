@@ -34,7 +34,8 @@
                 },
                 { "target": "self", "value": "SwordMorphWindow" }
               ],
-              { "target": "self", "value": "EnergySurge" }
+              { "target": "self", "value": "EnergySurge" },
+              { "target": "self", "value": "PeerlessStance" }
             ]
           }
         ],
@@ -68,8 +69,24 @@
     "shortName": "Sword Charging",
     "castTime": 1.2,
     "endurance": { "regeneration": 0.001, "consumption": 20 },
-    "tags": ["MartialArts", "Charged", "Heavy", "Sword", "NamelessSword", "VagrantSword", "SubAction", "SwordEnergy"],
-    "ignorePing": true
+    "tags": [
+      "MartialArts",
+      "Charged",
+      "Heavy",
+      "Sword",
+      "NamelessSword",
+      "VagrantSword",
+      "SubAction",
+      "SwordEnergy",
+      "VagrantSwordCharging"
+    ],
+    "ignorePing": true,
+    "modifier": [
+      {
+        "requirement": [{ "target": "self", "value": "PeerlessStance" }],
+        "effect": { "castTimeMultiplier": 0.6666666666666666 }
+      }
+    ]
   },
   "VagrantSwordShootSingle": {
     "name": "Vagrant Sword [Single Wave]",
@@ -168,7 +185,8 @@
       },
       { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.101 },
       { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.267 },
-      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.755 }
+      { "type": "apply", "target": "target", "value": "SwordSlashDamageBoost", "time": 0.755 },
+      { "type": "consume", "target": "self", "value": "PeerlessStance", "stack": "all", "time": 0 }
     ],
     "modifier": [],
     "tags": [
@@ -197,6 +215,17 @@
         "phyBonus": 283.6,
         "attrBonus": 154.6,
         "time": 0.293
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "PeerlessStance",
+        "duration": 3,
+        "time": 0.293,
+        "requirement": [
+          { "target": "self", "value": "MountainsMightT0" },
+          { "operator": "not", "operand": [{ "target": "targetType", "value": "Boss" }] }
+        ]
       }
     ],
     "modifier": [],

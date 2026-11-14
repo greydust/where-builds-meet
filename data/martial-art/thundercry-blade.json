@@ -4,18 +4,330 @@
   "tag": "ThundercryBlade",
   "talent": [
     [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
-    [],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 1.848
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 3.696
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 3.3000000000000003
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 6.6000000000000005
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 6.6000000000000005
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 13.200000000000001
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 9.9
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 19.8
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 13.200000000000001
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 26.400000000000002
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 16.5
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 33.0
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 19.8
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 39.6
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 23.1
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 46.2
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 26.400000000000002
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 52.800000000000004
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    [
+      { "effect": [] },
+      {
+        "effect": [
+          {
+            "stat": {
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 29.700000000000003
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 59.400000000000006
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
     [
       {
         "effect": [
@@ -66,7 +378,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 73.92 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 36.96
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 73.92
+                }
+              }
             }
           }
         ]
@@ -172,7 +499,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 79.2 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 39.6
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 79.2
+                }
+              }
             }
           }
         ]
@@ -286,7 +628,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 85.8 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 42.9
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 85.8
+                }
+              }
             }
           }
         ]
@@ -400,7 +757,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 96.36 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 48.18
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 96.36
+                }
+              }
             }
           }
         ]
@@ -514,7 +886,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 106.92 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 53.46
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 106.92
+                }
+              }
             }
           }
         ]
@@ -628,7 +1015,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 114.048 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 57.024
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 114.048
+                }
+              }
             }
           }
         ]
@@ -742,7 +1144,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 121.968 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 60.984
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 121.968
+                }
+              }
             }
           }
         ]
@@ -856,7 +1273,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 129.888 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 64.944
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 129.888
+                }
+              }
             }
           }
         ]
@@ -970,7 +1402,22 @@
         "effect": [
           {
             "stat": {
-              "maxPhys": { "formula": { "source": { "max": ["body", "power"] }, "multiplier": 0.264, "max": 139.392 } }
+              "defense": {
+                "formula": {
+                  "source": "body",
+                  "when": { "left": "body", "comparison": ">", "right": "power" },
+                  "multiplier": 0.132,
+                  "max": 69.696
+                }
+              },
+              "maxPhys": {
+                "formula": {
+                  "source": "power",
+                  "when": { "left": "body", "comparison": "<=", "right": "power" },
+                  "multiplier": 0.264,
+                  "max": 139.392
+                }
+              }
             }
           }
         ]

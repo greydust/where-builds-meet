@@ -1021,3 +1021,31 @@ The user accepted these results and requested commit and release on November 11,
 | dummy-1-min-38-bb/umbra-full/19             | 93769.22179041995 | 91761.33399910489 |  5626153.307425197 |  5505680.039946293 |
 | dummy-1-min-38-bb/umbra-fully-relayed/18    | 86951.68392583485 | 85085.56314200161 | 5217101.0355500905 |  5105133.788520097 |
 | dummy-1-min-38-bb/umbra-fully-relayed/19    | 91502.32392136187 | 89539.16237299758 |  5490139.435281712 |  5372349.742379855 |
+
+## Accepted Global 2.4 promotion (2026-11-14)
+
+Global 2.4 now supplies Current definitions, including the shorter Dreamwrought
+Bubbles release and the capped explicit Spring recovery. The retired preview is
+no longer selectable. The user accepted the reported changes by requesting commit
+and release after the comparison. Accepted snapshots now use these values.
+
+The guard reports 176 changed cases and 42 retired cases at breakthrough 18/19.
+[Individual before/after metrics and retired IDs](reports/global24-dps-review.json)
+are retained for review. Report fields within the 4-ULP tolerance keep the accepted
+value; all reported differences are copied from the guard output. Durations are
+unchanged for the changed cases.
+
+| Path     | DPS change range   | Affected behavior                                                                        |
+| -------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| Dust     | +1.74% to +2.74%   | Fragrant Song target correction and faster Bubbles charge/release.                       |
+| Kite     | +1.81% to +2.86%   | End charge timing, once-per-cast refund, and stacked T6 vulnerability.                   |
+| Wind     | +2.27% to +2.36%   | Longer Bone Corrosion window and revised Light Attack bonuses.                           |
+| Splendor | +13.50% to +13.59% | Sword Energy target correction, longer Jadeware/Endless Gale, and Peerless rules.        |
+| Jade     | +2.61% to +8.87%   | NPC pursuit weights, Jadebreak target correction, penetration, and pursuit talent.       |
+| Might    | +0.82% to +0.87%   | Mutually exclusive steady Constitution/Power talent conversions.                         |
+| Strength | +7.95% to +14.58%  | Dread channel bonuses, Soul/Anxi behavior, faster Q/Slash, and replacement Mixed preset. |
+
+The 42 retired cases belong to the three Mixed presets already hidden by the
+preview. Their IDs remain recognized as former defaults for saved-rotation
+migration. The one Mixed preset now uses the preview's Infinite Vitality sequence.
+The reviewed snapshots were refreshed and the 42 retired cases removed.

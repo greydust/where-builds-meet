@@ -24,7 +24,7 @@
               ]
             }
           ],
-          "effect": { "hpDMGBonus": 0.15 }
+          "effect": { "physicalPenetration": 10, "silkbindPenetration": 10 }
         }
       ],
       "trigger": [
@@ -56,7 +56,7 @@
         }
       ]
     },
-    "ThunderousBloomT1": { "effect": [{ "target": "SpringThunder", "modify": { "maxStack": 4 } }] },
+    "ThunderousBloomT1": { "effect": [{ "target": "SpringThunder", "modify": { "maxStack": 5 } }] },
     "ThunderousBloomT2": {
       "effect": [
         {
@@ -126,7 +126,31 @@
       ]
     },
     "ThunderousBloomT3": { "effect": [{ "target": "SpringThunderDamage", "modify": { "duration": 2 } }] },
-    "ThunderousBloomT4": { "effect": [{ "target": "SpringThunder", "modify": { "maxStack": 5 } }] },
+    "ThunderousBloomT4": {
+      "effect": [
+        {
+          "requirement": [
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "Heavy" },
+                { "target": "skillTag", "value": "Pursuit" },
+                { "target": "skillTag", "value": "Light" },
+                { "target": "skillTag", "value": "Ballistic" }
+              ]
+            },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "self", "value": "SpringThunder" },
+                { "target": "self", "value": "SpringThunderDamage" }
+              ]
+            }
+          ],
+          "effect": { "physicalPenetration": 10, "silkbindPenetration": 10 }
+        }
+      ]
+    },
     "ThunderousBloomT5": { "effect": [{ "rawStat": { "physDmgBonus": 0.025 } }] },
     "ThunderousBloomT6": {
       "trigger": [
@@ -153,7 +177,10 @@
               "operator": "or",
               "operand": [
                 { "target": "target", "value": "Exhausted" },
-                { "target": "targetQiPercentage", "comparison": "<", "amount": 30 }
+                { "target": "targetQiPercentage", "comparison": "<", "amount": 30 },
+                { "target": "target", "value": "QiImbalance" },
+                { "target": "target", "value": "BoneCorrosion" },
+                { "target": "target", "value": "EmptyPeak" }
               ]
             }
           ],

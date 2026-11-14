@@ -50,7 +50,7 @@
     "buildGroup": "stonesplit-strength",
     "defaultBuild": "mixed-fully-relayed-min",
     "graduated": ["mixed-full-min", "pure-full-min"],
-    "defaultRotation": "mixed-dummy-infinite-vitality-1-min",
+    "defaultRotation": "mixed-dummy-1-min",
     "lockedWeapons": ["snowparting", "phalanxbane"],
     "arsenal": "Stonesplit"
   },

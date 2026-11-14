@@ -423,7 +423,15 @@
     "castTime": 0,
     "action": [],
     "subAction": [
-      { "value": "VileCondemnedCharge" },
+      {
+        "value": "VileCondemnedEndFastCharge",
+        "fallback": "VileCondemnedCharge",
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ]
+      },
       {
         "value": "VileCondemnedEndHit",
         "requirement": [
@@ -503,7 +511,21 @@
       },
       { "type": "consumeResource", "value": "HeavensWill", "amount": 3, "time": 0.375 },
       { "type": "apply", "target": "self", "value": "VileCondemnedEndCooldown", "time": 0.7375 },
-      { "type": "damage", "phyCoef": 11.7527, "phyBonus": 3250, "attrBonus": 1771, "time": 1.9, "attrCoef": 11.7527 }
+      { "type": "damage", "phyCoef": 11.7527, "phyBonus": 3250, "attrBonus": 1771, "time": 1.9, "attrCoef": 11.7527 },
+      {
+        "type": "apply",
+        "target": "target",
+        "value": "SoaringHighEndVulnerability",
+        "stack": 1,
+        "time": 1.9,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "SoaringHighT6" },
+            { "target": "resource", "value": "HeavensWill", "comparison": "==", "amount": 4 }
+          ]
+        }
+      }
     ],
     "modifier": [
       {
@@ -531,7 +553,7 @@
   "SoaringHighT6Refund": {
     "name": "Soaring High T6 Refund",
     "castTime": 0,
-    "cooldown": 18,
+    "cooldown": 0,
     "action": [{ "type": "addResource", "value": "HeavensWill", "amount": 1, "time": 0.001 }],
     "modifier": [],
     "tags": ["Triggered", "BamboocutKite"]
@@ -555,7 +577,7 @@
     "castTime": 0,
     "action": [],
     "subAction": [
-      { "value": "VileCondemnedCharge" },
+      "VileCondemnedEndFastCharge",
       {
         "value": "VileCondemnedEndHit",
         "requirement": [
@@ -587,7 +609,7 @@
     "castTime": 0,
     "action": [],
     "subAction": [
-      { "value": "VileCondemnedCharge" },
+      "VileCondemnedEndFastCharge",
       {
         "value": "VileCondemnedEndHit",
         "requirement": [
@@ -632,5 +654,22 @@
     "tags": ["DirectDamage", "MartialArts", "Heavy", "Gauntlet", "HeavenwillGauntlets", "VirtuousEnthroned"],
     "martialArt": "heavenwill",
     "weapon": "Gauntlet"
+  },
+  "VileCondemnedEndFastCharge": {
+    "silent": true,
+    "name": "Vile Condemned End [Fast Charge]",
+    "castTime": 0.775,
+    "action": [],
+    "modifier": [
+      {
+        "requirement": [
+          { "target": "self", "value": "SoaringHighT0" },
+          { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
+          { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
+        ],
+        "effect": { "castTimeMultiplier": 0.5870967741935484 }
+      }
+    ],
+    "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "MartialArtEffect", "SubAction"]
   }
 }

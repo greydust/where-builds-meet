@@ -9,20 +9,20 @@ import { rowWithId } from "./helpers/timelineRows"
 // Ported from script/probe/check-smolder-poet-rotation.mjs.
 describe("smolder-poet-rotation", () => {
   it("Final composite hit snapshots and consumes stacks without transferring its bonus to triggered explosions", async () => {
-    const rotation = (await import("../data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json")).default
-    const snowparting = (await import("../data/skill/snowparting-blade.json")).default
-    const phalanxbane = (await import("../data/skill/phalanxbane-blade.json")).default
-    const mystic = (await import("../data/skill/mystic.json")).default
-    const general = (await import("../data/skill/general.json")).default
-    const dots = (await import("../data/dot/mystic.json")).default
-    const mysticBuffs = (await import("../data/buff/mystic.json")).default
-    const generalBuffs = (await import("../data/buff/general.json")).default
-    const stonesplitBuffs = (await import("../data/buff/stonesplit-strength.json")).default
-    const generalDebuffs = (await import("../data/debuff/general.json")).default
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
-    const { calculateDamageBreakdown } = await import("../src/calculations/damage.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
+    const rotation = (await import("./fixtures/strength-smolder.json")).default
+    const snowparting = (await import("@gamedata/skill/snowparting-blade.json")).default
+    const phalanxbane = (await import("@gamedata/skill/phalanxbane-blade.json")).default
+    const mystic = (await import("@gamedata/skill/mystic.json")).default
+    const general = (await import("@gamedata/skill/general.json")).default
+    const dots = (await import("@gamedata/dot/mystic.json")).default
+    const mysticBuffs = (await import("@gamedata/buff/mystic.json")).default
+    const generalBuffs = (await import("@gamedata/buff/general.json")).default
+    const stonesplitBuffs = (await import("@gamedata/buff/stonesplit-strength.json")).default
+    const generalDebuffs = (await import("@gamedata/debuff/general.json")).default
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
+    const { calculateDamageBreakdown } = await import("@/calculations/damage.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
     const conditions = ["FrostCladNight", "MoraleChant", "SteadfastDevotion", "ThroatPiercingArt"].flatMap(name =>
       Array.from({ length: 7 }, (_, tier) => `${name}T${tier}`),
     )

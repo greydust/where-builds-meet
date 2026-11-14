@@ -48,7 +48,13 @@
       "effect": [
         {
           "requirement": [
-            { "target": "skillTag", "value": "SnowbreakSpring" },
+            {
+              "operator": "or",
+              "operand": [
+                { "target": "skillTag", "value": "SnowbreakSpring" },
+                { "target": "skillTag", "value": "AnxiSoldierSnowbreakSpring" }
+              ]
+            },
             {
               "operator": "or",
               "operand": [

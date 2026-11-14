@@ -13,7 +13,6 @@ export const snapshotBuildOverrides: Record<string, string> = {
   "bamboocutKite/dummy-1-min-infinite-vitality": "kite-fully-relayed-min",
   "stonesplitStrength/pure-dummy-1-min": "pure-fully-relayed-min",
   "stonesplitStrength/pure-dummy-1-min-infinite-vitality": "pure-fully-relayed-min",
-  "stonesplitStrength/mixed-dummy-1-min-double-stab": "mixed-fully-relayed-double-min",
 }
 export const dpsSnapshotEnvironment = {
   breakthrough: "17",

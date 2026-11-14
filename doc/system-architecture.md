@@ -1,6 +1,6 @@
 # System Architecture
 
-The Global 2.4 preview uses a generic `beforeDamage` setup trigger for outgoing
+The Global 2.4 uses a generic `beforeDamage` setup trigger for outgoing
 adjustments such as Empty Peak. It executes after hit eligibility but before
 damage settlement and refreshes the action's effect snapshot. Existing damage
 listeners still run after settlement. Talent stat formulas may declare a `when`

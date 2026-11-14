@@ -369,7 +369,7 @@
   "ForgetfulnessCooldown": {
     "name": "Forgetfulness Cooldown",
     "shortName": "For CD",
-    "duration": 6,
+    "duration": 5.5,
     "maxStack": 1,
     "refresh": true
   }

@@ -18,12 +18,12 @@ describe("mortal-rope-dart-talents", () => {
     const close = (actual: number | undefined, expected: number, message: string) =>
       assertClose(actual, expected, 1e-8, message)
 
-    const { martialArtEffectsForRank } = await import("../src/data/martialArtTalents.ts")
-    const { calculateStatsWithEffects } = await import("../src/calculations/statEffects.ts")
-    const { calculateDerivedStats } = await import("../src/calculations/effectiveStats.ts")
-    const { calculateRotationBaseline } = await import("../src/calculations/rotationCalculator.ts")
-    const { emptyStats } = await import("../src/data/statDefinitions.ts")
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { martialArtEffectsForRank } = await import("@/data/martialArtTalents.ts")
+    const { calculateStatsWithEffects } = await import("@/calculations/statEffects.ts")
+    const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
+    const { calculateRotationBaseline } = await import("@/calculations/rotationCalculator.ts")
+    const { emptyStats } = await import("@/data/statDefinitions.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const definitions: Partial<Record<WeaponId, { talent: Array<Array<MartialArtTalent<EditableObject>>> }>> = {
       mortalRopeDart: JSON.parse(await readFile("data/martial-art/mortal-rope-dart.json", "utf8")),
       infernalTwinblades: JSON.parse(await readFile("data/martial-art/infernal-twinblades.json", "utf8")),
@@ -177,7 +177,7 @@ describe("mortal-rope-dart-talents", () => {
           castStep("Observe"),
           delayStep(1),
           castStep("Observe"),
-          delayStep(4),
+          delayStep(19),
           castStep("Observe"),
         ],
       },
@@ -202,8 +202,8 @@ describe("mortal-rope-dart-talents", () => {
       assert(tracked, "Every observed cast must leave Bone Corrosion on the target.")
       return tracked.expiresAt
     }
-    close(corrosionExpiresAt(observed(rows)[0]), 5, "Bone Corrosion starts with a five-second lifetime")
-    close(corrosionExpiresAt(observed(rows)[1]), 9, "Reapplication refreshes its expiration")
+    close(corrosionExpiresAt(observed(rows)[0]), 20, "Bone Corrosion starts with a twenty-second lifetime")
+    close(corrosionExpiresAt(observed(rows)[1]), 24, "Reapplication refreshes its expiration")
     const reapplied = observed(rows)[1]
     assert.equal(corrosionOf(reapplied)?.stack, 1, "Reapplication cannot add a second stack")
     assert(observed(rows)[2]?.debuffs.get("BoneCorrosion"), "Refreshed Bone Corrosion survives the original expiration")

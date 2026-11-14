@@ -76,17 +76,18 @@
           "requirement": [{ "target": "skillTag", "value": "VileCondemned" }],
           "effect": { "convert": { "from": "finalAffinity", "to": "directCrit", "ratio": 1, "max": 0.12 } }
         }
-      ]
-    },
-    "SoaringHighT5": { "effect": [{ "rawStat": { "directCrit": 0.046 } }] },
-    "SoaringHighT6": {
+      ],
       "trigger": [
         {
           "target": "self",
           "requirement": [{ "target": "skillTag", "value": "VileCondemnedEnd" }],
-          "action": [{ "type": "trigger", "value": "SoaringHighT6Refund" }]
+          "action": [{ "type": "trigger", "value": "SoaringHighT6Refund" }],
+          "event": "damage",
+          "oncePerSkill": true
         }
       ]
-    }
+    },
+    "SoaringHighT5": { "effect": [{ "rawStat": { "directCrit": 0.046 } }] },
+    "SoaringHighT6": {}
   }
 }

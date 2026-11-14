@@ -129,7 +129,7 @@ describe("Jadeware four-piece", () => {
     ])
   })
 
-  it("expires after ten seconds and rejects recasts until the twelve-second cooldown ends", () => {
+  it("remains active through eleven seconds and renews after its twelve-second cooldown", () => {
     const result = calculateRotationBaseline(
       bundle(
         4,
@@ -146,7 +146,7 @@ describe("Jadeware four-piece", () => {
         ],
       ),
     )
-    expect(result.timeline.find(row => row.id === "rotation-5")!.actionStates[0].buffs.has("Jadeware")).toBe(false)
+    expect(result.timeline.find(row => row.id === "rotation-5")!.actionStates[0].buffs.has("Jadeware")).toBe(true)
     expect(result.timeline.find(row => row.id === "rotation-7")!.actionStates[0].buffs.has("Jadeware")).toBe(true)
   })
 })

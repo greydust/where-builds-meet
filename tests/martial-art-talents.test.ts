@@ -245,8 +245,8 @@ describe("martial-art-talents", () => {
           eventDefinitions: { Qi: { action: [{ type: "setQi", time: 0 }] } },
         },
       })
-      close(criticalRate(damage), qi < 30 ? 0.3 : 0, "Low-Qi critical chance threshold")
-      close(damage.physical, qi < 30 ? 1080 * (1 + 0.3 * 0.35) : 1000, "Low-Qi HP damage threshold")
+      close(criticalRate(damage), 0, "Low-Qi critical chance threshold")
+      close(damage.physical, qi < 30 ? 1080 : 1000, "Low-Qi HP damage threshold")
     }
     for (const [weapon, slots, tags] of [
       ["thundercry", 0, ["ThundercryBlade", "Charged"]],

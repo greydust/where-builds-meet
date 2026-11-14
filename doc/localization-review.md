@@ -216,3 +216,21 @@ wording independent of grammatical number. All concrete corrections were applied
 no unresolved findings remain. Coverage is 2,097 messages per published locale.
 No datamined game names were introduced. No browser visual review or human
 language review was performed.
+
+## Global 2.4 promotion (November 14, 2026)
+
+Filled 77 new cells (seven messages in eleven locales), reusing existing base
+names and recovering Peerless Stance terminology from buff 200121's reference
+416967418456822760 in snapshot `2026-11-13_22-03-37-422_+0000-ObxwZA`.
+Empty Peak uses the matching Empty Mountain term at reference
+13489077635949773146; its new diff reference is absent from the translation
+SQLite, so this is a contextual terminology choice rather than a verified new
+reference join. Other qualifiers and Empty Peak's description are AI-prepared.
+An independent AI pass reviewed these 77 candidates; five terminology/scope
+corrections were applied in Korean, Vietnamese, and Thai.
+
+Corrected 33 existing cells for Frost, Bone Corrosion, and Dread: extraction
+retained their old translations when English mechanics changed. A separate AI
+prepared the replacements; the integrating agent reviewed numeric values,
+source ownership, incoming damage, strict Qi thresholds, and damage channels.
+No browser or native-speaker human review was performed.

@@ -111,20 +111,23 @@ describe("Jade NPC hit factors and distinct boost eligibility", () => {
         ...ctx,
         effects: [...matchingEffects("Jadebreak", skill.tags!), ...matchingEffects("JadeCombo", skill.tags!)],
       }).total / base,
-    ).toBeCloseTo(1.5, 12)
+    ).toBeCloseTo(1.4 * 1.1, 12)
   })
-  it.each(["ForsakenFame", "ForsakenFameCancel"])("%s receives 40% Jadebreak without receiving Combo", id => {
-    const skill = allSkillDefinitions[id],
-      action = skillActions(skill).find(a => a.type === "damage")!,
-      ctx = context(skill.tags!)
-    const base = calculateDamageBreakdown(action, ctx).total
-    const boosted = calculateDamageBreakdown(action, {
-      ...ctx,
-      effects: matchingEffects("Jadebreak", skill.tags!),
-    }).total
-    expect(boosted / base).toBeCloseTo(1.4, 12)
-    expect(calculateDamageBreakdown(action, { ...ctx, effects: matchingEffects("JadeCombo", skill.tags!) }).total).toBe(
-      base,
-    )
-  })
+  it.each(["ForsakenFame", "ForsakenFameCancel"])(
+    "%s receives multiplicative Jadebreak branches without receiving Combo",
+    id => {
+      const skill = allSkillDefinitions[id],
+        action = skillActions(skill).find(a => a.type === "damage")!,
+        ctx = context(skill.tags!)
+      const base = calculateDamageBreakdown(action, ctx).total
+      const boosted = calculateDamageBreakdown(action, {
+        ...ctx,
+        effects: matchingEffects("Jadebreak", skill.tags!),
+      }).total
+      expect(boosted / base).toBeCloseTo(1.3 * 1.1, 12)
+      expect(
+        calculateDamageBreakdown(action, { ...ctx, effects: matchingEffects("JadeCombo", skill.tags!) }).total,
+      ).toBe(base)
+    },
+  )
 })

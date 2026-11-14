@@ -10,10 +10,10 @@ import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
 import type { WeaponId } from "@/types"
 
-const preview = combatDefinitionsFor("cn-2.8.5")
+const current = combatDefinitionsFor(null)
 const cast = (skill: string) => ({ type: "skill" as const, skill })
 const delay = (duration: number) => ({ type: "event" as const, event: "Delay" as const, duration })
-function input(steps: TimelineBuildInput["rotation"]["steps"], definitions = preview): TimelineBuildInput {
+function input(steps: TimelineBuildInput["rotation"]["steps"], definitions = current): TimelineBuildInput {
   return {
     rotation: { name: "Datamine changes", ping: 0, steps },
     skills: { ...Object.assign({}, ...Object.values(definitions.skillMaps)), Observe: { castTime: 0, action: [] } },
@@ -30,14 +30,14 @@ function input(steps: TimelineBuildInput["rotation"]["steps"], definitions = pre
   }
 }
 
-describe("Global 2.4 resolved CN findings", () => {
+describe("Global 2.4 Global export mechanics", () => {
   it.each([
     ["MoonShatterSpringNormal", 3, 3.1194, 865, 470],
     ["MoonShatterSpringWindrider", 5, 7.54635, 2087.5, 1137.5],
   ] as const)(
     "updates %s without duplicating the old NPC enhancement or changing hit clocks",
     (skill, count, coef, physical, attribute) => {
-      const hits = (definitions: typeof preview) => {
+      const hits = (definitions: typeof current) => {
         const row = buildRotationTimeline(input([cast(skill)], definitions))[0]
         return row.actions.filter(
           (a, index) =>
@@ -53,7 +53,7 @@ describe("Global 2.4 resolved CN findings", () => {
             ),
         )
       }
-      const changed = hits(preview)
+      const changed = hits(current)
       const old = hits(currentCombatDefinitions)
       expect(changed).toHaveLength(count)
       expect(changed.map(hit => hit.time)).toEqual(old.map(hit => hit.time))
@@ -74,7 +74,7 @@ describe("Global 2.4 resolved CN findings", () => {
       delay(2),
       cast("Observe"),
     ])
-    data.setupEffects = martialArtEffectsForRank(preview.martialArtDefinitions, ["inkwellFan"], 19)
+    data.setupEffects = martialArtEffectsForRank(current.martialArtDefinitions, ["inkwellFan"], 19)
     const rows = buildRotationTimeline(data)
     const pursuits = rows.filter(row => row.step.skill === "MoonShatterSpringNormal")
     const firstHit = pursuits[0].actionStates[0].debuffs.get("EmptyPeak")!
@@ -83,7 +83,7 @@ describe("Global 2.4 resolved CN findings", () => {
     const observed = rows.filter(row => row.step.skill === "Observe")
     expect(observed.map(row => row.debuffs.has("EmptyPeak"))).toEqual([true, false])
     expect(pursuits[1].actionStates[0].debuffs.get("EmptyPeak")?.stack).toBe(1)
-    expect(preview.effectDefinitions.EmptyPeak.shared).not.toBe(true)
+    expect(current.effectDefinitions.EmptyPeak.shared).not.toBe(true)
   })
 
   it.each([
@@ -92,7 +92,7 @@ describe("Global 2.4 resolved CN findings", () => {
   ])(
     "selects mutually exclusive %s conversions, ties to Power and freezes steady inputs",
     ({ weapon, conStat, powerStat, conCap }) => {
-      const effects = martialArtEffectsForRank(preview.martialArtDefinitions, [weapon], 19).filter(
+      const effects = martialArtEffectsForRank(current.martialArtDefinitions, [weapon], 19).filter(
         effect => !("requirement" in effect),
       )
       const sheet = (body: number, power: number) =>
@@ -115,7 +115,7 @@ describe("Global 2.4 resolved CN findings", () => {
   it.each(["CelestialVigor", "BladesWill", "Volutefit"])(
     "resolves %s's corrected world-level curve through the character pipeline",
     innerWay => {
-      const definition = innerWayDefinitionForSoloLevel(preview.innerWayDefinitions[innerWay], 19)
+      const definition = innerWayDefinitionForSoloLevel(current.innerWayDefinitions[innerWay], 19)
       const result = calculateStatsWithEffects(emptyStats, definition.effect[`${innerWay}T2`].effect ?? [], 0)
       expect(result.rawStats.minVoidAttack).toBe(15.4)
       expect(result.rawStats.maxVoidAttack).toBe(30.8)
@@ -132,10 +132,10 @@ describe("Global 2.4 resolved CN findings", () => {
     expect(row.effectiveCastTime).toBeCloseTo(2.8375 + (amount === 3 ? 0.455 : 0.775), 10)
   })
 
-  it("drains Endurance only during Bubbles' hold and preserves the release timing", () => {
+  it("drains Endurance only during Bubbles' hold and uses the shorter release recovery", () => {
     const rows = buildRotationTimeline(input([cast("DreamwroughtBubbles"), cast("Observe")]))
     const bubbles = rows[0]
-    expect(bubbles.effectiveCastTime).toBeCloseTo(0.603 + 1.2, 10)
+    expect(bubbles.effectiveCastTime).toBeCloseTo(0.603 + 1.0, 10)
     expect(bubbles.actions.find(action => action.type === "damage")?.time).toBeCloseTo(0.603 + 0.4002173027694225, 10)
     expect(rows.at(-1)!.resources.Endurance).toBeCloseTo(100 - 0.363 * 14, 9)
     expect(rows.at(-1)!.buffs.has("DreamwroughtHoldDrain")).toBe(false)
@@ -166,7 +166,7 @@ describe("Global 2.4 resolved CN findings", () => {
   it("keeps one 19m opening attachment and anchors battle start to Fleeting Trace's sixth hit", () => {
     const rotation = rotationRecordForEntry(
       defaultRotationEntries.find(entry => entry.id === "mixed-dummy-1-min")!,
-      "cn-2.8.5",
+      null,
     )
     expect(
       rotation.steps.filter(step => step.type === "event" && step.event === "Move" && step.distance === 19),
@@ -176,11 +176,22 @@ describe("Global 2.4 resolved CN findings", () => {
   })
 
   it("applies Seasonal Edge's resolved Spring recovery and Winter cost to explicit branch buffs", () => {
-    const spring = input([cast("Grant"), cast("Hit"), cast("Hit"), cast("Observe")])
-    spring.initialResources!.Endurance = 50
+    const spring = input([
+      cast("Grant"),
+      ...Array.from({ length: 12 }, () => cast("Hit")),
+      cast("Observe"),
+      cast("Grant"),
+      cast("Hit"),
+      cast("Observe"),
+    ])
+    spring.initialResources!.Endurance = 0
     spring.skills.Grant = { castTime: 0, action: [{ type: "apply", target: "self", value: "Bloom", time: 0 }] }
     spring.skills.Hit = { castTime: 0.1, action: [{ type: "damage", phyCoef: 1, time: 0 }] }
-    expect(buildRotationTimeline(spring).at(-1)!.resources.Endurance).toBe(70)
+    expect(
+      buildRotationTimeline(spring)
+        .filter(row => row.step.skill === "Observe")
+        .map(row => row.resources.Endurance),
+    ).toEqual([50, 65])
     const winter = input([cast("Grant"), cast("Spend"), cast("Observe")])
     winter.skills.Grant = { castTime: 0, action: [{ type: "apply", target: "self", value: "Frost", time: 0 }] }
     winter.skills.Spend = {

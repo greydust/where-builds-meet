@@ -134,7 +134,7 @@ describe("Wings Inner Way stat tiers", () => {
       HarmonySong: { minPhys: 97.8, directCrit: 0.046 },
       ZephyrWhispers: { crit: 0.101, critDmgBonus: 0.04 },
       InkAndStrings: { minPhys: 29.3, maxPhys: 58.7, physDmgBonus: 0.025 },
-      BladesWill: { minVoidAttack: 18.5, maxVoidAttack: 36.9, formlessPenetration: 6 },
+      BladesWill: { minVoidAttack: 16.7, maxVoidAttack: 33.3, formlessPenetration: 6 },
     }
     for (const [id, values] of Object.entries(expected)) {
       const definition = innerWayDefinitionForSoloLevel(innerWayDefinitions[id as keyof typeof innerWayDefinitions], 20)

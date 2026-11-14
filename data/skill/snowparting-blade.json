@@ -54,10 +54,27 @@
       { "type": "consume", "target": "self", "value": "InnerPassion", "stack": 1, "time": 0.565 },
       {
         "type": "trigger",
-        "requirement": [
-          { "target": "self", "value": "FrostCladNightT1" },
-          { "target": "self", "value": "IronGuard" }
-        ],
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "FrostCladNightT1" },
+            { "target": "self", "value": "IronGuard" },
+            { "target": "self", "value": "InnerPassion" }
+          ]
+        },
+        "value": "AnxiSoldierSnowbreakSpringEnhanced",
+        "time": 0.565
+      },
+      {
+        "type": "trigger",
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [
+            { "target": "self", "value": "FrostCladNightT1" },
+            { "target": "self", "value": "IronGuard" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "InnerPassion" }] }
+          ]
+        },
         "value": "AnxiSoldierSnowbreakSpring",
         "time": 0.565
       },
@@ -206,7 +223,7 @@
   "SnowpartingQ": {
     "name": "General's Bane",
     "shortName": "Heng Q",
-    "castTime": 0.692,
+    "castTime": 0.6153846153846154,
     "cooldown": 12,
     "cooldownUses": 2,
     "action": [
@@ -235,7 +252,7 @@
   "SnowpartingQSlash": {
     "name": "General's Bane: Slash",
     "shortName": "Heng Q",
-    "castTime": 0.654,
+    "castTime": 0.5769230769230769,
     "cooldown": 12,
     "cooldownUses": 2,
     "action": [
@@ -279,7 +296,7 @@
       { "type": "damage", "phyCoef": 0.85296, "phyBonus": 236, "attrBonus": 128.8, "time": 0.228, "attrCoef": 0.85296 },
       { "type": "damage", "phyCoef": 1.27944, "phyBonus": 354, "attrBonus": 193.2, "time": 0.799, "attrCoef": 1.27944 },
       { "type": "apply", "requirement": [], "target": "target", "value": "FearfulBlade", "stack": 1, "time": 0.799 },
-      { "type": "extend", "requirement": [], "target": "target", "value": "Dread", "duration": 6, "time": 0.799 },
+      { "type": "extend", "requirement": [], "target": "target", "value": "Dread", "duration": 10, "time": 0.799 },
       {
         "type": "trigger",
         "requirement": [
@@ -336,6 +353,7 @@
       "HengBlade",
       "SnowpartingBlade",
       "AnxiSoldier",
+      "AnxiSoldierSnowbreakSpring",
       "MartialArtEffect",
       "Triggered"
     ],
@@ -356,6 +374,30 @@
       "MartialArts",
       "MartialArtTrigger",
       "MartialArt",
+      "HengBlade",
+      "SnowpartingBlade",
+      "AnxiSoldier",
+      "MartialArtEffect",
+      "Triggered"
+    ],
+    "skillBreakdownCategory": "Heng Blade Anxi Soldier"
+  },
+  "AnxiSoldierSnowbreakSpringEnhanced": {
+    "name": "Anxi Soldier Snowbreak Spring",
+    "castTime": 0,
+    "action": [
+      { "type": "damage", "phyCoef": 0.35, "phyBonus": 0, "attrBonus": 0, "time": 0.16, "attrCoef": 0.35 },
+      { "type": "damage", "phyCoef": 0.35, "phyBonus": 0, "attrBonus": 0, "time": 0.4, "attrCoef": 0.35 },
+      { "type": "damage", "phyCoef": 0.35, "phyBonus": 0, "attrBonus": 0, "time": 0.46, "attrCoef": 0.35 },
+      { "type": "damage", "phyCoef": 0.35, "phyBonus": 0, "attrBonus": 0, "time": 0.7, "attrCoef": 0.35 }
+    ],
+    "modifier": [{ "effect": { "baseDMGBonus": 0.4 } }],
+    "tags": [
+      "DirectDamage",
+      "MartialArts",
+      "MartialArtTrigger",
+      "Heavy",
+      "VariedCombo",
       "HengBlade",
       "SnowpartingBlade",
       "AnxiSoldier",

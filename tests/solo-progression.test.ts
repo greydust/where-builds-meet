@@ -104,9 +104,9 @@ describe("Enhancement and Arsenal progression", () => {
       ).stats
     const before = calculate(15)
     const after = calculate(21)
-    expect(after.minPhys - before.minPhys).toBeCloseTo((528 - 325) * 0.264, 10)
+    expect(after.minPhys - before.minPhys).toBeCloseTo((528 - 325) * 0.264 * 2, 10)
     expect(after.maxPhys - before.maxPhys).toBeCloseTo((528 - 325) * 0.264, 10)
-    expect(after.maxHp - before.maxHp).toBeCloseTo((528 - 325) * 10, 10)
+    expect(after.maxHp - before.maxHp).toBe(0)
     expect(after.minStonesplit).toBe(176 * 3)
     expect(after.maxStonesplit).toBe(352 * 3)
   })

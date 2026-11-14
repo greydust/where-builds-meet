@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { innerWayConditionsFor, innerWayEffectRulesFor } from "@/application/characterComposition"
-import { combatDefinitionsFor, currentCombatDefinitions } from "@/application/gameData/previews"
+import { combatDefinitionsFor } from "@/application/gameData/previews"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { calculateDamageBreakdown } from "@/calculations/damage"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
@@ -16,13 +16,12 @@ import { effectState } from "@/calculations/trackedEffectState"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
 
-const preview = combatDefinitionsFor("cn-2.8.5")
-const shipped = currentCombatDefinitions
+const current = combatDefinitionsFor(null)
 const cast = (skill: string) => ({ type: "skill" as const, skill })
 const delay = (duration: number) => ({ type: "event" as const, event: "Delay" as const, duration })
 
 function input(
-  definitions: typeof preview,
+  definitions: typeof current,
   steps: TimelineBuildInput["rotation"]["steps"],
   innerWay = "SoaringHigh",
   tier = "T6",
@@ -87,11 +86,12 @@ function simulate(timeline: TimelineBuildInput) {
 
 describe("Global 2.4 known balance changes", () => {
   it.each([0.2, 0.5])("replaces low-Qi pursuit crit rate with crit damage at %s Qi", qi => {
-    const totals = [shipped, preview].map(definitions => {
+    const totals = [0.5, qi].map(targetQi => {
+      const definitions = current
       const data = input(definitions, [cast("Mark"), cast("Hit")], "ThunderousBloom", "T0", "silkbindJade")
       data.innerWayRules = []
       data.innerWayConditions = []
-      data.skills.Mark = { castTime: 0, action: [{ type: "setQi", targetQiRatio: qi, time: 0 }] }
+      data.skills.Mark = { castTime: 0, action: [{ type: "setQi", targetQiRatio: targetQi, time: 0 }] }
       data.skills.Hit.tags = ["MoonShatterSpring", "Heavy", "Pursuit"]
       data.setupEffects = [
         ...martialArtEffectsForRank(definitions.martialArtDefinitions, ["inkwellFan"], 19),
@@ -106,26 +106,25 @@ describe("Global 2.4 known balance changes", () => {
           result.baseline[0].context.effects.reduce((sum, effect) => sum + Number(effect.critDmgBonus ?? 0), 0),
       }
     })
-    const critFactor = 1 + totals[0].critBonus
-    expect(totals[1].total / totals[0].total).toBeCloseTo(qi < 0.3 ? (critFactor + 0.15) / critFactor : 1, 10)
+    expect(totals[1].critBonus - totals[0].critBonus).toBeCloseTo(qi < 0.3 ? 0.15 : 0, 10)
   })
 
   it("keeps Bone Corrosion active for twenty seconds after Bladebound Thread", () => {
     const data = input(
-      preview,
+      current,
       [cast("BladeboundThreadCancel"), delay(19), cast("Observe"), delay(2), cast("Observe")],
       "EchoesOfOblivion",
       "T0",
       "bamboocutWind",
     )
     data.weapons = ["mortalRopeDart", "infernalTwinblades"]
-    data.setupEffects = martialArtEffectsForRank(preview.martialArtDefinitions, ["mortalRopeDart"], 19)
+    data.setupEffects = martialArtEffectsForRank(current.martialArtDefinitions, ["mortalRopeDart"], 19)
     const rows = buildRotationTimeline(data).filter(row => row.step.skill === "Observe")
     expect(rows.map(row => row.debuffs.has("BoneCorrosion"))).toEqual([true, false])
   })
 
   it("keeps Jadeware and Mountain's Might Endless Gale alive through their twelve-second interval", () => {
-    for (const definitions of [shipped, preview]) {
+    for (const definitions of [current]) {
       const data = input(
         definitions,
         [cast("Mark"), cast("QiankunsLockCancel"), delay(11), cast("Observe")],
@@ -135,13 +134,13 @@ describe("Global 2.4 known balance changes", () => {
       )
       data.skills.Mark = { castTime: 0, action: [{ type: "apply", target: "self", value: "Jadeware", time: 0 }] }
       const observe = buildRotationTimeline(data).find(row => row.step.skill === "Observe")!
-      expect(observe.buffs.has("EndlessGale")).toBe(definitions === preview)
-      expect(observe.buffs.has("Jadeware")).toBe(definitions === preview)
+      expect(observe.buffs.has("EndlessGale")).toBe(true)
+      expect(observe.buffs.has("Jadeware")).toBe(true)
     }
   })
 
   it.each(["QiankunsLock", "QiankunsLockCancel"])("requires Nameless Sword to gain Endless Gale from %s", skill => {
-    const data = input(preview, [cast(skill), cast("Observe")], "MountainsMight", "T0", "bellstrikeSplendor")
+    const data = input(current, [cast(skill), cast("Observe")], "MountainsMight", "T0", "bellstrikeSplendor")
     data.weapons = ["namelessSpear"]
     expect(buildRotationTimeline(data).at(-1)!.buffs.has("EndlessGale")).toBe(false)
     data.weapons.push("namelessSword")
@@ -153,7 +152,7 @@ describe("Global 2.4 known balance changes", () => {
     ["T1", 5, 10],
     ["T4", 5, 20],
   ] as const)("applies Thunderous Bloom %s's stack cap and penetration", (tier, cap, penetration) => {
-    const data = input(preview, [cast("Grant"), cast("Hit")], "ThunderousBloom", tier, "silkbindJade")
+    const data = input(current, [cast("Grant"), cast("Hit")], "ThunderousBloom", tier, "silkbindJade")
     const result = simulate(data)
     const row = result.timeline.find(row => row.step.skill === "Hit")!
     expect(row.buffs.get("SpringThunder")?.maxStack).toBe(cap)
@@ -171,7 +170,7 @@ describe("Global 2.4 known balance changes", () => {
     "refunds Spring Thunder against %s through the existing shared cooldown",
     mark => {
       const data = input(
-        preview,
+        current,
         [cast("Mark"), cast("Hit"), cast("Observe"), cast("Hit"), cast("Observe")],
         "ThunderousBloom",
         "T6",
@@ -194,7 +193,7 @@ describe("Global 2.4 known balance changes", () => {
 
   it.each(["T4", "T6"])("refunds Heaven's Will once per End cast at %s without the eighteen-second lockout", tier => {
     const steps = Array.from({ length: 3 }, () => [cast("Refill"), cast("VileCondemnedEndHit"), cast("Observe")]).flat()
-    const rows = buildRotationTimeline(input(preview, steps, "SoaringHigh", tier))
+    const rows = buildRotationTimeline(input(current, steps, "SoaringHigh", tier))
     expect(rows.filter(row => row.step.skill === "SoaringHighT6Refund")).toHaveLength(3)
     expect(rows.filter(row => row.step.skill === "Observe").map(row => row.resources.HeavensWill)).toEqual(
       tier === "T6" ? [1, 1, 1] : [2, 2, 2],
@@ -207,7 +206,7 @@ describe("Global 2.4 known balance changes", () => {
       delay(26),
       cast("Observe"),
     ]
-    const rows = buildRotationTimeline(input(preview, steps))
+    const rows = buildRotationTimeline(input(current, steps))
     expect(
       rows
         .filter(row => row.step.skill === "Observe")
@@ -224,7 +223,7 @@ describe("Global 2.4 known balance changes", () => {
 
   it("does not grant the End debuff from a three-bar cast or below T6", () => {
     for (const tier of ["T4", "T6"]) {
-      const data = input(preview, [cast("VileCondemnedEndHit"), cast("Observe")], "SoaringHigh", tier)
+      const data = input(current, [cast("VileCondemnedEndHit"), cast("Observe")], "SoaringHigh", tier)
       data.initialResources = { HeavensWill: 3 }
       expect(buildRotationTimeline(data).at(-1)!.debuffs.has("SoaringHighEndVulnerability")).toBe(false)
     }
@@ -235,7 +234,7 @@ describe("Global 2.4 known balance changes", () => {
     ["Light", 40, 0.12, 0],
     ["Heavy", 39, 0.02, 0],
   ] as const)("keeps Bone Corrosion bonuses scoped to %s at %s%% Qi", (tag, qi, expectedQi, expectedHp) => {
-    const rules = preview.effectDefinitions.BoneCorrosion.effect as EditableObject[]
+    const rules = current.effectDefinitions.BoneCorrosion.effect as EditableObject[]
     const effects = rules
       .filter(rule =>
         requirementsPass(

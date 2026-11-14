@@ -8,8 +8,7 @@ import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 // Ported from script/probe/check-default-rotation.mjs.
 describe("default-rotation", () => {
   it("Infinite Vitality default rotation sequence and calculation checks passed", async () => {
-    const rotation = (await import("@gamedata/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json"))
-      .default
+    const rotation = (await import("@gamedata/rotation/stonesplit-strength/mixed-dummy-1-min.json")).default
     const snowparting = (await import("@gamedata/skill/snowparting-blade.json")).default
     const phalanxbane = (await import("@gamedata/skill/phalanxbane-blade.json")).default
     const mystic = (await import("@gamedata/skill/mystic.json")).default

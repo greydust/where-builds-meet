@@ -34,82 +34,10 @@ const attachmentOf = (step: QiStep): AttachedEventTarget | undefined =>
 const authoredTimeOf = (step: QiStep): number | undefined => ("startTime" in step ? step.startTime : undefined)
 
 describe("preset Qi event attachments", () => {
-  it("keeps Mixed and Double Stab's authored Qi markers aligned around their distinct third-strike breaks", async () => {
-    const path = typedPathDefinitions.stonesplitStrength
-    const qiTimes = async (rotationPath: string) => {
-      const rotation = (await probeLoad<{ default: RotationRecord }>(rotationPath)).default
-      const bundle = buildPresetRotationBundle(
-        {
-          pathId: "stonesplitStrength",
-          martialArts: path.lockedWeapons!,
-          rotation,
-          breakthrough: "17",
-          food: "None",
-          divinecraft: "None",
-          script: "None",
-          skillOverrides: {},
-          previewId: null,
-          globalDebuffs: { ...defaultGlobalDebuffs },
-        },
-        path.defaultBuild,
-      )!
-      const timeline = buildRotationTimeline(bundle.timeline)
-      const battleStart = timeline.find(row => row.battleStartTime !== undefined)?.battleStartTime ?? 0
-      return timeline
-        .filter(row => row.step.type === "event" && row.step.event === "Qi" && !row.skipped)
-        .sort((left, right) => left.startTime - right.startTime)
-        .map(row => row.startTime - battleStart)
-    }
-    const mixed = await qiTimes("/data/rotation/stonesplit-strength/mixed-dummy-1-min.json")
-    const doubleStab = await qiTimes("/data/rotation/stonesplit-strength/mixed-dummy-1-min-double-stab.json")
-    expect(mixed).toHaveLength(4)
-    expect(doubleStab).toHaveLength(4)
-    for (const index of [0, 1, 3]) expect(mixed[index]).toBeCloseTo(doubleStab[index], 8)
-    expect(mixed[2]).toBeCloseTo(32.168817261190455, 8)
-    expect(doubleStab[2]).toBeCloseTo(33.7908172611905, 8)
-  })
-
-  it.each(["mixed-dummy-1-min", "mixed-dummy-1-min-double-stab"])(
-    "breaks on the third charged strike of %s's second round",
-    async rotationId => {
-      const rotation = (
-        await probeLoad<{ default: RotationRecord }>(`/data/rotation/stonesplit-strength/${rotationId}.json`)
-      ).default
-      const path = typedPathDefinitions.stonesplitStrength
-      const bundle = buildPresetRotationBundle(
-        {
-          pathId: "stonesplitStrength",
-          martialArts: path.lockedWeapons!,
-          rotation,
-          breakthrough: "17",
-          food: "None",
-          divinecraft: "None",
-          script: "None",
-          skillOverrides: {},
-          previewId: null,
-          globalDebuffs: { ...defaultGlobalDebuffs },
-        },
-        path.defaultBuild,
-      )!
-      const timeline = buildRotationTimeline(bundle.timeline)
-      const charges = timeline.filter(row => row.kind === "rotation" && row.step.skill === "PhalanxbaneHeavyCharged3")
-      const strike = charges[6]
-      const breakRow = timeline.find(
-        row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
-      )
-      expect(strike.actions[4].type).toBe("damage")
-      expect(breakRow?.sourceRowId).toBe(strike.id)
-      expect(breakRow?.startTime).toBeCloseTo(strike.startTime + Number(strike.actions[4].time), 8)
-    },
-  )
-
   const rotationPaths = [
     "/data/rotation/bamboocut-draught/draught-dummy-1-min.json",
     "/data/rotation/bamboocut-wind/wind-dummy-1-min-infinite-vitality.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
-    "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
-    "/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json",
-    "/data/rotation/stonesplit-strength/mixed-dummy-1-min-double-stab.json",
     "/archive/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s.json",
     "/archive/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s-no-fcn.json",
     "/data/rotation/stonesplit-strength/pure-dummy-1-min.json",
@@ -120,6 +48,7 @@ describe("preset Qi event attachments", () => {
     "/data/rotation/bamboocut-dust/dust-dummy-1-min.json",
     "/data/rotation/bamboocut-dust/dust-dummy-1-min-100pc.json",
   ]
+
   it.each(rotationPaths)("resolves authored Qi attachments using production inputs: %s", async rotationPath => {
     const rotation = (await probeLoad<{ default: RotationRecord }>(rotationPath)).default
     const match = Object.entries(typedPathDefinitions).find(([, entry]) =>

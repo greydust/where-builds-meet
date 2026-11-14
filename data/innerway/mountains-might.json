@@ -5,7 +5,7 @@
   "effect": {
     "MountainsMightT0": {
       "effect": [
-        { "target": "EndlessGale", "modify": { "duration": 10 } },
+        { "target": "EndlessGale", "modify": { "duration": 12 } },
         {
           "requirement": [
             { "target": "self", "value": "EndlessGale" },

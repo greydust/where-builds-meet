@@ -34,7 +34,7 @@
   },
   "Jadeware": {
     "name": "Jadeware",
-    "duration": 10,
+    "duration": 12,
     "maxStack": 1,
     "refresh": true,
     "effect": [
@@ -75,7 +75,19 @@
     "description": "The spring outcome of Seasonal Edge.",
     "duration": 8,
     "maxStack": 1,
-    "refresh": true
+    "refresh": true,
+    "action": [
+      { "type": "addResource", "value": "Endurance", "amount": 10, "time": 0 },
+      { "type": "apply", "target": "self", "value": "BloomRecoveryRemaining", "stack": 8, "reapply": true, "time": 0 }
+    ],
+    "trigger": {
+      "event": "damage",
+      "action": [
+        { "type": "consume", "target": "self", "value": "BloomRecoveryRemaining", "stack": 1 },
+        { "type": "addResource", "value": "Endurance", "amount": 5 }
+      ],
+      "requirement": [{ "target": "self", "value": "BloomRecoveryRemaining" }]
+    }
   },
   "Flare": {
     "name": "Flare",
@@ -104,10 +116,26 @@
   "Frost": {
     "name": "Frost",
     "shortName": "Frost",
-    "description": "The winter outcome of Seasonal Edge.",
+    "description": "Reduces incoming damage by 10%; sprint, dodge and jump Endurance costs increase by 50%.",
     "duration": 8,
     "maxStack": 1,
-    "refresh": true
+    "refresh": true,
+    "incomingDamageReduction": { "chance": 1, "reduction": 0.1 },
+    "effect": [
+      {
+        "requirement": [
+          {
+            "operator": "or",
+            "operand": [
+              { "target": "skillTag", "value": "Dodge" },
+              { "target": "skillTag", "value": "Jump" },
+              { "target": "skillTag", "value": "Sprint" }
+            ]
+          }
+        ],
+        "effect": { "resourceCostBonus": { "Endurance": 0.5 } }
+      }
+    ]
   },
   "BreakingPointCooldown": {
     "name": "Breakpoint Cooldown",
@@ -508,5 +536,6 @@
       }
     ],
     "shortName": "MW"
-  }
+  },
+  "BloomRecoveryRemaining": { "name": "Bloom", "duration": 12, "maxStack": 8, "hidden": true, "refresh": true }
 }

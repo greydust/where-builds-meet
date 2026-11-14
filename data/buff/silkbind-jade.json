@@ -29,7 +29,7 @@
             ]
           }
         ],
-        "effect": { "hpDMGBonus": 0.1 }
+        "effect": { "targetCorrectionBonus": 0.1 }
       }
     ],
     "shortName": "JB"
@@ -101,7 +101,7 @@
   },
   "SpringThunderSpent": {
     "name": "Spring Thunder Spent",
-    "duration": 0.000001,
+    "duration": 1e-6,
     "maxStack": 1,
     "refresh": true,
     "hidden": true

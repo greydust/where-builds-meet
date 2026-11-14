@@ -15,7 +15,7 @@ const retiredInPreview = [
   "mixed-dummy-infinite-vitality-1-min",
   "mixed-dummy-smolder-poet-1-min",
 ]
-const previewId = "cn-2.8.5"
+const previewId = "cn-2.8.5" // A persisted selection from before promotion.
 
 afterEach(() => {
   localStorage.clear()
@@ -23,28 +23,8 @@ afterEach(() => {
   useRotationStore.getState().initialise("stonesplitStrength")
 })
 
-it("switches the preview preset list and restores every live preset when returning to Current", () => {
-  const store = useRotationStore.getState()
-  store.initialise("stonesplitStrength")
-  const live = useRotationStore.getState().entries
-  const oldMixed = live.find(entry => entry.id === "mixed-dummy-1-min")!.rotation
-  store.setPreview(previewId)
-  const preview = useRotationStore.getState().entries
-  expect(preview.some(entry => retiredInPreview.includes(entry.id))).toBe(false)
-  const mixed = preview.find(entry => entry.id === "mixed-dummy-1-min")!
-  expect(mixed.rotation.infiniteVitality).toBe(true)
-  expect(mixed.rotation.steps).not.toEqual(oldMixed.steps)
-  expect(rotationRecordForEntry(mixed, previewId)).toEqual(mixed.rotation)
-  store.setPreview(null)
-  expect(useRotationStore.getState().entries).toEqual(live)
-  expect(rotationRecordForEntry(mixed)).toEqual(oldMixed)
-})
-
-it.each(retiredInPreview)("resolves a hidden %s selection to Mixed only in the preview", id => {
-  expect(initialRotationEditorState(false, id, ["snowparting", "phalanxbane"], previewId).activeId).toBe(
-    "mixed-dummy-1-min",
-  )
-  expect(initialRotationEditorState(false, id, ["snowparting", "phalanxbane"]).activeId).toBe(id)
+it.each(retiredInPreview)("resolves retired preset %s to Mixed after promotion", id => {
+  expect(initialRotationEditorState(false, id, ["snowparting", "phalanxbane"]).activeId).toBe("mixed-dummy-1-min")
 })
 
 it("keeps custom rotations and their persisted contents independent of preset overlays", () => {

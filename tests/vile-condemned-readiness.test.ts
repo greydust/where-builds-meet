@@ -1,9 +1,10 @@
+import effects from "@gamedata/debuff/bamboocut-kite.json"
+import skills from "@gamedata/skill/heavenwill-gauntlets.json"
 import { assert, describe, expect, it } from "vitest"
 
-import effects from "../data/debuff/bamboocut-kite.json"
-import skills from "../data/skill/heavenwill-gauntlets.json"
-import { buildRotationTimeline, type TimelineBuildInput, type RotationStep } from "../src/calculations/rotationTimeline"
-import { migrateAutomaticDelays } from "../src/rotationEditing"
+import { buildRotationTimeline, type TimelineBuildInput, type RotationStep } from "@/calculations/rotationTimeline"
+import { migrateAutomaticDelays } from "@/rotationEditing"
+
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 
 const cast = (skill: string): RotationStep => ({ type: "skill", skill })
@@ -29,6 +30,7 @@ const lead = 0.775 + 0.04
 function verifyRelease(data: TimelineBuildInput, releaseTime: number, target: number) {
   const rows = buildRotationTimeline(data),
     row = charged(rows)
+  const lead = Number(row.actions.find(action => action.type === "damage")?.time) - 1.9
   expect(row.skipped).not.toBe(true)
   expect(row.startTime + lead).toBeCloseTo(releaseTime, 8)
   expect(row.actions.find(action => action.type === "damage")?.phyCoef).toBe(11.7527)
@@ -49,8 +51,8 @@ describe("Vile Condemned pre-charge readiness", () => {
   })
   it("does not wait if charging alone reaches the target", () => {
     const data = input()
-    data.initialResources = { HeavensWill: 3.95 }
-    const { rows, row } = verifyRelease(data, lead, 4)
+    data.initialResources = { HeavensWill: 3.96 }
+    const { rows, row } = verifyRelease(data, 0.455 + 0.04, 4)
     expect(row.startTime).toBe(0)
     expect(rows.some(row => row.step.type === "event" && row.step.event === "Delay")).toBe(false)
   })
@@ -178,8 +180,8 @@ describe("Vile Condemned pre-charge readiness", () => {
   })
   it("rejects side effects in a silent charge instead of silently backdating them", () => {
     const data = input()
-    data.skills.VileCondemnedCharge.action = [{ type: "addResource", value: "HeavensWill", amount: 1 }]
-    expect(() => buildRotationTimeline(data)).toThrow("Silent skill VileCondemnedCharge")
+    data.skills.VileCondemnedEndFastCharge.action = [{ type: "addResource", value: "HeavensWill", amount: 1 }]
+    expect(() => buildRotationTimeline(data)).toThrow("Silent skill VileCondemnedEndFastCharge")
   })
   it("stops the wait at Battle End without casting the weak fallback", () => {
     const data = input()

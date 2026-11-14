@@ -21,10 +21,10 @@ it("Global 2.4 Mixed preserves all fifteen charges, four Soul hits and legal wea
         ...entry.fixture,
         rotation: rotationRecordForEntry(
           defaultRotationEntries.find(rotation => rotation.id === "mixed-dummy-1-min")!,
-          "cn-2.8.5",
+          null,
         ),
         skillOverrides: {},
-        previewId: "cn-2.8.5",
+        previewId: null,
       },
       entry.fixture.build,
     )!

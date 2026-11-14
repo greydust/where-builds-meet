@@ -22,7 +22,7 @@ it("Mo A1 deals one light hit, changes the active art and preserves Inner Passio
         ],
       },
       skillOverrides: {},
-      previewId: "cn-2.8.5",
+      previewId: null,
     },
     fixture.fixture.build,
   )!

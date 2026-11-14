@@ -225,28 +225,28 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.5427756,
-        "attrCoef": 0.5427756,
-        "phyBonus": 150.51,
-        "attrBonus": 81.78,
+        "phyCoef": 0.93582,
+        "attrCoef": 0.93582,
+        "phyBonus": 259.5,
+        "attrBonus": 141.0,
         "time": 0.161
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 0.161 },
       {
         "type": "damage",
-        "phyCoef": 0.5427756,
-        "attrCoef": 0.5427756,
-        "phyBonus": 150.51,
-        "attrBonus": 81.78,
+        "phyCoef": 0.93582,
+        "attrCoef": 0.93582,
+        "phyBonus": 259.5,
+        "attrBonus": 141.0,
         "time": 0.5630000000000001
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 0.5630000000000001 },
       {
         "type": "damage",
-        "phyCoef": 0.7237008,
-        "attrCoef": 0.7237008,
-        "phyBonus": 200.68,
-        "attrBonus": 109.04,
+        "phyCoef": 1.24776,
+        "attrCoef": 1.24776,
+        "phyBonus": 346.0,
+        "attrBonus": 188.0,
         "time": 1.197
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.197 }
@@ -264,28 +264,28 @@
     "action": [
       {
         "type": "damage",
-        "phyCoef": 0.765954525,
-        "attrCoef": 0.765954525,
-        "phyBonus": 211.88125,
-        "attrBonus": 115.45625,
+        "phyCoef": 1.32061125,
+        "attrCoef": 1.32061125,
+        "phyBonus": 365.3125,
+        "attrBonus": 199.0625,
         "time": 0.23415384615384616
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 0.23415384615384616 },
       {
         "type": "damage",
-        "phyCoef": 0.765954525,
-        "attrCoef": 0.765954525,
-        "phyBonus": 211.88125,
-        "attrBonus": 115.45625,
+        "phyCoef": 1.32061125,
+        "attrCoef": 1.32061125,
+        "phyBonus": 365.3125,
+        "attrBonus": 199.0625,
         "time": 0.5418461538461538,
         "requirement": [{ "operator": "not", "operand": [{ "target": "target", "value": "Airborne" }] }]
       },
       {
         "type": "damage",
-        "phyCoef": 0.765954525,
-        "attrCoef": 0.765954525,
-        "phyBonus": 211.88125,
-        "attrBonus": 115.45625,
+        "phyCoef": 1.32061125,
+        "attrCoef": 1.32061125,
+        "phyBonus": 365.3125,
+        "attrBonus": 199.0625,
         "time": 0.5372307692307692,
         "requirement": [{ "target": "target", "value": "Airborne" }]
       },
@@ -305,28 +305,28 @@
       },
       {
         "type": "damage",
-        "phyCoef": 0.765954525,
-        "attrCoef": 0.765954525,
-        "phyBonus": 211.88125,
-        "attrBonus": 115.45625,
+        "phyCoef": 1.32061125,
+        "attrCoef": 1.32061125,
+        "phyBonus": 365.3125,
+        "attrBonus": 199.0625,
         "time": 1.1495384615384614
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.1495384615384614 },
       {
         "type": "damage",
-        "phyCoef": 0.765954525,
-        "attrCoef": 0.765954525,
-        "phyBonus": 211.88125,
-        "attrBonus": 115.45625,
+        "phyCoef": 1.32061125,
+        "attrCoef": 1.32061125,
+        "phyBonus": 365.3125,
+        "attrBonus": 199.0625,
         "time": 1.4033846153846155
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.4033846153846155 },
       {
         "type": "damage",
-        "phyCoef": 1.3130649,
-        "attrCoef": 1.3130649,
-        "phyBonus": 363.225,
-        "attrBonus": 197.925,
+        "phyCoef": 2.263905,
+        "attrCoef": 2.263905,
+        "phyBonus": 626.25,
+        "attrBonus": 341.25,
         "time": 1.864923076923077
       },
       { "type": "apply", "target": "self", "value": "StartlingSpring", "time": 1.864923076923077 }

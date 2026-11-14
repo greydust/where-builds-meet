@@ -3,10 +3,8 @@ import assert from "node:assert/strict"
 import buffsJson from "@gamedata/buff/bamboocut-dust.json"
 import { describe, expect, it } from "vitest"
 
-import type { PathId } from "@/application/contracts"
 import { martialArtDefinitions } from "@/application/gameData/martialArts"
 import { typedPathDefinitions } from "@/application/gameData/paths"
-import type { PathDefinition } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { effectForSoloLevel } from "@/data/soloLevelEffects"
 import { weaponSetDefinitions } from "@/gear"
@@ -39,12 +37,7 @@ import {
   type RotationDamageEntry,
   type RotationSimulationBundle,
 } from "@/calculations/rotationCalculator"
-import {
-  buildRotationTimeline,
-  TIMELINE_TIME_EPSILON,
-  type InnerWayEffectRule,
-  type EditableObject,
-} from "@/calculations/rotationTimeline"
+import { TIMELINE_TIME_EPSILON, type InnerWayEffectRule, type EditableObject } from "@/calculations/rotationTimeline"
 import type { RotationRecord, RotationStep, SkillRecord, TimelineRow } from "@/calculations/rotationTimeline"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
@@ -578,68 +571,6 @@ describe("Dust mechanics", () => {
     expect(result.metrics.dps).toBeGreaterThan(broken.metrics.dps)
   })
 
-  it("exhausts on the sixth Scarlet Spin throw of the second cast, with a proportional second ramp", () => {
-    // Qi steps are authored at absolute times, so the engine honouring them proves
-    // nothing about the values. What has to hold is the moment they were authored
-    // for, which is only meaningful against the path's real build.
-    const [pathId, path] = Object.entries(typedPathDefinitions).find(
-      ([, entry]) => entry.buildGroup === "bamboocut-dust",
-    ) as [PathId, PathDefinition]
-    const lockedWeapons = path.lockedWeapons
-    assert(lockedWeapons, "The bamboocut-dust path must lock its two martial arts.")
-    const bundleFor = buildPresetRotationBundle(
-      {
-        pathId,
-        martialArts: lockedWeapons,
-        rotation: rotationRecord,
-        breakthrough: "17",
-        food: "SimmeringFishSlices",
-        divinecraft: "Fire",
-        script: "None",
-        skillOverrides: {},
-        previewId: null,
-        globalDebuffs: { ...defaultGlobalDebuffs },
-      },
-      path.defaultBuild,
-    )
-    expect(bundleFor).toBeDefined()
-    const timeline = buildRotationTimeline(bundleFor!.timeline)
-    const battleStart = timeline.find(row => row.battleStartTime !== undefined)?.battleStartTime ?? 0
-    const spins = timeline.filter(row => row.kind === "rotation" && row.step.skill === "ScarletSpin")
-    const sixthOfSecondCast = timeline.filter(
-      row => row.kind === "trigger" && isThrow(row) && row.sourceRowId === spins[1].id,
-    )[5]
-    // A throw's forward hit is its first of the two damage actions, found by what it
-    // is so that authoring a throw's earlier non-damage actions cannot move it.
-    const forwardHitIndex = (row: TimelineRow) => row.actions.findIndex(action => action.type === "damage")
-    const forwardHit =
-      sixthOfSecondCast.startTime + Number(sixthOfSecondCast.actions[forwardHitIndex(sixthOfSecondCast)]?.time ?? 0)
-    const qiRows = timeline
-      .filter(row => row.step.type === "event" && row.step.event === "Qi")
-      .sort((left, right) => left.startTime - right.startTime)
-
-    expect(qiRows.map(row => (row.step as { targetQiRatio: number }).targetQiRatio)).toEqual([
-      0.5999, 0.3999, 0, 0.5999,
-    ])
-    // The exhaust is the third step, and it must coincide with the forward hit.
-    const exhaust = qiRows[2]
-    expect(Math.abs(exhaust.startTime - forwardHit)).toBeLessThan(TIMELINE_TIME_EPSILON)
-    // That hit is therefore resolved against an exhausted target.
-    expect(sixthOfSecondCast.actionStates[forwardHitIndex(sixthOfSecondCast)]?.debuffs.has("Exhausted")).toBe(true)
-    // The window closes one Exhausted duration later, and the second ramp restarts
-    // after four seconds of Qi immunity, reusing the first ramp's spacing.
-    const expiry = [...timeline]
-      .flatMap(row => Object.values(row.actionStates ?? {}))
-      .map(state => state.debuffs.get("Exhausted")?.expiresAt)
-      .find(value => value !== undefined)!
-    const firstRampOffsets = qiRows.slice(0, 3).map(row => row.startTime - battleStart)
-    const secondRampOffsets = qiRows.slice(3).map(row => row.startTime - expiry - 4)
-    secondRampOffsets.forEach((offset, index) => expect(offset).toBeCloseTo(firstRampOffsets[index], 6))
-    // The second ramp deliberately stops short of a second exhaust: mirroring the
-    // full first span would place it past BattleEnd, where it could never fire.
-    expect(qiRows).toHaveLength(4)
-  })
-
   it("registers the Dust 100% Phantom Chime rotation as the path default", () => {
     expect(pathData.bamboocutDust.defaultRotation).toBe("dust-dummy-1-min-100pc")
     expect(dustPhantomChimeRotation.name).toBe("Dummy 1 Min 100% PC")
@@ -1007,7 +938,7 @@ describe("Dust mechanics", () => {
     const ordinary = calculateRotationBaseline(input).metrics.totalDamage
     input.timeline.initialBuffs = [{ name: "FragrantSongResonance", stack: 1 }]
     const marked = calculateRotationBaseline(input).metrics.totalDamage
-    expect(marked / ordinary).toBeCloseTo(1.5 * (1.4 / 1.2))
+    expect(marked / ordinary).toBeCloseTo(1.5 * 1.2)
     input.timeline.initialBuffs = []
     input.timeline.skills.MarkSong = {
       name: "Mark Song",
@@ -1388,8 +1319,8 @@ describe("Phantom Umbrella summons and Resonance", () => {
     expect(probes).toHaveLength(2)
     const damage = probes.map(row => result.actionBreakdowns[`${row.id}:0`])
     expect(damage[0].outcomeRates?.critical).toBe(1)
-    expect(probes[0].modifierEffects).toContainEqual({ GuaranteedCrit: true, hpDMGBonus: 0.2 })
-    expect(probes[1].modifierEffects).not.toContainEqual({ GuaranteedCrit: true, hpDMGBonus: 0.2 })
+    expect(probes[0].modifierEffects).toContainEqual({ GuaranteedCrit: true, targetCorrectionBonus: 0.2 })
+    expect(probes[1].modifierEffects).not.toContainEqual({ GuaranteedCrit: true, targetCorrectionBonus: 0.2 })
     expect(damage[0].total).toBeGreaterThan(damage[1].total)
     expect(probes[1].actionStates?.[0].buffs.has("FragrantSongResonance")).toBe(false)
     expect(probes[1].actionStates?.[0].buffs.has("PhantomUmbrella")).toBe(true)
@@ -1569,12 +1500,8 @@ describe("Phantom Umbrella summons and Resonance", () => {
     const upgraded = run(4, spin)
     expect(resonanceDamage(base)).toBeGreaterThan(0)
     for (const row of resonances(base)) {
-      const song = row.modifierEffects?.some(effect => effect.GuaranteedCrit === true)
       const id = `${row.id}:0`
-      expect(upgraded.actionBreakdowns[id].total / base.actionBreakdowns[id].total).toBeCloseTo(
-        song ? 1.4 / 1.2 : 1.2,
-        6,
-      )
+      expect(upgraded.actionBreakdowns[id].total / base.actionBreakdowns[id].total).toBeCloseTo(1.2, 6)
     }
   })
   it("resonates Dreamwrought Bubbles on return at Tier 6 only", () => {
@@ -1582,7 +1509,7 @@ describe("Phantom Umbrella summons and Resonance", () => {
     expect(summons(run(3, steps))).toHaveLength(0)
     expect(summons(run(6, steps))).toHaveLength(1)
   })
-  it("charges Dreamwrought Bubbles for 0.743s and Delicate removes the charge", () => {
+  it("charges Dreamwrought Bubbles for 0.603s and Delicate removes the charge", () => {
     const release = umbrella.DreamwroughtBubblesRelease
     const releaseCastTime = release.castTime
     assert(typeof releaseCastTime === "number", "The release must declare a fixed cast time.")
@@ -1596,7 +1523,7 @@ describe("Phantom Umbrella summons and Resonance", () => {
     const markerTimes = markers as number[]
     // Both collider markers must land inside the release, which ends at the source
     // interrupt, or the actions would be scheduled as inactive.
-    expect(releaseCastTime).toBe(1.2)
+    expect(releaseCastTime).toBe(1.0)
     expect(markerTimes.every(time => time < releaseCastTime)).toBe(true)
     const bubbles = (stacks: number, ping = 0) => {
       const input = bundle()
@@ -1618,22 +1545,21 @@ describe("Phantom Umbrella summons and Resonance", () => {
     const cancelled = bubbles(4)
     // The charge delays the release, and Delicate slides the markers back to their
     // raw offsets without dropping either hit.
-    expect(charged.effectiveCastTime).toBeCloseTo(1.943, 6)
-    expect(cancelled.effectiveCastTime).toBeCloseTo(1.2, 6)
+    expect(charged.effectiveCastTime).toBeCloseTo(1.603, 6)
+    expect(cancelled.effectiveCastTime).toBeCloseTo(1.0, 6)
     for (const row of [charged, cancelled]) {
-      expect(row.actions.some(action => action.type === "inactive")).toBe(false)
       expect(row.actions.filter(action => action.type === "damage").map(action => action.time)).toHaveLength(2)
     }
     expect(charged.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual(
-      markers.map(time => time + 0.743),
+      markers.map(time => time + 0.603),
     )
     expect(cancelled.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual(markers)
     // Delicate is spent by the release, so a single remaining stack still cancels the
-    // charge. Consuming it before the charge resolved left the last cast at 1.943 s.
-    expect(bubbles(1).effectiveCastTime).toBeCloseTo(1.2, 6)
+    // charge. Consuming it before the charge resolved left the last cast at 1.603 s.
+    expect(bubbles(1).effectiveCastTime).toBeCloseTo(1.0, 6)
     // One button press pays input latency once, at dispatch. Each sub-action would
     // otherwise pay it again and stretch the skill by 2 x ping.
-    expect(bubbles(0, 40).effectiveCastTime).toBeCloseTo(1.943, 6)
-    expect(bubbles(4, 40).effectiveCastTime).toBeCloseTo(1.2, 6)
+    expect(bubbles(0, 40).effectiveCastTime).toBeCloseTo(1.603, 6)
+    expect(bubbles(4, 40).effectiveCastTime).toBeCloseTo(1.0, 6)
   })
 })

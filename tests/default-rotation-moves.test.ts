@@ -8,22 +8,18 @@ import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
 // Ported from script/probe/check-default-rotation-moves.mjs.
 describe("default-rotation-moves", () => {
   it("default-rotation-moves checks", async () => {
-    const rotationPaths = [
-      "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
-      "/data/rotation/stonesplit-strength/mixed-dummy-infinite-vitality-1-min.json",
-      "/data/rotation/stonesplit-strength/mixed-dummy-smolder-poet-1-min.json",
-    ]
-    const snowparting = (await import("../data/skill/snowparting-blade.json")).default
-    const phalanxbane = (await import("../data/skill/phalanxbane-blade.json")).default
-    const mystic = (await import("../data/skill/mystic.json")).default
-    const general = (await import("../data/skill/general.json")).default
-    const mysticBuffs = (await import("../data/buff/mystic.json")).default
-    const generalBuffs = (await import("../data/buff/general.json")).default
-    const stonesplitBuffs = (await import("../data/buff/stonesplit-strength.json")).default
-    const generalDebuffs = (await import("../data/debuff/general.json")).default
-    const stonesplitDebuffs = (await import("../data/debuff/stonesplit-strength.json")).default
-    const dots = (await import("../data/dot/mystic.json")).default
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const rotationPaths = ["/data/rotation/stonesplit-strength/mixed-dummy-1-min.json"]
+    const snowparting = (await import("@gamedata/skill/snowparting-blade.json")).default
+    const phalanxbane = (await import("@gamedata/skill/phalanxbane-blade.json")).default
+    const mystic = (await import("@gamedata/skill/mystic.json")).default
+    const general = (await import("@gamedata/skill/general.json")).default
+    const mysticBuffs = (await import("@gamedata/buff/mystic.json")).default
+    const generalBuffs = (await import("@gamedata/buff/general.json")).default
+    const stonesplitBuffs = (await import("@gamedata/buff/stonesplit-strength.json")).default
+    const generalDebuffs = (await import("@gamedata/debuff/general.json")).default
+    const stonesplitDebuffs = (await import("@gamedata/debuff/stonesplit-strength.json")).default
+    const dots = (await import("@gamedata/dot/mystic.json")).default
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const skills = asSkillRecords({ ...snowparting, ...phalanxbane, ...mystic, ...general })
     const effectDefinitions = asEffectDefinitions({
       ...mysticBuffs,

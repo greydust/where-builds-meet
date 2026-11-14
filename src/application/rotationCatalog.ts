@@ -365,7 +365,12 @@ export const defaultRotationEntries = Object.entries(rotationPresetModules)
   }))
 export const defaultRotation = defaultRotationEntries[0]?.rotation ?? { name: "Default Rotation", steps: [] }
 export const defaultRotationId = defaultRotationEntries[0]?.id ?? "default-rotation"
-export const formerDefaultRotationIds = new Set(["dummy-1-min"])
+export const formerDefaultRotationIds = new Set([
+  "dummy-1-min",
+  "mixed-dummy-1-min-double-stab",
+  "mixed-dummy-infinite-vitality-1-min",
+  "mixed-dummy-smolder-poet-1-min",
+])
 
 export function rotationEntriesForPreview(entries: RotationEntry[], previewId: PreviewId | null): RotationEntry[] {
   const overrides = rotationOverridesFor(previewId)

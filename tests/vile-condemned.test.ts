@@ -7,14 +7,15 @@ import type {
   TimelineBuildInput,
   TimelineRow,
   TrackedEffect,
-} from "../src/calculations/rotationTimeline.ts"
-import type { RotationStep } from "../src/calculations/rotationTimeline.ts"
+} from "@/calculations/rotationTimeline.ts"
+import type { RotationStep } from "@/calculations/rotationTimeline.ts"
+
 import { actionStateAt, rowCasting } from "./helpers/timelineRows"
 
 // Ported from script/probe/check-vile-condemned.mjs.
 describe("vile-condemned", () => {
   it("Vile Condemned branch, cooldown status, start-bound requirement, and consumption checks passed", async () => {
-    const { buildRotationTimeline } = await import("../src/calculations/rotationTimeline.ts")
+    const { buildRotationTimeline } = await import("@/calculations/rotationTimeline.ts")
     const heavenwillSkills = JSON.parse(await readFile("data/skill/heavenwill-gauntlets.json", "utf8"))
     const kiteDebuffs = JSON.parse(await readFile("data/debuff/bamboocut-kite.json", "utf8"))
     const observer = {
@@ -343,8 +344,8 @@ describe("vile-condemned", () => {
       "The first Soaring High T6 End Hit must refund one Heaven's Will.",
     )
     assert(
-      refundObservers[1].actionStates[0].resources.HeavensWill === 0,
-      "Resetting End Hit must not reset the separate T6 refund cooldown.",
+      refundObservers[1].actionStates[0].resources.HeavensWill === 1,
+      "Each End Hit refunds Heaven's Will without a separate refund cooldown.",
     )
   })
 })
