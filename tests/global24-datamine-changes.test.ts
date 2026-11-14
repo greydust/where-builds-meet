@@ -141,27 +141,43 @@ describe("Global 2.4 Global export mechanics", () => {
     expect(rows.at(-1)!.buffs.has("DreamwroughtHoldDrain")).toBe(false)
   })
 
-  it("Peerless speeds only the charging stage, unlocks three waves without Shield and consumes on release", () => {
-    const data = input([cast("DauntingStrikeCancel"), cast("VagrantSword2"), cast("Observe")])
+  it("an explicitly granted Peerless speeds charging, unlocks three waves and is consumed on release", () => {
+    const data = input([cast("VagrantSword2"), cast("Observe")])
+    data.initialBuffs = [{ name: "PeerlessStance", stack: 1, appliedAt: 0, expiresAt: 3 }]
     data.innerWayConditions = [
-      ...innerWayConditionsFor(
-        [
-          { innerWay: "MountainsMight", tier: "T0" },
-          { innerWay: "SwordMorph", tier: "T0" },
-        ],
-        undefined,
-        "bellstrikeSplendor",
-      ),
+      ...innerWayConditionsFor([{ innerWay: "SwordMorph", tier: "T0" }], undefined, "bellstrikeSplendor"),
     ]
     const rows = buildRotationTimeline(data)
     const sword = rows.find(row => row.step.skill === "VagrantSword2")!
     expect(sword.effectiveCastTime).toBeCloseTo(0.2 + 0.8 + 0.85, 10)
     expect(sword.actions.filter(action => action.type === "damage")).toHaveLength(3)
     expect(rows.at(-1)!.buffs.has("PeerlessStance")).toBe(false)
-    data.rotation.targetType = "Boss"
-    const boss = buildRotationTimeline(data)
-    expect(boss.find(row => row.step.skill === "VagrantSword2")?.effectiveCastTime).toBeCloseTo(0.2 + 1.2 + 0.85, 10)
   })
+
+  it.each(["Dummy", "DummyAttack", "Boss"] as const)(
+    "does not grant non-boss Peerless Stance against the boss-classified %s target",
+    targetType => {
+      for (const skill of ["DauntingStrikeCancel", "QiankunsLock", "QiankunsLockCancel"]) {
+        const data = input([cast(skill), cast("Observe"), cast("VagrantSword2")])
+        data.rotation.targetType = targetType
+        data.innerWayConditions = [
+          ...innerWayConditionsFor(
+            [
+              { innerWay: "MountainsMight", tier: "T0" },
+              { innerWay: "SwordMorph", tier: "T0" },
+            ],
+            undefined,
+            "bellstrikeSplendor",
+          ),
+        ]
+        const rows = buildRotationTimeline(data)
+        expect(rows.find(row => row.step.skill === "Observe")!.buffs.has("PeerlessStance")).toBe(false)
+        const sword = rows.find(row => row.step.skill === "VagrantSword2")!
+        expect(sword.effectiveCastTime).toBeCloseTo(0.2 + 1.2 + 0.85, 10)
+        expect(sword.actions.filter(action => action.type === "damage")).toHaveLength(1)
+      }
+    },
+  )
 
   it("keeps one 19m opening attachment and anchors battle start to Fleeting Trace's sixth hit", () => {
     const rotation = rotationRecordForEntry(

@@ -215,17 +215,6 @@
         "phyBonus": 283.6,
         "attrBonus": 154.6,
         "time": 0.293
-      },
-      {
-        "type": "apply",
-        "target": "self",
-        "value": "PeerlessStance",
-        "duration": 3,
-        "time": 0.293,
-        "requirement": [
-          { "target": "self", "value": "MountainsMightT0" },
-          { "operator": "not", "operand": [{ "target": "targetType", "value": "Boss" }] }
-        ]
       }
     ],
     "modifier": [],

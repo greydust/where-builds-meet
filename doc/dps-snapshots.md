@@ -1,5 +1,21 @@
 # DPS regression snapshots
 
+## Splendor dummy Peerless correction (November 14, 2026)
+
+The user requested fixing Peerless eligibility after reviewing its roughly
+1.22% DPS effect. All supported practice targets are boss-classified, so
+Daunting Strike and both Qiankun's Lock variants no longer grant this non-boss
+buff. The original 81-wave rotation is unchanged and still lands every wave;
+its final hit moves from 57.472s to 58.272s at 15 ms ping. Its four snapshots
+are corrected; other paths' accepted baselines remain unchanged.
+
+| Build         | Solo Level | Previous DPS      | Corrected DPS     |
+| ------------- | ---------- | ----------------- | ----------------- |
+| Full          | 18         | 91013.41147213621 | 89895.42409305154 |
+| Full          | 19         | 95378.39312587763 | 94212.70078797726 |
+| Fully Relayed | 18         | 87923.96461133318 | 86844.81417088356 |
+| Fully Relayed | 19         | 92256.60382730719 | 91129.94950270587 |
+
 ## Splendor original-rotation fallback (November 14, 2026)
 
 The user requested reverting the 84-wave rotation after identifying that the

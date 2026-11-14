@@ -22,18 +22,7 @@
         "time": 0,
         "requirement": [{ "target": "self", "value": "MountainsMightT3" }]
       },
-      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 },
-      {
-        "type": "apply",
-        "target": "self",
-        "value": "PeerlessStance",
-        "duration": 3,
-        "time": 0,
-        "requirement": [
-          { "target": "self", "value": "MountainsMightT0" },
-          { "operator": "not", "operand": [{ "target": "targetType", "value": "Boss" }] }
-        ]
-      }
+      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "NamelessSpear", "QiankunsLock"],
@@ -64,18 +53,7 @@
         "time": 0,
         "requirement": [{ "target": "self", "value": "MountainsMightT3" }]
       },
-      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 },
-      {
-        "type": "apply",
-        "target": "self",
-        "value": "PeerlessStance",
-        "duration": 3,
-        "time": 0.294,
-        "requirement": [
-          { "target": "self", "value": "MountainsMightT0" },
-          { "operator": "not", "operand": [{ "target": "targetType", "value": "Boss" }] }
-        ]
-      }
+      { "type": "addResource", "value": "Endurance", "amount": 30, "time": 0 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "MartialArt", "Spear", "NamelessSpear", "QiankunsLock"],
