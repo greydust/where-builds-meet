@@ -1,4 +1,3 @@
-import regular from "@gamedata/rotation/bamboocut-kite/dummy-1-min-infinite-vitality.json"
 import bp from "@gamedata/rotation/bamboocut-kite/dummy-1-min-iv-bp.json"
 import { assert, describe, expect, it } from "vitest"
 
@@ -7,6 +6,7 @@ import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
 import { defaultGlobalDebuffs } from "@/globalDebuffs"
 
+import { loadDpsSnapshotCases } from "./helpers/dps-snapshot-fixtures"
 import { rowWithId } from "./helpers/timelineRows"
 
 export function calculateKite(rotation: RotationRecord, build: string) {
@@ -29,24 +29,52 @@ export function calculateKite(rotation: RotationRecord, build: string) {
   return calculateRotationBaseline(bundle!)
 }
 describe("Kite preset release readiness", () => {
-  it.each([
-    { preset: regular, build: "kite-fully-relayed-min", completed: 4 },
-    { preset: bp, build: "kite-fully-relayed-min-bp", completed: 4 },
-  ])("$build respects release requirements and the encounter cutoff", ({ preset, build, completed }) => {
-    const result = calculateKite({ ...preset, ping: 40 } as RotationRecord, build)
-    const casts = result.timeline.filter(
-      row => row.step.type === "skill" && row.step.skill?.startsWith("VileCondemned"),
+  it("all supported builds land four enhanced Ends with legal resource generators before cutoff", async () => {
+    const cases = (await loadDpsSnapshotCases()).filter(
+      entry => entry.pathId === "bamboocutKite" && entry.fixture.rotation !== "dummy-1-min-iv-bp-dh",
     )
-    expect(casts).toHaveLength(completed)
-    for (const [index, row] of casts.entries()) {
-      const hit = row.actions.find(action => action.phyCoef === 11.7527)
-      expect(hit).toBeDefined()
-      expect(hit!.type).toBe("damage")
-      expect(row.startTime + Number(hit!.time) - result.anchorTime).toBeLessThan(result.duration)
-      const damageIndex = row.actions.findIndex(action => action.type === "damage")
-      const bonus = row.actionModifierEffects?.[damageIndex]?.some(effect => effect.baseDMGBonus === 0.3)
-      if (index < 3) assert(bonus === true, "First three casts must carry the 0.3 base damage bonus.")
-      expect(row.resourceConsumption?.HeavensWill).toBe(index < 3 ? 4 : 3)
+    expect(cases.length).toBeGreaterThan(0)
+    for (const { id, pathId, rotation, fixture } of cases) {
+      const bundle = buildPresetRotationBundle(
+        { pathId, ...fixture, rotation, skillOverrides: {}, previewId: null },
+        fixture.build,
+      )!
+      const result = calculateRotationBaseline(bundle)
+      const casts = result.timeline.filter(
+        row => row.kind === "rotation" && row.step.type === "skill" && row.step.skill?.startsWith("VileCondemned"),
+      )
+      expect(casts).toHaveLength(4)
+      for (const [index, row] of casts.entries()) {
+        const hit = row.actions.find(action => action.phyCoef === 11.7527)
+        expect(hit).toBeDefined()
+        expect(hit!.type).toBe("damage")
+        expect(row.startTime + Number(hit!.time) - result.anchorTime).toBeLessThan(result.duration)
+        const damageIndex = row.actions.findIndex(action => action.type === "damage")
+        const bonus = row.actionModifierEffects?.[damageIndex]?.some(effect => effect.baseDMGBonus === 0.3)
+        assert(bonus === true, id + ": every End must carry the four-HW enhancement.")
+        expect(row.resourceConsumption?.HeavensWill).toBe(4)
+        expect(row.actionStates[damageIndex].debuffs.get("SoaringHighEndVulnerability")?.stack ?? 0).toBe(
+          Math.min(index, 2),
+        )
+      }
+      let declared = false
+      for (const row of result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")) {
+        switch (row.step.skill) {
+          case "HeavenwillDeclared":
+            declared = true
+            break
+          case "CelestialMandate":
+            assert(declared, id + ": Mandate requires an unused Heavenwill Declared.")
+            declared = false
+            break
+          case "RighteousReign5thHit":
+            assert(row.buffs.get("HeavenwillLightCombo")?.stack === 5, id + ": A5 requires stage 5.")
+            break
+          case "RighteousReign6thHitCancel":
+            assert(row.buffs.get("HeavenwillLightCombo")?.stack === 6, id + ": A6 requires stage 6.")
+            break
+        }
+      }
     }
   })
 })
@@ -87,13 +115,22 @@ it("Kite BP's final Qi break follows Soaring Spin and enables the last VC reset"
   )!
   assert(qi.sourceRowId, "The Qi event must name the row it follows.")
   const spin = rowWithId(result.timeline, qi.sourceRowId)
-  expect(spin.step).toMatchObject({ type: "skill", skill: "SoaringSpin2" })
+  expect(spin.step).toMatchObject({ type: "skill", skill: "SoaringSpin1" })
   const firstHit = spin.actions.findIndex(action => action.type === "damage")
   expect(qi.startTime).toBeCloseTo(spin.startTime + Number(spin.actions[firstHit].time), 8)
   expect(spin.actionStates[firstHit].targetQiRatio).toBe(0)
-  const mandate = result.timeline.findLast(row => row.step.type === "skill" && row.step.skill === "CelestialMandate")!
-  const hits = mandate.actions.flatMap((action, index) => (action.type === "damage" ? [index] : []))
-  expect(mandate.actionStates[hits[0]].debuffs.has("Exhausted")).toBe(true)
-  expect(mandate.actionStates[hits[0]].buffs.has("VileCondemnedEndCooldown")).toBe(true)
-  expect(mandate.actionStates[hits[1]].buffs.has("VileCondemnedEndCooldown")).toBe(false)
+  const ends = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "VileCondemnedEnd4")
+  const third = ends[2]
+  const thirdHit = third.actions.findIndex(action => action.type === "damage")
+  expect(third.actionStates[thirdHit].debuffs.has("Exhausted")).toBe(true)
+  expect(third.actionStates[thirdHit].buffs.get("Disintegration")?.stack).toBe(5)
+  const falconHits = result.baseline.filter(
+    entry =>
+      entry.context.skillTags.includes("Falcon") &&
+      (entry.timelineTime ?? 0) > third.startTime + Number(third.actions[thirdHit].time) &&
+      (entry.timelineTime ?? 0) < ends[3].startTime,
+  )
+  expect(falconHits[0].activeDebuffStacks?.Exhausted).toBe(1)
+  expect(falconHits[0].activeBuffStacks?.VileCondemnedEndCooldown).toBe(1)
+  expect(falconHits.some(entry => !entry.activeBuffStacks?.VileCondemnedEndCooldown)).toBe(true)
 })

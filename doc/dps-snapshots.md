@@ -1102,3 +1102,22 @@ charges. Neither rotation has automatic cooldown waits. Grounded's estimated Qi
 thresholds now follow its later fourth-Flower break; this retiming leaves all 18
 Grounded DPS values unchanged. The unreachable tail steps are removed. Flying,
 the 30-second IV preset, skill coefficients, and cast clocks remain unchanged.
+
+## Kite four-HW End rotation acceptance (November 14, 2026)
+
+The user approved the corrected regular Infinite Vitality and BP rotations and
+requested commit and release. Both now land four enhanced four-HW Ends, replacing
+the former three enhanced Ends and final three-HW End. Every Mandate has a
+preceding Declared; no independently repeated Mandates are accepted. The new
+resource-generating finish preserves the two-stack vulnerability bonus for the
+fourth End. See [Kite rotation review](kite-global24-rotation.md) for the sequences,
+prerequisite checks, and latency limits.
+
+Only these two rotations' twenty build/tier cases are refreshed. All durations
+remain sixty seconds. Regular gains 3.7918–4.3349% and BP gains 1.7191–3.1681%
+across five builds at breakthroughs 18/19. The BP Dragon Head preset is unchanged.
+
+| Rotation / Fully Relayed Min / BT19 |           Old DPS |           New DPS |
+| ----------------------------------- | ----------------: | ----------------: |
+| Regular Infinite Vitality           | 73946.66292438935 | 76787.18707630887 |
+| BP Infinite Vitality                | 82435.76041121784 | 83883.36299618313 |
