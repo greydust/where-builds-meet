@@ -35,7 +35,7 @@ const authoredTimeOf = (step: QiStep): number | undefined => ("startTime" in ste
 
 describe("preset Qi event attachments", () => {
   const rotationPaths = [
-    "/data/rotation/bamboocut-draught/draught-dummy-1-min.json",
+    "/data/rotation/bamboocut-draught/draught-dummy-1-min-10ms.json",
     "/data/rotation/bamboocut-wind/wind-dummy-1-min-infinite-vitality.json",
     "/data/rotation/stonesplit-strength/mixed-dummy-1-min.json",
     "/archive/rotation/stonesplit-strength/mixed-horse-tamer-standard-27s.json",

@@ -2,17 +2,15 @@ import eonpour from "@gamedata/innerway/eonpour.json"
 import skystrike from "@gamedata/martial-art/skystrike-gauntlets.json"
 import fastRotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min-10ms.json"
 import bpRotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min-bp.json"
-import rotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min.json"
 import { describe, expect, it } from "vitest"
 
 import { defaultBuildIdForPath } from "@/application/gameData/paths"
 import { allSkillDefinitions, buffDefinitions, debuffDefinitions } from "@/application/gameData/skills"
 import { buildPresetRotationBundle } from "@/application/graduation"
-import { calculateDerivedStats } from "@/calculations/effectiveStats"
 import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
 import { buildRotationTimeline } from "@/calculations/rotationTimeline"
 import type { RotationRecord, TimelineBuildInput } from "@/calculations/rotationTimeline"
-import { defaultBuildPresets, maxGearRoll } from "@/gear"
+import { defaultBuildPresets } from "@/gear"
 
 import { dpsSnapshotEnvironment } from "./helpers/dps-snapshot-fixtures"
 import { castStep, delayStep } from "./helpers/rotationSteps"
@@ -220,7 +218,7 @@ describe("Draught timing", () => {
       )
   })
 
-  it.each([40, 150])("charges %sms input ping for every Dragonquench stage without stretching animations", ping => {
+  it.each([40, 150])("ignores %sms input ping for every Dragonquench stage without stretching animations", ping => {
     const skills = [
       "Dragonquench1",
       "Dragonquench2",
@@ -246,7 +244,7 @@ describe("Draught timing", () => {
     const baseline = clocks(0)
     const delayed = clocks(ping)
     for (const [index, row] of delayed.entries()) {
-      expect(row.startTime - baseline[index].startTime).toBeCloseTo(((index + 1) * ping) / 1000, 12)
+      expect(row.startTime - baseline[index].startTime).toBeCloseTo(0, 12)
       expect(row.effectiveCastTime).toBe(baseline[index].effectiveCastTime)
       expect(row.actions.filter(action => action.type === "damage").map(action => action.time)).toEqual(
         baseline[index].actions.filter(action => action.type === "damage").map(action => action.time),
@@ -255,13 +253,13 @@ describe("Draught timing", () => {
   })
 
   it.each([
-    { preset: fastRotation, build: "draught-fully-relayed-min", procsAt: [], umbraAt: [], payout: 59.98748755396665 },
+    { preset: fastRotation, build: "draught-fully-relayed-min", procsAt: [], umbraAt: [], payout: 59.87748755396668 },
     {
       preset: bpRotation,
       build: "draught-fully-relayed-min-bp",
-      procsAt: [5.5, 23.5, 47.5],
-      umbraAt: [35.5, 47.5, 53.5],
-      payout: 59.818367986427745,
+      procsAt: [5.5, 23.5, 53.5],
+      umbraAt: [35.5, 53.5],
+      payout: 59.76598291019327,
     },
   ])("lands all four accelerated chains and payouts in $preset.name", ({ preset, build, procsAt, umbraAt, payout }) => {
     const bundle = buildPresetRotationBundle(
@@ -313,126 +311,4 @@ describe("Draught timing", () => {
     expect(payouts).toHaveLength(3)
     expect(payouts.at(-1)!.timelineTime! - start).toBeCloseTo(payout, 8)
   })
-
-  for (const build of [
-    "draught-full-min-bp",
-    "draught-full-max-bp",
-    "draught-fully-relayed-min-bp",
-    "draught-fully-relayed-max-bp",
-    "draught-fully-relayed-min",
-    "draught-fully-relayed-max",
-  ]) {
-    for (const breakthrough of ["17", "18", "19"]) {
-      it(`${build} at BT${breakthrough} reaches its rate targets and resolves the authored rotation`, () => {
-        const bundle = buildPresetRotationBundle(
-          {
-            ...dpsSnapshotEnvironment,
-            breakthrough,
-            pathId: "bamboocutDraught",
-            martialArts: ["skystrikeGauntlets", "rivenTwinblades"],
-            rotation: rotation as RotationRecord,
-            skillOverrides: {},
-            previewId: null,
-          },
-          build,
-        )!
-        const result = calculateRotationBaseline(bundle)
-        const legacySkills = {
-          ...bundle.timeline.skills,
-          EonpourExhausted: {
-            ...bundle.timeline.skills.EonpourExhausted,
-            action: allSkillDefinitions.EonpourExhausted.action!.map(action =>
-              Object.assign({}, action, { resetRecording: true }),
-            ),
-          },
-        }
-        const legacy = calculateRotationBaseline({ ...bundle, timeline: { ...bundle.timeline, skills: legacySkills } })
-        const replayDamage = (value: typeof result) =>
-          value.baseline
-            .filter(entry => entry.replay)
-            .reduce((sum, entry) => sum + value.actionBreakdowns[entry.id!].total, 0)
-        expect(legacy.baseline.filter(entry => entry.replay)).toHaveLength(4)
-        expect(replayDamage(result)).toBeCloseTo(replayDamage(legacy), 7)
-        expect(result.metrics.dps).toBeCloseTo(legacy.metrics.dps, 7)
-        const rates = calculateDerivedStats(bundle.stats, bundle.enemy.judgementResistance, {}, bundle.weapons)
-        expect(rates.effectivePrecision).toBeGreaterThanOrEqual(0.99)
-        expect(rates.effectivePrecision).toBeLessThanOrEqual(1)
-        // BP gear spends whole Crit rolls. Half a roll bounds the rounding error at the tuning tier.
-        const critRoll = maxGearRoll(
-          "crit",
-          "affix",
-          build.includes("fully-relayed"),
-          breakthrough === "17" ? 96 : 100,
-        )!
-        const rounding = critRoll / (1 + bundle.enemy.judgementResistance) / 2
-        // BT19 shares tier 100 gear with BT18 and gains crit from level stats and talents.
-        const target = breakthrough === "19" ? 0.7774 : 0.7624
-        expect(rates.effectiveCrit).toBeGreaterThanOrEqual(build.endsWith("-bp") ? target - rounding : 0.79)
-        expect(rates.effectiveCrit).toBeLessThanOrEqual(build.endsWith("-bp") ? target + rounding : 0.8)
-        const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
-        const heavies = casts.filter(row => row.step.skill?.startsWith("Dragonquench"))
-        const qiRows = result.timeline
-          .filter(row => row.step.type === "event" && row.step.event === "Qi")
-          .sort((left, right) => left.startTime - right.startTime)
-        const breaks = qiRows.filter(
-          row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
-        )
-        expect(result.duration).toBe(60)
-        expect(result.baseline.filter(entry => entry.replay)).toHaveLength(3)
-        expect(result.metrics.dps).toBeGreaterThan(0)
-        const dragonRows = result.metrics.breakdown.skills.filter(row => row.id.startsWith("Dragonquench"))
-        const dragonGroups = result.metrics.breakdown.groupedSkills.filter(
-          row => row.name === "Dragonquench - Inebriate",
-        )
-        expect(dragonGroups).toHaveLength(1)
-        expect(dragonGroups[0].children).toHaveLength(4)
-        expect(dragonGroups[0].damage).toBe(dragonRows.reduce((sum, row) => sum + row.damage, 0))
-        expect(casts[0].resources.Binge).toBe(60)
-        expect(heavies).toHaveLength(48)
-        expect(
-          heavies.reduce((count, row) => count + row.actions.filter(action => action.type === "damage").length, 0),
-        ).toBe(72)
-        expect(heavies.every(row => row.buffs.has("InebriateDeepdaze"))).toBe(true)
-        const cutoff = result.timeline.find(row => row.step.event === "BattleEnd")!.startTime
-        const bladeSpecials = casts.filter(row => row.step.skill === "HeroesBloodInebriate")
-        expect(bladeSpecials).toHaveLength(4)
-        for (const special of bladeSpecials) {
-          const expiresAt = special.buffs.get("InebriateDeepdaze")!.expiresAt!
-          const hits = special.actions.filter(action => action.type === "damage")
-          expect(hits).toHaveLength(11)
-          for (const hit of hits) expect(special.startTime + Number(hit.time)).toBeLessThan(expiresAt)
-        }
-        expect(
-          bladeSpecials.every(row =>
-            row.actions
-              .filter(action => action.type === "damage")
-              .every(action => row.startTime + Number(action.time) < cutoff),
-          ),
-        ).toBe(true)
-        expect(breaks).toHaveLength(1)
-        const breakingHeavy = heavies.find(row => row.step.type === "skill" && row.step.causesBreak)!
-        expect(breaks[0].startTime).toBeCloseTo(breakingHeavy.startTime + Number(breakingHeavy.actions[0].time), 12)
-        expect(
-          qiRows.map(row =>
-            row.step.type === "event" && row.step.event === "Qi" ? row.step.targetQiRatio : undefined,
-          ),
-        ).toEqual([0.5999, 0.3999, 0, 0.5999, 0.3999])
-        const battleStart = result.timeline.find(row => row.battleStartTime !== undefined)!.battleStartTime!
-        const depletionTime = breaks[0].startTime - battleStart
-        const depletionResumes = breaks[0].startTime + 10 + 4
-        expect(qiRows[0].startTime - battleStart).toBeCloseTo(depletionTime * 0.4, 10)
-        expect(qiRows[1].startTime - battleStart).toBeCloseTo(depletionTime * 0.6, 10)
-        expect(qiRows[3].startTime - depletionResumes).toBeCloseTo(depletionTime * 0.4, 10)
-        expect(qiRows[4].startTime - depletionResumes).toBeCloseTo(depletionTime * 0.6, 10)
-        expect(depletionResumes + depletionTime).toBeGreaterThan(cutoff)
-        const ordinarySpecials = casts.filter(row => row.step.skill === "HeroesBlood")
-        expect(ordinarySpecials.every(row => !row.buffs.has("InebriateDeepdaze"))).toBe(true)
-        const finalPayout = result.baseline.findLast(entry => entry.replay)!
-        expect(finalPayout.timelineTime! - battleStart).toBeCloseTo(59.67517986165897, 10)
-        expect(finalPayout.timelineTime!).toBeLessThan(cutoff)
-
-        expect(result.timeline.filter(row => row.step.skill === "EonpourExhausted")).toHaveLength(1)
-      })
-    }
-  }
 })

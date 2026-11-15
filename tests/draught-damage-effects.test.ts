@@ -1,6 +1,6 @@
 import riven from "@gamedata/martial-art/riven-twinblades.json"
 import skystrike from "@gamedata/martial-art/skystrike-gauntlets.json"
-import rotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min.json"
+import rotation from "@gamedata/rotation/bamboocut-draught/draught-dummy-1-min-10ms.json"
 import { describe, expect, it } from "vitest"
 
 import { buildPresetRotationBundle } from "@/application/graduation"
@@ -77,7 +77,7 @@ describe("Draught enhancement eligibility", () => {
         entry.context.skillTags.includes("DragonquenchInebriate") ||
         entry.context.skillTags.includes("HeroesBloodInebriate"),
     )
-    expect(hits).toHaveLength(116)
+    expect(hits).toHaveLength(124)
     for (const hit of hits) {
       expect(active.actionBreakdowns[hit.id!].total / without.actionBreakdowns[hit.id!].total).toBeCloseTo(1.4, 12)
     }

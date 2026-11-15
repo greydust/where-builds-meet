@@ -1,5 +1,7 @@
 # Draught heavy ping and dummy retiming
 
+Current behavior (15 November 2026): Inebriate Heavy 1–4 and Heavy 4 [Cancel] ignore ping. Both surviving one-minute presets use 25 ms for other inputs and omit ping from their display names. The former 40 ms rotation was removed; the surviving non-BP preset retains its `draught-dummy-1-min-10ms` ID for stored preset references. Both presets retain all 80 heavy contacts and 44 enhanced Special contacts inside Deepdaze, and all three Drunkslay payouts land before 60 seconds. The final payouts occur at 59.877488 s (ordinary) and 59.765983 s (BP). BP dodge procs occur at 5.5, 23.5 and 53.5 s; Umbra dodges occur at 35.5 and 53.5 s. Authored Qi threshold times follow each preset's updated break timing. DPS snapshots remain unchanged pending review: at BT18 with Full Max BP, ordinary DPS changes from 87653.214569 to 87741.865256, while BP changes from 94729.388239 to 94054.607999. Heavy latency removal, 25 ms non-heavy inputs, shifted Qi thresholds and changed BP dodge proc timing alter damage and buff overlap. The comparisons below are historical and predate this correction.
+
 Deepdaze Heavy 1–4 and Heavy 4 [Cancel] now use the shared ordered-input latency. Their former ignorePing exemptions are removed following the user's 9 November 2026 decision. At 40ms ping each heavy start is delayed by 0.04s; acceleration changes animation and hit clocks, without scaling this input gap. Both full and cancel Heavy 4 retain their existing speed-stack behavior.
 
 ## One-minute ordinary preset

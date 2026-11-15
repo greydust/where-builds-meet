@@ -346,6 +346,7 @@
     ]
   },
   "Dragonquench1": {
+    "ignorePing": true,
     "name": "Dragonquench - Inebriate",
     "shortName": "Gauntlet Deepdaze Heavy 1",
     "castTime": 0.426,
@@ -391,6 +392,7 @@
     "skillBreakdownCategory": "Dragonquench - Inebriate"
   },
   "Dragonquench2": {
+    "ignorePing": true,
     "name": "Dragonquench - Inebriate",
     "shortName": "Gauntlet Deepdaze Heavy 2",
     "castTime": 0.41,
@@ -436,6 +438,7 @@
     "skillBreakdownCategory": "Dragonquench - Inebriate"
   },
   "Dragonquench3": {
+    "ignorePing": true,
     "name": "Dragonquench - Inebriate",
     "shortName": "Gauntlet Deepdaze Heavy 3",
     "castTime": 0.43,
@@ -481,6 +484,7 @@
     "skillBreakdownCategory": "Dragonquench - Inebriate"
   },
   "Dragonquench4": {
+    "ignorePing": true,
     "name": "Dragonquench - Inebriate",
     "shortName": "Gauntlet Deepdaze Heavy 4",
     "castTime": 1.12,
@@ -565,6 +569,7 @@
     "skillBreakdownCategory": "Dragonquench - Inebriate"
   },
   "Dragonquench4Cancel": {
+    "ignorePing": true,
     "name": "Dragonquench - Inebriate [Cancel]",
     "shortName": "Gauntlet Deepdaze Heavy 4 [Cancel]",
     "castTime": 0.4819980549999999,

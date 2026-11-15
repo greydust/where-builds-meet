@@ -1,9 +1,9 @@
 {
-  "name": "Dummy 1 Min 10ms BP",
+  "name": "Dummy 1 Min BP",
   "order": 2,
   "targetType": "DummyAttack",
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
-  "ping": 10,
+  "ping": 25,
   "eventTimeReference": "battleStart",
   "start": { "step": 3, "action": 0 },
   "steps": [
@@ -119,10 +119,10 @@
     { "type": "skill", "skill": "Deflect" },
     { "type": "event", "event": "Delay", "duration": 0.37022291567501747 },
     { "type": "skill", "skill": "HeroesBlood" },
-    { "type": "event", "event": "Qi", "startTime": 10.463718195170573, "targetQiRatio": 0.5999 },
-    { "type": "event", "event": "Qi", "startTime": 15.695577292755859, "targetQiRatio": 0.3999 },
-    { "type": "event", "event": "Qi", "startTime": 50.623013683097, "targetQiRatio": 0.5999 },
-    { "type": "event", "event": "Qi", "startTime": 55.85487278068229, "targetQiRatio": 0.3999 },
+    { "type": "event", "event": "Qi", "startTime": 10.43971819517057, "targetQiRatio": 0.5999 },
+    { "type": "event", "event": "Qi", "startTime": 15.659577292755856, "targetQiRatio": 0.3999 },
+    { "type": "event", "event": "Qi", "startTime": 50.539013683097, "targetQiRatio": 0.5999 },
+    { "type": "event", "event": "Qi", "startTime": 55.75887278068228, "targetQiRatio": 0.3999 },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ]
 }

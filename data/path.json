@@ -127,7 +127,7 @@
     "buildGroup": "bamboocut-draught",
     "defaultBuild": "draught-fully-relayed-min",
     "graduated": ["draught-full-min", "draught-full-max", "draught-full-min-bp", "draught-full-max-bp"],
-    "defaultRotation": "draught-dummy-1-min",
+    "defaultRotation": "draught-dummy-1-min-10ms",
     "lockedWeapons": ["skystrikeGauntlets", "rivenTwinblades"],
     "arsenal": "Bamboocut"
   },
