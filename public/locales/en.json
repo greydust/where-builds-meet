@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "Heaven's Might",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "Might",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "Soaring High End Vulnerability",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "SHEV",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "Prevents Vile Condemned from selecting End Hit.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "Vile Condemned End Cooldown",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "End CD",

@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "Мощь небес",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "Мощь",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "Парящий Высота — Уязвимость к завершающему удару",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "Парящий Высота — Уязвимость к завершающему удару",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "Не позволяет навыку «Порочный Осуждённый» выбрать завершающее попадание.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "Перезарядка завершения Порочного Осуждённого",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "Перезарядка завершения",

@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "天威",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "威",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "扶摇直上 — 终式易伤",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "扶摇直上 — 终式易伤",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "防止 无义当诛 选用终结命中。",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "无义当诛 终结 冷却",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "无义当诛 终结 冷却",

@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "Poder Celestial",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "Poderío",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "Vuelo Elevado — Vulnerabilidad al remate",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "Vuelo Elevado — Vulnerabilidad al remate",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "Evita que Condenado Vil seleccione el impacto final.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "Recarga del final de Condenado Vil",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "Recarga final",

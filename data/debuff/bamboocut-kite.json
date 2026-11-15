@@ -33,6 +33,7 @@
   },
   "SoaringHighEndVulnerability": {
     "name": "Soaring High End Vulnerability",
+    "shortName": "SHEV",
     "duration": 25,
     "maxStack": 2,
     "refresh": true,

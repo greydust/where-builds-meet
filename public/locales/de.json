@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "Himmelsmacht",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "Himmelsmacht",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "Hoch hinaus — Verwundbarkeit gegen den Abschluss",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "Hoch hinaus — Verwundbarkeit gegen den Abschluss",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "Verhindert, dass Verruchte Verdammte den Abschlusstreffer auswählt.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "Verruchte Verdammte – Abschluss-Abklingzeit",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "Verruchte Verdammte – Abschluss-Abklingzeit",

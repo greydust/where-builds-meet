@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "하늘의 위엄",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "열석 위",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "날아오르기 — 종결에 받는 피해 증가",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "날아오르기 — 종결에 받는 피해 증가",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "불의의 단죄의 마지막 타격 선택을 방지합니다.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "불의의 단죄 종료 쿨타임",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "불의의 단죄 종료 쿨타임",

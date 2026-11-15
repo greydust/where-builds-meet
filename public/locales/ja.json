@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "天威",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "威",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "大義天志 — 終式被ダメージ増加",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "大義天志 — 終式被ダメージ増加",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "不義天誅で終結の一撃が選択されるのを防ぎます。",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "不義天誅・終結クールタイム",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "不義天誅・終結クールタイム",

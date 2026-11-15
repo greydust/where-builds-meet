@@ -394,6 +394,7 @@
   "data.debuff.bamboocutKite.HeavensMight.name": "Puissance céleste",
   "data.debuff.bamboocutKite.HeavensMight.shortName": "Puissance",
   "data.debuff.bamboocutKite.SoaringHighEndVulnerability.name": "Envol céleste — Vulnérabilité au coup final",
+  "data.debuff.bamboocutKite.SoaringHighEndVulnerability.shortName": "Envol céleste — Vulnérabilité au coup final",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.description": "Empêche Condamné Infâme de sélectionner son coup final.",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.name": "Recharge du coup final de Condamné Infâme",
   "data.debuff.bamboocutKite.VileCondemnedEndCooldown.shortName": "Fin CD",
