@@ -456,9 +456,9 @@ the nonlinear deficit clamp to an averaged ending Vitality, because a
 resource-surplus branch must not erase the damage loss from a resource-deficit
 branch.
 
-The adjustment is deliberately an aggregate result correction. Main-page total
-damage and DPS use the corrected value. Rotation Editor total damage and DPS,
-timeline actions, per-action damage, skill and cast breakdowns, and editor
+The adjustment is deliberately an aggregate result correction. Main-page and Rotation Editor total
+damage and DPS use the corrected value, including the editor comparison against
+the active rotation. Timeline actions, per-action damage, skill and cast breakdowns, and editor
 resource values remain unscaled so they continue to describe the authored
 rotation.
 

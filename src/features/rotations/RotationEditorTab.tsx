@@ -1684,9 +1684,7 @@ export function RotationEditorTab({
   const editingIsActiveRotation = editingRotationId === activeRotationId
   const activeRotationReading =
     !editingIsActiveRotation && publishedResult?.rotationId === activeRotationId ? publishedResult : undefined
-  const dpsDelta = activeRotationReading
-    ? rotationCalculation.unscaledDps - activeRotationReading.metrics.unscaledDps
-    : undefined
+  const dpsDelta = activeRotationReading ? rotationCalculation.dps - activeRotationReading.metrics.dps : undefined
 
   useEffect(() => {
     const requestSequence = ++editorPreviewRequestSequenceRef.current
@@ -2054,10 +2052,10 @@ export function RotationEditorTab({
                 {currentCachedResult ? (
                   <>
                     <span>
-                      {t("system.totalDamage")}: {formatThroughput(rotationCalculation.unscaledTotalDamage)}{" "}
+                      {t("system.totalDamage")}: {formatThroughput(rotationCalculation.totalDamage)}{" "}
                       {dpsDelta === undefined ? (
                         <small className="rotation-results-rate">
-                          ({formatThroughput(rotationCalculation.unscaledDps)} {t("system.dps")})
+                          ({formatThroughput(rotationCalculation.dps)} {t("system.dps")})
                         </small>
                       ) : (
                         <Tooltip
@@ -2066,7 +2064,7 @@ export function RotationEditorTab({
                             <>
                               <span className="rotation-results-rate-row">
                                 <span>{t("ui.app.notActiveDps")}</span>
-                                <strong>{formatThroughput(rotationCalculation.unscaledDps)}</strong>
+                                <strong>{formatThroughput(rotationCalculation.dps)}</strong>
                               </span>
                               <span className="rotation-results-rate-row">
                                 <span>{t("ui.app.rotationUsed")}</span>
@@ -2076,7 +2074,7 @@ export function RotationEditorTab({
                           }
                         >
                           <small className={`rotation-results-rate ${throughputDeltaClass(dpsDelta, "damage")}`}>
-                            ({formatThroughput(rotationCalculation.unscaledDps)}, {formatThroughputDelta(dpsDelta)}{" "}
+                            ({formatThroughput(rotationCalculation.dps)}, {formatThroughputDelta(dpsDelta)}{" "}
                             {t("system.dps")})
                           </small>
                         </Tooltip>

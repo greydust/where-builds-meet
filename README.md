@@ -34,6 +34,8 @@ npm run preview       # Serve the production build locally
 
 `npm run test` runs the automated behavioral tests. `npm run verify` is the canonical local gate. CI runs formatting, lint, typecheck, and localization checks in parallel, then runs the tests and the production bundle in parallel. `npm run build` creates the production bundle and includes the ordinary tests and typecheck, but not lint or the formatting check; simulation changes should also receive a focused calculation check.
 
+In the Windows Codex sandbox, the Vitest config redirects temporary files to ignored `local/vitest-tmp/`. The sandbox Temp directory rejects the atomic cache renames Vitest uses, causing workers to report missing modules (`ENOENT`). Other environments keep their existing temporary directory.
+
 ## Project map
 
 ```text
