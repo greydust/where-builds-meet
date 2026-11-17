@@ -1155,3 +1155,21 @@ remains sixty seconds. Pure Infinite Vitality and all other snapshots are unchan
 | ---------------------- | ----------------: | ----------------: | ----------------: | -----------------: |
 | BT18                   | 80057.71822870248 | 82318.25645277694 | 4803463.093722149 | 4939095.3871666165 |
 | BT19                   | 84261.44610330438 | 86641.71613698362 | 5055686.766198263 |  5198502.968219018 |
+
+## Strength enhanced soldier attunement acceptance (November 17, 2026)
+
+The user accepted the temporary exclusion of enhanced Snowbreak Spring Anxi
+soldier hits from Snowparting Varied Combo attunement Boost and requested release.
+See the temporary exception in [skill data](skill-data.md) for its removal condition:
+updated game data must support that the observed game bug is fixed.
+
+Only twelve cases change: Pure and Pure Infinite Vitality with Pure Full Min,
+Pure Fully Relayed Min and Pure Fully Relayed Max builds at Solo 18/19.
+Pure loses 2.142–2.163% DPS; Pure Infinite Vitality loses 2.241–2.262%.
+Every duration remains sixty seconds, so total damage changes proportionally.
+The other 280 cases, including Mixed, remain unchanged.
+
+| Rotation / Pure Fully Relayed Min / Solo 19 |      Accepted DPS |           New DPS | Accepted total damage |  New total damage |
+| ------------------------------------------- | ----------------: | ----------------: | --------------------: | ----------------: |
+| Pure                                        | 86641.71613698362 | 84777.89024553973 |     5198502.968219018 | 5086673.414732384 |
+| Pure Infinite Vitality                      | 87155.87336560305 | 85195.95576459727 |     5229352.401936183 | 5111757.345875835 |

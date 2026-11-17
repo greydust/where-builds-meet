@@ -15,6 +15,23 @@ short explanation only when it prevents a likely misinterpretation.
 
 ## Source of truth
 
+### Temporary enhanced Anxi soldier attunement exception
+
+As reported by the user on November 17, 2026, enhanced Snowbreak Spring's
+Anxi follow-up does not receive Snowparting Varied Combo attunement Boost in
+game, while the ordinary soldier and the player's Snowbreak Spring do.
+`snowpartingVariedComboBoost.effect.excludeTags` excludes only
+`AnxiSoldierSnowbreakSpringEnhanced`. Keep its ordinary combat tags and its
+40% base-damage modifier: the exception must not suppress other combat bonuses
+or weapon penetration. The shared attunement matcher applies this exclusion to
+damage and Boost comparisons without a skill-specific calculation branch.
+
+This models an observed game bug, not an intended permanent mechanic. Remove
+the exclusion once updated game data supports that the bug is fixed, and update
+the damage expectations in `tests/strength-attunement.test.ts` and this note.
+Do not infer a fix merely from a new export's existence. DPS snapshot changes
+still require the normal review before refreshing accepted baselines.
+
 Physical attack Food resolves `effectiveStat` Solo Level tables through the
 shared progression resolver before character composition. It adds 140–280
 effective Physical Attack at Solo 18–19, 160–320 at 20–21, 200–400 at 22–23,
