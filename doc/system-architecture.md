@@ -578,6 +578,35 @@ active build contributes gear stats, attunement, weapon and armor sets, bow/ring
 arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
+
+### Build-tab affix advice
+
+The Build tab marks suboptimal affixes in the aggregate affix summary and on the
+individual affix rows of equipped gear cards, with Tabler glyphs and hover text.
+`src/features/build/affixFlags.ts` owns the three checks: a capped rate whose raw
+sheet value is at least a quarter of a maximum roll past `maximumUsefulRawRate`
+is flagged for reduction; a non-rate stat whose marginal DPS from the stat-priority
+sweep is below `0.9 ×` Max Void Attack's is flagged for removal, except Momentum
+and Agility, which are only flagged when the build carries more copies than the
+graduate so the same stat is never called both too many and too few; and a stat the
+selected graduate uses at least seven times is flagged urgent when the viewed
+build differs by more than two copies; a deficit is shown as a positive "room to
+grow" marker on the item rather than a removal warning. Attunements are not
+counted in the affix summary, matching `summarizeGearAffixes`, but each equipped
+item's attunement is compared with the graduate item in the same slot and with
+the tier maximum: a different key asks for the graduate's attunement, and a
+correct key below its maximum asks to reattune for an upgrade.
+
+Advice is computed for the build on screen, not only the active one. Its sheet
+is resolved through `resolveBuildStatState`; its stat priorities reuse the active
+rotation's published reading when that build is active, otherwise a dedicated
+stat-priority-only sweep is queued below every interface calculation. The graduate
+reference is chosen from the path's declared `graduated` presets: when the viewed
+build favours Max Physical Attack a max-phys graduate is preferred, falling back
+to the highest-DPS declared graduate when none matches. The winning graduate id
+and every candidate's DPS travel with the published graduation result so no
+extra measurement is needed. The advice never changes a calculation or a stored
+build; it only annotates the two tables.
 All bundled rotation presets explicitly store ping, including the empty planner
 preset, so changes to Settings ping do not change their timelines. Most use
 40 ms; the Might dummy preset uses 30 ms.

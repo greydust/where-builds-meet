@@ -625,6 +625,8 @@ export default function App() {
                   measurement={buildMeasurementContext}
                   activeRotation={activeResult?.rotation}
                   activeRotationName={activeRotationDisplayName}
+                  activeStatPriority={activeResult?.metrics.statPriority}
+                  graduation={activeResult?.graduation}
                 />
               </div>
             </Suspense>

@@ -61,15 +61,23 @@ function resolveActiveRotation(
   return { entry, rotation, name: rotation.name || "Active rotation" }
 }
 
-/** The graduation reading already held for every candidate, or undefined while any is missing. */
-function cachedGraduationDps(prepared: ReturnType<typeof buildGraduationBundleSet>) {
+/**
+ * The graduation reading already held for every candidate, or undefined while any is missing.
+ * The per-candidate DPS and the winning preset are published with the headline so the Build tab
+ * can pick a graduate that matches the build it is showing without measuring them a second time.
+ */
+function cachedGraduation(prepared: ReturnType<typeof buildGraduationBundleSet>) {
   if (!prepared) return undefined
-  const cached = prepared.candidates.flatMap(candidate => {
+  const candidateDps: Record<string, number> = {}
+  for (const candidate of prepared.candidates) {
     const reading = useDpsStore.getState().peek("throughput", candidate.fingerprint)
-    return reading ? [reading] : []
-  })
-  if (cached.length !== prepared.candidates.length) return undefined
-  return selectHighestGraduationResult(cached)?.dps
+    if (!reading) return undefined
+    candidateDps[candidate.buildId] = reading.dps
+  }
+  const highest = selectHighestGraduationResult(
+    prepared.candidates.map(candidate => ({ buildId: candidate.buildId, dps: candidateDps[candidate.buildId] })),
+  )
+  return { dps: highest?.dps, buildId: highest?.buildId, candidateDps }
 }
 
 export function useActiveRotationResult(input: ActiveRotationInput) {
@@ -142,7 +150,9 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
     if (revisionRef.current !== undefined && revisionRef.current !== revision) useDpsStore.getState().supersede()
     revisionRef.current = revision
 
-    const publish = (metrics: ActiveRotationResult["metrics"], dps?: number) => {
+    const graduationSnapshot = (): ActiveRotationResult["graduation"] =>
+      graduation ? { fingerprint: graduation.fingerprint, ...cachedGraduation(graduation) } : undefined
+    const publish = (metrics: ActiveRotationResult["metrics"], graduationResult = graduationSnapshot()) => {
       if (!current()) return
       useRotationStore
         .getState()
@@ -156,7 +166,7 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
           bundleKey,
           metrics,
           draft: draftRotation !== undefined,
-          graduation: graduation ? { fingerprint: graduation.fingerprint, dps } : undefined,
+          graduation: graduationResult,
         })
     }
 
@@ -175,11 +185,11 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
             resolved.baseline.metrics,
             held?.bundleKey === bundleKey ? held.metrics : undefined,
           ),
-          cachedGraduationDps(graduation),
         )
 
-        // Only Main consumes variants. Other tabs still receive the full baseline: timeline,
-        // action breakdowns, totals and the immutable bundle needed by Simulation.
+        // Main shows every comparison category; Build requests only its cached stat priorities
+        // for the active build. Other tabs receive the full baseline: timeline, action
+        // breakdowns, totals and the immutable bundle needed by Simulation.
         const comparisons = comparisonsActive
           ? resolveComparisonMetrics({
               bundle: comparisonBundle,
@@ -196,17 +206,14 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
               onCategoryResolved: (merged, category) => {
                 if (!current()) return
                 const latest = useRotationStore.getState().result
-                publish(
-                  merged,
-                  latest?.bundleKey === bundleKey ? latest.graduation?.dps : cachedGraduationDps(graduation),
-                )
+                publish(merged, latest?.bundleKey === bundleKey ? latest.graduation : graduationSnapshot())
                 startedCategories.delete(category)
                 useRotationStore.getState().settleCategory(category)
               },
             })
           : Promise.resolve()
         const graduationResult =
-          graduation && cachedGraduationDps(graduation) === undefined
+          graduation && cachedGraduation(graduation) === undefined
             ? Promise.all(
                 graduation.candidates.map(candidate =>
                   useDpsStore
@@ -218,10 +225,9 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
                       priority: 390,
                     }),
                 ),
-              ).then(readings => {
+              ).then(() => {
                 const latest = useRotationStore.getState().result
-                if (current() && latest?.bundleKey === bundleKey)
-                  publish(latest.metrics, selectHighestGraduationResult(readings)?.dps)
+                if (current() && latest?.bundleKey === bundleKey) publish(latest.metrics)
               })
             : Promise.resolve()
         await Promise.all([comparisons, graduationResult])

@@ -144,6 +144,7 @@ export function buildRotationComparisonBundle(
           const definition = allStatDefinitions.find(candidate => candidate.key === key)
           const variant: RotationSimulationVariant = {
             label: definition?.label ?? key,
+            statKey: key,
             maxRoll: Number(amount) * (definition?.unit === "%" ? 100 : 1),
             stats: variantStats,
           }

@@ -5,6 +5,8 @@ import { attunementData, gearBaseStats, gearData, type GearItem, type GearSlot }
 import { gameText, t } from "@/i18n"
 import { Button } from "@/ui/Button"
 
+import { AffixFlagIcons } from "./AffixFlagIcons"
+import type { AffixFlag, AffixFlagMap } from "./affixFlags"
 import { formatNumber, gearRarityLabel } from "./GearEditor"
 import { useInViewport } from "./useInViewport"
 
@@ -12,10 +14,13 @@ function displayValue(value: number, definition?: { percentage?: boolean }) {
   return `${formatNumber(definition?.percentage ? value * 100 : value)}${definition?.percentage ? "%" : ""}`
 }
 
-function itemAttributes(item: GearItem) {
-  const rows: Array<{ label: string; value: string; kind: string }> = []
+type GearAttributeRow = { key: string; label: string; value: string; kind: string }
+
+function itemAttributes(item: GearItem): GearAttributeRow[] {
+  const rows: GearAttributeRow[] = []
   const baseDefinition = gearData.affixes[item.baseAffix.key]
   rows.push({
+    key: item.baseAffix.key,
     label: gameText(baseDefinition?.name ?? item.baseAffix.key),
     value: displayValue(item.baseAffix.value, baseDefinition),
     kind: "Base affix",
@@ -23,6 +28,7 @@ function itemAttributes(item: GearItem) {
   for (const affix of item.additionalAffixes) {
     const definition = gearData.affixes[affix.key]
     rows.push({
+      key: affix.key,
       label: gameText(definition?.name ?? affix.key),
       value: displayValue(affix.value, definition),
       kind: "Affix",
@@ -31,6 +37,7 @@ function itemAttributes(item: GearItem) {
   if (item.attunement) {
     const attunementDefinition = attunementData[item.attunement.key]
     rows.push({
+      key: item.attunement.key,
       label: gameText(attunementDefinition?.name ?? item.attunement.key),
       value: displayValue(item.attunement.value, attunementDefinition),
       kind: "Attunement",
@@ -87,7 +94,17 @@ function GearBaseStatSummary({ item }: { item: GearItem }) {
   return null
 }
 
-function GearAttributes({ item, compact = false }: { item: GearItem; compact?: boolean }) {
+function GearAttributes({
+  item,
+  compact = false,
+  affixFlags,
+  attunementFlags,
+}: {
+  item: GearItem
+  compact?: boolean
+  affixFlags?: AffixFlagMap
+  attunementFlags?: readonly AffixFlag[]
+}) {
   return (
     <div className={`gear-attribute-list ${compact ? "compact" : ""}`}>
       {itemAttributes(item).map(row => (
@@ -97,6 +114,11 @@ function GearAttributes({ item, compact = false }: { item: GearItem; compact?: b
         >
           <span>
             {row.kind === "Attunement" && <small>{t("ui.buildTab.attunement")}</small>}
+            {row.kind === "Attunement" ? (
+              <AffixFlagIcons flags={attunementFlags} item />
+            ) : (
+              <AffixFlagIcons flags={affixFlags?.get(row.key)} item />
+            )}
             {row.label}
           </span>
           <strong>{row.value}</strong>
@@ -144,9 +166,23 @@ export type GearCardContent = {
   footer?: ReactNode
   /** The equipped grid runs its affixes closer to the separator, because it is the denser card. */
   compact?: boolean
+  /** Problems with this item's affixes, shown on the offending rows rather than only in the summary. */
+  affixFlags?: AffixFlagMap
+  /** Attunement problems for this specific item. */
+  attunementFlags?: readonly AffixFlag[]
 }
 
-export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer, compact = false }: GearCardContent) {
+export function GearCard({
+  item,
+  name,
+  eyebrowLabel,
+  usageCount,
+  status,
+  footer,
+  compact = false,
+  affixFlags,
+  attunementFlags,
+}: GearCardContent) {
   return (
     <div className="gear-card-body">
       {(eyebrowLabel || usageCount !== undefined || item?.relayed) && (
@@ -174,7 +210,7 @@ export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer,
             {status && <div className="gear-card-status">{status}</div>}
           </div>
           <GearBaseStatSummary item={item} />
-          <GearAttributes item={item} compact={compact} />
+          <GearAttributes item={item} compact={compact} affixFlags={affixFlags} attunementFlags={attunementFlags} />
         </>
       ) : (
         <span className="gear-empty">{t("ui.buildTab.noGearEquipped")}</span>
@@ -196,6 +232,10 @@ export function EquippedGearCard(props: {
   selected: boolean
   /** A preset build's gear is fixed, so its slots cannot be opened. */
   disabled: boolean
+  /** Problems with this item's affixes, flagged in place on the card. */
+  affixFlags?: AffixFlagMap
+  /** Attunement problems for this specific item. */
+  attunementFlags?: readonly AffixFlag[]
   onSelect: () => void
 }) {
   return (
@@ -206,7 +246,14 @@ export function EquippedGearCard(props: {
       disabled={props.disabled}
       onClick={props.onSelect}
     >
-      <GearCard item={props.item} name={props.name} eyebrowLabel={props.slotLabel} compact />
+      <GearCard
+        item={props.item}
+        name={props.name}
+        eyebrowLabel={props.slotLabel}
+        compact
+        affixFlags={props.affixFlags}
+        attunementFlags={props.attunementFlags}
+      />
     </button>
   )
 }

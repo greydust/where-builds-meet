@@ -418,6 +418,45 @@
     color: var(--text-muted);
   }
 
+  /* Flags shown in the affix summary and on the individual affix rows of an equipped card. */
+  .affix-flag-list {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3xs);
+    margin-inline-end: var(--space-3xs);
+    vertical-align: baseline;
+  }
+
+  .affix-flag {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary);
+  }
+
+  .affix-flag--graduationGap,
+  .affix-flag--attunementMismatch {
+    color: var(--error);
+  }
+
+  .affix-flag--attunementUnderrolled,
+  .affix-flag--positive {
+    color: var(--success);
+  }
+
+  .affix-flag-tooltip {
+    max-inline-size: 16rem;
+  }
+
+  .affix-summary-row--flagged > span {
+    color: var(--text);
+  }
+
+  .affix-summary-row--urgent {
+    padding-inline: var(--space-2xs);
+    background: var(--error-soft);
+    border-inline-start: 1px solid var(--error);
+  }
+
   /* Gear Card: one card shape, filled differently by the equipped grid and the inventory. */
   .gear-card-grid {
     display: grid;
