@@ -41,7 +41,13 @@ export type ActiveRotationResult = {
   bundle: RotationSimulationBundle
   bundleKey: string
   metrics: RotationMetrics
-  graduation?: { fingerprint: string; dps?: number }
+  graduation?: {
+    fingerprint: string
+    dps?: number
+    /** Which graduate preset the DPS belongs to, and every candidate's measured DPS. */
+    buildId?: string
+    candidateDps?: Record<string, number>
+  }
   /**
    * True when the rotation carries edits the editor has not saved, so what is shown is not the
    * stored record. The headline has always followed those edits, and a pull that published the

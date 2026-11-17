@@ -19,6 +19,8 @@ vi.mock("@/features/build/useBuildThroughputs", () => ({
     active: { dps: 100, hps: 0, totalDamage: 1000 },
   }),
 }))
+// This test drives the gear optimizer's worker directly; affix advice has no part in it.
+vi.mock("@/features/build/useBuildStatPriorities", () => ({ useBuildStatPriorities: () => [] }))
 vi.mock("@/notices", () => ({ publishNotice: () => {}, dismissNotice: () => {} }))
 vi.mock("@/i18n", () => ({
   getLocale: () => "en",

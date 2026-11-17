@@ -244,6 +244,8 @@ aggregation, conditional effects, overrides, and comparison variants.
 
 Fixed effects are applied before formulas, regardless of JSON order. Internal floating-point results are normalized to nine decimal places.
 
+The three capped rates invert to a raw sheet value above which further affixes are wasted: Precision at `(1 − 0.65) × (1 + judgement resistance) + 0.65`, Critical at `(0.8 − effectiveCritBonus) × (1 + judgement resistance)`, Affinity at `0.4 × (1 + judgement resistance)`. `maximumUsefulRawRate` in `effectiveStats.ts` owns that inverse so the Build tab's over-cap advice and the sheet's cap share one definition; no calculation changes when the advice consumes it.
+
 A manually edited Main-tab stat is stored as a final-value override. The calculator solves the base-stat offset that makes the shared pipeline produce that exact value under the current baseline inputs. Changing the active build, Inner Ways, food, or another baseline input causes the offset to be solved again, so the modified final value remains fixed. The solved base is also used for comparison variants; adding or removing a tested effect therefore still changes the stat and contributes to the reported DPS delta.
 
 Physical DMG Reduction is retained as a raw character-sheet ratio. Explicit

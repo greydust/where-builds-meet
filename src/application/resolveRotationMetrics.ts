@@ -81,6 +81,8 @@ export type ComparisonResolution = {
   /** Resolved per variant as they are asked for, so the caller need not hold the baseline. */
   baseline: () => RotationSimulationBaseline
   categories?: readonly RotationCalculationCategory[]
+  /** Queue position for these variants; lower runs after the interface's own work. */
+  priority?: number
   /** Called as each category's work begins, so a panel can show itself as busy while it waits. */
   onCategoryStarted?: (category: RotationCalculationCategory) => void
   onCategoryProgress?: (category: RotationCalculationCategory, progress: number) => void
@@ -115,7 +117,7 @@ export async function resolveComparisonCategory(
           cacheKey: `${resolution.baselineKey}:${variant.key}`,
           build: () => variant.bundle,
           baseline: resolution.baseline,
-          priority: variantPriority,
+          priority: resolution.priority ?? variantPriority,
           onProgress: progress.started(index),
         })
         .then(result => {

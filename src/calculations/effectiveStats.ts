@@ -4,7 +4,30 @@ import { DIRECT_CRIT_RATE_CAP } from "./statCaps"
 
 // Level 96 baseline. Keep this as a named setting so it can become user-configurable later.
 export const JUDGEMENT_RESISTANCE = 0.65
-const PRECISION_BASELINE = 0.65
+export const PRECISION_BASELINE = 0.65
+export const EFFECTIVE_PRECISION_CAP = 1
+export const EFFECTIVE_CRIT_CAP = 0.8
+export const EFFECTIVE_AFFINITY_CAP = 0.4
+
+/**
+ * The largest raw sheet value a capped rate can use before the cap discards the rest.
+ * Shared with the Build tab's over-cap flags so the inverse of the cap formula has one
+ * authoritative definition; changing a cap here changes both the sheet and the advice.
+ */
+export function maximumUsefulRawRate(
+  key: "precision" | "crit" | "affinity",
+  judgementResistance: number,
+  effectiveCritBonus = 0,
+): number {
+  switch (key) {
+    case "precision":
+      return PRECISION_BASELINE + (EFFECTIVE_PRECISION_CAP - PRECISION_BASELINE) * (1 + judgementResistance)
+    case "crit":
+      return (EFFECTIVE_CRIT_CAP - effectiveCritBonus) * (1 + judgementResistance)
+    case "affinity":
+      return EFFECTIVE_AFFINITY_CAP * (1 + judgementResistance)
+  }
+}
 
 export type DerivedStats = {
   effectiveMinPhys: number
@@ -204,11 +227,11 @@ export function calculateDerivedStats(
   const directCrit = Math.min(DIRECT_CRIT_RATE_CAP, Math.max(0, effectiveValue("directCrit")))
   const directAffinity = effectiveValue("directAffinity")
   const effectivePrecision = Math.min(
-    1,
+    EFFECTIVE_PRECISION_CAP,
     (precision - PRECISION_BASELINE) / (1 + judgementResistance) + PRECISION_BASELINE,
   )
-  const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance) + effectiveCritBonus)
-  const effectiveAffinity = Math.min(0.4, affinity / (1 + judgementResistance))
+  const effectiveCrit = Math.min(EFFECTIVE_CRIT_CAP, crit / (1 + judgementResistance) + effectiveCritBonus)
+  const effectiveAffinity = Math.min(EFFECTIVE_AFFINITY_CAP, affinity / (1 + judgementResistance))
   const rates = calculateRates({ effectivePrecision, effectiveCrit, effectiveAffinity, directCrit, directAffinity })
 
   return {

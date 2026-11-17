@@ -185,7 +185,7 @@ async function activateEditableBuild() {
   await settle()
 }
 
-it("refreshes shared damage after a gear save but defers variants until returning to Main", async () => {
+it("refreshes shared damage after a gear save and resolves only stat priorities on Build", async () => {
   HTMLDialogElement.prototype.showModal = function () {
     this.open = true
   }
@@ -212,7 +212,21 @@ it("refreshes shared damage after a gear save but defers variants until returnin
   expect(after.metrics.breakdown.skills.length).toBeGreaterThan(0)
   expect(container.querySelector(".build-detail-dps-active")?.textContent).not.toBe(buildBefore)
   expect(after.metrics.statPriority).toEqual([])
-  expect(dpsDispatches("comparisons")).toHaveLength(comparisonCount)
+  // The Build tab asks for the one category its affix advice reads, at the lowest queue
+  // priority, without publishing those rows into the shared rotation result.
+  expect(dpsDispatches("comparisons").length).toBeGreaterThan(comparisonCount)
+  const buildRequests = dpsDispatches("comparisons").slice(comparisonCount)
+  expect(
+    buildRequests.every(request => {
+      const bundle = request.build()
+      return (
+        bundle.statPriority.length === 1 &&
+        bundle.attunementPriority.length === 0 &&
+        bundle.innerWayPriority.length === 0 &&
+        Object.keys(bundle.setupComparisons).length === 0
+      )
+    }),
+  ).toBe(true)
 
   await click("Main")
   expect(useRotationStore.getState().result?.bundleKey).toBe(after.bundleKey)
@@ -284,7 +298,7 @@ it("refreshes equipment against an unsaved rotation after leaving the editor", a
   expect(after.bundle.timeline.rotation.ping).toBe(250)
   expect(after.bundleKey).not.toBe(before.bundleKey)
   expect(after.metrics.dps).toBeLessThan(before.metrics.dps)
-  expect(dpsDispatches("comparisons")).toHaveLength(comparisonCount)
+  expect(dpsDispatches("comparisons").length).toBeGreaterThan(comparisonCount)
   await click("Main")
   expect(useRotationStore.getState().result?.bundleKey).toBe(after.bundleKey)
   expect(useRotationStore.getState().result?.metrics.statPriority.length).toBeGreaterThan(0)

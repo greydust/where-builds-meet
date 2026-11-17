@@ -1,6 +1,8 @@
 import type { SkillBreakdownGroup } from "./skillBreakdownCategories"
 export type RotationPriority = {
   label: string
+  /** The character-stat id for stat-priority rows, absent from other priority categories. */
+  statKey?: string
   maxRoll?: number
   increase: number
   dpsDifference: number

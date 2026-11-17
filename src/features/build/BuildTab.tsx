@@ -17,6 +17,7 @@ import {
 } from "react"
 
 import { buildShareLink } from "@/application/buildShare"
+import { resolveBuildStatState } from "@/application/buildStatState"
 import type { PathId } from "@/application/contracts"
 import { formatThroughput, formatThroughputDelta, throughputDeltaClass } from "@/application/formatting"
 import { martialArtDefinitions } from "@/application/gameData/martialArts"
@@ -24,19 +25,20 @@ import { typedPathDefinitions } from "@/application/gameData/paths"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import { cancelGearOptimization, startGearOptimization } from "@/application/gearOptimization"
 import type { MeasurementContext } from "@/calculations/rotationCalculationBundle"
+import type { RotationPriority } from "@/calculations/rotationMetrics"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
 import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
 import { ExportSelection, TransferSelectionDialog } from "@/features/transfer/ExportSelection"
 import { transferItemGroup } from "@/features/transfer/transferItemGroup"
 import {
   defaultBuildSetup,
-  defaultBuildPresets,
   duplicateBuildState,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
   availableSetEntriesForTags,
   affixOptionsForGearDefinition,
+  defaultBuildPresets,
   buildEntryAvailableForMartialArts,
   buildEntryMartialArts,
   exportBuildState,
@@ -68,6 +70,7 @@ import { createOfficialGearBookmarklet } from "@/officialGearBookmarklet"
 import type { OfficialGearImport } from "@/officialGearImport"
 import { useGearOptimizationStore } from "@/stores/gearOptimizationStore"
 import { useGearStore } from "@/stores/gearStore"
+import type { ActiveRotationResult } from "@/stores/rotationStore"
 import { useSettingsStore } from "@/stores/settingsStore"
 import type { WeaponId } from "@/types"
 import { Button } from "@/ui/Button"
@@ -77,6 +80,21 @@ import { Dialog } from "@/ui/Dialog"
 import { Panel, PanelHeading } from "@/ui/Panel"
 import { Tooltip } from "@/ui/Tooltip"
 
+import { AffixFlagIcons } from "./AffixFlagIcons"
+import {
+  affixCountsForItems,
+  affixCountsForPreset,
+  attunementFlags,
+  combineAffixFlags,
+  graduationGapAffixFlags,
+  lowValueAffixFlags,
+  overCapAffixFlags,
+  physPriorityOfItems,
+  presetGearItems,
+  selectGraduationBuild,
+  type AffixFlagMap,
+  type ItemAttunementFlags,
+} from "./affixFlags"
 import { AvailableGearCard, EquippedGearCard } from "./GearCard"
 import { GearDelta } from "./GearDelta"
 import {
@@ -90,6 +108,7 @@ import {
 } from "./GearEditor"
 import { GearSuggestions } from "./GearSuggestions"
 import { officialImportForPath, officialImportPaths } from "./officialImportReview"
+import { useBuildStatPriorities } from "./useBuildStatPriorities"
 import { useBuildThroughputs } from "./useBuildThroughputs"
 import { useGearComparison } from "./useGearComparison"
 
@@ -124,6 +143,10 @@ type BuildTabProps = {
   measurement: MeasurementContext
   activeRotation?: RotationRecord
   activeRotationName?: string
+  /** The active build's already-published priorities, reused instead of measuring it twice. */
+  activeStatPriority?: readonly RotationPriority[]
+  /** Graduation candidates and their measured DPS, published with the rotation result. */
+  graduation?: ActiveRotationResult["graduation"]
 }
 
 type BuildManagementProps = {
@@ -142,6 +165,8 @@ type BuildManagementProps = {
   /** The sheet and environment the candidates are measured in, and the rotation they run. */
   measurement: MeasurementContext
   activeRotation?: RotationRecord
+  affixFlags: AffixFlagMap
+  attunementFlags: ItemAttunementFlags
 }
 
 const stackedBuildLayoutQuery = "(max-width: 80em)"
@@ -166,6 +191,9 @@ const noGearOptions: string[] = []
 
 /** The shared empty set, so clearing visibility is a state change rather than a new identity. */
 const emptySet: ReadonlySet<string> = new Set()
+
+/** An import preview has no advice to show until it is saved and measured as a build. */
+const emptyAffixFlags: AffixFlagMap = new Map()
 
 const attunementOptionCache = new Map<string, string[]>()
 function cachedAttunementOptions(
@@ -199,6 +227,8 @@ export default function BuildTab({
   measurement,
   activeRotation,
   activeRotationName,
+  activeStatPriority,
+  graduation,
 }: BuildTabProps) {
   // The build list and the shared gear inventory are one stored record, held by `gearStore`
   // rather than handed in: this component is where they are created, renamed, duplicated,
@@ -308,6 +338,84 @@ export default function BuildTab({
   })
   const editedThroughput = optimizingViewed ? optimization.progress?.reading : throughputs.viewed
   const activeThroughput = throughputs.active
+
+  // Affix advice belongs to the build on screen, whether or not it is active. Its sheet comes
+  // from the same resolver every measured build uses, and its priorities are either the active
+  // rotation's cached reading or a dedicated low-priority sweep.
+  const viewedStatState = useMemo(
+    () =>
+      storedEditingEntry
+        ? resolveBuildStatState({
+            build: storedEditingEntry,
+            gearItems: visibleItems,
+            settings: measurement.environment.settings,
+            statOverrides: measurement.statOverrides,
+            attunementOverrides: measurement.attunementOverrides,
+            setupSelections: measurement.environment.setupSelections,
+            pathId: measurement.environment.pathId,
+            buildSetupOverrides:
+              measurement.buildSetupOverrides?.buildId === storedEditingEntry.id
+                ? measurement.buildSetupOverrides.overrides
+                : undefined,
+          })
+        : undefined,
+    [storedEditingEntry, visibleItems, measurement],
+  )
+  const viewedStatPriority = useBuildStatPriorities({
+    build: storedEditingEntry,
+    gearItems: visibleItems,
+    measurement,
+    rotation: activeRotation,
+    isActive: storedEditingEntry?.id === buildState.activeBuildId,
+    cached: activeStatPriority,
+  })
+  const viewedInventory = useMemo(
+    () => (storedEditingEntry ? resolveBuildInventory(storedEditingEntry, visibleItems, weapons, gearTier) : undefined),
+    [storedEditingEntry, visibleItems, weapons, gearTier],
+  )
+  const viewedEquippedItems = useMemo(
+    () =>
+      gearSlots.map(slot => {
+        const id = viewedInventory?.equipped[slot]
+        return id ? viewedInventory.items.find(item => item.id === id) : undefined
+      }),
+    [viewedInventory],
+  )
+  const graduationPreset = useMemo(
+    () =>
+      selectGraduationBuild({
+        graduateIds: graduatedBuildIds,
+        presets: defaultBuildPresets,
+        candidateDps: graduation?.candidateDps ?? {},
+        currentPriority: physPriorityOfItems(viewedEquippedItems),
+        gearTier,
+      }),
+    [graduatedBuildIds, graduation?.candidateDps, viewedEquippedItems, gearTier],
+  )
+  const affixFlags = useMemo<AffixFlagMap>(() => {
+    if (!viewedStatState) return new Map()
+    const overCap = overCapAffixFlags({
+      stats: viewedStatState.stats,
+      judgementResistance: measurement.environment.enemy.judgementResistance,
+      gearTier,
+    })
+    const currentCounts = affixCountsForItems(viewedEquippedItems)
+    const graduateCounts = graduationPreset
+      ? affixCountsForPreset(graduationPreset, gearTier)
+      : new Map<string, number>()
+    const lowValue = lowValueAffixFlags({ statPriority: viewedStatPriority, currentCounts, graduateCounts })
+    const gaps = graduationGapAffixFlags({ currentCounts, graduateCounts })
+    return combineAffixFlags(overCap, lowValue, gaps)
+  }, [viewedStatState, measurement, gearTier, viewedStatPriority, graduationPreset, viewedEquippedItems])
+  const itemAttunementFlags = useMemo<ItemAttunementFlags>(
+    () =>
+      attunementFlags({
+        equippedItems: viewedEquippedItems,
+        graduateItems: graduationPreset ? presetGearItems(graduationPreset, gearTier) : [],
+        gearTier,
+      }),
+    [viewedEquippedItems, graduationPreset, gearTier],
+  )
 
   if (!editingEntry)
     return (
@@ -906,6 +1014,8 @@ export default function BuildTab({
             build={editingEntry}
             measurement={measurement}
             activeRotation={activeRotation}
+            affixFlags={affixFlags}
+            attunementFlags={itemAttunementFlags}
           />
         </div>
       </div>
@@ -1076,6 +1186,8 @@ export default function BuildTab({
                     martialArtTags={officialMartialArtTags}
                     pathTag={typedPathDefinitions[officialTargetPath].tag}
                     locked
+                    affixFlags={emptyAffixFlags}
+                    attunementFlags={emptyAffixFlags}
                   />
                   {officialPreview.exportValue.builds[0].setup.innerWays.some(
                     (row, index) => row.innerWay && !reviewedOfficialExport.builds[0].setup.innerWays[index].innerWay,
@@ -1102,6 +1214,7 @@ function BuildSetupPanel({
   martialArtTags,
   pathTag,
   locked,
+  affixFlags,
   onChange,
 }: {
   setup: BuildSetup
@@ -1109,6 +1222,7 @@ function BuildSetupPanel({
   martialArtTags: string[]
   pathTag?: string
   locked: boolean
+  affixFlags: AffixFlagMap
   onChange: (setup: BuildSetup) => void
 }) {
   const lockedTitle = locked ? t("ui.buildTab.buildLocked") : undefined
@@ -1266,12 +1380,22 @@ function BuildSetupPanel({
         </PanelHeading>
         {affixSummary.affixes.length > 0 ? (
           <ol className="build-affix-summary-list">
-            {affixSummary.affixes.map(({ key, count }) => (
-              <li key={key}>
-                <span>{gameText(gearData.affixes[key]?.name ?? key)}</span>
-                <strong>×{count}</strong>
-              </li>
-            ))}
+            {affixSummary.affixes.map(({ key, count }) => {
+              const flags = affixFlags.get(key)
+              const urgent = flags?.some(flag => flag.kind === "graduationGap") ?? false
+              return (
+                <li
+                  key={key}
+                  className={`${(flags?.length ?? 0) > 0 ? "affix-summary-row--flagged" : ""} ${urgent ? "affix-summary-row--urgent" : ""}`}
+                >
+                  <span>
+                    <AffixFlagIcons flags={flags} />
+                    {gameText(gearData.affixes[key]?.name ?? key)}
+                  </span>
+                  <strong>×{count}</strong>
+                </li>
+              )
+            })}
           </ol>
         ) : (
           <p className="build-affix-summary-empty">{t("ui.buildTab.noAffixes")}</p>
@@ -1292,6 +1416,8 @@ function BuildOverview({
   selectedSlot,
   onSelectSlot,
   onSetupChange = ignoreSetupChange,
+  affixFlags,
+  attunementFlags,
   children,
 }: {
   inventory: GearInventory
@@ -1304,6 +1430,8 @@ function BuildOverview({
   selectedSlot?: GearSlot
   onSelectSlot?: (slot: GearSlot) => void
   onSetupChange?: (setup: BuildSetup) => void
+  affixFlags: AffixFlagMap
+  attunementFlags: ItemAttunementFlags
   children?: ReactNode
 }) {
   const gearLocked = locked || inventoryLocked === true
@@ -1330,6 +1458,7 @@ function BuildOverview({
         martialArtTags={martialArtTags}
         pathTag={pathTag}
         locked={locked}
+        affixFlags={affixFlags}
         onChange={onSetupChange}
       />
       <div key="gear" className="build-management-grid">
@@ -1355,6 +1484,8 @@ function BuildOverview({
                   name={item ? gameText(definition?.name) : undefined}
                   selected={!gearLocked && selectedSlot === slot}
                   disabled={gearLocked}
+                  affixFlags={affixFlags}
+                  attunementFlags={attunementFlags.get(item?.id ?? "")}
                   onSelect={() => onSelectSlot?.(slot)}
                 />
               )
@@ -1384,6 +1515,8 @@ function BuildManagement({
   build,
   measurement,
   activeRotation,
+  affixFlags,
+  attunementFlags,
 }: BuildManagementProps) {
   const gearLocked = locked || inventoryLocked === true
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon")
@@ -1641,6 +1774,8 @@ function BuildManagement({
         selectedSlot={selectedSlot}
         onSelectSlot={selectSlot}
         onSetupChange={onSetupChange}
+        affixFlags={affixFlags}
+        attunementFlags={attunementFlags}
       >
         {!gearLocked && (
           <Panel className="build-inventory-panel">

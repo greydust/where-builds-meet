@@ -145,6 +145,7 @@ export type RotationCalculationBundle = {
   baseline: RotationDamageEntry[]
   statPriority: Array<{
     label: string
+    statKey?: string
     maxRoll?: number
     entries: RotationDamageEntry[]
     duration?: number
@@ -183,6 +184,8 @@ export type RotationCalculationBundle = {
 
 export type RotationSimulationVariant = {
   label: string
+  /** The character-stat id, so consumers can map a priority row back to an affix. */
+  statKey?: string
   maxRoll?: number
   stats?: CharacterStats
   /** A stat priority can measure against a reference sheet instead of the equipped baseline. */
@@ -967,9 +970,11 @@ function priorityRow(
   baselineHps: number,
   variantHps: number,
   maxRoll?: number,
+  statKey?: string,
 ): RotationPriority {
   return {
     label,
+    statKey,
     maxRoll,
     increase: baselineDps > 0 ? (variantDps / baselineDps - 1) * 100 : 0,
     dpsDifference: variantDps - baselineDps,
@@ -984,6 +989,7 @@ function calculatePriorityRows(
   duration: number,
   variants: Array<{
     label: string
+    statKey?: string
     maxRoll?: number
     entries: RotationDamageEntry[]
     duration?: number
@@ -994,7 +1000,7 @@ function calculatePriorityRows(
   order: "ascending" | "descending" = "descending",
 ) {
   const rows = variants.map(
-    ({ label, maxRoll, entries, duration: variantDuration = duration, damage, healing, reference }) => {
+    ({ label, statKey, maxRoll, entries, duration: variantDuration = duration, damage, healing, reference }) => {
       const totals = damage === undefined || healing === undefined ? sumEntries(entries) : undefined
       return priorityRow(
         label,
@@ -1003,6 +1009,7 @@ function calculatePriorityRows(
         reference?.hps ?? baselineHps,
         variantDuration > 0 ? (healing ?? totals?.healing ?? 0) / variantDuration : 0,
         maxRoll,
+        statKey,
       )
     },
   )
@@ -2959,6 +2966,7 @@ export function calculateRotationComparisons(
         : undefined
       return {
         label: variant.label,
+        statKey: variant.statKey,
         maxRoll: variant.maxRoll,
         ...calculation,
         ...(referenceCalculation
