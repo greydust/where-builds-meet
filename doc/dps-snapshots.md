@@ -1,5 +1,41 @@
 # DPS regression snapshots
 
+## Dust Cyclone rotation acceptance (November 17, 2026)
+
+Only `bamboocutDust/dust-dummy-1-min` changes. The requested sequence retains
+three fourteen-throw batches, replaces the fillers with Cyclone depletion and
+two teleport returns, uses two Bubbles and Flute Cancel, and breaks Qi on the
+second batch's first forward hit and on the last landed hit of the final Cyclone
+at 59.8346317016317 seconds. Both Qi ramps are recalibrated to these anchors,
+with ten seconds of Exhausted and four seconds of immunity before the second
+ramp. The first Cyclone contributes eight ordinary
+hits; the second holds for 3.11 seconds and also lands its terminal hit. Battle
+End clips the final channel's terminal hit. Each spends five
+separate Phantom Chime bonuses. All four Burn and Bury connections
+land, and duration remains 60 seconds. Scarlet Spin now enforces its exported
+20-second cooldown, keeping the third batch exactly 20 seconds after the second. Bonus damage uses the explicitly
+documented CN fallback; see the Cyclone section in `skill-data.md`.
+
+The user accepted the following results on 17 November 2026. Only the six
+`bamboocutDust/dust-dummy-1-min` cases are refreshed. The 100% PC preset and
+every other rotation retain their accepted values.
+
+| Build                  | Solo Level |      Previous DPS |      Accepted DPS |    Previous damage |   Accepted damage |
+| ---------------------- | ---------: | ----------------: | ----------------: | -----------------: | ----------------: |
+| dust-full-min          |         18 | 78140.20981589983 |  86970.4431015344 |   4688412.58895399 | 5218226.586092064 |
+| dust-full-min          |         19 | 82038.01465667303 | 91383.77734808942 |  4922280.879400382 | 5483026.640885365 |
+| dust-fully-relayed-max |         18 | 73676.43364195916 | 81536.48199988695 |  4420586.018517549 | 4892188.919993217 |
+| dust-fully-relayed-max |         19 | 77657.32295867709 | 85994.02082397901 | 4659439.3775206255 |  5159641.24943874 |
+| dust-fully-relayed-min |         18 | 75630.18059195996 | 83685.26993989614 |  4537810.835517597 | 5021116.196393768 |
+| dust-fully-relayed-min |         19 | 79092.05233583879 | 87571.44407882044 |  4745523.140150327 | 5254286.644729226 |
+
+The user selected a 3.11-second second Cyclone hold on 17 November. It lands
+the terminal hit while retaining the teleport recast and the third Scarlet
+Spin's 42.29031585081585-second start. A full 3.95-second channel cannot retain
+the return recast, whose source window closes at 3.3 seconds. The earlier filler
+comparison preceded the updated Qi ramps; the accepted values above use the
+current second Exhausted anchor.
+
 ## Splendor dummy Peerless correction (November 14, 2026)
 
 The user requested fixing Peerless eligibility after reviewing its roughly

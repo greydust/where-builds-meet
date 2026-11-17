@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2118.
+Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2132.
 
 Traditional Chinese and Korean retain complete catalog coverage.
 Catalog cells include datamined terms, separately authored translations, and retained
@@ -19,3 +19,15 @@ The level-100 script addition fills 143 new cells (13 messages in eleven locales
 Names are recovered from shared datamine references; the three distinct passive
 descriptions are AI-translated and independently AI-reviewed per locale.
 No browser or human language review was performed.
+
+The Dust Cyclone addition fills 154 cells (14 messages in eleven locales),
+bringing every published locale to 2,132 messages. Its base skill name is
+recovered from the 17 November snapshot; simulator modifiers and the charge
+description received independent AI review per language. No browser or human
+language review was performed.
+
+The Dust Cyclone addition fills 154 cells (14 messages in eleven locales),
+bringing every published locale to 2,132 messages. Its base skill name is
+recovered from the 17 November snapshot; simulator modifiers and the charge
+description received independent AI review per language. No browser or human
+language review was performed.

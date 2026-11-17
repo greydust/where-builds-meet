@@ -252,3 +252,16 @@ checked again. Structural batch checks preserve numeric values (decimal commas
 and Japanese repetition counts account for numeric-token warnings).
 Current coverage is 2,118 messages per published locale. No browser visual
 inspection or human language review was performed.
+
+## Dust Cyclone Waltz (November 17, 2026)
+
+Added 14 messages in each of eleven non-English locales. The official umbrella
+special name uses shared reference `10223783907721056490`, decoded base layer,
+in `2026-11-17_02-51-23-199_+0000-GuZnCn/wwm-translations.sqlite`; per-language
+provenance is recorded in the glossary. Phantom Chime terminology is reused
+from the catalog. Separate AI reviewers checked every language's batch.
+Accepted corrections clarify conversion labels, Japanese ongoing channeling,
+and Korean charge consumption. The new Korean short labels use generic
+umbrella special wording to avoid reusing Soulshade's unrelated skill name;
+that correction received a follow-up review. Structural checks found no errors
+or warnings. No rendered UI inspection or human language review was performed.

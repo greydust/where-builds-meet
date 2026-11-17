@@ -1738,6 +1738,73 @@ dodge resets.
 
 ### Bamboocut Dust definitions
 
+#### Cyclone Waltz and Dummy 1 Min (17 November 2026)
+
+`dust-dummy-1-min` retains its opener and three fourteen-throw Scarlet Spin
+batches. After the first batch it channels Cyclone Waltz to converted-charge
+depletion, returns, casts two Bubbles and Burn and Bury. The second batch breaks
+Qi immediately after its first forward hit, then channels Cyclone for 3.11 seconds
+to land its terminal hit before Return,
+Burn and Bury, Flute Cancel and Deflect. The third batch leads into Burn and Bury
+and Cyclone, with Battle End fixed at 60 seconds. The 100% PC preset is unchanged.
+
+Scarlet Spin has a 20-second cooldown from cast start, exported on its opening
+skill `20603202` (normal layer 0); continuation stages have no cooldown. The
+parent skill declares this cooldown so the shared scheduler inserts a wait
+before an early batch. At 35 ms ping, Dummy 1 Min starts its batches at 1.981,
+22.290315850815855 and 42.290315850815855 seconds. The second batch is 0.309315850815855
+seconds after readiness; the third starts exactly on cooldown. All fourteen
+throws in each batch still land before Battle End.
+
+The user-confirmed second Qi break attaches after the last landed ordinary
+Cyclone hit, at 59.8346317016317 seconds. The ordinary hit depletes Qi; its
+subsequently resolved same-contact Phantom Chime bonus observes Exhausted,
+following the existing after-hit attachment ordering. The terminal request at 3.1
+seconds remains beyond Battle End. The first break stays on the second Scarlet
+Spin's first forward hit, at 22.736641446882476 seconds.
+Both ramps use estimated linear depletion between these observed break anchors:
+the opening 60%/40% crossings are 9.094656578752991/13.641984868129486 seconds.
+After ten seconds of Exhausted and four seconds of Qi immunity, the second
+ramp starts at 36.73664144688247 seconds and crosses 60%/40% at
+45.97583754878217/50.595435599732006 seconds. The stored crossing ratios are
+0.5999/0.3999 to satisfy strict low-Qi predicates. These are authored encounter
+markers, not simulated per-hit Qi damage. This sequence supersedes the older
+regular-preset Qi anchors described below.
+
+The 17 November export's `20603102.timings.phantomChime` resolves the
+single-target nominal sequence. Ordinary hits occur at `0.706 + 0.3n`, `n=0..7`.
+Phantom Rally T3 converts the target's Chime charges after the first hit into a
+ten-second self buff, capped at five, and suppresses conversion for 19.9 seconds.
+The target debuff is removed 0.01 seconds later. Each outgoing qualifying hit
+requests one bonus when its 0.4-second cooldown allows and consumes one charge
+after 0.01 seconds. Bonus settlement resets that cooldown at most once per
+one-second marker. Existing tracked effects, triggered skill cooldowns, clearCD
+and authored channel durations model this sequence without a separate damage formula.
+Conversion copies one through five charges using explicit threshold applications.
+
+Five newly converted target charges produce bonus hits at 1.006, 1.306, 1.906,
+2.506 and 2.806 seconds, then depletion at 2.816 seconds. The first preset channel stops at depletion, canceling the
+3.1-second terminal hit. The second holds for 3.11 seconds to land that hit
+before Return, using part of the third Scarlet Spin's cooldown wait without
+delaying it. The final channel continues until Battle End, which
+clips its terminal hit after the third Scarlet Spin's cooldown wait. Return is a separate skill with a
+0.24-second hit and 0.65-second recovery; it cannot spend converted charges.
+Ordinary full-channel recovery is 3.95 seconds. Rotation ping is paid between
+ordered casts, in addition to these nominal clocks. The preset places the
+character near the target for Cyclone and back at nine metres after Return.
+Return destroys the replacement phantom; subsequent Bubbles/Spin can summon anew.
+
+Ordinary and return hits use the exported normal level-100 coefficients
+`0.28129176`, physical flat `77.922` and attribute flat `42.402`.
+The additional calcpoint `2060310204` is explicitly **CN fallback**: fixed level
+100, coefficient `3.4717992`, physical flat `961.74`, attribute flat `523.34`.
+Its five charges are separate activations, not a stack-count damage multiplier.
+Global action/Lua clocks and the accepted Global Android newest-listener-first
+dispatcher establish the timing; the Global calcpoint table lacks the bonus
+definition. Source evidence: the datamine repository's
+`reports/cyclone-phantom-chime.md` and `reports/cyclone-dispatch-queue.json`.
+These are nominal eligible-contact clocks, not measured network/input latency.
+
 Dust implements only the skills its rotations cast. The rotations live at
 `data/rotation/bamboocut-dust/`, and each is the subject of its own DPS snapshot,
 so they are the reference rather than a separate draft. `dust-dummy-1-min-100pc`

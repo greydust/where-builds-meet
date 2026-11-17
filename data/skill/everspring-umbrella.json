@@ -27,6 +27,7 @@
   },
   "ScarletSpin": {
     "name": "Scarlet Spin",
+    "cooldown": 20,
     "ignorePing": true,
     "shortName": "Umbrella Q",
     "castTime": 12,
@@ -766,5 +767,211 @@
       { "type": "trigger", "value": "BubblesResonance", "time": 0 }
     ],
     "tags": ["Triggered", "EverspringUmbrella", "PhantomUmbrella"]
+  },
+  "CycloneWaltz": {
+    "name": "Cyclone Waltz",
+    "shortName": "Umbrella Special",
+    "castTime": 3.95,
+    "editableCastTime": { "effect": "CycloneWaltzChannel", "max": 3.95 },
+    "cooldown": 10,
+    "martialArt": "everspring",
+    "weapon": "Umbrella",
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "EverspringUmbrella", "Special", "CycloneWaltz"],
+    "action": [
+      { "type": "apply", "target": "self", "value": "CycloneWaltzChannel", "time": 0 },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "PhantomUmbrella",
+        "stack": 1,
+        "reapply": true,
+        "time": 0.45,
+        "requirement": [{ "target": "self", "value": "PhantomUmbrella" }]
+      },
+      {
+        "type": "damage",
+        "time": 0.706,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 1.006,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 1.306,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 1.606,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 1.906,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 2.206,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 2.506,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 2.806,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      },
+      {
+        "type": "damage",
+        "time": 3.1,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402,
+        "requirement": [{ "target": "self", "value": "CycloneWaltzChannel" }]
+      }
+    ],
+    "skillBreakdownCategory": "Cyclone Waltz"
+  },
+  "CycloneWaltzReturn": {
+    "name": "Cyclone Waltz [Return]",
+    "shortName": "Umbrella Special Return",
+    "castTime": 0.65,
+    "martialArt": "everspring",
+    "weapon": "Umbrella",
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "EverspringUmbrella", "Special"],
+    "action": [
+      {
+        "type": "damage",
+        "time": 0.24,
+        "phyCoef": 0.28129176,
+        "attrCoef": 0.28129176,
+        "phyBonus": 77.922,
+        "attrBonus": 42.402
+      },
+      { "type": "consume", "target": "self", "value": "PhantomUmbrella", "stack": "all", "time": 0.2 }
+    ],
+    "skillBreakdownCategory": "Cyclone Waltz"
+  },
+  "CycloneChimeConvert": {
+    "name": "Cyclone Waltz Phantom Chime Conversion",
+    "castTime": 0,
+    "tags": ["Triggered"],
+    "action": [
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CyclonePhantomChime",
+        "time": 0,
+        "requirement": [{ "target": "target", "value": "PhantomChime", "stack": 1 }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CyclonePhantomChime",
+        "time": 0,
+        "requirement": [{ "target": "target", "value": "PhantomChime", "stack": 2 }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CyclonePhantomChime",
+        "time": 0,
+        "requirement": [{ "target": "target", "value": "PhantomChime", "stack": 3 }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CyclonePhantomChime",
+        "time": 0,
+        "requirement": [{ "target": "target", "value": "PhantomChime", "stack": 4 }]
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CyclonePhantomChime",
+        "time": 0,
+        "requirement": [{ "target": "target", "value": "PhantomChime", "stack": 5 }]
+      },
+      { "type": "apply", "target": "self", "value": "CycloneChimeSuppression", "time": 0 },
+      { "type": "consume", "target": "target", "value": "PhantomChime", "stack": "all", "time": 0.01 }
+    ]
+  },
+  "CycloneChimeBonus": {
+    "name": "Cyclone Waltz [Phantom Chime]",
+    "castTime": 0,
+    "cooldown": 0.4,
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "EverspringUmbrella", "Special", "Triggered"],
+    "skillBreakdownCategory": "Cyclone Waltz",
+    "action": [
+      {
+        "type": "damage",
+        "time": 0,
+        "phyCoef": 3.4717992,
+        "attrCoef": 3.4717992,
+        "phyBonus": 961.74,
+        "attrBonus": 523.34
+      },
+      {
+        "type": "clearCD",
+        "value": "CycloneChimeBonus",
+        "seconds": 0.4,
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [{ "operator": "not", "operand": [{ "target": "self", "value": "CycloneChimeReset" }] }]
+        }
+      },
+      {
+        "type": "apply",
+        "target": "self",
+        "value": "CycloneChimeReset",
+        "time": 0,
+        "requirement": {
+          "resolveAt": "skillStart",
+          "operand": [{ "operator": "not", "operand": [{ "target": "self", "value": "CycloneChimeReset" }] }]
+        }
+      },
+      { "type": "consume", "target": "self", "value": "CyclonePhantomChime", "time": 0.01 }
+    ]
   }
 }

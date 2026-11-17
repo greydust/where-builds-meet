@@ -49,6 +49,14 @@
           "target": "target",
           "requirement": [{ "target": "skillTag", "value": "PhantomResonance" }],
           "action": [{ "type": "apply", "target": "target", "value": "PhantomChime", "stack": 1, "reapply": true }]
+        },
+        {
+          "requirement": [
+            { "target": "skillTag", "value": "CycloneWaltz" },
+            { "target": "target", "value": "PhantomChime" },
+            { "operator": "not", "operand": [{ "target": "self", "value": "CycloneChimeSuppression" }] }
+          ],
+          "action": [{ "type": "trigger", "value": "CycloneChimeConvert" }]
         }
       ]
     },

@@ -155,6 +155,70 @@ function stacks(result: ReturnType<typeof calculateRotationBaseline>, name: stri
 }
 
 describe("Dust mechanics", () => {
+  it("waits for Scarlet Spin's cooldown from cast start before accepting another batch", () => {
+    const input = bundle({ PhantomRally: 6 })
+    input.timeline.rotation = {
+      name: "Scarlet Spin cooldown",
+      ping: 0,
+      steps: [
+        { type: "skill", skill: "ScarletSpin", duration: 12 },
+        { type: "skill", skill: "ScarletSpin", duration: 12 },
+      ],
+    }
+    const result = calculateRotationBaseline(input)
+    const spins = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "ScarletSpin")
+    expect(spins).toHaveLength(2)
+    expect(spins[1].startTime - spins[0].startTime).toBeCloseTo(20, 10)
+  })
+  it.each([
+    [1, 1.016],
+    [2, 1.316],
+    [3, 1.916],
+    [4, 2.516],
+    [5, 2.816],
+  ])("converts %s target Chime charges and spends them by the nominal depletion time", (charges, depletion) => {
+    const input = bundle({ PhantomRally: 3 })
+    input.timeline.skills.PrimeChime = {
+      name: "Prime Chime",
+      castTime: 0.1,
+      action: [{ type: "apply", target: "target", value: "PhantomChime", stack: charges, time: 0 }],
+    }
+    input.timeline.rotation = {
+      name: "Cyclone depletion",
+      ping: 0,
+      steps: [
+        castStep("PrimeChime"),
+        { type: "skill", skill: "CycloneWaltz", duration: depletion },
+        castStep("CycloneWaltzReturn"),
+        castStep("Hit"),
+      ],
+    }
+    const result = calculateRotationBaseline(input)
+    const cyclone = result.timeline.find(row => row.kind === "rotation" && row.step.skill === "CycloneWaltz")!
+    const bonuses = result.timeline.filter(row => row.step.skill === "CycloneChimeBonus")
+    expect(bonuses).toHaveLength(charges)
+    expect(bonuses.map(row => row.actionStates[0].buffs.get("CyclonePhantomChime")?.stack)).toEqual(
+      Array.from({ length: charges }, (_, i) => charges - i),
+    )
+    expect(cyclone.actionStates[2].debuffs.get("PhantomChime")?.stack).toBe(charges)
+    expect(bonuses.every(row => !row.actionStates[0].debuffs.has("PhantomChime"))).toBe(true)
+    const returned = result.timeline.find(row => row.step.skill === "CycloneWaltzReturn")!
+    expect(returned.startTime - cyclone.startTime).toBeCloseTo(depletion, 10)
+    expect(returned.actionStates[0].buffs.has("CyclonePhantomChime")).toBe(false)
+    expect(result.actionBreakdowns[`${cyclone.id}:10`]).toBeUndefined()
+    const bonusDamage = bonuses.map(row => result.actionBreakdowns[`${row.id}:0`].total)
+    for (const damage of bonusDamage) expect(damage).toBeCloseTo(bonusDamage[0], 8)
+  })
+
+  it("keeps the full Cyclone channel without Phantom Rally T3", () => {
+    const input = bundle({ PhantomRally: 2 })
+    input.timeline.rotation = { name: "Ordinary Cyclone", ping: 0, steps: [castStep("CycloneWaltz"), castStep("Hit")] }
+    const result = calculateRotationBaseline(input)
+    const cyclone = result.timeline[0]
+    expect(cyclone.effectiveCastTime).toBe(3.95)
+    expect(result.timeline.some(row => row.step.skill === "CycloneChimeBonus")).toBe(false)
+    expect(result.actionBreakdowns[`${cyclone.id}:10`].total).toBeGreaterThan(0)
+  })
   it.each([13, 14, 15])("limits rank %s umbrella channel scaling to Martial Art contexts in whole steps", rank => {
     const rules = martialArtEffectsForRank(martialArtDefinitions, ["everspring"], rank).filter(rule => {
       const effect = (rule as EditableObject).effect as EditableObject | undefined
@@ -485,19 +549,14 @@ describe("Dust mechanics", () => {
       rotation.steps.some(step => step.type === "event" && step.event === "BattleEnd" && step.startTime === 60),
     ).toBe(true)
     expect(result.timeline.find(row => row.step.type === "skill" && row.step.skill === "BurnAndBury")!.distance).toBe(9)
-    const fullFlute = result.timeline.find(row => row.step.type === "skill" && row.step.skill === "FluteOfTheTides")!
-    expect(fullFlute.actionStates[2].distance).toBe(9)
-    expect(fullFlute.actionStates[3].distance).toBe(9)
-    for (const row of result.timeline.filter(
-      row => row.step.type === "skill" && row.step.skill === "SoaringSpin2" && row.actionStates[3],
-    )) {
-      expect(row.actionStates[3].distance).toBe(1)
-    }
+    const cyclones = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "CycloneWaltz")
+    expect(cyclones).toHaveLength(3)
+    for (const row of cyclones.filter(row => row.actionStates[2])) expect(row.actionStates[2].distance).toBe(1)
   })
   it.each(
     ["18", "19"].flatMap(breakthrough => [
       { name: "100% PC", rotation: dustPhantomChimeRotation, expectedResonances: 85, breakthrough },
-      { name: "regular", rotation: defaultDustRotation, expectedResonances: 86, breakthrough },
+      { name: "regular", rotation: defaultDustRotation, expectedResonances: 83, breakthrough },
     ]),
   )(
     "resolves the expected Resonances in the $name preset at breakthrough $breakthrough",
@@ -535,7 +594,7 @@ describe("Dust mechanics", () => {
     },
   )
 
-  it("preserves every Burn and Bury connection and lands the closing hit before Battle End", () => {
+  it("lands all three fourteen-throw batches and all four Burn and Bury connections before Battle End", () => {
     const path = typedPathDefinitions.bamboocutDust
     const input = buildPresetRotationBundle(
       {
@@ -562,22 +621,62 @@ describe("Dust mechanics", () => {
       expect(row.startTime + Number(row.actions[hitIndex].time) - result.anchorTime).toBeLessThan(60)
     }
     const spins = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "ScarletSpin")
+    for (let index = 1; index < spins.length; index++) {
+      expect(spins[index].startTime - spins[index - 1].startTime).toBeGreaterThanOrEqual(20 - TIMELINE_TIME_EPSILON)
+    }
     expect(
       spins.map(parent => result.timeline.filter(row => isThrow(row) && row.sourceRowId === parent.id).length),
     ).toEqual([14, 14, 14])
-    const uncorrected = structuredClone(input)
-    const fluteIndex = uncorrected.timeline.rotation.steps.findIndex(step => step.skill === "FluteOfTheTides")
-    uncorrected.timeline.rotation.steps[fluteIndex - 2].skill = "SoaringSpin2"
-    uncorrected.timeline.rotation.steps.splice(fluteIndex - 2, 0, {
-      type: "event",
-      event: "Move",
-      before: { action: 2 },
-      distance: 1,
-    })
-    const broken = calculateRotationBaseline(uncorrected)
-    const missed = broken.timeline.filter(row => row.kind === "rotation" && row.step.skill === "BurnAndBury")[2]
-    expect(missed.actionStates[0].debuffs.has("Soulbreak")).toBe(false)
-    expect(result.metrics.dps).toBeGreaterThan(broken.metrics.dps)
+    const cyclones = result.timeline.filter(row => row.kind === "rotation" && row.step.skill === "CycloneWaltz")
+    expect(cyclones).toHaveLength(3)
+    expect(cyclones[0].effectiveCastTime).toBeCloseTo(2.816, 10)
+    expect(result.actionBreakdowns[`${cyclones[0].id}:10`]).toBeUndefined()
+    expect(result.actionBreakdowns[`${cyclones[1].id}:10`].total).toBeGreaterThan(0)
+    const secondReturn = result.timeline.filter(
+      row => row.kind === "rotation" && row.step.skill === "CycloneWaltzReturn",
+    )[1]
+    expect(secondReturn.startTime - cyclones[1].startTime).toBeLessThan(3.3)
+    expect(spins[2].startTime - spins[1].startTime).toBeCloseTo(20, 10)
+    expect(cyclones[2].effectiveCastTime).toBeGreaterThan(60 - (cyclones[2].startTime - result.anchorTime))
+    const bonuses = result.timeline.filter(row => row.step.skill === "CycloneChimeBonus")
+    expect(bonuses).toHaveLength(15)
+    const secondOpening = result.timeline.find(row => isThrow(row) && row.sourceRowId === spins[1].id)!
+    const firstDamage = secondOpening.actions.findIndex(action => action.type === "damage")
+    const breakEvent = result.timeline.find(
+      row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
+    )!
+    expect(breakEvent.startTime).toBeCloseTo(
+      secondOpening.startTime + Number(secondOpening.actions[firstDamage].time),
+      10,
+    )
+    expect(secondOpening.actionStates[firstDamage].debuffs.has("Exhausted")).toBe(false)
+    expect(secondOpening.actionStates[firstDamage + 1].debuffs.has("Exhausted")).toBe(true)
+    const qiEvents = result.timeline.filter(row => row.step.type === "event" && row.step.event === "Qi")
+    const breaks = qiEvents.filter(
+      row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio === 0,
+    )
+    expect(breaks).toHaveLength(2)
+    const finalCyclone = cyclones[2]
+    const finalBonus = bonuses.at(-1)!
+    expect(breaks[1].startTime).toBeCloseTo(finalBonus.startTime, 10)
+    expect(breaks[1].startTime).toBeCloseTo(finalCyclone.startTime + Number(finalCyclone.actions[9].time), 10)
+    expect(finalCyclone.actionStates[9].debuffs.has("Exhausted")).toBe(false)
+    expect(finalCyclone.actionStates[9].targetQiRatio).toBe(0.3999)
+    expect(finalBonus.actionStates[0].debuffs.has("Exhausted")).toBe(true)
+    expect(finalBonus.actionStates[0].targetQiRatio).toBe(0)
+    expect(finalBonus.actionStates[3].debuffs.has("Exhausted")).toBe(true)
+    const firstBreakTime = breaks[0].startTime - result.anchorTime
+    const resume = firstBreakTime + 14
+    const secondBreakTime = breaks[1].startTime - result.anchorTime
+    const thresholds = qiEvents.filter(
+      row => row.step.type === "event" && row.step.event === "Qi" && row.step.targetQiRatio > 0,
+    )
+    expect(thresholds).toHaveLength(4)
+    expect(thresholds[0].startTime - result.anchorTime).toBeCloseTo(firstBreakTime * 0.4, 10)
+    expect(thresholds[1].startTime - result.anchorTime).toBeCloseTo(firstBreakTime * 0.6, 10)
+    expect(thresholds[2].startTime - result.anchorTime).toBeCloseTo(resume + (secondBreakTime - resume) * 0.4, 10)
+    expect(thresholds[3].startTime - result.anchorTime).toBeCloseTo(resume + (secondBreakTime - resume) * 0.6, 10)
+    expect(result.metrics.breakdown.groupedSkills.find(row => row.name === "Cyclone Waltz")!.hits).toBe(42)
   })
 
   it("registers the Dust 100% Phantom Chime rotation as the path default", () => {

@@ -310,5 +310,31 @@
     "hidden": true,
     "refresh": true,
     "resourceRates": [{ "resource": "Endurance", "consumption": 14 }]
+  },
+  "CyclonePhantomChime": {
+    "name": "Cyclone Waltz - Phantom Chime",
+    "description": "Cyclone Waltz consumes charges to deal additional damage.",
+    "duration": 10,
+    "maxStack": 5,
+    "refresh": true,
+    "trigger": {
+      "event": "beforeDamage",
+      "requirement": [{ "target": "skillTag", "value": "CycloneWaltz" }],
+      "action": { "type": "trigger", "value": "CycloneChimeBonus" }
+    }
+  },
+  "CycloneChimeSuppression": {
+    "name": "Cyclone Waltz Conversion Cooldown",
+    "duration": 19.9,
+    "maxStack": 1,
+    "hidden": true
+  },
+  "CycloneChimeReset": { "name": "Cyclone Waltz Cooldown Reset", "duration": 1, "maxStack": 1, "hidden": true },
+  "CycloneWaltzChannel": {
+    "name": "Cyclone Waltz Channel",
+    "duration": 3.3,
+    "maxStack": 1,
+    "refresh": true,
+    "hidden": true
   }
 }

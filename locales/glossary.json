@@ -12297,5 +12297,159 @@
       "report": "doc/localization-review.md",
       "date": "2026-11-12"
     }
+  },
+  {
+    "locale": "zh-Hant",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "流風回雪",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "zh_tw",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "zh-Hans",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "流风回雪",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "zh_cn",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ja",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "流風回雪",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "ja",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ko",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "설풍의 눈",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "ko",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "es",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Vals Ciclónico",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "es",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "fr",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Valse Cyclonique",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "fr",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "de",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Zykluswalzer",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "de",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "pt",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Valsa do Ciclone",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "pt_br",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "vi",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Gió lướt tuyết quay",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "vi",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "th",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "สายลมหมุนวนหิมะโปรย",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "th",
+      "layer": "base"
+    }
+  },
+  {
+    "locale": "ru",
+    "key": "data.skill.everspringUmbrella.CycloneWaltz.name",
+    "source": "Cyclone Waltz",
+    "translation": "Вальс Циклона",
+    "context": "Everspring Umbrella special skill 20603102, normal variant",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-17_02-51-23-199_+0000-GuZnCn",
+      "reference": "10223783907721056490",
+      "language": "ru",
+      "layer": "base"
+    }
   }
 ]
