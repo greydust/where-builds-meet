@@ -234,3 +234,21 @@ retained their old translations when English mechanics changed. A separate AI
 prepared the replacements; the integrating agent reviewed numeric values,
 source ownership, incoming damage, strict Qi thresholds, and damage channels.
 No browser or native-speaker human review was performed.
+
+## Level-100 scripts (November 17, 2026)
+
+Added 143 cells across all eleven published non-English locales. Voidsky,
+Soullink, and Purewrath names use decoded base-layer translations from
+`2026-11-13_22-03-37-422_+0000-ObxwZA/wwm-translations.sqlite`, references
+`16607455202105959519`, `15231055844499919564`, and `2212928221886346288`,
+respectively. Each reference matches the Global consumable name; the language
+mapping follows the localization workflow. These official names remain intact
+where reviewers suggested stylistic alternatives.
+The three distinct simulator passive descriptions are AI-translated; separate
+AI reviewers checked each target locale. Corrections align Korean, Thai,
+Japanese, Vietnamese, and German mechanics terminology with the catalog and
+improve Spanish and Portuguese phrasing. Revised substantive terminology was
+checked again. Structural batch checks preserve numeric values (decimal commas
+and Japanese repetition counts account for numeric-token warnings).
+Current coverage is 2,118 messages per published locale. No browser visual
+inspection or human language review was performed.

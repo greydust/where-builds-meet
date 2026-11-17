@@ -376,5 +376,11 @@
     "cooldownGroup": "MoraleChant",
     "action": [{ "type": "heal", "phyCoef": 1, "silkbindCoef": 1, "phyBonus": 0, "attrBonus": 0, "time": 0 }],
     "tags": ["Heal", "General", "MoraleChant", "Triggered"]
+  },
+  "PurewrathStack": {
+    "name": "Purewrath Script",
+    "castTime": 0,
+    "action": [{ "type": "apply", "target": "self", "value": "Purewrath", "stack": 1, "time": 0 }],
+    "tags": ["Triggered"]
   }
 }

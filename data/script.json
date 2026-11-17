@@ -76,5 +76,44 @@
       }
     }
   },
-  "None": { "name": "None", "description": "No Script effect.", "effect": {} }
+  "None": { "name": "None", "description": "No Script effect.", "effect": {} },
+  "Voidsky": {
+    "name": "Voidsky Script",
+    "description": "After dealing damage, gains 3.5% Critical DMG for 120 seconds, stacking up to 3 times. Triggers once every 60 seconds.",
+    "image": "voidsky-script.png",
+    "altersTimeline": true,
+    "effect": {
+      "trigger": {
+        "event": "damage",
+        "cooldown": 60,
+        "action": { "type": "apply", "target": "self", "value": "Voidsky", "stack": 1 }
+      }
+    }
+  },
+  "Soullink": {
+    "name": "Soullink Script",
+    "description": "After dealing damage, gains 3.5% Affinity DMG for 120 seconds, stacking up to 3 times. Triggers once every 60 seconds.",
+    "image": "soullink-script.png",
+    "altersTimeline": true,
+    "effect": {
+      "trigger": {
+        "event": "damage",
+        "cooldown": 60,
+        "action": { "type": "apply", "target": "self", "value": "Soullink", "stack": 1 }
+      }
+    }
+  },
+  "Purewrath": {
+    "name": "Purewrath Script",
+    "description": "Every 120 Vitality spent grants 4% Mystic Skill damage for 120 seconds, stacking up to 3 times.",
+    "image": "purewrath-script.png",
+    "altersTimeline": true,
+    "effect": {
+      "trigger": {
+        "event": "skillStart",
+        "requirement": [{ "operator": "not", "operand": [{ "target": "self", "value": "PurewrathCounter" }] }],
+        "action": { "type": "apply", "target": "self", "value": "PurewrathCounter", "stack": 1 }
+      }
+    }
+  }
 }

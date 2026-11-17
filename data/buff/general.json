@@ -537,5 +537,56 @@
     ],
     "shortName": "MW"
   },
-  "BloomRecoveryRemaining": { "name": "Bloom", "duration": 12, "maxStack": 8, "hidden": true, "refresh": true }
+  "BloomRecoveryRemaining": { "name": "Bloom", "duration": 12, "maxStack": 8, "hidden": true, "refresh": true },
+  "Voidsky": {
+    "name": "Voidsky Script",
+    "description": "After dealing damage, gains 3.5% Critical DMG for 120 seconds, stacking up to 3 times. Triggers once every 60 seconds.",
+    "duration": 120,
+    "maxStack": 3,
+    "refresh": true,
+    "showCoverage": true,
+    "stackEffects": [
+      [{ "requirement": [], "effect": { "critDmgBonus": 0.035 } }],
+      [{ "requirement": [], "effect": { "critDmgBonus": 0.07 } }],
+      [{ "requirement": [], "effect": { "critDmgBonus": 0.105 } }]
+    ]
+  },
+  "Soullink": {
+    "name": "Soullink Script",
+    "description": "After dealing damage, gains 3.5% Affinity DMG for 120 seconds, stacking up to 3 times. Triggers once every 60 seconds.",
+    "duration": 120,
+    "maxStack": 3,
+    "refresh": true,
+    "showCoverage": true,
+    "stackEffects": [
+      [{ "requirement": [], "effect": { "affinityDmgBonus": 0.035 } }],
+      [{ "requirement": [], "effect": { "affinityDmgBonus": 0.07 } }],
+      [{ "requirement": [], "effect": { "affinityDmgBonus": 0.105 } }]
+    ]
+  },
+  "Purewrath": {
+    "name": "Purewrath Script",
+    "description": "Every 120 Vitality spent grants 4% Mystic Skill damage for 120 seconds, stacking up to 3 times.",
+    "duration": 120,
+    "maxStack": 3,
+    "refresh": true,
+    "showCoverage": true,
+    "stackEffects": [
+      [{ "requirement": [{ "target": "skillTag", "value": "Mystic" }], "effect": { "dmgBonus": 0.04 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "Mystic" }], "effect": { "dmgBonus": 0.08 } }],
+      [{ "requirement": [{ "target": "skillTag", "value": "Mystic" }], "effect": { "dmgBonus": 0.12 } }]
+    ]
+  },
+  "PurewrathCounter": {
+    "hidden": true,
+    "maxStack": 1,
+    "accumulator": {
+      "event": "resourceSpent:Vitality",
+      "threshold": 120,
+      "checkEvent": "PurewrathStack",
+      "resetOnRefresh": false,
+      "preserveRemainder": true
+    },
+    "listen": [{ "event": "PurewrathStack", "action": { "type": "trigger", "value": "PurewrathStack" } }]
+  }
 }

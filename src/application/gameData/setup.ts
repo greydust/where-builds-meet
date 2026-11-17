@@ -131,6 +131,9 @@ export const typedDivinecraftDefinitions = divinecraftDefinitions as Record<stri
 export type ScriptDefinition = ArsenalDefinition & { description: string; image?: string; altersTimeline?: boolean }
 export const typedScriptDefinitions = scriptDefinitions as Record<string, ScriptDefinition>
 export const scriptDisplayOrder = [
+  "Voidsky",
+  "Soullink",
+  "Purewrath",
   "Wraithstrike",
   "Voidrot",
   "Convergence",

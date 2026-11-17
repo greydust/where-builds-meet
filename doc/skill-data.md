@@ -3090,3 +3090,25 @@ POST and full action end are recovery markers beyond the chosen interrupt.
 The cast duration and action hit times each switch directly on `currentWeapon`.
 One segmented modifier selects the buff-dependent umbrella sword-animation branch,
 shifting its hit by -0.008s and its cast duration by -0.246s.
+
+### Level-100 consumable scripts
+
+Voidsky (230019), Soullink (230020), and Purewrath (230021) use the Global
+layer-0 records in `local/datamine/2026-11-13_22-03-37-422_+0000-ObxwZA/`:
+`wwm-consumables-script.json`, `buff.json`, and `buff_passive_data.json`.
+Voidsky/Soullink apply buffs 109588/109589 after damage, at most once per
+60 seconds. Each stack grants 3.5% Critical/Affinity DMG; stacking refreshes the
+120-second duration and caps at three stacks. The triggering hit is unbuffed.
+Purewrath's passive 1095911 counts each 120 Vitality spent and applies 109590:
+4% Mystic damage per stack, up to three, with the same refreshed duration.
+The hidden counter preserves spending remainders across casts and buff expiry.
+Its tooltip's 30-minute cooldown is not implemented: neither its Global owner
+buff nor its spending passive defines one; 1800 seconds is the consumable lifetime.
+Vitality spending events use the same full cost as the existing consumption
+ledger, including with an empty or unlimited meter. The shared finite-Vitality
+DPS adjustment remains separate. These scripts rebuild comparison timelines.
+Script and Divinecraft selector icons are copied from the named PNGs in
+`local/datamine/2026-11-17_01-57-44-942_+0000-jLQVtC/image/script/`.
+Scorching Flame and Cinder Ash map to Fire-Water and Fire-Poison; Deep Pool
+and Vast Ocean map to Water-Fire and Water-Poison; Viper's Fire and Condensed
+Malice map to Poison-Fire and Poison-Water. Fire uses the plain Fire Oil icon.

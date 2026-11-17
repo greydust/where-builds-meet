@@ -9,12 +9,19 @@ import convergenceScriptImage from "@/assets/script/convergence-script.png?quali
 import detachmentScriptImage from "@/assets/script/detachment-script.png?quality=85&format=webp"
 import insightScriptImage from "@/assets/script/insight-script.png?quality=85&format=webp"
 import opportunityScriptImage from "@/assets/script/opportunity-script.png?quality=85&format=webp"
+import purewrathScriptImage from "@/assets/script/purewrath-script.png?quality=85&format=webp"
 import revelryScriptImage from "@/assets/script/revelry-script.png?quality=85&format=webp"
+import soullinkScriptImage from "@/assets/script/soullink-script.png?quality=85&format=webp"
 import voidrotScriptImage from "@/assets/script/voidrot-script.png?quality=85&format=webp"
+import voidskyScriptImage from "@/assets/script/voidsky-script.png?quality=85&format=webp"
 import wraithstrikeScriptImage from "@/assets/script/wraithstrike-script.png?quality=85&format=webp"
 
 // Resolve data filenames through the build image pipeline without coupling game data to Vite.
 export const scriptImages: Record<string, string> = {
+  "voidsky-script.png": voidskyScriptImage,
+  "soullink-script.png": soullinkScriptImage,
+  "purewrath-script.png": purewrathScriptImage,
+
   "convergence-script.png": convergenceScriptImage,
   "detachment-script.png": detachmentScriptImage,
   "insight-script.png": insightScriptImage,

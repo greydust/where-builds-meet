@@ -1957,6 +1957,9 @@ export function buildRotationTimeline(
         ...row.baseResourceConsumption,
         [action.value]: (row.baseResourceConsumption?.[action.value] ?? 0) + baseSpent,
       }
+      // Vitality costs are accounted in full even when its finite-budget meter
+      // is empty or disabled, matching the centralized consumption totals.
+      if (action.value === "Vitality") onResourceSpent?.(action.value, spent)
     }
     if (infiniteResources.has(action.value)) return true
     const current = resources[action.value] ?? 0
@@ -1985,7 +1988,7 @@ export function buildRotationTimeline(
     const spendDelay = resourceSpendRegenDelay[action.value]
     if (typeof spendDelay === "number" && resources[action.value] < current)
       regenSuppressedUntil.set(action.value, currentTimelineTime + spendDelay)
-    if (action.type === "consumeResource" && resources[action.value] < current)
+    if (action.type === "consumeResource" && action.value !== "Vitality" && resources[action.value] < current)
       onResourceSpent?.(action.value, current - resources[action.value])
     return true
   }
