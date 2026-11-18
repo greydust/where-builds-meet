@@ -1789,6 +1789,11 @@ before Return, using part of the third Scarlet Spin's cooldown wait without
 delaying it. The final channel continues until Battle End, which
 clips its terminal hit after the third Scarlet Spin's cooldown wait. Return is a separate skill with a
 0.24-second hit and 0.65-second recovery; it cannot spend converted charges.
+`CycloneWaltzReturnNoHit` retains the same recovery and removes Phantom Umbrella
+at 0.2 seconds, but has no damage contact. The regular Dummy 1 Min preset uses
+this variant for both returns at 9m. Ordinary Waltz and hitting Return damage
+share the Cyclone Waltz breakdown category; converted-charge damage has its own
+Cyclone Waltz - Phantom Chime category.
 Ordinary full-channel recovery is 3.95 seconds. Rotation ping is paid between
 ordered casts, in addition to these nominal clocks. The preset places the
 character near the target for Cyclone and back at nine metres after Return.

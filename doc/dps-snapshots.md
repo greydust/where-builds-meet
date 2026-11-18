@@ -1209,3 +1209,20 @@ The other 280 cases, including Mixed, remain unchanged.
 | ------------------------------------------- | ----------------: | ----------------: | --------------------: | ----------------: |
 | Pure                                        | 86641.71613698362 | 84777.89024553973 |     5198502.968219018 | 5086673.414732384 |
 | Pure Infinite Vitality                      | 87155.87336560305 | 85195.95576459727 |     5229352.401936183 | 5111757.345875835 |
+
+## Dust distant Waltz returns (November 18, 2026)
+
+The user accepted the regular Dummy 1 Min correction and requested a Dust-only
+release. Both returns at 9m use Cyclone Waltz [Return][No Hit], preserving cast
+timing and Phantom Umbrella removal while removing their damage and associated
+damage-triggered effects. Phantom Chime bonus damage has a separate breakdown
+category. All durations remain 60 seconds; the 100% PC rotation is unchanged.
+
+| Build             | BT  | Previous DPS      | Accepted DPS      |
+| ----------------- | --- | ----------------- | ----------------- |
+| Full Min          | 18  | 86970.4431015344  | 86614.85101461336 |
+| Full Min          | 19  | 91383.77734808942 | 91009.74338967766 |
+| Fully Relayed Max | 18  | 81536.48199988695 | 81222.11740441418 |
+| Fully Relayed Max | 19  | 85994.02082397901 | 85662.43508254348 |
+| Fully Relayed Min | 18  | 83685.26993989614 | 83363.83592025543 |
+| Fully Relayed Min | 19  | 87571.44407882044 | 87235.20669433784 |

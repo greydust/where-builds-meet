@@ -210,6 +210,30 @@ describe("Dust mechanics", () => {
     for (const damage of bonusDamage) expect(damage).toBeCloseTo(bonusDamage[0], 8)
   })
 
+  it("returns without a hit while preserving recovery and removing the phantom umbrella", () => {
+    const results = ["CycloneWaltzReturn", "CycloneWaltzReturnNoHit"].map(skill => {
+      const input = bundle()
+      input.timeline.skills.PrimeUmbrella = {
+        name: "Prime Umbrella",
+        castTime: 0,
+        action: [{ type: "apply", target: "self", value: "PhantomUmbrella", time: 0 }],
+      }
+      input.timeline.rotation = {
+        name: "Return contact",
+        ping: 0,
+        steps: [castStep("PrimeUmbrella"), castStep(skill), castStep("Hit")],
+      }
+      return calculateRotationBaseline(input)
+    })
+    const followingHits = results.map(result => result.timeline.find(row => row.step.skill === "Hit")!)
+    expect(followingHits[1].startTime).toBe(followingHits[0].startTime)
+    for (const hit of followingHits) expect(hit.actionStates[0].buffs.has("PhantomUmbrella")).toBe(false)
+    const returned = results[1].timeline.find(row => row.step.skill === "CycloneWaltzReturnNoHit")!
+    expect(returned.actionStates[0].buffs.has("PhantomUmbrella")).toBe(true)
+    expect(results[1].baseline.some(entry => entry.sourceRowId === returned.id)).toBe(false)
+    expect(results[0].metrics.totalDamage).toBeGreaterThan(results[1].metrics.totalDamage)
+  })
+
   it("keeps the full Cyclone channel without Phantom Rally T3", () => {
     const input = bundle({ PhantomRally: 2 })
     input.timeline.rotation = { name: "Ordinary Cyclone", ping: 0, steps: [castStep("CycloneWaltz"), castStep("Hit")] }
@@ -633,7 +657,7 @@ describe("Dust mechanics", () => {
     expect(result.actionBreakdowns[`${cyclones[0].id}:10`]).toBeUndefined()
     expect(result.actionBreakdowns[`${cyclones[1].id}:10`].total).toBeGreaterThan(0)
     const secondReturn = result.timeline.filter(
-      row => row.kind === "rotation" && row.step.skill === "CycloneWaltzReturn",
+      row => row.kind === "rotation" && row.step.skill === "CycloneWaltzReturnNoHit",
     )[1]
     expect(secondReturn.startTime - cyclones[1].startTime).toBeLessThan(3.3)
     expect(spins[2].startTime - spins[1].startTime).toBeCloseTo(20, 10)
@@ -676,7 +700,10 @@ describe("Dust mechanics", () => {
     expect(thresholds[1].startTime - result.anchorTime).toBeCloseTo(firstBreakTime * 0.6, 10)
     expect(thresholds[2].startTime - result.anchorTime).toBeCloseTo(resume + (secondBreakTime - resume) * 0.4, 10)
     expect(thresholds[3].startTime - result.anchorTime).toBeCloseTo(resume + (secondBreakTime - resume) * 0.6, 10)
-    expect(result.metrics.breakdown.groupedSkills.find(row => row.name === "Cyclone Waltz")!.hits).toBe(42)
+    expect(result.metrics.breakdown.groupedSkills.find(row => row.name === "Cyclone Waltz")!.hits).toBe(25)
+    expect(result.metrics.breakdown.groupedSkills.find(row => row.name === "Cyclone Waltz - Phantom Chime")!.hits).toBe(
+      15,
+    )
   })
 
   it("registers the Dust 100% Phantom Chime rotation as the path default", () => {
