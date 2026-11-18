@@ -24,6 +24,8 @@ it("every published locale covers the complete English catalog", async () => {
 })
 
 const technicalTerms = new Set([
+  // User-requested abbreviation for the simulator encounter buff.
+  "BGDB",
   "DPS",
   "HPS",
   "OCR",

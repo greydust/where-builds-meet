@@ -17,17 +17,16 @@ vi.mock("@/stores/dpsStore", async () => {
   return mockDpsStore()
 })
 
-dpsResolves("editorTimeline", async request => ({
-  ...calculateEditorTimeline(request.build().timeline),
-  fingerprint: "editor-test",
-}))
-
 let container: HTMLDivElement
 let root: Root
 globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 beforeEach(async () => {
   resetDpsMock()
+  dpsResolves("editorTimeline", async request => ({
+    ...calculateEditorTimeline(request.build().timeline),
+    fingerprint: "editor-test",
+  }))
   localStorage.clear()
   sessionStorage.clear()
   vi.useFakeTimers()
@@ -113,7 +112,7 @@ it("opens action anchors on selection but allows their rows to remain collapsed"
   expect(expandButton().getAttribute("aria-expanded")).toBe("true")
 })
 
-it("moves an after-start Qi event to the adjacent action instead of the first damage target", async () => {
+it("reattaches an edited Qi event to the next action near its new time", async () => {
   localStorage.setItem("wwm-path-session-v1", "silkbindDeluge")
   localStorage.setItem("wwm-active-rotation-by-path-v1", JSON.stringify({ silkbindDeluge: "after-start" }))
   localStorage.setItem(
@@ -142,7 +141,7 @@ it("moves an after-start Qi event to the adjacent action instead of the first da
   const timeInput = eventRow.querySelector<HTMLInputElement>('input[aria-label="Start Time"]')!
   expect(timeInput).not.toBeNull()
   await act(async () => {
-    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(timeInput, "3.25")
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(timeInput, "0.2")
     timeInput.dispatchEvent(new Event("input", { bubbles: true }))
     timeInput.dispatchEvent(new FocusEvent("focusout", { bubbles: true }))
     await vi.advanceTimersByTimeAsync(200)
@@ -162,6 +161,9 @@ it("moves an after-start Qi event to the adjacent action instead of the first da
   )
   expect(movedQi).toMatchObject({ after: { action: "start" } })
   expect(movedQi).not.toHaveProperty("startTime")
+  const movedIndex = latestBundle.timeline.rotation.steps.indexOf(movedQi!)
+  expect(movedIndex).toBeGreaterThan(0)
+  expect(latestBundle.timeline.rotation.steps[movedIndex + 1]).toMatchObject({ skill: "SereneBreeze" })
 })
 
 it("shows generated attacks relative to battle start and round-trips every manual event clock", async () => {
@@ -176,6 +178,7 @@ it("shows generated attacks relative to battle start and round-trips every manua
     { type: "event", event: "Hellfire", startTime: 1, amount: 1 },
     { type: "event", event: "Controlled", startTime: 1, duration: 1 },
     { type: "event", event: "ShieldBroken", startTime: 1 },
+    { type: "event", event: "BossGeneralDamageBoost", startTime: 1, duration: 10, damageBonus: 0.2 },
     { type: "event", event: "BattleEnd", startTime: 8 },
   ]
   localStorage.setItem("wwm-path-session-v1", "silkbindDeluge")
@@ -242,6 +245,83 @@ it("shows generated attacks relative to battle start and round-trips every manua
     expect(latest.eventTimeReference).toBe("battleStart")
     expect(latest.steps[stepIndex].startTime).toBe(time)
   }
+  const bossIndex = dpsBundles("editorTimeline")
+    .at(-1)!
+    .timeline.rotation.steps.findIndex(
+      (step: RotationStep) => step.type === "event" && step.event === "BossGeneralDamageBoost",
+    )
+  const bossRow = container.querySelector<HTMLElement>(`[data-rotation-step-index="${bossIndex}"]`)!
+  const bossInputs = bossRow.querySelectorAll<HTMLInputElement>(".rotation-buff-cell input")
+  expect([...bossInputs].map(input => input.value)).toEqual(["10", "20"])
+  expect(bossRow.querySelector(".rotation-boss-boost-percentage i")?.textContent).toBe("%")
+  expect(bossRow.querySelector('[data-mobile-label="Cast Time"] input')).toBeNull()
+  for (const [label, value] of [
+    ["Duration(s)", "2.5"],
+    ["Bonus", "12.5"],
+  ]) {
+    const input = container.querySelector<HTMLInputElement>(
+      `[data-rotation-step-index="${bossIndex}"] .rotation-buff-cell input[aria-label="${label}"]`,
+    )!
+    const requestsBeforeTyping = dpsBundles("editorTimeline").length
+    // Each field edit must commit before reading the next rendered control.
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, value)
+      input.dispatchEvent(new Event("input", { bubbles: true }))
+      await vi.advanceTimersByTimeAsync(200)
+    })
+    expect(input.value).toBe(value)
+    expect(dpsBundles("editorTimeline")).toHaveLength(requestsBeforeTyping)
+    let finishCalculation: (() => void) | undefined
+    dpsResolves(
+      "editorTimeline",
+      request =>
+        new Promise(resolve => {
+          finishCalculation = () =>
+            resolve({ ...calculateEditorTimeline(request.build().timeline), fingerprint: "editor-test" })
+        }),
+    )
+    // Commit only after the local draft has rendered.
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      switch (label) {
+        case "Duration(s)":
+          input.dispatchEvent(new FocusEvent("focusout", { bubbles: true }))
+          break
+        case "Bonus":
+          input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }))
+          break
+      }
+      await vi.advanceTimersByTimeAsync(200)
+    })
+    expect(dpsBundles("editorTimeline").length).toBeGreaterThan(requestsBeforeTyping)
+    // The newly committed value must remain visible while the worker is pending.
+    expect(
+      container.querySelector<HTMLInputElement>(
+        `[data-rotation-step-index="${bossIndex}"] .rotation-buff-cell input[aria-label="${label}"]`,
+      )!.value,
+    ).toBe(value)
+    expect(finishCalculation).toBeDefined()
+    // Resolve this revision before editing the next field.
+    // eslint-disable-next-line no-await-in-loop
+    await act(async () => {
+      finishCalculation!()
+      await vi.advanceTimersByTimeAsync(200)
+    })
+    expect(
+      container.querySelector<HTMLInputElement>(
+        `[data-rotation-step-index="${bossIndex}"] .rotation-buff-cell input[aria-label="${label}"]`,
+      )!.value,
+    ).toBe(value)
+    dpsResolves("editorTimeline", async request => ({
+      ...calculateEditorTimeline(request.build().timeline),
+      fingerprint: "editor-test",
+    }))
+  }
+  expect(dpsBundles("editorTimeline").at(-1)!.timeline.rotation.steps[bossIndex]).toMatchObject({
+    duration: 2.5,
+    damageBonus: 0.125,
+  })
   await click("Save")
   const saved = JSON.parse(localStorage.getItem("wwm-rotation-list-session-v1")!).find(
     (entry: { id: string }) => entry.id === "event-clocks",
@@ -253,4 +333,35 @@ it("shows generated attacks relative to battle start and round-trips every manua
           .startTime,
     ),
   ).toEqual([...events.slice(0, -1).map(() => 1.25), 9])
+})
+
+it("renders the active BGDB buff with the red badge treatment", async () => {
+  localStorage.setItem("wwm-path-session-v1", "silkbindDeluge")
+  localStorage.setItem("wwm-active-rotation-by-path-v1", JSON.stringify({ silkbindDeluge: "red-bgdb" }))
+  localStorage.setItem(
+    "wwm-rotation-list-session-v1",
+    JSON.stringify([
+      {
+        id: "red-bgdb",
+        martialArts: ["panaceaFan", "soulshadeUmbrella"],
+        rotation: {
+          name: "Red BGDB",
+          eventTimeReference: "battleStart",
+          start: { step: 1 },
+          steps: [
+            { type: "event", event: "BossGeneralDamageBoost", startTime: 0, duration: 10, damageBonus: 0.2 },
+            { type: "skill", skill: "SereneBreeze" },
+          ],
+        },
+      },
+    ]),
+  )
+  await act(async () => root.render(<App />))
+  await openRotationEditorTab(container, () => click("Rotation Editor"))
+  await act(async () => vi.advanceTimersByTimeAsync(300))
+  const badge = [...container.querySelectorAll<HTMLElement>(".effect-plate")].find(plate =>
+    plate.textContent?.includes("BGDB"),
+  )
+  expect(badge).toBeDefined()
+  expect(badge!.classList.contains("effect-plate-general-debuff")).toBe(true)
 })

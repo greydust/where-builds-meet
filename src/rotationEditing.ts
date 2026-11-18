@@ -5,7 +5,7 @@ import {
   type AttachedEventTarget,
   type RotationRecord,
   type RotationStep,
-} from "./calculations/rotationTimeline"
+} from "@/calculations/rotationTimeline"
 
 /** Replace legacy Slide openers without shifting battle or attached-event anchors. */
 export function migrateGeneralsBaneSlides(rotation: RotationRecord): RotationRecord {
@@ -263,40 +263,46 @@ export function normalizeRotationStart(start: RotationRecord["start"], steps: Ro
   return attached >= 0 ? { step: attached } : undefined
 }
 
-/**
- * Resolve the target currently governing an event. Explicit authored anchors
- * win; a fixed-time event without one falls back to the nearest prior action so
- * its arrow buttons still have a stable place in the ordered target list.
+/** Resolve the current target, or its directional neighbor for an arrow move.
+ * Fixed-time events use their live clock rather than retained attachment metadata.
+ * Between actions, an arrow selects the nearest action in its direction.
  */
 export function resolveAttachmentTargetIndex(
   steps: RotationStep[],
   stepIndex: number,
   targets: readonly RotationAttachmentTarget[],
   fallbackTime?: number,
+  direction: -1 | 0 | 1 = 0,
 ): number {
+  const adjacent = (index: number) => {
+    const next = index + direction
+    return next >= 0 && next < targets.length ? next : -1
+  }
   const step = steps[stepIndex]
   const target = attachedTargetForStep(step)
   const anchorStepIndex = attachedEventAnchorStepIndex(steps, stepIndex)
-  if (target && anchorStepIndex >= 0) {
+  if (!isFixedTimeEvent(step) && target && anchorStepIndex >= 0) {
     const anchoredIndex = targets.findIndex(
       candidate => candidate.sourceStepIndex === anchorStepIndex && targetsMatch(candidate.target, target),
     )
-    if (anchoredIndex >= 0) return anchoredIndex
+    if (anchoredIndex >= 0) return adjacent(anchoredIndex)
     const anchorStart = targets.findIndex(candidate => candidate.sourceStepIndex === anchorStepIndex)
-    if (anchorStart >= 0) return anchorStart
+    if (anchorStart >= 0) return adjacent(anchorStart)
   }
   if (fallbackTime !== undefined && Number.isFinite(fallbackTime)) {
     const exactIndex = targets.findIndex(
       candidate => candidate.time !== undefined && Math.abs(candidate.time - fallbackTime) <= 1e-4,
     )
-    if (exactIndex >= 0) return exactIndex
+    if (exactIndex >= 0) return adjacent(exactIndex)
+    if (direction === 1)
+      return targets.findIndex(candidate => candidate.time !== undefined && candidate.time > fallbackTime)
     let previousIndex = -1
     targets.forEach((candidate, index) => {
       if (candidate.time !== undefined && candidate.time <= fallbackTime) previousIndex = index
     })
-    if (previousIndex >= 0) return previousIndex
+    if (previousIndex >= 0 || direction === -1) return previousIndex
   }
-  return targets.length ? 0 : -1
+  return targets.length ? adjacent(0) : -1
 }
 
 /** Convert a fixed-time event back into an action attachment at a new target. */

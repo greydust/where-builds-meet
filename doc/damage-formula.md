@@ -1429,3 +1429,12 @@ so changed critical rates, healing, HP, and overheal collectors are resolved aga
 Source: normal/layer-zero set 29 in the 2026-10-21 16:50 local datamine export.
 The grey variant retains older full-HP-only wording. Refresh and teammate eligibility
 are confirmed game behavior supplied by the user.
+
+## Manual boss damage boost
+
+Boss General Damage Boost is a manual encounter event. Its duration in seconds
+and general damage bonus percentage are entered in the rotation Buff column,
+duration first. The stored `damageBonus` is a decimal ratio and adds to Category 1
+(`dmgBonus`) for hits during the active interval, including the start and
+excluding expiry. It does not consume cast time. Reapplying replaces the amount
+and restarts the duration; overlapping activations do not stack.

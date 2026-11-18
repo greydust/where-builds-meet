@@ -735,6 +735,42 @@
     font: inherit;
   }
 
+  .rotation-boss-boost-control {
+    display: flex;
+    align-items: start;
+    gap: var(--space-xs);
+
+    & > label {
+      display: grid;
+      gap: var(--space-3xs);
+      inline-size: max-content;
+    }
+
+    & input {
+      inline-size: 4rem;
+      padding: var(--space-2xs);
+    }
+  }
+
+  .rotation-boss-boost-percentage {
+    position: relative;
+    inline-size: 4rem;
+
+    & input {
+      padding-inline-end: var(--space-md);
+    }
+
+    & i {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-end: var(--space-2xs);
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-style: normal;
+      pointer-events: none;
+    }
+  }
+
   .rotation-effect-event-control {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 0.6fr);

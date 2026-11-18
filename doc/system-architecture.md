@@ -2716,3 +2716,19 @@ active sheet and surviving gear-comparison bundles cached. Inventory updates als
 preserve build objects whose equipped assignments have not changed; deleting worn
 gear still clears its assignments in every editable build and refreshes affected
 calculations.
+
+### Parameterized encounter buff
+
+`BossGeneralDamageBoost` is a fixed-time or attached manual event with
+`duration` and decimal-ratio `damageBonus`. The editor places both controls in
+the Buff column. Its zero-cast-time apply action supplies per-activation
+`appliedEffectRules` to the shared tracked-effect lifecycle. These rules replace
+the static effect list for that activation and use the same prepared damage
+aggregation and immutable hit snapshots as ordinary buffs. The one-stack shared
+buff replaces its amount and refreshes its expiry on reapplication. Rotation
+import and persistence retain both parameters.
+
+Event arrow reattachment uses the edited fight-relative timestamp even when a
+fixed event retains an older attachment. From a time between actions, up chooses
+the nearest earlier action and down the nearest later action. Once attached,
+the arrows retain ordinary neighboring-action and sibling ordering.
