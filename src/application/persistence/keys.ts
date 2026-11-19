@@ -1,4 +1,5 @@
-export const rotationEventLimitStorageKey = "wwm-rotation-event-limit-v1"
+export const legacyRotationEventLimitStorageKey = "wwm-rotation-event-limit-v1"
+export const rotationEventLimitStorageKey = "wwm-rotation-event-limit-v2"
 export const gearSearchMinutesStorageKey = "wwm-gear-search-minutes-v1"
 export const localeStorageKey = "wwm-locale"
 export const displaySizingStorageKey = "wwm-display-sizing-v1"
@@ -41,6 +42,7 @@ export const applicationStorageKeys = new Set([
   displaySizingStorageKey,
   gearSearchMinutesStorageKey,
   rotationEventLimitStorageKey,
+  legacyRotationEventLimitStorageKey,
   developmentModeStorageKey,
   characterStatsStorageKey,
   legacyCharacterStatsStorageKey,

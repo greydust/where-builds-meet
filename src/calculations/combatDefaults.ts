@@ -2,7 +2,7 @@ import bossData from "@gamedata/boss.json"
 
 export const DEFAULT_TARGET_HP_RATIO = 0.99
 
-export const DEFAULT_ROTATION_EVENT_LIMIT = 5000
+export const DEFAULT_ROTATION_EVENT_LIMIT = 6000
 
 export const DEFAULT_PING_MS = 40
 

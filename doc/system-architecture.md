@@ -582,13 +582,27 @@ publishes metrics globally only when it is also active.
 ### Combat timeline event limit
 
 Settings stores the rotation event limit separately from saved rotations under
-`wwm-rotation-event-limit-v1`. It defaults to 5,000 processed combat events;
+`wwm-rotation-event-limit-v2`. It defaults to 6,000 processed combat events;
 `0` disables the cap. Positive limits must be safe integers. The application
 passes the selected limit into editor, baseline, comparison, gear-search and
 graduation timeline bundles. It is part of their fingerprints, so changing it
 refreshes calculations and editor previews. Exceeding a positive limit reports
 an error rather than returning a partial timeline. Direct timeline callers that
-omit the option retain the legacy defaults (5,000, or 20,000 for outcome states).
+omit the option retain the defaults (6,000, or 20,000 for outcome states).
+
+The loader migrates v1 only when v2 is absent: 5,000 becomes 6,000,
+while other valid caps, including Unlimited (0), are preserved. Invalid legacy
+values use the new default. The v2 value takes precedence thereafter, including
+an explicitly chosen 5,000. Legacy storage cannot distinguish an explicit 5,000
+from the former default, so both migrate. A blocked storage write uses the
+migrated value in memory and retries next load. Rotation records are unchanged.
+
+Strength includes the supplied Mixed Mhysa 5 Min and Pure Mhysa 5 Min presets with
+their authored skill steps, combat start, 20 ms ping and infinite Vitality settings.
+Both end at 300 seconds. Added Qi thresholds linearly approach the supplied
+exhaustion anchors (195.84365059452395s mixed, 206.23648392785742s pure at
+20 ms); the mixed rotation reaches 60% again after the 14-second exhaustion
+and protection window using the same depletion duration.
 
 All bundled rotation presets explicitly store ping, including the empty planner
 preset, so changes to Settings ping do not change their timelines. Most use
@@ -1533,7 +1547,7 @@ Refreshing can either preserve or restart the cadence according to
 use this shared scheduler and differ only in row classification, damage rules,
 and source-cast presentation.
 
-The simulator has a 5,000-event safety limit to prevent accidental infinite
+The simulator has a 6,000-event safety limit to prevent accidental infinite
 trigger chains. Exceeding it raises an error rather than publishing a truncated
 timeline with a misleading duration. This accommodates Wind's complete authored
 sequence with Hellfire ticks and automatic Enhanced Rodent Rampage attacks.
@@ -2671,7 +2685,7 @@ tiny-history expiry merging.
 Advancing unchanged state skips compaction. Rule requirements are evaluated once
 per contact, and branches without an eligible Affinity transition do not split
 or recalculate Affinity. Exact-cadence expected timelines retain their 20,000-event
-bound; ordinary timelines keep 5,000.
+bound; ordinary timelines keep 6,000.
 
 Tiny states below the common 1e-5 threshold preserve probability, cell presence
 and integer stacks. Compatible tiny states merge expiry times by probability

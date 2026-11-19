@@ -7251,6 +7251,818 @@
       "totalHealing": 0,
       "duration": 60
     },
+    "stonesplitStrength/mhysa-5-min/mixed-full-min/18": {
+      "fixture": {
+        "build": "mixed-full-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 83026.38789692048,
+      "totalDamage": 24907916.369076144,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-full-min/19": {
+      "fixture": {
+        "build": "mixed-full-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 87151.00623480194,
+      "totalDamage": 26145301.870440584,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-double-min/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-double-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 79946.3765209774,
+      "totalDamage": 23983912.956293218,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-double-min/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-double-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 83647.0445174061,
+      "totalDamage": 25094113.35522183,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-max/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-max",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 76902.10595141165,
+      "totalDamage": 23070631.785423495,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-max/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-max",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 81347.01661556515,
+      "totalDamage": 24404104.984669544,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-min/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 79821.14024877535,
+      "totalDamage": 23946342.074632607,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/mixed-fully-relayed-min/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 83877.13833699976,
+      "totalDamage": 25163141.50109993,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-full-min/18": {
+      "fixture": {
+        "build": "pure-full-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 62227.41005373662,
+      "totalDamage": 18668223.016120985,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-full-min/19": {
+      "fixture": {
+        "build": "pure-full-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 65009.91094479891,
+      "totalDamage": 19502973.283439673,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-fully-relayed-max/18": {
+      "fixture": {
+        "build": "pure-fully-relayed-max",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 58113.758879324996,
+      "totalDamage": 17434127.663797498,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-fully-relayed-max/19": {
+      "fixture": {
+        "build": "pure-fully-relayed-max",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 61666.97150352349,
+      "totalDamage": 18500091.451057047,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-fully-relayed-min/18": {
+      "fixture": {
+        "build": "pure-fully-relayed-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 59786.741087951996,
+      "totalDamage": 17936022.3263856,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-5-min/pure-fully-relayed-min/19": {
+      "fixture": {
+        "build": "pure-fully-relayed-min",
+        "rotation": "mhysa-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 62962.146645958725,
+      "totalDamage": 18888643.993787616,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-full-min/18": {
+      "fixture": {
+        "build": "mixed-full-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 66698.3492591243,
+      "totalDamage": 20009504.77773729,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-full-min/19": {
+      "fixture": {
+        "build": "mixed-full-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 70431.39815590603,
+      "totalDamage": 21129419.44677181,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-double-min/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-double-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 63682.24095533279,
+      "totalDamage": 19104672.286599837,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-double-min/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-double-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 66756.5796654246,
+      "totalDamage": 20026973.89962738,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-max/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-max",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 61579.874908532336,
+      "totalDamage": 18473962.4725597,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-max/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-max",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 65576.83892427158,
+      "totalDamage": 19673051.677281473,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-min/18": {
+      "fixture": {
+        "build": "mixed-fully-relayed-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 63630.242170422265,
+      "totalDamage": 19089072.65112668,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/mixed-fully-relayed-min/19": {
+      "fixture": {
+        "build": "mixed-fully-relayed-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 67267.07076316445,
+      "totalDamage": 20180121.228949334,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-full-min/18": {
+      "fixture": {
+        "build": "pure-full-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 79064.43490841058,
+      "totalDamage": 23719330.472523175,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-full-min/19": {
+      "fixture": {
+        "build": "pure-full-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 82530.63736764614,
+      "totalDamage": 24759191.21029384,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-fully-relayed-max/18": {
+      "fixture": {
+        "build": "pure-fully-relayed-max",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 73731.63638559254,
+      "totalDamage": 22119490.915677764,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-fully-relayed-max/19": {
+      "fixture": {
+        "build": "pure-fully-relayed-max",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 78179.48309851222,
+      "totalDamage": 23453844.929553665,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-fully-relayed-min/18": {
+      "fixture": {
+        "build": "pure-fully-relayed-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "18",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 75888.0992035703,
+      "totalDamage": 22766429.76107109,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
+    "stonesplitStrength/mhysa-pure-5-min/pure-fully-relayed-min/19": {
+      "fixture": {
+        "build": "pure-fully-relayed-min",
+        "rotation": "mhysa-pure-5-min",
+        "martialArts": ["snowparting", "phalanxbane"],
+        "breakthrough": "19",
+        "ping": 20,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 79853.85072861718,
+      "totalDamage": 23956155.218585152,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 300
+    },
     "stonesplitStrength/mixed-dummy-1-min/mixed-full-min/18": {
       "fixture": {
         "build": "mixed-full-min",

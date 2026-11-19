@@ -11,7 +11,7 @@ import {
   typedScriptDefinitions,
 } from "@/application/gameData/setup"
 import { DEFAULT_ROTATION_EVENT_LIMIT, resolvePing } from "@/calculations/combatDefaults"
-import { getPersistentItem } from "@/persistentStorage"
+import { getPersistentItem, setPersistentItem } from "@/persistentStorage"
 import { parseJson } from "@/schemas/json"
 import { settingsSchema } from "@/schemas/storage"
 
@@ -20,6 +20,7 @@ import {
   displaySizingStorageKey,
   gearSearchMinutesStorageKey,
   rotationEventLimitStorageKey,
+  legacyRotationEventLimitStorageKey,
   divinecraftStorageKey,
   foodStorageKey,
   enduranceFoodStorageKey,
@@ -118,7 +119,20 @@ export function loadGearSearchMinutes() {
 }
 
 export function loadRotationEventLimit() {
-  const saved = getPersistentItem(rotationEventLimitStorageKey)
+  let saved = getPersistentItem(rotationEventLimitStorageKey)
+  if (saved === null) {
+    const legacy = getPersistentItem(legacyRotationEventLimitStorageKey)
+    if (legacy !== null) {
+      const legacyLimit = Number(legacy)
+      const migrated = legacyLimit === 5000 ? DEFAULT_ROTATION_EVENT_LIMIT : legacyLimit
+      saved = String(Number.isSafeInteger(migrated) && migrated >= 0 ? migrated : DEFAULT_ROTATION_EVENT_LIMIT)
+      try {
+        setPersistentItem(rotationEventLimitStorageKey, saved)
+      } catch {
+        // Still use the migrated value if storage is blocked; retry on the next load.
+      }
+    }
+  }
   const limit = saved === null ? DEFAULT_ROTATION_EVENT_LIMIT : Number(saved)
   return Number.isSafeInteger(limit) && limit >= 0 ? limit : DEFAULT_ROTATION_EVENT_LIMIT
 }

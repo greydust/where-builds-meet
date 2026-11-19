@@ -51,9 +51,16 @@ it.each(["zh-Hant", "ko"])("%s covers every published message without English di
   const [english, translated] = await Promise.all([load("en"), load(locale)])
   expect(Object.keys(translated).sort()).toEqual(Object.keys(english).sort())
 
+  const creatorTitles = [
+    "data.rotation.stonesplitStrength.mhysa5Min.name",
+    "data.rotation.stonesplitStrength.mhysaPure5Min.name",
+  ]
+  for (const key of creatorTitles) expect(translated[key]).toBe(english[key])
   const untranslated: string[] = []
   for (const [key, message] of Object.entries(translated)) {
     expect(message.trim()).not.toBe("")
+    // Preserve the creator's supplied rotation titles in every locale.
+    if (creatorTitles.includes(key)) continue
     const text = message.replace(/\{[A-Za-z][A-Za-z0-9]*\}/g, "")
     const words = text.match(/[A-Za-z]{2,}/g) ?? []
     if (words.some(word => !technicalTerms.has(word))) untranslated.push(`${key}: ${message}`)

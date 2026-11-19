@@ -31,3 +31,8 @@ bringing every published locale to 2,132 messages. Its base skill name is
 recovered from the 17 November snapshot; simulator modifiers and the charge
 description received independent AI review per language. No browser or human
 language review was performed.
+
+The two supplied Mhysa rotation titles are retained verbatim as creator-authored
+names in all eleven non-English locales. This adds 22 populated cells. No
+translation or language review was needed for these preserved titles; browser
+review was not performed.
