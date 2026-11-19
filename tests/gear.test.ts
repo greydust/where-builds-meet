@@ -80,6 +80,33 @@ describe("gear", () => {
           ]),
       "Build affix summaries must count and sort equipped base and additional affixes without counting attunements.",
     )
+    const gearFixturePreset = gear.defaultBuildPresets.find(candidate => candidate.id !== "empty")
+    assert(gearFixturePreset !== undefined, "A non-empty default preset must be available for the gear test fixture.")
+    const namedPresetInventory = gear.buildPresetInventory(gearFixturePreset)
+    const presetItem = namedPresetInventory.items[0]
+    assert(presetItem !== undefined, "The default preset must provide a valid gear test fixture.")
+    const namedInventory = gear.parseGearInventory({
+      items: [{ ...presetItem, id: "named-helmet", name: "Boss Helmet", turnedAffixIndex: 0 }],
+      equipped: {},
+    })
+    const namedItem = namedInventory.items[0]
+    assert(namedItem?.name === "Boss Helmet", "A custom gear name must survive inventory validation.")
+    assert(namedItem !== undefined, "The named gear fixture must parse.")
+    const copiedItem = gear.duplicateGearItem(namedItem, "named-helmet-copy", "Copy of Boss Helmet")
+    assert(
+      copiedItem.id !== namedItem.id &&
+        copiedItem.name === "Copy of Boss Helmet" &&
+        copiedItem.turnedAffixIndex === namedItem.turnedAffixIndex &&
+        copiedItem.additionalAffixes !== namedItem.additionalAffixes &&
+        copiedItem.additionalAffixes[0] !== namedItem.additionalAffixes[0],
+      "Duplicating gear must create a separate item while preserving its retuned affix and values.",
+    )
+    const originalAffixValue = namedItem.additionalAffixes[0].value
+    copiedItem.additionalAffixes[0].value = originalAffixValue + 1
+    assert(
+      namedItem.additionalAffixes[0].value === originalAffixValue,
+      "Editing a duplicated affix must not mutate the original gear item.",
+    )
     assert(
       gear.statRollsForLevel(breakthroughProfiles["17"].level) === gear.statRollsForLevel(96),
       "Enemy levels must select the matching stat roll table.",

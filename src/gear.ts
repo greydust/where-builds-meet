@@ -57,6 +57,8 @@ export type BuildSetupOverrides = Partial<BuildSetup>
 export type GearValue = { key: string; value: number }
 export type GearItem = {
   id: string
+  /** Optional user-defined label for this individual inventory item. */
+  name?: string
   slot?: GearSlot
   definitionId: string
   level: GearLevel
@@ -77,6 +79,17 @@ export function gearAffixKeyForLevel(key: string, level: GearLevel) {
       return "allMysticDmgBoost"
     default:
       return key
+  }
+}
+
+export function duplicateGearItem(item: GearItem, id: string, name: string): GearItem {
+  return {
+    ...item,
+    id,
+    name,
+    baseAffix: { ...item.baseAffix },
+    additionalAffixes: item.additionalAffixes.map(affix => ({ ...affix })),
+    ...(item.attunement ? { attunement: { ...item.attunement } } : {}),
   }
 }
 
@@ -542,8 +555,10 @@ function parseGearItem(value: unknown): GearItem | undefined {
         ? candidate.attunement
         : undefined
   if (candidate.attunement !== undefined && !attunement) return undefined
+  const name = typeof candidate.name === "string" ? candidate.name.trim() : ""
   return {
     id: candidate.id,
+    ...(name ? { name } : {}),
     ...(definition.weapon ? {} : { slot }),
     definitionId: candidate.definitionId,
     level,
@@ -900,6 +915,7 @@ function comparableGearValue(value: GearValue) {
 function gearItemsExactlyMatch(left: GearItem, right: GearItem) {
   if (
     left.definitionId !== right.definitionId ||
+    (left.name ?? "") !== (right.name ?? "") ||
     left.level !== right.level ||
     left.rarity !== right.rarity ||
     Boolean(left.relayed) !== Boolean(right.relayed) ||

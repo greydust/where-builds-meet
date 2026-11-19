@@ -1,4 +1,4 @@
-import { IconAlertTriangle, IconArrowUp, IconEdit, IconTrash } from "@tabler/icons-react"
+import { IconAlertTriangle, IconArrowUp, IconCopy, IconEdit, IconPencil, IconTrash } from "@tabler/icons-react"
 import { useEffect, type ReactNode } from "react"
 
 import { attunementData, gearBaseStats, gearData, type GearItem, type GearSlot } from "@/gear"
@@ -147,12 +147,13 @@ export type GearCardContent = {
 }
 
 export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer, compact = false }: GearCardContent) {
+  const displayName = item?.name?.trim() || name
   return (
     <div className="gear-card-body">
       {(eyebrowLabel || usageCount !== undefined || item?.relayed) && (
         <div className="gear-card-topline">
           {eyebrowLabel && <span className="gear-slot-name">{eyebrowLabel}</span>}
-          {usageCount !== undefined && <strong>{name}</strong>}
+          {usageCount !== undefined && <strong>{displayName}</strong>}
           {usageCount !== undefined && (
             <small className="gear-card-usage">
               {t("ui.buildTab.usedIn")} {usageCount}{" "}
@@ -166,7 +167,7 @@ export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer,
         <>
           <div className="gear-card-heading">
             <div className="gear-card-identity">
-              {usageCount === undefined && <strong>{name}</strong>}
+              {usageCount === undefined && <strong>{displayName}</strong>}
               <small>
                 {item.level} {gearRarityLabel(item.rarity)}
               </small>
@@ -226,6 +227,8 @@ export function AvailableGearCard(props: {
   status?: ReactNode
   onEquip: () => void
   onEdit: () => void
+  onRename: () => void
+  onDuplicate: () => void
   onDelete: () => void
   /** The first click of the two-step delete, which changes the action into a confirmation. */
   deleting: boolean
@@ -274,6 +277,28 @@ export function AvailableGearCard(props: {
       </Button>
       {/* Armed, the action is a warning rather than a trash can: an icon-only confirmation has no
           label to change, so the glyph and the variant are what say so. */}
+      <Button
+        aria-label={t("ui.app.renameNamedProfile", { name: props.item.name || props.name })}
+        title={t("ui.app.renameNamedProfile", { name: props.item.name || props.name })}
+        variant="secondary"
+        size="small"
+        iconOnly
+        type="button"
+        onClick={props.onRename}
+      >
+        <IconPencil size="1em" aria-hidden />
+      </Button>
+      <Button
+        aria-label={t("ui.app.duplicate")}
+        title={t("ui.app.duplicate")}
+        variant="secondary"
+        size="small"
+        iconOnly
+        type="button"
+        onClick={props.onDuplicate}
+      >
+        <IconCopy size="1em" aria-hidden />
+      </Button>
       <Button
         aria-label={props.deleting ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")}
         title={props.deleting ? t("ui.buildTab.confirmDeleteGear") : t("ui.buildTab.deleteGear")}

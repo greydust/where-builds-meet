@@ -32,6 +32,7 @@ import {
   defaultBuildSetup,
   defaultBuildPresets,
   duplicateBuildState,
+  duplicateGearItem,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
@@ -1522,8 +1523,10 @@ function BuildManagement({
       setError(t("ui.buildTab.duplicateAffixError"))
       return
     }
+    const existingItem = editingItemId ? inventory.items.find(candidate => candidate.id === editingItemId) : undefined
     const item: GearItem = {
       id: editingItemId ?? createGearId(),
+      ...(existingItem?.name ? { name: existingItem.name } : {}),
       ...(definition.weapon ? {} : { slot: selectedSlot }),
       definitionId: selected.definitionId,
       level: draft.level,
@@ -1546,6 +1549,30 @@ function BuildManagement({
     setEditingItemId(null)
     setDraft(newDraft())
     setError("")
+  }
+
+  function rename(item: GearItem) {
+    const definitionName = gameText(gearData.gear[item.definitionId]?.name) || t("ui.buildTab.gear")
+    const currentName = item.name?.trim() || ""
+    const nextName = window.prompt(
+      t("ui.app.renameNamedProfile", { name: currentName || definitionName }),
+      currentName,
+    )
+    if (nextName === null) return
+    const name = nextName.trim()
+    onInventoryChange(current => ({
+      ...current,
+      items: current.items.map(candidate =>
+        candidate.id === item.id ? { ...candidate, name: name || undefined } : candidate,
+      ),
+    }))
+  }
+
+  function duplicate(item: GearItem) {
+    const definitionName = item.name?.trim() || gameText(gearData.gear[item.definitionId]?.name) || t("ui.buildTab.gear")
+    const copy = duplicateGearItem(item, createGearId(), t("ui.app.copyOfName", { name: definitionName }))
+    onInventoryChange(current => ({ ...current, items: [...current.items, copy] }))
+    setPendingDeleteId(null)
   }
 
   function equip(item: GearItem) {
@@ -1678,6 +1705,8 @@ function BuildManagement({
                     usageCount={usageCounts.get(item.id) ?? 0}
                     onEquip={() => equip(item)}
                     onEdit={() => beginEdit(item)}
+                    onRename={() => rename(item)}
+                    onDuplicate={() => duplicate(item)}
                     onDelete={() => remove(item)}
                     deleting={pendingDeleteId === item.id}
                     onVisibilityChange={visible => reportVisibility(item.id, visible)}
