@@ -10,7 +10,7 @@ import {
   typedFoodDefinitions,
   typedScriptDefinitions,
 } from "@/application/gameData/setup"
-import { resolvePing } from "@/calculations/combatDefaults"
+import { DEFAULT_ROTATION_EVENT_LIMIT, resolvePing } from "@/calculations/combatDefaults"
 import { getPersistentItem } from "@/persistentStorage"
 import { parseJson } from "@/schemas/json"
 import { settingsSchema } from "@/schemas/storage"
@@ -19,6 +19,7 @@ import {
   developmentModeStorageKey,
   displaySizingStorageKey,
   gearSearchMinutesStorageKey,
+  rotationEventLimitStorageKey,
   divinecraftStorageKey,
   foodStorageKey,
   enduranceFoodStorageKey,
@@ -114,4 +115,10 @@ export function loadGearSearchMinutes() {
   const saved = getPersistentItem(gearSearchMinutesStorageKey)
   const minutes = saved === null ? 2 : Number(saved)
   return Number.isFinite(minutes) && minutes >= 0 ? minutes : 2
+}
+
+export function loadRotationEventLimit() {
+  const saved = getPersistentItem(rotationEventLimitStorageKey)
+  const limit = saved === null ? DEFAULT_ROTATION_EVENT_LIMIT : Number(saved)
+  return Number.isSafeInteger(limit) && limit >= 0 ? limit : DEFAULT_ROTATION_EVENT_LIMIT
 }

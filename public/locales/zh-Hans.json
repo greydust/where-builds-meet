@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "在技能开始时决定",
   "ui.app.rotation": "循环",
   "ui.app.rotationEditor": "循环编辑器",
+  "ui.app.rotationEventLimit": "循环事件上限（0 表示无限制）",
   "ui.app.rotationImportError": "无法导入循环文件。",
   "ui.app.rotationNameRequired": "必须输入循环名称。",
   "ui.app.rotations": "循环",

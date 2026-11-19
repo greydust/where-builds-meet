@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Определять в начале навыка",
   "ui.app.rotation": "Ротация",
   "ui.app.rotationEditor": "Редактор ротации",
+  "ui.app.rotationEventLimit": "Лимит событий ротации (0 — без ограничения)",
   "ui.app.rotationImportError": "Не удалось импортировать файл ротаций.",
   "ui.app.rotationNameRequired": "Необходимо указать название ротации.",
   "ui.app.rotations": "Ротации",

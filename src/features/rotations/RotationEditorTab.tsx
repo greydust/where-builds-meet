@@ -122,6 +122,7 @@ import { resolveSkillCalculationDefinitions, type SkillOverrides } from "@/skill
 import { useDpsStore } from "@/stores/dpsStore"
 import { useLoadoutStore } from "@/stores/loadoutStore"
 import { useRotationStore } from "@/stores/rotationStore"
+import { useSettingsStore } from "@/stores/settingsStore"
 import { type WeaponId } from "@/types"
 import { Button } from "@/ui/Button"
 import { CalculationStatus } from "@/ui/CalculationStatus"
@@ -324,9 +325,11 @@ export function RotationEditorTab({
     script: currentScript,
     divinecraft: currentDivinecraft,
   } = setupSelections
+  const rotationEventLimit = useSettingsStore(state => state.rotationEventLimit)
   const calculationContextKey = useMemo(
     () =>
       calculationFingerprint({
+        rotationEventLimit,
         characterStats: rawCharacterStats,
         attunementStats,
         settings,
@@ -345,6 +348,7 @@ export function RotationEditorTab({
         previewId,
       }),
     [
+      rotationEventLimit,
       rawCharacterStats,
       attunementStats,
       settings,
@@ -1410,6 +1414,7 @@ export function RotationEditorTab({
    * bundle that carries them are the same rotation measured against the same build.
    */
   const calculationSubjectFor = (rotationRecord: RotationRecord): CalculationSubject => ({
+    rotationEventLimit,
     pathId,
     settings,
     skillOverrides,
@@ -1487,6 +1492,7 @@ export function RotationEditorTab({
   })
   const prepareGraduationCalculation = useEffectEvent((rotationRecord: RotationRecord) => {
     const environment: GraduationPresetEnvironment = {
+      rotationEventLimit,
       pathId,
       martialArts: [...settings.weapons],
       rotation: { ...rotationRecord, ping: resolvePing(rotationRecord.ping, settings.ping) },

@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Xác định khi kỹ năng bắt đầu",
   "ui.app.rotation": "Chuỗi chiêu",
   "ui.app.rotationEditor": "Chỉnh sửa chuỗi chiêu",
+  "ui.app.rotationEventLimit": "Giới hạn sự kiện của chuỗi chiêu (0 là không giới hạn)",
   "ui.app.rotationImportError": "Không thể nhập tệp chuỗi chiêu.",
   "ui.app.rotationNameRequired": "Phải có tên chuỗi chiêu.",
   "ui.app.rotations": "Chuỗi chiêu",

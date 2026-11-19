@@ -40,6 +40,7 @@ export type BuildMeasurement = Pick<
  * cached result instead of each calculating their own.
  */
 export type CalculationSubject = {
+  rotationEventLimit?: number
   pathId: PathId
   settings: CalculatorSettings
   skillOverrides: SkillOverrides
@@ -108,6 +109,7 @@ export function buildRotationTimeline(
 
   return {
     rotation,
+    eventLimit: subject.rotationEventLimit,
     skills: overridden.skills,
     eventDefinitions: rotationEventDefinitions,
     dots: overridden.dots,

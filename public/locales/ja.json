@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "スキル開始時に判定",
   "ui.app.rotation": "スキル回し",
   "ui.app.rotationEditor": "スキル回しエディター",
+  "ui.app.rotationEventLimit": "ローテーションのイベント上限（0で無制限）",
   "ui.app.rotationImportError": "スキル回しのファイルをインポートできませんでした。",
   "ui.app.rotationNameRequired": "スキル回し名を入力してください。",
   "ui.app.rotations": "スキル回し",

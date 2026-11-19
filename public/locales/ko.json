@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "스킬 시작 시 해결",
   "ui.app.rotation": "로테이션",
   "ui.app.rotationEditor": "로테이션 에디터",
+  "ui.app.rotationEventLimit": "딜 사이클 이벤트 수 제한 (0은 무제한)",
   "ui.app.rotationImportError": "로테이션 파일을 가져올 수 없습니다.",
   "ui.app.rotationNameRequired": "로테이션 이름을 입력해야 합니다.",
   "ui.app.rotations": "로테이션",

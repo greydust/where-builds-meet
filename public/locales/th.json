@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "กำหนดเมื่อเริ่มทักษะ",
   "ui.app.rotation": "ชุดลำดับทักษะ",
   "ui.app.rotationEditor": "ตัวแก้ไขลำดับทักษะ",
+  "ui.app.rotationEventLimit": "จำกัดจำนวนเหตุการณ์ในชุดท่า (0 คือไม่จำกัด)",
   "ui.app.rotationImportError": "ไม่สามารถนำเข้าไฟล์ชุดลำดับทักษะได้",
   "ui.app.rotationNameRequired": "ต้องระบุชื่อชุดลำดับทักษะ",
   "ui.app.rotations": "ชุดลำดับทักษะ",

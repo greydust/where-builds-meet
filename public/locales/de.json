@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Bei Fertigkeitsbeginn auswerten",
   "ui.app.rotation": "Rotation",
   "ui.app.rotationEditor": "Rotationseditor",
+  "ui.app.rotationEventLimit": "Ereignislimit der Rotation (0 für unbegrenzt)",
   "ui.app.rotationImportError": "Die Rotationsdatei konnte nicht importiert werden.",
   "ui.app.rotationNameRequired": "Ein Rotationsname ist erforderlich.",
   "ui.app.rotations": "Rotationen",

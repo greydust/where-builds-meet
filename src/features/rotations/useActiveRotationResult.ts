@@ -118,6 +118,7 @@ export function useActiveRotationResult(input: ActiveRotationInput) {
     const bundleKey = `${active.entry.id}:${cacheKey}`
 
     const graduation = buildGraduationBundleSet({
+      rotationEventLimit: measurement.environment.rotationEventLimit,
       pathId,
       martialArts: [...measurement.environment.settings.weapons],
       rotation: {

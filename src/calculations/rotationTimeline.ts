@@ -4,6 +4,7 @@ import { finishCalculationPhase, startCalculationPhase } from "./calculationBenc
 import {
   bossDefinitionFor,
   DEFAULT_TARGET_HP_RATIO,
+  DEFAULT_ROTATION_EVENT_LIMIT,
   normalizeEnemyCount,
   normalizePing,
   resolveTargetType,
@@ -620,6 +621,8 @@ function boostDamageCollection(
 }
 
 export type TimelineBuildInput = {
+  /** Maximum processed combat events; 0 disables the limit. */
+  eventLimit?: number
   /** Storage comparison for the stack-indexed expected tracker. */
   expectedPeriodicStorage?: "packed" | "indexed"
   /** Diagnostic opt-out for the expected shared-clock tiny-state approximation. */
@@ -3416,7 +3419,8 @@ export function buildRotationTimeline(
     machineWake = { kind: "action", row, actionIndex: 0, time, sortOrder: [-2] }
     events.push(machineWake)
   }
-  const eventLimit = outcomeMachine ? 20000 : 5000
+  const configuredEventLimit = input.eventLimit ?? (outcomeMachine ? 20000 : DEFAULT_ROTATION_EVENT_LIMIT)
+  const eventLimit = configuredEventLimit === 0 ? Infinity : configuredEventLimit
   while ((events.length || timedCursor < timed.length || pendingCharge) && processedEvents < eventLimit) {
     onResourceSpent = undefined
     responseContext = undefined

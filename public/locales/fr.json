@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Résoudre au début de la compétence",
   "ui.app.rotation": "Rotation",
   "ui.app.rotationEditor": "Éditeur de rotation",
+  "ui.app.rotationEventLimit": "Limite d’événements de la rotation (0 pour illimité)",
   "ui.app.rotationImportError": "Impossible d’importer le fichier de rotations.",
   "ui.app.rotationNameRequired": "Le nom de la rotation est obligatoire.",
   "ui.app.rotations": "Rotations",

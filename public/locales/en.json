@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Resolve at skill start",
   "ui.app.rotation": "Rotation",
   "ui.app.rotationEditor": "Rotation Editor",
+  "ui.app.rotationEventLimit": "Rotation event limit (0 for no limit)",
   "ui.app.rotationImportError": "The rotation file could not be imported.",
   "ui.app.rotationNameRequired": "Rotation name is required.",
   "ui.app.rotations": "Rotations",

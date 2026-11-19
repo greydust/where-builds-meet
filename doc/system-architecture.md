@@ -578,6 +578,18 @@ active build contributes gear stats, attunement, weapon and armor sets, bow/ring
 arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
+
+### Combat timeline event limit
+
+Settings stores the rotation event limit separately from saved rotations under
+`wwm-rotation-event-limit-v1`. It defaults to 5,000 processed combat events;
+`0` disables the cap. Positive limits must be safe integers. The application
+passes the selected limit into editor, baseline, comparison, gear-search and
+graduation timeline bundles. It is part of their fingerprints, so changing it
+refreshes calculations and editor previews. Exceeding a positive limit reports
+an error rather than returning a partial timeline. Direct timeline callers that
+omit the option retain the legacy defaults (5,000, or 20,000 for outcome states).
+
 All bundled rotation presets explicitly store ping, including the empty planner
 preset, so changes to Settings ping do not change their timelines. Most use
 40 ms; the Might dummy preset uses 30 ms.

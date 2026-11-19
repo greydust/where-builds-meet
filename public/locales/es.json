@@ -1857,6 +1857,7 @@
   "ui.app.resolveAtSkillStart": "Evaluar al inicio de la habilidad",
   "ui.app.rotation": "Rotación",
   "ui.app.rotationEditor": "Editor de rotaciones",
+  "ui.app.rotationEventLimit": "Límite de eventos de la rotación (0 sin límite)",
   "ui.app.rotationImportError": "No se pudo importar el archivo de rotaciones.",
   "ui.app.rotationNameRequired": "El nombre de la rotación es obligatorio.",
   "ui.app.rotations": "Rotaciones",
