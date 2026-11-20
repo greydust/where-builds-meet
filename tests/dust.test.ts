@@ -661,7 +661,12 @@ describe("Dust mechanics", () => {
     )[1]
     expect(secondReturn.startTime - cyclones[1].startTime).toBeLessThan(3.3)
     expect(spins[2].startTime - spins[1].startTime).toBeCloseTo(20, 10)
-    expect(cyclones[2].effectiveCastTime).toBeGreaterThan(60 - (cyclones[2].startTime - result.anchorTime))
+    expect(cyclones[2].startTime + cyclones[2].effectiveCastTime - result.anchorTime).toBeLessThan(60)
+    const finalChimes = result.timeline.filter(
+      row => row.step.skill === "CycloneChimeBonus" && row.startTime >= cyclones[2].startTime,
+    )
+    expect(finalChimes).toHaveLength(5)
+    expect(finalChimes.at(-1)!.startTime).toBeLessThan(burns.at(-1)!.startTime)
     const bonuses = result.timeline.filter(row => row.step.skill === "CycloneChimeBonus")
     expect(bonuses).toHaveLength(15)
     const secondOpening = result.timeline.find(row => isThrow(row) && row.sourceRowId === spins[1].id)!

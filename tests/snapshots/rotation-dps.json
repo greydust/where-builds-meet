@@ -1109,7 +1109,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "18",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1126,8 +1126,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 86614.85101461336,
-      "totalDamage": 5196891.060876802,
+      "dps": 87242.51911349609,
+      "totalDamage": 5234551.146809765,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -1138,7 +1138,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "19",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1155,8 +1155,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 91009.74338967766,
-      "totalDamage": 5460584.60338066,
+      "dps": 91671.83545076639,
+      "totalDamage": 5500310.127045983,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -1167,7 +1167,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "18",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1184,8 +1184,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 81222.11740441418,
-      "totalDamage": 4873327.044264851,
+      "dps": 81778.49916718832,
+      "totalDamage": 4906709.950031299,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -1196,7 +1196,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "19",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1213,8 +1213,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 85662.43508254348,
-      "totalDamage": 5139746.104952609,
+      "dps": 86250.70011968134,
+      "totalDamage": 5175042.00718088,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -1225,7 +1225,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "18",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1242,8 +1242,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 83363.83592025543,
-      "totalDamage": 5001830.155215326,
+      "dps": 83933.52030600206,
+      "totalDamage": 5036011.218360123,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -1254,7 +1254,7 @@
         "rotation": "dust-dummy-1-min",
         "martialArts": ["everspring", "unfettered"],
         "breakthrough": "19",
-        "ping": 35,
+        "ping": 30,
         "food": "SimmeringFishSlices",
         "divinecraft": "Fire",
         "script": "None",
@@ -1271,8 +1271,8 @@
           "silkbindWings": "none"
         }
       },
-      "dps": 87235.20669433784,
-      "totalDamage": 5234112.401660271,
+      "dps": 87832.85691336029,
+      "totalDamage": 5269971.414801617,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60

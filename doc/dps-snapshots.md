@@ -1,5 +1,24 @@
 # DPS regression snapshots
 
+## Dust closing Burn and Bury acceptance (November 20, 2026)
+
+The user accepted 30 ms ping and the closing 2.816-second Cyclone Waltz →
+Deflect → Burn and Bury sequence. Both earlier Bubbles and the required
+0.5-second movement remain. All fifteen converted Chime bonuses and all four
+Burn and Bury hits land; the final Burn lands at 59.98463170163172 seconds.
+The estimated Qi ramps follow the retimed break anchors. Duration stays at
+60 seconds. Only the six regular Dust cases are refreshed; the 100% PC preset
+and every other accepted case remain unchanged.
+
+| Build                  | Solo Level |     Previous DPS |     Accepted DPS |
+| ---------------------- | ---------: | ---------------: | ---------------: |
+| dust-full-min          |         18 | 86614.8510146134 | 87242.5191134961 |
+| dust-full-min          |         19 | 91009.7433896777 | 91671.8354507664 |
+| dust-fully-relayed-max |         18 | 81222.1174044142 | 81778.4991671883 |
+| dust-fully-relayed-max |         19 | 85662.4350825435 | 86250.7001196813 |
+| dust-fully-relayed-min |         18 | 83363.8359202554 | 83933.5203060021 |
+| dust-fully-relayed-min |         19 | 87235.2066943378 | 87832.8569133603 |
+
 ## Dust Cyclone rotation acceptance (November 17, 2026)
 
 Only `bamboocutDust/dust-dummy-1-min` changes. The requested sequence retains

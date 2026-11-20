@@ -1738,35 +1738,38 @@ dodge resets.
 
 ### Bamboocut Dust definitions
 
-#### Cyclone Waltz and Dummy 1 Min (17 November 2026)
+#### Cyclone Waltz and Dummy 1 Min (20 November 2026)
 
 `dust-dummy-1-min` retains its opener and three fourteen-throw Scarlet Spin
 batches. After the first batch it channels Cyclone Waltz to converted-charge
-depletion, returns, casts two Bubbles and Burn and Bury. The second batch breaks
+depletion, returns, casts two Bubbles and Burn and Bury. The required opening
+0.5-second movement delay remains. The second batch breaks
 Qi immediately after its first forward hit, then channels Cyclone for 3.11 seconds
 to land its terminal hit before Return,
-Burn and Bury, Flute Cancel and Deflect. The third batch leads into Burn and Bury
-and Cyclone, with Battle End fixed at 60 seconds. The 100% PC preset is unchanged.
+Burn and Bury, Flute Cancel and Deflect. The third batch leads into a 2.816-second
+Cyclone, Deflect and Burn and Bury, with Battle End fixed at 60 seconds. The
+final Cyclone spends all five converted Chime charges; its ninth ordinary hit
+at 3.1 seconds is intentionally omitted. Burn and Bury lands at
+59.98463170163172 seconds. The 100% PC preset is unchanged.
 
 Scarlet Spin has a 20-second cooldown from cast start, exported on its opening
 skill `20603202` (normal layer 0); continuation stages have no cooldown. The
 parent skill declares this cooldown so the shared scheduler inserts a wait
-before an early batch. At 35 ms ping, Dummy 1 Min starts its batches at 1.981,
-22.290315850815855 and 42.290315850815855 seconds. The second batch is 0.309315850815855
+before an early batch. At 30 ms ping, Dummy 1 Min starts its batches at 1.976,
+22.26031585081586 and 42.26031585081586 seconds. The second starts 0.28431585081586
 seconds after readiness; the third starts exactly on cooldown. All fourteen
 throws in each batch still land before Battle End.
 
 The user-confirmed second Qi break attaches after the last landed ordinary
-Cyclone hit, at 59.8346317016317 seconds. The ordinary hit depletes Qi; its
+Cyclone hit, at 59.114631701631716 seconds. The ordinary hit depletes Qi; its
 subsequently resolved same-contact Phantom Chime bonus observes Exhausted,
-following the existing after-hit attachment ordering. The terminal request at 3.1
-seconds remains beyond Battle End. The first break stays on the second Scarlet
-Spin's first forward hit, at 22.736641446882476 seconds.
+following the existing after-hit attachment ordering. The first break stays on the second Scarlet
+Spin's first forward hit, at 22.706641446882482 seconds.
 Both ramps use estimated linear depletion between these observed break anchors:
-the opening 60%/40% crossings are 9.094656578752991/13.641984868129486 seconds.
+the opening 60%/40% crossings are 9.08265657875299/13.623984868129485 seconds.
 After ten seconds of Exhausted and four seconds of Qi immunity, the second
-ramp starts at 36.73664144688247 seconds and crosses 60%/40% at
-45.97583754878217/50.595435599732006 seconds. The stored crossing ratios are
+ramp starts at 36.70664144688248 seconds and crosses 60%/40% at
+45.66983754878217/50.15143559973202 seconds. The stored crossing ratios are
 0.5999/0.3999 to satisfy strict low-Qi predicates. These are authored encounter
 markers, not simulated per-hit Qi damage. This sequence supersedes the older
 regular-preset Qi anchors described below.
