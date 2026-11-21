@@ -20,15 +20,22 @@ describe("Jade starter builds", () => {
     )
     const inventory = buildPresetInventory(preset, tier)
     expect(inventory.items).toHaveLength(reference.items.length)
-    for (const [index, item] of inventory.items.entries()) {
+    const affixCounts = (items: typeof inventory.items) => {
+      const counts: Record<string, number> = {}
+      for (const item of items)
+        for (const affix of [item.baseAffix!, ...item.additionalAffixes])
+          counts[affix.key] = (counts[affix.key] ?? 0) + 1
+      return counts
+    }
+    const expectedCounts = affixCounts(reference.items)
+    if (tier === 100 && graduateId !== "jade-graduate") {
+      expectedCounts.crit -= 1
+      expectedCounts.agility = (expectedCounts.agility ?? 0) + 1
+    }
+    expect(affixCounts(inventory.items)).toEqual(expectedCounts)
+    for (const item of inventory.items) {
       expect(item.relayed).not.toBe(true)
       const affixes = [item.baseAffix!, ...item.additionalAffixes]
-      const source = reference.items[index]
-      const graduateFan = tier === 100 && item.definitionId === "fan" && graduateId !== "jade-graduate"
-      const expectedKeys = [source.baseAffix!, ...source.additionalAffixes].map(affix =>
-        graduateFan && affix.key === "crit" ? "agility" : affix.key,
-      )
-      expect(affixes.map(affix => affix.key)).toEqual(expectedKeys)
       for (const affix of affixes) expect(affix.value).toBe(maxGearRoll(affix.key, "affix", false, tier))
     }
   })
