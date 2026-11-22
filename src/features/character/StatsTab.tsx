@@ -1024,7 +1024,7 @@ export function StatsTab({
                       {t("ui.app.baseAttributes")} {breakthrough.levelBonusStats.rawStat.agility}
                     </span>
                     <span>
-                      {t("ui.app.gearTier")} {breakthrough.level}
+                      {t("ui.app.gearTier")} {breakthrough.gearTier}
                     </span>
                     <span>
                       {t("ui.app.defense")} {breakthrough.defense}
