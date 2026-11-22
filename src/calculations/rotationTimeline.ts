@@ -1081,6 +1081,7 @@ function applyTrackedEffect(
     ...(remainingTriggers !== undefined ? { remainingTriggers } : {}),
     expiresAt,
     ...(persistent ? { persistent: true } : {}),
+    ...(persistent && existing.appliedEffectRules ? { appliedEffectRules: existing.appliedEffectRules } : {}),
     ...(sourceRowId ? { sourceRowId } : existing?.sourceRowId ? { sourceRowId: existing.sourceRowId } : {}),
     ...(collectBoostDamage
       ? { collectBoostDamage }

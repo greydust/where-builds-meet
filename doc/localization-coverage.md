@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2132.
+Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2159.
 
 Traditional Chinese and Korean retain complete catalog coverage.
 Catalog cells include datamined terms, separately authored translations, and retained
@@ -36,3 +36,9 @@ The two supplied Mhysa rotation titles are retained verbatim as creator-authored
 names in all eleven non-English locales. This adds 22 populated cells. No
 translation or language review was needed for these preserved titles; browser
 review was not performed.
+
+The global buff option descriptions add 16 messages per locale (176 non-English
+cells), bringing every published locale to 2,159 populated messages. These are
+AI-authored simulator descriptions using existing catalog terminology, with
+independent AI review per language. No new official datamine matches are claimed.
+Browser and human language review were not performed.

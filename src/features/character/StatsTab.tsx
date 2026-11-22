@@ -60,6 +60,7 @@ import { ButtonGroup, ButtonGroupOption } from "@/ui/ButtonGroup"
 import { Panel, PanelHeading } from "@/ui/Panel"
 
 import { CalculatedStatField } from "./CalculatedStatField"
+import { GlobalBuffOption } from "./GlobalBuffOption"
 import { StatPair } from "./StatPair"
 
 const foodCalculationCategories = ["food", "enduranceFood"] as const
@@ -409,14 +410,16 @@ export function StatsTab({
     const active = globalDebuffs[key] === value
     const optionValue = value ? "on" : "off"
     return (
-      <ButtonGroupOption
+      <GlobalBuffOption
         key={optionValue}
+        buff={key}
+        value={optionValue}
         label={label}
         selected={active}
         onClick={() => updateGlobalDebuff(key, value)}
       >
         {setupStatus(`debuff:${key}`, optionValue, active)}
-      </ButtonGroupOption>
+      </GlobalBuffOption>
     )
   }
   const floatingGraceOptionLabel = (value: GlobalDebuffState["floatingGrace"]) => {
@@ -906,14 +909,16 @@ export function StatsTab({
                         both: t("ui.app.both"),
                       }
                       return (
-                        <ButtonGroupOption
+                        <GlobalBuffOption
                           key={value}
+                          buff="draught"
+                          value={String(value)}
                           label={labels[value]}
                           selected={active}
                           onClick={() => updateGlobalDebuff("draught", value)}
                         >
                           {setupStatus("debuff:draught", value, active)}
-                        </ButtonGroupOption>
+                        </GlobalBuffOption>
                       )
                     })}
                   </ButtonGroup>
@@ -926,14 +931,16 @@ export function StatsTab({
                     {(["none", "mixed", "deluge"] as const).map(value => {
                       const active = globalDebuffs.floatingGrace === value
                       return (
-                        <ButtonGroupOption
+                        <GlobalBuffOption
                           key={value}
+                          buff="floatingGrace"
+                          value={String(value)}
                           label={floatingGraceOptionLabel(value)}
                           selected={active}
                           onClick={() => updateGlobalDebuff("floatingGrace", value)}
                         >
                           {setupStatus("buff:floatingGrace", value, active)}
-                        </ButtonGroupOption>
+                        </GlobalBuffOption>
                       )
                     })}
                   </ButtonGroup>
@@ -950,14 +957,16 @@ export function StatsTab({
                         full: t("ui.app.wingsFull"),
                       }
                       return (
-                        <ButtonGroupOption
+                        <GlobalBuffOption
                           key={value}
+                          buff="silkbindWings"
+                          value={String(value)}
                           label={labels[value]}
                           selected={active}
                           onClick={() => updateGlobalDebuff("silkbindWings", value)}
                         >
                           {setupStatus("buff:silkbindWings", value, active)}
-                        </ButtonGroupOption>
+                        </GlobalBuffOption>
                       )
                     })}
                   </ButtonGroup>
@@ -968,14 +977,16 @@ export function StatsTab({
                     {(["none", "T1", "T6"] as const).map(value => {
                       const active = globalDebuffs.qingyisCharm === value
                       return (
-                        <ButtonGroupOption
+                        <GlobalBuffOption
                           key={value}
+                          buff="qingyisCharm"
+                          value={String(value)}
                           label={value === "none" ? t("ui.app.none") : value}
                           selected={active}
                           onClick={() => updateGlobalDebuff("qingyisCharm", value)}
                         >
                           {setupStatus("debuff:qingyisCharm", value, active)}
-                        </ButtonGroupOption>
+                        </GlobalBuffOption>
                       )
                     })}
                   </ButtonGroup>
@@ -986,14 +997,16 @@ export function StatsTab({
                     {([0, 0.15] as const).map(value => {
                       const active = globalDebuffs.bossTalent === value
                       return (
-                        <ButtonGroupOption
+                        <GlobalBuffOption
                           key={value}
+                          buff="bossTalent"
+                          value={String(value)}
                           label={`${value * 100}%`}
                           selected={active}
                           onClick={() => updateGlobalDebuff("bossTalent", value)}
                         >
                           {setupStatus("buff:bossTalent", String(value), active)}
-                        </ButtonGroupOption>
+                        </GlobalBuffOption>
                       )
                     })}
                   </ButtonGroup>

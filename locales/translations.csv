@@ -533,6 +533,381 @@ data.gearSet.Swallowcall.name,Swallowcall,燕歸,燕归,帰燕,연귀,Llamado de
 data.gearSet.SwayingHeights.name,Swaying Heights,岳山傾,岳山倾,山崩,산경,Alturas Oscilantes,Cimes oscillantes,Schwankende Höhen,Alturas Oscilantes,Đỉnh chao,,ยอดเขาเอนไหว,Колеблющиеся Высоты
 data.gearSet.SwiftGale.name,Swift Gale,急風驟,急风骤,疾風,질풍,Vendaval Veloz,Rafale vive,Rascher Sturm,Vendaval Veloz,Gió nhanh,,ลมกรดพัดแรง,Быстрый Ветер
 data.gearSet.Tiltrim.name,Tiltrim,傾觴,倾觞,杯傾け,기우는 잔,Tiltrim,Tiltrim,Geneigter Becher,Inclinação,Nghiêng chén,,ยกจอก,Косой срез
+data.globalBuffOptions.bossTalent.015.description,"Increases damage dealt to bosses by 15%.
+
+Assuming 100% uptime. Adds 15% damage bonus against the boss.","對首領造成的傷害提高15%。
+
+假設覆蓋率為100%。實際增加：對首領的傷害加成+15%。","对首领造成的伤害提高15%。
+
+假设覆盖率为100%。实际增加：对首领的伤害加成+15%。","ボスに与えるダメージが15%増加します。
+
+稼働率100%を想定。ボスへのダメージボーナスを15%加算します。","우두머리에게 주는 피해가 15% 증가합니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 우두머리 대상 피해 보너스 +15%.","Aumenta el daño infligido a los jefes un 15%.
+
+Suponiendo un 100% de actividad. Agrega un 15% de bonificación de daño contra el jefe.","Augmente les dégâts infligés aux boss de 15%.
+
+En supposant 100% de temps actif. Ajoute 15% de bonus de dégâts contre le boss.","Erhöht den verursachten Schaden gegen Bosse um 15 %.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 15 % Schadensbonus gegen den Boss.","Aumenta o dano causado a chefes em 15%.
+
+Considerando 100% de atividade. Adiciona 15% de bônus de dano contra o chefe.","Tăng 15% sát thương gây ra lên thủ lĩnh.
+
+Giả định duy trì 100% thời gian. Cộng 15% thưởng sát thương lên thủ lĩnh.",,"เพิ่มความเสียหายที่สร้างต่อบอส 15%
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มโบนัสความเสียหายต่อบอส 15%","Увеличивает наносимый боссам урон на 15%.
+
+Предполагается 100% времени действия. Добавляет 15% к бонусу урона по боссу."
+data.globalBuffOptions.draught.both.description,"Strayhunt adds 2% Physical and attribute DMG Bonus. Wildstride increases Replayed skill damage by 20%.
+
+Assuming 100% uptime for both effects. Adds 2% Physical and attribute DMG Bonus and 20% Replayed skill damage.","離獵增加2%外功及屬性傷害加成。步亂使重演技能傷害提高20%。
+
+假設兩種效果的覆蓋率皆為100%。實際增加：外功及屬性傷害加成+2%、重演技能傷害+20%。","离猎增加2%外功及属性伤害加成。步乱使重演技能伤害提高20%。
+
+假设两种效果的覆盖率均为100%。实际增加：外功及属性伤害加成+2%、重演技能伤害+20%。","離猟は外功および属性ダメージボーナスを2%加算します。歩乱は再演スキルのダメージを20%増加させます。
+
+両効果の稼働率100%を想定。外功および属性ダメージボーナスを2%、再演スキルのダメージを20%加算します。","탈렵은 외공 및 속성 피해 보너스를 2% 증가시킵니다. 흐트러진 보법은 재현 스킬 피해를 20% 증가시킵니다.
+
+두 효과의 유지율을 모두 100%로 가정합니다. 실제 효과: 외공 및 속성 피해 보너스 +2%, 재현 스킬 피해 +20%.","Caza Errante agrega un 2% de bonificación de daño físico y de atributo. Zancada Salvaje aumenta el daño de las habilidades repetidas un 20%.
+
+Suponiendo un 100% de actividad para ambos efectos. Agrega un 2% de bonificación de daño físico y de atributo y un 20% de daño de habilidades repetidas.","Chasse errante ajoute 2% de bonus de dégâts physiques et d’attribut. Foulée sauvage augmente les dégâts des compétences rejouées de 20%.
+
+En supposant 100% de temps actif pour les deux effets. Ajoute 2% de bonus de dégâts physiques et d’attribut et 20% de dégâts des compétences rejouées.","Streunjagd gewährt 2 % Bonus auf physischen und Attributschaden. Wildschritt erhöht den Schaden wiederholter Fertigkeiten um 20 %.
+
+Bei angenommenen 100 % Wirkzeit für beide Effekte. Gewährt 2 % Bonus auf physischen und Attributschaden und 20 % Schaden wiederholter Fertigkeiten.","Caça Errante adiciona 2% de bônus de dano físico e de atributo. Passo Selvagem aumenta o dano de habilidades Reproduzidas em 20%.
+
+Considerando 100% de atividade para ambos os efeitos. Adiciona 2% de bônus de dano físico e de atributo e 20% de dano de habilidades Reproduzidas.","Ly liệp cộng 2% thưởng sát thương ngoại công và thuộc tính. Bước loạn tăng 20% sát thương kỹ năng phát lại.
+
+Giả định cả hai hiệu ứng duy trì 100% thời gian. Cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 20% sát thương kỹ năng phát lại.",,"ออกล่าเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% ก้าวสับสนเพิ่มความเสียหายของกระบวนท่าที่เล่นซ้ำ 20%
+
+สมมติว่าทั้งสองผลมีผล 100% ของเวลา เพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% และความเสียหายของกระบวนท่าที่เล่นซ้ำ 20%","Бродячая охота добавляет 2% к бонусу физического урона и урона стихий. Дикий шаг увеличивает урон повторно исполненных навыков на 20%.
+
+Предполагается 100% времени действия обоих эффектов. Добавляет 2% к бонусу физического урона и урона стихий и 20% урона повторно исполненных навыков."
+data.globalBuffOptions.draught.strayhunt.description,"Strayhunt adds 2% Physical and attribute DMG Bonus.
+
+Assuming 100% uptime. Adds 2% Physical and attribute DMG Bonus.","離獵增加2%外功及屬性傷害加成。
+
+假設覆蓋率為100%。實際增加：外功及屬性傷害加成+2%。","离猎增加2%外功及属性伤害加成。
+
+假设覆盖率为100%。实际增加：外功及属性伤害加成+2%。","離猟は外功および属性ダメージボーナスを2%加算します。
+
+稼働率100%を想定。外功および属性ダメージボーナスを2%加算します。","탈렵은 외공 및 속성 피해 보너스를 2% 증가시킵니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 외공 및 속성 피해 보너스 +2%.","Caza Errante agrega un 2% de bonificación de daño físico y de atributo.
+
+Suponiendo un 100% de actividad. Agrega un 2% de bonificación de daño físico y de atributo.","Chasse errante ajoute 2% de bonus de dégâts physiques et d’attribut.
+
+En supposant 100% de temps actif. Ajoute 2% de bonus de dégâts physiques et d’attribut.","Streunjagd gewährt 2 % Bonus auf physischen und Attributschaden.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 2 % Bonus auf physischen und Attributschaden.","Caça Errante adiciona 2% de bônus de dano físico e de atributo.
+
+Considerando 100% de atividade. Adiciona 2% de bônus de dano físico e de atributo.","Ly liệp cộng 2% thưởng sát thương ngoại công và thuộc tính.
+
+Giả định duy trì 100% thời gian. Cộng 2% thưởng sát thương ngoại công và thuộc tính.",,"ออกล่าเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2%
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2%","Бродячая охота добавляет 2% к бонусу физического урона и урона стихий.
+
+Предполагается 100% времени действия. Добавляет 2% к бонусу физического урона и урона стихий."
+data.globalBuffOptions.fearfulBlade.on.description,"Reduces attribute resistances by 16 and increases HP damage taken from Strength by 8%.
+
+Assuming 75% uptime (15 seconds every 20 seconds). Adds -12 attribute resistances and 6% HP damage taken from Strength.","屬性抗性降低16點，受到的鈞流派氣血傷害提高8%。
+
+假設覆蓋率為75%（每20秒持續15秒）。實際增加：屬性抗性-12、受到的鈞流派氣血傷害+6%。","属性抗性降低16点，受到的钧流派气血伤害提高8%。
+
+假设覆盖率为75%（每20秒持续15秒）。实际增加：属性抗性-12、受到的钧流派气血伤害+6%。","属性耐性を16低下させ、鈞から受ける気血ダメージを8%増加させます。
+
+稼働率75%（20秒ごとに15秒）を想定。属性耐性-12、鈞から受ける気血ダメージ+6%を適用します。","속성 저항이 16 감소하고 열석 균의 기혈 피해를 8% 더 받습니다.
+
+유지율 75%(20초마다 15초)를 가정합니다. 속성 저항 -12와 열석 균으로 받는 기혈 피해 6% 증가를 적용합니다.","Reduce las resistencias de atributo en 16 y aumenta el daño a los PV recibido de Fuerza un 8%.
+
+Se asume un 75% de tiempo activo (15 segundos cada 20 segundos). Añade -12 de resistencias de atributo y un 6% de daño a los PV recibido de Fuerza.","Réduit les résistances aux attributs de 16 et augmente les dégâts aux PV subis de Force de 8%.
+
+En supposant un temps actif de 75% (15 secondes toutes les 20 secondes). Réduit les résistances aux attributs de 12 et augmente les dégâts aux PV subis de Force de 6%.","Verringert die Attributwiderstände um 16 und erhöht den erlittenen LP-Schaden durch Stärke um 8 %.
+
+Bei angenommener Verfügbarkeit von 75 % (15 Sekunden alle 20 Sekunden). Verringert die Attributwiderstände um 12 und erhöht den erlittenen LP-Schaden durch Stärke um 6 %.","Reduz as resistências de atributo em 16 e aumenta o dano aos PV recebido de Força em 8%.
+
+Considerando 75% de tempo ativo (15 segundos a cada 20 segundos). Adiciona -12 às resistências de atributo e 6% de dano aos PV recebido de Força.","Giảm 16 kháng thuộc tính và tăng 8% sát thương Khí huyết nhận vào từ Quân.
+
+Giả định duy trì 75% (15 giây mỗi 20 giây). Cộng -12 kháng thuộc tính và 6% sát thương Khí huyết nhận vào từ Quân.",,"ลดความต้านทานธาตุ 16 หน่วย และเพิ่มความเสียหายต่อพลังชีวิตที่ได้รับจากจุน 8%
+
+สมมติว่ามีผล 75% ของเวลา (15 วินาทีทุก 20 วินาที) เพิ่มผลจริง: ความต้านทานธาตุ -12 และความเสียหายต่อพลังชีวิตที่ได้รับจากจุน +6%","Снижает сопротивления стихиям на 16 и увеличивает получаемый урон здоровью от Силы на 8%.
+
+Предполагается 75% времени действия (15 секунд каждые 20 секунд). Даёт -12 к сопротивлениям стихиям и +6% к получаемому урону здоровью от Силы."
+data.globalBuffOptions.floatingGrace.deluge.description,"Increases damage dealt by 24% while active.
+
+Assuming 40% uptime (12 seconds every 30 seconds). Adds 9.6% damage bonus.","生效期間造成的傷害提高24%。
+
+假設覆蓋率為40%（每30秒持續12秒）。實際增加：9.6%傷害加成。","生效期间造成的伤害提高24%。
+
+假设覆盖率为40%（每30秒持续12秒）。实际增加：9.6%伤害加成。","効果中、与えるダメージが24%増加します。
+
+稼働率40%（30秒ごとに12秒）を想定。ダメージボーナスを9.6%加算します。","활성화 중 주는 피해가 24% 증가합니다.
+
+유지율을 40%(30초마다 12초)로 가정합니다. 실제 효과: 피해 보너스 +9.6%.","Aumenta el daño infligido un 24% mientras está activo.
+
+Suponiendo un 40% de actividad (12 segundos cada 30 segundos). Agrega un 9.6% de bonificación de daño.","Augmente les dégâts infligés de 24% lorsque l’effet est actif.
+
+En supposant 40% de temps actif (12 secondes toutes les 30 secondes). Ajoute 9,6% de bonus de dégâts.","Erhöht den verursachten Schaden während der Wirkung um 24 %.
+
+Bei angenommenen 40 % Wirkzeit (12 Sekunden alle 30 Sekunden). Gewährt 9,6 % Schadensbonus.","Aumenta o dano causado em 24% enquanto ativo.
+
+Considerando 40% de atividade (12 segundos a cada 30 segundos). Adiciona 9,6% de bônus de dano.","Khi có hiệu lực, tăng 24% sát thương gây ra.
+
+Giả định duy trì 40% thời gian (12 giây mỗi 30 giây). Cộng 9.6% thưởng sát thương.",,"ขณะมีผล เพิ่มความเสียหายที่สร้าง 24%
+
+สมมติว่ามีผล 40% ของเวลา (12 วินาทีในทุก 30 วินาที) เพิ่มโบนัสความเสียหาย 9.6%","Во время действия увеличивает наносимый урон на 24%.
+
+Предполагается 40% времени действия (12 секунд каждые 30 секунд). Добавляет 9.6% к бонусу урона."
+data.globalBuffOptions.floatingGrace.mixed.description,"Increases damage dealt by 10% while active.
+
+Assuming 40% uptime (12 seconds every 30 seconds). Adds 4% damage bonus.","生效期間造成的傷害提高10%。
+
+假設覆蓋率為40%（每30秒持續12秒）。實際增加：4%傷害加成。","生效期间造成的伤害提高10%。
+
+假设覆盖率为40%（每30秒持续12秒）。实际增加：4%伤害加成。","効果中、与えるダメージが10%増加します。
+
+稼働率40%（30秒ごとに12秒）を想定。ダメージボーナスを4%加算します。","활성화 중 주는 피해가 10% 증가합니다.
+
+유지율을 40%(30초마다 12초)로 가정합니다. 실제 효과: 피해 보너스 +4%.","Aumenta el daño infligido un 10% mientras está activo.
+
+Suponiendo un 40% de actividad (12 segundos cada 30 segundos). Agrega un 4% de bonificación de daño.","Augmente les dégâts infligés de 10% lorsque l’effet est actif.
+
+En supposant 40% de temps actif (12 secondes toutes les 30 secondes). Ajoute 4% de bonus de dégâts.","Erhöht den verursachten Schaden während der Wirkung um 10 %.
+
+Bei angenommenen 40 % Wirkzeit (12 Sekunden alle 30 Sekunden). Gewährt 4 % Schadensbonus.","Aumenta o dano causado em 10% enquanto ativo.
+
+Considerando 40% de atividade (12 segundos a cada 30 segundos). Adiciona 4% de bônus de dano.","Khi có hiệu lực, tăng 10% sát thương gây ra.
+
+Giả định duy trì 40% thời gian (12 giây mỗi 30 giây). Cộng 4% thưởng sát thương.",,"ขณะมีผล เพิ่มความเสียหายที่สร้าง 10%
+
+สมมติว่ามีผล 40% ของเวลา (12 วินาทีในทุก 30 วินาที) เพิ่มโบนัสความเสียหาย 4%","Во время действия увеличивает наносимый урон на 10%.
+
+Предполагается 40% времени действия (12 секунд каждые 30 секунд). Добавляет 4% к бонусу урона."
+data.globalBuffOptions.phantomChime.on.description,"At 5 stacks, reduces Physical Resistance by 10.
+
+Assuming 100% uptime at 5 stacks. Adds -10 Physical Resistance.","5層時，外功抗性降低10點。
+
+假設以5層維持100%覆蓋率。實際增加：外功抗性-10點。","5层时，外功抗性降低10点。
+
+假设以5层维持100%覆盖率。实际增加：外功抗性-10点。","5スタック時、外功耐性を10低下させます。
+
+5スタックで稼働率100%を想定。外功耐性-10を加算します。","5중첩일 때 외공 저항이 10 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 저항 -10.","Con 5 acumulaciones, reduce la resistencia física en 10.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -10 de resistencia física.","À 5 cumuls, réduit la résistance physique de 10.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -10 de résistance physique.","Verringert bei 5 Stapeln den physischen Widerstand um 10.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -10 physischen Widerstand.","Com 5 acúmulos, reduz a resistência física em 10.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -10 de resistência física.","Ở 5 tầng, giảm 10 Kháng ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -10 Kháng ngoại công.",,"ที่ 5 ชั้น ลดความต้านทานพลังภายนอก 10 หน่วย
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าความต้านทานพลังภายนอก -10 หน่วย","На 5 уровнях снижает физическое сопротивление на 10.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -10 к физическому сопротивлению."
+data.globalBuffOptions.qiImbalance.on.description,"Increases Qi damage taken by 10%. During Exhausted, increases HP damage taken by 10%, plus another 10% for Bellstrike damage.
+
+Assuming 100% uptime. Adds 10% Qi damage taken; during Exhausted, adds 10% HP damage taken, plus another 10% for Bellstrike damage.","受到的真氣傷害提高10%。氣竭期間受到的氣血傷害提高10%，鳴金傷害再額外提高10%。
+
+假設覆蓋率為100%。實際增加：受到的真氣傷害+10%；氣竭期間受到的氣血傷害+10%，鳴金傷害再額外+10%。","受到的真气伤害提高10%。气竭期间受到的气血伤害提高10%，鸣金伤害再额外提高10%。
+
+假设覆盖率为100%。实际增加：受到的真气伤害+10%；气竭期间受到的气血伤害+10%，鸣金伤害再额外+10%。","受ける気ダメージが10%増加します。気絶中は受ける気血ダメージが10%増加し、鋼鳴ダメージはさらに10%増加します。
+
+稼働率100%を想定。受ける気ダメージを10%加算し、気絶中は受ける気血ダメージを10%、鋼鳴ダメージをさらに10%加算します。","받는 진기 피해가 10% 증가합니다. 탈진 중 받는 기혈 피해가 10% 증가하며 명금 피해는 추가로 10% 증가합니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 받는 진기 피해 +10%. 탈진 중 받는 기혈 피해 +10%, 명금 피해 추가 +10%.","Aumenta el daño de Qi recibido un 10%. Durante el estado Agotado, aumenta el daño a los PV recibido un 10%, más otro 10% para el daño de Campana.
+
+Suponiendo un 100% de actividad. Agrega un 10% de daño de Qi recibido; durante Agotado, agrega un 10% de daño a los PV recibido, más otro 10% para el daño de Campana.","Augmente les dégâts au Qi subis de 10%. Pendant l’état Épuisé, augmente les dégâts aux PV subis de 10%, avec 10% supplémentaires pour les dégâts de Frappe de cloche.
+
+En supposant 100% de temps actif. Ajoute 10% de dégâts au Qi subis ; pendant l’état Épuisé, ajoute 10% de dégâts aux PV subis, avec 10% supplémentaires pour les dégâts de Frappe de cloche.","Erhöht den erlittenen Qi-Schaden um 10 %. Im Zustand „Erschöpft“ erhöht sich der erlittene LP-Schaden um 10 %, bei Glockenschlag-Schaden um weitere 10 %.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 10 % erlittenen Qi-Schaden; im Zustand „Erschöpft“ zusätzlich 10 % erlittenen LP-Schaden und weitere 10 % für Glockenschlag-Schaden.","Aumenta o dano de Qi recebido em 10%. Durante o estado Exausto, aumenta o dano aos PV recebido em 10%, com mais 10% para dano de Golpe de Sino.
+
+Considerando 100% de atividade. Adiciona 10% de dano de Qi recebido; durante Exausto, adiciona 10% de dano aos PV recebido, com mais 10% para dano de Golpe de Sino.","Tăng 10% sát thương Chân khí nhận vào. Khi Kiệt sức, sát thương Khí huyết nhận vào tăng 10%, cộng thêm 10% cho sát thương Tiếng chuông.
+
+Giả định duy trì 100% thời gian. Cộng 10% sát thương Chân khí nhận vào; khi Kiệt sức, cộng 10% sát thương Khí huyết nhận vào và thêm 10% cho sát thương Tiếng chuông.",,"เพิ่มความเสียหายต่อลมปราณที่ได้รับ 10% ขณะพลังหมด เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 10% และเพิ่มอีก 10% สำหรับความเสียหายเสียงกลอง
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มความเสียหายต่อลมปราณที่ได้รับ 10% และขณะพลังหมด เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 10% พร้อมเพิ่มอีก 10% สำหรับความเสียหายเสียงกลอง","Увеличивает получаемый урон Ци на 10%. Во время Истощения получаемый урон здоровью увеличивается на 10%, а урон Удара колокола — ещё на 10%.
+
+Предполагается 100% времени действия. Добавляет 10% получаемого урона Ци; во время Истощения добавляет 10% получаемого урона здоровью и ещё 10% для урона Удара колокола."
+data.globalBuffOptions.qingyisCharm.T1.description,"At 5 stacks, reduces Physical Defense by 6%.
+
+Assuming 100% uptime at 5 stacks. Adds -6% Physical Defense.","5層時，外功防禦降低6%。
+
+假設以5層維持100%覆蓋率。實際增加：外功防禦-6%。","5层时，外功防御降低6%。
+
+假设以5层维持100%覆盖率。实际增加：外功防御-6%。","5スタック時、外功防御を6%低下させます。
+
+5スタックで稼働率100%を想定。外功防御を-6%加算します。","5중첩일 때 외공 방어력이 6% 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 방어력 -6%.","Con 5 acumulaciones, reduce la defensa física un 6%.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -6% de defensa física.","À 5 cumuls, réduit la défense physique de 6%.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -6% de défense physique.","Verringert bei 5 Stapeln die physische Verteidigung um 6 %.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -6 % physische Verteidigung.","Com 5 acúmulos, reduz a defesa física em 6%.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -6% de defesa física.","Ở 5 tầng, giảm 6% Phòng thủ ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -6% Phòng thủ ngoại công.",,"ที่ 5 ชั้น ลดการป้องกันพลังภายนอก 6%
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าการป้องกันพลังภายนอก -6%","На 5 уровнях снижает физическую защиту на 6%.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -6% физической защиты."
+data.globalBuffOptions.qingyisCharm.T6.description,"At 5 stacks, reduces Physical Defense by 6% and Physical Resistance by 10.
+
+Assuming 100% uptime at 5 stacks. Adds -6% Physical Defense and -10 Physical Resistance.","5層時，外功防禦降低6%，外功抗性降低10點。
+
+假設以5層維持100%覆蓋率。實際增加：外功防禦-6%、外功抗性-10點。","5层时，外功防御降低6%，外功抗性降低10点。
+
+假设以5层维持100%覆盖率。实际增加：外功防御-6%、外功抗性-10点。","5スタック時、外功防御を6%、外功耐性を10低下させます。
+
+5スタックで稼働率100%を想定。外功防御を-6%、外功耐性を-10加算します。","5중첩일 때 외공 방어력이 6%, 외공 저항이 10 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 방어력 -6%, 외공 저항 -10.","Con 5 acumulaciones, reduce la defensa física un 6% y la resistencia física en 10.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -6% de defensa física y -10 de resistencia física.","À 5 cumuls, réduit la défense physique de 6% et la résistance physique de 10.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -6% de défense physique et -10 de résistance physique.","Verringert bei 5 Stapeln die physische Verteidigung um 6 % und den physischen Widerstand um 10.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -6 % physische Verteidigung und -10 physischen Widerstand.","Com 5 acúmulos, reduz a defesa física em 6% e a resistência física em 10.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -6% de defesa física e -10 de resistência física.","Ở 5 tầng, giảm 6% Phòng thủ ngoại công và 10 Kháng ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -6% Phòng thủ ngoại công và -10 Kháng ngoại công.",,"ที่ 5 ชั้น ลดการป้องกันพลังภายนอก 6% และความต้านทานพลังภายนอก 10 หน่วย
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าการป้องกันพลังภายนอก -6% และค่าความต้านทานพลังภายนอก -10 หน่วย","На 5 уровнях снижает физическую защиту на 6% и физическое сопротивление на 10.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -6% физической защиты и -10 к физическому сопротивлению."
+data.globalBuffOptions.silkbindWings.blue.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 52.5% Radiant Drum uptime, 47.5% Rustling uptime, and 100% ally Cloudshear uptime. Adds 6.3% Physical Attack, 7.725% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, instead sets local Radiant Drum duration to 10.5 seconds and disables the Dawnsun extension and fallback application.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為52.5%、扶風覆蓋率為47.5%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+6.3%、屬性攻擊+7.725%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，改為將自身爍鼓持續時間設為10.5秒，並停用昭陽的延長及補施效果。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为52.5%、扶风覆盖率为47.5%、队友裁云覆盖率为100%。实际增加：外功攻击+6.3%、属性攻击+7.725%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，改为将自身烁鼓持续时间设为10.5秒，并停用昭阳的延长及补施效果。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率52.5%、支風の稼働率47.5%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を6.3%、属性攻撃力を7.725%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、代わりに自身の輝鼓の持続時間を10.5秒に設定し、昭陽による延長と代替付与を無効にします。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 52.5%, 순풍의 인도 유지율을 47.5%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +6.3%, 속성 공격 +7.725%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 대신 자신의 고무 지속 시간을 10.5초로 설정하고 소양의 지속 시간 연장 및 대체 적용을 비활성화합니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 52.5% de actividad de Tambor Radiante, un 47.5% de Susurro y un 100% de Cortanubes de aliados. Agrega un 6.3% de ataque físico, un 7.725% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, en su lugar establece la duración de Tambor Radiante propio en 10.5 segundos y desactiva la extensión y la aplicación alternativa de Sol Naciente.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 52,5% de temps actif pour Tambour radieux, 47,5% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 6,3% d’attaque physique, 7,725% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, fixe à la place la durée de votre Tambour radieux à 10,5 secondes et désactive la prolongation et l’application de secours de Soleil levant.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 52,5 % Wirkzeit für Strahlende Trommel, 47,5 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 6,3 % physischen Angriff, 7,725 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel wird stattdessen die Dauer der eigenen Strahlenden Trommel auf 10,5 Sekunden gesetzt; die Verlängerung und Ersatzanwendung durch Zhaoyang werden deaktiviert.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 52,5% de atividade de Tambor Radiante, 47,5% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 6,3% de ataque físico, 7,725% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, em vez disso define a duração do próprio Tambor Radiante como 10,5 segundos e desativa a extensão e a aplicação alternativa de Sol da Aurora.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 52.5% thời gian, Phù Phong duy trì 47.5% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 6.3% Tấn công ngoại công, 7.725% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, thay vào đó đặt thời lượng Trống rạng ngời của bản thân thành 10.5 giây và vô hiệu hóa việc kéo dài cùng cơ chế áp dụng dự phòng của Nắng sớm.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 52.5% ของเวลา เสียงใบไม้ไหวมีผล 47.5% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 6.3% การโจมตีธาตุ 7.725% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะเปลี่ยนเป็นกำหนดระยะเวลากลองเรืองแสงของตนเองเป็น 10.5 วินาที และปิดการต่อระยะเวลาและการให้ผลสำรองของตะวันรุ่ง","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 52.5% времени действия Сияющего барабана, 47.5% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 6.3% физической атаки, 7.725% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз вместо этого устанавливает длительность собственного Сияющего барабана в 10.5 секунды и отключает продление и резервное наложение от Рассвета."
+data.globalBuffOptions.silkbindWings.full.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 100% Radiant Drum uptime, 0% Rustling uptime, and 100% ally Cloudshear uptime. Adds 12% Physical Attack, 12% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, instead sets local Radiant Drum duration to 20.5 seconds and disables the Dawnsun extension and fallback application.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為100%、扶風覆蓋率為0%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+12%、屬性攻擊+12%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，改為將自身爍鼓持續時間設為20.5秒，並停用昭陽的延長及補施效果。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为100%、扶风覆盖率为0%、队友裁云覆盖率为100%。实际增加：外功攻击+12%、属性攻击+12%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，改为将自身烁鼓持续时间设为20.5秒，并停用昭阳的延长及补施效果。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率100%、支風の稼働率0%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を12%、属性攻撃力を12%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、代わりに自身の輝鼓の持続時間を20.5秒に設定し、昭陽による延長と代替付与を無効にします。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 100%, 순풍의 인도 유지율을 0%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +12%, 속성 공격 +12%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 대신 자신의 고무 지속 시간을 20.5초로 설정하고 소양의 지속 시간 연장 및 대체 적용을 비활성화합니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 100% de actividad de Tambor Radiante, un 0% de Susurro y un 100% de Cortanubes de aliados. Agrega un 12% de ataque físico, un 12% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, en su lugar establece la duración de Tambor Radiante propio en 20.5 segundos y desactiva la extensión y la aplicación alternativa de Sol Naciente.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 100% de temps actif pour Tambour radieux, 0% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 12% d’attaque physique, 12% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, fixe à la place la durée de votre Tambour radieux à 20,5 secondes et désactive la prolongation et l’application de secours de Soleil levant.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 100 % Wirkzeit für Strahlende Trommel, 0 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 12 % physischen Angriff, 12 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel wird stattdessen die Dauer der eigenen Strahlenden Trommel auf 20,5 Sekunden gesetzt; die Verlängerung und Ersatzanwendung durch Zhaoyang werden deaktiviert.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 100% de atividade de Tambor Radiante, 0% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 12% de ataque físico, 12% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, em vez disso define a duração do próprio Tambor Radiante como 20,5 segundos e desativa a extensão e a aplicação alternativa de Sol da Aurora.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 100% thời gian, Phù Phong duy trì 0% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 12% Tấn công ngoại công, 12% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, thay vào đó đặt thời lượng Trống rạng ngời của bản thân thành 20.5 giây và vô hiệu hóa việc kéo dài cùng cơ chế áp dụng dự phòng của Nắng sớm.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 100% ของเวลา เสียงใบไม้ไหวมีผล 0% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 12% การโจมตีธาตุ 12% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะเปลี่ยนเป็นกำหนดระยะเวลากลองเรืองแสงของตนเองเป็น 20.5 วินาที และปิดการต่อระยะเวลาและการให้ผลสำรองของตะวันรุ่ง","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 100% времени действия Сияющего барабана, 0% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 12% физической атаки, 12% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз вместо этого устанавливает длительность собственного Сияющего барабана в 20.5 секунды и отключает продление и резервное наложение от Рассвета."
+data.globalBuffOptions.silkbindWings.yellow.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 32.5% Radiant Drum uptime, 67.5% Rustling uptime, and 100% ally Cloudshear uptime. Adds 3.9% Physical Attack, 5.925% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, adds no external bonuses or duration changes.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為32.5%、扶風覆蓋率為67.5%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+3.9%、屬性攻擊+5.925%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，不增加外部加成，也不改變持續時間。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为32.5%、扶风覆盖率为67.5%、队友裁云覆盖率为100%。实际增加：外功攻击+3.9%、属性攻击+5.925%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，不增加外部加成，也不改变持续时间。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率32.5%、支風の稼働率67.5%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を3.9%、属性攻撃力を5.925%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、外部ボーナスも持続時間の変更も加えません。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 32.5%, 순풍의 인도 유지율을 67.5%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +3.9%, 속성 공격 +5.925%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 외부 보너스를 추가하거나 지속 시간을 변경하지 않습니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 32.5% de actividad de Tambor Radiante, un 67.5% de Susurro y un 100% de Cortanubes de aliados. Agrega un 3.9% de ataque físico, un 5.925% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, no agrega bonificaciones externas ni cambios de duración.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 32,5% de temps actif pour Tambour radieux, 67,5% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 3,9% d’attaque physique, 5,925% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, n’ajoute aucun bonus externe et ne modifie aucune durée.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 32,5 % Wirkzeit für Strahlende Trommel, 67,5 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 3,9 % physischen Angriff, 5,925 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel werden keine externen Boni oder Daueränderungen gewährt.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 32,5% de atividade de Tambor Radiante, 67,5% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 3,9% de ataque físico, 5,925% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, não adiciona bônus externos nem alterações de duração.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 32.5% thời gian, Phù Phong duy trì 67.5% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 3.9% Tấn công ngoại công, 5.925% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, không cộng thưởng bên ngoài hoặc thay đổi thời lượng.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 32.5% ของเวลา เสียงใบไม้ไหวมีผล 67.5% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 3.9% การโจมตีธาตุ 5.925% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะไม่เพิ่มโบนัสจากภายนอกหรือเปลี่ยนระยะเวลา","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 32.5% времени действия Сияющего барабана, 67.5% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 3.9% физической атаки, 5.925% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз не добавляет внешних бонусов и не меняет длительность."
+data.globalBuffOptions.soulShaken.on.description,"At 5 Soul-Shaken stacks, increases ordinary DoT damage by 25% (50% for Strategic Sword or Heavenquaker Spear) and High Bleed damage by 50%. Shattered Stone reduces Physical Defense by 5%.
+
+Assuming 100% uptime at 5 Soul-Shaken stacks and 83.33% uptime (10 seconds every 12 seconds) at 1 Shattered Stone stack. Adds 25% ordinary DoT damage (50% for Strategic Sword or Heavenquaker Spear), 50% High Bleed damage, and approximately -4.17% Physical Defense.","驚魂5層時，普通持續傷害提高25%（積矩九劍或九曲驚神槍為50%），高額流血傷害提高50%。斷石使外功防禦降低5%。
+
+假設5層驚魂覆蓋率為100%，1層斷石覆蓋率為83.33%（每12秒持續10秒）。實際增加：普通持續傷害+25%（積矩九劍或九曲驚神槍為50%）、高額流血傷害+50%，外功防禦約-4.17%。","惊神5层时，普通持续伤害提高25%（积矩九剑或九曲惊神枪为50%），高额流血伤害提高50%。断石使外功防御降低5%。
+
+假设5层惊神覆盖率为100%，1层断石覆盖率为83.33%（每12秒持续10秒）。实际增加：普通持续伤害+25%（积矩九剑或九曲惊神枪为50%）、高额流血伤害+50%，外功防御约-4.17%。","神脅し5スタック時、通常の継続ダメージが25%（九変の剣または蛇神の槍の場合は50%）、高流血ダメージが50%増加します。断石は外功防御を5%低下させます。
+
+神脅し5スタックの稼働率100%、断石1スタックの稼働率83.33%（12秒ごとに10秒）を想定。通常の継続ダメージ+25%（九変の剣または蛇神の槍の場合は50%）、高流血ダメージ+50%、外功防御約-4.17%を適用します。","경신 5중첩일 때 일반 지속 피해가 25%(구현의 검무 또는 격류의 파동은 50%), 강화 출혈 피해가 50% 증가합니다. 단석은 외공 방어력을 5% 감소시킵니다.
+
+경신 5중첩의 유지율 100%와 단석 1중첩의 유지율 83.33%(12초마다 10초)를 가정합니다. 일반 지속 피해 25%(구현의 검무 또는 격류의 파동은 50%), 강화 출혈 피해 50% 증가와 외공 방어력 약 4.17% 감소를 적용합니다.","Con 5 acumulaciones de Alma Estremecida, aumenta el daño periódico normal un 25% (50% para Espada Estratégica o Lanza Estremecedora del Cielo) y el daño de Sangrado intenso un 50%. Piedra Destrozada reduce la defensa física un 5%.
+
+Se asume un 100% de tiempo activo con 5 acumulaciones de Alma Estremecida y un 83.33% con 1 acumulación de Piedra Destrozada (10 segundos cada 12 segundos). Añade un 25% de daño periódico normal (50% para Espada Estratégica o Lanza Estremecedora del Cielo), un 50% de daño de Sangrado intenso y aproximadamente -4.17% de defensa física.","À 5 cumuls d’Âme ébranlée, augmente les dégâts sur la durée ordinaires de 25% (50% pour Épée stratégique ou Lance ébranle-ciel) et les dégâts de Saignement intense de 50%. Pierre Brisée réduit la défense physique de 5%.
+
+En supposant un temps actif de 100% à 5 cumuls d’Âme ébranlée et de 83,33% (10 secondes toutes les 12 secondes) à 1 cumul de Pierre Brisée. Ajoute 25% de dégâts sur la durée ordinaires (50% pour Épée stratégique ou Lance ébranle-ciel), 50% de dégâts de Saignement intense et réduit la défense physique d’environ 4,17%.","Erhöht bei 5 Stapeln Seelenschock gewöhnlichen Schaden über Zeit um 25 % (50 % für Strategisches Schwert oder Himmelserschütterer Speer) und Schaden durch Starke Blutung um 50 %. Zerbrochener Stein verringert die physische Verteidigung um 5 %.
+
+Bei angenommener Verfügbarkeit von 100 % mit 5 Stapeln Seelenschock und 83,33 % mit 1 Stapel Zerbrochener Stein (10 Sekunden alle 12 Sekunden). Erhöht gewöhnlichen Schaden über Zeit um 25 % (50 % für Strategisches Schwert oder Himmelserschütterer Speer) und Schaden durch Starke Blutung um 50 % und verringert die physische Verteidigung um etwa 4,17 %.","Com 5 acúmulos de Alma Abalada, aumenta o dano periódico comum em 25% (50% para Espada Estratégica ou Lança Abala-Céus) e o dano de Sangramento Intenso em 50%. Pedra Estilhaçada reduz a defesa física em 5%.
+
+Considerando 100% de tempo ativo com 5 acúmulos de Alma Abalada e 83,33% com 1 acúmulo de Pedra Estilhaçada (10 segundos a cada 12 segundos). Adiciona 25% de dano periódico comum (50% para Espada Estratégica ou Lança Abala-Céus), 50% de dano de Sangramento Intenso e aproximadamente -4,17% de defesa física.","Ở 5 tầng Kinh Thần, tăng 25% sát thương theo thời gian thông thường (50% với Kiếm Chiến Lược hoặc Thương Chấn Thiên) và 50% sát thương Xuất huyết cao. Phá đá giảm 5% Phòng thủ ngoại công.
+
+Giả định duy trì 100% ở 5 tầng Kinh Thần và 83,33% (10 giây mỗi 12 giây) ở 1 tầng Phá đá. Cộng 25% sát thương theo thời gian thông thường (50% với Kiếm Chiến Lược hoặc Thương Chấn Thiên), 50% sát thương Xuất huyết cao và khoảng -4,17% Phòng thủ ngoại công.",,"ที่ตื่นตะลึง 5 ชั้น เพิ่มความเสียหายต่อเนื่องทั่วไป 25% (50% สำหรับกระบี่กลยุทธ์หรือหอกเก้าโค้งสะท้านเทพ) และความเสียหายเลือดไหลระดับสูง 50% หินแตกลดการป้องกันพลังภายนอก 5%
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้นของตื่นตะลึง และ 83.33% ที่ 1 ชั้นของหินแตก (10 วินาทีทุก 12 วินาที) เพิ่มความเสียหายต่อเนื่องทั่วไป 25% (50% สำหรับกระบี่กลยุทธ์หรือหอกเก้าโค้งสะท้านเทพ) ความเสียหายเลือดไหลระดับสูง 50% และการป้องกันพลังภายนอกประมาณ -4.17%","На 5 уровнях Потрясённой души увеличивает обычный периодический урон на 25% (на 50% для Стратегического Меча или Копья сотрясения небес) и урон Усиленного кровотечения на 50%. Раздробленный камень снижает физическую защиту на 5%.
+
+Предполагается 100% времени действия при 5 уровнях Потрясённой души и 83,33% при 1 уровне Раздробленного камня (10 секунд каждые 12 секунд). Даёт +25% к обычному периодическому урону (50% для Стратегического Меча или Копья сотрясения небес), +50% к урону Усиленного кровотечения и примерно -4,17% к физической защите."
+data.globalBuffOptions.vulnerable.on.description,"Increases HP damage taken by 8%, plus another 10% for Might. Does not increase Qi damage.
+
+Assuming 100% uptime. Adds 8% HP damage taken, plus another 10% for Might; no Qi damage bonus.","受到的氣血傷害提高8%，威流派再額外提高10%。不增加真氣傷害。
+
+假設覆蓋率為100%。實際增加：受到的氣血傷害+8%，威流派再額外+10%；無真氣傷害加成。","受到的气血伤害提高8%，威流派再额外提高10%。不增加真气伤害。
+
+假设覆盖率为100%。实际增加：受到的气血伤害+8%，威流派再额外+10%；无真气伤害加成。","受ける気血ダメージが8%増加し、威からのダメージはさらに10%増加します。気ダメージには影響しません。
+
+稼働率100%を想定。受ける気血ダメージを8%、威からのダメージをさらに10%加算します。気ダメージボーナスはありません。","받는 기혈 피해가 8% 증가하고 열석 위의 피해는 추가로 10% 증가합니다. 진기 피해는 증가하지 않습니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 받는 기혈 피해 +8%, 열석 위 추가 +10%. 진기 피해 보너스는 없습니다.","Aumenta el daño a los PV recibido un 8%, más otro 10% para Poderío. No aumenta el daño de Qi.
+
+Suponiendo un 100% de actividad. Agrega un 8% de daño a los PV recibido, más otro 10% para Poderío; sin bonificación de daño de Qi.","Augmente les dégâts aux PV subis de 8%, avec 10% supplémentaires pour Puissance. N’augmente pas les dégâts au Qi.
+
+En supposant 100% de temps actif. Ajoute 8% de dégâts aux PV subis, avec 10% supplémentaires pour Puissance ; aucun bonus de dégâts au Qi.","Erhöht den erlittenen LP-Schaden um 8 %, bei Macht um weitere 10 %. Erhöht den Qi-Schaden nicht.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 8 % erlittenen LP-Schaden und weitere 10 % für Macht; keinen Qi-Schadensbonus.","Aumenta o dano aos PV recebido em 8%, com mais 10% para Poder. Não aumenta o dano de Qi.
+
+Considerando 100% de atividade. Adiciona 8% de dano aos PV recebido, com mais 10% para Poder; sem bônus de dano de Qi.","Tăng 8% sát thương Khí huyết nhận vào, cộng thêm 10% cho Uy. Không tăng sát thương Chân khí.
+
+Giả định duy trì 100% thời gian. Cộng 8% sát thương Khí huyết nhận vào và thêm 10% cho Uy; không có thưởng sát thương Chân khí.",,"เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 8% และเพิ่มอีก 10% สำหรับพลัง ไม่เพิ่มความเสียหายต่อลมปราณ
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 8% และเพิ่มอีก 10% สำหรับพลัง โดยไม่มีโบนัสความเสียหายต่อลมปราณ","Увеличивает получаемый урон здоровью на 8%, ещё на 10% для Мощи. Не увеличивает урон Ци.
+
+Предполагается 100% времени действия. Добавляет 8% получаемого урона здоровью и ещё 10% для Мощи; бонуса урона Ци нет."
 data.innerway.insightfulStrike.effect.InsightfulStrikeT0.trigger.0.resource.name,Focus,專注,集中,集中,집중,Concentración,Concentration,Fokus,Foco,Tập trung,,การมุ่งเน้น,Фокус
 data.martialArt.boshanQuyueSpear.name,撥山取月槍,撥山取月槍,拨山取月枪,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,,撥山取月槍,撥山取月槍
 data.martialArt.jueyuXuanfengSpear.name,決獄懸鋒槍,決獄懸鋒槍,决狱悬锋枪,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,,決獄懸鋒槍,決獄懸鋒槍
@@ -1740,6 +2115,7 @@ ui.app.gearSearchMinutes,Best composition time limit (minutes; 0 for no limit),�
 ui.app.gearTier,Gear Tier:,裝備階級：,装备阶级：,装備等級:,장비 티어,Nivel de equipo:,Palier d’équipement :,Ausrüstungsstufe:,Nível do equipamento:,Bậc trang bị:,,ระดับอุปกรณ์:,Ранг снаряжения:
 ui.app.generalCategory,General,通用,通用,共通,일반,General,Général,Allgemein,Geral,Chung,,ทั่วไป,Общее
 ui.app.github,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,,GitHub,GitHub
+ui.app.globalBuffDisabled,Does not add an external buff or debuff. Effects applied by the rotation still work.,不額外加入外部增益或減益；連招本身施加的效果仍正常生效。,不额外加入外部增益或减益；连招本身施加的效果仍正常生效。,外部の強化・弱体効果を追加しません。スキル回しによって付与される効果は引き続き機能します。,외부 강화 또는 약화 효과를 추가하지 않습니다. 연계가 적용하는 효과는 계속 작동합니다.,No agrega efectos externos de mejora o debilitamiento. Los efectos aplicados por la rotación siguen funcionando.,N’ajoute aucun bonus ni malus externe. Les effets appliqués par la rotation restent actifs.,Fügt keine externen Verstärkungen oder Schwächungen hinzu. Durch die Rotation angewandte Effekte wirken weiterhin.,Não adiciona efeitos externos de fortalecimento ou enfraquecimento. Os efeitos aplicados pela rotação continuam funcionando.,Không thêm hiệu ứng tăng cường hoặc suy yếu bên ngoài. Các hiệu ứng do chuỗi chiêu áp dụng vẫn hoạt động.,,ไม่เพิ่มบัฟหรือดีบัฟจากภายนอก เอฟเฟกต์ที่เกิดจากชุดกระบวนท่ายังคงทำงานตามปกติ,"Не добавляет внешние усиления или ослабления. Эффекты, применяемые ротацией, продолжают действовать."
 ui.app.globalBuffsDebuffs,Global Buffs/Debuffs,全局增減益,全局增减益,全体バフ・デバフ,팀원 버프/디버프,Efectos beneficiosos/perjudiciales globales,Effets bénéfiques/néfastes globaux,Globale Verstärkungen/Schwächungen,Efeitos benéficos/prejudiciais globais,Hiệu ứng có lợi/bất lợi toàn cục,,บัฟ/ดีบัฟส่วนรวม,Общие положительные/отрицательные эффекты
 ui.app.graduationRate,Graduation Rate,畢業率,毕业率,完成度,졸업률,Porcentaje de perfección,Taux d’optimisation,Ausrüstungsfortschritt,Índice de conclusão,Mức độ hoàn thiện,,ระดับความสมบูรณ์ของชุด,Степень завершённости
 ui.app.graduationRateDescription,"Graduation Rate measures how close your build is to the theoretical best-in-slot (BiS) setup. Because different rotations can have different theoretical BiS setups, this value is only a rough estimate of your current build's progression. It is not intended for calculations or as a prediction of real-combat performance.",畢業率表示目前配裝與理論最佳配裝的接近程度。不同輸出循環的理論最佳配裝可能不同，因此此數值僅粗略估計目前配裝的成長程度，不適用於計算或預測實戰表現。,毕业率表示当前配装与理论最佳配装的接近程度。不同输出循环的理论最佳配装可能不同，因此此数值仅粗略估计当前配装的成长程度，不适用于计算或预测实战表现。,完成度は、現在のビルドが理論上の最適装備構成にどれほど近いかを示します。理論上の最適構成はスキル回しによって異なるため、この値は現在のビルドの進捗を示す大まかな目安です。計算や実戦での性能予測に使用するものではありません。,졸업률은 현재 빌드가 이론상 최적 장비 구성에 얼마나 가까운지 나타냅니다. 딜 사이클마다 이론상 최적 구성이 다를 수 있으므로 현재 빌드의 성장 정도를 대략적으로 보여 주는 값입니다. 계산이나 실제 전투 성능 예측에는 사용하지 마세요.,"El porcentaje de perfección mide qué tan cerca está tu configuración de la mejor combinación teórica de equipo (BiS). Como cada rotación puede tener una combinación BiS teórica diferente, este valor es solo una estimación aproximada del progreso de tu configuración actual. No está pensado para realizar cálculos ni para predecir el rendimiento en combate real.","Le taux d’optimisation mesure à quel point votre configuration se rapproche de la meilleure configuration théorique (BiS). Celle-ci pouvant varier selon la rotation, cette valeur n’est qu’une estimation approximative de la progression de votre configuration actuelle. Elle n’est destinée ni aux calculs ni à prédire les performances en combat réel.","Der Ausrüstungsfortschritt zeigt, wie nahe dein Build der theoretisch optimalen Ausrüstung kommt. Da die optimale Ausrüstung je nach Rotation unterschiedlich sein kann, ist dieser Wert nur eine grobe Einschätzung des aktuellen Build-Fortschritts. Er dient weder als Berechnungsgrundlage noch als Vorhersage der Leistung im tatsächlichen Kampf.","O índice de conclusão mede o quanto sua configuração se aproxima da melhor configuração teórica para cada espaço de equipamento (BiS). Como rotações diferentes podem ter configurações teóricas ideais diferentes, esse valor é apenas uma estimativa aproximada do progresso da sua configuração atual. Ele não se destina a cálculos nem a prever o desempenho em combate real.","Mức độ hoàn thiện cho biết bộ trang bị của bạn gần với cấu hình tốt nhất theo lý thuyết (BiS) đến đâu. Vì mỗi chuỗi chiêu có thể có cấu hình BiS khác nhau, giá trị này chỉ ước lượng sơ bộ tiến độ của bộ trang bị hiện tại. Không dùng giá trị này để tính toán hoặc dự đoán hiệu quả chiến đấu thực tế.",,ระดับความสมบูรณ์ของชุดบอกว่าชุดจัดตัวละครของคุณใกล้เคียงกับชุดอุปกรณ์ที่ดีที่สุดตามทฤษฎี (BiS) เพียงใด เนื่องจากลำดับทักษะที่ต่างกันอาจมีชุดที่ดีที่สุดต่างกัน ค่านี้จึงเป็นเพียงค่าประเมินคร่าว ๆ ของความก้าวหน้าในชุดปัจจุบัน ไม่ได้มีไว้ใช้คำนวณหรือทำนายผลการต่อสู้จริง,"Степень завершённости показывает, насколько сборка близка к теоретически лучшему набору снаряжения (BiS). Для разных ротаций оптимальные наборы могут различаться, поэтому это лишь приблизительная оценка развития текущей сборки. Она не предназначена для расчётов или прогнозирования эффективности в реальном бою."

@@ -3146,8 +3146,9 @@ mode-end routes share that same marker, including comparisons without 神斷青�
 
 The global **Soul-Shaken + Shattered Stone (Umbra)** control retains the persisted
 `soulShaken` key. Enabling it initializes permanent maximum-stack Soul-Shaken and
-single-stack Shattered Stone together. Shattered Stone uses `defenseBonus: -0.05`
-to reduce target Physical Defense for all attackers. Sweep All applies Shattered Stone on its Spring Surge and River Flow hit (including
+single-stack Shattered Stone together. The global Shattered Stone selection
+averages its `defenseBonus: -0.05` over 10/12 uptime, reducing target Physical
+Defense by 4.166666…% for all attackers. Sweep All applies Shattered Stone on its Spring Surge and River Flow hit (including
 Empowered River Flow), after damage resolves. The single-stack debuff lasts 10
 seconds and refreshes on reapplication. Water Drop does not apply it. A global
 Shattered Stone selection stays permanent and does not stack with rotation applications.

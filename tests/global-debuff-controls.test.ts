@@ -57,11 +57,12 @@ describe("global-debuff-controls", () => {
       action: [{ type: "apply", target: "target", value: "Exhausted", stack: 1, time: 0 }],
       tags: ["Event"],
     }
-    const hit = (tags: string[] = [], appliesFearful = false): SkillRecord => ({
+    const hit = (tags: string[] = [], appliesFearful = false, appliesShattered = false): SkillRecord => ({
       name: "Hit",
       castTime: 1,
       action: [
         ...(appliesFearful ? [{ type: "apply", target: "target", value: "FearfulBlade", stack: 1, time: 0 }] : []),
+        ...(appliesShattered ? [{ type: "apply", target: "target", value: "ShatteredStone", stack: 1, time: 0 }] : []),
         { type: "damage", phyCoef: 1, attrCoef: 1, time: 1 },
       ],
       tags,
@@ -74,6 +75,7 @@ describe("global-debuff-controls", () => {
       initialBuffs: TrackedEffect[] = [],
       nextStats: CharacterStats = stats,
       setupEffects: EditableObject[] = [],
+      appliesShattered = false,
     ): number => {
       // Exhausted is a target debuff, so the fight has to start on the event
       // that applies it. Nothing reaches the target during prepull.
@@ -86,7 +88,7 @@ describe("global-debuff-controls", () => {
       return calculateRotationBaseline({
         timeline: {
           rotation: { name: "Probe", steps, start: { step: 0 } },
-          skills: { Hit: hit(tags, appliesFearful) },
+          skills: { Hit: hit(tags, appliesFearful, appliesShattered) },
           eventDefinitions: { Exhausted: exhaustedEvent },
           dots: {},
           effectDefinitions,
@@ -147,17 +149,24 @@ describe("global-debuff-controls", () => {
       "Both Umbra support debuffs must remain active.",
     )
     assert(
-      closeTo(result(soulEffects), result([], [], false, false, [], stats, [{ effect: { defenseBonus: -0.05 } }])),
-      "The saved Umbra toggle must reduce defense for ordinary non-Umbra hits by 5%.",
+      closeTo(
+        result(soulEffects),
+        result([], [], false, false, [], stats, [{ effect: { defenseBonus: -0.05 * (10 / 12) } }]),
+      ),
+      "The saved Umbra toggle must reduce defense for ordinary non-Umbra hits by 5% × 10/12.",
     )
     assert(
       closeTo(
         result(soulEffects, ["DOT"]),
         result([{ name: "SoulShaken", stack: 5 }], ["DOT"], false, false, [], stats, [
-          { effect: { defenseBonus: -0.05 } },
+          { effect: { defenseBonus: -0.05 * (10 / 12) } },
         ]),
       ),
       "The Umbra toggle must combine Soul-Shaken's DoT bonus with Shattered Stone's defense reduction.",
+    )
+    assert(
+      closeTo(result(soulEffects, [], false, false, [], stats, [], true), result(soulEffects)),
+      "A rotation reapplication of Shattered Stone must preserve the global 10/12 uptime average.",
     )
     const qingyiEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, qingyisCharm: "T6" })
     assert(
@@ -175,24 +184,35 @@ describe("global-debuff-controls", () => {
       bossTalent: 0.15,
       floatingGrace: "mixed",
     })
-    assert(closeTo(result([], [], false, false, combinedEffects) / baseline, 1.25))
+    assert(closeTo(result([], [], false, false, combinedEffects) / baseline, 1.19))
     const mixedGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "mixed" })
     const delugeGraceEffects = globalBuffTimelineEffects({ ...defaultGlobalDebuffs, floatingGrace: "deluge" })
     assert(
       mixedGraceEffects[0]?.name === "FloatingGrace" && mixedGraceEffects[0]?.persistent,
-      "Floating Grace Mixed must initialize the permanent 10% base buff.",
+      "Floating Grace Mixed must initialize the permanent uptime-averaged base buff.",
     )
     assert(
       delugeGraceEffects[0]?.name === "FloatingGraceDeluge" && delugeGraceEffects[0]?.persistent,
-      "Floating Grace Deluge must initialize the permanent 24% Deluge buff.",
+      "Floating Grace Deluge must initialize the permanent uptime-averaged Deluge buff.",
     )
     assert(
-      closeTo(result([], [], false, false, mixedGraceEffects) / baseline, 1.1),
-      "Floating Grace Mixed must increase general damage by 10%.",
+      closeTo(result([], [], false, false, mixedGraceEffects) / baseline, 1.04),
+      "Floating Grace Mixed must average 10% general damage over 12 seconds every 30 seconds.",
     )
     assert(
-      closeTo(result([], [], false, false, delugeGraceEffects) / baseline, 1.24),
-      "Floating Grace Deluge must increase general damage by 24%.",
+      closeTo(result([], [], false, false, delugeGraceEffects) / baseline, 1.096),
+      "Floating Grace Deluge must average 24% general damage over 12 seconds every 30 seconds.",
+    )
+    assert(
+      closeTo(
+        result([], [], false, false, [{ name: "FloatingGraceDeluge", stack: 1, persistent: true }]) / baseline,
+        1.24,
+      ),
+      "Rotation-applied Deluge must retain its full 24% damage bonus.",
+    )
+    assert(
+      closeTo(result([], [], false, false, [{ name: "FloatingGrace", stack: 1, persistent: true }]) / baseline, 1.1),
+      "Rotation-applied Mixed Floating Grace must retain its full 10% damage bonus.",
     )
     const phantom = result(phantomEffects)
     assert(
@@ -216,12 +236,32 @@ describe("global-debuff-controls", () => {
     )
     const fearfulEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, fearfulBlade: true })
     assert(
-      closeTo(result(fearfulEffects, ["SnowpartingBlade"]) / baseline, 1.08),
-      "Fearful Blade must give its conditional 8% to Strength damage.",
+      closeTo(result(fearfulEffects, ["SnowpartingBlade"]) / baseline, 1.06),
+      "Fearful Blade must give its conditional 8% to Strength damage at 75% uptime (6% average).",
     )
     assert(
-      closeTo(result(fearfulEffects, ["SnowpartingBlade"], false, true) / baseline, 1.08),
+      closeTo(result(fearfulEffects, ["SnowpartingBlade"], false, true) / baseline, 1.06),
       "A rotation-applied Fearful Blade must merge with the permanent global debuff instead of doubling it.",
+    )
+
+    assert(
+      closeTo(result([], ["SnowpartingBlade"], false, true) / baseline, 1.08),
+      "Rotation-applied Fearful Blade must retain the full 8% Strength bonus.",
+    )
+    const attributeStats = { ...stats, minPhys: 0, maxPhys: 0, minBellstrike: 1000, maxBellstrike: 1000 }
+    assert(
+      closeTo(
+        result(fearfulEffects, [], false, false, [], attributeStats),
+        result([], [], false, false, [], attributeStats, [{ effect: { bellstrikeResistance: -12 } }]),
+      ),
+      "Fearful Blade must average its attribute resistance reduction to 12 without granting the Strength-only bonus.",
+    )
+    assert(
+      closeTo(
+        result([{ name: "ShatteredStone", stack: 1 }]),
+        result([], [], false, false, [], stats, [{ effect: { defenseBonus: -0.05 } }]),
+      ),
+      "Rotation-applied Shattered Stone must retain its full 5% defense reduction.",
     )
 
     const qiEffects = globalDebuffTimelineEffects({ ...defaultGlobalDebuffs, qiImbalance: true })

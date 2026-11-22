@@ -20,10 +20,12 @@
     "shared": true,
     "effect": [
       {
-        "bellstrikeResistance": -16,
-        "stonesplitResistance": -16,
-        "silkbindResistance": -16,
-        "bamboocutResistance": -16
+        "effect": {
+          "bellstrikeResistance": -16,
+          "stonesplitResistance": -16,
+          "silkbindResistance": -16,
+          "bamboocutResistance": -16
+        }
       },
       {
         "requirement": [
