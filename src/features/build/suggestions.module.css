@@ -1,0 +1,64 @@
+@layer components {
+  .marker {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-inline-end: var(--space-2xs);
+    color: var(--primary);
+
+    :focus-visible > & {
+      outline: 1px solid currentcolor;
+      outline-offset: var(--space-2xs);
+    }
+  }
+
+  .suggestedRow {
+    padding: var(--space-2xs) var(--space-xs);
+    border-radius: var(--space-2xs);
+
+    &:focus-visible {
+      outline: 1px solid var(--primary);
+      outline-offset: var(--space-2xs);
+    }
+  }
+
+  .retuneRow {
+    border-inline-start: 1px solid var(--success);
+    background: var(--success-soft);
+  }
+
+  .newItemRow {
+    border-inline-end: 1px dashed var(--primary);
+    background: var(--primary-soft);
+  }
+
+  .retuneIcon {
+    color: var(--success);
+  }
+
+  .newItemIcon {
+    color: var(--primary);
+  }
+
+  .summary,
+  .option,
+  .options {
+    display: grid;
+    gap: var(--space-xs);
+  }
+
+  .options {
+    max-inline-size: 24rem;
+  }
+
+  .summary .target,
+  .options .target {
+    display: inline;
+    margin: 0;
+    padding-inline: var(--space-2xs);
+    border-radius: var(--space-2xs);
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-weight: 700;
+  }
+}

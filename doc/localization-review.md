@@ -265,3 +265,40 @@ and Korean charge consumption. The new Korean short labels use generic
 umbrella special wording to avoid reusing Soulshade's unrelated skill name;
 that correction received a follow-up review. Structural checks found no errors
 or warnings. No rendered UI inspection or human language review was performed.
+
+## Global buff option descriptions — 22 November 2026
+
+All 16 new messages received independent AI review in each of the eleven
+published non-English locales. Review clarified maximum-stack scope, the
+ordinary-DoT weapon exception, Exhausted wording, uptime averaging, and existing
+catalog terms. Numbers, conditions, and equipment exclusions were checked
+against the English descriptions and combat data. The descriptions are authored
+simulator copy using existing terminology; no new official strings were recovered.
+No browser or human language review was performed.
+
+The global descriptions now separate the full active/max-stack effect from an
+explicit uptime/stack assumption and its averaged contribution. Both Floating
+Grace variants use 40% uptime; Wings lists its separate Radiant Drum, Rustling,
+and ally Cloudshear assumptions and its equipped-Drum behavior. The revised 15
+descriptions per locale received independent AI language review. No browser or
+human language review was performed.
+
+Fearful Blade now states 75% uptime (15/20), averaging to -12 attribute resistance
+and +6% Strength HP damage taken. Umbra retains full-uptime, five-stack Soul-Shaken
+and gives one-stack Shattered Stone 10/12 uptime (83.33%), averaging to roughly
+-4.17% Physical Defense. The two revised descriptions received independent AI
+review in each published non-English locale; no browser or human review occurred.
+
+### Suggestion gain ranges — 2026-11-23
+
+Two new UI messages (`ui.buildTab.suggestionCombinedGain` and
+`ui.buildTab.suggestionGainRangeHint`) were AI-translated and independently
+AI-reviewed in zh-Hant, zh-Hans, ja, ko, es, fr, de, pt, vi, th, and ru. The
+review checked numerical ranges, the scope of the numbered plan, recalculation
+after alternatives, and `{gain}`/percentage notation. Minor clarity corrections
+were accepted for Japanese, French, Vietnamese, Thai, and Russian. The wording
+reuses catalog DPS and plan terminology; no official datamine recovery is claimed.
+The obsolete smaller-retune hint was removed because overlapping ranges cannot
+be described by one arbitrary order's marginal gain. Component rendering and
+placeholder/coverage checks were performed; browser and human language review
+were not performed.

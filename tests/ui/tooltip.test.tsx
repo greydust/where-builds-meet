@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act } from "react"
 import { createRoot, type Root } from "react-dom/client"
-import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Tooltip } from "@/ui/Tooltip"
 
@@ -20,6 +20,8 @@ describe("Tooltip", () => {
   afterEach(async () => {
     await act(async () => root.unmount())
     container.remove()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   /**
@@ -94,6 +96,31 @@ describe("Tooltip", () => {
     await act(async () => {
       trigger.dispatchEvent(new Event("pointerout", { bubbles: true }))
     })
+    expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
+  })
+
+  it("keeps a complete recipe within a short viewport", async () => {
+    vi.stubGlobal("innerHeight", 720)
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+      return this.getAttribute("role") === "tooltip"
+        ? ({ top: 0, bottom: 500, left: 0, right: 350, width: 350, height: 500 } as DOMRect)
+        : ({ top: 500, bottom: 530, left: 100, right: 450, width: 350, height: 30 } as DOMRect)
+    })
+    await act(async () => root.render(<Tooltip content="Complete replacement">Affix</Tooltip>))
+    const box = (await reveal()) as HTMLElement
+    expect(Number.parseFloat(box.style.top)).toBeGreaterThanOrEqual(8)
+    expect(Number.parseFloat(box.style.top) + 500).toBeLessThanOrEqual(712)
+  })
+
+  it("stays open while the pointer moves into the recipe so long hints can be scrolled", async () => {
+    await act(async () => root.render(<Tooltip content="Complete replacement">Affix</Tooltip>))
+    const trigger = container.firstElementChild as HTMLElement
+    const box = (await reveal()) as HTMLElement
+    await act(async () => trigger.dispatchEvent(new MouseEvent("pointerout", { bubbles: true, relatedTarget: box })))
+    expect(document.body.querySelector('[role="tooltip"]')).toBe(box)
+    await act(async () =>
+      box.dispatchEvent(new MouseEvent("pointerout", { bubbles: true, relatedTarget: document.body })),
+    )
     expect(document.body.querySelector('[role="tooltip"]')).toBeNull()
   })
 })

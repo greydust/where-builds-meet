@@ -1,12 +1,12 @@
 import { IconX } from "@tabler/icons-react"
 import { useSyncExternalStore } from "react"
 
-import { t } from "../../i18n"
-import { dismissNotice, getNotices, subscribeToNotices, type NoticeMessage } from "../../notices"
-import { Button } from "../../ui/Button"
+import { t } from "@/i18n"
+import { dismissNotice, getNotices, subscribeToNotices, type NoticeMessage } from "@/notices"
+import { Button } from "@/ui/Button"
 
 function noticeText(message: NoticeMessage) {
-  return typeof message === "string" ? message : message()
+  return typeof message === "function" ? message() : message
 }
 
 export function NoticeArea() {

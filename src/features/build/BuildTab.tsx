@@ -30,13 +30,13 @@ import { ExportSelection, TransferSelectionDialog } from "@/features/transfer/Ex
 import { transferItemGroup } from "@/features/transfer/transferItemGroup"
 import {
   defaultBuildSetup,
-  defaultBuildPresets,
   duplicateBuildState,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
   availableSetEntriesForTags,
   affixOptionsForGearDefinition,
+  defaultBuildPresets,
   buildEntryAvailableForMartialArts,
   buildEntryMartialArts,
   exportBuildState,
@@ -90,6 +90,8 @@ import {
 } from "./GearEditor"
 import { GearSuggestions } from "./GearSuggestions"
 import { officialImportForPath, officialImportPaths } from "./officialImportReview"
+import { BuildSuggestionSummary, suggestionAlternatives, type PresentedItemSuggestion } from "./OptimizationSuggestion"
+import { useBuildSuggestions } from "./useBuildSuggestions"
 import { useBuildThroughputs } from "./useBuildThroughputs"
 import { useGearComparison } from "./useGearComparison"
 
@@ -142,6 +144,7 @@ type BuildManagementProps = {
   /** The sheet and environment the candidates are measured in, and the rotation they run. */
   measurement: MeasurementContext
   activeRotation?: RotationRecord
+  suggestions: ReadonlyMap<string, PresentedItemSuggestion>
 }
 
 const stackedBuildLayoutQuery = "(max-width: 80em)"
@@ -166,6 +169,9 @@ const noGearOptions: string[] = []
 
 /** The shared empty set, so clearing visibility is a state change rather than a new identity. */
 const emptySet: ReadonlySet<string> = new Set()
+
+/** Import previews have no requested suggestions. */
+const emptySuggestions: ReadonlyMap<string, PresentedItemSuggestion> = new Map()
 
 const attunementOptionCache = new Map<string, string[]>()
 function cachedAttunementOptions(
@@ -308,6 +314,49 @@ export default function BuildTab({
   })
   const editedThroughput = optimizingViewed ? optimization.progress?.reading : throughputs.viewed
   const activeThroughput = throughputs.active
+
+  const suggestionRun = useBuildSuggestions(
+    optimization ? undefined : storedEditingEntry,
+    visibleItems,
+    measurement,
+    activeRotation,
+  )
+  const suggestions = useMemo(() => {
+    const result = suggestionRun.result
+    if (!result) return new Map<string, PresentedItemSuggestion>()
+    const alternatives = suggestionAlternatives(result)
+    return new Map(
+      result.items.map(item => [
+        item.itemId,
+        {
+          ...item,
+          targets: result.targets,
+          alternatives,
+          step: result.order?.includes(item.itemId) ? result.order.indexOf(item.itemId) + 1 : undefined,
+          comparisonOptions: item.retuneAlternative ? [...item.options, ...item.retuneAlternative.options] : undefined,
+        },
+      ]),
+    )
+  }, [suggestionRun.result])
+
+  const { result: suggestionResult, error: suggestionError } = suggestionRun
+  useEffect(() => {
+    if (suggestionResult || suggestionError) {
+      publishNotice({
+        id: "build-suggestions",
+        error: Boolean(suggestionError),
+        message: () => {
+          if (suggestionError) return t("ui.buildTab.suggestionFailed")
+          return suggestionResult ? (
+            <BuildSuggestionSummary result={suggestionResult} />
+          ) : (
+            t("ui.buildTab.suggestionNoPreset")
+          )
+        },
+      })
+    }
+    return () => dismissNotice("build-suggestions")
+  }, [suggestionResult, suggestionError])
 
   if (!editingEntry)
     return (
@@ -865,6 +914,20 @@ export default function BuildTab({
               >
                 {optimizingViewed ? t("ui.buildTab.cancel") : t("ui.buildTab.findBestCombination")}
               </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="small"
+                disabled={
+                  suggestionRun.busy ||
+                  Boolean(optimization) ||
+                  !activeRotation ||
+                  !buildEntryAvailableForMartialArts(editingEntry, weapons)
+                }
+                onClick={suggestionRun.run}
+              >
+                {suggestionRun.busy ? t("ui.buildTab.suggestionCalculating") : t("ui.buildTab.optimizationSuggestion")}
+              </Button>
             </div>
           </div>
           {optimizingViewed && (
@@ -906,6 +969,7 @@ export default function BuildTab({
             build={editingEntry}
             measurement={measurement}
             activeRotation={activeRotation}
+            suggestions={suggestions}
           />
         </div>
       </div>
@@ -1076,6 +1140,7 @@ export default function BuildTab({
                     martialArtTags={officialMartialArtTags}
                     pathTag={typedPathDefinitions[officialTargetPath].tag}
                     locked
+                    suggestions={emptySuggestions}
                   />
                   {officialPreview.exportValue.builds[0].setup.innerWays.some(
                     (row, index) => row.innerWay && !reviewedOfficialExport.builds[0].setup.innerWays[index].innerWay,
@@ -1292,6 +1357,7 @@ function BuildOverview({
   selectedSlot,
   onSelectSlot,
   onSetupChange = ignoreSetupChange,
+  suggestions,
   children,
 }: {
   inventory: GearInventory
@@ -1304,6 +1370,7 @@ function BuildOverview({
   selectedSlot?: GearSlot
   onSelectSlot?: (slot: GearSlot) => void
   onSetupChange?: (setup: BuildSetup) => void
+  suggestions: ReadonlyMap<string, PresentedItemSuggestion>
   children?: ReactNode
 }) {
   const gearLocked = locked || inventoryLocked === true
@@ -1355,6 +1422,7 @@ function BuildOverview({
                   name={item ? gameText(definition?.name) : undefined}
                   selected={!gearLocked && selectedSlot === slot}
                   disabled={gearLocked}
+                  suggestion={suggestions.get(item?.id ?? "")}
                   onSelect={() => onSelectSlot?.(slot)}
                 />
               )
@@ -1384,6 +1452,7 @@ function BuildManagement({
   build,
   measurement,
   activeRotation,
+  suggestions,
 }: BuildManagementProps) {
   const gearLocked = locked || inventoryLocked === true
   const [selectedSlot, setSelectedSlot] = useState<GearSlot>("leftWeapon")
@@ -1641,6 +1710,7 @@ function BuildManagement({
         selectedSlot={selectedSlot}
         onSelectSlot={selectSlot}
         onSetupChange={onSetupChange}
+        suggestions={suggestions}
       >
         {!gearLocked && (
           <Panel className="build-inventory-panel">

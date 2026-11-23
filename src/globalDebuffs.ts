@@ -130,6 +130,23 @@ function permanentEffect(name: string, definition: { maxStack?: number }): Track
   return { name, stack: definition.maxStack ?? 1, maxStack: definition.maxStack, persistent: true }
 }
 
+function averagedEffect(
+  name: string,
+  definition: { maxStack?: number; effect: { effect: Record<string, number | undefined>; requirement?: unknown }[] },
+  uptime: number,
+): TrackedEffect {
+  return {
+    ...permanentEffect(name, definition),
+    appliedEffectRules: definition.effect.map(rule =>
+      Object.assign({}, rule, {
+        effect: Object.fromEntries(
+          (Object.entries(rule.effect) as [string, number][]).map(([field, amount]) => [field, amount * uptime]),
+        ),
+      }),
+    ),
+  }
+}
+
 function normalizeWingsSupport(value: unknown): GlobalDebuffState["silkbindWings"] {
   switch (value) {
     case "yellow":
@@ -163,15 +180,18 @@ export function globalBuffTimelineEffects(state: GlobalDebuffState): TrackedEffe
 }
 
 function floatingGraceTimelineEffects(state: GlobalDebuffState): TrackedEffect[] {
+  let name: "FloatingGrace" | "FloatingGraceDeluge"
   switch (state.floatingGrace) {
     case "mixed":
-      return [permanentEffect("FloatingGrace", definitions.FloatingGrace)]
+      name = "FloatingGrace"
+      break
     case "deluge":
-      return [permanentEffect("FloatingGraceDeluge", definitions.FloatingGraceDeluge)]
-    case "none":
+      name = "FloatingGraceDeluge"
+      break
     default:
       return []
   }
+  return [averagedEffect(name, definitions[name], 12 / 30)]
 }
 
 export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEffect[] {
@@ -190,6 +210,16 @@ export function globalDebuffTimelineEffects(state: GlobalDebuffState): TrackedEf
   ]
   return [
     ...draughtTimelineEffects(normalizeDraught(state)),
-    ...selectedDefinitions.flatMap(entry => (entry ? [permanentEffect(entry[0], entry[1])] : [])),
+    ...selectedDefinitions.flatMap(entry => {
+      if (!entry) return []
+      switch (entry[0]) {
+        case "FearfulBlade":
+          return [averagedEffect(entry[0], definitions.FearfulBlade, 15 / 20)]
+        case "ShatteredStone":
+          return [averagedEffect(entry[0], definitions.ShatteredStone, 10 / 12)]
+        default:
+          return [permanentEffect(entry[0], entry[1])]
+      }
+    }),
   ]
 }

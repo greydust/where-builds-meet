@@ -28,6 +28,7 @@ import { typedSystemStats, breakthroughProfile } from "./gameData/setup"
 import { defaultAttunementStats } from "./persistence/attunements"
 
 export type GraduationEnvironment = {
+  rotationEventLimit?: number
   pathId: PathId
   martialArts: [WeaponId, WeaponId]
   rotation: RotationRecord
@@ -49,6 +50,7 @@ export function graduationEnvironmentFingerprint(
 ) {
   const { name: _displayName, ...rotation } = environment.rotation
   return calculationFingerprint({
+    rotationEventLimit: environment.rotationEventLimit,
     pathId: environment.pathId,
     martialArts: environment.martialArts,
     rotation,
@@ -150,6 +152,7 @@ export function buildPresetRotationBundle(
   return {
     timeline: {
       rotation,
+      eventLimit: environment.rotationEventLimit,
       skills: definitions.skills,
       eventDefinitions: rotationEventDefinitions,
       dots: definitions.dots,

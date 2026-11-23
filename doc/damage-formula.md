@@ -1109,9 +1109,16 @@ global effects. An enabled choice initializes one permanent tracked buff or
 debuff on the timeline; stacking debuffs start at maximum stacks. If the
 rotation applies the same effect, it updates that tracked entry rather than
 adding a second copy, and the global entry remains permanent. Floating Grace's
-Mixed choice uses the base 10% `dmgBonus` definition, while Deluge uses its 24%
-definition. Requirements still resolve per damage action: Qi Imbalance requires
+Mixed and Deluge choices average their respective 10% and 24% `dmgBonus`
+definitions over 12 seconds every 30 seconds (40% uptime), applying 4% and 9.6%
+through tracked effect rules. Without a global selection, rotation-applied Floating Grace retains its full bonus. Requirements still resolve per damage action: Qi Imbalance requires
 Exhausted, and path-specific additions require the matching martial-art tag.
+The global Fearful Blade selection averages its effects over 15/20 uptime:
+attribute resistances -12 and Strength-only HP damage taken +6%. The Umbra
+selection keeps Soul-Shaken at five stacks with full uptime, while Shattered
+Stone averages its 5% defense reduction over 10/12 uptime (4.166666…%). These
+tracked-rule overrides do not change the underlying rotation-applied definitions.
+Reapplication preserves the averaged rules of a permanent global effect.
 These controls and their DPS comparisons use the same worker calculation as the
 baseline.
 
@@ -1429,3 +1436,12 @@ so changed critical rates, healing, HP, and overheal collectors are resolved aga
 Source: normal/layer-zero set 29 in the 2026-10-21 16:50 local datamine export.
 The grey variant retains older full-HP-only wording. Refresh and teammate eligibility
 are confirmed game behavior supplied by the user.
+
+## Manual boss damage boost
+
+Boss General Damage Boost is a manual encounter event. Its duration in seconds
+and general damage bonus percentage are entered in the rotation Buff column,
+duration first. The stored `damageBonus` is a decimal ratio and adds to Category 1
+(`dmgBonus`) for hits during the active interval, including the start and
+excluding expiry. It does not consume cast time. Reapplying replaces the amount
+and restarts the duration; overlapping activations do not stack.

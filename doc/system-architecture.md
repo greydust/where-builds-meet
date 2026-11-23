@@ -578,6 +578,191 @@ active build contributes gear stats, attunement, weapon and armor sets, bow/ring
 arsenal to calculations. The same
 viewed-versus-active distinction applies to rotations; an edited rotation
 publishes metrics globally only when it is also active.
+
+### Combat timeline event limit
+
+Settings stores the rotation event limit separately from saved rotations under
+`wwm-rotation-event-limit-v2`. It defaults to 6,000 processed combat events;
+`0` disables the cap. Positive limits must be safe integers. The application
+passes the selected limit into editor, baseline, comparison, gear-search and
+graduation timeline bundles. It is part of their fingerprints, so changing it
+refreshes calculations and editor previews. Exceeding a positive limit reports
+an error rather than returning a partial timeline. Direct timeline callers that
+omit the option retain the defaults (6,000, or 20,000 for outcome states).
+
+The loader migrates v1 only when v2 is absent: 5,000 becomes 6,000,
+while other valid caps, including Unlimited (0), are preserved. Invalid legacy
+values use the new default. The v2 value takes precedence thereafter, including
+an explicitly chosen 5,000. Legacy storage cannot distinguish an explicit 5,000
+from the former default, so both migrate. A blocked storage write uses the
+migrated value in memory and retries next load. Rotation records are unchanged.
+
+Strength includes the supplied Mixed Mhysa 5 Min and Pure Mhysa 5 Min presets with
+their authored skill steps, combat start, 20 ms ping and infinite Vitality settings.
+Both end at 300 seconds. Added Qi thresholds linearly approach the supplied
+exhaustion anchors (195.84365059452395s mixed, 206.23648392785742s pure at
+20 ms); the mixed rotation reaches 60% again after the 14-second exhaustion
+and protection window using the same depletion duration.
+
+### Opt-in build optimization suggestions
+
+The Build tab offers **Optimization Suggestion** immediately after **Find Best Combination**.
+The result summary appears in the shared Messages popup; the full suggested affix
+row is highlighted. Retune options use a green solid edge and adjustment icon;
+new-item options use a gold dashed edge and dice icon. Hovering or focusing the
+whole affix row reveals its hint, including the value area. A row with both options
+shows both icons and edges. Nothing is assessed or marked
+until the user clicks it. A disposable `buildSuggestionsWorker` snapshots the
+viewed build, rotation, sheet overrides, and environment. Completed results remain in a page-memory cache per build. Switching builds or
+tabs restores the unchanged build's advice without rerunning; reloading the page
+clears it. Changes to gear, setup, rotation, or calculation settings invalidate
+that build's cached result and terminate pending work. No suggestions alter saved equipment or the active result.
+
+`calculations/buildSuggestions.ts` chooses the closest compatible non-test Default preset
+from the current path's build group and martial arts at the current gear tier,
+using the sum of absolute differences in overall affix counts. Ties use catalog
+order. It excludes the path's `graduated` preset IDs, matching the build list's
+Default versus Graduate labels. Relayed Default presets remain eligible.
+Affixes are interchangeable between eligible slots;
+no item is required to copy the preset's exact affix placement. Composition matching
+uses `suggestionAffixKey`, based on the damage pipeline's `mainAttributeForWeapons`:
+Min/Max Void Attack count as Min/Max of that weapon pair's primary attribute.
+This normalization applies to preset selection, completed allocations, shared
+counts, row changes, and retune comparisons. Legal recipes retain existing raw
+affix names when equivalent; saved gear and the measured values are not rewritten.
+
+Reroll suggestions describe a complete replacement item: one legal base affix and
+four legal additional affixes, all at the maximum relayed value for the item's
+level. Type, level, rarity, and attunement stay fixed; the new item is relayed and
+has no previously retuned row. The search enumerates all base/unique-additional
+combinations from the selected preset's stat mix, including base-plus-additional
+copies of the same stat, and enforces the existing exclusivity rules. It keeps
+matching additional affixes in their existing positions to avoid duplicate
+permutations.
+
+`presetCompletion.ts` allocates legal whole-item recipes across every equipped
+item to match the selected preset's affix counts exactly. Its memoized constraint
+search uses remaining stat counts and item slots, picks the most constrained
+remaining item, and prunes impossible per-stat capacities. Recipe order prefers
+retaining existing rows. If the preset cannot be completed with these gear types,
+no local reroll recipes are offered as a substitute. Some Double Min catalog
+presets contain both Min Bellstrike and Min Stonesplit on one item, conflicting
+with the shared exclusivity rule; the completion search does not bypass that rule.
+
+Each qualifying reroll candidate must have a concrete completed allocation.
+Completed-build DPS ranks these allocations through the shared gear evaluator;
+ties prefer closing more current deficits and then the larger immediate gain.
+Selecting an item freezes its full recipe for subsequent completion checks, so
+canonical rerolls are supported by one jointly feasible completed build. Alternative
+item locations also require a completed allocation, but are mutually exclusive
+choices rather than extra canonical actions. The result carries the completed
+allocation separately from the subset of immediately recommended upgrades.
+This is a constrained sequential search, not an exhaustive global DPS optimization.
+Whole-item rerolls may move a needed affix between items when the completed
+allocation proves its replacement elsewhere. They are not restricted by current
+outside-item counts or a per-stat monotonic-deficit check: those local constraints
+can block a valid change such as replacing a weapon's Max Attribute base with
+Min Physical Attack while placing the Max Attribute copy on armor.
+However, every full reroll preserves stat targets already satisfied in its actual
+measurement context. A target of two Precision copies cannot be reduced to one
+by assuming an unseen future addition. A relocation must first add the replacement
+in a qualifying earlier action. Alternative item locations are checked against
+the original build, so canonical-plan prerequisites cannot silently justify them.
+Future allocation changes that fail the 0.3% threshold are not available prerequisites.
+This keeps satisfied targets safe while still allowing feasible redistribution of
+stats that are already deficient within a coordinated plan. Before returning,
+the planner replays the actually selected actions and compares every final stat
+count with `min(original count, preset target)`. If a needed copy was lost because
+its hypothetical replacement never qualified, the planner retries with losses of
+that stat disallowed. Each retry protects a new stat, so this stops after at most
+the number of target stats. This validation is against the actual actions, not
+against the unexecuted completed allocation. Every action must also avoid
+increasing count distance from the preset. Equal-distance preparatory exchanges
+are allowed when the item moves to its assigned completed recipe.
+
+Standalone alternatives may not create or deepen any current deficit, including
+ones already below target. Their additions toward a target must fit the displayed
+shared target budget. A hypothetical completion cannot justify offering an
+alternative that needs two new copies when the shared plan calls for only one.
+Partial retunes likewise cannot create or deepen a current preset deficit and
+must strictly reduce their item's count distance to its completed recipe.
+
+After selecting a qualifying completed-item recipe, the planner applies its action
+only to a temporary build and recalculates every remaining item. A cheaper retune
+can be offered as a partial alternative; it does not change the full recipe in
+the reroll allocation. If a qualifying retune reaches the same normalized base
+and additional-affix multiset as the full recipe, the planner recommends only
+that retune, ignoring row order and value-only relay differences. If only a partial
+retune qualifies, its destination must still be retained in the completed recipe.
+Each physical item has at most one planned action. No canonical action may improve DPS by less than
+`optimizationSuggestionMinimumGain` in `data/internal-settings.json` (initially
+`0.003`). This threshold applies to the actual item change against the preceding
+temporary build, not to the completed-build DPS. Items below the threshold may
+remain part of the future completed allocation without being recommended now.
+An empty/zero-DPS rotation produces no suggestions.
+
+The shared target is the positive net count difference between the final temporary
+build and the original, with both counts capped at the preset's target. Temporary
+surplus copies used for relocation are not advertised as additional deficits to
+fill. It is not a count of highlighted rows or a sum of all affixes on new items. Replacing a weapon with zero Min Physical Attack copies with a base-plus-
+additional Min Physical Attack recipe contributes two copies. Removing an existing
+copy is accounted for before calculating the net target. Unselected items can offer
+alternative full recipes within that shared target budget. Eligible locations are
+counted once per physical item, even if its recipe adds two copies or a retune
+alternative is also shown. The complete recipe includes relayed maximum values,
+but reroll changes and row highlights include only affix-type changes. Retaining
+an affix with a higher value does not mark that row for rerolling. A recipe that
+only increases values, or rearranges an unchanged affix multiset between base and
+additional positions, does not produce a reroll suggestion.
+
+Alongside a full replacement, a qualifying one-affix retune is retained as a
+cheaper partial alternative, even if its immediate gain is larger. Both have
+separate ranges and count contributions; the UI does not attribute a threshold
+bonus exclusively to the item arbitrarily evaluated second. A retune
+need not deliver every stat or copy in the full recipe: the range hint asks the
+user to recalculate after choosing an alternative. Retunes obey the existing
+unrelayed, locked-row, retune-pool, duplicate, and exclusivity rules. Their added
+affix must be retained in the same item's completed recipe. They change only
+the selected row, using the agreed relayed maximum for its new value. Applying a
+hypothetical retune records its turned-affix index, preserving the normal lock
+semantics for subsequent evaluations.
+
+Full recipe tooltips list the base and all four additional affixes and their
+values, with stat names highlighted in bold. Each option states its net added
+copies beside the shared plan totals. Changed current rows are highlighted; the
+whole row reveals the complete comparison, including its value area. These are
+alternative actions for one item, never instructions to apply both. Gains belong
+to the stated sequential context and must not be summed as independent upgrades.
+The result's `order` records canonical actions for replay; the Messages popup
+lists these numbered steps, and the matching affix hints display their step number.
+Unselected alternative locations are unnumbered and measured against the unchanged
+original build. Selecting a cheaper partial retune is a different branch; actual
+gear edits invalidate the cached plan and require recalculation before proceeding.
+`suggestionGains.ts` measures the combined numbered plan directly from its actual
+final gear against the original gear; it never sums or averages marginal percentages.
+Each item's `gainRange` is the minimum/maximum marginal DPS gain across compatible
+earlier changes. A subset graph enumerates at most 256 states for eight canonical
+items, retaining only safe, qualifying orders that can finish the numbered plan.
+Reachable dead ends do not contribute bounds. The original `gain` remains the
+chosen order's marginal value for replay verification; the UI renders the range,
+collapsing bounds that round to the same displayed value.
+
+Unselected locations and cheaper retunes are separate branches. Their ranges are
+measured alongside compatible prefixes of the numbered plan, checking the shared
+quota, preservation rules, gain threshold, and a feasible preset completion. A
+partial alternative also retains its offered comparison context. These ranges do
+not imply that every alternative can be combined or that their gains should be
+added. The combined headline covers primary numbered actions only; an alternative
+requires recalculation. Every range and combined value uses the central candidate
+evaluator and stays as a decimal ratio until formatting. Actual equipment edits
+invalidate the cached plan.
+
+Attunements and aggregate counts have no automatic warnings. The shared candidate
+evaluator is used by inventory search and suggestions, reusing a timeline only
+under its conservative signature. Event-changing candidates rebuild through the
+ordinary calculation pipeline. No duplicate UI damage formula or skill-specific
+optimization calculation is introduced.
+
 All bundled rotation presets explicitly store ping, including the empty planner
 preset, so changes to Settings ping do not change their timelines. Most use
 40 ms; the Might dummy preset uses 30 ms.
@@ -1521,7 +1706,7 @@ Refreshing can either preserve or restart the cadence according to
 use this shared scheduler and differ only in row classification, damage rules,
 and source-cast presentation.
 
-The simulator has a 5,000-event safety limit to prevent accidental infinite
+The simulator has a 6,000-event safety limit to prevent accidental infinite
 trigger chains. Exceeding it raises an error rather than publishing a truncated
 timeline with a misleading duration. This accommodates Wind's complete authored
 sequence with Hellfire ticks and automatic Enhanced Rodent Rampage attacks.
@@ -2659,7 +2844,7 @@ tiny-history expiry merging.
 Advancing unchanged state skips compaction. Rule requirements are evaluated once
 per contact, and branches without an eligible Affinity transition do not split
 or recalculate Affinity. Exact-cadence expected timelines retain their 20,000-event
-bound; ordinary timelines keep 5,000.
+bound; ordinary timelines keep 6,000.
 
 Tiny states below the common 1e-5 threshold preserve probability, cell presence
 and integer stacks. Compatible tiny states merge expiry times by probability
@@ -2716,3 +2901,19 @@ active sheet and surviving gear-comparison bundles cached. Inventory updates als
 preserve build objects whose equipped assignments have not changed; deleting worn
 gear still clears its assignments in every editable build and refreshes affected
 calculations.
+
+### Parameterized encounter buff
+
+`BossGeneralDamageBoost` is a fixed-time or attached manual event with
+`duration` and decimal-ratio `damageBonus`. The editor places both controls in
+the Buff column. Its zero-cast-time apply action supplies per-activation
+`appliedEffectRules` to the shared tracked-effect lifecycle. These rules replace
+the static effect list for that activation and use the same prepared damage
+aggregation and immutable hit snapshots as ordinary buffs. The one-stack shared
+buff replaces its amount and refreshes its expiry on reapplication. Rotation
+import and persistence retain both parameters.
+
+Event arrow reattachment uses the edited fight-relative timestamp even when a
+fixed event retains an older attachment. From a time between actions, up chooses
+the nearest earlier action and down the nearest later action. Once attached,
+the arrows retain ordinary neighboring-action and sibling ordering.

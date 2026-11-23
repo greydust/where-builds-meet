@@ -75,5 +75,6 @@
     { "type": "skill", "skill": "SnowpartingHeavyVC" },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ],
-  "ping": 40
+  "ping": 40,
+  "order": 100
 }

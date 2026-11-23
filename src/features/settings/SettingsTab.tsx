@@ -5,6 +5,7 @@ import { martialArtDefinitions, weaponFamilyNames } from "@/application/gameData
 import { productionWeaponIds, typedPathDefinitions } from "@/application/gameData/paths"
 import { previewCatalog, type PreviewId } from "@/application/gameData/previews"
 import type { ScopeTarget } from "@/application/gearScope"
+import { DEFAULT_ROTATION_EVENT_LIMIT } from "@/calculations/combatDefaults"
 import { gameText, t } from "@/i18n"
 import { useGearStore } from "@/stores/gearStore"
 import { useSettingsStore } from "@/stores/settingsStore"
@@ -124,6 +125,8 @@ export function SettingsTab({
   onLayoutChange: (layout: LayoutMode) => void
   onPreviewChange: (preview: PreviewId | null) => void
 }) {
+  const rotationEventLimit = useSettingsStore(state => state.rotationEventLimit)
+  const setRotationEventLimit = useSettingsStore(state => state.setRotationEventLimit)
   const gearSearchMinutes = useSettingsStore(state => state.gearSearchMinutes)
   const setGearSearchMinutes = useSettingsStore(state => state.setGearSearchMinutes)
   const displaySizing = useSettingsStore(state => state.displaySizing)
@@ -184,6 +187,16 @@ export function SettingsTab({
             min={0}
             step={1}
             onCommit={minutes => setGearSearchMinutes(minutes ?? 2)}
+          />
+        </label>
+        <label className="editor-field settings-number-field">
+          <span>{t("ui.app.rotationEventLimit")}</span>
+          <NumberInput
+            value={rotationEventLimit}
+            min={0}
+            step={1}
+            inputMode="numeric"
+            onCommit={limit => setRotationEventLimit(limit ?? DEFAULT_ROTATION_EVENT_LIMIT)}
           />
         </label>
         <div className="settings-share-row">

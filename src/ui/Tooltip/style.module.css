@@ -11,6 +11,8 @@
 
   .tooltip {
     position: fixed;
+    max-block-size: calc(100dvh - var(--space-xl));
+    overflow-y: auto;
     z-index: 40;
     inline-size: max-content;
     max-inline-size: min(28rem, calc(100vw - var(--desktop-size-1, 16px)));

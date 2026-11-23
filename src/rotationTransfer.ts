@@ -78,6 +78,21 @@ function parseRotationStep(value: unknown): RotationStep | undefined {
     typeof step.duration === "number" && Number.isFinite(step.duration) ? Math.max(0, step.duration) : undefined
   const optionalDuration = duration === undefined ? {} : { duration }
   const event = (fields: Record<string, unknown>) => ({ type: "event", ...fields }) as RotationStep
+  if (
+    step.type === "event" &&
+    step.event === "BossGeneralDamageBoost" &&
+    (before || startTime !== undefined) &&
+    duration !== undefined &&
+    typeof step.damageBonus === "number" &&
+    Number.isFinite(step.damageBonus)
+  ) {
+    return event({
+      event: "BossGeneralDamageBoost",
+      ...(before ? { before, ...optionalStartTime } : { startTime }),
+      duration,
+      damageBonus: Math.max(0, step.damageBonus),
+    })
+  }
   const stackValue =
     typeof step.stack === "number" && Number.isFinite(step.stack) ? Math.max(1, Math.floor(step.stack)) : undefined
   const optionalStack = stackValue === undefined ? {} : { stack: stackValue }

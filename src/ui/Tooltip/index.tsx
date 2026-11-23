@@ -15,6 +15,8 @@ import styles from "./style.module.css"
 
 type TooltipProps = Omit<HTMLAttributes<HTMLSpanElement>, "content"> & {
   content: ReactNode
+  /** Optional layout for a trigger larger than an inline icon. */
+  triggerClassName?: string
   /** Above-placement alignment of the floating box. Structural, not a theme. */
   align?: "start" | "end"
 }
@@ -34,7 +36,8 @@ type Placement = { top: number; left: number }
  */
 function place(trigger: DOMRect, align: "start" | "end", size: { width: number; height: number }): Placement {
   const above = trigger.top >= size.height + gap + edgeMargin
-  const top = above ? trigger.top - size.height - gap : trigger.bottom + gap
+  const preferredTop = above ? trigger.top - size.height - gap : trigger.bottom + gap
+  const top = Math.max(edgeMargin, Math.min(preferredTop, window.innerHeight - size.height - edgeMargin))
   const preferred = align === "start" ? trigger.left : trigger.right - size.width
   const furthest = Math.max(edgeMargin, window.innerWidth - size.width - edgeMargin)
   return { top, left: Math.min(Math.max(edgeMargin, preferred), furthest) }
@@ -87,7 +90,11 @@ function usePlacement(open: boolean, align: "start" | "end") {
  * nothing has no rectangle to measure and no pointer events of its own to hang the reveal on.
  * It is inline-flex, so it hugs its trigger and adds nothing to the row it sits in.
  */
-export function Tooltip({ content, align = "start", className, children, ...rest }: TooltipProps) {
+function containsTarget(container: HTMLElement | null, target: EventTarget | null, other?: HTMLElement | null) {
+  return target instanceof Node && (container?.contains(target) === true || other?.contains(target) === true)
+}
+
+export function Tooltip({ content, align = "start", className, triggerClassName, children, ...rest }: TooltipProps) {
   const [open, setOpen] = useState(false)
   const { anchorRef, boxRef, placement } = usePlacement(open, align)
   // Measured before paint, so the first frame is already in the right place. Until it is, the
@@ -105,19 +112,29 @@ export function Tooltip({ content, align = "start", className, children, ...rest
     <span
       {...rest}
       ref={anchorRef}
-      className={styles.anchor}
+      className={`${styles.anchor}${triggerClassName ? ` ${triggerClassName}` : ""}`}
       onPointerEnter={() => setOpen(true)}
-      onPointerLeave={close}
+      onPointerLeave={event => {
+        if (!containsTarget(boxRef.current, event.relatedTarget)) close()
+      }}
       onFocus={() => setOpen(true)}
       onBlur={event => {
         // Focus moving between the trigger's own parts is not the trigger losing focus.
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) close()
+        if (!containsTarget(event.currentTarget, event.relatedTarget, boxRef.current)) close()
       }}
     >
       {children}
       {open && typeof document !== "undefined"
         ? createPortal(
-            <span ref={boxRef} role="tooltip" className={boxClassName} style={style}>
+            <span
+              ref={boxRef}
+              role="tooltip"
+              className={boxClassName}
+              style={style}
+              onPointerLeave={event => {
+                if (!containsTarget(anchorRef.current, event.relatedTarget)) close()
+              }}
+            >
               {content}
             </span>,
             document.body,

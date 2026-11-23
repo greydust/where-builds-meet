@@ -133,7 +133,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "umbrellaDmgBoost", "value": 0.074 },
-          { "key": "crit", "value": 0.104 }
+          { "key": "agility", "value": 57.4 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -146,7 +146,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "power", "value": 57.4 },
           { "key": "agility", "value": 57.4 },
-          { "key": "maxVoidAttack", "value": 51.4 }
+          { "key": "crit", "value": 0.104 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -183,7 +183,7 @@
         "baseAffix": { "key": "crit", "value": 0.104 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 90.6 },
-          { "key": "agility", "value": 57.4 },
+          { "key": "power", "value": 57.4 },
           { "key": "allMysticDmgBoost", "value": 0.114 },
           { "key": "precision", "value": 0.094 }
         ],
@@ -239,7 +239,7 @@
           { "key": "maxPhys", "value": 105.6 },
           { "key": "power", "value": 66.8 },
           { "key": "umbrellaDmgBoost", "value": 0.086 },
-          { "key": "crit", "value": 0.122 }
+          { "key": "agility", "value": 66.8 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 14.6 }
       },
@@ -252,7 +252,7 @@
           { "key": "maxPhys", "value": 105.6 },
           { "key": "power", "value": 66.8 },
           { "key": "agility", "value": 66.8 },
-          { "key": "maxVoidAttack", "value": 59.8 }
+          { "key": "crit", "value": 0.122 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 14.6 }
       },
@@ -289,7 +289,7 @@
         "baseAffix": { "key": "crit", "value": 0.122 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 105.6 },
-          { "key": "agility", "value": 66.8 },
+          { "key": "power", "value": 66.8 },
           { "key": "areaMysticDmgBoost", "value": 0.134 },
           { "key": "precision", "value": 0.108 }
         ],
@@ -345,7 +345,7 @@
           { "key": "maxPhys", "value": 121.4 },
           { "key": "power", "value": 76.8 },
           { "key": "umbrellaDmgBoost", "value": 0.098 },
-          { "key": "crit", "value": 0.14 }
+          { "key": "agility", "value": 76.8 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 16.8 }
       },
@@ -358,7 +358,7 @@
           { "key": "maxPhys", "value": 121.4 },
           { "key": "power", "value": 76.8 },
           { "key": "agility", "value": 76.8 },
-          { "key": "maxVoidAttack", "value": 68.8 }
+          { "key": "crit", "value": 0.14 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 16.8 }
       },
@@ -395,7 +395,7 @@
         "baseAffix": { "key": "crit", "value": 0.14 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 121.4 },
-          { "key": "agility", "value": 76.8 },
+          { "key": "power", "value": 76.8 },
           { "key": "areaMysticDmgBoost", "value": 0.154 },
           { "key": "precision", "value": 0.124 }
         ],
@@ -451,7 +451,7 @@
           { "key": "maxPhys", "value": 139.6 },
           { "key": "power", "value": 88.4 },
           { "key": "umbrellaDmgBoost", "value": 0.113 },
-          { "key": "crit", "value": 0.162 }
+          { "key": "agility", "value": 88.4 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 19.4 }
       },
@@ -464,7 +464,7 @@
           { "key": "maxPhys", "value": 139.6 },
           { "key": "power", "value": 88.4 },
           { "key": "agility", "value": 88.4 },
-          { "key": "maxVoidAttack", "value": 79.2 }
+          { "key": "crit", "value": 0.162 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 19.4 }
       },
@@ -501,7 +501,7 @@
         "baseAffix": { "key": "crit", "value": 0.162 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 139.6 },
-          { "key": "agility", "value": 88.4 },
+          { "key": "power", "value": 88.4 },
           { "key": "areaMysticDmgBoost", "value": 0.177 },
           { "key": "precision", "value": 0.144 }
         ],

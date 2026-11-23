@@ -1,15 +1,12 @@
 import { gearSlots, isGearItemCompatible, type BuildEntry, type GearItem, type GearSlot } from "@/gear"
 
+import { createGearCandidateEvaluator } from "./gearCandidateEvaluator"
 import {
   buildRotationCalculationBundle,
   measurementSubject,
   type MeasurementContext,
 } from "./rotationCalculationBundle"
-import {
-  calculateRotationBaseline,
-  calculateRotationGearCandidate,
-  rotationGearTimelineKey,
-} from "./rotationCalculator"
+import { rotationGearTimelineKey } from "./rotationCalculator"
 import type { RotationRecord } from "./rotationTimeline"
 import type { ThroughputReading } from "./rotationWorkerTransport"
 
@@ -118,8 +115,7 @@ export function optimizeGear(
       }),
     )
   const original = bundleFor(input.build.equipped ?? {})
-  const baseline = calculateRotationBaseline(original)
-  const originalKey = rotationGearTimelineKey(original, baseline)
+  const { baseline, originalKey, evaluate } = createGearCandidateEvaluator(original)
   let best = { ...input.build.equipped }
   let reading: ThroughputReading = {
     dps: baseline.metrics.dps,
@@ -150,22 +146,9 @@ export function optimizeGear(
   }
   const measure = (equipped: EquippedGear) => {
     const bundle = bundleFor(equipped)
-    const fast = originalKey !== undefined && rotationGearTimelineKey(bundle, baseline) === originalKey
     const before = now()
-    if (fast) {
-      const result = calculateRotationGearCandidate(bundle, baseline)
-      return {
-        fast,
-        ms: now() - before,
-        reading: {
-          dps: result.duration > 0 ? result.damage / result.duration : 0,
-          hps: result.duration > 0 ? result.healing / result.duration : 0,
-          totalDamage: result.damage,
-        },
-      }
-    }
-    const result = calculateRotationBaseline(bundle).metrics
-    return { fast, ms: now() - before, reading: { dps: result.dps, hps: result.hps, totalDamage: result.totalDamage } }
+    const result = evaluate(bundle)
+    return { ...result, ms: now() - before }
   }
   // The same single-item swaps shown in the inventory rank the exhaustive search; they never prune it.
   const scores = new Map<string, number>()

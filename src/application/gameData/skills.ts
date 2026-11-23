@@ -232,6 +232,7 @@ export const rotationActionOptionIds = ["__event:Delay", "__event:MartialArt"]
 export const rotationEventOptionIds = [
   "__event:Controlled",
   "__event:ShieldBroken",
+  "__event:BossGeneralDamageBoost",
   "__event:BattleEnd",
   "__event:Move",
   "__event:SelfHP",
@@ -292,7 +293,9 @@ function withExpectedStackPlates(
   ]
 }
 export const globalEffectDefinitions = Object.values(effectDefinitions).filter(definition => definition.global)
-export const manualBuffDefinitions = defaultEditorMaps.Buff as Record<string, { name?: string }>
+export const manualBuffDefinitions = Object.fromEntries(
+  Object.entries(defaultEditorMaps.Buff).filter(([id]) => id !== "BossGeneralDamageBoost"),
+) as Record<string, { name?: string }>
 export const manualGeneralDebuffs = Object.fromEntries(
   Object.entries(generalDebuffs).filter(([id]) => id !== "Exhausted"),
 )
