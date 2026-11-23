@@ -41,6 +41,17 @@ names, and attunements remain Chinese, including their modifiers. The resource
 extra retained-name entry because it alone among the seven non-CJK locales kept
 `system.resource.spearMomentum` in Chinese. With the complete-label policy,
 their current counts now agree at 96.
+
+On November 23, 2026, the user supplied the English names Trialedge Spear,
+Peakwane Spear, and Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost.
+The four weapon-specific English attunements use those spear names with the
+existing Martial Art Skill DMG Boost and Special Skill DMG Boost wording.
+The 25 Bolt skill short labels also use English in the English locale, with
+Blue and Red identifying the two spears. The combo variants share their
+respective Blue VC or Red VC short label.
+The same 25 labels were localized in Japanese, Korean, Latin American Spanish,
+French, German, Brazilian Portuguese, Vietnamese, Thai, and Russian. The
+simulator labels received independent AI review.
 Japanese also retains these 96 message entries. Its count uses the explicitly
 retained Bolt message identities, including descriptions referencing the names,
 rather than an unrestricted Han-character count that would include ordinary

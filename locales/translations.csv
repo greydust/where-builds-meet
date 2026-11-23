@@ -909,8 +909,8 @@ Giả định duy trì 100% thời gian. Cộng 8% sát thương Khí huyết nh
 
 Предполагается 100% времени действия. Добавляет 8% получаемого урона здоровью и ещё 10% для Мощи; бонуса урона Ци нет."
 data.innerway.insightfulStrike.effect.InsightfulStrikeT0.trigger.0.resource.name,Focus,專注,集中,集中,집중,Concentración,Concentration,Fokus,Foco,Tập trung,,การมุ่งเน้น,Фокус
-data.martialArt.boshanQuyueSpear.name,撥山取月槍,撥山取月槍,拨山取月枪,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,,撥山取月槍,撥山取月槍
-data.martialArt.jueyuXuanfengSpear.name,決獄懸鋒槍,決獄懸鋒槍,决狱悬锋枪,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,,決獄懸鋒槍,決獄懸鋒槍
+data.martialArt.boshanQuyueSpear.name,Peakwane Spear,撥山取月槍,拨山取月枪,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,,撥山取月槍,撥山取月槍
+data.martialArt.jueyuXuanfengSpear.name,Trialedge Spear,決獄懸鋒槍,决狱悬锋枪,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,,決獄懸鋒槍,決獄懸鋒槍
 data.martialArt.museflowWaistDrum.name,Museflow Waist Drum,文動霓裳,文动霓裳,文霓の鼓,선녀의 춤,Tambor de Cintura Flujo de la Musa,Tambour de Ceinture Museflow,Museflow-Hüfttrommel,Tambor de Cintura Museflow,Văn Động Nghê Thường,,กลองเอวเพลงร่าย,Поясной Барабан Муз
 data.martialArt.rivenTwinblades.name,Riven Twinblades,斷水雙訣,断水双诀,断水双訣,단수쌍결,Espadas Gemelas Agrietadas,Lames Jumelles Déchirantes,Zerrissene Doppelklingen,Lâminas Duplas Partidas,Song tuyệt chém nước,,ดาบคู่แยกนภา,Расколотые парные клинки
 data.martialArt.skystrikeGauntlets.name,Skystrike Gauntlets,懸身拳法,悬身拳法,懸身の拳,낭창권법,Guantes Golpe Celestial,Gantelets de Frappe du Ciel,Himmelsschlag-Handschuhe,Manoplas Golpe Celeste,Quyền pháp treo thân,,หมัดแขวนตัว,Рукавицы Небесного Удара
@@ -979,38 +979,38 @@ data.script.Voidsky.name,Voidsky Script,玄霄帖,玄霄帖,玄霄帖,현소첩,
 data.script.Wraithstrike.description,Critical DMG +10% against targets below 40% Qi.,對真氣低於40%的目標，暴擊傷害提高10%。,对真气低于40%的目标，会心伤害提高10%。,気が40%未満の対象に対する会心ダメージ+10%。,진기가 40% 미만인 대상에 대한 치명타 피해가 10% 증가합니다.,Daño crítico +10% contra objetivos con menos del 40% de Qi.,Dégâts critiques +10% contre les cibles ayant moins de 40% de Qi.,Kritischer Schaden +10 % gegen Ziele mit weniger als 40 % Qi.,Dano Crítico +10% contra alvos com menos de 40% de Qi.,Sát thương chí mạng +10% đối với mục tiêu dưới 40% chân khí.,,ความเสียหายคริติคอล +10% ต่อเป้าหมายที่มีลมปราณต่ำกว่า 40%,Критический урон +10% против целей с Ци ниже 40%.
 data.script.Wraithstrike.name,Wraithstrike Script,鬼掣帖,鬼掣帖,鬼縛りの符,귀영첩,Guion de Golpe Espectral,Parchemin de frappe spectrale,Geisterschlag-Skript,Inscrição do Golpe Espectral,Thiệp Quỷ Kéo,,แผ่นวิญญาณฉุด,Скрижаль призрачного удара
 data.skill.boshanQuyueSpear.BoltBlueCharged.name,挑龍劈馬,挑龍劈馬,挑龙劈马,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,,挑龍劈馬,挑龍劈馬
-data.skill.boshanQuyueSpear.BoltBlueCharged.shortName,藍蓄力,藍蓄力,蓝蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,,藍蓄力,藍蓄力
+data.skill.boshanQuyueSpear.BoltBlueCharged.shortName,Blue Charged,藍蓄力,蓝蓄力,青 溜め,파랑 차지,Azul: Ataque cargado,Bleu : Attaque chargée,Blau: Aufgeladener Angriff,Azul: Ataque Carregado,Xanh dương: Tích lực,,ฟ้า ท่าชาร์จ,Синее: заряженная атака
 data.skill.boshanQuyueSpear.BoltBlueCounter.name,霸王破虜,霸王破虜,霸王破虏,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,,霸王破虜,霸王破虜
-data.skill.boshanQuyueSpear.BoltBlueCounter.shortName,藍反擊,藍反擊,蓝反击,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,,藍反擊,藍反擊
+data.skill.boshanQuyueSpear.BoltBlueCounter.shortName,Blue Counter,藍反擊,蓝反击,青 反撃,파랑 반격,Azul: Contraataque,Bleu : Contre-attaque,Blau: Konter,Azul: Contra-ataque,Xanh dương: Phản kích,,ฟ้า สวนกลับ,Синее: контратака
 data.skill.boshanQuyueSpear.BoltBlueHeavy1.name,撥山重擊1,撥山重擊1,拨山重击1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,,撥山重擊1,撥山重擊1
-data.skill.boshanQuyueSpear.BoltBlueHeavy1.shortName,藍重1,藍重1,蓝重1,藍重1,藍重1,藍重1,藍重1,藍重1,藍重1,藍重1,,藍重1,藍重1
+data.skill.boshanQuyueSpear.BoltBlueHeavy1.shortName,Blue Heavy 1,藍重1,蓝重1,青 重撃 1,파랑 강공격 1,Azul: Ataque pesado 1,Bleu : Attaque lourde 1,Blau: Schwerer Angriff 1,Azul: Ataque Pesado 1,Xanh dương: Đòn nặng 1,,ฟ้า โจมตีหนัก 1,Синее: тяжёлая атака 1
 data.skill.boshanQuyueSpear.BoltBlueHeavy2.name,撥山重擊2,撥山重擊2,拨山重击2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,,撥山重擊2,撥山重擊2
-data.skill.boshanQuyueSpear.BoltBlueHeavy2.shortName,藍重2,藍重2,蓝重2,藍重2,藍重2,藍重2,藍重2,藍重2,藍重2,藍重2,,藍重2,藍重2
+data.skill.boshanQuyueSpear.BoltBlueHeavy2.shortName,Blue Heavy 2,藍重2,蓝重2,青 重撃 2,파랑 강공격 2,Azul: Ataque pesado 2,Bleu : Attaque lourde 2,Blau: Schwerer Angriff 2,Azul: Ataque Pesado 2,Xanh dương: Đòn nặng 2,,ฟ้า โจมตีหนัก 2,Синее: тяжёлая атака 2
 data.skill.boshanQuyueSpear.BoltBlueHeavy3.name,撥山重擊3,撥山重擊3,拨山重击3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,,撥山重擊3,撥山重擊3
-data.skill.boshanQuyueSpear.BoltBlueHeavy3.shortName,藍重3,藍重3,蓝重3,藍重3,藍重3,藍重3,藍重3,藍重3,藍重3,藍重3,,藍重3,藍重3
+data.skill.boshanQuyueSpear.BoltBlueHeavy3.shortName,Blue Heavy 3,藍重3,蓝重3,青 重撃 3,파랑 강공격 3,Azul: Ataque pesado 3,Bleu : Attaque lourde 3,Blau: Schwerer Angriff 3,Azul: Ataque Pesado 3,Xanh dương: Đòn nặng 3,,ฟ้า โจมตีหนัก 3,Синее: тяжёлая атака 3
 data.skill.boshanQuyueSpear.BoltBlueLight1.name,撥山輕擊1,撥山輕擊1,拨山轻击1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,,撥山輕擊1,撥山輕擊1
-data.skill.boshanQuyueSpear.BoltBlueLight1.shortName,藍輕1,藍輕1,蓝轻1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,,藍輕1,藍輕1
+data.skill.boshanQuyueSpear.BoltBlueLight1.shortName,Blue Light 1,藍輕1,蓝轻1,青 軽撃 1,파랑 약공격 1,Azul: Ataque ligero 1,Bleu : Attaque légère 1,Blau: Leichter Angriff 1,Azul: Ataque Leve 1,Xanh dương: Đòn nhẹ 1,,ฟ้า โจมตีเบา 1,Синее: лёгкая атака 1
 data.skill.boshanQuyueSpear.BoltBlueLight2.name,撥山輕擊2,撥山輕擊2,拨山轻击2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,,撥山輕擊2,撥山輕擊2
-data.skill.boshanQuyueSpear.BoltBlueLight2.shortName,藍輕2,藍輕2,蓝轻2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,,藍輕2,藍輕2
+data.skill.boshanQuyueSpear.BoltBlueLight2.shortName,Blue Light 2,藍輕2,蓝轻2,青 軽撃 2,파랑 약공격 2,Azul: Ataque ligero 2,Bleu : Attaque légère 2,Blau: Leichter Angriff 2,Azul: Ataque Leve 2,Xanh dương: Đòn nhẹ 2,,ฟ้า โจมตีเบา 2,Синее: лёгкая атака 2
 data.skill.boshanQuyueSpear.BoltBlueLight3.name,撥山輕擊3,撥山輕擊3,拨山轻击3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,,撥山輕擊3,撥山輕擊3
-data.skill.boshanQuyueSpear.BoltBlueLight3.shortName,藍輕3,藍輕3,蓝轻3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,,藍輕3,藍輕3
+data.skill.boshanQuyueSpear.BoltBlueLight3.shortName,Blue Light 3,藍輕3,蓝轻3,青 軽撃 3,파랑 약공격 3,Azul: Ataque ligero 3,Bleu : Attaque légère 3,Blau: Leichter Angriff 3,Azul: Ataque Leve 3,Xanh dương: Đòn nhẹ 3,,ฟ้า โจมตีเบา 3,Синее: лёгкая атака 3
 data.skill.boshanQuyueSpear.BoltBlueLight4.name,撥山輕擊4,撥山輕擊4,拨山轻击4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,,撥山輕擊4,撥山輕擊4
-data.skill.boshanQuyueSpear.BoltBlueLight4.shortName,藍輕4,藍輕4,蓝轻4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,,藍輕4,藍輕4
+data.skill.boshanQuyueSpear.BoltBlueLight4.shortName,Blue Light 4,藍輕4,蓝轻4,青 軽撃 4,파랑 약공격 4,Azul: Ataque ligero 4,Bleu : Attaque légère 4,Blau: Leichter Angriff 4,Azul: Ataque Leve 4,Xanh dương: Đòn nhẹ 4,,ฟ้า โจมตีเบา 4,Синее: лёгкая атака 4
 data.skill.boshanQuyueSpear.BoltBlueParrySuccess.name,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,,英布列甲·招架成功,英布列甲·招架成功
 data.skill.boshanQuyueSpear.BoltBlueQ.name,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,,英布列甲,英布列甲
-data.skill.boshanQuyueSpear.BoltBlueQ.shortName,藍Q,藍Q,蓝Q,藍Q,藍Q,藍Q,藍Q,藍Q,藍Q,藍Q,,藍Q,藍Q
+data.skill.boshanQuyueSpear.BoltBlueQ.shortName,Blue Q,藍Q,蓝Q,青 Q,파랑 Q,Azul Q,Bleu Q,Blau Q,Azul Q,Xanh dương Q,,ฟ้า Q,Синее Q
 data.skill.boshanQuyueSpear.BoltBlueQFollowup.name,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,,霸王沉舟,霸王沉舟
-data.skill.boshanQuyueSpear.BoltBlueQFollowup.shortName,藍Q追擊,藍Q追擊,蓝Q追击,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,,藍Q追擊,藍Q追擊
+data.skill.boshanQuyueSpear.BoltBlueQFollowup.shortName,Blue Q Follow-up,藍Q追擊,蓝Q追击,青 Q追撃,파랑 Q 후속타,Azul: Ataque tras Q,Bleu : Enchaînement du Q,Blau: Q-Folgeangriff,Azul: Continuação do Q,Xanh dương: Đòn tiếp nối Q,,ฟ้า ท่าต่อเนื่อง Q,Синее: продолжение Q
 data.skill.boshanQuyueSpear.BoltBlueSpecial.name,龍膽巡坡,龍膽巡坡,龙胆巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,,龍膽巡坡,龍膽巡坡
-data.skill.boshanQuyueSpear.BoltBlueSpecial.shortName,藍特殊,藍特殊,蓝特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,,藍特殊,藍特殊
+data.skill.boshanQuyueSpear.BoltBlueSpecial.shortName,Blue Special,藍特殊,蓝特殊,青 特殊技,파랑 특수 스킬,Azul: Habilidad especial,Bleu : Compétence spéciale,Blau: Spezialfähigkeit,Azul: Habilidade Especial,Xanh dương: Kỹ năng đặc biệt,,ฟ้า ท่าพิเศษ,Синее: особый навык
 data.skill.boshanQuyueSpear.BoltBlueTab.name,盜跖踏梁,盜跖踏梁,盗跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,,盜跖踏梁,盜跖踏梁
-data.skill.boshanQuyueSpear.BoltBlueTab.shortName,切藍,切藍,切蓝,切藍,切藍,切藍,切藍,切藍,切藍,切藍,,切藍,切藍
+data.skill.boshanQuyueSpear.BoltBlueTab.shortName,Switch to Blue,切藍,切蓝,青に切替,파랑으로 전환,Cambiar a azul,Passer au bleu,Zu Blau wechseln,Alternar para o azul,Chuyển sang xanh dương,,สลับเป็นฟ้า,Переключиться на синее копьё
 data.skill.boshanQuyueSpear.BoltBlueVC.name,平風掃寶,平風掃寶,平风扫宝,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,,平風掃寶,平風掃寶
-data.skill.boshanQuyueSpear.BoltBlueVC.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVC.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltBlueVCBase.name,平風掃寶,平風掃寶,平风扫宝,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,,平風掃寶,平風掃寶
-data.skill.boshanQuyueSpear.BoltBlueVCBase.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVCBase.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltBlueVCSharp.name,平風掃寶·鋒銳,平風掃寶·鋒銳,平风扫宝·锋锐,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,,平風掃寶·鋒銳,平風掃寶·鋒銳
-data.skill.boshanQuyueSpear.BoltBlueVCSharp.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVCSharp.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltEarlyMingGe.name,鳴戈引爆,鳴戈引爆,鸣戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,,鳴戈引爆,鳴戈引爆
 data.skill.boshanQuyueSpear.BoltEndFengRui.name,鋒銳結束,鋒銳結束,锋锐结束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,,鋒銳結束,鋒銳結束
 data.skill.boshanQuyueSpear.BoltEnterFengRui.name,鋒銳啟動,鋒銳啟動,锋锐启动,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,,鋒銳啟動,鋒銳啟動
@@ -1270,23 +1270,23 @@ data.skill.inkwellFan.PeaksSpringlessSilenceCancel.skillBreakdownCategory,Peak's
 data.skill.inkwellFan.StarReacherAirborneGrant.name,Star Reacher,縱地摘星,纵地摘星,摘星の術,천공참,Alcanzador de Estrellas,Attrape-Étoiles,Sternengreifer,Alcançador de Estrelas,Hái sao,,ก้าวข้ามฟ้าคว้าดาว,Достигающий звёзд
 data.skill.inkwellFan.StarReacherGrant.name,Star Reacher,縱地摘星,纵地摘星,摘星の術,천공참,Alcanzador de Estrellas,Attrape-Étoiles,Sternengreifer,Alcançador de Estrelas,Hái sao,,ก้าวข้ามฟ้าคว้าดาว,Достигающий звёзд
 data.skill.jueyuXuanfengSpear.BoltRedCharged.name,星馳秋野,星馳秋野,星驰秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,,星馳秋野,星馳秋野
-data.skill.jueyuXuanfengSpear.BoltRedCharged.shortName,紅蓄力,紅蓄力,红蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,,紅蓄力,紅蓄力
+data.skill.jueyuXuanfengSpear.BoltRedCharged.shortName,Red Charged,紅蓄力,红蓄力,赤 溜め,빨강 차지,Rojo: Ataque cargado,Rouge : Attaque chargée,Rot: Aufgeladener Angriff,Vermelho: Ataque Carregado,Đỏ: Tích lực,,แดง ท่าชาร์จ,Красное: заряженная атака
 data.skill.jueyuXuanfengSpear.BoltRedHeavy1.name,決獄重擊1,決獄重擊1,决狱重击1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,,決獄重擊1,決獄重擊1
-data.skill.jueyuXuanfengSpear.BoltRedHeavy1.shortName,紅重1,紅重1,红重1,紅重1,紅重1,紅重1,紅重1,紅重1,紅重1,紅重1,,紅重1,紅重1
+data.skill.jueyuXuanfengSpear.BoltRedHeavy1.shortName,Red Heavy 1,紅重1,红重1,赤 重撃 1,빨강 강공격 1,Rojo: Ataque pesado 1,Rouge : Attaque lourde 1,Rot: Schwerer Angriff 1,Vermelho: Ataque Pesado 1,Đỏ: Đòn nặng 1,,แดง โจมตีหนัก 1,Красное: тяжёлая атака 1
 data.skill.jueyuXuanfengSpear.BoltRedLight1.name,決獄輕擊1,決獄輕擊1,决狱轻击1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,,決獄輕擊1,決獄輕擊1
-data.skill.jueyuXuanfengSpear.BoltRedLight1.shortName,紅輕1,紅輕1,红轻1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,,紅輕1,紅輕1
+data.skill.jueyuXuanfengSpear.BoltRedLight1.shortName,Red Light 1,紅輕1,红轻1,赤 軽撃 1,빨강 약공격 1,Rojo: Ataque ligero 1,Rouge : Attaque légère 1,Rot: Leichter Angriff 1,Vermelho: Ataque Leve 1,Đỏ: Đòn nhẹ 1,,แดง โจมตีเบา 1,Красное: лёгкая атака 1
 data.skill.jueyuXuanfengSpear.BoltRedQ.name,金科盡詔,金科盡詔,金科尽诏,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,,金科盡詔,金科盡詔
-data.skill.jueyuXuanfengSpear.BoltRedQ.shortName,紅Q,紅Q,红Q,紅Q,紅Q,紅Q,紅Q,紅Q,紅Q,紅Q,,紅Q,紅Q
+data.skill.jueyuXuanfengSpear.BoltRedQ.shortName,Red Q,紅Q,红Q,赤 Q,빨강 Q,Rojo Q,Rouge Q,Rot Q,Vermelho Q,Đỏ Q,,แดง Q,Красное Q
 data.skill.jueyuXuanfengSpear.BoltRedSpecial.name,玉京崩騰,玉京崩騰,玉京崩腾,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,,玉京崩騰,玉京崩騰
-data.skill.jueyuXuanfengSpear.BoltRedSpecial.shortName,紅特殊,紅特殊,红特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,,紅特殊,紅特殊
+data.skill.jueyuXuanfengSpear.BoltRedSpecial.shortName,Red Special,紅特殊,红特殊,赤 特殊技,빨강 특수 스킬,Rojo: Habilidad especial,Rouge : Compétence spéciale,Rot: Spezialfähigkeit,Vermelho: Habilidade Especial,Đỏ: Kỹ năng đặc biệt,,แดง ท่าพิเศษ,Красное: особый навык
 data.skill.jueyuXuanfengSpear.BoltRedTab.name,直貫其鋒,直貫其鋒,直贯其锋,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,,直貫其鋒,直貫其鋒
-data.skill.jueyuXuanfengSpear.BoltRedTab.shortName,切紅,切紅,切红,切紅,切紅,切紅,切紅,切紅,切紅,切紅,,切紅,切紅
+data.skill.jueyuXuanfengSpear.BoltRedTab.shortName,Switch to Red,切紅,切红,赤に切替,빨강으로 전환,Cambiar a rojo,Passer au rouge,Zu Rot wechseln,Alternar para o vermelho,Chuyển sang đỏ,,สลับเป็นแดง,Переключиться на красное копьё
 data.skill.jueyuXuanfengSpear.BoltRedVC.name,聽雨斷罪,聽雨斷罪,听雨断罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,,聽雨斷罪,聽雨斷罪
-data.skill.jueyuXuanfengSpear.BoltRedVC.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVC.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.jueyuXuanfengSpear.BoltRedVCBase.name,聽雨斷罪,聽雨斷罪,听雨断罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,,聽雨斷罪,聽雨斷罪
-data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,听雨断罪·锋锐,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳
-data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.mechanism.SummonLightning.name,Summon Lightning,召雷,雷电召来,落雷召喚,뇌전 소환,Invocar Relámpago,Invoquer la Foudre,Blitz beschwören,Invocar Relâmpago,Triệu hồi sét,,เรียกสายฟ้า,Призыв молнии
 data.skill.mortalRopeDart.BladeboundThreadCancel.name,Bladebound Thread [Cancel],牽繩引刃 [打斷],牵绳引刃 [打斷],引縄斬 [中断],속박의 칼날 [취소],Hilo Ligado a la Hoja [Cancelar],Fil lié à la lame [Annuler],Klingengebundener Faden [Abbrechen],Fio da Lâmina Atada [Cancelar],Kéo dây dẫn lưỡi [Hủy],,ดึงเชือกนำคมดาบ [ยกเลิก],Нить клинка [Отмена]
 data.skill.mortalRopeDart.BladeboundThreadCancel.shortName,RD Q,繩鏢 Q,绳镖 Q,縄鏢 Q,속박의 칼날 [취소],RD Q,RD Q,Seildolch Q,Dardo Q,RD Q,,เชือกมีด Q,RD: Q
@@ -1788,9 +1788,9 @@ stat.vsBossDmg,vs Boss DMG,對首領單位增傷,对首领单位增伤,首領に
 system.abrasion,Abrasion,擦傷,擦伤,軽傷,찰과상,Abrasión,Abrasion,Abnutzung,Abrasão,Vết xước,,บาดแผลถลอก,Истирание
 system.affinity,Affinity,會意,会意,会意,각성 확률,Afinidad,Affinité,Affinität,Afinidade,Hiểu ý,,ความเข้าใจ,Сродство
 system.armorSet.moonflare,Moonflare,桂月,桂月,桂月,월계,Fulgor Lunar,Flamboiement lunaire,Mondflamme,Clarão Lunar,Trăng bùng sáng,,แสงจันทร์เรือง,Лунная Вспышка
-system.attunement.boltVariedComboBoost,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,悬锋取月·轻重击派生增伤,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷
-system.attunement.boshanQuyueSpearMartialBoost,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,拨山取月枪·武学技增伤,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷
-system.attunement.boshanQuyueSpearSpecialBoost,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,拨山取月枪·特殊技增伤,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷
+system.attunement.boltVariedComboBoost,Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost,懸鋒取月·輕重擊派生增傷,悬锋取月·轻重击派生增伤,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷
+system.attunement.boshanQuyueSpearMartialBoost,Peakwane Spear - Martial Art Skill DMG Boost,撥山取月槍·武學技增傷,拨山取月枪·武学技增伤,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷
+system.attunement.boshanQuyueSpearSpecialBoost,Peakwane Spear - Special Skill DMG Boost,撥山取月槍·特殊技增傷,拨山取月枪·特殊技增伤,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷
 system.attunement.driftcleaveDeepdazeBoost,Driftcleave - Deepdaze Skill DMG Boost,懸身斷水·濃醺技能增傷,悬身断水·浓醺技能增伤,懸身断水・泥酔技ダメージ増加,낭창단수-깊은 취기 스킬 피해 증가,Driftcleave - Aumento de Daño de Habilidad Deepdaze,Driftcleave - Deepdaze : Bonus de dégâts de Maîtrise,Driftspalt - Tieftaumel Meisterschaft Schadenssteigerung,Driftcleave - Aumento de Dano de Maestria de Deepdaze,Tăng sát thương kỹ năng Chém nước treo thân·Say nồng,,คมดาบล่องลอย - เมาหนัก เพิ่มความเสียหายทักษะ,Скользящий клинок — «Глубокая мгла»: Увеличение урона
 system.attunement.everspringMartialBoost,Everspring Umbrella - Martial Art Skill DMG Boost,醉夢遊春・武學技增傷,醉梦游春·武学技增伤,酔夢の傘・武術技ダメージ増加,일장춘몽 - 무술 스킬 피해 증가,Sombrilla Primavera Eterna — Aumento de daño de habilidades de arte marcial,Parapluie de printemps éternel — bonus de dégâts de compétence d’art martial,Immerfrühlingsschirm – Schadenssteigerung von Kampfkunstfertigkeiten,Guarda-chuva da Primavera Eterna - Aumento de Dano de Habilidade de Arte Marcial,Mộng Say Du Xuân — tăng sát thương kỹ năng võ học,,ร่มวสันต์นิรันดร์ - เพิ่มความเสียหายทักษะวิชาต่อสู้,Зонт вечной весны — бонус урона навыка боевого искусства
 system.attunement.everspringSpecialBoost,Everspring Umbrella - Special Skill DMG Boost,醉夢遊春・特殊技增傷,醉梦游春·特殊技增伤,酔夢の傘・特殊技ダメージ増加,일장춘몽 - 특수 스킬 피해 증가,Sombrilla Primavera Eterna — Aumento de daño de habilidades especiales,Parapluie de printemps éternel — bonus de dégâts de compétence spéciale,Immerfrühlingsschirm – Schadenssteigerung von Spezialfähigkeiten,Guarda-chuva da Primavera Eterna - Aumento de Dano de Habilidade Especial,Mộng Say Du Xuân — tăng sát thương kỹ năng đặc biệt,,ร่มวสันต์นิรันดร์ - เพิ่มความเสียหายทักษะพิเศษ,Зонт вечной весны — бонус урона особого навыка
@@ -1805,8 +1805,8 @@ system.attunement.infernalMartialBoost,Infernal Twinblades Martial Art Skill DMG
 system.attunement.infernalSpecialBoost,Infernal Twinblades Special Skill DMG Boost,泥犁三垢・特殊技增傷,泥犁三垢·特殊技增伤,獄炎の双剣・特殊技ダメージ増加,윤회의 가르침-특수 스킬 피해 증가,Espadas Gemelas Infernales — Aumento de daño de habilidades especiales,Lames jumelles infernales — bonus de dégâts de compétence spéciale,Höllische Zwillingsklingen – Schadenssteigerung von Spezialfähigkeiten,Lâminas Gêmeas Infernais - Aumento de Dano de Habilidade Especial,Song đao địa ngục — tăng sát thương kỹ năng đặc biệt,,ดาบคู่อเวจี เพิ่มความเสียหายทักษะพิเศษ,Адские Парные Клинки — бонус урона особого навыка
 system.attunement.inkwellChargedBoost,Inkwell Fan Charged Skill DMG Boost,青山執筆・蓄力技增傷,青山执笔·蓄力技增伤,墨筆の扇・溜め技ダメージ増加,청산의 정수-차지 스킬 피해 증가,Abanico Tintero — Aumento de daño de habilidades cargadas,Éventail d’encrier — bonus de dégâts de compétence chargée,Tintenfassfächer – Schadenssteigerung aufgeladener Fertigkeiten,Leque Tinteiro - Aumento de Dano de Habilidade Carregada,Quạt Mặc Trì — tăng sát thương kỹ năng tích lực,,พัดน้ำหมึก เพิ่มความเสียหายทักษะชาร์จ,Веер Чернильницы — бонус урона заряженного навыка
 system.attunement.inkwellSpecialPursuitBoost,Inkwell Fan - Special and Pursuit Skill DMG Boost,青山執筆・特殊及追擊技增傷,青山执笔·特殊及追击技增伤,墨筆の扇・特殊技および追撃技ダメージ増加,청산의 정수-특수 및 추격 스킬 피해 증가,Abanico Tintero — Aumento de daño de habilidades especiales y de persecución,Éventail d’encrier — bonus de dégâts des compétences spéciales et de poursuite,Tintenfassfächer – Schadenssteigerung von Spezial- und Verfolgungsfertigkeiten,Leque Tinteiro - Aumento de Dano de Habilidades Especiais e de Perseguição,Quạt Mặc Trì — tăng sát thương kỹ năng đặc biệt và truy kích,,พัดน้ำหมึก - เพิ่มความเสียหายทักษะพิเศษและทักษะไล่ตาม,Веер Чернильницы — бонус урона особых навыков и навыков преследования
-system.attunement.jueyuXuanfengSpearMartialBoost,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,决狱悬锋枪·武学技增伤,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷
-system.attunement.jueyuXuanfengSpearSpecialBoost,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,决狱悬锋枪·特殊技增伤,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷
+system.attunement.jueyuXuanfengSpearMartialBoost,Trialedge Spear - Martial Art Skill DMG Boost,決獄懸鋒槍·武學技增傷,决狱悬锋枪·武学技增伤,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷
+system.attunement.jueyuXuanfengSpearSpecialBoost,Trialedge Spear - Special Skill DMG Boost,決獄懸鋒槍·特殊技增傷,决狱悬锋枪·特殊技增伤,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷
 system.attunement.mortalMartialBoost,Mortal Rope Dart - Martial Art Skill DMG Boost,粟子遊塵・武學技增傷,粟子游尘·武学技增伤,浮塵の縄・武術技ダメージ増加,속세의 지혜-무술 스킬 피해 증가,Dardo con Cuerda Mortal — Aumento de daño de habilidades de arte marcial,Dard à corde mortel — bonus de dégâts de compétence d’art martial,Sterblicher Seildolch – Schadenssteigerung von Kampfkunstfertigkeiten,Dardo Cordial Mortal - Aumento de Dano de Habilidade de Arte Marcial,Phi Tiêu Dây Truy Mệnh — tăng sát thương kỹ năng võ học,,เชือกมีดมนุษย์ - เพิ่มความเสียหายทักษะวิชาต่อสู้,Смертельный Канатный Дротик — бонус урона навыка боевого искусства
 system.attunement.mortalRodentBoost,Mortal Rope Dart - Rodent DMG Boost,粟子遊塵・鼠鼠增傷,粟子游尘·鼠鼠增伤,浮塵の縄・鼠ダメージ増加,속세의 지혜-쥐 기술 피해 증가,Dardo con Cuerda Mortal — Aumento de daño de roedor,Dard à corde mortel — bonus de dégâts de Rongeur,Sterblicher Seildolch – Nagerschadenssteigerung,Dardo Cordial Mortal - Aumento de Dano de Roedor,Phi Tiêu Dây Truy Mệnh — tăng sát thương Chuột Chuột,,เชือกมีดมนุษย์ - เพิ่มความเสียหายหนู,Смертельный Канатный Дротик — бонус урона Грызуна
 system.attunement.museflowWaistDrumLightHeavyVariedComboBoost,Museflow Waist Drum - Light/Heavy Attack & Varied Combo DMG Boost,文動霓裳·輕重擊及派生增傷,文动霓裳·轻重击及派生增伤,文霓の鼓・軽重撃および派生技ダメージ増加,선녀의 춤-약/강공격 및 연계 피해 증가,Tambor de Cintura Flujo de la Musa — Aumento de daño de ataques ligeros/pesados y combos variados,Tambour de Ceinture Museflow — bonus de dégâts des attaques légères/lourdes et des combos variés,Museflow-Hüfttrommel – Schadenssteigerung leichter/schwerer Angriffe und variabler Kombos,Tambor de Cintura Museflow - Aumento de Dano de Ataques Leves/Pesados e Combos Variados,Văn Động Nghê Thường — tăng sát thương đòn nhẹ/nặng và phái sinh,,กลองเอวเพลงร่าย - เพิ่มความเสียหายโจมตีเบา/หนักและท่าแตกแขนง,Поясной Барабан Муз — бонус урона лёгких/тяжёлых атак и вариативных комбо
