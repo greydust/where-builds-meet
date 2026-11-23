@@ -185,7 +185,7 @@ async function activateEditableBuild() {
   await settle()
 }
 
-it("refreshes shared damage after a gear save but defers variants until returning to Main", async () => {
+it("refreshes shared damage after a gear save and resolves only stat priorities on Build", async () => {
   HTMLDialogElement.prototype.showModal = function () {
     this.open = true
   }

@@ -112,7 +112,7 @@ it("shows progress in the build list, locks editing, and turns the action into C
     )
     expect(container.querySelector("progress")!.value).toBe(3)
     expect(container.querySelector("progress")!.max).toBe(10)
-    expect(container.querySelector("output")!.textContent).toContain("1234")
+    expect([...container.querySelectorAll("output")].map(output => output.textContent).join(" ")).toContain("1234")
     await act(async () => container.querySelectorAll<HTMLButtonElement>(".build-select-button")[1].click())
     expect(container.textContent).not.toContain("ui.buildTab.optimizationPreviewHint")
     expect(button("ui.buildTab.findBestCombination").disabled).toBe(true)

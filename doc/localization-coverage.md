@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2159.
+Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2174.
 
 Traditional Chinese and Korean retain complete catalog coverage.
 Catalog cells include datamined terms, separately authored translations, and retained
@@ -38,7 +38,15 @@ translation or language review was needed for these preserved titles; browser
 review was not performed.
 
 The global buff option descriptions add 16 messages per locale (176 non-English
-cells), bringing every published locale to 2,159 populated messages. These are
+cells), bringing every published locale to 2,173 populated messages. These are
 AI-authored simulator descriptions using existing catalog terminology, with
 independent AI review per language. No new official datamine matches are claimed.
 Browser and human language review were not performed.
+
+The suggestion gain-range addition supplies two new messages in all eleven
+published non-English locales (22 cells) and removes the obsolete smaller-retune
+hint. The catalog now contains 2,174 populated messages per published locale.
+The new UI wording received independent AI review per language; accepted
+clarifications concern numerical ranges and whole-plan gains, not sums of
+percentages. No new official game terminology, human review, or browser inspection
+is claimed.

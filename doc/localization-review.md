@@ -288,3 +288,17 @@ and +6% Strength HP damage taken. Umbra retains full-uptime, five-stack Soul-Sha
 and gives one-stack Shattered Stone 10/12 uptime (83.33%), averaging to roughly
 -4.17% Physical Defense. The two revised descriptions received independent AI
 review in each published non-English locale; no browser or human review occurred.
+
+### Suggestion gain ranges — 2026-11-23
+
+Two new UI messages (`ui.buildTab.suggestionCombinedGain` and
+`ui.buildTab.suggestionGainRangeHint`) were AI-translated and independently
+AI-reviewed in zh-Hant, zh-Hans, ja, ko, es, fr, de, pt, vi, th, and ru. The
+review checked numerical ranges, the scope of the numbered plan, recalculation
+after alternatives, and `{gain}`/percentage notation. Minor clarity corrections
+were accepted for Japanese, French, Vietnamese, Thai, and Russian. The wording
+reuses catalog DPS and plan terminology; no official datamine recovery is claimed.
+The obsolete smaller-retune hint was removed because overlapping ranges cannot
+be described by one arbitrary order's marginal gain. Component rendering and
+placeholder/coverage checks were performed; browser and human language review
+were not performed.

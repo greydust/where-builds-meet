@@ -1,4 +1,6 @@
-export type NoticeMessage = string | (() => string)
+import type { ReactNode } from "react"
+
+export type NoticeMessage = ReactNode | (() => ReactNode)
 export type Notice = {
   id: string
   message: NoticeMessage

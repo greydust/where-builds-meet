@@ -1,29 +1,35 @@
 import { IconAlertTriangle, IconArrowUp, IconEdit, IconTrash } from "@tabler/icons-react"
-import { useEffect, type ReactNode } from "react"
+import { useEffect, useMemo, type ReactNode } from "react"
 
 import { attunementData, gearBaseStats, gearData, type GearItem, type GearSlot } from "@/gear"
 import { gameText, t } from "@/i18n"
 import { Button } from "@/ui/Button"
 
 import { formatNumber, gearRarityLabel } from "./GearEditor"
+import { OptimizationSuggestion, type PresentedItemSuggestion } from "./OptimizationSuggestion"
 import { useInViewport } from "./useInViewport"
 
 function displayValue(value: number, definition?: { percentage?: boolean }) {
   return `${formatNumber(definition?.percentage ? value * 100 : value)}${definition?.percentage ? "%" : ""}`
 }
 
-function itemAttributes(item: GearItem) {
-  const rows: Array<{ label: string; value: string; kind: string }> = []
+type GearAttributeRow = { key: string; label: string; value: string; kind: string }
+
+function itemAttributes(item: GearItem): GearAttributeRow[] {
+  const rows: GearAttributeRow[] = []
   const baseDefinition = gearData.affixes[item.baseAffix.key]
   rows.push({
+    key: item.baseAffix.key,
     label: gameText(baseDefinition?.name ?? item.baseAffix.key),
     value: displayValue(item.baseAffix.value, baseDefinition),
     kind: "Base affix",
   })
-  for (const affix of item.additionalAffixes) {
+  for (const [index, affix] of item.additionalAffixes.entries()) {
     const definition = gearData.affixes[affix.key]
+    const prefix = item.turnedAffixIndex === index ? `[${t("ui.gearSuggestions.turn")}] ` : ""
     rows.push({
-      label: gameText(definition?.name ?? affix.key),
+      key: affix.key,
+      label: `${prefix}${gameText(definition?.name ?? affix.key)}`,
       value: displayValue(affix.value, definition),
       kind: "Affix",
     })
@@ -31,6 +37,7 @@ function itemAttributes(item: GearItem) {
   if (item.attunement) {
     const attunementDefinition = attunementData[item.attunement.key]
     rows.push({
+      key: item.attunement.key,
       label: gameText(attunementDefinition?.name ?? item.attunement.key),
       value: displayValue(item.attunement.value, attunementDefinition),
       kind: "Attunement",
@@ -87,21 +94,48 @@ function GearBaseStatSummary({ item }: { item: GearItem }) {
   return null
 }
 
-function GearAttributes({ item, compact = false }: { item: GearItem; compact?: boolean }) {
+function GearAttributes({
+  item,
+  compact = false,
+  suggestion,
+}: {
+  item: GearItem
+  compact?: boolean
+  suggestion?: PresentedItemSuggestion
+}) {
+  const rowSuggestions = useMemo(() => {
+    const rows = new Map<number, PresentedItemSuggestion>()
+    if (!suggestion) return rows
+    const options = [...suggestion.options, ...(suggestion.retuneAlternative?.options ?? [])]
+    for (let position = 0; position <= item.additionalAffixes.length; position += 1) {
+      const matching = options.filter(option =>
+        option.replacement
+          ? option.changes.some(change => change.position === position) ||
+            (position === 0 && option.changes.every(change => change.position > item.additionalAffixes.length))
+          : option.position === position,
+      )
+      if (matching.length) rows.set(position, { ...suggestion, position, options: matching })
+    }
+    return rows
+  }, [suggestion, item.additionalAffixes.length])
+
   return (
     <div className={`gear-attribute-list ${compact ? "compact" : ""}`}>
-      {itemAttributes(item).map(row => (
-        <div
-          className={`gear-attribute ${row.kind === "Attunement" ? "gear-attunement-attribute" : ""}`}
-          key={`${row.kind}-${row.label}-${row.value}`}
-        >
-          <span>
-            {row.kind === "Attunement" && <small>{t("ui.buildTab.attunement")}</small>}
-            {row.label}
-          </span>
-          <strong>{row.value}</strong>
-        </div>
-      ))}
+      {itemAttributes(item).map((row, position) => {
+        const key = `${row.kind}-${position}`
+        const rowSuggestion = rowSuggestions.get(position)
+        if (row.kind !== "Attunement" && rowSuggestion)
+          return <OptimizationSuggestion key={key} suggestion={rowSuggestion} label={row.label} value={row.value} />
+        return (
+          <div className={`gear-attribute ${row.kind === "Attunement" ? "gear-attunement-attribute" : ""}`} key={key}>
+            <span>
+              {row.kind === "Attunement" && <small>{t("ui.buildTab.attunement")}</small>}
+              {row.label}
+            </span>
+            <strong>{row.value}</strong>
+          </div>
+        )
+      })}
     </div>
   )
 }
@@ -144,9 +178,20 @@ export type GearCardContent = {
   footer?: ReactNode
   /** The equipped grid runs its affixes closer to the separator, because it is the denser card. */
   compact?: boolean
+  /** The explicitly requested suggestion for one affix row. */
+  suggestion?: PresentedItemSuggestion
 }
 
-export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer, compact = false }: GearCardContent) {
+export function GearCard({
+  item,
+  name,
+  eyebrowLabel,
+  usageCount,
+  status,
+  footer,
+  compact = false,
+  suggestion,
+}: GearCardContent) {
   return (
     <div className="gear-card-body">
       {(eyebrowLabel || usageCount !== undefined || item?.relayed) && (
@@ -174,7 +219,7 @@ export function GearCard({ item, name, eyebrowLabel, usageCount, status, footer,
             {status && <div className="gear-card-status">{status}</div>}
           </div>
           <GearBaseStatSummary item={item} />
-          <GearAttributes item={item} compact={compact} />
+          <GearAttributes item={item} compact={compact} suggestion={suggestion} />
         </>
       ) : (
         <span className="gear-empty">{t("ui.buildTab.noGearEquipped")}</span>
@@ -196,6 +241,8 @@ export function EquippedGearCard(props: {
   selected: boolean
   /** A preset build's gear is fixed, so its slots cannot be opened. */
   disabled: boolean
+  /** The explicitly requested suggestion for this item. */
+  suggestion?: PresentedItemSuggestion
   onSelect: () => void
 }) {
   return (
@@ -206,7 +253,13 @@ export function EquippedGearCard(props: {
       disabled={props.disabled}
       onClick={props.onSelect}
     >
-      <GearCard item={props.item} name={props.name} eyebrowLabel={props.slotLabel} compact />
+      <GearCard
+        item={props.item}
+        name={props.name}
+        eyebrowLabel={props.slotLabel}
+        compact
+        suggestion={props.suggestion}
+      />
     </button>
   )
 }
