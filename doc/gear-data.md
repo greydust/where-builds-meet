@@ -308,8 +308,8 @@ returns to Where Builds Meet and explicitly pastes that envelope for import.
 
 `officialGearImport.ts` translates dashboard slot IDs and affix IDs before
 passing the result through the ordinary versioned build-import validator. Slot
-IDs 1, 2, 3, 4, 5, 8, 10, and 11 map to the site's eight gear slots; dashboard
-bow and ring records are ignored. `exVo.baseAffixes` contains the base affix,
+IDs 1, 2, 3, 4, 5, 8, 10, and 11 map to the site's eight gear slots. The importer
+uses the bow and ring records for their set suffixes. `exVo.baseAffixes` contains the base affix,
 up to four additional affixes, and an optional final attunement. The final row
 is treated as an attunement only when its mapped ID is allowed by that gear
 definition. Percent values are converted to decimal ratios at this
@@ -319,11 +319,14 @@ remain in `data/official/import-map.json`. Maintain these checked-in mappings
 using this project's datamine source in `local/datamine/`; the legacy extractor
 based on the reference site has been retired.
 
-Tier 100 dashboard affix IDs are mapped from the interpreted initial affixes,
-tuning affixes, and nested attunement entries in
-`local/datamine/wwm-items-tier-100.json`. Named entries reuse the canonical
-keys established by identically named Tier 96 entries, including defensive
-stats and PvE armor attunements. Tuning metadata, PvP-only mechanics, and
+Dashboard affix IDs are checked against the interpreted initial affixes,
+tuning affixes, and nested attunement entries in the dated
+`local/datamine/` snapshots for tiers 91, 96, 100, 105, 110, and 115.
+Named entries reuse established canonical keys when the source name identifies
+a single stat or attunement. At tier 115, IDs `11693123` and `11694123` are
+Combat Boost Against Boss Units, and `11693124` is Boost Vs. Player Units.
+The tier-115 Bolt and Wings armor attunements use `319501`–`319505` and
+`319651`–`319655` respectively. Tuning metadata, PvP-only mechanics, and
 unnamed entries without an independently confirmed mapping remain unsupported;
 ID prefixes alone do not establish meaning. Imports preserve the reported roll
 values and use the existing percentage conversion and slot validation.
@@ -380,29 +383,23 @@ its affix pool. This preserves relay-only attribute attack rows such as official
 ID `9793026` (`maxStonesplit`) instead of discarding them as unsupported normal
 gear.
 
-Current-season weapon attribute IDs `9793003` and `9793006` represent Defense
-and Body respectively. Their order differs from the manually inferred mapping
-used before dashboard payloads exposed both rolls, so the official-ID map must
-not derive these meanings from numeric adjacency alone.
-
 Version 2 of the bookmarklet envelope carries the complete dashboard `roleInfo`
 object for inspecting additional profile fields. Known official martial-art and
 Inner Way IDs are recorded in `data/official/profile-map.json`. Its martial-art
-map includes all 20 numeric IDs, names, and internal weapon keys from
-`local/datamine/wwm-martial-arts-normal.json`; entries do not imply that every
-martial art's combat skills and talents are already implemented. `kongfuMain`
+map covers all 24 martial arts in the 2026-11-17
+`wwm-martial-arts-normal.json` snapshot, including Wings and Bolt. `kongfuMain`
 and `kongfuSub` identify the equipped martial-art pair and are preferred over
 affix inference when both are supported. Import first matches that unordered
 pair to a path in `data/path.json`, then uses the path's canonical left/right
-order and each imported item's physical gear definition to assign weapon slots.
+order and each imported item's martial art to assign weapon slots.
 This supports dashboard exports whose main/sub order differs from the path order
-and martial arts such as Thundercry Blade that share a Mo Blade gear definition.
+and keeps the two Bolt spears distinct even though they share a gear definition.
+When the martial-art pair is missing, Art of Ribbon & Drum can identify the Drum.
 
 `passiveSlots` contains the four ordered Inner Way IDs. Those IDs are the Inner
 Way `id` values in `local/datamine/wwm-inner-way-normal.json`, so the Inner Way
-map covers all 57 of them, not only the ones seen in a dashboard export; only
-`651` Song of Harmony lacks an application definition and therefore an
-`innerWay` key. The payload does not expose tiers, so recognized complete
+map covers all 65 from the 2026-11-17 snapshot, including the four Wings and
+four Bolt Inner Ways. The payload does not expose tiers, so recognized complete
 four-slot selections import at T6 by policy. A slot holding an ID outside that
 table imports empty, which is also how a path-ineligible or unfilled (`0`) slot
 is represented; a payload without a four-entry `passiveSlots` retains the
@@ -415,23 +412,17 @@ unknown suffix data retains the application's default selection. Recognized suff
 Left Weapon, Right Weapon, Disc, and Pendant determine weapon-set piece counts:
 two recognized matching pieces select the two-piece tier and four select the
 four-piece tier. Armor slots use the same piece-count rule through the armor-set
-map. Both maps cover every official suffix ID found in
-`local/datamine/items/**/*.json`, where each item lists `sets` entries whose
-`https://wwmdb.vlt.fyi/sets/<id>` URL is that suffix ID. Every item lists only
-sets of its own category, so the suffix IDs already confirmed from dashboard
-exports label the rest of each category, and the application set names come
-from `local/datamine/wwm-item-sets-weapon.json` and
-`local/datamine/wwm-item-sets-armor.json`, whose entries are ordered by ascending
-suffix ID. The datamine spells some sets differently from the application
-(`Rainwhisper`, `Shattered Ridge`, `Agile Steps`, `Flawless Defense`,
-`Jade Embrace`, `Obsidian Armor`), so the generated map uses the application
-names. Weapon suffixes are `1` Jadeware, `3` Hawkwing, `7` RainWhisper, `9`
+map. The categorized rows in `wwm-item-sets.json` supply the suffix IDs.
+The map uses the application set keys. Weapon suffixes are
+`1` Jadeware, `3` Hawkwing, `7` RainWhisper, `9`
 SwiftGale, `11` SwayingHeights, `23` Swallowcall, `25` Mistwillow, `29`
-Ivorybloom, `34` Starweave, `50` Cleftpeak, and `56` Etherwrath. Armor suffixes
+Ivorybloom, `34` Starweave, `50` Cleftpeak, `56` Etherwrath, `79` Tiltrim,
+and `85` HanMang. Armor suffixes
 are `2` Formbend, `4` Eaglerise, `8` Moonflare, `10` RippleStep, `12`
 FlawlessGuardian, `24` Calmwaters, `26` BeyondtheChill, `30` Whirlsnow, `35`
-Jadeclasp, and `51` Ebonward. Tiltrim, Honorbound, and Brimflow have no suffix
-ID in the snapshot. Calmwaters remains importable but has no path eligibility.
+Jadeclasp, `51` Ebonward, `57` Honorbound, and `80` Brimflow. Calmwaters
+remains importable but has no path eligibility. Suffixes `71`, `72`, and `86`
+have no confirmed application set to import.
 A recognized suffix replaces the whole set selection, so an imported set never
 coexists with an application default set. Unknown weapon-set and armor-set data
 continues using the application's default setup values.

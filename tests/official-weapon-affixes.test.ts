@@ -5,6 +5,69 @@ import { parseOfficialGearExport } from "@/officialGearImport"
 import type { WeaponId } from "@/types"
 
 describe("official weapon damage affixes", () => {
+  it.each([
+    {
+      profile: { kongfuMain: 10306, kongfuSub: 21001, passiveSlots: [651, 652, 653, 654] },
+      innerWays: ["HarmonySong", "ZephyrWhispers", "InkAndStrings", "BladesWill"],
+    },
+    { profile: { passiveSlots: [0, 0, 0, 0] }, innerWays: ["", "", "", ""] },
+  ])("keeps the Drum damage roll when the dashboard lists Fan first (%j)", ({ profile, innerWays }) => {
+    const parsed = parseOfficialGearExport(
+      {
+        ...profile,
+        wearEquipsDetailed: {
+          1: { exVo: { level: 100, rarity: "Gold", baseAffixes: [[10113001, 53]] } },
+          2: {
+            exVo: {
+              level: 100,
+              rarity: "Gold",
+              baseAffixes: [
+                [10113001, 54],
+                [10193032, 0.05828],
+              ],
+            },
+          },
+        },
+      },
+      ["museflowWaistDrum", "willowbendFan"],
+    )
+    const { builds, gearItems } = parsed.exportValue
+    expect(parsed.warnings).toEqual([])
+    expect(gearItems.find(item => item.id === builds[0].equipped.leftWeapon)).toMatchObject({
+      definitionId: "ribbonAndDrum",
+      additionalAffixes: [{ key: "ribbonAndDrumDmgBoost", value: 0.05828 }],
+    })
+    expect(gearItems.find(item => item.id === builds[0].equipped.rightWeapon)?.definitionId).toBe("fan")
+    expect(builds[0].setup.innerWays.map(slot => slot.innerWay)).toEqual(innerWays)
+  })
+
+  it("keeps each Bolt spear's rolls attached to its martial art when main and sub are reversed", () => {
+    const parsed = parseOfficialGearExport(
+      {
+        kongfuMain: 20205,
+        kongfuSub: 20204,
+        passiveSlots: [751, 752, 753, 754],
+        wearEquipsDetailed: {
+          1: { exVo: { level: 105, rarity: "Gold", baseAffixes: [[10611002, 90]], suffix: 85 } },
+          2: { exVo: { level: 105, rarity: "Gold", baseAffixes: [[10611002, 91]], suffix: 85 } },
+        },
+      },
+      ["namelessSword", "namelessSpear"],
+    )
+    const { builds, gearItems } = parsed.exportValue
+    expect(parsed.warnings).toEqual([])
+    expect(builds[0].martialArts).toEqual(["jueyuXuanfengSpear", "boshanQuyueSpear"])
+    expect(gearItems.find(item => item.id === builds[0].equipped.leftWeapon)?.baseAffix.value).toBe(91)
+    expect(gearItems.find(item => item.id === builds[0].equipped.rightWeapon)?.baseAffix.value).toBe(90)
+    expect(builds[0].setup.weaponSets).toMatchObject({ HanMang: 2 })
+    expect(builds[0].setup.innerWays.map(slot => slot.innerWay)).toEqual([
+      "ShenDuanQingFeng",
+      "FuLiangYiYe",
+      "MingFeiTongPan",
+      "SuiXingQieTao",
+    ])
+  })
+
   const elementalKeys = [
     "minBellstrike",
     "maxBellstrike",

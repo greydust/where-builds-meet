@@ -217,6 +217,7 @@ function importedSetTiers(
 
 function weaponFromImportedAffixes(rows: Array<OfficialAffixRow | undefined>, selectedWeapons: [WeaponId, WeaponId]) {
   const keys = new Set(rows.map(row => row && officialAffixMap[row.statId]))
+  if (keys.has("ribbonAndDrumDmgBoost")) return "museflowWaistDrum" as const
   if (keys.has("hengBladeDmgBoost")) return "snowparting" as const
   if (keys.has("moBladeDmgBoost")) return "phalanxbane" as const
   if (keys.has("umbrellaDmgBoost")) return "everspring" as const
@@ -316,12 +317,10 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
     const definition = gearData.gear[definitionId]
     let equippedSlot = piece.slot
     if (definition?.weapon) {
-      const matchingIndex = buildWeapons.findIndex((_, index) => {
+      const importedWeapon = importedWeapons[piece.slot === "leftWeapon" ? 0 : 1]
+      const matchingIndex = buildWeapons.findIndex((weapon, index) => {
         const candidateSlot = index === 0 ? "leftWeapon" : "rightWeapon"
-        return (
-          !assignedWeaponSlots.has(candidateSlot) &&
-          gearDefinitionForSlot(candidateSlot, buildWeapons).definitionId === definitionId
-        )
+        return weapon === importedWeapon && !assignedWeaponSlots.has(candidateSlot)
       })
       if (matchingIndex >= 0) equippedSlot = matchingIndex === 0 ? "leftWeapon" : "rightWeapon"
       assignedWeaponSlots.add(equippedSlot)
