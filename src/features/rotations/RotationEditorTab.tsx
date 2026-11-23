@@ -122,9 +122,11 @@ import { resolveSkillCalculationDefinitions, type SkillOverrides } from "@/skill
 import { useDpsStore } from "@/stores/dpsStore"
 import { useLoadoutStore } from "@/stores/loadoutStore"
 import { useRotationStore } from "@/stores/rotationStore"
+import { useSettingsStore } from "@/stores/settingsStore"
 import { type WeaponId } from "@/types"
 import { Button } from "@/ui/Button"
 import { CalculationStatus } from "@/ui/CalculationStatus"
+import { NumberInput } from "@/ui/NumberInput"
 
 function rotationEntryDisplayName(entry: RotationEntry) {
   const name = entry.rotation.name || t("ui.app.unnamedRotation")
@@ -323,9 +325,11 @@ export function RotationEditorTab({
     script: currentScript,
     divinecraft: currentDivinecraft,
   } = setupSelections
+  const rotationEventLimit = useSettingsStore(state => state.rotationEventLimit)
   const calculationContextKey = useMemo(
     () =>
       calculationFingerprint({
+        rotationEventLimit,
         characterStats: rawCharacterStats,
         attunementStats,
         settings,
@@ -344,6 +348,7 @@ export function RotationEditorTab({
         previewId,
       }),
     [
+      rotationEventLimit,
       rawCharacterStats,
       attunementStats,
       settings,
@@ -491,6 +496,14 @@ export function RotationEditorTab({
               event: "Controlled",
               startTime: previousSkill ? previousSkill.startTime - anchorTime : 0,
               duration: eventDefaultDuration("Controlled"),
+            }
+          case "__event:BossGeneralDamageBoost":
+            return {
+              type: "event",
+              event: "BossGeneralDamageBoost",
+              startTime: previousSkill ? previousSkill.startTime - anchorTime : 0,
+              duration: 10,
+              damageBonus: 0,
             }
           case "__event:ShieldBroken":
             return {
@@ -666,8 +679,13 @@ export function RotationEditorTab({
     stepIndex: number,
     eventRow: TimelineRow | undefined,
     availableTargets: RotationAttachmentTarget[],
+    direction: -1 | 0 | 1 = 0,
   ) {
-    return resolveAttachmentTargetIndex(rotation.steps, stepIndex, availableTargets, eventRow?.startTime)
+    const step = rotation.steps[stepIndex]
+    const time = isFixedTimeEvent(step)
+      ? step.startTime + (rotation.eventTimeReference === "battleStart" ? anchorTime : 0)
+      : eventRow?.startTime
+    return resolveAttachmentTargetIndex(rotation.steps, stepIndex, availableTargets, time, direction)
   }
   function moveAttachedEvent(stepIndex: number, direction: -1 | 1, control: HTMLButtonElement) {
     if (rotationLocked) return
@@ -699,23 +717,9 @@ export function RotationEditorTab({
         return
       }
     }
-    const fixedStartTime =
-      isFixedTimeEvent(eventStep) && "startTime" in eventStep && typeof eventStep.startTime === "number"
-        ? eventStep.startTime
-        : undefined
-    const eventFallbackTime =
-      fixedStartTime === undefined
-        ? eventRow?.startTime
-        : rotation.eventTimeReference === "battleStart"
-          ? anchorTime + fixedStartTime
-          : fixedStartTime
-    const currentTargetIndex = resolveAttachmentTargetIndex(
-      rotation.steps,
-      stepIndex,
-      availableTargets,
-      eventFallbackTime,
-    )
-    const nextTarget = availableTargets[currentTargetIndex + direction]
+    const currentTargetIndex = attachmentTargetIndexForEvent(stepIndex, eventRow, availableTargets)
+    const nextTargetIndex = attachmentTargetIndexForEvent(stepIndex, eventRow, availableTargets, direction)
+    const nextTarget = availableTargets[nextTargetIndex]
     if (!nextTarget) return
     const currentTarget = availableTargets[currentTargetIndex]
     const currentTargetStep = currentTarget ? rotation.steps[currentTarget.sourceStepIndex] : undefined
@@ -1410,6 +1414,7 @@ export function RotationEditorTab({
    * bundle that carries them are the same rotation measured against the same build.
    */
   const calculationSubjectFor = (rotationRecord: RotationRecord): CalculationSubject => ({
+    rotationEventLimit,
     pathId,
     settings,
     skillOverrides,
@@ -1487,6 +1492,7 @@ export function RotationEditorTab({
   })
   const prepareGraduationCalculation = useEffectEvent((rotationRecord: RotationRecord) => {
     const environment: GraduationPresetEnvironment = {
+      rotationEventLimit,
       pathId,
       martialArts: [...settings.weapons],
       rotation: { ...rotationRecord, ping: resolvePing(rotationRecord.ping, settings.ping) },
@@ -2180,6 +2186,12 @@ export function RotationEditorTab({
                       isAutomaticDelay(timelineStep) || row.rotationIndex === undefined || !editorTimelineReady
                         ? timelineStep
                         : (rotation.steps[row.rotationIndex] ?? timelineStep)
+                    // Input values follow the current edit while the timeline keeps its last resolved display.
+                    const currentStep = row.rotationIndex === undefined ? undefined : rotation.steps[row.rotationIndex]
+                    const bossBoostStep =
+                      currentStep?.type === "event" && currentStep.event === "BossGeneralDamageBoost"
+                        ? currentStep
+                        : undefined
                     const step = authoredStep
                     const skill =
                       authoredStep.type === "skill"
@@ -2317,6 +2329,14 @@ export function RotationEditorTab({
                     const attachedTargetIndex =
                       isEventMovable && row.rotationIndex !== undefined
                         ? attachmentTargetIndexForEvent(row.rotationIndex, row, availableAttachmentTargets)
+                        : -1
+                    const previousAttachmentTargetIndex =
+                      isEventMovable && row.rotationIndex !== undefined
+                        ? attachmentTargetIndexForEvent(row.rotationIndex, row, availableAttachmentTargets, -1)
+                        : -1
+                    const nextAttachmentTargetIndex =
+                      isEventMovable && row.rotationIndex !== undefined
+                        ? attachmentTargetIndexForEvent(row.rotationIndex, row, availableAttachmentTargets, 1)
                         : -1
                     const attachedSiblingAbove =
                       isAttachedEvent && !isFixedTime && row.rotationIndex !== undefined
@@ -2915,7 +2935,52 @@ export function RotationEditorTab({
                               )}
                             </span>
                             <span className="rotation-buff-cell" data-mobile-label={t("ui.app.buff")}>
-                              {isManualEvent && step.event === "Buff" ? (
+                              {isManualEvent && bossBoostStep ? (
+                                <span className="rotation-boss-boost-control">
+                                  <label>
+                                    {t("ui.app.durationSeconds")}
+                                    {rotationLocked ? (
+                                      <span>{formatNumber(bossBoostStep.duration)}</span>
+                                    ) : (
+                                      <NumberInput
+                                        className="rotation-effect-stack"
+                                        aria-label={t("ui.app.durationSeconds")}
+                                        min={0}
+                                        step="0.1"
+                                        value={bossBoostStep.duration}
+                                        onCommit={duration => {
+                                          if (duration !== undefined && duration !== bossBoostStep.duration)
+                                            updateStep(row.rotationIndex ?? 0, { duration })
+                                        }}
+                                      />
+                                    )}
+                                  </label>
+                                  <label>
+                                    {t("ui.app.bonus")}
+                                    {rotationLocked ? (
+                                      <span>{formatNumber(bossBoostStep.damageBonus * 100)}%</span>
+                                    ) : (
+                                      <span className="rotation-boss-boost-percentage">
+                                        <NumberInput
+                                          className="rotation-effect-stack"
+                                          aria-label={t("ui.app.bonus")}
+                                          min={0}
+                                          step="0.1"
+                                          value={bossBoostStep.damageBonus * 100}
+                                          onCommit={percentage => {
+                                            if (
+                                              percentage !== undefined &&
+                                              percentage / 100 !== bossBoostStep.damageBonus
+                                            )
+                                              updateStep(row.rotationIndex ?? 0, { damageBonus: percentage / 100 })
+                                          }}
+                                        />
+                                        <i aria-hidden="true">%</i>
+                                      </span>
+                                    )}
+                                  </label>
+                                </span>
+                              ) : isManualEvent && step.event === "Buff" ? (
                                 rotationLocked ? (
                                   <span>
                                     {calculationDefinitions.effectDefinitions[step.buff]?.name ?? step.buff}
@@ -3040,7 +3105,9 @@ export function RotationEditorTab({
                                   <button
                                     type="button"
                                     aria-label={t("ui.app.moveEventToPreviousAction")}
-                                    disabled={rowReadOnly || (attachedSiblingAbove < 0 && attachedTargetIndex <= 0)}
+                                    disabled={
+                                      rowReadOnly || (attachedSiblingAbove < 0 && previousAttachmentTargetIndex < 0)
+                                    }
                                     onClick={event =>
                                       moveAttachedEvent(row.rotationIndex ?? 0, -1, event.currentTarget)
                                     }
@@ -3051,10 +3118,7 @@ export function RotationEditorTab({
                                     type="button"
                                     aria-label={t("ui.app.moveEventToNextAction")}
                                     disabled={
-                                      rowReadOnly ||
-                                      (attachedSiblingBelow < 0 &&
-                                        (attachedTargetIndex < 0 ||
-                                          attachedTargetIndex >= availableAttachmentTargets.length - 1))
+                                      rowReadOnly || (attachedSiblingBelow < 0 && nextAttachmentTargetIndex < 0)
                                     }
                                     onClick={event => moveAttachedEvent(row.rotationIndex ?? 0, 1, event.currentTarget)}
                                   >

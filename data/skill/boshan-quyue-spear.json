@@ -25,7 +25,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍蓄力"
+    "shortName": "Blue Charged"
   },
   "BoltBlueQ": {
     "hideFromRotationEditor": true,
@@ -38,7 +38,7 @@
     "cooldown": 15,
     "martialArt": "boshanQuyueSpear",
     "attackResponse": { "duration": 1.1, "onSuccess": "BoltBlueParrySuccess" },
-    "shortName": "藍Q"
+    "shortName": "Blue Q"
   },
   "BoltBlueQFollowup": {
     "hideFromRotationEditor": true,
@@ -75,7 +75,7 @@
     ],
     "martialArt": "boshanQuyueSpear",
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
-    "shortName": "藍Q追擊"
+    "shortName": "Blue Q Follow-up"
   },
   "BoltBlueSpecial": {
     "name": "龍膽巡坡",
@@ -136,7 +136,7 @@
     ],
     "cooldown": 10,
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍特殊"
+    "shortName": "Blue Special"
   },
   "BoltBlueTab": {
     "name": "盜跖踏梁",
@@ -167,7 +167,7 @@
     ],
     "cooldown": 3,
     "martialArt": "boshanQuyueSpear",
-    "shortName": "切藍"
+    "shortName": "Switch to Blue"
   },
   "BoltBlueCounter": {
     "hideFromRotationEditor": true,
@@ -236,7 +236,7 @@
     ],
     "martialArt": "boshanQuyueSpear",
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
-    "shortName": "藍反擊"
+    "shortName": "Blue Counter"
   },
   "BoltBlueVCBase": {
     "name": "平風掃寶",
@@ -290,7 +290,7 @@
     ],
     "ignorePing": true,
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.3 } }],
-    "shortName": "藍派生"
+    "shortName": "Blue VC"
   },
   "BoltBlueVCSharp": {
     "name": "平風掃寶·鋒銳",
@@ -360,7 +360,7 @@
     ],
     "ignorePing": true,
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }],
-    "shortName": "藍派生"
+    "shortName": "Blue VC"
   },
   "BoltBlueVC": {
     "name": "平風掃寶",
@@ -394,7 +394,7 @@
         "fallback": "BoltBlueVCBase"
       }
     ],
-    "shortName": "藍派生"
+    "shortName": "Blue VC"
   },
   "BoltEnterFengRui": {
     "name": "鋒銳啟動",
@@ -535,7 +535,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍輕1"
+    "shortName": "Blue Light 1"
   },
   "BoltBlueLight2": {
     "hideFromRotationEditor": true,
@@ -555,7 +555,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍輕2"
+    "shortName": "Blue Light 2"
   },
   "BoltBlueLight3": {
     "hideFromRotationEditor": true,
@@ -583,7 +583,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍輕3"
+    "shortName": "Blue Light 3"
   },
   "BoltBlueLight4": {
     "hideFromRotationEditor": true,
@@ -619,7 +619,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍輕4"
+    "shortName": "Blue Light 4"
   },
   "BoltBlueHeavy1": {
     "hideFromRotationEditor": true,
@@ -639,7 +639,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍重1"
+    "shortName": "Blue Heavy 1"
   },
   "BoltBlueHeavy2": {
     "hideFromRotationEditor": true,
@@ -659,7 +659,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍重2"
+    "shortName": "Blue Heavy 2"
   },
   "BoltBlueHeavy3": {
     "hideFromRotationEditor": true,
@@ -679,7 +679,7 @@
       }
     ],
     "martialArt": "boshanQuyueSpear",
-    "shortName": "藍重3"
+    "shortName": "Blue Heavy 3"
   },
   "BoltBlueParrySuccess": {
     "name": "英布列甲·招架成功",

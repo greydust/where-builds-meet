@@ -1,6 +1,7 @@
-import resourceEventDefinitions from "../../../data/event.json"
-import type { SkillRecord } from "../../calculations/rotationTimeline"
-import { dataText } from "../../i18n"
+import resourceEventDefinitions from "@gamedata/event.json"
+
+import type { SkillRecord } from "@/calculations/rotationTimeline"
+import { dataText } from "@/i18n"
 
 export const rotationEventDefinitions: Record<string, SkillRecord> = {
   ...resourceEventDefinitions,
@@ -15,6 +16,13 @@ export const rotationEventDefinitions: Record<string, SkillRecord> = {
     name: "Action: Switch Martial Art",
     castTime: 0,
     action: [{ type: "switchMartialArt", time: 0 }],
+    modifier: [],
+    tags: ["Event"],
+  },
+  BossGeneralDamageBoost: {
+    name: "Event: Boss General Damage Boost",
+    castTime: 0,
+    action: [{ type: "apply", target: "self", value: "BossGeneralDamageBoost", stack: 1, time: 0 }],
     modifier: [],
     tags: ["Event"],
   },

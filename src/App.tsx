@@ -131,6 +131,7 @@ export default function App() {
   }
   const devMode = useSettingsStore(state => state.devMode)
   const layoutPreview = useSettingsStore(state => state.layoutPreview)
+  const rotationEventLimit = useSettingsStore(state => state.rotationEventLimit)
   const displaySizing = useSettingsStore(state => state.displaySizing)
   const pathId = useLoadoutStore(state => state.pathId)
   const settings = useLoadoutStore(state => state.settings)
@@ -215,12 +216,22 @@ export default function App() {
    */
   const buildMeasurementContext = useMemo(
     () => ({
-      environment: { pathId, settings, setupSelections, skillOverrides, previewId, globalDebuffs, enemy },
+      environment: {
+        pathId,
+        settings,
+        setupSelections,
+        skillOverrides,
+        previewId,
+        globalDebuffs,
+        enemy,
+        rotationEventLimit,
+      },
       statOverrides,
       attunementOverrides,
       buildSetupOverrides: { buildId: activeBuild?.id ?? "", overrides: buildSetupOverrides },
     }),
     [
+      rotationEventLimit,
       activeBuild?.id,
       pathId,
       settings,

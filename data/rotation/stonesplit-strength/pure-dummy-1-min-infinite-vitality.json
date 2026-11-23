@@ -1,5 +1,5 @@
 {
-  "name": "Pure Dummy 1 Min Infinite Vitality",
+  "name": "Pure Dummy 1 Min IV",
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "infiniteVitality": true,
@@ -80,5 +80,6 @@
     { "type": "event", "event": "Qi", "startTime": 59.29892899, "targetQiRatio": 0.5999 },
     { "type": "event", "event": "BattleEnd", "startTime": 60 }
   ],
-  "ping": 40
+  "ping": 40,
+  "order": 101
 }

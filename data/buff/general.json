@@ -1,4 +1,12 @@
 {
+  "BossGeneralDamageBoost": {
+    "name": "Boss General Damage Boost",
+    "shortName": "BGDB",
+    "badgeColor": "red",
+    "maxStack": 1,
+    "refresh": true,
+    "effect": []
+  },
   "BossTalent": {
     "name": "Boss Talent",
     "description": "Increases general damage by 15%.",

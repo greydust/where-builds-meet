@@ -4,6 +4,7 @@ import { finishCalculationPhase, startCalculationPhase } from "./calculationBenc
 import {
   bossDefinitionFor,
   DEFAULT_TARGET_HP_RATIO,
+  DEFAULT_ROTATION_EVENT_LIMIT,
   normalizeEnemyCount,
   normalizePing,
   resolveTargetType,
@@ -134,6 +135,14 @@ export type AttachedEventTarget = { action: number | "start"; trigger?: number }
 /** Every event step also reads as carrying no skill, so `step.skill` stays a total read across
     `RotationStep` and a step can be filtered by name; only the skill variant may set it. */
 type RotationEventStep =
+  | {
+      event: "BossGeneralDamageBoost"
+      before: AttachedEventTarget
+      startTime?: number
+      duration: number
+      damageBonus: number
+    }
+  | { event: "BossGeneralDamageBoost"; startTime: number; duration: number; damageBonus: number }
   | { event: "Exhausted"; after: AttachedEventTarget; duration?: number; startTime?: number }
   | { event: "Exhausted"; before: AttachedEventTarget; duration?: number; startTime?: number }
   | { event: "Move"; before: AttachedEventTarget; distance: number; startTime?: number }
@@ -221,6 +230,8 @@ export type RotationRecord = {
   eventTimeReference?: "battleStart"
 }
 export type TrackedEffect = {
+  /** Per-activation effect rules supplied by a manual encounter event. */
+  appliedEffectRules?: unknown[]
   name: string
   /** Zero is self; positive indexes are the other players represented by the rotation. */
   playerRecipientIndex?: number
@@ -610,6 +621,8 @@ function boostDamageCollection(
 }
 
 export type TimelineBuildInput = {
+  /** Maximum processed combat events; 0 disables the limit. */
+  eventLimit?: number
   /** Storage comparison for the stack-indexed expected tracker. */
   expectedPeriodicStorage?: "packed" | "indexed"
   /** Diagnostic opt-out for the expected shared-clock tiny-state approximation. */
@@ -1068,6 +1081,7 @@ function applyTrackedEffect(
     ...(remainingTriggers !== undefined ? { remainingTriggers } : {}),
     expiresAt,
     ...(persistent ? { persistent: true } : {}),
+    ...(persistent && existing.appliedEffectRules ? { appliedEffectRules: existing.appliedEffectRules } : {}),
     ...(sourceRowId ? { sourceRowId } : existing?.sourceRowId ? { sourceRowId: existing.sourceRowId } : {}),
     ...(collectBoostDamage
       ? { collectBoostDamage }
@@ -1297,6 +1311,9 @@ export function buildRotationTimeline(
           : {},
         step.type === "event" && step.event === "Qi" && action.type === "setQi"
           ? { targetQiRatio: step.targetQiRatio }
+          : {},
+        step.type === "event" && step.event === "BossGeneralDamageBoost" && action.type === "apply"
+          ? { duration: step.duration, appliedEffectRules: [{ effect: { dmgBonus: step.damageBonus } }] }
           : {},
         step.type === "event" && step.event === "Buff" && action.type === "apply"
           ? { value: step.buff, stack: step.stack ?? 1 }
@@ -1593,7 +1610,14 @@ export function buildRotationTimeline(
     const cached = preparedEffects.get(tracked)
     if (cached) return cached
     let prepared: TrackedEffect
-    if (conditionalModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
+    if (tracked.appliedEffectRules) {
+      const contribution = splitUnconditionalDamageEffectRules(tracked.appliedEffectRules)
+      prepared = {
+        ...tracked,
+        unconditionalDamageEffects: contribution.unconditional,
+        perHitEffectRules: contribution.remaining,
+      }
+    } else if (conditionalModifiedNames.has(tracked.name)) prepared = withoutAggregatedDamageEffects(tracked)
     else {
       let stacks = preparedContributions.get(tracked.name)
       if (!stacks) preparedContributions.set(tracked.name, (stacks = new Map()))
@@ -3396,7 +3420,8 @@ export function buildRotationTimeline(
     machineWake = { kind: "action", row, actionIndex: 0, time, sortOrder: [-2] }
     events.push(machineWake)
   }
-  const eventLimit = outcomeMachine ? 20000 : 5000
+  const configuredEventLimit = input.eventLimit ?? (outcomeMachine ? 20000 : DEFAULT_ROTATION_EVENT_LIMIT)
+  const eventLimit = configuredEventLimit === 0 ? Infinity : configuredEventLimit
   while ((events.length || timedCursor < timed.length || pendingCharge) && processedEvents < eventLimit) {
     onResourceSpent = undefined
     responseContext = undefined
@@ -5334,6 +5359,10 @@ export function buildRotationTimeline(
                 finiteListenerTriggerLimit(definition),
               )
             : targetEffects
+      if (shouldApply && Array.isArray(action.appliedEffectRules)) {
+        const applied = next.get(effectKey(action.value, playerRecipientIndex))
+        if (applied) applied.appliedEffectRules = action.appliedEffectRules
+      }
       const snapshotThreshold = resolvedAction?.accumulatorThreshold
       if (shouldApply && definition.accumulator && typeof snapshotThreshold === "number") {
         const applied = next.get(effectKey(action.value, playerRecipientIndex))

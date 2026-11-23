@@ -143,6 +143,8 @@ data.buff.general.Bloom.description,The spring outcome of Seasonal Edge.,四時�
 data.buff.general.Bloom.name,Bloom,春,春,春,봄,Floración,Printemps,Frühling,Primavera,Mùa xuân,,ฤดูใบไม้ผลิ,Весна
 data.buff.general.Bloom.shortName,Bloom,春,春,春,봄,Floración,Printemps,Frühling,Primavera,Mùa xuân,,ฤดูใบไม้ผลิ,Весна
 data.buff.general.BloomRecoveryRemaining.name,Bloom,春,春,春,봄,Floración,Printemps,Frühling,Primavera,Mùa xuân,,ฤดูใบไม้ผลิ,Весна
+data.buff.general.BossGeneralDamageBoost.name,Boss General Damage Boost,首領通用傷害加成,首领通用伤害加成,ボス汎用ダメージ上昇,보스 일반 피해 증가,Bonificación de daño general del jefe,Bonus de dégâts généraux du boss,Allgemeiner Bossschadensbonus,Bônus de Dano Geral do Chefe,Tăng sát thương chung của thủ lĩnh,,โบนัสความเสียหายทั่วไปของบอส,Общий бонус урона босса
+data.buff.general.BossGeneralDamageBoost.shortName,BGDB,BGDB,BGDB,BGDB,BGDB,BGDB,BGDB,BGDB,BGDB,BGDB,,BGDB,BGDB
 data.buff.general.BossTalent.description,Increases general damage by 15%.,通用傷害提高15%。,通用伤害提高15%。,汎用ダメージが15%増加します。,일반 피해가 15% 증가합니다.,Aumenta el daño general un 15%.,Augmente les dégâts généraux de 15%.,Erhöht den allgemeinen Schaden um 15 %.,Aumenta o dano geral em 15%.,Tăng 15% sát thương chung.,,เพิ่มความเสียหายทั่วไป 15%,Увеличивает общий урон на 15%.
 data.buff.general.BossTalent.name,Boss Talent,首領天賦,首领天赋,首領才能,보스 천부,Talento de jefe,Talent de boss,Boss-Talent,Talento de Chefe,Thiên phú thủ lĩnh,,พรสวรรค์หัวหน้า,Талант босса
 data.buff.general.BreakingPointCooldown.description,Breaking Point's Tier VI dodge effect is on cooldown. Ordinary Disintegration stacks remain available.,斷石之構 六重的閃避效果冷卻中，普通瓦解層數仍可使用。,断石之构六重的闪避效果冷却中，普通崩解层数仍可使用。,断石心法の段階VIの回避効果はクールタイム中です。通常の分解スタックは引き続き使用できます。,파괴의 서막 6단계 회피 효과가 쿨타임 중입니다. 일반 붕괴 중첩은 계속 사용할 수 있습니다.,El efecto de esquiva de grado VI de Punto de Ruptura está en recarga. Las acumulaciones normales de Desintegración siguen disponibles.,L’effet d’esquive de palier VI de Point de Rupture est en recharge. Les cumuls ordinaires de Désintégration restent disponibles.,Der Ausweicheffekt von Brechpunkt auf Stufe VI hat Abklingzeit. Gewöhnliche Auflösungsstapel bleiben verfügbar.,O efeito de esquiva de Ponto de Ruptura no nível VI está em recarga. Os acúmulos comuns de Desintegração continuam disponíveis.,Hiệu ứng né tránh bậc VI của Điểm phá vỡ đang hồi. Các tầng Phân rã thông thường vẫn khả dụng.,,เอฟเฟกต์หลบหลีกขั้น VI ของโครงสร้างหินแตกอยู่ในคูลดาวน์ ชั้นการแตกสลายทั่วไปยังใช้ได้,Эффект уклонения VI ранга внутреннего пути «Предел прочности» перезаряжается. Обычные уровни Распада остаются доступны.
@@ -531,9 +533,384 @@ data.gearSet.Swallowcall.name,Swallowcall,燕歸,燕归,帰燕,연귀,Llamado de
 data.gearSet.SwayingHeights.name,Swaying Heights,岳山傾,岳山倾,山崩,산경,Alturas Oscilantes,Cimes oscillantes,Schwankende Höhen,Alturas Oscilantes,Đỉnh chao,,ยอดเขาเอนไหว,Колеблющиеся Высоты
 data.gearSet.SwiftGale.name,Swift Gale,急風驟,急风骤,疾風,질풍,Vendaval Veloz,Rafale vive,Rascher Sturm,Vendaval Veloz,Gió nhanh,,ลมกรดพัดแรง,Быстрый Ветер
 data.gearSet.Tiltrim.name,Tiltrim,傾觴,倾觞,杯傾け,기우는 잔,Tiltrim,Tiltrim,Geneigter Becher,Inclinação,Nghiêng chén,,ยกจอก,Косой срез
+data.globalBuffOptions.bossTalent.015.description,"Increases damage dealt to bosses by 15%.
+
+Assuming 100% uptime. Adds 15% damage bonus against the boss.","對首領造成的傷害提高15%。
+
+假設覆蓋率為100%。實際增加：對首領的傷害加成+15%。","对首领造成的伤害提高15%。
+
+假设覆盖率为100%。实际增加：对首领的伤害加成+15%。","ボスに与えるダメージが15%増加します。
+
+稼働率100%を想定。ボスへのダメージボーナスを15%加算します。","우두머리에게 주는 피해가 15% 증가합니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 우두머리 대상 피해 보너스 +15%.","Aumenta el daño infligido a los jefes un 15%.
+
+Suponiendo un 100% de actividad. Agrega un 15% de bonificación de daño contra el jefe.","Augmente les dégâts infligés aux boss de 15%.
+
+En supposant 100% de temps actif. Ajoute 15% de bonus de dégâts contre le boss.","Erhöht den verursachten Schaden gegen Bosse um 15 %.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 15 % Schadensbonus gegen den Boss.","Aumenta o dano causado a chefes em 15%.
+
+Considerando 100% de atividade. Adiciona 15% de bônus de dano contra o chefe.","Tăng 15% sát thương gây ra lên thủ lĩnh.
+
+Giả định duy trì 100% thời gian. Cộng 15% thưởng sát thương lên thủ lĩnh.",,"เพิ่มความเสียหายที่สร้างต่อบอส 15%
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มโบนัสความเสียหายต่อบอส 15%","Увеличивает наносимый боссам урон на 15%.
+
+Предполагается 100% времени действия. Добавляет 15% к бонусу урона по боссу."
+data.globalBuffOptions.draught.both.description,"Strayhunt adds 2% Physical and attribute DMG Bonus. Wildstride increases Replayed skill damage by 20%.
+
+Assuming 100% uptime for both effects. Adds 2% Physical and attribute DMG Bonus and 20% Replayed skill damage.","離獵增加2%外功及屬性傷害加成。步亂使重演技能傷害提高20%。
+
+假設兩種效果的覆蓋率皆為100%。實際增加：外功及屬性傷害加成+2%、重演技能傷害+20%。","离猎增加2%外功及属性伤害加成。步乱使重演技能伤害提高20%。
+
+假设两种效果的覆盖率均为100%。实际增加：外功及属性伤害加成+2%、重演技能伤害+20%。","離猟は外功および属性ダメージボーナスを2%加算します。歩乱は再演スキルのダメージを20%増加させます。
+
+両効果の稼働率100%を想定。外功および属性ダメージボーナスを2%、再演スキルのダメージを20%加算します。","탈렵은 외공 및 속성 피해 보너스를 2% 증가시킵니다. 흐트러진 보법은 재현 스킬 피해를 20% 증가시킵니다.
+
+두 효과의 유지율을 모두 100%로 가정합니다. 실제 효과: 외공 및 속성 피해 보너스 +2%, 재현 스킬 피해 +20%.","Caza Errante agrega un 2% de bonificación de daño físico y de atributo. Zancada Salvaje aumenta el daño de las habilidades repetidas un 20%.
+
+Suponiendo un 100% de actividad para ambos efectos. Agrega un 2% de bonificación de daño físico y de atributo y un 20% de daño de habilidades repetidas.","Chasse errante ajoute 2% de bonus de dégâts physiques et d’attribut. Foulée sauvage augmente les dégâts des compétences rejouées de 20%.
+
+En supposant 100% de temps actif pour les deux effets. Ajoute 2% de bonus de dégâts physiques et d’attribut et 20% de dégâts des compétences rejouées.","Streunjagd gewährt 2 % Bonus auf physischen und Attributschaden. Wildschritt erhöht den Schaden wiederholter Fertigkeiten um 20 %.
+
+Bei angenommenen 100 % Wirkzeit für beide Effekte. Gewährt 2 % Bonus auf physischen und Attributschaden und 20 % Schaden wiederholter Fertigkeiten.","Caça Errante adiciona 2% de bônus de dano físico e de atributo. Passo Selvagem aumenta o dano de habilidades Reproduzidas em 20%.
+
+Considerando 100% de atividade para ambos os efeitos. Adiciona 2% de bônus de dano físico e de atributo e 20% de dano de habilidades Reproduzidas.","Ly liệp cộng 2% thưởng sát thương ngoại công và thuộc tính. Bước loạn tăng 20% sát thương kỹ năng phát lại.
+
+Giả định cả hai hiệu ứng duy trì 100% thời gian. Cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 20% sát thương kỹ năng phát lại.",,"ออกล่าเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% ก้าวสับสนเพิ่มความเสียหายของกระบวนท่าที่เล่นซ้ำ 20%
+
+สมมติว่าทั้งสองผลมีผล 100% ของเวลา เพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% และความเสียหายของกระบวนท่าที่เล่นซ้ำ 20%","Бродячая охота добавляет 2% к бонусу физического урона и урона стихий. Дикий шаг увеличивает урон повторно исполненных навыков на 20%.
+
+Предполагается 100% времени действия обоих эффектов. Добавляет 2% к бонусу физического урона и урона стихий и 20% урона повторно исполненных навыков."
+data.globalBuffOptions.draught.strayhunt.description,"Strayhunt adds 2% Physical and attribute DMG Bonus.
+
+Assuming 100% uptime. Adds 2% Physical and attribute DMG Bonus.","離獵增加2%外功及屬性傷害加成。
+
+假設覆蓋率為100%。實際增加：外功及屬性傷害加成+2%。","离猎增加2%外功及属性伤害加成。
+
+假设覆盖率为100%。实际增加：外功及属性伤害加成+2%。","離猟は外功および属性ダメージボーナスを2%加算します。
+
+稼働率100%を想定。外功および属性ダメージボーナスを2%加算します。","탈렵은 외공 및 속성 피해 보너스를 2% 증가시킵니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 외공 및 속성 피해 보너스 +2%.","Caza Errante agrega un 2% de bonificación de daño físico y de atributo.
+
+Suponiendo un 100% de actividad. Agrega un 2% de bonificación de daño físico y de atributo.","Chasse errante ajoute 2% de bonus de dégâts physiques et d’attribut.
+
+En supposant 100% de temps actif. Ajoute 2% de bonus de dégâts physiques et d’attribut.","Streunjagd gewährt 2 % Bonus auf physischen und Attributschaden.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 2 % Bonus auf physischen und Attributschaden.","Caça Errante adiciona 2% de bônus de dano físico e de atributo.
+
+Considerando 100% de atividade. Adiciona 2% de bônus de dano físico e de atributo.","Ly liệp cộng 2% thưởng sát thương ngoại công và thuộc tính.
+
+Giả định duy trì 100% thời gian. Cộng 2% thưởng sát thương ngoại công và thuộc tính.",,"ออกล่าเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2%
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2%","Бродячая охота добавляет 2% к бонусу физического урона и урона стихий.
+
+Предполагается 100% времени действия. Добавляет 2% к бонусу физического урона и урона стихий."
+data.globalBuffOptions.fearfulBlade.on.description,"Reduces attribute resistances by 16 and increases HP damage taken from Strength by 8%.
+
+Assuming 75% uptime (15 seconds every 20 seconds). Adds -12 attribute resistances and 6% HP damage taken from Strength.","屬性抗性降低16點，受到的鈞流派氣血傷害提高8%。
+
+假設覆蓋率為75%（每20秒持續15秒）。實際增加：屬性抗性-12、受到的鈞流派氣血傷害+6%。","属性抗性降低16点，受到的钧流派气血伤害提高8%。
+
+假设覆盖率为75%（每20秒持续15秒）。实际增加：属性抗性-12、受到的钧流派气血伤害+6%。","属性耐性を16低下させ、鈞から受ける気血ダメージを8%増加させます。
+
+稼働率75%（20秒ごとに15秒）を想定。属性耐性-12、鈞から受ける気血ダメージ+6%を適用します。","속성 저항이 16 감소하고 열석 균의 기혈 피해를 8% 더 받습니다.
+
+유지율 75%(20초마다 15초)를 가정합니다. 속성 저항 -12와 열석 균으로 받는 기혈 피해 6% 증가를 적용합니다.","Reduce las resistencias de atributo en 16 y aumenta el daño a los PV recibido de Fuerza un 8%.
+
+Se asume un 75% de tiempo activo (15 segundos cada 20 segundos). Añade -12 de resistencias de atributo y un 6% de daño a los PV recibido de Fuerza.","Réduit les résistances aux attributs de 16 et augmente les dégâts aux PV subis de Force de 8%.
+
+En supposant un temps actif de 75% (15 secondes toutes les 20 secondes). Réduit les résistances aux attributs de 12 et augmente les dégâts aux PV subis de Force de 6%.","Verringert die Attributwiderstände um 16 und erhöht den erlittenen LP-Schaden durch Stärke um 8 %.
+
+Bei angenommener Verfügbarkeit von 75 % (15 Sekunden alle 20 Sekunden). Verringert die Attributwiderstände um 12 und erhöht den erlittenen LP-Schaden durch Stärke um 6 %.","Reduz as resistências de atributo em 16 e aumenta o dano aos PV recebido de Força em 8%.
+
+Considerando 75% de tempo ativo (15 segundos a cada 20 segundos). Adiciona -12 às resistências de atributo e 6% de dano aos PV recebido de Força.","Giảm 16 kháng thuộc tính và tăng 8% sát thương Khí huyết nhận vào từ Quân.
+
+Giả định duy trì 75% (15 giây mỗi 20 giây). Cộng -12 kháng thuộc tính và 6% sát thương Khí huyết nhận vào từ Quân.",,"ลดความต้านทานธาตุ 16 หน่วย และเพิ่มความเสียหายต่อพลังชีวิตที่ได้รับจากจุน 8%
+
+สมมติว่ามีผล 75% ของเวลา (15 วินาทีทุก 20 วินาที) เพิ่มผลจริง: ความต้านทานธาตุ -12 และความเสียหายต่อพลังชีวิตที่ได้รับจากจุน +6%","Снижает сопротивления стихиям на 16 и увеличивает получаемый урон здоровью от Силы на 8%.
+
+Предполагается 75% времени действия (15 секунд каждые 20 секунд). Даёт -12 к сопротивлениям стихиям и +6% к получаемому урону здоровью от Силы."
+data.globalBuffOptions.floatingGrace.deluge.description,"Increases damage dealt by 24% while active.
+
+Assuming 40% uptime (12 seconds every 30 seconds). Adds 9.6% damage bonus.","生效期間造成的傷害提高24%。
+
+假設覆蓋率為40%（每30秒持續12秒）。實際增加：9.6%傷害加成。","生效期间造成的伤害提高24%。
+
+假设覆盖率为40%（每30秒持续12秒）。实际增加：9.6%伤害加成。","効果中、与えるダメージが24%増加します。
+
+稼働率40%（30秒ごとに12秒）を想定。ダメージボーナスを9.6%加算します。","활성화 중 주는 피해가 24% 증가합니다.
+
+유지율을 40%(30초마다 12초)로 가정합니다. 실제 효과: 피해 보너스 +9.6%.","Aumenta el daño infligido un 24% mientras está activo.
+
+Suponiendo un 40% de actividad (12 segundos cada 30 segundos). Agrega un 9.6% de bonificación de daño.","Augmente les dégâts infligés de 24% lorsque l’effet est actif.
+
+En supposant 40% de temps actif (12 secondes toutes les 30 secondes). Ajoute 9,6% de bonus de dégâts.","Erhöht den verursachten Schaden während der Wirkung um 24 %.
+
+Bei angenommenen 40 % Wirkzeit (12 Sekunden alle 30 Sekunden). Gewährt 9,6 % Schadensbonus.","Aumenta o dano causado em 24% enquanto ativo.
+
+Considerando 40% de atividade (12 segundos a cada 30 segundos). Adiciona 9,6% de bônus de dano.","Khi có hiệu lực, tăng 24% sát thương gây ra.
+
+Giả định duy trì 40% thời gian (12 giây mỗi 30 giây). Cộng 9.6% thưởng sát thương.",,"ขณะมีผล เพิ่มความเสียหายที่สร้าง 24%
+
+สมมติว่ามีผล 40% ของเวลา (12 วินาทีในทุก 30 วินาที) เพิ่มโบนัสความเสียหาย 9.6%","Во время действия увеличивает наносимый урон на 24%.
+
+Предполагается 40% времени действия (12 секунд каждые 30 секунд). Добавляет 9.6% к бонусу урона."
+data.globalBuffOptions.floatingGrace.mixed.description,"Increases damage dealt by 10% while active.
+
+Assuming 40% uptime (12 seconds every 30 seconds). Adds 4% damage bonus.","生效期間造成的傷害提高10%。
+
+假設覆蓋率為40%（每30秒持續12秒）。實際增加：4%傷害加成。","生效期间造成的伤害提高10%。
+
+假设覆盖率为40%（每30秒持续12秒）。实际增加：4%伤害加成。","効果中、与えるダメージが10%増加します。
+
+稼働率40%（30秒ごとに12秒）を想定。ダメージボーナスを4%加算します。","활성화 중 주는 피해가 10% 증가합니다.
+
+유지율을 40%(30초마다 12초)로 가정합니다. 실제 효과: 피해 보너스 +4%.","Aumenta el daño infligido un 10% mientras está activo.
+
+Suponiendo un 40% de actividad (12 segundos cada 30 segundos). Agrega un 4% de bonificación de daño.","Augmente les dégâts infligés de 10% lorsque l’effet est actif.
+
+En supposant 40% de temps actif (12 secondes toutes les 30 secondes). Ajoute 4% de bonus de dégâts.","Erhöht den verursachten Schaden während der Wirkung um 10 %.
+
+Bei angenommenen 40 % Wirkzeit (12 Sekunden alle 30 Sekunden). Gewährt 4 % Schadensbonus.","Aumenta o dano causado em 10% enquanto ativo.
+
+Considerando 40% de atividade (12 segundos a cada 30 segundos). Adiciona 4% de bônus de dano.","Khi có hiệu lực, tăng 10% sát thương gây ra.
+
+Giả định duy trì 40% thời gian (12 giây mỗi 30 giây). Cộng 4% thưởng sát thương.",,"ขณะมีผล เพิ่มความเสียหายที่สร้าง 10%
+
+สมมติว่ามีผล 40% ของเวลา (12 วินาทีในทุก 30 วินาที) เพิ่มโบนัสความเสียหาย 4%","Во время действия увеличивает наносимый урон на 10%.
+
+Предполагается 40% времени действия (12 секунд каждые 30 секунд). Добавляет 4% к бонусу урона."
+data.globalBuffOptions.phantomChime.on.description,"At 5 stacks, reduces Physical Resistance by 10.
+
+Assuming 100% uptime at 5 stacks. Adds -10 Physical Resistance.","5層時，外功抗性降低10點。
+
+假設以5層維持100%覆蓋率。實際增加：外功抗性-10點。","5层时，外功抗性降低10点。
+
+假设以5层维持100%覆盖率。实际增加：外功抗性-10点。","5スタック時、外功耐性を10低下させます。
+
+5スタックで稼働率100%を想定。外功耐性-10を加算します。","5중첩일 때 외공 저항이 10 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 저항 -10.","Con 5 acumulaciones, reduce la resistencia física en 10.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -10 de resistencia física.","À 5 cumuls, réduit la résistance physique de 10.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -10 de résistance physique.","Verringert bei 5 Stapeln den physischen Widerstand um 10.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -10 physischen Widerstand.","Com 5 acúmulos, reduz a resistência física em 10.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -10 de resistência física.","Ở 5 tầng, giảm 10 Kháng ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -10 Kháng ngoại công.",,"ที่ 5 ชั้น ลดความต้านทานพลังภายนอก 10 หน่วย
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าความต้านทานพลังภายนอก -10 หน่วย","На 5 уровнях снижает физическое сопротивление на 10.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -10 к физическому сопротивлению."
+data.globalBuffOptions.qiImbalance.on.description,"Increases Qi damage taken by 10%. During Exhausted, increases HP damage taken by 10%, plus another 10% for Bellstrike damage.
+
+Assuming 100% uptime. Adds 10% Qi damage taken; during Exhausted, adds 10% HP damage taken, plus another 10% for Bellstrike damage.","受到的真氣傷害提高10%。氣竭期間受到的氣血傷害提高10%，鳴金傷害再額外提高10%。
+
+假設覆蓋率為100%。實際增加：受到的真氣傷害+10%；氣竭期間受到的氣血傷害+10%，鳴金傷害再額外+10%。","受到的真气伤害提高10%。气竭期间受到的气血伤害提高10%，鸣金伤害再额外提高10%。
+
+假设覆盖率为100%。实际增加：受到的真气伤害+10%；气竭期间受到的气血伤害+10%，鸣金伤害再额外+10%。","受ける気ダメージが10%増加します。気絶中は受ける気血ダメージが10%増加し、鋼鳴ダメージはさらに10%増加します。
+
+稼働率100%を想定。受ける気ダメージを10%加算し、気絶中は受ける気血ダメージを10%、鋼鳴ダメージをさらに10%加算します。","받는 진기 피해가 10% 증가합니다. 탈진 중 받는 기혈 피해가 10% 증가하며 명금 피해는 추가로 10% 증가합니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 받는 진기 피해 +10%. 탈진 중 받는 기혈 피해 +10%, 명금 피해 추가 +10%.","Aumenta el daño de Qi recibido un 10%. Durante el estado Agotado, aumenta el daño a los PV recibido un 10%, más otro 10% para el daño de Campana.
+
+Suponiendo un 100% de actividad. Agrega un 10% de daño de Qi recibido; durante Agotado, agrega un 10% de daño a los PV recibido, más otro 10% para el daño de Campana.","Augmente les dégâts au Qi subis de 10%. Pendant l’état Épuisé, augmente les dégâts aux PV subis de 10%, avec 10% supplémentaires pour les dégâts de Frappe de cloche.
+
+En supposant 100% de temps actif. Ajoute 10% de dégâts au Qi subis ; pendant l’état Épuisé, ajoute 10% de dégâts aux PV subis, avec 10% supplémentaires pour les dégâts de Frappe de cloche.","Erhöht den erlittenen Qi-Schaden um 10 %. Im Zustand „Erschöpft“ erhöht sich der erlittene LP-Schaden um 10 %, bei Glockenschlag-Schaden um weitere 10 %.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 10 % erlittenen Qi-Schaden; im Zustand „Erschöpft“ zusätzlich 10 % erlittenen LP-Schaden und weitere 10 % für Glockenschlag-Schaden.","Aumenta o dano de Qi recebido em 10%. Durante o estado Exausto, aumenta o dano aos PV recebido em 10%, com mais 10% para dano de Golpe de Sino.
+
+Considerando 100% de atividade. Adiciona 10% de dano de Qi recebido; durante Exausto, adiciona 10% de dano aos PV recebido, com mais 10% para dano de Golpe de Sino.","Tăng 10% sát thương Chân khí nhận vào. Khi Kiệt sức, sát thương Khí huyết nhận vào tăng 10%, cộng thêm 10% cho sát thương Tiếng chuông.
+
+Giả định duy trì 100% thời gian. Cộng 10% sát thương Chân khí nhận vào; khi Kiệt sức, cộng 10% sát thương Khí huyết nhận vào và thêm 10% cho sát thương Tiếng chuông.",,"เพิ่มความเสียหายต่อลมปราณที่ได้รับ 10% ขณะพลังหมด เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 10% และเพิ่มอีก 10% สำหรับความเสียหายเสียงกลอง
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มความเสียหายต่อลมปราณที่ได้รับ 10% และขณะพลังหมด เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 10% พร้อมเพิ่มอีก 10% สำหรับความเสียหายเสียงกลอง","Увеличивает получаемый урон Ци на 10%. Во время Истощения получаемый урон здоровью увеличивается на 10%, а урон Удара колокола — ещё на 10%.
+
+Предполагается 100% времени действия. Добавляет 10% получаемого урона Ци; во время Истощения добавляет 10% получаемого урона здоровью и ещё 10% для урона Удара колокола."
+data.globalBuffOptions.qingyisCharm.T1.description,"At 5 stacks, reduces Physical Defense by 6%.
+
+Assuming 100% uptime at 5 stacks. Adds -6% Physical Defense.","5層時，外功防禦降低6%。
+
+假設以5層維持100%覆蓋率。實際增加：外功防禦-6%。","5层时，外功防御降低6%。
+
+假设以5层维持100%覆盖率。实际增加：外功防御-6%。","5スタック時、外功防御を6%低下させます。
+
+5スタックで稼働率100%を想定。外功防御を-6%加算します。","5중첩일 때 외공 방어력이 6% 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 방어력 -6%.","Con 5 acumulaciones, reduce la defensa física un 6%.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -6% de defensa física.","À 5 cumuls, réduit la défense physique de 6%.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -6% de défense physique.","Verringert bei 5 Stapeln die physische Verteidigung um 6 %.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -6 % physische Verteidigung.","Com 5 acúmulos, reduz a defesa física em 6%.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -6% de defesa física.","Ở 5 tầng, giảm 6% Phòng thủ ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -6% Phòng thủ ngoại công.",,"ที่ 5 ชั้น ลดการป้องกันพลังภายนอก 6%
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าการป้องกันพลังภายนอก -6%","На 5 уровнях снижает физическую защиту на 6%.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -6% физической защиты."
+data.globalBuffOptions.qingyisCharm.T6.description,"At 5 stacks, reduces Physical Defense by 6% and Physical Resistance by 10.
+
+Assuming 100% uptime at 5 stacks. Adds -6% Physical Defense and -10 Physical Resistance.","5層時，外功防禦降低6%，外功抗性降低10點。
+
+假設以5層維持100%覆蓋率。實際增加：外功防禦-6%、外功抗性-10點。","5层时，外功防御降低6%，外功抗性降低10点。
+
+假设以5层维持100%覆盖率。实际增加：外功防御-6%、外功抗性-10点。","5スタック時、外功防御を6%、外功耐性を10低下させます。
+
+5スタックで稼働率100%を想定。外功防御を-6%、外功耐性を-10加算します。","5중첩일 때 외공 방어력이 6%, 외공 저항이 10 감소합니다.
+
+5중첩 유지율을 100%로 가정합니다. 실제 효과: 외공 방어력 -6%, 외공 저항 -10.","Con 5 acumulaciones, reduce la defensa física un 6% y la resistencia física en 10.
+
+Suponiendo un 100% de actividad con 5 acumulaciones. Agrega -6% de defensa física y -10 de resistencia física.","À 5 cumuls, réduit la défense physique de 6% et la résistance physique de 10.
+
+En supposant 100% de temps actif à 5 cumuls. Ajoute -6% de défense physique et -10 de résistance physique.","Verringert bei 5 Stapeln die physische Verteidigung um 6 % und den physischen Widerstand um 10.
+
+Bei angenommenen 100 % Wirkzeit mit 5 Stapeln. Gewährt -6 % physische Verteidigung und -10 physischen Widerstand.","Com 5 acúmulos, reduz a defesa física em 6% e a resistência física em 10.
+
+Considerando 100% de atividade com 5 acúmulos. Adiciona -6% de defesa física e -10 de resistência física.","Ở 5 tầng, giảm 6% Phòng thủ ngoại công và 10 Kháng ngoại công.
+
+Giả định duy trì 100% thời gian ở 5 tầng. Cộng -6% Phòng thủ ngoại công và -10 Kháng ngoại công.",,"ที่ 5 ชั้น ลดการป้องกันพลังภายนอก 6% และความต้านทานพลังภายนอก 10 หน่วย
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้น เพิ่มค่าการป้องกันพลังภายนอก -6% และค่าความต้านทานพลังภายนอก -10 หน่วย","На 5 уровнях снижает физическую защиту на 6% и физическое сопротивление на 10.
+
+Предполагается 100% времени действия на 5 уровнях. Добавляет -6% физической защиты и -10 к физическому сопротивлению."
+data.globalBuffOptions.silkbindWings.blue.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 52.5% Radiant Drum uptime, 47.5% Rustling uptime, and 100% ally Cloudshear uptime. Adds 6.3% Physical Attack, 7.725% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, instead sets local Radiant Drum duration to 10.5 seconds and disables the Dawnsun extension and fallback application.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為52.5%、扶風覆蓋率為47.5%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+6.3%、屬性攻擊+7.725%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，改為將自身爍鼓持續時間設為10.5秒，並停用昭陽的延長及補施效果。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为52.5%、扶风覆盖率为47.5%、队友裁云覆盖率为100%。实际增加：外功攻击+6.3%、属性攻击+7.725%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，改为将自身烁鼓持续时间设为10.5秒，并停用昭阳的延长及补施效果。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率52.5%、支風の稼働率47.5%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を6.3%、属性攻撃力を7.725%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、代わりに自身の輝鼓の持続時間を10.5秒に設定し、昭陽による延長と代替付与を無効にします。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 52.5%, 순풍의 인도 유지율을 47.5%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +6.3%, 속성 공격 +7.725%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 대신 자신의 고무 지속 시간을 10.5초로 설정하고 소양의 지속 시간 연장 및 대체 적용을 비활성화합니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 52.5% de actividad de Tambor Radiante, un 47.5% de Susurro y un 100% de Cortanubes de aliados. Agrega un 6.3% de ataque físico, un 7.725% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, en su lugar establece la duración de Tambor Radiante propio en 10.5 segundos y desactiva la extensión y la aplicación alternativa de Sol Naciente.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 52,5% de temps actif pour Tambour radieux, 47,5% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 6,3% d’attaque physique, 7,725% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, fixe à la place la durée de votre Tambour radieux à 10,5 secondes et désactive la prolongation et l’application de secours de Soleil levant.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 52,5 % Wirkzeit für Strahlende Trommel, 47,5 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 6,3 % physischen Angriff, 7,725 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel wird stattdessen die Dauer der eigenen Strahlenden Trommel auf 10,5 Sekunden gesetzt; die Verlängerung und Ersatzanwendung durch Zhaoyang werden deaktiviert.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 52,5% de atividade de Tambor Radiante, 47,5% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 6,3% de ataque físico, 7,725% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, em vez disso define a duração do próprio Tambor Radiante como 10,5 segundos e desativa a extensão e a aplicação alternativa de Sol da Aurora.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 52.5% thời gian, Phù Phong duy trì 47.5% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 6.3% Tấn công ngoại công, 7.725% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, thay vào đó đặt thời lượng Trống rạng ngời của bản thân thành 10.5 giây và vô hiệu hóa việc kéo dài cùng cơ chế áp dụng dự phòng của Nắng sớm.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 52.5% ของเวลา เสียงใบไม้ไหวมีผล 47.5% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 6.3% การโจมตีธาตุ 7.725% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะเปลี่ยนเป็นกำหนดระยะเวลากลองเรืองแสงของตนเองเป็น 10.5 วินาที และปิดการต่อระยะเวลาและการให้ผลสำรองของตะวันรุ่ง","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 52.5% времени действия Сияющего барабана, 47.5% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 6.3% физической атаки, 7.725% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз вместо этого устанавливает длительность собственного Сияющего барабана в 10.5 секунды и отключает продление и резервное наложение от Рассвета."
+data.globalBuffOptions.silkbindWings.full.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 100% Radiant Drum uptime, 0% Rustling uptime, and 100% ally Cloudshear uptime. Adds 12% Physical Attack, 12% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, instead sets local Radiant Drum duration to 20.5 seconds and disables the Dawnsun extension and fallback application.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為100%、扶風覆蓋率為0%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+12%、屬性攻擊+12%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，改為將自身爍鼓持續時間設為20.5秒，並停用昭陽的延長及補施效果。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为100%、扶风覆盖率为0%、队友裁云覆盖率为100%。实际增加：外功攻击+12%、属性攻击+12%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，改为将自身烁鼓持续时间设为20.5秒，并停用昭阳的延长及补施效果。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率100%、支風の稼働率0%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を12%、属性攻撃力を12%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、代わりに自身の輝鼓の持続時間を20.5秒に設定し、昭陽による延長と代替付与を無効にします。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 100%, 순풍의 인도 유지율을 0%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +12%, 속성 공격 +12%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 대신 자신의 고무 지속 시간을 20.5초로 설정하고 소양의 지속 시간 연장 및 대체 적용을 비활성화합니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 100% de actividad de Tambor Radiante, un 0% de Susurro y un 100% de Cortanubes de aliados. Agrega un 12% de ataque físico, un 12% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, en su lugar establece la duración de Tambor Radiante propio en 20.5 segundos y desactiva la extensión y la aplicación alternativa de Sol Naciente.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 100% de temps actif pour Tambour radieux, 0% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 12% d’attaque physique, 12% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, fixe à la place la durée de votre Tambour radieux à 20,5 secondes et désactive la prolongation et l’application de secours de Soleil levant.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 100 % Wirkzeit für Strahlende Trommel, 0 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 12 % physischen Angriff, 12 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel wird stattdessen die Dauer der eigenen Strahlenden Trommel auf 20,5 Sekunden gesetzt; die Verlängerung und Ersatzanwendung durch Zhaoyang werden deaktiviert.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 100% de atividade de Tambor Radiante, 0% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 12% de ataque físico, 12% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, em vez disso define a duração do próprio Tambor Radiante como 20,5 segundos e desativa a extensão e a aplicação alternativa de Sol da Aurora.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 100% thời gian, Phù Phong duy trì 0% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 12% Tấn công ngoại công, 12% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, thay vào đó đặt thời lượng Trống rạng ngời của bản thân thành 20.5 giây và vô hiệu hóa việc kéo dài cùng cơ chế áp dụng dự phòng của Nắng sớm.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 100% ของเวลา เสียงใบไม้ไหวมีผล 0% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 12% การโจมตีธาตุ 12% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะเปลี่ยนเป็นกำหนดระยะเวลากลองเรืองแสงของตนเองเป็น 20.5 วินาที และปิดการต่อระยะเวลาและการให้ผลสำรองของตะวันรุ่ง","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 100% времени действия Сияющего барабана, 0% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 12% физической атаки, 12% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз вместо этого устанавливает длительность собственного Сияющего барабана в 20.5 секунды и отключает продление и резервное наложение от Рассвета."
+data.globalBuffOptions.silkbindWings.yellow.description,"With Harmony Song T6, Radiant Drum adds 12% Physical and attribute attack; Rustling adds 3% attribute attack; ally Cloudshear adds 2% Physical and attribute DMG Bonus and healing.
+
+Assuming 32.5% Radiant Drum uptime, 67.5% Rustling uptime, and 100% ally Cloudshear uptime. Adds 3.9% Physical Attack, 5.925% attribute attack, 2% Physical and attribute DMG Bonus, and 2% healing. With Museflow Waist Drum equipped, adds no external bonuses or duration changes.","相和歌6重下，爍鼓增加12%外功及屬性攻擊；扶風增加3%屬性攻擊；隊友裁雲增加2%外功及屬性傷害加成和治療加成。
+
+假設爍鼓覆蓋率為32.5%、扶風覆蓋率為67.5%、隊友裁雲覆蓋率為100%。實際增加：外功攻擊+3.9%、屬性攻擊+5.925%、外功及屬性傷害加成+2%、治療加成+2%。裝備文動霓裳時，不增加外部加成，也不改變持續時間。","相和歌6重下，烁鼓增加12%外功及属性攻击；扶风增加3%属性攻击；队友裁云增加2%外功及属性伤害加成和治疗加成。
+
+假设烁鼓覆盖率为32.5%、扶风覆盖率为67.5%、队友裁云覆盖率为100%。实际增加：外功攻击+3.9%、属性攻击+5.925%、外功及属性伤害加成+2%、治疗加成+2%。装备文动霓裳时，不增加外部加成，也不改变持续时间。","相和歌T6使用時、輝鼓は外功および属性攻撃力を12%、支風は属性攻撃力を3%、味方の裁雲・翔は外功および属性ダメージボーナスと治療量を2%加算します。
+
+輝鼓の稼働率32.5%、支風の稼働率67.5%、味方の裁雲・翔の稼働率100%を想定。外功攻撃力を3.9%、属性攻撃力を5.925%、外功および属性ダメージボーナスを2%、治療量を2%加算します。文霓の鼓の装備中は、外部ボーナスも持続時間の変更も加えません。","화답가 6돌파 기준으로 고무는 외공 및 속성 공격을 12%, 순풍의 인도는 속성 공격을 3%, 아군의 참운은 외공 및 속성 피해 보너스와 치유를 2% 증가시킵니다.
+
+고무 유지율을 32.5%, 순풍의 인도 유지율을 67.5%, 아군 참운 유지율을 100%로 가정합니다. 실제 효과: 외공 공격 +3.9%, 속성 공격 +5.925%, 외공 및 속성 피해 보너스 +2%, 치유 +2%. 선녀의 춤 장착 시 외부 보너스를 추가하거나 지속 시간을 변경하지 않습니다.","Con Canto de Armonía T6, Tambor Radiante agrega un 12% de ataque físico y de atributo; Susurro agrega un 3% de ataque de atributo; el Cortanubes de aliados agrega un 2% de bonificación de daño físico y de atributo y de curación.
+
+Suponiendo un 32.5% de actividad de Tambor Radiante, un 67.5% de Susurro y un 100% de Cortanubes de aliados. Agrega un 3.9% de ataque físico, un 5.925% de ataque de atributo, un 2% de bonificación de daño físico y de atributo y un 2% de curación. Con Tambor de Cintura Flujo de la Musa equipado, no agrega bonificaciones externas ni cambios de duración.","Avec Chant d’harmonie T6, Tambour radieux ajoute 12% d’attaque physique et d’attribut ; Bruissement ajoute 3% d’attaque d’attribut ; le Fend-nuages allié ajoute 2% de bonus de dégâts physiques et d’attribut et de soins.
+
+En supposant 32,5% de temps actif pour Tambour radieux, 67,5% pour Bruissement et 100% pour le Fend-nuages allié. Ajoute 3,9% d’attaque physique, 5,925% d’attaque d’attribut, 2% de bonus de dégâts physiques et d’attribut et 2% de soins. Avec Tambour de Ceinture Museflow équipé, n’ajoute aucun bonus externe et ne modifie aucune durée.","Mit Harmoniegesang T6 gewährt Strahlende Trommel 12 % physischen Angriff und Attributangriff; Rascheln gewährt 3 % Attributangriff; verbündeter Wolkenschnitt gewährt 2 % Bonus auf physischen und Attributschaden sowie Heilung.
+
+Bei angenommenen 32,5 % Wirkzeit für Strahlende Trommel, 67,5 % für Rascheln und 100 % für verbündeten Wolkenschnitt. Gewährt 3,9 % physischen Angriff, 5,925 % Attributangriff, 2 % Bonus auf physischen und Attributschaden und 2 % Heilung. Mit ausgerüsteter Museflow-Hüfttrommel werden keine externen Boni oder Daueränderungen gewährt.","Com Canção da Harmonia T6, Tambor Radiante adiciona 12% de ataque físico e de atributo; Sussurro das Folhas adiciona 3% de ataque de atributo; Corte de Nuvens de aliados adiciona 2% de bônus de dano físico e de atributo e de cura.
+
+Considerando 32,5% de atividade de Tambor Radiante, 67,5% de Sussurro das Folhas e 100% de Corte de Nuvens de aliados. Adiciona 3,9% de ataque físico, 5,925% de ataque de atributo, 2% de bônus de dano físico e de atributo e 2% de cura. Com Tambor de Cintura Museflow equipado, não adiciona bônus externos nem alterações de duração.","Với Khúc hòa điệu T6, Trống rạng ngời cộng 12% tấn công ngoại công và thuộc tính; Phù Phong cộng 3% tấn công thuộc tính; Cắt mây: Dực của đồng đội cộng 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu.
+
+Giả định Trống rạng ngời duy trì 32.5% thời gian, Phù Phong duy trì 67.5% và Cắt mây: Dực của đồng đội duy trì 100%. Cộng 3.9% Tấn công ngoại công, 5.925% tấn công thuộc tính, 2% thưởng sát thương ngoại công và thuộc tính, cùng 2% trị liệu. Khi trang bị Văn Động Nghê Thường, không cộng thưởng bên ngoài hoặc thay đổi thời lượng.",,"เมื่อใช้เพลงเซียงเหอ T6 กลองเรืองแสงเพิ่มการโจมตีพลังภายนอกและธาตุ 12% เสียงใบไม้ไหวเพิ่มการโจมตีธาตุ 3% และตัดเมฆ·อี้จากเพื่อนร่วมทีมเพิ่มโบนัสความเสียหายพลังภายนอกและธาตุ 2% พร้อมการรักษา 2%
+
+สมมติว่ากลองเรืองแสงมีผล 32.5% ของเวลา เสียงใบไม้ไหวมีผล 67.5% ของเวลา และตัดเมฆ·อี้จากเพื่อนร่วมทีมมีผล 100% ของเวลา เพิ่มการโจมตีพลังภายนอก 3.9% การโจมตีธาตุ 5.925% โบนัสความเสียหายพลังภายนอกและธาตุ 2% และการรักษา 2% เมื่อสวมใส่กลองเอวเพลงร่าย จะไม่เพิ่มโบนัสจากภายนอกหรือเปลี่ยนระยะเวลา","С Песнью гармонии T6 Сияющий барабан добавляет 12% физической атаки и атаки стихий; Шелест добавляет 3% атаки стихий; Рассечение облаков: Крылья от союзника добавляет 2% к бонусу физического урона и урона стихий и 2% к лечению.
+
+Предполагается 32.5% времени действия Сияющего барабана, 67.5% времени действия Шелеста и 100% времени действия Рассечения облаков: Крылья от союзника. Добавляет 3.9% физической атаки, 5.925% атаки стихий, 2% к бонусу физического урона и урона стихий и 2% к лечению. При экипированном Поясном Барабане Муз не добавляет внешних бонусов и не меняет длительность."
+data.globalBuffOptions.soulShaken.on.description,"At 5 Soul-Shaken stacks, increases ordinary DoT damage by 25% (50% for Strategic Sword or Heavenquaker Spear) and High Bleed damage by 50%. Shattered Stone reduces Physical Defense by 5%.
+
+Assuming 100% uptime at 5 Soul-Shaken stacks and 83.33% uptime (10 seconds every 12 seconds) at 1 Shattered Stone stack. Adds 25% ordinary DoT damage (50% for Strategic Sword or Heavenquaker Spear), 50% High Bleed damage, and approximately -4.17% Physical Defense.","驚魂5層時，普通持續傷害提高25%（積矩九劍或九曲驚神槍為50%），高額流血傷害提高50%。斷石使外功防禦降低5%。
+
+假設5層驚魂覆蓋率為100%，1層斷石覆蓋率為83.33%（每12秒持續10秒）。實際增加：普通持續傷害+25%（積矩九劍或九曲驚神槍為50%）、高額流血傷害+50%，外功防禦約-4.17%。","惊神5层时，普通持续伤害提高25%（积矩九剑或九曲惊神枪为50%），高额流血伤害提高50%。断石使外功防御降低5%。
+
+假设5层惊神覆盖率为100%，1层断石覆盖率为83.33%（每12秒持续10秒）。实际增加：普通持续伤害+25%（积矩九剑或九曲惊神枪为50%）、高额流血伤害+50%，外功防御约-4.17%。","神脅し5スタック時、通常の継続ダメージが25%（九変の剣または蛇神の槍の場合は50%）、高流血ダメージが50%増加します。断石は外功防御を5%低下させます。
+
+神脅し5スタックの稼働率100%、断石1スタックの稼働率83.33%（12秒ごとに10秒）を想定。通常の継続ダメージ+25%（九変の剣または蛇神の槍の場合は50%）、高流血ダメージ+50%、外功防御約-4.17%を適用します。","경신 5중첩일 때 일반 지속 피해가 25%(구현의 검무 또는 격류의 파동은 50%), 강화 출혈 피해가 50% 증가합니다. 단석은 외공 방어력을 5% 감소시킵니다.
+
+경신 5중첩의 유지율 100%와 단석 1중첩의 유지율 83.33%(12초마다 10초)를 가정합니다. 일반 지속 피해 25%(구현의 검무 또는 격류의 파동은 50%), 강화 출혈 피해 50% 증가와 외공 방어력 약 4.17% 감소를 적용합니다.","Con 5 acumulaciones de Alma Estremecida, aumenta el daño periódico normal un 25% (50% para Espada Estratégica o Lanza Estremecedora del Cielo) y el daño de Sangrado intenso un 50%. Piedra Destrozada reduce la defensa física un 5%.
+
+Se asume un 100% de tiempo activo con 5 acumulaciones de Alma Estremecida y un 83.33% con 1 acumulación de Piedra Destrozada (10 segundos cada 12 segundos). Añade un 25% de daño periódico normal (50% para Espada Estratégica o Lanza Estremecedora del Cielo), un 50% de daño de Sangrado intenso y aproximadamente -4.17% de defensa física.","À 5 cumuls d’Âme ébranlée, augmente les dégâts sur la durée ordinaires de 25% (50% pour Épée stratégique ou Lance ébranle-ciel) et les dégâts de Saignement intense de 50%. Pierre Brisée réduit la défense physique de 5%.
+
+En supposant un temps actif de 100% à 5 cumuls d’Âme ébranlée et de 83,33% (10 secondes toutes les 12 secondes) à 1 cumul de Pierre Brisée. Ajoute 25% de dégâts sur la durée ordinaires (50% pour Épée stratégique ou Lance ébranle-ciel), 50% de dégâts de Saignement intense et réduit la défense physique d’environ 4,17%.","Erhöht bei 5 Stapeln Seelenschock gewöhnlichen Schaden über Zeit um 25 % (50 % für Strategisches Schwert oder Himmelserschütterer Speer) und Schaden durch Starke Blutung um 50 %. Zerbrochener Stein verringert die physische Verteidigung um 5 %.
+
+Bei angenommener Verfügbarkeit von 100 % mit 5 Stapeln Seelenschock und 83,33 % mit 1 Stapel Zerbrochener Stein (10 Sekunden alle 12 Sekunden). Erhöht gewöhnlichen Schaden über Zeit um 25 % (50 % für Strategisches Schwert oder Himmelserschütterer Speer) und Schaden durch Starke Blutung um 50 % und verringert die physische Verteidigung um etwa 4,17 %.","Com 5 acúmulos de Alma Abalada, aumenta o dano periódico comum em 25% (50% para Espada Estratégica ou Lança Abala-Céus) e o dano de Sangramento Intenso em 50%. Pedra Estilhaçada reduz a defesa física em 5%.
+
+Considerando 100% de tempo ativo com 5 acúmulos de Alma Abalada e 83,33% com 1 acúmulo de Pedra Estilhaçada (10 segundos a cada 12 segundos). Adiciona 25% de dano periódico comum (50% para Espada Estratégica ou Lança Abala-Céus), 50% de dano de Sangramento Intenso e aproximadamente -4,17% de defesa física.","Ở 5 tầng Kinh Thần, tăng 25% sát thương theo thời gian thông thường (50% với Kiếm Chiến Lược hoặc Thương Chấn Thiên) và 50% sát thương Xuất huyết cao. Phá đá giảm 5% Phòng thủ ngoại công.
+
+Giả định duy trì 100% ở 5 tầng Kinh Thần và 83,33% (10 giây mỗi 12 giây) ở 1 tầng Phá đá. Cộng 25% sát thương theo thời gian thông thường (50% với Kiếm Chiến Lược hoặc Thương Chấn Thiên), 50% sát thương Xuất huyết cao và khoảng -4,17% Phòng thủ ngoại công.",,"ที่ตื่นตะลึง 5 ชั้น เพิ่มความเสียหายต่อเนื่องทั่วไป 25% (50% สำหรับกระบี่กลยุทธ์หรือหอกเก้าโค้งสะท้านเทพ) และความเสียหายเลือดไหลระดับสูง 50% หินแตกลดการป้องกันพลังภายนอก 5%
+
+สมมติว่ามีผล 100% ของเวลาที่ 5 ชั้นของตื่นตะลึง และ 83.33% ที่ 1 ชั้นของหินแตก (10 วินาทีทุก 12 วินาที) เพิ่มความเสียหายต่อเนื่องทั่วไป 25% (50% สำหรับกระบี่กลยุทธ์หรือหอกเก้าโค้งสะท้านเทพ) ความเสียหายเลือดไหลระดับสูง 50% และการป้องกันพลังภายนอกประมาณ -4.17%","На 5 уровнях Потрясённой души увеличивает обычный периодический урон на 25% (на 50% для Стратегического Меча или Копья сотрясения небес) и урон Усиленного кровотечения на 50%. Раздробленный камень снижает физическую защиту на 5%.
+
+Предполагается 100% времени действия при 5 уровнях Потрясённой души и 83,33% при 1 уровне Раздробленного камня (10 секунд каждые 12 секунд). Даёт +25% к обычному периодическому урону (50% для Стратегического Меча или Копья сотрясения небес), +50% к урону Усиленного кровотечения и примерно -4,17% к физической защите."
+data.globalBuffOptions.vulnerable.on.description,"Increases HP damage taken by 8%, plus another 10% for Might. Does not increase Qi damage.
+
+Assuming 100% uptime. Adds 8% HP damage taken, plus another 10% for Might; no Qi damage bonus.","受到的氣血傷害提高8%，威流派再額外提高10%。不增加真氣傷害。
+
+假設覆蓋率為100%。實際增加：受到的氣血傷害+8%，威流派再額外+10%；無真氣傷害加成。","受到的气血伤害提高8%，威流派再额外提高10%。不增加真气伤害。
+
+假设覆盖率为100%。实际增加：受到的气血伤害+8%，威流派再额外+10%；无真气伤害加成。","受ける気血ダメージが8%増加し、威からのダメージはさらに10%増加します。気ダメージには影響しません。
+
+稼働率100%を想定。受ける気血ダメージを8%、威からのダメージをさらに10%加算します。気ダメージボーナスはありません。","받는 기혈 피해가 8% 증가하고 열석 위의 피해는 추가로 10% 증가합니다. 진기 피해는 증가하지 않습니다.
+
+유지율을 100%로 가정합니다. 실제 효과: 받는 기혈 피해 +8%, 열석 위 추가 +10%. 진기 피해 보너스는 없습니다.","Aumenta el daño a los PV recibido un 8%, más otro 10% para Poderío. No aumenta el daño de Qi.
+
+Suponiendo un 100% de actividad. Agrega un 8% de daño a los PV recibido, más otro 10% para Poderío; sin bonificación de daño de Qi.","Augmente les dégâts aux PV subis de 8%, avec 10% supplémentaires pour Puissance. N’augmente pas les dégâts au Qi.
+
+En supposant 100% de temps actif. Ajoute 8% de dégâts aux PV subis, avec 10% supplémentaires pour Puissance ; aucun bonus de dégâts au Qi.","Erhöht den erlittenen LP-Schaden um 8 %, bei Macht um weitere 10 %. Erhöht den Qi-Schaden nicht.
+
+Bei angenommenen 100 % Wirkzeit. Gewährt 8 % erlittenen LP-Schaden und weitere 10 % für Macht; keinen Qi-Schadensbonus.","Aumenta o dano aos PV recebido em 8%, com mais 10% para Poder. Não aumenta o dano de Qi.
+
+Considerando 100% de atividade. Adiciona 8% de dano aos PV recebido, com mais 10% para Poder; sem bônus de dano de Qi.","Tăng 8% sát thương Khí huyết nhận vào, cộng thêm 10% cho Uy. Không tăng sát thương Chân khí.
+
+Giả định duy trì 100% thời gian. Cộng 8% sát thương Khí huyết nhận vào và thêm 10% cho Uy; không có thưởng sát thương Chân khí.",,"เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 8% และเพิ่มอีก 10% สำหรับพลัง ไม่เพิ่มความเสียหายต่อลมปราณ
+
+สมมติว่ามีผล 100% ของเวลา เพิ่มความเสียหายต่อพลังชีวิตที่ได้รับ 8% และเพิ่มอีก 10% สำหรับพลัง โดยไม่มีโบนัสความเสียหายต่อลมปราณ","Увеличивает получаемый урон здоровью на 8%, ещё на 10% для Мощи. Не увеличивает урон Ци.
+
+Предполагается 100% времени действия. Добавляет 8% получаемого урона здоровью и ещё 10% для Мощи; бонуса урона Ци нет."
 data.innerway.insightfulStrike.effect.InsightfulStrikeT0.trigger.0.resource.name,Focus,專注,集中,集中,집중,Concentración,Concentration,Fokus,Foco,Tập trung,,การมุ่งเน้น,Фокус
-data.martialArt.boshanQuyueSpear.name,撥山取月槍,撥山取月槍,拨山取月枪,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,,撥山取月槍,撥山取月槍
-data.martialArt.jueyuXuanfengSpear.name,決獄懸鋒槍,決獄懸鋒槍,决狱悬锋枪,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,,決獄懸鋒槍,決獄懸鋒槍
+data.martialArt.boshanQuyueSpear.name,Peakwane Spear,撥山取月槍,拨山取月枪,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,撥山取月槍,,撥山取月槍,撥山取月槍
+data.martialArt.jueyuXuanfengSpear.name,Trialedge Spear,決獄懸鋒槍,决狱悬锋枪,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,決獄懸鋒槍,,決獄懸鋒槍,決獄懸鋒槍
 data.martialArt.museflowWaistDrum.name,Museflow Waist Drum,文動霓裳,文动霓裳,文霓の鼓,선녀의 춤,Tambor de Cintura Flujo de la Musa,Tambour de Ceinture Museflow,Museflow-Hüfttrommel,Tambor de Cintura Museflow,Văn Động Nghê Thường,,กลองเอวเพลงร่าย,Поясной Барабан Муз
 data.martialArt.rivenTwinblades.name,Riven Twinblades,斷水雙訣,断水双诀,断水双訣,단수쌍결,Espadas Gemelas Agrietadas,Lames Jumelles Déchirantes,Zerrissene Doppelklingen,Lâminas Duplas Partidas,Song tuyệt chém nước,,ดาบคู่แยกนภา,Расколотые парные клинки
 data.martialArt.skystrikeGauntlets.name,Skystrike Gauntlets,懸身拳法,悬身拳法,懸身の拳,낭창권법,Guantes Golpe Celestial,Gantelets de Frappe du Ciel,Himmelsschlag-Handschuhe,Manoplas Golpe Celeste,Quyền pháp treo thân,,หมัดแขวนตัว,Рукавицы Небесного Удара
@@ -574,9 +951,11 @@ data.rotation.silkbindJade.jadeThreeRounds.name,Grounded Dummy 30 Sec IV,走地�
 data.rotation.silkbindWings.wingsDummy1MinDawnsun.name,Dummy 1 Min Dawnsun,木樁一分鐘・昭陽,木桩一分钟・昭阳,訓練人形・1分 昭陽,훈련용 목각 1분 소양,Muñeco de entrenamiento 1 min Sol Naciente,Pieu en Bois 1 Min. Soleil levant,Holzpfahl – 1 Min. Zhaoyang,Estaca de Madeira 1 min Sol da Aurora,Cọc gỗ 1 phút Nắng sớm,,หุ่นไม้ 1 นาที ตะวันรุ่ง,"Деревянный манекен — 1 мин, Рассвет"
 data.rotation.silkbindWings.wingsDummy1MinJadebreaker.name,Dummy 1 Min Jadebreaker,木樁一分鐘・撼玉,木桩一分钟・撼玉,訓練人形・1分 震玉,훈련용 목각 1분 쇄옥,Muñeco de entrenamiento 1 min Rompejade,Pieu en Bois 1 Min. Brise-jade,Holzpfahl – 1 Min. Jadebrecher,Estaca de Madeira 1 min Quebra-Jade,Cọc gỗ 1 phút Phá ngọc,,หุ่นไม้ 1 นาที ทลายหยก,"Деревянный манекен — 1 мин, Крушитель нефрита"
 data.rotation.stonesplitMight.dummy1Min.name,Dummy 1 min,木樁1分鐘,木桩1分钟,訓練人形・1分,허수아비 1 분,Muñeco de entrenamiento 1 min,Pieu en Bois 1 min,Holzpfahl – 1 Min.,Estaca de Madeira 1 min,Cọc gỗ 1 phút,,หุ่นไม้ 1 นาที,Деревянный манекен — 1 мин
+data.rotation.stonesplitStrength.mhysa5Min.name,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min,,Mixed Mhysa 5 Min,Mixed Mhysa 5 Min
+data.rotation.stonesplitStrength.mhysaPure5Min.name,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,Pure Mhysa 5 Min,,Pure Mhysa 5 Min,Pure Mhysa 5 Min
 data.rotation.stonesplitStrength.mixedDummy1Min.name,Mixed Dummy 1 Min,雙切木樁1分鐘,双切木桩1分钟,混合 訓練人形・1分,혼합 훈련용 목각 1분,Muñeco de entrenamiento 1 min (mixta),Pieu en Bois mixte 1 min,Gemischt – Holzpfahl – 1 Min.,Estaca de Madeira: 1 min — misto,Cọc gỗ 1 phút - hỗn hợp,,ผสม หุ่นไม้ 1 นาที,"Деревянный манекен — 1 мин, смешанная"
 data.rotation.stonesplitStrength.pureDummy1Min.name,Pure Dummy 1 Min,純唐木樁1分鐘,纯唐木桩1分钟,単一武器 訓練人形・1分,단일 훈련용 목각 1분,Muñeco de entrenamiento 1 min (pura),Pieu en Bois pur 1 min,Rein – Holzpfahl – 1 Min.,Estaca de Madeira: 1 min — puro,Cọc gỗ 1 phút - thuần,,สายล้วน หุ่นไม้ 1 นาที,"Деревянный манекен — 1 мин, чистая"
-data.rotation.stonesplitStrength.pureDummy1MinInfiniteVitality.name,Pure Dummy 1 Min Infinite Vitality,純唐木樁1分鐘 無限精元,纯唐木桩1分钟 无限精元,単一武器 訓練人形・1分 精気無制限,단일 훈련용 목각 1분 무한 정원,Muñeco de entrenamiento 1 min Vitalidad Infinita (pura),Pieu en Bois pur 1 min — vitalité infinie,Rein – Holzpfahl – 1 Min. Unendliche Vitalität,"Estaca de Madeira: 1 min — puro, Vitalidade Infinita",Cọc gỗ 1 phút Tinh nguyên vô hạn - thuần,,สายล้วน หุ่นไม้ 1 นาที พลังวิญญาณไม่จำกัด,"Деревянный манекен — 1 мин, чистая, бесконечная живучесть"
+data.rotation.stonesplitStrength.pureDummy1MinInfiniteVitality.name,Pure Dummy 1 Min IV,純唐木樁1分鐘 無限精元,纯唐木桩1分钟 无限精元,単一武器 訓練人形・1分 精気無制限,단일 훈련용 목각 1분 무한 정원,Muñeco de entrenamiento 1 min Vitalidad Infinita (pura),Pieu en Bois pur 1 min — vitalité infinie,Rein – Holzpfahl – 1 Min. Unendliche Vitalität,"Estaca de Madeira: 1 min — puro, Vitalidade Infinita",Cọc gỗ 1 phút Tinh nguyên vô hạn - thuần,,สายล้วน หุ่นไม้ 1 นาที พลังวิญญาณไม่จำกัด,"Деревянный манекен — 1 мин, чистая, бесконечная живучесть"
 data.script.Convergence.description,All attribute attack damage +15% against targets above 60% Qi.,對真氣高於60%的目標，全屬性攻擊傷害提高15%。,对真气高于60%的目标，全属性攻击伤害提高15%。,気が60%を超える対象に対する全属性攻撃ダメージ+15%。,진기 비율이 60%를 초과한 목표에게 입히는 전체 속성 공격 피해가 15% 증가한다.,Daño de todos los ataques de atributo +15% contra objetivos con más del 60% de Qi.,Dégâts de toutes les attaques d’attribut +15% contre les cibles ayant plus de 60% de Qi.,Schaden aller Attributangriffe +15 % gegen Ziele mit mehr als 60 % Qi.,Dano de todos os ataques de atributo +15% contra alvos com mais de 60% de Qi.,Mọi sát thương tấn công thuộc tính +15% đối với mục tiêu trên 60% chân khí.,,ความเสียหายโจมตีทุกธาตุ +15% ต่อเป้าหมายที่มีลมปราณมากกว่า 60%,Урон атак всех атрибутов +15% против целей с Ци выше 60%.
 data.script.Convergence.name,Convergence Script,存煞帖,存煞帖,煞気封じの符,살기첩,Guion de Convergencia,Parchemin de convergence,Konvergenz-Skript,Inscrição da Convergência,Thiệp Tồn Sát,,บันทึกเก็บวิญญาณ,Скрижаль схождения
 data.script.Detachment.description,Affinity DMG +10% against targets below 40% HP.,對氣血低於40%的目標，會心傷害提高10%。,对气血低于40%的目标，会意伤害提高10%。,HPが40%未満の対象に対する会意ダメージ+10%。,기혈이 40% 미만인 대상에 대한 각성 피해가 10% 증가합니다.,Daño de afinidad +10% contra objetivos con menos del 40% de PV.,Dégâts d’affinité +10% contre les cibles ayant moins de 40% de PV.,Affinitätsschaden +10 % gegen Ziele mit weniger als 40 % LP.,Dano de Afinidade +10% contra alvos com menos de 40% de Vida.,Sát thương hiểu ý +10% đối với mục tiêu dưới 40% máu.,,ความเสียหายความเข้าใจ +10% ต่อเป้าหมายที่มีพลังชีวิตต่ำกว่า 40%,Урон сродства +10% против целей со здоровьем ниже 40%.
@@ -600,38 +979,38 @@ data.script.Voidsky.name,Voidsky Script,玄霄帖,玄霄帖,玄霄帖,현소첩,
 data.script.Wraithstrike.description,Critical DMG +10% against targets below 40% Qi.,對真氣低於40%的目標，暴擊傷害提高10%。,对真气低于40%的目标，会心伤害提高10%。,気が40%未満の対象に対する会心ダメージ+10%。,진기가 40% 미만인 대상에 대한 치명타 피해가 10% 증가합니다.,Daño crítico +10% contra objetivos con menos del 40% de Qi.,Dégâts critiques +10% contre les cibles ayant moins de 40% de Qi.,Kritischer Schaden +10 % gegen Ziele mit weniger als 40 % Qi.,Dano Crítico +10% contra alvos com menos de 40% de Qi.,Sát thương chí mạng +10% đối với mục tiêu dưới 40% chân khí.,,ความเสียหายคริติคอล +10% ต่อเป้าหมายที่มีลมปราณต่ำกว่า 40%,Критический урон +10% против целей с Ци ниже 40%.
 data.script.Wraithstrike.name,Wraithstrike Script,鬼掣帖,鬼掣帖,鬼縛りの符,귀영첩,Guion de Golpe Espectral,Parchemin de frappe spectrale,Geisterschlag-Skript,Inscrição do Golpe Espectral,Thiệp Quỷ Kéo,,แผ่นวิญญาณฉุด,Скрижаль призрачного удара
 data.skill.boshanQuyueSpear.BoltBlueCharged.name,挑龍劈馬,挑龍劈馬,挑龙劈马,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,挑龍劈馬,,挑龍劈馬,挑龍劈馬
-data.skill.boshanQuyueSpear.BoltBlueCharged.shortName,藍蓄力,藍蓄力,蓝蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,藍蓄力,,藍蓄力,藍蓄力
+data.skill.boshanQuyueSpear.BoltBlueCharged.shortName,Blue Charged,藍蓄力,蓝蓄力,青 溜め,파랑 차지,Azul: Ataque cargado,Bleu : Attaque chargée,Blau: Aufgeladener Angriff,Azul: Ataque Carregado,Xanh dương: Tích lực,,ฟ้า ท่าชาร์จ,Синее: заряженная атака
 data.skill.boshanQuyueSpear.BoltBlueCounter.name,霸王破虜,霸王破虜,霸王破虏,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,霸王破虜,,霸王破虜,霸王破虜
-data.skill.boshanQuyueSpear.BoltBlueCounter.shortName,藍反擊,藍反擊,蓝反击,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,藍反擊,,藍反擊,藍反擊
+data.skill.boshanQuyueSpear.BoltBlueCounter.shortName,Blue Counter,藍反擊,蓝反击,青 反撃,파랑 반격,Azul: Contraataque,Bleu : Contre-attaque,Blau: Konter,Azul: Contra-ataque,Xanh dương: Phản kích,,ฟ้า สวนกลับ,Синее: контратака
 data.skill.boshanQuyueSpear.BoltBlueHeavy1.name,撥山重擊1,撥山重擊1,拨山重击1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,撥山重擊1,,撥山重擊1,撥山重擊1
-data.skill.boshanQuyueSpear.BoltBlueHeavy1.shortName,藍重1,藍重1,蓝重1,藍重1,藍重1,藍重1,藍重1,藍重1,藍重1,藍重1,,藍重1,藍重1
+data.skill.boshanQuyueSpear.BoltBlueHeavy1.shortName,Blue Heavy 1,藍重1,蓝重1,青 重撃 1,파랑 강공격 1,Azul: Ataque pesado 1,Bleu : Attaque lourde 1,Blau: Schwerer Angriff 1,Azul: Ataque Pesado 1,Xanh dương: Đòn nặng 1,,ฟ้า โจมตีหนัก 1,Синее: тяжёлая атака 1
 data.skill.boshanQuyueSpear.BoltBlueHeavy2.name,撥山重擊2,撥山重擊2,拨山重击2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,撥山重擊2,,撥山重擊2,撥山重擊2
-data.skill.boshanQuyueSpear.BoltBlueHeavy2.shortName,藍重2,藍重2,蓝重2,藍重2,藍重2,藍重2,藍重2,藍重2,藍重2,藍重2,,藍重2,藍重2
+data.skill.boshanQuyueSpear.BoltBlueHeavy2.shortName,Blue Heavy 2,藍重2,蓝重2,青 重撃 2,파랑 강공격 2,Azul: Ataque pesado 2,Bleu : Attaque lourde 2,Blau: Schwerer Angriff 2,Azul: Ataque Pesado 2,Xanh dương: Đòn nặng 2,,ฟ้า โจมตีหนัก 2,Синее: тяжёлая атака 2
 data.skill.boshanQuyueSpear.BoltBlueHeavy3.name,撥山重擊3,撥山重擊3,拨山重击3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,撥山重擊3,,撥山重擊3,撥山重擊3
-data.skill.boshanQuyueSpear.BoltBlueHeavy3.shortName,藍重3,藍重3,蓝重3,藍重3,藍重3,藍重3,藍重3,藍重3,藍重3,藍重3,,藍重3,藍重3
+data.skill.boshanQuyueSpear.BoltBlueHeavy3.shortName,Blue Heavy 3,藍重3,蓝重3,青 重撃 3,파랑 강공격 3,Azul: Ataque pesado 3,Bleu : Attaque lourde 3,Blau: Schwerer Angriff 3,Azul: Ataque Pesado 3,Xanh dương: Đòn nặng 3,,ฟ้า โจมตีหนัก 3,Синее: тяжёлая атака 3
 data.skill.boshanQuyueSpear.BoltBlueLight1.name,撥山輕擊1,撥山輕擊1,拨山轻击1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,撥山輕擊1,,撥山輕擊1,撥山輕擊1
-data.skill.boshanQuyueSpear.BoltBlueLight1.shortName,藍輕1,藍輕1,蓝轻1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,藍輕1,,藍輕1,藍輕1
+data.skill.boshanQuyueSpear.BoltBlueLight1.shortName,Blue Light 1,藍輕1,蓝轻1,青 軽撃 1,파랑 약공격 1,Azul: Ataque ligero 1,Bleu : Attaque légère 1,Blau: Leichter Angriff 1,Azul: Ataque Leve 1,Xanh dương: Đòn nhẹ 1,,ฟ้า โจมตีเบา 1,Синее: лёгкая атака 1
 data.skill.boshanQuyueSpear.BoltBlueLight2.name,撥山輕擊2,撥山輕擊2,拨山轻击2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,撥山輕擊2,,撥山輕擊2,撥山輕擊2
-data.skill.boshanQuyueSpear.BoltBlueLight2.shortName,藍輕2,藍輕2,蓝轻2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,藍輕2,,藍輕2,藍輕2
+data.skill.boshanQuyueSpear.BoltBlueLight2.shortName,Blue Light 2,藍輕2,蓝轻2,青 軽撃 2,파랑 약공격 2,Azul: Ataque ligero 2,Bleu : Attaque légère 2,Blau: Leichter Angriff 2,Azul: Ataque Leve 2,Xanh dương: Đòn nhẹ 2,,ฟ้า โจมตีเบา 2,Синее: лёгкая атака 2
 data.skill.boshanQuyueSpear.BoltBlueLight3.name,撥山輕擊3,撥山輕擊3,拨山轻击3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,撥山輕擊3,,撥山輕擊3,撥山輕擊3
-data.skill.boshanQuyueSpear.BoltBlueLight3.shortName,藍輕3,藍輕3,蓝轻3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,藍輕3,,藍輕3,藍輕3
+data.skill.boshanQuyueSpear.BoltBlueLight3.shortName,Blue Light 3,藍輕3,蓝轻3,青 軽撃 3,파랑 약공격 3,Azul: Ataque ligero 3,Bleu : Attaque légère 3,Blau: Leichter Angriff 3,Azul: Ataque Leve 3,Xanh dương: Đòn nhẹ 3,,ฟ้า โจมตีเบา 3,Синее: лёгкая атака 3
 data.skill.boshanQuyueSpear.BoltBlueLight4.name,撥山輕擊4,撥山輕擊4,拨山轻击4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,撥山輕擊4,,撥山輕擊4,撥山輕擊4
-data.skill.boshanQuyueSpear.BoltBlueLight4.shortName,藍輕4,藍輕4,蓝轻4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,藍輕4,,藍輕4,藍輕4
+data.skill.boshanQuyueSpear.BoltBlueLight4.shortName,Blue Light 4,藍輕4,蓝轻4,青 軽撃 4,파랑 약공격 4,Azul: Ataque ligero 4,Bleu : Attaque légère 4,Blau: Leichter Angriff 4,Azul: Ataque Leve 4,Xanh dương: Đòn nhẹ 4,,ฟ้า โจมตีเบา 4,Синее: лёгкая атака 4
 data.skill.boshanQuyueSpear.BoltBlueParrySuccess.name,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,英布列甲·招架成功,,英布列甲·招架成功,英布列甲·招架成功
 data.skill.boshanQuyueSpear.BoltBlueQ.name,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,英布列甲,,英布列甲,英布列甲
-data.skill.boshanQuyueSpear.BoltBlueQ.shortName,藍Q,藍Q,蓝Q,藍Q,藍Q,藍Q,藍Q,藍Q,藍Q,藍Q,,藍Q,藍Q
+data.skill.boshanQuyueSpear.BoltBlueQ.shortName,Blue Q,藍Q,蓝Q,青 Q,파랑 Q,Azul Q,Bleu Q,Blau Q,Azul Q,Xanh dương Q,,ฟ้า Q,Синее Q
 data.skill.boshanQuyueSpear.BoltBlueQFollowup.name,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,霸王沉舟,,霸王沉舟,霸王沉舟
-data.skill.boshanQuyueSpear.BoltBlueQFollowup.shortName,藍Q追擊,藍Q追擊,蓝Q追击,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,藍Q追擊,,藍Q追擊,藍Q追擊
+data.skill.boshanQuyueSpear.BoltBlueQFollowup.shortName,Blue Q Follow-up,藍Q追擊,蓝Q追击,青 Q追撃,파랑 Q 후속타,Azul: Ataque tras Q,Bleu : Enchaînement du Q,Blau: Q-Folgeangriff,Azul: Continuação do Q,Xanh dương: Đòn tiếp nối Q,,ฟ้า ท่าต่อเนื่อง Q,Синее: продолжение Q
 data.skill.boshanQuyueSpear.BoltBlueSpecial.name,龍膽巡坡,龍膽巡坡,龙胆巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,龍膽巡坡,,龍膽巡坡,龍膽巡坡
-data.skill.boshanQuyueSpear.BoltBlueSpecial.shortName,藍特殊,藍特殊,蓝特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,藍特殊,,藍特殊,藍特殊
+data.skill.boshanQuyueSpear.BoltBlueSpecial.shortName,Blue Special,藍特殊,蓝特殊,青 特殊技,파랑 특수 스킬,Azul: Habilidad especial,Bleu : Compétence spéciale,Blau: Spezialfähigkeit,Azul: Habilidade Especial,Xanh dương: Kỹ năng đặc biệt,,ฟ้า ท่าพิเศษ,Синее: особый навык
 data.skill.boshanQuyueSpear.BoltBlueTab.name,盜跖踏梁,盜跖踏梁,盗跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,盜跖踏梁,,盜跖踏梁,盜跖踏梁
-data.skill.boshanQuyueSpear.BoltBlueTab.shortName,切藍,切藍,切蓝,切藍,切藍,切藍,切藍,切藍,切藍,切藍,,切藍,切藍
+data.skill.boshanQuyueSpear.BoltBlueTab.shortName,Switch to Blue,切藍,切蓝,青に切替,파랑으로 전환,Cambiar a azul,Passer au bleu,Zu Blau wechseln,Alternar para o azul,Chuyển sang xanh dương,,สลับเป็นฟ้า,Переключиться на синее копьё
 data.skill.boshanQuyueSpear.BoltBlueVC.name,平風掃寶,平風掃寶,平风扫宝,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,,平風掃寶,平風掃寶
-data.skill.boshanQuyueSpear.BoltBlueVC.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVC.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltBlueVCBase.name,平風掃寶,平風掃寶,平风扫宝,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,平風掃寶,,平風掃寶,平風掃寶
-data.skill.boshanQuyueSpear.BoltBlueVCBase.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVCBase.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltBlueVCSharp.name,平風掃寶·鋒銳,平風掃寶·鋒銳,平风扫宝·锋锐,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,平風掃寶·鋒銳,,平風掃寶·鋒銳,平風掃寶·鋒銳
-data.skill.boshanQuyueSpear.BoltBlueVCSharp.shortName,藍派生,藍派生,蓝派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,藍派生,,藍派生,藍派生
+data.skill.boshanQuyueSpear.BoltBlueVCSharp.shortName,Blue VC,藍派生,蓝派生,青 派生技,파랑 파생기,Azul VC,Bleu VC,Blau: Variable Kombo,Azul: Combo Variado,Xanh dương VC,,ฟ้า ท่าแตกแขนง,Синее: VC
 data.skill.boshanQuyueSpear.BoltEarlyMingGe.name,鳴戈引爆,鳴戈引爆,鸣戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,鳴戈引爆,,鳴戈引爆,鳴戈引爆
 data.skill.boshanQuyueSpear.BoltEndFengRui.name,鋒銳結束,鋒銳結束,锋锐结束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,鋒銳結束,,鋒銳結束,鋒銳結束
 data.skill.boshanQuyueSpear.BoltEnterFengRui.name,鋒銳啟動,鋒銳啟動,锋锐启动,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,鋒銳啟動,,鋒銳啟動,鋒銳啟動
@@ -645,8 +1024,8 @@ data.skill.boshanQuyueSpear.BoltZaige.name,載戈,載戈,载戈,載戈,載戈,�
 data.skill.everspringUmbrella.BubblesPhantomUmbrellaSummon.name,Summon Phantom Umbrella (Dreamwrought Bubbles),召喚幻影傘 (玲瓏泡影),召唤幻影伞 (玲珑泡影),幻影傘召喚 (玲瓏の泡沫),소환 환영 우산 (찬란한 환영),Invocar Sombrilla Fantasma (Burbujas de Ensueño),Invoquer Parapluie Fantôme (Bulles oniriques),Phantomschirm beschwören (Traumgeformte Blasen),Invocar Guarda-chuva Fantasma (Bolhas de Sonho),Triệu hồi Ô ảo ảnh (Bọt nước lung linh),,เรียกร่มมายา (ฟองสบู่ล้ำค่าที่เลือนลาง),Призыв Фантомного зонта (Пузыри Грез)
 data.skill.everspringUmbrella.BubblesResonance.name,Resonance (Dreamwrought Bubbles),共鳴 (玲瓏泡影),共鸣 (玲珑泡影),共鳴 (玲瓏の泡沫),공명 (찬란한 환영),Resonancia (Burbujas de Ensueño),Résonance (Bulles oniriques),Resonanz (Traumgeformte Blasen),Ressonância (Bolhas de Sonho),Cộng hưởng (Bọt nước lung linh),,เสียงสะท้อน (ฟองสบู่ล้ำค่าที่เลือนลาง),Резонанс (Пузыри Грез)
 data.skill.everspringUmbrella.BubblesResonance.skillBreakdownCategory,Resonance,共鳴,共鸣,共鳴,공명,Resonancia,Résonance,Resonanz,Ressonância,Cộng hưởng,,เสียงสะท้อน,Резонанс
-data.skill.everspringUmbrella.CycloneChimeBonus.name,Cyclone Waltz [Phantom Chime],流風回雪 [幻鳴],流风回雪 [幻鸣],流風回雪 [幻鳴],설풍의 눈 [천군의 함성],Vals Ciclónico [Repique Fantasma],Valse Cyclonique [Carillon fantôme],Zykluswalzer [Phantomklang],Valsa do Ciclone [Sino Fantasma],Gió lướt tuyết quay [Âm vang huyền ảo],,สายลมหมุนวนหิมะโปรย [เสียงสะท้อนลวง],Вальс Циклона [Фантомный звон]
-data.skill.everspringUmbrella.CycloneChimeBonus.skillBreakdownCategory,Cyclone Waltz,流風回雪,流风回雪,流風回雪,설풍의 눈,Vals Ciclónico,Valse Cyclonique,Zykluswalzer,Valsa do Ciclone,Gió lướt tuyết quay,,สายลมหมุนวนหิมะโปรย,Вальс Циклона
+data.skill.everspringUmbrella.CycloneChimeBonus.name,Cyclone Waltz - Phantom Chime,流風回雪 - 幻鳴,流风回雪 - 幻鸣,流風回雪 - 幻鳴,설풍의 눈 - 천군의 함성,Vals Ciclónico - Repique Fantasma,Valse Cyclonique - Carillon fantôme,Zykluswalzer - Phantomklang,Valsa do Ciclone - Sino Fantasma,Gió lướt tuyết quay - Âm vang huyền ảo,,สายลมหมุนวนหิมะโปรย - เสียงสะท้อนลวง,Вальс Циклона - Фантомный звон
+data.skill.everspringUmbrella.CycloneChimeBonus.skillBreakdownCategory,Cyclone Waltz - Phantom Chime,流風回雪 - 幻鳴,流风回雪 - 幻鸣,流風回雪 - 幻鳴,설풍의 눈 - 천군의 함성,Vals Ciclónico - Repique Fantasma,Valse Cyclonique - Carillon fantôme,Zykluswalzer - Phantomklang,Valsa do Ciclone - Sino Fantasma,Gió lướt tuyết quay - Âm vang huyền ảo,,สายลมหมุนวนหิมะโปรย - เสียงสะท้อนลวง,Вальс Циклона - Фантомный звон
 data.skill.everspringUmbrella.CycloneChimeConvert.name,Cyclone Waltz Phantom Chime Conversion,流風回雪 — 幻鳴轉換,流风回雪 — 幻鸣转换,流風回雪 — 幻鳴 — 変換,설풍의 눈 — 천군의 함성 — 전환,Vals Ciclónico — Conversión de Repique Fantasma,Valse Cyclonique — Carillon fantôme — Conversion,Zykluswalzer — Phantomklang — Umwandlung,Valsa do Ciclone — Sino Fantasma — Conversão,Gió lướt tuyết quay — Chuyển đổi Âm vang huyền ảo,,สายลมหมุนวนหิมะโปรย — การแปลงเสียงสะท้อนลวง,Вальс Циклона — Преобразование фантомного звона
 data.skill.everspringUmbrella.CycloneWaltz.name,Cyclone Waltz,流風回雪,流风回雪,流風回雪,설풍의 눈,Vals Ciclónico,Valse Cyclonique,Zykluswalzer,Valsa do Ciclone,Gió lướt tuyết quay,,สายลมหมุนวนหิมะโปรย,Вальс Циклона
 data.skill.everspringUmbrella.CycloneWaltz.shortName,Umbrella Special,傘特,伞特,傘 特殊技,우산 특수기,Sombrilla Especial,Parapluie Spécial,Schirm Spezialfähigkeit,Guarda-chuva: Especial,Dù Đặc biệt,,ร่ม ท่าพิเศษ,Зонт: особый навык
@@ -654,6 +1033,9 @@ data.skill.everspringUmbrella.CycloneWaltz.skillBreakdownCategory,Cyclone Waltz,
 data.skill.everspringUmbrella.CycloneWaltzReturn.name,Cyclone Waltz [Return],流風回雪 [返回],流风回雪 [返回],流風回雪 [帰還],설풍의 눈 [복귀],Vals Ciclónico [Regreso],Valse Cyclonique [Retour],Zykluswalzer [Rückkehr],Valsa do Ciclone [Retorno],Gió lướt tuyết quay [Trở về],,สายลมหมุนวนหิมะโปรย [กลับ],Вальс Циклона [Возвращение]
 data.skill.everspringUmbrella.CycloneWaltzReturn.shortName,Umbrella Special Return,傘特 [返回],伞特[返回],傘 特殊技 [帰還],우산 특수기 [복귀],Sombrilla Especial [Regreso],Parapluie Spécial [Retour],Schirm Spezialfähigkeit [Rückkehr],Guarda-chuva: Especial [Retorno],Dù Đặc biệt [Trở về],,ร่ม ท่าพิเศษ [กลับ],Зонт: особый навык [Возвращение]
 data.skill.everspringUmbrella.CycloneWaltzReturn.skillBreakdownCategory,Cyclone Waltz,流風回雪,流风回雪,流風回雪,설풍의 눈,Vals Ciclónico,Valse Cyclonique,Zykluswalzer,Valsa do Ciclone,Gió lướt tuyết quay,,สายลมหมุนวนหิมะโปรย,Вальс Циклона
+data.skill.everspringUmbrella.CycloneWaltzReturnNoHit.name,Cyclone Waltz [Return][No Hit],流風回雪 [返回]（未命中）,流风回雪 [返回]（未命中）,流風回雪 [帰還] [空振り],설풍의 눈 [복귀] [빗나감],Vals Ciclónico [Regreso] [Fallo],Valse Cyclonique [Retour] [Raté],Zykluswalzer [Rückkehr] [Verfehlt],Valsa do Ciclone [Retorno] [Erro],Gió lướt tuyết quay [Trở về] [Trượt],,สายลมหมุนวนหิมะโปรย [กลับ] [พลาด],Вальс Циклона [Возвращение] [Промах]
+data.skill.everspringUmbrella.CycloneWaltzReturnNoHit.shortName,Umbrella Special Return [No Hit],傘特 [返回]（未命中）,伞特[返回]（未命中）,傘 特殊技 [帰還] [空振り],우산 특수기 [복귀] [빗나감],Sombrilla Especial [Regreso] [Fallo],Parapluie Spécial [Retour] [Raté],Schirm Spezialfähigkeit [Rückkehr] [Verfehlt],Guarda-chuva: Especial [Retorno] [Erro],Dù Đặc biệt [Trở về] [Trượt],,ร่ม ท่าพิเศษ [กลับ] [พลาด],Зонт: особый навык [Возвращение] [Промах]
+data.skill.everspringUmbrella.CycloneWaltzReturnNoHit.skillBreakdownCategory,Cyclone Waltz,流風回雪,流风回雪,流風回雪,설풍의 눈,Vals Ciclónico,Valse Cyclonique,Zykluswalzer,Valsa do Ciclone,Gió lướt tuyết quay,,สายลมหมุนวนหิมะโปรย,Вальс Циклона
 data.skill.everspringUmbrella.DreamwroughtBubbles.name,Dreamwrought Bubbles,玲瓏泡影,玲珑泡影,玲瓏の泡沫,찬란한 환영,Burbujas de Ensueño,Bulles oniriques,Traumgeformte Blasen,Bolhas de Sonho,Bọt nước lung linh,,ฟองสบู่ล้ำค่าที่เลือนลาง,Пузыри Грез
 data.skill.everspringUmbrella.DreamwroughtBubbles.shortName,Umbrella Heavy Charged,傘 重擊 蓄力,伞 重击 蓄力,傘 重撃溜め,찬란한 환영,Ataque pesado cargado de sombrilla,Attaque lourde chargée du parapluie,Schirm Schwer aufgeladen,Guarda-chuva: Ataque Pesado Carregado,Dù Nặng Tích lực,,ร่ม โจมตีหนักชาร์จ,Зонт: тяжёлая заряженная атака
 data.skill.everspringUmbrella.DreamwroughtBubblesCharge.name,Dreamwrought Bubbles [Charge],玲瓏泡影 [蓄力],玲珑泡影 [蓄力],玲瓏の泡沫 [溜め],찬란한 환영 [차지],Burbujas de Ensueño [Carga],Bulles oniriques [Charge],Traumgeformte Blasen [Aufladen],Bolhas de Sonho [Carga],Bọt nước lung linh [Tích lực],,ฟองสบู่ล้ำค่าที่เลือนลาง [ชาร์จ],Пузыри Грез [Зарядка]
@@ -888,23 +1270,23 @@ data.skill.inkwellFan.PeaksSpringlessSilenceCancel.skillBreakdownCategory,Peak's
 data.skill.inkwellFan.StarReacherAirborneGrant.name,Star Reacher,縱地摘星,纵地摘星,摘星の術,천공참,Alcanzador de Estrellas,Attrape-Étoiles,Sternengreifer,Alcançador de Estrelas,Hái sao,,ก้าวข้ามฟ้าคว้าดาว,Достигающий звёзд
 data.skill.inkwellFan.StarReacherGrant.name,Star Reacher,縱地摘星,纵地摘星,摘星の術,천공참,Alcanzador de Estrellas,Attrape-Étoiles,Sternengreifer,Alcançador de Estrelas,Hái sao,,ก้าวข้ามฟ้าคว้าดาว,Достигающий звёзд
 data.skill.jueyuXuanfengSpear.BoltRedCharged.name,星馳秋野,星馳秋野,星驰秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,星馳秋野,,星馳秋野,星馳秋野
-data.skill.jueyuXuanfengSpear.BoltRedCharged.shortName,紅蓄力,紅蓄力,红蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,紅蓄力,,紅蓄力,紅蓄力
+data.skill.jueyuXuanfengSpear.BoltRedCharged.shortName,Red Charged,紅蓄力,红蓄力,赤 溜め,빨강 차지,Rojo: Ataque cargado,Rouge : Attaque chargée,Rot: Aufgeladener Angriff,Vermelho: Ataque Carregado,Đỏ: Tích lực,,แดง ท่าชาร์จ,Красное: заряженная атака
 data.skill.jueyuXuanfengSpear.BoltRedHeavy1.name,決獄重擊1,決獄重擊1,决狱重击1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,決獄重擊1,,決獄重擊1,決獄重擊1
-data.skill.jueyuXuanfengSpear.BoltRedHeavy1.shortName,紅重1,紅重1,红重1,紅重1,紅重1,紅重1,紅重1,紅重1,紅重1,紅重1,,紅重1,紅重1
+data.skill.jueyuXuanfengSpear.BoltRedHeavy1.shortName,Red Heavy 1,紅重1,红重1,赤 重撃 1,빨강 강공격 1,Rojo: Ataque pesado 1,Rouge : Attaque lourde 1,Rot: Schwerer Angriff 1,Vermelho: Ataque Pesado 1,Đỏ: Đòn nặng 1,,แดง โจมตีหนัก 1,Красное: тяжёлая атака 1
 data.skill.jueyuXuanfengSpear.BoltRedLight1.name,決獄輕擊1,決獄輕擊1,决狱轻击1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,決獄輕擊1,,決獄輕擊1,決獄輕擊1
-data.skill.jueyuXuanfengSpear.BoltRedLight1.shortName,紅輕1,紅輕1,红轻1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,紅輕1,,紅輕1,紅輕1
+data.skill.jueyuXuanfengSpear.BoltRedLight1.shortName,Red Light 1,紅輕1,红轻1,赤 軽撃 1,빨강 약공격 1,Rojo: Ataque ligero 1,Rouge : Attaque légère 1,Rot: Leichter Angriff 1,Vermelho: Ataque Leve 1,Đỏ: Đòn nhẹ 1,,แดง โจมตีเบา 1,Красное: лёгкая атака 1
 data.skill.jueyuXuanfengSpear.BoltRedQ.name,金科盡詔,金科盡詔,金科尽诏,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,金科盡詔,,金科盡詔,金科盡詔
-data.skill.jueyuXuanfengSpear.BoltRedQ.shortName,紅Q,紅Q,红Q,紅Q,紅Q,紅Q,紅Q,紅Q,紅Q,紅Q,,紅Q,紅Q
+data.skill.jueyuXuanfengSpear.BoltRedQ.shortName,Red Q,紅Q,红Q,赤 Q,빨강 Q,Rojo Q,Rouge Q,Rot Q,Vermelho Q,Đỏ Q,,แดง Q,Красное Q
 data.skill.jueyuXuanfengSpear.BoltRedSpecial.name,玉京崩騰,玉京崩騰,玉京崩腾,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,玉京崩騰,,玉京崩騰,玉京崩騰
-data.skill.jueyuXuanfengSpear.BoltRedSpecial.shortName,紅特殊,紅特殊,红特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,紅特殊,,紅特殊,紅特殊
+data.skill.jueyuXuanfengSpear.BoltRedSpecial.shortName,Red Special,紅特殊,红特殊,赤 特殊技,빨강 특수 스킬,Rojo: Habilidad especial,Rouge : Compétence spéciale,Rot: Spezialfähigkeit,Vermelho: Habilidade Especial,Đỏ: Kỹ năng đặc biệt,,แดง ท่าพิเศษ,Красное: особый навык
 data.skill.jueyuXuanfengSpear.BoltRedTab.name,直貫其鋒,直貫其鋒,直贯其锋,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,直貫其鋒,,直貫其鋒,直貫其鋒
-data.skill.jueyuXuanfengSpear.BoltRedTab.shortName,切紅,切紅,切红,切紅,切紅,切紅,切紅,切紅,切紅,切紅,,切紅,切紅
+data.skill.jueyuXuanfengSpear.BoltRedTab.shortName,Switch to Red,切紅,切红,赤に切替,빨강으로 전환,Cambiar a rojo,Passer au rouge,Zu Rot wechseln,Alternar para o vermelho,Chuyển sang đỏ,,สลับเป็นแดง,Переключиться на красное копьё
 data.skill.jueyuXuanfengSpear.BoltRedVC.name,聽雨斷罪,聽雨斷罪,听雨断罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,,聽雨斷罪,聽雨斷罪
-data.skill.jueyuXuanfengSpear.BoltRedVC.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVC.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.jueyuXuanfengSpear.BoltRedVCBase.name,聽雨斷罪,聽雨斷罪,听雨断罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,聽雨斷罪,,聽雨斷罪,聽雨斷罪
-data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVCBase.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.jueyuXuanfengSpear.BoltRedVCSharp.name,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,听雨断罪·锋锐,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳,,聽雨斷罪·鋒銳,聽雨斷罪·鋒銳
-data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName,紅派生,紅派生,红派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,紅派生,,紅派生,紅派生
+data.skill.jueyuXuanfengSpear.BoltRedVCSharp.shortName,Red VC,紅派生,红派生,赤 派生技,빨강 파생기,Rojo VC,Rouge VC,Rot: Variable Kombo,Vermelho: Combo Variado,Đỏ VC,,แดง ท่าแตกแขนง,Красное: VC
 data.skill.mechanism.SummonLightning.name,Summon Lightning,召雷,雷电召来,落雷召喚,뇌전 소환,Invocar Relámpago,Invoquer la Foudre,Blitz beschwören,Invocar Relâmpago,Triệu hồi sét,,เรียกสายฟ้า,Призыв молнии
 data.skill.mortalRopeDart.BladeboundThreadCancel.name,Bladebound Thread [Cancel],牽繩引刃 [打斷],牵绳引刃 [打斷],引縄斬 [中断],속박의 칼날 [취소],Hilo Ligado a la Hoja [Cancelar],Fil lié à la lame [Annuler],Klingengebundener Faden [Abbrechen],Fio da Lâmina Atada [Cancelar],Kéo dây dẫn lưỡi [Hủy],,ดึงเชือกนำคมดาบ [ยกเลิก],Нить клинка [Отмена]
 data.skill.mortalRopeDart.BladeboundThreadCancel.shortName,RD Q,繩鏢 Q,绳镖 Q,縄鏢 Q,속박의 칼날 [취소],RD Q,RD Q,Seildolch Q,Dardo Q,RD Q,,เชือกมีด Q,RD: Q
@@ -1334,6 +1716,7 @@ data.skill.willowbendFan.VerdantGust.name,Verdant Gust,一扇生息,一扇生息
 data.skill.willowbendFan.VerdantGust.shortName,Fan Q,扇 Q,扇 Q,扇 Q,생명의 부채,Q de Abanico,Éventail Q,Fächer Q,Leque: Q,Quạt Q,,พัด Q,Веер: Q
 data.skill.willowbendFan.ZephyrWhispersNobleRecovery.name,Zephyr Whispers: Noble Recovery,風知意·雅意回復,风知意·雅意回复,風知意・雅意回復,바람의 뜻: 군자의 회복,Susurros del Céfiro: Recuperación noble,Murmures du zéphyr : Récupération de volonté noble,Flüstern des Zephyrs: Regeneration des Edlen Willens,Sussurros do Zéfiro: Recuperação da Vontade Nobre,Lời thì thầm gió: Hồi Ý chí cao quý,,ลมอ่อนกระซิบ: ฟื้นจิตสง่า,Шёпот зефира: Восстановление благородной воли
 game.event.battleEnd,Event: Battle End,事件: 戰鬥結束,事件: 战斗结束,イベント: 戦闘終了,이벤트: 전투 종료,Evento: Fin del combate,Événement : Fin du combat,Ereignis: Kampfende,Evento: Fim do Combate,Sự kiện: Kết thúc trận,,เหตุการณ์: สิ้นสุดการต่อสู้,Событие: Конец боя
+game.event.bossGeneralDamageBoost,Event: Boss General Damage Boost,事件：首領通用傷害加成,事件：首领通用伤害加成,イベント：ボス汎用ダメージ上昇,이벤트: 보스 일반 피해 증가,Evento: Bonificación de daño general del jefe,Événement : Bonus de dégâts généraux du boss,Ereignis: Allgemeiner Bossschadensbonus,Evento: Bônus de Dano Geral do Chefe,Sự kiện: Tăng sát thương chung của thủ lĩnh,,เหตุการณ์: โบนัสความเสียหายทั่วไปของบอส,Событие: Общий бонус урона босса
 game.event.buff,Event: Buff,事件: 增益,事件: 增益,イベント: バフ,이벤트: 버프,Evento: Efecto beneficioso,Événement : Effet bénéfique,Ereignis: Verstärkung,Evento: Efeito Benéfico,Sự kiện: Hiệu ứng có lợi,,เหตุการณ์: บัฟ,Событие: Положительный эффект
 game.event.controlled,Event: Controlled,事件: 控制,事件: 控制,イベント: 行動制限,이벤트: 제어,Evento: Bajo control,Événement : Contrôle,Ereignis: Kontrolle,Evento: Controlado,Sự kiện: Khống chế,,เหตุการณ์: ถูกควบคุม,Событие: Контроль
 game.event.debuff,Event: Debuff,事件: 減益,事件: 减益,イベント: デバフ,이벤트: 디버프,Evento: Efecto perjudicial,Événement : Effet néfaste,Ereignis: Schwächung,Evento: Efeito Prejudicial,Sự kiện: Hiệu ứng bất lợi,,เหตุการณ์: ดีบัฟ,Событие: Отрицательный эффект
@@ -1405,9 +1788,9 @@ stat.vsBossDmg,vs Boss DMG,對首領單位增傷,对首领单位增伤,首領に
 system.abrasion,Abrasion,擦傷,擦伤,軽傷,찰과상,Abrasión,Abrasion,Abnutzung,Abrasão,Vết xước,,บาดแผลถลอก,Истирание
 system.affinity,Affinity,會意,会意,会意,각성 확률,Afinidad,Affinité,Affinität,Afinidade,Hiểu ý,,ความเข้าใจ,Сродство
 system.armorSet.moonflare,Moonflare,桂月,桂月,桂月,월계,Fulgor Lunar,Flamboiement lunaire,Mondflamme,Clarão Lunar,Trăng bùng sáng,,แสงจันทร์เรือง,Лунная Вспышка
-system.attunement.boltVariedComboBoost,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,悬锋取月·轻重击派生增伤,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷
-system.attunement.boshanQuyueSpearMartialBoost,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,拨山取月枪·武学技增伤,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷
-system.attunement.boshanQuyueSpearSpecialBoost,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,拨山取月枪·特殊技增伤,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷
+system.attunement.boltVariedComboBoost,Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost,懸鋒取月·輕重擊派生增傷,悬锋取月·轻重击派生增伤,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷,,懸鋒取月·輕重擊派生增傷,懸鋒取月·輕重擊派生增傷
+system.attunement.boshanQuyueSpearMartialBoost,Peakwane Spear - Martial Art Skill DMG Boost,撥山取月槍·武學技增傷,拨山取月枪·武学技增伤,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷,,撥山取月槍·武學技增傷,撥山取月槍·武學技增傷
+system.attunement.boshanQuyueSpearSpecialBoost,Peakwane Spear - Special Skill DMG Boost,撥山取月槍·特殊技增傷,拨山取月枪·特殊技增伤,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷,,撥山取月槍·特殊技增傷,撥山取月槍·特殊技增傷
 system.attunement.driftcleaveDeepdazeBoost,Driftcleave - Deepdaze Skill DMG Boost,懸身斷水·濃醺技能增傷,悬身断水·浓醺技能增伤,懸身断水・泥酔技ダメージ増加,낭창단수-깊은 취기 스킬 피해 증가,Driftcleave - Aumento de Daño de Habilidad Deepdaze,Driftcleave - Deepdaze : Bonus de dégâts de Maîtrise,Driftspalt - Tieftaumel Meisterschaft Schadenssteigerung,Driftcleave - Aumento de Dano de Maestria de Deepdaze,Tăng sát thương kỹ năng Chém nước treo thân·Say nồng,,คมดาบล่องลอย - เมาหนัก เพิ่มความเสียหายทักษะ,Скользящий клинок — «Глубокая мгла»: Увеличение урона
 system.attunement.everspringMartialBoost,Everspring Umbrella - Martial Art Skill DMG Boost,醉夢遊春・武學技增傷,醉梦游春·武学技增伤,酔夢の傘・武術技ダメージ増加,일장춘몽 - 무술 스킬 피해 증가,Sombrilla Primavera Eterna — Aumento de daño de habilidades de arte marcial,Parapluie de printemps éternel — bonus de dégâts de compétence d’art martial,Immerfrühlingsschirm – Schadenssteigerung von Kampfkunstfertigkeiten,Guarda-chuva da Primavera Eterna - Aumento de Dano de Habilidade de Arte Marcial,Mộng Say Du Xuân — tăng sát thương kỹ năng võ học,,ร่มวสันต์นิรันดร์ - เพิ่มความเสียหายทักษะวิชาต่อสู้,Зонт вечной весны — бонус урона навыка боевого искусства
 system.attunement.everspringSpecialBoost,Everspring Umbrella - Special Skill DMG Boost,醉夢遊春・特殊技增傷,醉梦游春·特殊技增伤,酔夢の傘・特殊技ダメージ増加,일장춘몽 - 특수 스킬 피해 증가,Sombrilla Primavera Eterna — Aumento de daño de habilidades especiales,Parapluie de printemps éternel — bonus de dégâts de compétence spéciale,Immerfrühlingsschirm – Schadenssteigerung von Spezialfähigkeiten,Guarda-chuva da Primavera Eterna - Aumento de Dano de Habilidade Especial,Mộng Say Du Xuân — tăng sát thương kỹ năng đặc biệt,,ร่มวสันต์นิรันดร์ - เพิ่มความเสียหายทักษะพิเศษ,Зонт вечной весны — бонус урона особого навыка
@@ -1422,8 +1805,8 @@ system.attunement.infernalMartialBoost,Infernal Twinblades Martial Art Skill DMG
 system.attunement.infernalSpecialBoost,Infernal Twinblades Special Skill DMG Boost,泥犁三垢・特殊技增傷,泥犁三垢·特殊技增伤,獄炎の双剣・特殊技ダメージ増加,윤회의 가르침-특수 스킬 피해 증가,Espadas Gemelas Infernales — Aumento de daño de habilidades especiales,Lames jumelles infernales — bonus de dégâts de compétence spéciale,Höllische Zwillingsklingen – Schadenssteigerung von Spezialfähigkeiten,Lâminas Gêmeas Infernais - Aumento de Dano de Habilidade Especial,Song đao địa ngục — tăng sát thương kỹ năng đặc biệt,,ดาบคู่อเวจี เพิ่มความเสียหายทักษะพิเศษ,Адские Парные Клинки — бонус урона особого навыка
 system.attunement.inkwellChargedBoost,Inkwell Fan Charged Skill DMG Boost,青山執筆・蓄力技增傷,青山执笔·蓄力技增伤,墨筆の扇・溜め技ダメージ増加,청산의 정수-차지 스킬 피해 증가,Abanico Tintero — Aumento de daño de habilidades cargadas,Éventail d’encrier — bonus de dégâts de compétence chargée,Tintenfassfächer – Schadenssteigerung aufgeladener Fertigkeiten,Leque Tinteiro - Aumento de Dano de Habilidade Carregada,Quạt Mặc Trì — tăng sát thương kỹ năng tích lực,,พัดน้ำหมึก เพิ่มความเสียหายทักษะชาร์จ,Веер Чернильницы — бонус урона заряженного навыка
 system.attunement.inkwellSpecialPursuitBoost,Inkwell Fan - Special and Pursuit Skill DMG Boost,青山執筆・特殊及追擊技增傷,青山执笔·特殊及追击技增伤,墨筆の扇・特殊技および追撃技ダメージ増加,청산의 정수-특수 및 추격 스킬 피해 증가,Abanico Tintero — Aumento de daño de habilidades especiales y de persecución,Éventail d’encrier — bonus de dégâts des compétences spéciales et de poursuite,Tintenfassfächer – Schadenssteigerung von Spezial- und Verfolgungsfertigkeiten,Leque Tinteiro - Aumento de Dano de Habilidades Especiais e de Perseguição,Quạt Mặc Trì — tăng sát thương kỹ năng đặc biệt và truy kích,,พัดน้ำหมึก - เพิ่มความเสียหายทักษะพิเศษและทักษะไล่ตาม,Веер Чернильницы — бонус урона особых навыков и навыков преследования
-system.attunement.jueyuXuanfengSpearMartialBoost,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,决狱悬锋枪·武学技增伤,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷
-system.attunement.jueyuXuanfengSpearSpecialBoost,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,决狱悬锋枪·特殊技增伤,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷
+system.attunement.jueyuXuanfengSpearMartialBoost,Trialedge Spear - Martial Art Skill DMG Boost,決獄懸鋒槍·武學技增傷,决狱悬锋枪·武学技增伤,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷,,決獄懸鋒槍·武學技增傷,決獄懸鋒槍·武學技增傷
+system.attunement.jueyuXuanfengSpearSpecialBoost,Trialedge Spear - Special Skill DMG Boost,決獄懸鋒槍·特殊技增傷,决狱悬锋枪·特殊技增伤,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷,,決獄懸鋒槍·特殊技增傷,決獄懸鋒槍·特殊技增傷
 system.attunement.mortalMartialBoost,Mortal Rope Dart - Martial Art Skill DMG Boost,粟子遊塵・武學技增傷,粟子游尘·武学技增伤,浮塵の縄・武術技ダメージ増加,속세의 지혜-무술 스킬 피해 증가,Dardo con Cuerda Mortal — Aumento de daño de habilidades de arte marcial,Dard à corde mortel — bonus de dégâts de compétence d’art martial,Sterblicher Seildolch – Schadenssteigerung von Kampfkunstfertigkeiten,Dardo Cordial Mortal - Aumento de Dano de Habilidade de Arte Marcial,Phi Tiêu Dây Truy Mệnh — tăng sát thương kỹ năng võ học,,เชือกมีดมนุษย์ - เพิ่มความเสียหายทักษะวิชาต่อสู้,Смертельный Канатный Дротик — бонус урона навыка боевого искусства
 system.attunement.mortalRodentBoost,Mortal Rope Dart - Rodent DMG Boost,粟子遊塵・鼠鼠增傷,粟子游尘·鼠鼠增伤,浮塵の縄・鼠ダメージ増加,속세의 지혜-쥐 기술 피해 증가,Dardo con Cuerda Mortal — Aumento de daño de roedor,Dard à corde mortel — bonus de dégâts de Rongeur,Sterblicher Seildolch – Nagerschadenssteigerung,Dardo Cordial Mortal - Aumento de Dano de Roedor,Phi Tiêu Dây Truy Mệnh — tăng sát thương Chuột Chuột,,เชือกมีดมนุษย์ - เพิ่มความเสียหายหนู,Смертельный Канатный Дротик — бонус урона Грызуна
 system.attunement.museflowWaistDrumLightHeavyVariedComboBoost,Museflow Waist Drum - Light/Heavy Attack & Varied Combo DMG Boost,文動霓裳·輕重擊及派生增傷,文动霓裳·轻重击及派生增伤,文霓の鼓・軽重撃および派生技ダメージ増加,선녀의 춤-약/강공격 및 연계 피해 증가,Tambor de Cintura Flujo de la Musa — Aumento de daño de ataques ligeros/pesados y combos variados,Tambour de Ceinture Museflow — bonus de dégâts des attaques légères/lourdes et des combos variés,Museflow-Hüfttrommel – Schadenssteigerung leichter/schwerer Angriffe und variabler Kombos,Tambor de Cintura Museflow - Aumento de Dano de Ataques Leves/Pesados e Combos Variados,Văn Động Nghê Thường — tăng sát thương đòn nhẹ/nặng và phái sinh,,กลองเอวเพลงร่าย - เพิ่มความเสียหายโจมตีเบา/หนักและท่าแตกแขนง,Поясной Барабан Муз — бонус урона лёгких/тяжёлых атак и вариативных комбо
@@ -1639,6 +2022,7 @@ ui.app.averageStack,Average stack,平均層數,平均层数,平均スタック�
 ui.app.avgCastTime,Avg Cast Time,平均施放時間,平均施放时间,平均発動時間,평균 시전 시간,Tiempo de ejecución promedio,Temps d’exécution moyen,Durchschn. Ausführungszeit,Tempo médio de execução,Thời gian thi triển trung bình,,เวลาใช้ทักษะเฉลี่ย,Среднее время применения
 ui.app.baseAttributes,Base Attributes:,基礎屬性：,基础属性：,基礎属性:,기본 속성:,Atributos base:,Attributs de base :,Basisattribute:,Atributos básicos:,Thuộc tính cơ bản:,,ค่าสถานะพื้นฐาน:,Базовые атрибуты:
 ui.app.blossomsChange,Blossoms change (+ adds / - subtracts),繁花變化（+ 增加 / - 減少）,繁花变化（+ 增加 / - 减少）,繁華の増減（+で追加 / -で減少）,꽃 변화량 (+ 증가 / - 감소),Cambio de flores (+ suma / - resta),Variation des fleurs (+ ajoute / - retire),Blütenänderung (+ hinzufügen / - abziehen),Alteração de Flores (+ adiciona / - subtrai),Thay đổi Hoa rực rỡ (+ thêm / - bớt),,เปลี่ยนจำนวนดอกไม้บาน (+ เพิ่ม / - ลด),Изменение Цветения (+ добавить / - вычесть)
+ui.app.bonus,Bonus,加成,加成,ボーナス,보너스,Bonificación,Bonus,Bonus,Bônus,Thưởng,,โบนัส,Бонус
 ui.app.bossTalent,Boss Talent,首領天賦,首领天赋,首領才能,보스 특성,Talento de jefe,Talent de boss,Boss-Talent,Talento de chefe,Thiên phú thủ lĩnh,,พรสวรรค์หัวหน้า,Талант босса
 ui.app.both,Both,兩者,两者,両方,둘 다,Ambos,Les deux,Beide,Ambos,Cả hai,,ทั้งคู่,Оба
 ui.app.bowRingSet,Bow/Ring Set,弓玦,弓玦,弓・指輪セット,활/깍지 세트,Conjunto de arco/anillo,Ensemble arc/anneau,Bogen-/Ring-Set,Conjunto de arco/anel,Bộ cung/nhẫn,,ชุดธนู/แหวน,Комплект лука/кольца
@@ -1702,6 +2086,7 @@ ui.app.dpsBreakdown,{dps} Breakdown,{dps}分析,{dps}分析,{dps}の内訳,{dps}
 ui.app.draughtDebuffs,Strayhunt + Wildstride (Draught),離獵 + 步亂 (樽),离猎 + 步乱 (樽),離猟 + 歩乱（樽）,탈렵 + 흐트러진 보법 (준),Caza Errante + Zancada Salvaje (Sequía),Chasse errante + Foulée sauvage (Ivresse),Streunjagd + Wildschritt (Trunk),Caça Errante + Passo Selvagem (Bebedeira),Ly liệp + Bước loạn (Ly),,ออกล่า + ก้าวสับสน (สายสุรา),Бродячая охота + Дикий шаг (Хмель)
 ui.app.duplicate,Duplicate,複製,复制,複製,복제,Duplicar,Dupliquer,Duplizieren,Duplicar,Nhân bản,,ทำสำเนา,Дублировать
 ui.app.duration,Duration,持續時間,持续时间,持続時間,길이,Duración,Durée,Dauer,Duração,Thời lượng,,ระยะเวลา,Длительность
+ui.app.durationSeconds,Duration(s),持續時間(秒),持续时间(秒),持続時間(秒),지속 시간(초),Duración(s),Durée(s),Dauer(s),Duração(s),Thời lượng(giây),,ระยะเวลา(วินาที),Длительность(с)
 ui.app.editRotationName,Edit rotation name,編輯循環名稱,编辑循环名称,スキル回し名を編集,로테이션 이름 수정,Editar nombre de rotación,Modifier le nom de la rotation,Rotationsnamen bearbeiten,Editar nome da rotação,Sửa tên chuỗi chiêu,,แก้ไขชื่อชุดลำดับทักษะ,Изменить название ротации
 ui.app.effect,Effect,效果,效果,効果,효과,Efecto,Effet,Effekt,Efeito,Hiệu ứng,,เอฟเฟกต์,Эффект
 ui.app.effective,Effective,生效,生效,実効値,적용,Efectivo,Effectif,Effektiv,Efetivo,Hiệu dụng,,ที่มีผลจริง,Эффективное
@@ -1730,6 +2115,7 @@ ui.app.gearSearchMinutes,Best composition time limit (minutes; 0 for no limit),�
 ui.app.gearTier,Gear Tier:,裝備階級：,装备阶级：,装備等級:,장비 티어,Nivel de equipo:,Palier d’équipement :,Ausrüstungsstufe:,Nível do equipamento:,Bậc trang bị:,,ระดับอุปกรณ์:,Ранг снаряжения:
 ui.app.generalCategory,General,通用,通用,共通,일반,General,Général,Allgemein,Geral,Chung,,ทั่วไป,Общее
 ui.app.github,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,GitHub,,GitHub,GitHub
+ui.app.globalBuffDisabled,Does not add an external buff or debuff. Effects applied by the rotation still work.,不額外加入外部增益或減益；連招本身施加的效果仍正常生效。,不额外加入外部增益或减益；连招本身施加的效果仍正常生效。,外部の強化・弱体効果を追加しません。スキル回しによって付与される効果は引き続き機能します。,외부 강화 또는 약화 효과를 추가하지 않습니다. 연계가 적용하는 효과는 계속 작동합니다.,No agrega efectos externos de mejora o debilitamiento. Los efectos aplicados por la rotación siguen funcionando.,N’ajoute aucun bonus ni malus externe. Les effets appliqués par la rotation restent actifs.,Fügt keine externen Verstärkungen oder Schwächungen hinzu. Durch die Rotation angewandte Effekte wirken weiterhin.,Não adiciona efeitos externos de fortalecimento ou enfraquecimento. Os efeitos aplicados pela rotação continuam funcionando.,Không thêm hiệu ứng tăng cường hoặc suy yếu bên ngoài. Các hiệu ứng do chuỗi chiêu áp dụng vẫn hoạt động.,,ไม่เพิ่มบัฟหรือดีบัฟจากภายนอก เอฟเฟกต์ที่เกิดจากชุดกระบวนท่ายังคงทำงานตามปกติ,"Не добавляет внешние усиления или ослабления. Эффекты, применяемые ротацией, продолжают действовать."
 ui.app.globalBuffsDebuffs,Global Buffs/Debuffs,全局增減益,全局增减益,全体バフ・デバフ,팀원 버프/디버프,Efectos beneficiosos/perjudiciales globales,Effets bénéfiques/néfastes globaux,Globale Verstärkungen/Schwächungen,Efeitos benéficos/prejudiciais globais,Hiệu ứng có lợi/bất lợi toàn cục,,บัฟ/ดีบัฟส่วนรวม,Общие положительные/отрицательные эффекты
 ui.app.graduationRate,Graduation Rate,畢業率,毕业率,完成度,졸업률,Porcentaje de perfección,Taux d’optimisation,Ausrüstungsfortschritt,Índice de conclusão,Mức độ hoàn thiện,,ระดับความสมบูรณ์ของชุด,Степень завершённости
 ui.app.graduationRateDescription,"Graduation Rate measures how close your build is to the theoretical best-in-slot (BiS) setup. Because different rotations can have different theoretical BiS setups, this value is only a rough estimate of your current build's progression. It is not intended for calculations or as a prediction of real-combat performance.",畢業率表示目前配裝與理論最佳配裝的接近程度。不同輸出循環的理論最佳配裝可能不同，因此此數值僅粗略估計目前配裝的成長程度，不適用於計算或預測實戰表現。,毕业率表示当前配装与理论最佳配装的接近程度。不同输出循环的理论最佳配装可能不同，因此此数值仅粗略估计当前配装的成长程度，不适用于计算或预测实战表现。,完成度は、現在のビルドが理論上の最適装備構成にどれほど近いかを示します。理論上の最適構成はスキル回しによって異なるため、この値は現在のビルドの進捗を示す大まかな目安です。計算や実戦での性能予測に使用するものではありません。,졸업률은 현재 빌드가 이론상 최적 장비 구성에 얼마나 가까운지 나타냅니다. 딜 사이클마다 이론상 최적 구성이 다를 수 있으므로 현재 빌드의 성장 정도를 대략적으로 보여 주는 값입니다. 계산이나 실제 전투 성능 예측에는 사용하지 마세요.,"El porcentaje de perfección mide qué tan cerca está tu configuración de la mejor combinación teórica de equipo (BiS). Como cada rotación puede tener una combinación BiS teórica diferente, este valor es solo una estimación aproximada del progreso de tu configuración actual. No está pensado para realizar cálculos ni para predecir el rendimiento en combate real.","Le taux d’optimisation mesure à quel point votre configuration se rapproche de la meilleure configuration théorique (BiS). Celle-ci pouvant varier selon la rotation, cette valeur n’est qu’une estimation approximative de la progression de votre configuration actuelle. Elle n’est destinée ni aux calculs ni à prédire les performances en combat réel.","Der Ausrüstungsfortschritt zeigt, wie nahe dein Build der theoretisch optimalen Ausrüstung kommt. Da die optimale Ausrüstung je nach Rotation unterschiedlich sein kann, ist dieser Wert nur eine grobe Einschätzung des aktuellen Build-Fortschritts. Er dient weder als Berechnungsgrundlage noch als Vorhersage der Leistung im tatsächlichen Kampf.","O índice de conclusão mede o quanto sua configuração se aproxima da melhor configuração teórica para cada espaço de equipamento (BiS). Como rotações diferentes podem ter configurações teóricas ideais diferentes, esse valor é apenas uma estimativa aproximada do progresso da sua configuração atual. Ele não se destina a cálculos nem a prever o desempenho em combate real.","Mức độ hoàn thiện cho biết bộ trang bị của bạn gần với cấu hình tốt nhất theo lý thuyết (BiS) đến đâu. Vì mỗi chuỗi chiêu có thể có cấu hình BiS khác nhau, giá trị này chỉ ước lượng sơ bộ tiến độ của bộ trang bị hiện tại. Không dùng giá trị này để tính toán hoặc dự đoán hiệu quả chiến đấu thực tế.",,ระดับความสมบูรณ์ของชุดบอกว่าชุดจัดตัวละครของคุณใกล้เคียงกับชุดอุปกรณ์ที่ดีที่สุดตามทฤษฎี (BiS) เพียงใด เนื่องจากลำดับทักษะที่ต่างกันอาจมีชุดที่ดีที่สุดต่างกัน ค่านี้จึงเป็นเพียงค่าประเมินคร่าว ๆ ของความก้าวหน้าในชุดปัจจุบัน ไม่ได้มีไว้ใช้คำนวณหรือทำนายผลการต่อสู้จริง,"Степень завершённости показывает, насколько сборка близка к теоретически лучшему набору снаряжения (BiS). Для разных ротаций оптимальные наборы могут различаться, поэтому это лишь приблизительная оценка развития текущей сборки. Она не предназначена для расчётов или прогнозирования эффективности в реальном бою."
@@ -1849,6 +2235,7 @@ ui.app.resetToCalculatedValue,Reset to calculated value,重設為計算值,重�
 ui.app.resolveAtSkillStart,Resolve at skill start,在技能開始時決定,在技能开始时决定,スキル開始時に判定,스킬 시작 시 해결,Evaluar al inicio de la habilidad,Résoudre au début de la compétence,Bei Fertigkeitsbeginn auswerten,Determinar no início da habilidade,Xác định khi kỹ năng bắt đầu,,กำหนดเมื่อเริ่มทักษะ,Определять в начале навыка
 ui.app.rotation,Rotation,循環,循环,スキル回し,로테이션,Rotación,Rotation,Rotation,Rotação,Chuỗi chiêu,,ชุดลำดับทักษะ,Ротация
 ui.app.rotationEditor,Rotation Editor,循環編輯器,循环编辑器,スキル回しエディター,로테이션 에디터,Editor de rotaciones,Éditeur de rotation,Rotationseditor,Editor de rotações,Chỉnh sửa chuỗi chiêu,,ตัวแก้ไขลำดับทักษะ,Редактор ротации
+ui.app.rotationEventLimit,Rotation event limit (0 for no limit),循環事件上限（0 表示無限制）,循环事件上限（0 表示无限制）,ローテーションのイベント上限（0で無制限）,딜 사이클 이벤트 수 제한 (0은 무제한),Límite de eventos de la rotación (0 sin límite),Limite d’événements de la rotation (0 pour illimité),Ereignislimit der Rotation (0 für unbegrenzt),Limite de eventos da rotação (0 para ilimitado),Giới hạn sự kiện của chuỗi chiêu (0 là không giới hạn),,จำกัดจำนวนเหตุการณ์ในชุดท่า (0 คือไม่จำกัด),Лимит событий ротации (0 — без ограничения)
 ui.app.rotationImportError,The rotation file could not be imported.,無法匯入循環檔案。,无法导入循环文件。,スキル回しのファイルをインポートできませんでした。,로테이션 파일을 가져올 수 없습니다.,No se pudo importar el archivo de rotaciones.,Impossible d’importer le fichier de rotations.,Die Rotationsdatei konnte nicht importiert werden.,Não foi possível importar o arquivo de rotação.,Không thể nhập tệp chuỗi chiêu.,,ไม่สามารถนำเข้าไฟล์ชุดลำดับทักษะได้,Не удалось импортировать файл ротаций.
 ui.app.rotationNameRequired,Rotation name is required.,必須輸入循環名稱。,必须输入循环名称。,スキル回し名を入力してください。,로테이션 이름을 입력해야 합니다.,El nombre de la rotación es obligatorio.,Le nom de la rotation est obligatoire.,Ein Rotationsname ist erforderlich.,O nome da rotação é obrigatório.,Phải có tên chuỗi chiêu.,,ต้องระบุชื่อชุดลำดับทักษะ,Необходимо указать название ротации.
 ui.app.rotations,Rotations,循環,循环,スキル回し,로테이션,Rotaciones,Rotations,Rotationen,Rotações,Chuỗi chiêu,,ชุดลำดับทักษะ,Ротации
@@ -2038,6 +2425,7 @@ ui.buildTab.optimizationPreparing,Preparing search…,準備搜尋中…,准备�
 ui.buildTab.optimizationPreviewHint,Gear changes are a preview until the search finishes or you click Cancel. Normal calculations use your saved gear.,搜尋完成或按下「取消」前，裝備變更僅供預覽。一般計算使用已儲存的裝備。,搜索完成或按下「取消」前，装备变更仅供预览。一般计算使用已保存的装备。,探索が完了するかキャンセルを押すまでは、装備の変更はプレビューです。通常の計算には保存済みの装備を使用します。,검색이 끝나거나 취소를 누르기 전까지 장비 변경은 미리보기입니다. 일반 계산에는 저장된 장비가 사용됩니다.,Los cambios de equipo son una vista previa hasta que termine la búsqueda o hagas clic en Cancelar. Los cálculos normales usan tu equipo guardado.,Les modifications d’équipement ne sont qu’un aperçu jusqu’à la fin de la recherche ou jusqu’au clic sur Annuler. Les calculs habituels utilisent l’équipement enregistré.,"Ausrüstungsänderungen sind nur eine Vorschau, bis die Suche endet oder du auf Abbrechen klickst. Normale Berechnungen verwenden deine gespeicherte Ausrüstung.",As alterações de equipamento são uma prévia até a busca terminar ou você clicar em Cancelar. Os cálculos normais usam seu equipamento salvo.,Thay đổi trang bị chỉ là xem trước cho đến khi tìm kiếm kết thúc hoặc bạn nhấp Hủy. Tính toán thông thường dùng trang bị đã lưu.,,การเปลี่ยนอุปกรณ์เป็นเพียงตัวอย่างจนกว่าการค้นหาจะเสร็จหรือคุณคลิกยกเลิก การคำนวณปกติใช้อุปกรณ์ที่บันทึกไว้,Изменения снаряжения остаются предпросмотром до завершения поиска или нажатия «Отмена». Обычные расчёты используют сохранённое снаряжение.
 ui.buildTab.optimizationProgress,Optimizing {name},正在最佳化 {name},正在优化 {name},{name}を最適化中,{name} 최적화 중,Optimizando {name},Optimisation de {name},{name} wird optimiert,Otimizando {name},Đang tối ưu {name},,กำลังปรับ {name} ให้เหมาะสม,Оптимизация: {name}
 ui.buildTab.optimizationRotation,Optimizing for: {name},最佳化目標循環：{name},优化目标循环：{name},最適化対象: {name},최적화 대상: {name},Optimizando para: {name},Optimisation pour : {name},Optimierung für: {name},Otimizando para: {name},Tối ưu cho: {name},,กำลังปรับสำหรับ: {name},Оптимизация для: {name}
+ui.buildTab.optimizationSuggestion,Optimization Suggestion,最佳化建議,优化建议,最適化の提案,최적화 제안,Sugerencia de optimización,Suggestion d’optimisation,Optimierungsvorschlag,Sugestão de otimização,Gợi ý tối ưu,,คำแนะนำการปรับแต่ง,Предложение по оптимизации
 ui.buildTab.optimizationTooLong,Search exceeds the configured time budget. Any best result found has been kept. Increase the time limit in Settings or reduce the visible gear inventory before trying again.,搜尋超過設定的時限。已保留找到的最佳結果。請在設定中增加時限，或減少目前顯示的裝備數量後重試。,搜索超过设置的时限。已保留找到的最佳结果。请在设置中增加时限，或减少当前显示的装备数量后重试。,設定した探索時間の上限を超えました。見つかった最良結果は保持されています。設定で時間上限を増やすか、表示する所持装備を減らしてから再度お試しください。,검색 제한 시간을 초과했습니다. 찾은 최적 결과는 보존되었습니다. 설정에서 제한 시간을 늘리거나 표시되는 장비 수를 줄인 뒤 다시 시도하세요.,La búsqueda supera el tiempo límite configurado. Se conservó el mejor resultado encontrado. Aumenta el límite en Ajustes o reduce el inventario visible antes de intentarlo de nuevo.,La recherche dépasse le temps alloué. Le meilleur résultat trouvé a été conservé. Augmentez la limite de temps dans les paramètres ou réduisez l’inventaire visible avant de réessayer.,"Die Suche überschreitet das festgelegte Zeitlimit. Das bisher beste Ergebnis wurde beibehalten. Erhöhe das Zeitlimit in den Einstellungen oder reduziere die sichtbare Ausrüstung, bevor du es erneut versuchst.",A busca excedeu o limite de tempo configurado. O melhor resultado encontrado foi preservado. Aumente o limite nas Configurações ou reduza o inventário visível antes de tentar novamente.,Tìm kiếm vượt thời gian cho phép. Kết quả tốt nhất đã tìm thấy vẫn được giữ lại. Hãy tăng giới hạn thời gian trong Cài đặt hoặc giảm số trang bị hiển thị trước khi thử lại.,,การค้นหาเกินเวลาที่กำหนด เก็บผลที่ดีที่สุดที่พบไว้แล้ว เพิ่มเวลาจำกัดในหน้าการตั้งค่าหรือลดจำนวนอุปกรณ์ที่มองเห็นก่อนลองใหม่,Превышен лимит времени поиска. Лучший найденный результат сохранён. Увеличьте лимит в настройках или сократите видимый инвентарь перед новой попыткой.
 ui.buildTab.optimizationTooMany,"Search exceeds 100,000 unique combinations. Reduce the visible gear inventory before trying again.","搜尋超過 100,000 種不同組合。請減少目前顯示的裝備數量後重試。","搜索超过 100,000 种不同组合。请减少当前显示的装备数量后重试。","探索対象が100,000通りを超えています。表示する所持装備を減らしてから再度お試しください。","검색 조합이 100,000개를 초과했습니다. 표시되는 장비 수를 줄인 뒤 다시 시도하세요.","La búsqueda supera las 100,000 combinaciones únicas. Reduce el inventario de equipo visible antes de intentarlo de nuevo.",La recherche dépasse 100 000 combinaisons uniques. Réduisez l’inventaire visible avant de réessayer.,Die Suche umfasst mehr als 100.000 unterschiedliche Kombinationen. Reduziere die sichtbare Ausrüstung und versuche es erneut.,A busca excedeu 100.000 combinações únicas. Reduza o inventário visível antes de tentar novamente.,"Tìm kiếm vượt 100,000 tổ hợp khác nhau. Hãy giảm số trang bị hiển thị trước khi thử lại.",,"การค้นหาเกิน 100,000 ชุดที่ไม่ซ้ำกัน ลดจำนวนอุปกรณ์ที่มองเห็นก่อนลองใหม่","Поиск превышает 100,000 уникальных комбинаций. Сократите видимый инвентарь перед новой попыткой."
 ui.buildTab.optionalAttributeError,Complete or clear each optional attribute.,請填完整或清除每個選填屬性。,请填完整或清除每个选填属性。,各任意属性をすべて入力するか、空欄にしてください。,각 선택적 속성을 입력하거나 비워 두십시오.,Completa o borra cada atributo opcional.,Complétez ou effacez chaque attribut facultatif.,Vervollständige jedes optionale Attribut oder leere es vollständig.,Preencha ou limpe cada atributo opcional.,Điền đầy đủ hoặc xóa từng thuộc tính tùy chọn.,,กรอกข้อมูลค่าสถานะที่ไม่บังคับแต่ละรายการให้ครบ หรือล้างข้อมูลรายการนั้น,Заполните или очистите каждый необязательный атрибут.
@@ -2068,6 +2456,20 @@ ui.buildTab.shareLinkCopied,Share link copied.,已複製分享連結。,已复�
 ui.buildTab.shareLinkError,Could not create a share link.,無法建立分享連結。,无法建立分享链接。,共有リンクを作成できませんでした。,공유 링크를 만들지 못했습니다.,No se pudo crear un enlace para compartir.,Impossible de créer un lien de partage.,Ein Freigabelink konnte nicht erstellt werden.,Não foi possível criar um link de compartilhamento.,Không thể tạo liên kết chia sẻ.,,ไม่สามารถสร้างลิงก์แบ่งปันได้,Не удалось создать ссылку.
 ui.buildTab.shareLinkInvalid,This link does not contain a valid build.,此連結不包含有效配裝。,此链接不包含有效配装。,このリンクに有効なビルドが含まれていません。,이 링크에는 유효한 빌드가 없습니다.,Este enlace no contiene una configuración válida.,Ce lien ne contient pas de configuration valide.,Dieser Link enthält keinen gültigen Build.,Este link não contém uma configuração válida.,Liên kết này không chứa bộ trang bị hợp lệ.,,ลิงก์นี้ไม่มีชุดจัดตัวละครที่ใช้ได้,В ссылке нет допустимой сборки.
 ui.buildTab.shareLinkPrompt,Copy this link:,複製此連結:,复制此链接:,このリンクをコピー:,이 링크를 복사하세요:,Copia este enlace:,Copiez ce lien :,Diesen Link kopieren:,Copie este link:,Sao chép liên kết này:,,คัดลอกลิงก์นี้:,Скопируйте ссылку:
+ui.buildTab.suggestionAlternatives,These are alternatives. Fill the shared target counts using different items. Gains depend on earlier changes in the plan.,這些是替代選項。請使用不同裝備湊齊共同目標數量。收益取決於方案中先前的變更。,这些是替代选项。请使用不同装备凑齐共同目标数量。收益取决于方案中先前的变更。,これらは代替候補です。別々の装備で共通目標の個数を満たしてください。効果はプラン内の先行する変更に依存します。,서로 대체 가능한 선택지입니다. 서로 다른 장비로 공통 목표 수량을 채우세요. 증가량은 계획의 앞선 변경에 따라 달라집니다.,Estas son alternativas. Completa las cantidades del objetivo común con objetos distintos. Las mejoras dependen de los cambios anteriores del plan.,Ce sont des alternatives. Atteignez les quantités cibles communes avec des objets distincts. Les gains dépendent des modifications précédentes du plan.,Dies sind Alternativen. Erreiche die gemeinsamen Zielmengen mit verschiedenen Gegenständen. Gewinne hängen von vorherigen Änderungen im Plan ab.,Estas são alternativas. Complete as quantidades do objetivo comum com itens diferentes. Os ganhos dependem das mudanças anteriores do plano.,Đây là các lựa chọn thay thế. Dùng các trang bị khác nhau để đạt số lượng mục tiêu chung. Mức tăng phụ thuộc vào các thay đổi trước đó trong phương án.,,รายการเหล่านี้เป็นตัวเลือกทดแทน ใช้ไอเทมต่างชิ้นเพื่อให้ครบจำนวนเป้าหมายร่วม ผลที่เพิ่มขึ้นขึ้นอยู่กับการเปลี่ยนแปลงก่อนหน้าในแผน,Это альтернативы. Наберите общее целевое количество на разных предметах. Прирост зависит от предыдущих изменений в плане.
+ui.buildTab.suggestionCalculating,Calculating suggestions…,正在計算建議…,正在计算建议…,提案を計算中…,제안 계산 중…,Calculando sugerencias…,Calcul des suggestions…,Vorschläge werden berechnet…,Calculando sugestões…,Đang tính gợi ý…,,กำลังคำนวณคำแนะนำ…,Расчёт предложений…
+ui.buildTab.suggestionCombinedGain,Combined numbered plan: +{gain}% DPS.,編號方案合計：每秒傷害 +{gain}%。,编号方案合计：每秒伤害 +{gain}%。,番号付きプラン全体：毎秒ダメージ +{gain}%。,번호가 매겨진 전체 계획: 초당 피해량 +{gain}%.,Plan numerado completo: +{gain}% de DPS.,Plan numéroté complet : +{gain}% de DPS.,Gesamter nummerierter Plan: +{gain}% DPS.,Plano numerado completo: +{gain}% de DPS.,Toàn bộ phương án được đánh số: +{gain}% DPS.,,แผนตามลำดับหมายเลขทั้งหมด: DPS +{gain}%,Общий прирост по пронумерованному плану: +{gain}% DPS.
+ui.buildTab.suggestionContribution,This choice adds {count} × {stat}.,此選擇增加 {count} 條{stat}。,此选择增加 {count} 条{stat}。,この選択で{stat}が {count} 個増えます。,이 선택으로 {stat} 옵션이 {count}개 늘어납니다.,Esta opción agrega {count} × {stat}.,Ce choix ajoute {count} × {stat}.,Diese Wahl fügt {count} × {stat} hinzu.,Esta opção adiciona {count} × {stat}.,Lựa chọn này thêm {count} × {stat}.,,ตัวเลือกนี้เพิ่ม {stat} จำนวน {count} รายการ,Этот вариант добавляет {count} × {stat}.
+ui.buildTab.suggestionFailed,Could not calculate suggestions. Try again.,無法計算建議，請重試。,无法计算建议，请重试。,提案を計算できませんでした。再試行してください。,제안을 계산하지 못했습니다. 다시 시도하세요.,No se pudieron calcular las sugerencias. Intenta de nuevo.,Impossible de calculer les suggestions. Réessayez.,Vorschläge konnten nicht berechnet werden. Versuche es erneut.,Não foi possível calcular sugestões. Tente novamente.,Không thể tính gợi ý. Hãy thử lại.,,คำนวณคำแนะนำไม่สำเร็จ โปรดลองอีกครั้ง,Не удалось рассчитать предложения. Повторите попытку.
+ui.buildTab.suggestionFullItem,Roll this complete item (+{gain}% DPS in the target plan).,打造此完整配裝的裝備（目標方案中每秒傷害提升 {gain}%）。,打造此完整配装的装备（目标方案中每秒伤害提升 {gain}%）。,この特性構成の装備を作成してください（目標プランで毎秒ダメージ +{gain}%）。,이 전체 옵션 구성으로 장비를 제작하세요(목표 계획에서 초당 피해량 +{gain}%).,Consigue un objeto con esta combinación completa (+{gain}% de DPS en el plan objetivo).,Obtenez un objet avec cette combinaison complète (+{gain}% de DPS dans le plan cible).,Erhalte einen Gegenstand mit dieser vollständigen Affixkombination (+{gain}% DPS im Zielplan).,Obtenha um item com esta combinação completa (+{gain}% de DPS no plano de destino).,Tạo trang bị với bộ thuộc tính đầy đủ này (+{gain}% DPS trong phương án mục tiêu).,,สร้างไอเทมที่มีคุณสมบัติครบชุดนี้ (DPS +{gain}% ในแผนเป้าหมาย),Получите предмет с этим полным набором аффиксов (+{gain}% DPS в целевом плане).
+ui.buildTab.suggestionGainRangeHint,Ranges depend on compatible earlier changes. The combined gain is for the numbered plan; recalculate after choosing an alternative.,收益範圍取決於先前相容的變更。合計收益適用於編號方案；選擇替代選項後請重新計算。,收益范围取决于先前兼容的变更。合计收益适用于编号方案；选择替代选项后请重新计算。,上昇率の範囲は、先に行う両立可能な変更によって変わります。プラン全体の上昇率は番号付きプランの値です。代替候補を選んだ場合は再計算してください。,증가량 범위는 앞서 적용한 양립 가능한 변경에 따라 달라집니다. 총 증가량은 번호가 매겨진 계획의 값입니다. 대안을 선택하면 다시 계산하세요.,Los rangos dependen de los cambios compatibles realizados antes. La mejora total corresponde al plan numerado; vuelve a calcular después de elegir una alternativa.,Les fourchettes de gains dépendent des modifications précédentes compatibles dans le plan. Le gain total correspond au plan numéroté ; recalculez après avoir choisi une alternative.,Die Spannen hängen von kompatiblen vorherigen Änderungen ab. Der Gesamtgewinn gilt für den nummerierten Plan; berechne nach der Wahl einer Alternative erneut.,Os intervalos dependem das mudanças compatíveis feitas antes. O ganho total corresponde ao plano numerado; recalcule após escolher uma alternativa.,Khoảng dao động của mức tăng phụ thuộc vào các thay đổi tương thích đã thực hiện trước đó. Mức tăng tổng thể áp dụng cho phương án được đánh số; hãy tính lại sau khi chọn phương án thay thế.,,ช่วงค่าของผลที่เพิ่มขึ้นขึ้นอยู่กับการเปลี่ยนแปลงก่อนหน้าที่ใช้ร่วมกันได้ ผลที่เพิ่มขึ้นโดยรวมเป็นค่าของแผนตามลำดับหมายเลข โปรดคำนวณใหม่หลังเลือกตัวเลือกทดแทน,"Диапазоны зависят от совместимых изменений, внесённых ранее. Общий прирост относится к пронумерованному плану; пересчитайте после выбора альтернативы."
+ui.buildTab.suggestionNone,No qualifying affix changes toward this preset.,朝此預設配裝調整時，沒有符合條件的詞條變更。,朝此预设配装调整时，没有符合条件的词条变更。,このプリセットに近づける変更で条件を満たす特性はありません。,이 프리셋을 향한 변경 중 조건을 충족하는 옵션 변경이 없습니다.,No hay cambios de atributos que cumplan los requisitos para esta configuración.,Aucune modification d’attribut admissible vers cette configuration.,Keine geeigneten Affixänderungen in Richtung dieser Vorlage.,Nenhuma mudança de afixo atende aos requisitos para esta predefinição.,Không có thay đổi thuộc tính đủ điều kiện để tiến tới mẫu này.,,ไม่มีการเปลี่ยนคุณสมบัติที่ผ่านเกณฑ์เพื่อเข้าใกล้ชุดสำเร็จรูปนี้,Нет подходящих изменений аффиксов для приближения к этому шаблону.
+ui.buildTab.suggestionNoPreset,No compatible preset is available.,沒有相容的預設配裝。,没有兼容的预设配装。,対応するプリセットがありません。,호환되는 프리셋이 없습니다.,No hay una configuración compatible.,Aucune configuration compatible.,Keine kompatible Vorlage verfügbar.,Nenhuma predefinição compatível disponível.,Không có mẫu phù hợp.,,ไม่มีชุดสำเร็จรูปที่เข้ากันได้,Совместимый шаблон недоступен.
+ui.buildTab.suggestionPreset,Closest preset: {name},最接近的預設配裝：{name},最接近的预设配装：{name},最も近いプリセット：{name},가장 가까운 프리셋: {name},Configuración más cercana: {name},Configuration la plus proche : {name},Ähnlichste Vorlage: {name},Predefinição mais próxima: {name},Mẫu gần nhất: {name},,ชุดสำเร็จรูปที่ใกล้เคียงที่สุด: {name},Ближайший шаблон: {name}
+ui.buildTab.suggestionQuota,Shared target: add {count} × {stat} in total. Eligible item locations: {choices}.,共同目標：在 {choices} 件可用裝備中，總共增加 {count} 條{stat}。請選擇位置湊齊此數量。,共同目标：在 {choices} 件可用装备中，总共增加 {count} 条{stat}。请选择位置凑齐此数量。,共通目標：候補の装備 {choices} 個の中で、{stat}を合計 {count} 個追加。配置を選んでこの個数を満たしてください。,공통 목표: 가능한 장비 {choices}개에 걸쳐 {stat} 옵션을 총 {count}개 추가하세요. 이 수량을 채울 위치를 선택하세요.,Objetivo común: agrega {count} de {stat} en total entre {choices} objetos aptos. Elige dónde completar esta cantidad.,Objectif commun : ajoutez {count} de {stat} au total parmi {choices} objets admissibles. Choisissez les emplacements pour atteindre ce total.,Gemeinsames Ziel: Füge insgesamt {count} {stat} auf {choices} geeigneten Gegenständen hinzu. Wähle die Plätze für diese Gesamtmenge.,Objetivo comum: adicione {count} de {stat} no total entre {choices} itens elegíveis. Escolha onde completar essa quantidade.,Mục tiêu chung: thêm tổng cộng {count} {stat} trên {choices} trang bị phù hợp. Chọn vị trí để đạt số lượng này.,,เป้าหมายร่วม: เพิ่ม {stat} รวม {count} รายการในไอเทมที่ใช้ได้ {choices} ชิ้น เลือกตำแหน่งเพื่อให้ครบจำนวนนี้,Общая цель: добавьте всего {count} {stat} среди {choices} подходящих предметов. Выберите места для этого общего количества.
+ui.buildTab.suggestionRetune,Retune this affix to {stat} (+{gain}% DPS in the target plan).,將此詞條調律為{stat}（目標方案中每秒傷害提升 {gain}%）。,将此词条调律为{stat}（目标方案中每秒伤害提升 {gain}%）。,この特性を{stat}に調律してください（目標プランで毎秒ダメージ +{gain}%）。,이 옵션을 {stat}(으)로 조율하세요(목표 계획에서 초당 피해량 +{gain}%).,Reajusta este atributo a {stat} (+{gain}% de DPS en el plan objetivo).,Réaccordez cet attribut en {stat} (+{gain}% de DPS dans le plan cible).,Stimme diesen Affix auf {stat} um (+{gain}% DPS im Zielplan).,Reajuste este afixo para {stat} (+{gain}% de DPS no plano de destino).,Tinh chỉnh thuộc tính này thành {stat} (+{gain}% DPS trong phương án mục tiêu).,,ปรับแต่งคุณสมบัตินี้เป็น {stat} (DPS +{gain}% ในแผนเป้าหมาย),Перенастройте этот аффикс на {stat} (+{gain}% DPS в целевом плане).
+ui.buildTab.suggestionSameItemChoice,Alternative changes for this item — choose one.,此裝備的替代調整方案，請擇一。,此装备的替代调整方案，请择一。,この装備の変更候補です。どれか一つを選んでください。,이 장비의 대체 변경안입니다. 하나만 선택하세요.,Cambios alternativos para este objeto: elige uno.,Modifications alternatives pour cet objet : choisissez-en une.,Alternative Änderungen für diesen Gegenstand — wähle eine.,Alterações alternativas para este item: escolha uma.,Các thay đổi thay thế cho trang bị này — chỉ chọn một.,,ตัวเลือกการเปลี่ยนแปลงสำหรับไอเทมนี้ — เลือกเพียงหนึ่งอย่าง,Альтернативные изменения этого предмета — выберите одно.
+ui.buildTab.suggestionValueUpgrade,Improve affix rolls without adding more affix copies.,提升詞條數值，不增加詞條數量。,提升词条数值，不增加词条数量。,特性の個数を増やさずに数値を強化します。,옵션 개수를 늘리지 않고 옵션 수치를 개선합니다.,Mejora los valores de los atributos sin agregar más copias.,Améliorez les valeurs des attributs sans en ajouter de copies.,"Verbessere Affixwerte, ohne weitere Affixkopien hinzuzufügen.",Melhore os valores dos afixos sem adicionar mais cópias.,Cải thiện giá trị thuộc tính mà không tăng số lượng thuộc tính.,,เพิ่มค่าคุณสมบัติโดยไม่เพิ่มจำนวนคุณสมบัติ,"Улучшите значения аффиксов, не увеличивая число их копий."
 ui.buildTab.theBookmarkRunsOnlyOnTheOfficialDashboard,The bookmark runs only on the official dashboard. Where Builds Meet receives only the JSON you paste here.,此書籤只會在官方儀表板上執行。燕雲配裝工具 只會收到你在此貼上的 JSON。,此书签只会在官方仪表板上执行。燕云配装工具 只会收到你在此粘贴的 JSON。,このブックマークは公式ダッシュボードでのみ動作します。Where Builds Meetが受け取るのは、ここに貼り付けたJSONのみです。,이 북마크는 공식 대시보드에서만 실행됩니다. ‘연운 빌드 도구’는 사용자가 여기에 붙여넣은 JSON만 불러옵니다.,El marcador solo se ejecuta en el panel oficial. Where Builds Meet solo recibe el JSON que pegas aquí.,Le favori fonctionne uniquement sur le tableau de bord officiel. Where Builds Meet reçoit seulement le JSON que vous collez ici.,"Das Lesezeichen funktioniert nur auf dem offiziellen Dashboard. Where Builds Meet erhält ausschließlich das JSON, das du hier einfügst.",O favorito é executado apenas no painel oficial. Where Builds Meet recebe somente o JSON que você cola aqui.,Dấu trang chỉ chạy trên bảng điều khiển chính thức. Where Builds Meet chỉ nhận JSON bạn dán vào đây.,,บุ๊กมาร์กนี้ทำงานเฉพาะในแผงข้อมูลทางการ Where Builds Meet จะได้รับเฉพาะ JSON ที่คุณวางที่นี่,"Закладка работает только в официальной панели. Where Builds Meet получает лишь JSON, который вы вставляете сюда."
 ui.buildTab.toYourBrowserBookmarksBar,to your browser bookmarks bar.,至瀏覽器書籤列。,至浏览器书签栏。,をブラウザーのブックマークバーへ移動してください。,브라우저의 북마크 바에 추가하세요.,a la barra de marcadores de tu navegador.,dans la barre des favoris de votre navigateur.,in die Lesezeichenleiste deines Browsers.,para a barra de favoritos do navegador.,vào thanh dấu trang của trình duyệt.,,ไปยังแถบบุ๊กมาร์กของเบราว์เซอร์,на панель закладок браузера.
 ui.buildTab.useAClearUncroppedGearDetailsScreenshotRecognition,"Use a clear, uncropped gear details screenshot. Recognition runs locally in your browser.",請使用清晰且未裁切的裝備詳細資料螢幕截圖。辨識會在你的瀏覽器本機執行。,请使用清晰且未经裁剪的装备详情截图。识别过程在你的本地浏览器中完成。,切り抜いていない鮮明な装備詳細スクリーンショットを使用してください。文字認識はブラウザー内で実行されます。,“선명하고 잘리지 않은 기어 세부 정보 스크린샷을 사용해 주세요. 인식 처리는 브라우저 내에서 로컬로 수행됩니다.”,Usa una captura clara y sin recortar de los detalles del equipo. El reconocimiento se realiza localmente en tu navegador.,Utilisez une capture nette et non recadrée des détails de l’équipement. La reconnaissance s’effectue localement dans votre navigateur.,"Verwende einen scharfen, unbeschnittenen Screenshot der Ausrüstungsdetails. Die Erkennung läuft lokal in deinem Browser.",Use uma captura nítida e sem cortes dos detalhes do equipamento. O reconhecimento é feito localmente no seu navegador.,"Dùng ảnh chụp chi tiết trang bị rõ nét, không cắt xén. Nhận dạng chạy cục bộ trong trình duyệt của bạn.",,ใช้ภาพหน้าจอรายละเอียดอุปกรณ์ที่ชัดเจนและไม่ถูกครอบตัด การอ่านข้อความทำงานภายในเบราว์เซอร์ของคุณ,Используйте чёткий необрезанный снимок характеристик снаряжения. Распознавание выполняется локально в браузере.

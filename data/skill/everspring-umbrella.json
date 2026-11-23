@@ -937,11 +937,11 @@
     ]
   },
   "CycloneChimeBonus": {
-    "name": "Cyclone Waltz [Phantom Chime]",
+    "name": "Cyclone Waltz - Phantom Chime",
     "castTime": 0,
     "cooldown": 0.4,
     "tags": ["MartialArts", "DirectDamage", "Umbrella", "EverspringUmbrella", "Special", "Triggered"],
-    "skillBreakdownCategory": "Cyclone Waltz",
+    "skillBreakdownCategory": "Cyclone Waltz - Phantom Chime",
     "action": [
       {
         "type": "damage",
@@ -973,5 +973,15 @@
       },
       { "type": "consume", "target": "self", "value": "CyclonePhantomChime", "time": 0.01 }
     ]
+  },
+  "CycloneWaltzReturnNoHit": {
+    "name": "Cyclone Waltz [Return][No Hit]",
+    "shortName": "Umbrella Special Return [No Hit]",
+    "castTime": 0.65,
+    "martialArt": "everspring",
+    "weapon": "Umbrella",
+    "tags": ["MartialArts", "DirectDamage", "Umbrella", "EverspringUmbrella", "Special"],
+    "action": [{ "type": "consume", "target": "self", "value": "PhantomUmbrella", "stack": "all", "time": 0.2 }],
+    "skillBreakdownCategory": "Cyclone Waltz"
   }
 }

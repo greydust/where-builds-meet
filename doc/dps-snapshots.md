@@ -1,5 +1,24 @@
 # DPS regression snapshots
 
+## Dust closing Burn and Bury acceptance (November 20, 2026)
+
+The user accepted 30 ms ping and the closing 2.816-second Cyclone Waltz →
+Deflect → Burn and Bury sequence. Both earlier Bubbles and the required
+0.5-second movement remain. All fifteen converted Chime bonuses and all four
+Burn and Bury hits land; the final Burn lands at 59.98463170163172 seconds.
+The estimated Qi ramps follow the retimed break anchors. Duration stays at
+60 seconds. Only the six regular Dust cases are refreshed; the 100% PC preset
+and every other accepted case remain unchanged.
+
+| Build                  | Solo Level |     Previous DPS |     Accepted DPS |
+| ---------------------- | ---------: | ---------------: | ---------------: |
+| dust-full-min          |         18 | 86614.8510146134 | 87242.5191134961 |
+| dust-full-min          |         19 | 91009.7433896777 | 91671.8354507664 |
+| dust-fully-relayed-max |         18 | 81222.1174044142 | 81778.4991671883 |
+| dust-fully-relayed-max |         19 | 85662.4350825435 | 86250.7001196813 |
+| dust-fully-relayed-min |         18 | 83363.8359202554 | 83933.5203060021 |
+| dust-fully-relayed-min |         19 | 87235.2066943378 | 87832.8569133603 |
+
 ## Dust Cyclone rotation acceptance (November 17, 2026)
 
 Only `bamboocutDust/dust-dummy-1-min` changes. The requested sequence retains
@@ -1209,3 +1228,20 @@ The other 280 cases, including Mixed, remain unchanged.
 | ------------------------------------------- | ----------------: | ----------------: | --------------------: | ----------------: |
 | Pure                                        | 86641.71613698362 | 84777.89024553973 |     5198502.968219018 | 5086673.414732384 |
 | Pure Infinite Vitality                      | 87155.87336560305 | 85195.95576459727 |     5229352.401936183 | 5111757.345875835 |
+
+## Dust distant Waltz returns (November 18, 2026)
+
+The user accepted the regular Dummy 1 Min correction and requested a Dust-only
+release. Both returns at 9m use Cyclone Waltz [Return][No Hit], preserving cast
+timing and Phantom Umbrella removal while removing their damage and associated
+damage-triggered effects. Phantom Chime bonus damage has a separate breakdown
+category. All durations remain 60 seconds; the 100% PC rotation is unchanged.
+
+| Build             | BT  | Previous DPS      | Accepted DPS      |
+| ----------------- | --- | ----------------- | ----------------- |
+| Full Min          | 18  | 86970.4431015344  | 86614.85101461336 |
+| Full Min          | 19  | 91383.77734808942 | 91009.74338967766 |
+| Fully Relayed Max | 18  | 81536.48199988695 | 81222.11740441418 |
+| Fully Relayed Max | 19  | 85994.02082397901 | 85662.43508254348 |
+| Fully Relayed Min | 18  | 83685.26993989614 | 83363.83592025543 |
+| Fully Relayed Min | 19  | 87571.44407882044 | 87235.20669433784 |

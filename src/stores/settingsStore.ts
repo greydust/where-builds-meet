@@ -5,14 +5,17 @@ import {
   developmentModeStorageKey,
   displaySizingStorageKey,
   gearSearchMinutesStorageKey,
+  rotationEventLimitStorageKey,
   layoutPreviewStorageKey,
 } from "@/application/persistence/keys"
 import {
   loadDevMode,
   loadDisplaySizing,
   loadGearSearchMinutes,
+  loadRotationEventLimit,
   loadLayoutPreview,
 } from "@/application/persistence/settings"
+import { DEFAULT_ROTATION_EVENT_LIMIT } from "@/calculations/combatDefaults"
 import { setPersistentItem } from "@/persistentStorage"
 
 /**
@@ -28,9 +31,11 @@ import { setPersistentItem } from "@/persistentStorage"
  * mutator stores what it sets, so state and storage cannot drift apart.
  */
 export type SettingsStore = {
-  /** Gates the work-in-progress paths, the test-preset builds, and the unreleased locales. */
+  rotationEventLimit: number
+  setRotationEventLimit: (limit: number) => void
   gearSearchMinutes: number
   setGearSearchMinutes: (minutes: number) => void
+  /** Gates the work-in-progress paths, the test-preset builds, and the unreleased locales. */
   devMode: boolean
   /** The chosen layout while `devMode` is on. The effective layout is derived in `App`, because
    *  it also depends on the live viewport, which is not a stored value. */
@@ -56,6 +61,12 @@ export type SettingsStore = {
 }
 
 export const useSettingsStore = create<SettingsStore>()(set => ({
+  rotationEventLimit: DEFAULT_ROTATION_EVENT_LIMIT,
+  setRotationEventLimit: limit => {
+    if (!Number.isSafeInteger(limit) || limit < 0) return
+    setPersistentItem(rotationEventLimitStorageKey, String(limit))
+    set({ rotationEventLimit: limit })
+  },
   gearSearchMinutes: 2,
   setGearSearchMinutes: minutes => {
     if (!Number.isFinite(minutes) || minutes < 0) return
@@ -72,6 +83,7 @@ export const useSettingsStore = create<SettingsStore>()(set => ({
       layoutPreview: loadLayoutPreview(compactViewport),
       displaySizing: loadDisplaySizing(),
       gearSearchMinutes: loadGearSearchMinutes(),
+      rotationEventLimit: loadRotationEventLimit(),
     }),
 
   setDevMode: enabled => {
