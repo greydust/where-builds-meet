@@ -3,8 +3,8 @@ import { useState, type Dispatch, type SetStateAction, type ReactNode } from "re
 import {
   affixOptionsForGearDefinition,
   attunementData,
-  clampGearRoll,
   gearData,
+  gearNameMaxLength,
   gearAffixKeyForLevel,
   gearLevels,
   maxGearRoll,
@@ -56,6 +56,28 @@ export function formatNumber(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(5).replace(/0+$/, "").replace(/\.$/, "")
 }
 
+// Shift decimal digits before converting to a number so percent edits round only once.
+function readDraftNumber(value: string, percentage: boolean) {
+  if (!percentage) return Number(value)
+  const [digits, exponent = "0"] = value.toLowerCase().split("e")
+  return Number(`${digits}e${Number(exponent) - 2}`)
+}
+
+function editableNumber(value: number, percentage: boolean) {
+  if (Object.is(value, -0)) return "-0"
+  if (!percentage) return String(value)
+  const [mantissa, exponent = "0"] = String(value).split("e")
+  const [integer, fraction = ""] = mantissa.split(".")
+  const digits = integer + fraction
+  const point = integer.length + Number(exponent) + 2
+  if (point <= 0) return `0.${"0".repeat(-point)}${digits}`
+  const whole = digits
+    .slice(0, point)
+    .padEnd(point, "0")
+    .replace(/^0+(?=\d)/, "")
+  return point >= digits.length ? whole : `${whole}.${digits.slice(point)}`
+}
+
 function draftRollCap(
   key: string,
   definitions: Record<string, GearValueDefinition>,
@@ -65,7 +87,7 @@ function draftRollCap(
 ) {
   const maximum = maxGearRoll(key, category, relayed, level)
   if (typeof maximum !== "number") return undefined
-  return definitions[key]?.percentage ? maximum * 100 : maximum
+  return Number(editableNumber(maximum, definitions[key]?.percentage === true))
 }
 
 function capDraftValue(
@@ -75,11 +97,12 @@ function capDraftValue(
   relayed: boolean,
   level: GearLevel,
 ) {
-  const maximum = draftRollCap(value.key, definitions, category, relayed, level)
-  const numericValue = Number(value.value)
+  const maximum = maxGearRoll(value.key, category, relayed, level)
+  const percentage = definitions[value.key]?.percentage === true
+  const numericValue = readDraftNumber(value.value, percentage)
   if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue) || numericValue <= maximum)
     return value
-  return { ...value, value: formatNumber(maximum) }
+  return { ...value, value: editableNumber(maximum, percentage) }
 }
 
 export function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
@@ -163,7 +186,7 @@ function GearValueEditor({
           }
         >
           <option value="">{t("ui.buildTab.selectAnAttribute")}</option>
-          {selectedDefinition?.pickable === false && (
+          {selectedDefinition && (selectedDefinition.pickable === false || !options.includes(value.key)) && (
             <option value={value.key} disabled>
               {gameText(selectedDefinition.name)}
             </option>
@@ -201,25 +224,18 @@ export function createGearId() {
   return globalThis.crypto?.randomUUID?.() ?? `gear-${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-export function normalizeDraftValue(
-  draft: GearValueDraft,
-  definitions: Record<string, GearValueDefinition>,
-  category: "affix" | "attunement",
-  relayed: boolean,
-  level: GearLevel,
-) {
+export function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>) {
   const definition = definitions[draft.key]
-  const value = Number(draft.value)
+  const value = readDraftNumber(draft.value.trim(), definition?.percentage === true)
   if (!definition || !draft.value.trim() || !Number.isFinite(value) || value < 0) return undefined
-  const storedValue = definition.percentage ? value / 100 : value
-  return { key: draft.key, value: clampGearRoll(draft.key, storedValue, category, relayed, level) }
+  return { key: draft.key, value }
 }
 
 export function savedValueToDraft(
   value: { key: string; value: number },
   definitions: Record<string, GearValueDefinition>,
 ): GearValueDraft {
-  return { key: value.key, value: formatNumber(definitions[value.key]?.percentage ? value.value * 100 : value.value) }
+  return { key: value.key, value: editableNumber(value.value, definitions[value.key]?.percentage === true) }
 }
 
 export function itemToDraft(item: GearItem): GearDraft {
@@ -239,6 +255,7 @@ export function GearEditor({
   definitionId,
   definitionName,
   editingExisting,
+  nameField,
   draft,
   error,
   baseAffixOptions,
@@ -257,6 +274,7 @@ export function GearEditor({
   definitionId: string
   definitionName: string
   editingExisting: boolean
+  nameField?: { value: string; onChange: (name: string) => void }
   draft: GearDraft
   error: string
   baseAffixOptions: string[]
@@ -332,6 +350,17 @@ export function GearEditor({
       </PanelHeading>
       <div className="gear-editor-layout">
         <div className="gear-editor-fields">
+          {nameField && (
+            <label className="editor-field">
+              <span>{t("ui.app.name")}</span>
+              <input
+                value={nameField.value}
+                maxLength={gearNameMaxLength}
+                placeholder={definitionName}
+                onChange={event => nameField.onChange(event.target.value)}
+              />
+            </label>
+          )}
           <div className="gear-editor-meta">
             <label className="editor-field">
               <span>{t("ui.buildTab.level")}</span>

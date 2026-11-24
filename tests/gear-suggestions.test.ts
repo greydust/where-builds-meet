@@ -64,6 +64,15 @@ describe("gear suggestion drafts and saved Turn markers", () => {
     expect(imported.state.gearItems[1].turnedAffixIndex).toBe(1)
   })
 
+  it("retains distinct labels when importing matching gear values", () => {
+    const current = { ...state, gearItems: [{ ...item, name: "My helmet" }] }
+    const exported = { ...state, gearItems: [{ ...item, name: "Shared helmet" }] }
+    const imported = mergeImportedBuildState(current, JSON.parse(exportBuildState(exported)), {
+      reuseIdenticalGear: true,
+    })
+    expect(imported.state.gearItems.map(gear => gear.name)).toEqual(["My helmet", "Shared helmet"])
+  })
+
   it("retains older gear without inventing a Turn position", () => {
     const old = { ...state, gearItems: [{ ...item, turnedAffixIndex: undefined }] }
     const imported = mergeImportedBuildState(empty, JSON.parse(exportBuildState(old))).state

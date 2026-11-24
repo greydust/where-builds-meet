@@ -25,13 +25,7 @@ vi.mock("@/i18n", () => ({
   dataText: (_key: string, value: string) => value,
 }))
 
-it.each([
-  { equipped: false, bulk: false, confirmed: true },
-  { equipped: true, bulk: false, confirmed: true },
-  { equipped: false, bulk: true, confirmed: false },
-  { equipped: false, bulk: true, confirmed: true },
-  { equipped: true, bulk: true, confirmed: true },
-])("deletes gear safely: %j", async ({ equipped, bulk, confirmed }) => {
+function mountBuildInventory(weapons: ReturnType<typeof weaponPair>, visibleBuildId?: string) {
   globalThis.IS_REACT_ACT_ENVIRONMENT = true
   HTMLDialogElement.prototype.showModal = function () {
     this.open = true
@@ -40,26 +34,7 @@ it.each([
     this.open = false
   }
   vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }))
-  const preset = defaultBuildPresets[0]
-  const weapons = weaponPair(preset.martialArts)
   const settings = { weapons, breakthrough: "17", ping: 40 }
-  const inventory = buildPresetInventory(preset)
-  const item = inventory.items.find(item => item.id === inventory.equipped.leftWeapon)!
-  const usedItem = { ...item, id: "used-in-other-build" }
-  const otherCategory = inventory.items.find(item => item.id === inventory.equipped.helmet)!
-  const builds = [
-    { id: "mine", name: "Mine", martialArts: [...weapons], equipped: {}, setup: normalizeBuildSetup({}) },
-    {
-      id: "other",
-      name: "Other",
-      martialArts: [...weapons],
-      equipped: { leftWeapon: usedItem.id, ...(equipped ? { rightWeapon: item.id } : {}) },
-      setup: normalizeBuildSetup({}),
-    },
-  ]
-  useGearStore.setState({
-    buildState: { entries: builds, gearItems: [item, usedItem, otherCategory], activeBuildId: "mine" },
-  })
   const container = document.createElement("div")
   document.body.appendChild(container)
   const root = createRoot(container)
@@ -67,7 +42,7 @@ it.each([
     const state = useGearStore(store => store.buildState)
     return createElement(BuildTab, {
       pathId: "stonesplitStrength",
-      builds: bulk ? state.entries.filter(entry => entry.id === "mine") : state.entries,
+      builds: visibleBuildId ? state.entries.filter(entry => entry.id === visibleBuildId) : state.entries,
       visibleItems: state.gearItems,
       weapons,
       martialArtTags: [],
@@ -90,8 +65,47 @@ it.each([
       },
     })
   }
+  return {
+    container,
+    render: () => act(async () => root.render(createElement(Owner))),
+    async cleanup() {
+      await act(async () => root.unmount())
+      container.remove()
+      vi.unstubAllGlobals()
+      vi.restoreAllMocks()
+    },
+  }
+}
+
+it.each([
+  { equipped: false, bulk: false, confirmed: true },
+  { equipped: true, bulk: false, confirmed: true },
+  { equipped: false, bulk: true, confirmed: false },
+  { equipped: false, bulk: true, confirmed: true },
+  { equipped: true, bulk: true, confirmed: true },
+])("deletes gear safely: %j", async ({ equipped, bulk, confirmed }) => {
+  const preset = defaultBuildPresets[0]
+  const weapons = weaponPair(preset.martialArts)
+  const inventory = buildPresetInventory(preset)
+  const item = inventory.items.find(item => item.id === inventory.equipped.leftWeapon)!
+  const usedItem = { ...item, id: "used-in-other-build" }
+  const otherCategory = inventory.items.find(item => item.id === inventory.equipped.helmet)!
+  const builds = [
+    { id: "mine", name: "Mine", martialArts: [...weapons], equipped: {}, setup: normalizeBuildSetup({}) },
+    {
+      id: "other",
+      name: "Other",
+      martialArts: [...weapons],
+      equipped: { leftWeapon: usedItem.id, ...(equipped ? { rightWeapon: item.id } : {}) },
+      setup: normalizeBuildSetup({}),
+    },
+  ]
+  useGearStore.setState({
+    buildState: { entries: builds, gearItems: [item, usedItem, otherCategory], activeBuildId: "mine" },
+  })
+  const { container, render, cleanup } = mountBuildInventory(weapons, bulk ? "mine" : undefined)
   try {
-    await act(async () => root.render(createElement(Owner)))
+    await render()
     const click = async (label: string) =>
       act(async () => {
         const button = container.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`)
@@ -130,9 +144,55 @@ it.each([
       ...(equipped && !removed ? { rightWeapon: item.id } : {}),
     })
   } finally {
-    await act(async () => root.unmount())
-    container.remove()
-    vi.unstubAllGlobals()
-    vi.restoreAllMocks()
+    await cleanup()
+  }
+})
+
+it("renames shared gear without changing its attunement outside the current build's choices", async () => {
+  const preset = defaultBuildPresets[0]
+  const weapons = weaponPair(preset.martialArts)
+  const inventory = buildPresetInventory(preset)
+  const helmet = inventory.items.find(item => item.id === inventory.equipped.helmet)!
+  const item = {
+    ...helmet,
+    name: "Old helmet",
+    attunement: { key: "phalanxbaneChargedBoost", value: 0.0245678912345678 },
+  }
+  const equipped = { helmet: item.id }
+  const builds = ["mine", "other"].map(id => ({
+    id,
+    name: id,
+    martialArts: [...weapons],
+    equipped,
+    setup: normalizeBuildSetup({}),
+  }))
+  useGearStore.setState({ buildState: { entries: builds, gearItems: [item], activeBuildId: "mine" } })
+  const { container, render, cleanup } = mountBuildInventory(weapons)
+  try {
+    await render()
+    await act(async () => container.querySelector<HTMLButtonElement>('[data-testid="equipped-helmet"]')!.click())
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-label="ui.buildTab.edit"]')!.click())
+
+    const editor = container.querySelector('[data-testid="gear-editor"]')!
+    const currentAttunement = editor.querySelector<HTMLOptionElement>('option[value="phalanxbaneChargedBoost"]')!
+    expect(currentAttunement.selected).toBe(true)
+    expect(currentAttunement.disabled).toBe(true)
+
+    const name = editor.querySelector<HTMLInputElement>("input[maxlength]")!
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(name, "Renamed helmet")
+      name.dispatchEvent(new Event("input", { bubbles: true }))
+    })
+    const save = [...editor.querySelectorAll("button")].find(
+      button => button.textContent === "ui.buildTab.saveChanges",
+    )!
+    await act(async () => save.click())
+
+    const saved = useGearStore.getState().buildState
+    expect(saved.gearItems).toEqual([{ ...item, name: "Renamed helmet" }])
+    expect(saved.entries.map(build => build.equipped)).toEqual([equipped, equipped])
+    expect(container.querySelector('[data-testid="gear-editor"]')).toBeNull()
+  } finally {
+    await cleanup()
   }
 })

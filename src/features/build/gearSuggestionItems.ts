@@ -69,14 +69,12 @@ export function gearSuggestionTargets(input: {
 export function suggestionItem(draft: GearDraft, definitionId: string, slot: GearSlot): GearItem | undefined {
   const definition = gearData.gear[definitionId]
   if (!definition) return undefined
-  const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed, draft.level)
+  const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes)
   if (!baseAffix) return undefined
   const additionalDrafts = draft.additionalAffixes.filter(affix => affix.key || affix.value.trim())
-  const additionalAffixes = additionalDrafts.map(affix =>
-    normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed, draft.level),
-  )
+  const additionalAffixes = additionalDrafts.map(affix => normalizeDraftValue(affix, gearData.affixes))
   if (additionalAffixes.some(affix => !affix)) return undefined
-  const attunement = normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed, draft.level)
+  const attunement = normalizeDraftValue(draft.attunement, attunementData)
   if ((draft.attunement.key || draft.attunement.value.trim()) && !attunement) return undefined
   return {
     id: "gear-suggestion-draft",

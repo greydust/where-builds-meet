@@ -4,6 +4,7 @@ import { IconCopy, IconEdit, IconPlus, IconPointFilled, IconShare, IconX } from 
 import { nanoid } from "nanoid"
 import {
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useRef,
@@ -32,6 +33,7 @@ import {
   defaultBuildSetup,
   duplicateBuildState,
   duplicateGearItem,
+  limitGearName,
   armorSetDefinitions,
   attunementData,
   attunementsForGearDefinition,
@@ -1462,6 +1464,7 @@ function BuildManagement({
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [removeUnusedOpen, setRemoveUnusedOpen] = useState(false)
   const [draft, setDraft] = useState<GearDraft>(() => newDraft())
+  const [gearName, setGearName] = useState("")
   const [error, setError] = useState("")
   // The candidates currently on screen. Each card reports its own, so the set is what bounds how
   // much measuring a slot asks for, and an empty set means a slot costs nothing to look at.
@@ -1533,6 +1536,7 @@ function BuildManagement({
 
   function beginEdit(item: GearItem) {
     setDraft(itemToDraft(item))
+    setGearName(item.name ?? "")
     setError("")
     setEditingItemId(item.id)
     setPendingDeleteId(null)
@@ -1556,15 +1560,12 @@ function BuildManagement({
   function save() {
     const definition = selected.definition
     if (!definition) return
-    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes, "affix", draft.relayed, draft.level)
+    const existingItem = inventory.items.find(item => item.id === editingItemId)
+    const baseAffix = normalizeDraftValue(draft.baseAffix, gearData.affixes)
     const additionalAffixDrafts = draft.additionalAffixes.filter(affix => affix.key || affix.value.trim())
-    const additionalAffixes = additionalAffixDrafts.map(affix =>
-      normalizeDraftValue(affix, gearData.affixes, "affix", draft.relayed, draft.level),
-    )
+    const additionalAffixes = additionalAffixDrafts.map(affix => normalizeDraftValue(affix, gearData.affixes))
     const hasAttunementDraft = Boolean(draft.attunement.key || draft.attunement.value.trim())
-    const attunement = hasAttunementDraft
-      ? normalizeDraftValue(draft.attunement, attunementData, "attunement", draft.relayed, draft.level)
-      : undefined
+    const attunement = hasAttunementDraft ? normalizeDraftValue(draft.attunement, attunementData) : undefined
     if (!baseAffix) {
       setError(t("ui.buildTab.baseAffixValueError"))
       return
@@ -1577,7 +1578,10 @@ function BuildManagement({
       setError(t("ui.buildTab.optionalAttributeError"))
       return
     }
-    if (attunement && !attunementOptions.includes(attunement.key)) {
+    const existingAttunement = existingItem?.attunement
+    const unchangedAttunement =
+      attunement && existingAttunement?.key === attunement.key && Object.is(existingAttunement.value, attunement.value)
+    if (attunement && !unchangedAttunement && !attunementOptions.includes(attunement.key)) {
       setError(t("ui.buildTab.attunementAvailabilityError"))
       return
     }
@@ -1592,10 +1596,12 @@ function BuildManagement({
       setError(t("ui.buildTab.duplicateAffixError"))
       return
     }
-    const existingItem = editingItemId ? inventory.items.find(candidate => candidate.id === editingItemId) : undefined
+    const existingName = existingItem?.name ?? ""
+    const enteredName = editingItemId === null ? "" : gearName
+    const name = enteredName === existingName ? existingName : limitGearName(enteredName)
     const item: GearItem = {
       id: editingItemId ?? createGearId(),
-      ...(existingItem?.name ? { name: existingItem.name } : {}),
+      ...(name ? { name } : {}),
       ...(definition.weapon ? {} : { slot: selectedSlot }),
       definitionId: selected.definitionId,
       level: draft.level,
@@ -1606,7 +1612,7 @@ function BuildManagement({
         : {}),
       baseAffix,
       additionalAffixes: normalizedAdditional,
-      ...(attunement ? { attunement } : {}),
+      ...(attunement ? { attunement: unchangedAttunement ? existingAttunement : attunement } : {}),
     }
     onInventoryChange(current => ({
       ...current,
@@ -1620,24 +1626,8 @@ function BuildManagement({
     setError("")
   }
 
-  function rename(item: GearItem) {
-    const definitionName = gameText(gearData.gear[item.definitionId]?.name) || t("ui.buildTab.gear")
-    const currentName = item.name?.trim() || ""
-    const nextName = window.prompt(t("ui.app.renameNamedProfile", { name: currentName || definitionName }), currentName)
-    if (nextName === null) return
-    const name = nextName.trim()
-    onInventoryChange(current => ({
-      ...current,
-      items: current.items.map(candidate =>
-        candidate.id === item.id ? { ...candidate, name: name || undefined } : candidate,
-      ),
-    }))
-  }
-
   function duplicate(item: GearItem) {
-    const definitionName =
-      item.name?.trim() || gameText(gearData.gear[item.definitionId]?.name) || t("ui.buildTab.gear")
-    const copy = duplicateGearItem(item, createGearId(), t("ui.app.copyOfName", { name: definitionName }))
+    const copy = duplicateGearItem(item, createGearId())
     onInventoryChange(current => ({ ...current, items: [...current.items, copy] }))
     setPendingDeleteId(null)
   }
@@ -1695,9 +1685,11 @@ function BuildManagement({
     () => new Set(draft.additionalAffixes.map(affix => affix.key).filter(Boolean)),
     [draft.additionalAffixes],
   )
+  const gearNameField = useMemo(() => ({ value: gearName, onChange: setGearName }), [gearName])
+  const showGearSuggestions = useDeferredValue(editing)
   const gearSuggestions = useMemo(
     () =>
-      editing ? (
+      editing && showGearSuggestions ? (
         <GearSuggestions
           draft={draft}
           definitionId={selected.definitionId}
@@ -1708,9 +1700,14 @@ function BuildManagement({
           rotation={activeRotation}
           editingItemId={editingItemId ?? undefined}
         />
-      ) : undefined,
+      ) : (
+        <aside className="gear-suggestions" aria-label={t("ui.gearSuggestions.retune")}>
+          <output>{t("ui.gearSuggestions.calculating")}</output>
+        </aside>
+      ),
     [
       editing,
+      showGearSuggestions,
       draft,
       selected.definitionId,
       selectedSlot,
@@ -1773,7 +1770,6 @@ function BuildManagement({
                     usageCount={usageCounts.get(item.id) ?? 0}
                     onEquip={() => equip(item)}
                     onEdit={() => beginEdit(item)}
-                    onRename={() => rename(item)}
                     onDuplicate={() => duplicate(item)}
                     onDelete={() => remove(item)}
                     deleting={pendingDeleteId === item.id}
@@ -1834,6 +1830,7 @@ function BuildManagement({
                 definitionId={selected.definitionId}
                 definitionName={gameText(selected.definition.name)}
                 editingExisting={editingItemId !== null}
+                nameField={editingItemId !== null ? gearNameField : undefined}
                 draft={draft}
                 error={error}
                 baseAffixOptions={baseAffixOptions}
