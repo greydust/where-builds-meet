@@ -277,7 +277,7 @@ Attachments expand after readiness. Response alignment can extend the ordered
 rotation, and dummy attacks remain part of that same event loop.
 
 Accepted casts register response windows. An incoming hit inside a window is
-avoided and queues one causal `attackResponse` event per defensive cast, ahead
+avoided and queues one causal `attackResponse` event per window by default, ahead
 of later outgoing events at that timestamp. A Take Damage action with zero
 resolved damage still counts as an incoming hit for this response path. A
 manually authored zero-damage Take Damage event also runs the Take Damage

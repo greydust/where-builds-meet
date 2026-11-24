@@ -91,8 +91,10 @@ export type SkillRecord = {
   /** An inert charging component: no actions, cooldown, or skill-start notifications. */
   silent?: boolean
   attackResponse?: {
-    /** Maximum cast-relative response window, clipped by an earlier cast end. */
+    /** Window length. The default cast-start window is clipped by an earlier cast end. */
     duration?: number | SwitchValue
+    /** Independent window starts in seconds relative to the cast start. */
+    starts?: number[]
     endMargin?: number
     durationFrom?: string
     /** Replace the still-active cast's recovery with this delay after success. */
@@ -1437,17 +1439,17 @@ export function buildRotationTimeline(
   const alignedAttacks = new Map<TimelineRow, number>()
   const fallbackResponseRows = new WeakSet<TimelineRow>()
   const reservedAttacks = new Set<number>()
-  const responseWindows: Array<{ row: TimelineRow; endTime: number; succeeded: boolean }> = []
+  type ResponseWindow = { row: TimelineRow; startTime: number; endTime: number; succeeded: boolean }
+  const responseWindows: ResponseWindow[] = []
   type ResponseContext = Pick<TimelineRow, "currentMartialArt" | "currentWeapon">
   const responseContexts = new Map<TimelineRow, ResponseContext>()
   let responseContext: ResponseContext | undefined
-  const queueAttackResponse = (row: TimelineRow, time: number, sortOrder: number[]) => {
-    const response = responseWindows.find(candidate => candidate.row === row)
-    if (!response || (response.succeeded && !row.skill?.attackResponse?.perAttack)) return false
+  const queueAttackResponse = (response: ResponseWindow, time: number, sortOrder: number[]) => {
+    const { row } = response
+    if (response.succeeded && !row.skill?.attackResponse?.perAttack) return
     response.succeeded = true
     responseContexts.set(row, { currentMartialArt: row.currentMartialArt, currentWeapon: row.currentWeapon })
     events.push({ kind: "attackResponse", row, time, sortOrder: [...sortOrder, 0] })
-    return true
   }
 
   type ResolvedAttachment = { eventRow: TimelineRow; target: AttachedEventTarget; placement: "before" | "after" }
@@ -3975,21 +3977,24 @@ export function buildRotationTimeline(
           event.row.startTime + Math.max(event.row.effectiveCastTime, lastActionTime),
         )
       }
-      if (event.row.skill?.attackResponse) {
-        responseWindows.push({
-          row: event.row,
-          endTime:
-            event.time +
-            Math.min(
-              responseWindowLimit(event.row.skill),
-              event.row.skill.attackResponse.durationFrom
-                ? responseDuration(event.row.skill, event.time)
-                : event.row.effectiveCastTime,
-            ),
-          succeeded: false,
-        })
-        if (event.row.skill.attackResponse.fallback && fallbackResponseRows.has(event.row))
-          queueAttackResponse(event.row, event.time, event.sortOrder)
+      const response = event.row.skill?.attackResponse
+      if (event.row.skill && response) {
+        const limit = responseWindowLimit(event.row.skill)
+        const duration = response.durationFrom
+          ? responseDuration(event.row.skill, event.time)
+          : event.row.effectiveCastTime
+        for (const offset of response.starts ?? [0]) {
+          const startTime = event.time + offset
+          const window = {
+            row: event.row,
+            startTime,
+            endTime: startTime + (response.starts ? limit : Math.min(limit, duration)),
+            succeeded: false,
+          }
+          responseWindows.push(window)
+          if (offset === 0 && response.fallback && fallbackResponseRows.has(event.row))
+            queueAttackResponse(window, event.time, event.sortOrder)
+        }
       }
       if (
         (resolveAction?.onCastEnd ||
@@ -5035,15 +5040,15 @@ export function buildRotationTimeline(
     }
     if (action.type === "takeDamage" && typeof action.damage === "number" && Number.isFinite(action.damage)) {
       const activeResponses = responseWindows.filter(
-        ({ row, endTime }) =>
-          compareTimelineTime(event.time, row.startTime) >= 0 && compareTimelineTime(event.time, endTime) <= 0,
+        ({ startTime, endTime }) =>
+          compareTimelineTime(event.time, startTime) >= 0 && compareTimelineTime(event.time, endTime) <= 0,
       )
       // A Take Damage action is an incoming attack even when its resolved HP loss is zero.
       // This lets zero-damage manual events activate responses.
       // Overlapping windows can avoid the same attack, but cannot award its
       // response twice. Attribute it to the most recently started action.
       const response = activeResponses.at(-1)
-      if (response) queueAttackResponse(response.row, event.time, event.sortOrder)
+      if (response) queueAttackResponse(response, event.time, event.sortOrder)
       const incomingDamage = Math.max(0, action.damage)
       // Incoming attacks use the pre-hit HP and stacks, before takeDamage triggers.
       const incomingEffects = [

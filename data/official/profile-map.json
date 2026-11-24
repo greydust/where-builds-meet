@@ -6,7 +6,10 @@
     "10202": { "name": "Nameless Spear", "weapon": "namelessSpear" },
     "10301": { "name": "Panacea Fan", "weapon": "panaceaFan" },
     "10302": { "name": "Inkwell Fan", "weapon": "inkwellFan" },
+    "10306": { "name": "Willowbend Fan", "weapon": "willowbendFan" },
     "20103": { "name": "Stormbreaker Spear", "weapon": "stormbreaker" },
+    "20204": { "name": "Trialedge Spear", "weapon": "jueyuXuanfengSpear" },
+    "20205": { "name": "Peakwane Spear", "weapon": "boshanQuyueSpear" },
     "20401": { "name": "Thundercry Blade", "weapon": "thundercry" },
     "20402": { "name": "Phalanxbane Blade", "weapon": "phalanxbane" },
     "20501": { "name": "Infernal Twinblades", "weapon": "infernalTwinblades" },
@@ -19,7 +22,8 @@
     "20703": { "name": "Skygrasp Rope Dart", "weapon": "skygrasp" },
     "20801": { "name": "Snowparting Blade", "weapon": "snowparting" },
     "20901": { "name": "Heavenwill Gauntlets", "weapon": "heavenwill" },
-    "20902": { "name": "Skystrike Gauntlets", "weapon": "skystrikeGauntlets" }
+    "20902": { "name": "Skystrike Gauntlets", "weapon": "skystrikeGauntlets" },
+    "21001": { "name": "Museflow Waist Drum", "weapon": "museflowWaistDrum" }
   },
   "innerWays": {
     "1": { "name": "Wind Beneath Wings", "innerWay": "WindBeneathWings" },
@@ -38,6 +42,7 @@
     "48": { "name": "Heart of Fire", "innerWay": "HeartOfFire" },
     "81": { "name": "Morale Chant", "innerWay": "MoraleChant" },
     "82": { "name": "Seasonal Edge", "innerWay": "SeasonalEdge" },
+    "83": { "name": "月湧方圓", "innerWay": "YueYongFangYuan" },
     "101": { "name": "Mountain's Might", "innerWay": "MountainsMight" },
     "102": { "name": "Wildfire Spark", "innerWay": "WildfireSpark" },
     "103": { "name": "Battle Anthem", "innerWay": "BattleAnthem" },
@@ -74,11 +79,18 @@
     "602": { "name": "Sky Gripped", "innerWay": "SkyGripped" },
     "603": { "name": "Empirical Edge", "innerWay": "EmpiricalEdge" },
     "604": { "name": "Celestial Vigor", "innerWay": "CelestialVigor" },
-    "651": { "name": "Harmony Song" },
+    "651": { "name": "Harmony Song", "innerWay": "HarmonySong" },
+    "652": { "name": "Zephyr Whispers", "innerWay": "ZephyrWhispers" },
+    "653": { "name": "Ink and Strings", "innerWay": "InkAndStrings" },
+    "654": { "name": "Blade's Will", "innerWay": "BladesWill" },
     "701": { "name": "Eonpour", "innerWay": "Eonpour" },
     "702": { "name": "Skyspeak", "innerWay": "Skyspeak" },
     "703": { "name": "Mistwing", "innerWay": "Mistwing" },
-    "704": { "name": "Volutefit", "innerWay": "Volutefit" }
+    "704": { "name": "Volutefit", "innerWay": "Volutefit" },
+    "751": { "name": "神斷青鋒", "innerWay": "ShenDuanQingFeng" },
+    "752": { "name": "浮梁一夜", "innerWay": "FuLiangYiYe" },
+    "753": { "name": "明非通判", "innerWay": "MingFeiTongPan" },
+    "754": { "name": "歲星竊桃", "innerWay": "SuiXingQieTao" }
   },
   "weaponSets": {
     "1": { "weaponSet": "Jadeware" },
@@ -91,7 +103,9 @@
     "29": { "weaponSet": "Ivorybloom" },
     "34": { "weaponSet": "Starweave" },
     "50": { "weaponSet": "Cleftpeak" },
-    "56": { "weaponSet": "Etherwrath" }
+    "56": { "weaponSet": "Etherwrath" },
+    "79": { "weaponSet": "Tiltrim" },
+    "85": { "weaponSet": "HanMang" }
   },
   "armorSets": {
     "2": { "armorSet": "Formbend" },
@@ -103,7 +117,9 @@
     "26": { "armorSet": "BeyondtheChill" },
     "30": { "armorSet": "Whirlsnow" },
     "35": { "armorSet": "Jadeclasp" },
-    "51": { "armorSet": "Ebonward" }
+    "51": { "armorSet": "Ebonward" },
+    "57": { "armorSet": "Honorbound" },
+    "80": { "armorSet": "Brimflow" }
   },
   "bowRingSets": {
     "44": { "bowRingSet": "Precision" },
