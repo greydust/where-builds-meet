@@ -4,6 +4,7 @@ import generalBuffs from "@gamedata/buff/general.json"
 import mysticBuffs from "@gamedata/buff/mystic.json"
 import infernal from "@gamedata/martial-art/infernal-twinblades.json"
 import general from "@gamedata/skill/general.json"
+import waistDrum from "@gamedata/skill/museflow-waist-drum.json"
 import mystic from "@gamedata/skill/mystic.json"
 import { describe, expect, it } from "vitest"
 
@@ -26,6 +27,7 @@ const input = (steps: RotationStep[]): TimelineBuildInput => ({
   skills: asSkillRecords({
     ...general,
     ...mystic,
+    ...waistDrum,
     Follow: { castTime: 1, action: [0.06, 0.36, 0.47].map(time => ({ type: "damage", phyCoef: 1, time })) },
   }),
   eventDefinitions: { TakeDamage: { action: [{ type: "takeDamage", time: 0 }] }, BattleEnd: { action: [] } },
@@ -47,6 +49,25 @@ const incoming = (rows: ReturnType<typeof buildRotationTimeline>) =>
     .flatMap(row => row.actions.filter(action => action.type === "takeDamage").map(action => action.damage))
 
 describe("attack response windows", () => {
+  it.each([
+    { skill: "RippleJadebreaker", beats: [2.5, 3.5, 4.5] },
+    { skill: "RippleDawnsun", beats: [2.3, 4.2] },
+    { skill: "RippleFlourishingNotes", beats: [2.5, 4.3] },
+  ])("resolves separate QTE and beat dodges for $skill", ({ skill, beats }) => {
+    const setup = input([cast(skill), end(7)])
+    const idleRows = buildRotationTimeline(setup)
+    expect(rowsFor(idleRows, "PerfectDodgeSuccess")).toHaveLength(0)
+    const [{ startTime }] = rowsFor(idleRows, skill)
+    const hits = [0.7, 0.8, ...beats].map(offset => startTime + offset)
+    setup.rotation.steps.push(attack(startTime + 0.5), ...hits.map(time => attack(time)), attack(startTime + 1.2))
+    const rows = buildRotationTimeline(setup)
+    const [drum] = rowsFor(rows, skill)
+    const successes = rowsFor(rows, "PerfectDodgeSuccess")
+    expect(successes.map(row => row.startTime)).toEqual([hits[0], ...hits.slice(2)])
+    expect(successes.map(row => row.sourceRowId)).toEqual(successes.map(() => drum.id))
+    expect(incoming(rows)).toEqual([200, 0, 0, 200, ...beats.map(() => 0)])
+  })
+
   it("awards one dodge when a canceled dodge overlaps Soaring and paired attacks", () => {
     const rows = buildRotationTimeline(
       input([cast("PerfectDodgeCancel"), cast("SoaringSpin2"), attack(5), attack(5), end(7)]),

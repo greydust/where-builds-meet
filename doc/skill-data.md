@@ -545,12 +545,20 @@ skill-start notifications. `waitForRequirement: true` requires a silent,
 unconditional prefix; see [readiness after charging](rotation-event-loop.md#readiness-after-charging).
 
 `attackResponse` declares `onSuccess`, optional `endMargin`, `durationFrom`, and
-`perAttack`. An incoming hit within the window is avoided and triggers success
+`perAttack`. Use `starts` with `duration` to give a cast independent windows at
+fixed offsets in seconds. Their lengths are independent of blocking cast time.
+An incoming hit within a window is avoided and triggers success
 at impact, preserving the defensive cast's attribution/context. Default success
-is once per cast; `perAttack` permits every positive incoming hit. No incoming
+is once per window; `perAttack` permits every incoming hit. No incoming
 attack means no success reward. `durationFrom` shares a response window without
 forcing the same blocking cast duration. Full alignment rules are in the
 [event-loop reference](rotation-event-loop.md#incoming-attack-readiness-and-success).
+
+Rippling Dew uses the November 23 normal action data for skill `21001105`.
+Each modeled route includes the 0.566-second QTE window start and the drumbeat
+window starts for that rhythm. Each window lasts 0.5 seconds. The rotation
+selects the rhythm and uses the exported beat clocks as fixed offsets. Toneflux
+uses those offsets with its existing zero blocking cast time.
 
 ## Effects and Inner Ways
 
