@@ -481,7 +481,14 @@
     gap: var(--space-xs);
   }
 
+  .gear-card-topline > strong,
+  .gear-card-identity > strong {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
   .gear-card-usage {
+    flex-shrink: 0;
     margin-inline-start: auto;
     color: var(--text-muted);
   }

@@ -63,6 +63,7 @@ const card = (props: Partial<Parameters<typeof AvailableGearCard>[0]> = {}) =>
         onDelete={vi.fn<() => void>()}
         deleting={false}
         {...props}
+        onDuplicate={props.onDuplicate ?? vi.fn<() => void>()}
       />,
     ),
   )
@@ -117,6 +118,7 @@ describe("a candidate in the inventory", () => {
           usageCount={0}
           onEquip={vi.fn<() => void>()}
           onEdit={vi.fn<() => void>()}
+          onDuplicate={vi.fn<() => void>()}
           onDelete={() => {
             if (!isArmed) {
               setArmed(true)

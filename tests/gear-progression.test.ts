@@ -159,6 +159,17 @@ describe("gear progression", () => {
     expect(otherEnemy.attunementPriority).toEqual(bundle.attunementPriority)
   })
 
+  it("reuses named inventory items when duplicating a preset with matching gear values", () => {
+    const presetInventory = buildPresetInventory(preset, 100)
+    const gearItems = presetInventory.items.map(item => ({ ...item, name: "My gear" }))
+    const state = { entries: [build], activeBuildId: build.id, gearItems }
+    const copied = duplicateBuildState(state, build.id, { id: "copy", name: "Copy" }, 100)
+
+    expect(gearItems.length).toBeGreaterThan(0)
+    expect(copied.gearItems).toEqual(gearItems)
+    expect(copied.entries.find(entry => entry.id === "copy")?.equipped).toEqual(presetInventory.equipped)
+  })
+
   it("copies the selected preset tier and preserves existing stored items", () => {
     const old = buildPresetInventory(preset, 96)
     const state = { entries: [build], activeBuildId: build.id, gearItems: old.items }

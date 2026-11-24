@@ -54,9 +54,21 @@ export type BuildSetup = {
 }
 export type BuildSetupOverrides = Partial<BuildSetup>
 
+export const gearNameMaxLength = 20
+
+export function limitGearName(name: string) {
+  return name
+    .trim()
+    .slice(0, gearNameMaxLength)
+    .replace(/[\uD800-\uDBFF]$/, "")
+    .trimEnd()
+}
+
 export type GearValue = { key: string; value: number }
 export type GearItem = {
   id: string
+  /** Optional user-defined label for this individual inventory item. */
+  name?: string
   slot?: GearSlot
   definitionId: string
   level: GearLevel
@@ -542,8 +554,10 @@ function parseGearItem(value: unknown): GearItem | undefined {
         ? candidate.attunement
         : undefined
   if (candidate.attunement !== undefined && !attunement) return undefined
+  const name = typeof candidate.name === "string" ? candidate.name.trim() : ""
   return {
     id: candidate.id,
+    ...(name ? { name } : {}),
     ...(definition.weapon ? {} : { slot }),
     definitionId: candidate.definitionId,
     level,
@@ -713,7 +727,7 @@ function duplicateGearId(buildId: string, slot: GearSlot, usedIds: Set<string>) 
   return id
 }
 
-function cloneGearItem(item: GearItem, id: string): GearItem {
+export function duplicateGearItem(item: GearItem, id: string): GearItem {
   return {
     ...item,
     id,
@@ -754,9 +768,9 @@ export function duplicateBuildState(
       const presetItem = presetItemId ? presetInventory.items.find(item => item.id === presetItemId) : undefined
       if (!presetItem) return []
       const existing = [...current.gearItems, ...addedItems].find(
-        candidate => !equippedGearIds.has(candidate.id) && gearItemsExactlyMatch(candidate, presetItem),
+        candidate => !equippedGearIds.has(candidate.id) && gearValuesMatch(candidate, presetItem),
       )
-      const item = existing ?? cloneGearItem(presetItem, duplicateGearId(duplicate.id, slot, usedGearIds))
+      const item = existing ?? duplicateGearItem(presetItem, duplicateGearId(duplicate.id, slot, usedGearIds))
       if (!existing) addedItems.push(item)
       equippedGearIds.add(item.id)
       return [[slot, item.id]]
@@ -897,7 +911,7 @@ function comparableGearValue(value: GearValue) {
   return `${value.key}\u0000${value.value}`
 }
 
-function gearItemsExactlyMatch(left: GearItem, right: GearItem) {
+function gearValuesMatch(left: GearItem, right: GearItem) {
   if (
     left.definitionId !== right.definitionId ||
     left.level !== right.level ||
@@ -948,7 +962,9 @@ export function mergeImportedBuildState(
   const addedItems: GearItem[] = []
   for (const item of importedItems) {
     const existing = options.reuseIdenticalGear
-      ? [...current.gearItems, ...addedItems].find(candidate => gearItemsExactlyMatch(candidate, item))
+      ? [...current.gearItems, ...addedItems].find(
+          candidate => (candidate.name ?? "") === (item.name ?? "") && gearValuesMatch(candidate, item),
+        )
       : undefined
     if (existing) {
       gearIdMap.set(item.id, existing.id)

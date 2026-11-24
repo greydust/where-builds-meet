@@ -2,9 +2,9 @@ import { readFile } from "node:fs/promises"
 
 import { build } from "esbuild"
 import ts from "typescript-classic"
-import { assert, describe, it } from "vitest"
+import { assert, describe, expect, it } from "vitest"
 
-import type { GearItem } from "@/gear"
+import { buildPresetInventory, defaultBuildPresets, parseGearInventory, type GearItem } from "@/gear"
 
 import { alias } from "../aliases"
 import { setupOf, weaponsOf, type ExportedBuildPayload, type SerializedBuildPayload } from "./helpers/buildStatePayload"
@@ -14,6 +14,16 @@ import { weaponPair } from "./helpers/weaponPair"
 
 // Ported from script/probe/check-gear.mjs.
 describe("gear", () => {
+  it.each([null, 42, { label: "Helmet" }])("ignores the invalid gear label %j without losing equipped items", name => {
+    const preset = defaultBuildPresets.find(candidate => candidate.id !== "empty")
+    assert(preset)
+    const inventory = parseGearInventory(buildPresetInventory(preset))
+    expect(Object.keys(inventory.equipped).length).toBeGreaterThan(0)
+    expect(parseGearInventory({ ...inventory, items: inventory.items.map(item => ({ ...item, name })) })).toEqual(
+      inventory,
+    )
+  })
+
   it("Gear inventory, equipped-effect, and persistence checks passed", async () => {
     // The build typechecks with TypeScript 7, whose package no longer exposes the
     // classic compiler API. These build-tool scripts keep using it via alias.
@@ -79,6 +89,33 @@ describe("gear", () => {
             { key: "minPhys", count: 2 },
           ]),
       "Build affix summaries must count and sort equipped base and additional affixes without counting attunements.",
+    )
+    const gearFixturePreset = gear.defaultBuildPresets.find(candidate => candidate.id !== "empty")
+    assert(gearFixturePreset !== undefined, "A non-empty default preset must be available for the gear test fixture.")
+    const namedPresetInventory = gear.buildPresetInventory(gearFixturePreset)
+    const presetItem = namedPresetInventory.items[0]
+    assert(presetItem !== undefined, "The default preset must provide a valid gear test fixture.")
+    const namedInventory = gear.parseGearInventory({
+      items: [{ ...presetItem, id: "named-helmet", name: "Boss Helmet for Raid", turnedAffixIndex: 0 }],
+      equipped: {},
+    })
+    const namedItem = namedInventory.items[0]
+    assert(namedItem?.name === "Boss Helmet for Raid", "A custom gear name must survive inventory validation.")
+    assert(namedItem !== undefined, "The named gear fixture must parse.")
+    const copiedItem = gear.duplicateGearItem(namedItem, "named-helmet-copy")
+    assert(
+      copiedItem.id !== namedItem.id &&
+        copiedItem.name === namedItem.name &&
+        copiedItem.turnedAffixIndex === namedItem.turnedAffixIndex &&
+        copiedItem.additionalAffixes !== namedItem.additionalAffixes &&
+        copiedItem.additionalAffixes[0] !== namedItem.additionalAffixes[0],
+      "Duplicating gear must create a separate item while preserving its retuned affix and values.",
+    )
+    const originalAffixValue = namedItem.additionalAffixes[0].value
+    copiedItem.additionalAffixes[0].value = originalAffixValue + 1
+    assert(
+      namedItem.additionalAffixes[0].value === originalAffixValue,
+      "Editing a duplicated affix must not mutate the original gear item.",
     )
     assert(
       gear.statRollsForLevel(breakthroughProfiles["17"].level) === gear.statRollsForLevel(96),

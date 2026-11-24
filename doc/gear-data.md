@@ -117,13 +117,19 @@ gear item can therefore be equipped by any number of builds, while changing one
 build's loadout does not change another build's equipped choices. Only the
 active build contributes to character and rotation calculations.
 
-Each shared item stores its definition ID, level, rarity, optional `relayed`
-status, one required base affix, zero to four additional affixes, and an optional
-attunement. Non-weapon items also store their armor
-slot; weapon items leave positioning to the build's `equipped.leftWeapon` and
-`equipped.rightWeapon` references. Editing an item updates it for every build
-that equips it. Deleting an item removes it from the shared inventory and
-unequips it from every build.
+Each shared item stores its definition ID, level, rarity, optional user-defined
+`name`, optional `relayed` status, one required base affix, zero to four
+additional affixes, and an optional attunement. The optional name labels that
+individual inventory item; the definition ID remains authoritative for its
+equipment type and calculations. Renaming keeps the item ID, so the label
+appears in every build that equips it. Duplicating creates a new item ID with
+the same label, gear values, and retuned-affix marker, but does not equip the copy in
+any build. Non-weapon items also store their armor slot; weapon items leave
+positioning to the build's `equipped.leftWeapon` and `equipped.rightWeapon`
+references. Editing an item updates it for every build that equips it. Deleting
+an item removes it from the shared inventory and unequips it from every build.
+When duplicating a preset build, matching gear can be reused regardless of its
+label. Imports that reuse matching gear also require the labels to match.
 
 The loader migrates the previous array payload, where each build owned a full
 inventory, into shared gear plus per-build loadouts. All items are retained;

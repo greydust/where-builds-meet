@@ -4,6 +4,7 @@ const unknownRecord = v.record(v.string(), v.unknown())
 
 export const gearItemInputSchema = v.looseObject({
   id: v.string(),
+  name: v.optional(v.unknown()),
   definitionId: v.string(),
   level: v.pipe(v.number(), v.finite()),
   rarity: v.string(),

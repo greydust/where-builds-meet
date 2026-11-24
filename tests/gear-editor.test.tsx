@@ -3,7 +3,13 @@ import { act } from "react"
 import { createRoot, type Root } from "react-dom/client"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
-import { capAndFilterGearDraft, GearEditor, newDraft } from "@/features/build/GearEditor"
+import {
+  capAndFilterGearDraft,
+  GearEditor,
+  newDraft,
+  normalizeDraftValue,
+  savedValueToDraft,
+} from "@/features/build/GearEditor"
 import { affixOptionsForGearDefinition, attunementsForGearDefinition, gearData } from "@/gear"
 
 describe("GearEditor", () => {
@@ -23,6 +29,24 @@ describe("GearEditor", () => {
     await act(async () => root.unmount())
     container.remove()
   })
+
+  it.each([
+    ["body", 123.45678912345679],
+    ["allMysticDmgBoost", 0.12345678912345678],
+    ["allMysticDmgBoost", 0.30000000000000004],
+    ["allMysticDmgBoost", Number.MIN_VALUE],
+  ])("preserves an untouched %s roll of %s exactly", (key, value) => {
+    const saved = { key, value }
+    expect(normalizeDraftValue(savedValueToDraft(saved, gearData.affixes), gearData.affixes)).toEqual(saved)
+  })
+
+  it.each(["12.345678912345678", "1.2345678912345678e1"])(
+    "stores the exact decimal ratio for an edited percentage of %s",
+    value => {
+      const key = "allMysticDmgBoost"
+      expect(normalizeDraftValue({ key, value }, gearData.affixes)?.value).toBe(0.12345678912345678)
+    },
+  )
 
   it.each(["areaMysticDmgBoost", "singleTargetMysticDmgBoost"])("converts %s when changing to tier 100", key => {
     const draft = newDraft(96)
