@@ -89,6 +89,7 @@ import {
   itemToDraft,
   newDraft,
   normalizeDraftValue,
+  savedValueToDraft,
   type GearDraft,
 } from "./GearEditor"
 import { GearSuggestions } from "./GearSuggestions"
@@ -1580,7 +1581,8 @@ function BuildManagement({
     }
     const existingAttunement = existingItem?.attunement
     const unchangedAttunement =
-      attunement && existingAttunement?.key === attunement.key && Object.is(existingAttunement.value, attunement.value)
+      existingAttunement?.key === draft.attunement.key &&
+      savedValueToDraft(existingAttunement, attunementData).value === draft.attunement.value
     if (attunement && !unchangedAttunement && !attunementOptions.includes(attunement.key)) {
       setError(t("ui.buildTab.attunementAvailabilityError"))
       return

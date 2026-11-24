@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 
 import {
   capAndFilterGearDraft,
+  capGearDraft,
   GearEditor,
   newDraft,
   normalizeDraftValue,
@@ -31,22 +32,30 @@ describe("GearEditor", () => {
   })
 
   it.each([
-    ["body", 123.45678912345679],
-    ["allMysticDmgBoost", 0.12345678912345678],
-    ["allMysticDmgBoost", 0.30000000000000004],
-    ["allMysticDmgBoost", Number.MIN_VALUE],
-  ])("preserves an untouched %s roll of %s exactly", (key, value) => {
-    const saved = { key, value }
-    expect(normalizeDraftValue(savedValueToDraft(saved, gearData.affixes), gearData.affixes)).toEqual(saved)
+    ["body", 123.45678912345679, "123.45679", 123.45679],
+    ["allMysticDmgBoost", 0.12345678912345678, "12.34568", 0.1234568],
+    ["allMysticDmgBoost", 0.30000000000000004, "30", 0.3],
+  ])("rounds a %s roll of %s to five decimals in editor units", (key, value, input, stored) => {
+    const draft = savedValueToDraft({ key, value }, gearData.affixes)
+    expect(draft.value).toBe(input)
+    expect(normalizeDraftValue(draft, gearData.affixes)?.value).toBe(stored)
   })
 
   it.each(["12.345678912345678", "1.2345678912345678e1"])(
-    "stores the exact decimal ratio for an edited percentage of %s",
+    "rounds an edited percentage of %s before converting it to a stored ratio",
     value => {
       const key = "allMysticDmgBoost"
-      expect(normalizeDraftValue({ key, value }, gearData.affixes)?.value).toBe(0.12345678912345678)
+      expect(normalizeDraftValue({ key, value }, gearData.affixes)?.value).toBe(0.1234568)
     },
   )
+
+  it("cleans up floating-point tails when relaying a roll", () => {
+    const draft = newDraft()
+    draft.baseAffix = { key: "maxPhys", value: "100" }
+    const relayed = capGearDraft(draft, true)
+    expect(relayed.baseAffix.value).toBe("85.164")
+    expect(normalizeDraftValue(relayed.baseAffix, gearData.affixes)?.value).toBe(85.164)
+  })
 
   it.each(["areaMysticDmgBoost", "singleTargetMysticDmgBoost"])("converts %s when changing to tier 100", key => {
     const draft = newDraft(96)

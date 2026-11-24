@@ -63,21 +63,6 @@ function readDraftNumber(value: string, percentage: boolean) {
   return Number(`${digits}e${Number(exponent) - 2}`)
 }
 
-function editableNumber(value: number, percentage: boolean) {
-  if (Object.is(value, -0)) return "-0"
-  if (!percentage) return String(value)
-  const [mantissa, exponent = "0"] = String(value).split("e")
-  const [integer, fraction = ""] = mantissa.split(".")
-  const digits = integer + fraction
-  const point = integer.length + Number(exponent) + 2
-  if (point <= 0) return `0.${"0".repeat(-point)}${digits}`
-  const whole = digits
-    .slice(0, point)
-    .padEnd(point, "0")
-    .replace(/^0+(?=\d)/, "")
-  return point >= digits.length ? whole : `${whole}.${digits.slice(point)}`
-}
-
 function draftRollCap(
   key: string,
   definitions: Record<string, GearValueDefinition>,
@@ -87,7 +72,7 @@ function draftRollCap(
 ) {
   const maximum = maxGearRoll(key, category, relayed, level)
   if (typeof maximum !== "number") return undefined
-  return Number(editableNumber(maximum, definitions[key]?.percentage === true))
+  return Number(formatNumber(definitions[key]?.percentage ? maximum * 100 : maximum))
 }
 
 function capDraftValue(
@@ -97,12 +82,11 @@ function capDraftValue(
   relayed: boolean,
   level: GearLevel,
 ) {
-  const maximum = maxGearRoll(value.key, category, relayed, level)
-  const percentage = definitions[value.key]?.percentage === true
-  const numericValue = readDraftNumber(value.value, percentage)
-  if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue) || numericValue <= maximum)
-    return value
-  return { ...value, value: editableNumber(maximum, percentage) }
+  const maximum = draftRollCap(value.key, definitions, category, relayed, level)
+  const numericValue = Number(value.value)
+  if (maximum === undefined || !value.value.trim() || !Number.isFinite(numericValue)) return value
+  if (numericValue <= maximum) return value
+  return { ...value, value: String(maximum) }
 }
 
 export function capGearDraft(draft: GearDraft, relayed = draft.relayed): GearDraft {
@@ -226,16 +210,16 @@ export function createGearId() {
 
 export function normalizeDraftValue(draft: GearValueDraft, definitions: Record<string, GearValueDefinition>) {
   const definition = definitions[draft.key]
-  const value = readDraftNumber(draft.value.trim(), definition?.percentage === true)
+  const value = Number(draft.value)
   if (!definition || !draft.value.trim() || !Number.isFinite(value) || value < 0) return undefined
-  return { key: draft.key, value }
+  return { key: draft.key, value: readDraftNumber(formatNumber(value), definition.percentage === true) }
 }
 
 export function savedValueToDraft(
   value: { key: string; value: number },
   definitions: Record<string, GearValueDefinition>,
 ): GearValueDraft {
-  return { key: value.key, value: editableNumber(value.value, definitions[value.key]?.percentage === true) }
+  return { key: value.key, value: formatNumber(definitions[value.key]?.percentage ? value.value * 100 : value.value) }
 }
 
 export function itemToDraft(item: GearItem): GearDraft {
