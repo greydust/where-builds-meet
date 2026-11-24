@@ -448,6 +448,7 @@ function calculateDamageBreakdownInternal(
     critDmgBonus: unconditional.critDmgBonus ?? 0,
     affinityDmgBonus: unconditional.affinityDmgBonus ?? 0,
     attributeDmgBonus: unconditional.attributeDMGBonus ?? 0,
+    flatMaxPhysicalAttack: unconditional.flatMaxPhysicalAttack ?? 0,
     flatAttackBonus: unconditional.flatAttackBonus ?? 0,
     coefficientBonusWithoutFlatAttack: unconditional.coefficientBonusWithoutFlatAttack ?? 0,
   }
@@ -466,6 +467,7 @@ function calculateDamageBreakdownInternal(
   })
   for (const effect of [...groupedEffects, ...reductionGroups.values()]) {
     if (!hasDamageFields(effect)) continue
+    resolvedEffects.flatMaxPhysicalAttack += effectValue(effect.flatMaxPhysicalAttack)
     resolvedEffects.flatAttackBonus += effectValue(effect.flatAttackBonus)
     resolvedEffects.coefficientBonusWithoutFlatAttack += effectValue(effect.coefficientBonusWithoutFlatAttack)
     resolvedEffects.attackBonus.physical += effectValue(effect.physicalAttackBonus)
@@ -631,12 +633,14 @@ function calculateDamageBreakdownInternal(
   const criticalBonusFor = (snapshot: DerivedStats) =>
     Math.min(1.5, Math.max(0.35, snapshot.effectiveCritDmgBonus + resolvedEffects.critDmgBonus))
   const affinityBonus = Math.min(1.3, Math.max(0.2, stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus))
+  const hitMaxPhysicalAttack = (snapshot: DerivedStats) =>
+    snapshot.effectiveMaxPhys + resolvedEffects.flatMaxPhysicalAttack
   const calculateVariant = (damageType: AttackRollMode, specialBonus: number, snapshot = derivedStats) => {
     const variantStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const physicalChannelStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const physicalAttack = attackValue(
       snapshot.effectiveMinPhys * physicalAttackMultiplier,
-      snapshot.effectiveMaxPhys * physicalAttackMultiplier,
+      hitMaxPhysicalAttack(snapshot) * physicalAttackMultiplier,
       damageType,
     )
     const physicalDamage =
@@ -903,7 +907,7 @@ function calculateDamageBreakdownInternal(
           physicalMultiplier *
           globalMultiplier
         const attack =
-          (derivedStats.effectiveMinPhys * minimumWeight + derivedStats.effectiveMaxPhys * maximumWeight) *
+          (derivedStats.effectiveMinPhys * minimumWeight + hitMaxPhysicalAttack(derivedStats) * maximumWeight) *
           physicalAttackMultiplier
         const unclamped =
           (coefficient * (attack - enemy.defense * (1 + resolvedEffects.defenseBonus)) + physicalBonus) * physicalFactor

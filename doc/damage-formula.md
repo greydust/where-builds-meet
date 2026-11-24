@@ -907,10 +907,15 @@ the derived percentage at hit time.
 Dynamic stat and effective-stat values may use `function: "segment"` with
 `param1: "maxHp"`. Its thresholds are stored in `param2`
 and corresponding results in `param3`; values beyond the final threshold use
-the final result. Thundercry Blade uses this for its Charged/Varied Combo Max
-Physical Attack and Effective Critical Rate talents. The
-talents carry skill-tag requirements, so the worker applies them only to their
-matching damage actions rather than adding them to the displayed global stats.
+the final result. Thundercry Blade uses this for its Charged/Varied Combo
+Effective Critical Rate talent.
+
+Thundercry Blade's Charge Calculation Enhancement uses the damage effect
+`flatMaxPhysicalAttack` on eligible Charged and Varied Combo hits. The hit adds
+`min(4 × floor(Max HP / 5000), talent rank cap)` to the resolved maximum after
+Physical Attack range normalization and before percentage attack multipliers.
+The minimum stays at its resolved value. At a rank with the full +120 bonus,
+raw fixed attack of 2,000–1,000 resolves to a hit range of 2,000–2,120.
 
 Numeric damage-effect values may also use the data-defined `segment` function.
 The optional `mode` selects `LowerBoundInclusive` (default, `<` upper-bound

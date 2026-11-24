@@ -274,6 +274,27 @@ describe("martial-art-talents", () => {
       1060 * (1 + 0.8 * (0.5 + 0.1)),
       "Thundercry effective attack and Critical DMG",
     )
+    for (const [tags, maxHp, expectedMaximum] of [
+      [["ThundercryBlade", "Charged"], 150000, 2120],
+      [["ThundercryBlade", "VariedCombo"], 200000, 2120],
+      [["ThundercryBlade", "Charged"], 149999, 2116],
+      [["ThundercryBlade", "Charged"], 4999, 2000],
+      [["ThundercryBlade", "Special"], 150000, 2000],
+      [["Other", "Charged"], 150000, 2000],
+    ] as const) {
+      const stats = { minPhys: 2000, maxPhys: 1000, maxHp }
+      const averageAttack = (2000 + expectedMaximum) / 2
+      close(
+        run("thundercry", 0, [...tags], { stats }).damage.physical,
+        averageAttack,
+        "Thundercry normal attack averages the clamped minimum and adjusted maximum",
+      )
+      close(
+        run("thundercry", 0, [...tags], { stats: { ...stats, affinity: 0.4 } }).damage.physical,
+        0.6 * averageAttack + 0.4 * expectedMaximum * 1.2,
+        "Thundercry affinity uses the adjusted maximum",
+      )
+    }
     close(
       run("unfettered", 2, [], {
         stats: { crit: 0.6, critDmgBonus: 0.5 },

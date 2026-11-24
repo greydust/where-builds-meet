@@ -4,6 +4,7 @@ import type { CharacterStats } from "@/types"
 export const unconditionalDamageEffectFields = [
   "leech",
   "physicalAttackBonus",
+  "flatMaxPhysicalAttack",
   "flatAttackBonus",
   "coefficientBonusWithoutFlatAttack",
   "bellstrikeAttackBonus",
