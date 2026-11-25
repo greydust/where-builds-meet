@@ -1,14 +1,24 @@
 import { assert, describe, it } from "vitest"
 
+import { innerWayEffectRulesFor } from "@/application/characterComposition"
 import { typedPathDefinitions } from "@/application/gameData/paths"
 import type { InnerWayDefinition } from "@/data/innerWayDefinitions"
-import { innerWayAvailableForTag } from "@/data/innerWayDefinitions"
+import { innerWayAvailableForTag, innerWayEntriesForTag } from "@/data/innerWayDefinitions"
 import { defaultBuildPresets } from "@/gear"
 
 import { probeLoad } from "./helpers/probe-loader.js"
 
 // Ported from script/probe/check-innerway-filter.mjs.
 describe("innerway-filter", () => {
+  it("lets Kite select Battle Anthem and include its rules in the simulation", () => {
+    const options = innerWayEntriesForTag(typedPathDefinitions.bamboocutKite.tag)
+    assert(options.some(([id]) => id === "BattleAnthem"))
+
+    const rules = innerWayEffectRulesFor([{ innerWay: "BattleAnthem", tier: "T6" }], 17, "bamboocutKite")
+    assert(rules.some(rule => rule.trigger?.event === "damageOutcome"))
+    assert(rules.some(rule => rule.tier === 6 && "dmgBonus" in rule.effect))
+  })
+
   it("every path build preset uses eligible Inner Ways", () => {
     for (const path of Object.values(typedPathDefinitions)) {
       const builds = defaultBuildPresets.filter(build =>
@@ -23,9 +33,9 @@ describe("innerway-filter", () => {
     }
   })
   it("Inner Way filter behavior checks passed", async () => {
-    const { innerWayDefinitions, innerWayEntriesForTag } = await probeLoad<
-      typeof import("../src/data/innerWayDefinitions")
-    >("/src/data/innerWayDefinitions.ts")
+    const { innerWayDefinitions, innerWayEntriesForTag } = await probeLoad<typeof import("@/data/innerWayDefinitions")>(
+      "/src/data/innerWayDefinitions.ts",
+    )
     // Every tag any Inner Way declares, so each filter is checked against the whole table.
     const definitions: Record<string, InnerWayDefinition> = innerWayDefinitions
     const allTags = new Set<string>(Object.values(definitions).flatMap(definition => definition.tags ?? []))
