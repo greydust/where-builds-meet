@@ -9,7 +9,7 @@
       { "innerWay": "SwordMorph", "tier": "T6" },
       { "innerWay": "MountainsMight", "tier": "T6" },
       { "innerWay": "BattleAnthem", "tier": "T6" },
-      { "innerWay": "InsightfulStrike", "tier": "T6" }
+      { "innerWay": "YueYongFangYuan", "tier": "T6" }
     ],
     "weaponSets": { "Jadeware": 4 },
     "armorSets": {},
@@ -156,7 +156,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "momentum", "value": 53.955999999999996 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "affinity", "value": 0.04887999999999999 }
+          { "key": "maxBellstrike", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -224,7 +224,7 @@
         "baseAffix": { "key": "power", "value": 53.955999999999996 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 85.16399999999999 },
-          { "key": "affinity", "value": 0.04887999999999999 },
+          { "key": "maxBellstrike", "value": 48.315999999999995 },
           { "key": "vsBossDmg", "value": 0.035719999999999995 },
           { "key": "power", "value": 53.955999999999996 }
         ],

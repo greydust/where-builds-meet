@@ -7,7 +7,7 @@
   "setup": {
     "innerWays": [
       { "innerWay": "SwordHorizon", "tier": "T6" },
-      { "innerWay": "MoraleChant", "tier": "T6" },
+      { "innerWay": "YueYongFangYuan", "tier": "T6" },
       { "innerWay": "InsightfulStrike", "tier": "T6" },
       { "innerWay": "WolfchasersArt", "tier": "T6" }
     ],
@@ -156,7 +156,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "momentum", "value": 53.955999999999996 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "affinity", "value": 0.04887999999999999 }
+          { "key": "maxBellstrike", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "momentum", "value": 53.955999999999996 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "affinity", "value": 0.04887999999999999 }
+          { "key": "maxBellstrike", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
       },

@@ -15,7 +15,7 @@ it.each(["18", "19"])("matches equipped Umbra bow/ring results at breakthrough %
   )!
   const settings = { weapons: entry.fixture.martialArts, breakthrough, ping: 0 }
   // Keep Affinity capped even after removing the currently equipped bow/ring.
-  bundle.baseStats = { ...bundle.baseStats!, affinity: bundle.baseStats!.affinity + 0.1 }
+  bundle.baseStats = { ...bundle.baseStats!, affinity: bundle.baseStats!.affinity + 0.15 }
   const initialSheet = calculateStatsWithEffects(
     bundle.baseStats,
     [

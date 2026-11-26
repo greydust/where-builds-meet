@@ -200,13 +200,17 @@ describe("gear combination optimization", () => {
     expect(updates).toEqual([])
   })
 
-  it("classifies actual Insightful Strike builds as rebuilds", () => {
+  it.each(["InsightfulStrike", "YueYongFangYuan"])("classifies %s builds as rebuilds", innerWay => {
     const input = fixture()
     const preset = defaultBuildPresets.find(preset => preset.id === "splendor-fully-relayed")!
     const inventory = buildPresetInventory(preset)
     input.context.environment.pathId = "bellstrikeSplendor"
     input.context.environment.settings.weapons = weaponPair(preset.martialArts)
-    input.build = { ...input.build, equipped: inventory.equipped, setup: preset.setup }
+    input.build = {
+      ...input.build,
+      equipped: inventory.equipped,
+      setup: { ...normalizeBuildSetup(preset.setup), innerWays: [{ innerWay, tier: "T6" }] },
+    }
     input.items = inventory.items
     const updates: GearSearchProgress[] = []
     optimizeGear(input, progress => updates.push(progress))

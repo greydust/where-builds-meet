@@ -25,13 +25,13 @@ export const realGearSearchScenarios: Array<{
     rotation: strengthRotation as RotationRecord,
   },
   {
-    name: "Splendor: Insightful Strike and 81 Waves",
+    name: "Splendor: Moonlit Expanse and 81 Waves",
     pathId: "bellstrikeSplendor",
     preset: "splendor-fully-relayed",
     rotation: splendorRotation as RotationRecord,
   },
   {
-    name: "Umbra: Insightful Strike, bleeding and Blood Burst",
+    name: "Umbra: Moonlit Expanse, Insightful Strike and Blood Burst",
     pathId: "bellstrikeUmbra",
     preset: "umbra-fully-relayed",
     rotation: umbraRotation as RotationRecord,
