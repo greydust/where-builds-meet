@@ -993,5 +993,98 @@
         }
       }
     }
+  },
+  "Shadecrest": {
+    "name": "Shadecrest",
+    "altersTimeline": true,
+    "tags": ["BellstrikeBolt", "JueyuXuanfengSpear", "BoshanQuyueSpear"],
+    "options": {
+      "0": { "name": "0", "effect": {} },
+      "2": {
+        "name": "2",
+        "effect": {
+          "rawStat": {
+            "physicalDefense": {
+              "bySoloLevel": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                39,
+                45.4,
+                45.4,
+                52.8,
+                52.8,
+                60.6,
+                60.6,
+                69.8,
+                69.8
+              ]
+            }
+          }
+        }
+      },
+      "4": {
+        "name": "4",
+        "effect": [
+          {
+            "rawStat": {
+              "physicalDefense": {
+                "bySoloLevel": [
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  39,
+                  45.4,
+                  45.4,
+                  52.8,
+                  52.8,
+                  60.6,
+                  60.6,
+                  69.8,
+                  69.8
+                ]
+              }
+            }
+          },
+          { "effect": { "directDamageReduction": 0.05 } },
+          {
+            "trigger": {
+              "event": "skillStart",
+              "cooldown": 20,
+              "requirement": [{ "target": "skillTag", "value": "DualWeapon" }],
+              "action": { "type": "apply", "target": "self", "value": "ShadecrestActive", "stack": 1 }
+            }
+          }
+        ]
+      }
+    }
   }
 }

@@ -1432,9 +1432,9 @@ source use the same conversion rules.
 `data/breakthrough.json` groups the selected enemy profile and its
 `levelBonusStats` under the breakthrough number. Changing breakthrough therefore
 updates enemy inputs and replaces the level-derived Precision and five base
-attributes through the same shared effect pipeline. Breakthrough 17 is selected
-on every page load. The user may switch to Breakthrough 18 for the current page
-session, but Breakthrough is not written to browser storage or character profiles.
+attributes through the same shared effect pipeline. Breakthrough 19 is selected
+on every page load. The selector offers Breakthroughs 18–25 for the current page
+session. Breakthrough is omitted from browser storage and character profiles.
 Each breakthrough declares its own `soloLevel` for Inner Way stat tables.
 `innerWayDefinitionForSoloLevel` resolves those tables to numeric raw-stat
 effects before character-sheet and worker calculation. Breakthroughs 17 and 18

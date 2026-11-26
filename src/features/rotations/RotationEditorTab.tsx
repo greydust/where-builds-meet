@@ -2414,7 +2414,9 @@ export function RotationEditorTab({
                       fengRui && (fengRui.expiresAt === undefined || fengRui.expiresAt > startTime),
                     )
                     const actionFengRuiActive = actionBuffs.some(effect => effect.name === "BoltFengRui")
-                    const fengRuiLabel = gameText(calculationDefinitions.effectDefinitions.BoltFengRui?.name ?? "鋒銳")
+                    const fengRuiLabel = gameText(
+                      calculationDefinitions.effectDefinitions.BoltFengRui?.name ?? "Lethal",
+                    )
                     const skillDamageRows =
                       !isAction && row.kind === "rotation" ? (damageRowsByOwner.get(row.id) ?? [row]) : [row]
                     const skillExpectedStacks = skillDamageRows.reduce<

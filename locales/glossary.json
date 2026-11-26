@@ -161,7 +161,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "悬锋取月·轻重击派生增伤",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -170,7 +170,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "拨山取月枪·武学技增伤",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -179,7 +179,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "拨山取月枪·特殊技增伤",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -188,7 +188,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "决狱悬锋枪·武学技增伤",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -197,7 +197,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "决狱悬锋枪·特殊技增伤",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -305,7 +305,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -314,7 +314,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -323,7 +323,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神断青锋",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -332,7 +332,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "岁星窃桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -341,7 +341,7 @@
   {
     "locale": "zh-Hans",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月涌方圆",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -770,7 +770,7 @@
   {
     "locale": "ja",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -779,7 +779,7 @@
   {
     "locale": "ja",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -788,7 +788,7 @@
   {
     "locale": "ja",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -815,7 +815,7 @@
   {
     "locale": "ja",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -824,7 +824,7 @@
   {
     "locale": "ja",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -1022,7 +1022,7 @@
   {
     "locale": "ja",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -1040,7 +1040,7 @@
   {
     "locale": "ja",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -1049,7 +1049,7 @@
   {
     "locale": "ja",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -1058,7 +1058,7 @@
   {
     "locale": "ja",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -1076,7 +1076,7 @@
   {
     "locale": "ja",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -1130,7 +1130,7 @@
   {
     "locale": "ja",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -1640,7 +1640,7 @@
   {
     "locale": "es",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -1649,7 +1649,7 @@
   {
     "locale": "es",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -1658,7 +1658,7 @@
   {
     "locale": "es",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -1775,7 +1775,7 @@
   {
     "locale": "es",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -1784,7 +1784,7 @@
   {
     "locale": "es",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -2243,7 +2243,7 @@
   {
     "locale": "es",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -2279,7 +2279,7 @@
   {
     "locale": "es",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -2306,7 +2306,7 @@
   {
     "locale": "es",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -2342,7 +2342,7 @@
   {
     "locale": "es",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -2396,7 +2396,7 @@
   {
     "locale": "es",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -2540,7 +2540,7 @@
   {
     "locale": "es",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -3068,7 +3068,7 @@
   {
     "locale": "fr",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -3077,7 +3077,7 @@
   {
     "locale": "fr",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -3086,7 +3086,7 @@
   {
     "locale": "fr",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -3212,7 +3212,7 @@
   {
     "locale": "fr",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -3221,7 +3221,7 @@
   {
     "locale": "fr",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -3707,7 +3707,7 @@
   {
     "locale": "fr",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -3734,7 +3734,7 @@
   {
     "locale": "fr",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -3761,7 +3761,7 @@
   {
     "locale": "fr",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -3806,7 +3806,7 @@
   {
     "locale": "fr",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -3860,7 +3860,7 @@
   {
     "locale": "fr",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -4094,7 +4094,7 @@
   {
     "locale": "fr",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -4568,7 +4568,7 @@
   {
     "locale": "de",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -4577,7 +4577,7 @@
   {
     "locale": "de",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -4586,7 +4586,7 @@
   {
     "locale": "de",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -4712,7 +4712,7 @@
   {
     "locale": "de",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -4721,7 +4721,7 @@
   {
     "locale": "de",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -5216,7 +5216,7 @@
   {
     "locale": "de",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -5261,7 +5261,7 @@
   {
     "locale": "de",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -5288,7 +5288,7 @@
   {
     "locale": "de",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -5333,7 +5333,7 @@
   {
     "locale": "de",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -5387,7 +5387,7 @@
   {
     "locale": "de",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -5522,7 +5522,7 @@
   {
     "locale": "de",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -5960,7 +5960,7 @@
   {
     "locale": "pt",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -5969,7 +5969,7 @@
   {
     "locale": "pt",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -5978,7 +5978,7 @@
   {
     "locale": "pt",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -6095,7 +6095,7 @@
   {
     "locale": "pt",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -6104,7 +6104,7 @@
   {
     "locale": "pt",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -6563,7 +6563,7 @@
   {
     "locale": "pt",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -6590,7 +6590,7 @@
   {
     "locale": "pt",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -6617,7 +6617,7 @@
   {
     "locale": "pt",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -6662,7 +6662,7 @@
   {
     "locale": "pt",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -6698,7 +6698,7 @@
   {
     "locale": "pt",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -6815,7 +6815,7 @@
   {
     "locale": "pt",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -7226,7 +7226,7 @@
   {
     "locale": "vi",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -7235,7 +7235,7 @@
   {
     "locale": "vi",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -7244,7 +7244,7 @@
   {
     "locale": "vi",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -7361,7 +7361,7 @@
   {
     "locale": "vi",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -7370,7 +7370,7 @@
   {
     "locale": "vi",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -8018,7 +8018,7 @@
   {
     "locale": "vi",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -8108,7 +8108,7 @@
   {
     "locale": "vi",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -8207,7 +8207,7 @@
   {
     "locale": "vi",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -8270,7 +8270,7 @@
   {
     "locale": "vi",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -8387,7 +8387,7 @@
   {
     "locale": "vi",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -8594,7 +8594,7 @@
   {
     "locale": "vi",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -9059,7 +9059,7 @@
   {
     "locale": "th",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -9068,7 +9068,7 @@
   {
     "locale": "th",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -9077,7 +9077,7 @@
   {
     "locale": "th",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -9194,7 +9194,7 @@
   {
     "locale": "th",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -9203,7 +9203,7 @@
   {
     "locale": "th",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -9635,7 +9635,7 @@
   {
     "locale": "th",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -9653,7 +9653,7 @@
   {
     "locale": "th",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -9680,7 +9680,7 @@
   {
     "locale": "th",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -9698,7 +9698,7 @@
   {
     "locale": "th",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -9725,7 +9725,7 @@
   {
     "locale": "th",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -9914,7 +9914,7 @@
   {
     "locale": "th",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -10325,7 +10325,7 @@
   {
     "locale": "ru",
     "key": "system.attunement.boltVariedComboBoost",
-    "source": "懸鋒取月·輕重擊派生增傷",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
     "translation": "懸鋒取月·輕重擊派生增傷",
     "context": "system.attunement.boltVariedComboBoost",
     "origin": "reviewed",
@@ -10334,7 +10334,7 @@
   {
     "locale": "ru",
     "key": "system.attunement.boshanQuyueSpearMartialBoost",
-    "source": "撥山取月槍·武學技增傷",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
     "translation": "撥山取月槍·武學技增傷",
     "context": "system.attunement.boshanQuyueSpearMartialBoost",
     "origin": "reviewed",
@@ -10343,7 +10343,7 @@
   {
     "locale": "ru",
     "key": "system.attunement.boshanQuyueSpearSpecialBoost",
-    "source": "撥山取月槍·特殊技增傷",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
     "translation": "撥山取月槍·特殊技增傷",
     "context": "system.attunement.boshanQuyueSpearSpecialBoost",
     "origin": "reviewed",
@@ -10460,7 +10460,7 @@
   {
     "locale": "ru",
     "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
-    "source": "決獄懸鋒槍·武學技增傷",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
     "translation": "決獄懸鋒槍·武學技增傷",
     "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
     "origin": "reviewed",
@@ -10469,7 +10469,7 @@
   {
     "locale": "ru",
     "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
-    "source": "決獄懸鋒槍·特殊技增傷",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
     "translation": "決獄懸鋒槍·特殊技增傷",
     "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
     "origin": "reviewed",
@@ -10901,7 +10901,7 @@
   {
     "locale": "ru",
     "key": "system.innerWay.fuLiangYiYe",
-    "source": "浮梁一夜",
+    "source": "Fuliang Nocturne",
     "translation": "浮梁一夜",
     "context": "system.innerWay.fuLiangYiYe",
     "origin": "reviewed",
@@ -10919,7 +10919,7 @@
   {
     "locale": "ru",
     "key": "system.innerWay.mingFeiTongPan",
-    "source": "明非通判",
+    "source": "Lucid Judicature",
     "translation": "明非通判",
     "context": "system.innerWay.mingFeiTongPan",
     "origin": "reviewed",
@@ -10937,7 +10937,7 @@
   {
     "locale": "ru",
     "key": "system.innerWay.shenDuanQingFeng",
-    "source": "神斷青鋒",
+    "source": "Sacred Sunderpoint",
     "translation": "神斷青鋒",
     "context": "system.innerWay.shenDuanQingFeng",
     "origin": "reviewed",
@@ -10955,7 +10955,7 @@
   {
     "locale": "ru",
     "key": "system.innerWay.suiXingQieTao",
-    "source": "歲星竊桃",
+    "source": "Eternal Spoils",
     "translation": "歲星竊桃",
     "context": "system.innerWay.suiXingQieTao",
     "origin": "reviewed",
@@ -10964,7 +10964,7 @@
   {
     "locale": "ru",
     "key": "system.innerWay.yueYongFangYuan",
-    "source": "月湧方圓",
+    "source": "Moonlit Expanse",
     "translation": "月湧方圓",
     "context": "system.innerWay.yueYongFangYuan",
     "origin": "reviewed",
@@ -11072,7 +11072,7 @@
   {
     "locale": "ru",
     "key": "system.resource.spearMomentum",
-    "source": "槍勢",
+    "source": "Spear Momentum",
     "translation": "槍勢",
     "context": "system.resource.spearMomentum",
     "origin": "reviewed",
@@ -12450,6 +12450,306 @@
       "reference": "10223783907721056490",
       "language": "ru",
       "layer": "base"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.martialArt.jueyuXuanfengSpear.name",
+    "source": "Trialedge Spear",
+    "translation": "Trialedge Spear",
+    "context": "data.martialArt.jueyuXuanfengSpear.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-martial-arts-normal.json",
+      "reference": "20204",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.martialArt.boshanQuyueSpear.name",
+    "source": "Peakwane Spear",
+    "translation": "Peakwane Spear",
+    "context": "data.martialArt.boshanQuyueSpear.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-martial-arts-normal.json",
+      "reference": "20205",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.innerWay.shenDuanQingFeng",
+    "source": "Sacred Sunderpoint",
+    "translation": "Sacred Sunderpoint",
+    "context": "system.innerWay.shenDuanQingFeng",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-inner-way-normal.json",
+      "reference": "751",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.innerWay.fuLiangYiYe",
+    "source": "Fuliang Nocturne",
+    "translation": "Fuliang Nocturne",
+    "context": "system.innerWay.fuLiangYiYe",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-inner-way-normal.json",
+      "reference": "752",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.innerWay.mingFeiTongPan",
+    "source": "Lucid Judicature",
+    "translation": "Lucid Judicature",
+    "context": "system.innerWay.mingFeiTongPan",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-inner-way-normal.json",
+      "reference": "753",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.innerWay.suiXingQieTao",
+    "source": "Eternal Spoils",
+    "translation": "Eternal Spoils",
+    "context": "system.innerWay.suiXingQieTao",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-inner-way-normal.json",
+      "reference": "754",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.innerWay.yueYongFangYuan",
+    "source": "Moonlit Expanse",
+    "translation": "Moonlit Expanse",
+    "context": "system.innerWay.yueYongFangYuan",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-inner-way-normal.json",
+      "reference": "83",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.gearSet.HanMang.name",
+    "source": "Frostgleam",
+    "translation": "Frostgleam",
+    "context": "data.gearSet.HanMang.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "passive_skills.json",
+      "reference": "7483387208486577106",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.armorSet.Shadecrest.name",
+    "source": "Shadecrest",
+    "translation": "Shadecrest",
+    "context": "data.armorSet.Shadecrest.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "passive_skills.json",
+      "reference": "2081887144555030453",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.buff.bellstrikeBolt.BoltFengRui.name",
+    "source": "Lethal",
+    "translation": "Lethal",
+    "context": "data.buff.bellstrikeBolt.BoltFengRui.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "9314192145701607139",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.buff.bellstrikeBolt.BoltMingFa.name",
+    "source": "Clear Law",
+    "translation": "Clear Law",
+    "context": "data.buff.bellstrikeBolt.BoltMingFa.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "2612385271885676051",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.buff.bellstrikeBolt.BoltZhongDao.name",
+    "source": "Noble Path",
+    "translation": "Noble Path",
+    "context": "data.buff.bellstrikeBolt.BoltZhongDao.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "2208155806323320025",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.buff.bellstrikeBolt.BoltWangXing.name",
+    "source": "Sovereign's Stride",
+    "translation": "Sovereign's Stride",
+    "context": "data.buff.bellstrikeBolt.BoltWangXing.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "666777131261811735",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.debuff.bellstrikeBolt.BoltQuanWei.name",
+    "source": "Spring Might",
+    "translation": "Spring Might",
+    "context": "data.debuff.bellstrikeBolt.BoltQuanWei.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "17510030828445411627",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "data.debuff.bellstrikeBolt.BoltZaigeStacks.name",
+    "source": "Poised Spear",
+    "translation": "Poised Spear",
+    "context": "data.debuff.bellstrikeBolt.BoltZaigeStacks.name",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "buff.json",
+      "reference": "9592413255924229925",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.attunement.boltVariedComboBoost",
+    "source": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
+    "translation": "Edge & Wane - Light/Heavy Attack Varied Combo DMG Boost",
+    "context": "system.attunement.boltVariedComboBoost",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-items-tier-110.json",
+      "reference": "309501",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.attunement.jueyuXuanfengSpearMartialBoost",
+    "source": "Trialedge Spear - Martial Art Skill DMG Boost",
+    "translation": "Trialedge Spear - Martial Art Skill DMG Boost",
+    "context": "system.attunement.jueyuXuanfengSpearMartialBoost",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-items-tier-110.json",
+      "reference": "309502",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.attunement.jueyuXuanfengSpearSpecialBoost",
+    "source": "Trialedge Spear - Special Skill DMG Boost",
+    "translation": "Trialedge Spear - Special Skill DMG Boost",
+    "context": "system.attunement.jueyuXuanfengSpearSpecialBoost",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-items-tier-110.json",
+      "reference": "309503",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.attunement.boshanQuyueSpearMartialBoost",
+    "source": "Peakwane Spear - Martial Art Skill DMG Boost",
+    "translation": "Peakwane Spear - Martial Art Skill DMG Boost",
+    "context": "system.attunement.boshanQuyueSpearMartialBoost",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-items-tier-110.json",
+      "reference": "309504",
+      "language": "en",
+      "layer": "normal"
+    }
+  },
+  {
+    "locale": "en",
+    "key": "system.attunement.boshanQuyueSpearSpecialBoost",
+    "source": "Peakwane Spear - Special Skill DMG Boost",
+    "translation": "Peakwane Spear - Special Skill DMG Boost",
+    "context": "system.attunement.boshanQuyueSpearSpecialBoost",
+    "origin": "official",
+    "evidence": {
+      "snapshot": "2026-11-26_02-33-02-122_+0000-xgBtPW",
+      "file": "wwm-items-tier-110.json",
+      "reference": "309505",
+      "language": "en",
+      "layer": "normal"
     }
   }
 ]

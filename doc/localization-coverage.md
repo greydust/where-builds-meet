@@ -1,6 +1,15 @@
 # Localization catalog coverage
 
-Source snapshot: `2026-11-13_22-03-37-422_+0000-ObxwZA`. Catalog messages: 2174.
+Latest terminology source: `2026-11-26_02-33-02-122_+0000-xgBtPW`. Catalog messages: 2180.
+
+The November 26 export supplies Global English Bolt names for martial arts,
+skills, Inner Ways, effects, attunements, and gear sets. An independent AI
+reviewer verified the English mappings against the exported source records.
+The localization database did not supply the checked updated Global references
+in the other languages. The catalog retains their existing Bolt names and the
+Chinese Shadecrest name. All published locales have 2,180 populated messages.
+The two Sacred Sunderpoint buff descriptions use the new NPC values in every
+locale. This pass used source and generated-catalog checks.
 
 Traditional Chinese and Korean retain complete catalog coverage.
 Catalog cells include datamined terms, separately authored translations, and retained

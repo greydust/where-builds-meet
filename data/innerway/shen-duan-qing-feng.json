@@ -1,62 +1,31 @@
 {
-  "name": "神斷青鋒",
+  "name": "Sacred Sunderpoint",
   "altersTimeline": true,
   "tags": ["BellstrikeBolt"],
-  "sourceEdition": "CN",
+  "sourceEdition": "Global",
   "sourceId": 751,
   "sourceTiers": [
     [
       {
-        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+        "text": "Equipping both <Trialedge Spear|781|#C|20204> and <Peakwane Spear|781|#C|20205> allows you to activate both <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201>. Unleashing these Varied Combos and their triggered effects grants enhancements based on the Martial Art in use: <Trialedge Spear|781|#C|20204> deals an additional #Y5%#E Affinity damage, while <Peakwane Spear|781|#C|20205> grants #Y5%#E HP Drain."
       }
     ],
     [
       {
-        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+        "text": "Equipping both <Trialedge Spear|781|#C|20204> and <Peakwane Spear|781|#C|20205> allows you to activate both <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201>. Unleashing these Varied Combos and their triggered effects grants enhancements based on the Martial Art in use: <Trialedge Spear|781|#C|20204> deals an additional #Y5%#E Affinity damage, while <Peakwane Spear|781|#C|20205> grants #Y5%#E HP Drain."
       },
       {
-        "text": "釋放<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>後分別獲得#Y明法#E和#Y重道#E狀態：#Y明法#E使下一次<平風掃寶|781|#C|20205|20205201>造成的氣血傷害提升#Y5%#E，#Y重道#E使下一次<聽雨斷罪|781|#C|20204|20204201>造成的氣血傷害提升#Y5%#E，若目標為非玩家單位則以上傷害提升效果強化至#Y10%#E。",
+        "text": "Casting <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201> grants #YClear Law#E and #YNoble Path#E respectively: #YClear Law#E increases HP damage dealt by the next <Windcalm Plunder|781|#C|20205|20205201> by #Y10%#E, while #YNoble Path#E increases HP damage dealt by the next <Rainhush Verdict|781|#C|20204|20204201> by #Y10%#E. If the target is a non-player unit, these damage boost effects are enhanced to #Y20%#E.",
         "bullet": true
       }
     ],
     [
       {
-        "text": "<最大外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "text": "Increases <Max Physical Attack|780|#C|15> based on Solo Mode Level.",
         "bullet": true,
         "soloLevelValues": [
           {
-            "referenceTag": "<最大外功攻擊|780|#C|15>",
-            "formats": ["1f"],
-            "levels": [
-              null,
-              null,
-              null,
-              null,
-              14.9,
-              20.3,
-              26.7,
-              33.8,
-              39.6,
-              39.6,
-              39.6,
-              47,
-              54.8,
-              63.9,
-              70.9,
-              74.4,
-              77.9,
-              84,
-              90.6,
-              97.8,
-              105.5,
-              113.1,
-              121.3,
-              null,
-              null
-            ]
-          },
-          {
-            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "referenceTag": "<Max Physical Attack|780|#C|15>",
             "formats": ["1f"],
             "levels": [
               null,
@@ -91,29 +60,29 @@
     ],
     [
       {
-        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+        "text": "Equipping both <Trialedge Spear|781|#C|20204> and <Peakwane Spear|781|#C|20205> allows you to activate both <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201>. Unleashing these Varied Combos and their triggered effects grants enhancements based on the Martial Art in use: <Trialedge Spear|781|#C|20204> deals an additional #Y5%#E Affinity damage, while <Peakwane Spear|781|#C|20205> grants #Y5%#E HP Drain."
       },
       {
-        "text": "#Y鋒銳#E狀態期間明法和重道強化為#Y明法·銳#E和#Y重道·銳#E。#Y明法·銳#E使下一次<平風掃寶|781|#C|20205|20205201>造成的氣血傷害提升10%，#Y重道·銳#E使下一次<聽雨斷罪|781|#C|20204|20204201>造成的氣血傷害提升10%，若目標為非玩家單位則傷害提升效果強化至#Y20%#E。",
+        "text": "While #YLethal#E is active, Clear Law and Noble Path are enhanced into #YClear Law: Pierce#E and #YNoble Path: Pierce#E. #YClear Law: Pierce#E increases HP damage dealt by the next <Windcalm Plunder|781|#C|20205|20205201> by 15%, while #YNoble Path: Pierce#E increases HP damage dealt by the next <Rainhush Verdict|781|#C|20204|20204201> by 15%. If the target is a non-player unit, the damage boost effects are enhanced to #Y30%#E.",
         "bullet": true
       }
     ],
     [
       {
-        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+        "text": "Equipping both <Trialedge Spear|781|#C|20204> and <Peakwane Spear|781|#C|20205> allows you to activate both <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201>. Unleashing these Varied Combos and their triggered effects grants enhancements based on the Martial Art in use: <Trialedge Spear|781|#C|20204> deals an additional #Y5%#E Affinity damage, while <Peakwane Spear|781|#C|20205> grants #Y5%#E HP Drain."
       },
       {
-        "text": "#Y明法#E和#Y重道#E系列狀態的持續時間提升至#Y8#E秒。若當前不處於#Y鋒銳#E狀態，<金科盡詔|781|#C|20204|20204101>或<龍膽巡坡|781|#C|20205|20205105>對氣竭單位的首領造成傷害時可回滿#Y槍勢#E，同時為目標附加泉威，該效果每#Y60#E秒最多觸發一次。",
+        "text": "The duration of #YClear Law#E and #YNoble Path#E series effects is increased to #Y8#E seconds. When #YLethal#E is not active, dealing damage to an Exhausted Boss unit with <Golden Edict|781|#C|20204|20204101> or <Dragonheart Rush|781|#C|20205|20205105> fully restores #YSpear Momentum#E and applies Spring Might to the target. This effect triggers up to once every #Y60#E seconds.",
         "bullet": true
       }
     ],
-    [{ "text": "<直接會意率|780|#C|150>提升2.3%。", "bullet": true }],
+    [{ "text": "Increases <Direct Affinity Rate|780|#C|150> by 2.3%.", "bullet": true }],
     [
       {
-        "text": "同時裝配武學<決獄懸鋒槍|781|#C|20204>和<撥山取月槍|781|#C|20205>時可共同感知<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>。釋放以上派生技及其觸發效果時會根據當前使用武學獲得強化，為<決獄懸鋒槍|781|#C|20204>時可額外造成#Y5%#E會意傷害，為<撥山取月槍|781|#C|20205>則獲得#Y5%#E氣血吸取效果。"
+        "text": "Equipping both <Trialedge Spear|781|#C|20204> and <Peakwane Spear|781|#C|20205> allows you to activate both <Rainhush Verdict|781|#C|20204|20204201> and <Windcalm Plunder|781|#C|20205|20205201>. Unleashing these Varied Combos and their triggered effects grants enhancements based on the Martial Art in use: <Trialedge Spear|781|#C|20204> deals an additional #Y5%#E Affinity damage, while <Peakwane Spear|781|#C|20205> grants #Y5%#E HP Drain."
       },
       {
-        "text": "#Y鋒銳#E增傷效果強化：<聽雨平風系列技能|781|#C|20204|20204201>造成的基礎傷害對玩家單位提升至#Y10%#E，對非玩家單位提升至#Y30%#E。同時，非止戈玩法中釋放<聽雨平風系列技能|781|#C|20204|20204201>消耗的#Y槍勢#E降低至#Y1#E格。#Y鋒銳#E期間，以上技能與其觸發效果可同時獲得額外會意傷害提升和氣血吸取效果。",
+        "text": "#YLethal#E DMG Boost effect enhanced: <Hush & Calm Series Skills|781|#C|20204|20204201> now deal #Y10%#E increased base damage against player units and #Y30%#E against non-player units. In non-Arena modes, <Hush & Calm Series Skills|781|#C|20204|20204201> now cost #Y1#E #YSpear Momentum#E. While #YLethal#E is active, these skills and their triggered effects also gain additional Affinity DMG Boost and HP Drain effects.",
         "bullet": true
       }
     ]

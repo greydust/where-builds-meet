@@ -3,8 +3,14 @@ import blue from "@gamedata/skill/boshan-quyue-spear.json"
 import red from "@gamedata/skill/jueyu-xuanfeng-spear.json"
 import { expect, it } from "vitest"
 
-import { innerWayConditionsFor, innerWayEffectRulesFor, setupConditionsFor } from "@/application/characterComposition"
+import {
+  innerWayConditionsFor,
+  innerWayEffectRulesFor,
+  setEffectsFor,
+  setupConditionsFor,
+} from "@/application/characterComposition"
 import { martialArtDefinitions } from "@/application/gameData/martialArts"
+import { typedArmorSetDefinitions } from "@/application/gameData/setup"
 import { effectDefinitions } from "@/application/gameData/skills"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import {
@@ -15,7 +21,12 @@ import {
 } from "@/calculations/damage"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
 import { calculateRotationBaseline, type RotationSimulationBundle } from "@/calculations/rotationCalculator"
-import type { EditableObject, SkillRecord } from "@/calculations/rotationTimeline"
+import {
+  buildRotationTimeline,
+  type EditableObject,
+  type RotationStep,
+  type SkillRecord,
+} from "@/calculations/rotationTimeline"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
 import type { WeaponId } from "@/types"
@@ -119,6 +130,56 @@ function probe(
   }
   return calculateRotationBaseline(bundle)
 }
+
+it.each([
+  ["BoltBlueVC", "BoltMingFa"],
+  ["BoltRedVC", "BoltZhongDao"],
+])("applies the Global Sacred Sunderpoint bonuses to %s", (tag, name) => {
+  const tags = [tag]
+  const base = probe({ tags }).metrics.totalDamage
+  const ordinary = probe({ tags, marks: [{ name }] }).metrics.totalDamage
+  const lethal = probe({ tags, marks: [{ name }, { name: "BoltFengRui" }], conditions: ["ShenDuanQingFengT3"] })
+  expect(ordinary / base).toBeCloseTo(1.2, 12)
+  expect(lethal.metrics.totalDamage / base).toBeCloseTo(1.3, 12)
+})
+
+it("reduces incoming damage with Shadecrest and enforces its five-second window and cooldown", () => {
+  const weapons = ["jueyuXuanfengSpear", "boshanQuyueSpear"] as const
+  const settings = { weapons: [...weapons] as [WeaponId, WeaponId], breakthrough: "19", ping: 0 }
+  const attack = (startTime: number): RotationStep => ({ type: "event", event: "TakeDamage", startTime, damage: 200 })
+  const swap: RotationStep = { type: "skill", skill: "BoltToBlue" }
+  const rows = buildRotationTimeline({
+    rotation: {
+      name: "Shadecrest",
+      ping: 0,
+      steps: [
+        attack(0),
+        { type: "event", event: "Delay", duration: 1 },
+        swap,
+        attack(2),
+        { type: "event", event: "Delay", duration: 5 },
+        swap,
+        attack(10),
+        { type: "event", event: "Delay", duration: 20 },
+        swap,
+        attack(30),
+        { type: "event", event: "BattleEnd", startTime: 32 },
+      ],
+    },
+    skills: { BoltToBlue: { castTime: 0.5, tags: blue.BoltBlueTab.tags } },
+    eventDefinitions: { TakeDamage: { action: [{ type: "takeDamage", time: 0 }] }, BattleEnd: { action: [] } },
+    dots: {},
+    effectDefinitions,
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: setEffectsFor({ Shadecrest: 4 }, typedArmorSetDefinitions, settings, "bellstrikeBolt"),
+    weapons: [...weapons],
+    maxHP: 10000,
+  })
+  expect(
+    rows.flatMap(row => row.actions.filter(action => action.type === "takeDamage").map(action => action.damage)),
+  ).toEqual([190, 170, 190, 170])
+})
 
 it("applies 泉威 to ordinary damage and adds its T3 enhancement only to VC-series hits", () => {
   const marks = [{ name: "BoltQuanWei", target: "target" }]

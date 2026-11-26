@@ -1,7 +1,7 @@
 {
   "BoltRedCharged": {
     "hideFromRotationEditor": true,
-    "name": "星馳秋野",
+    "name": "Starswept Autumn",
     "castTime": 2.4,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -44,7 +44,7 @@
     "shortName": "Red Charged"
   },
   "BoltRedQ": {
-    "name": "金科盡詔",
+    "name": "Golden Edict",
     "castTime": 0.63,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "MartialArt", "BoltExhaustedRefill", "JueyuXuanfengSpear"],
@@ -75,7 +75,7 @@
   },
   "BoltRedSpecial": {
     "hideFromRotationEditor": true,
-    "name": "玉京崩騰",
+    "name": "Heavenfall Surge",
     "castTime": 1.4,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -103,7 +103,7 @@
     "shortName": "Red Special"
   },
   "BoltRedTab": {
-    "name": "直貫其鋒",
+    "name": "Direct Onslaught",
     "castTime": 0.625,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "DualWeapon", "Tab"],
@@ -128,7 +128,7 @@
   },
   "BoltRedLight1": {
     "hideFromRotationEditor": true,
-    "name": "決獄輕擊1",
+    "name": "Trialedge Light 1",
     "castTime": 0.5,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -141,7 +141,7 @@
   },
   "BoltRedHeavy1": {
     "hideFromRotationEditor": true,
-    "name": "決獄重擊1",
+    "name": "Trialedge Heavy 1",
     "castTime": 0.36,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -160,7 +160,7 @@
     "shortName": "Red Heavy 1"
   },
   "BoltRedVC": {
-    "name": "聽雨斷罪",
+    "name": "Rainhush Verdict",
     "castTime": 0,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -194,7 +194,7 @@
     "shortName": "Red VC"
   },
   "BoltRedVCBase": {
-    "name": "聽雨斷罪",
+    "name": "Rainhush Verdict",
     "castTime": 1.3,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -265,7 +265,7 @@
     "shortName": "Red VC"
   },
   "BoltRedVCSharp": {
-    "name": "聽雨斷罪·鋒銳",
+    "name": "Rainhush Verdict: Lethal",
     "castTime": 1.7,
     "editableCastTime": true,
     "weapon": "Spear",

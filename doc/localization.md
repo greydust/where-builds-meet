@@ -178,14 +178,13 @@ data, then run the normal formatting and build gates.
 
 ## Translation workflow and evidence
 
-Only the Bolt path name has a confirmed localization. Every other Bolt term
-remains Chinese in locales other than `zh-Hant` and `zh-Hans`, which use their
-respective scripts. This includes complete skill names and short labels,
-effects, states, resources such as `槍勢`, and attunements. Do not translate
-their modifiers, convert them to Japanese character variants, or use Korean
-readings. Keep Chinese terminology inside otherwise localized descriptions;
-surrounding prose and general interface controls remain localized. This is an
-explicit user terminology preference, not missing translation work.
+English Bolt display names use Global terminology recovered from the November 26
+export. English short labels and helper variants use the simulator's rotation
+context. Other locales retain the established Chinese terminology inside their
+localized descriptions, including complete skill names, modifiers, states,
+resources, and attunements. The two Chinese locales use their respective scripts.
+Keep existing Japanese and Korean Bolt terms in Chinese until the official
+target-language records are available or the user requests authored translations.
 
 Shared combat outcomes such as Abrasion are general terminology, even when a
 Bolt description mentions them. They must remain localized in every language;

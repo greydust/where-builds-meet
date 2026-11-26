@@ -469,6 +469,14 @@ does not affect outgoing damage.
 
 ## Default build presets
 
+The November 26 export adds 25 item records at tiers 91–110. Those records
+use existing equipment slots and suffixes. The simulator's gear editor and
+official import operate on slot, tier, raw rolls, and set suffix, so item names
+and source item IDs do not require a runtime catalog entry. The export omits
+the processed initial and tuning pools from 64 existing records. Their
+absence does not establish an empty in-game pool, so the curated roll tables
+continue to supply those slots.
+
 Deluge's fully relayed Ivorybloom min/max presets replace the Rainwhisper
 presets at gear tiers 96 and 100. They retain Moonflare, the original Inner Ways,
 and their min/agility or max/power attack focus. Legal maximum relayed affix

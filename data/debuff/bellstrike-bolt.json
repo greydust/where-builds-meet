@@ -1,6 +1,6 @@
 {
   "BoltQuanWei": {
-    "name": "泉威",
+    "name": "Spring Might",
     "duration": 10,
     "maxStack": 1,
     "refresh": true,
@@ -14,10 +14,10 @@
         "effect": { "stat": { "physDmgBonus": 0.06, "bellstrikeDmgBonus": 0.06 } }
       }
     ],
-    "description": "8% Physical and Bellstrike DMG from the applier; 14% for VC-series hits with 浮梁一夜 T3."
+    "description": "8% Physical and Bellstrike DMG from the applier; 14% for VC-series hits with Fuliang Nocturne T3."
   },
   "BoltZaigeStacks": {
-    "name": "載戈",
+    "name": "Poised Spear",
     "duration": 8,
     "maxStack": 15,
     "refresh": true,
@@ -63,6 +63,6 @@
       ],
       [{ "requirement": [{ "target": "skillTag", "value": "BoltMingGe" }], "effect": { "hpDMGBonus": 1.5 } }]
     ],
-    "description": "10% 鳴戈 DMG per stack."
+    "description": "10% Ringing Spear DMG per stack."
   }
 }

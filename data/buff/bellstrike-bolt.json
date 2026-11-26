@@ -1,6 +1,12 @@
 {
+  "ShadecrestActive": {
+    "name": "Shadecrest",
+    "duration": 5,
+    "maxStack": 1,
+    "effect": [{ "effect": { "directDamageReduction": 0.1 } }]
+  },
   "BoltFengRui": {
-    "name": "鋒銳",
+    "name": "Lethal",
     "duration": 10,
     "maxStack": 1,
     "refresh": false,
@@ -13,28 +19,28 @@
       ],
       "action": [{ "type": "trigger", "value": "BoltEndFengRui", "time": 0 }]
     },
-    "description": "15% base VC DMG (30% with 神斷青鋒 T6) and 10% Affinity DMG. The upgraded red spear talent prevents Abrasion."
+    "description": "15% base VC DMG (30% with Sacred Sunderpoint T6) and 10% Affinity DMG. The upgraded red spear talent prevents Abrasion."
   },
   "BoltWangXing": {
-    "name": "王行",
+    "name": "Sovereign's Stride",
     "duration": 12,
     "maxStack": 1,
     "refresh": true,
-    "description": "1 槍勢 per ordinary VC. 浮梁一夜 T4 adds 3% Direct Affinity against bosses."
+    "description": "1 Spear Momentum per ordinary VC. Fuliang Nocturne T4 adds 3% Direct Affinity against bosses."
   },
   "BoltMingGeSpent": {
-    "name": "鳴戈已引爆",
+    "name": "Ringing Spear Spent",
     "maxStack": 1,
     "hidden": true,
-    "description": "Prevents another 鳴戈 detonation during this 鋒銳."
+    "description": "Prevents another Ringing Spear detonation during this Lethal."
   },
   "BoltMingFa": {
-    "name": "明法",
+    "name": "Clear Law",
     "duration": 5,
     "maxStack": 1,
     "refresh": true,
     "effect": [
-      { "requirement": [{ "target": "skillTag", "value": "BoltBlueVC" }], "effect": { "hpDMGBonus": 0.1 } },
+      { "requirement": [{ "target": "skillTag", "value": "BoltBlueVC" }], "effect": { "hpDMGBonus": 0.2 } },
       {
         "requirement": [
           { "target": "skillTag", "value": "BoltBlueVC" },
@@ -44,15 +50,15 @@
         "effect": { "hpDMGBonus": 0.1 }
       }
     ],
-    "description": "10% Blue VC HP DMG; 20% during 鋒銳 with 神斷青鋒 T3."
+    "description": "20% Blue VC HP DMG. Increases to 30% during Lethal with Sacred Sunderpoint T3."
   },
   "BoltZhongDao": {
-    "name": "重道",
+    "name": "Noble Path",
     "duration": 5,
     "maxStack": 1,
     "refresh": true,
     "effect": [
-      { "requirement": [{ "target": "skillTag", "value": "BoltRedVC" }], "effect": { "hpDMGBonus": 0.1 } },
+      { "requirement": [{ "target": "skillTag", "value": "BoltRedVC" }], "effect": { "hpDMGBonus": 0.2 } },
       {
         "requirement": [
           { "target": "skillTag", "value": "BoltRedVC" },
@@ -62,17 +68,17 @@
         "effect": { "hpDMGBonus": 0.1 }
       }
     ],
-    "description": "10% Red VC HP DMG; 20% during 鋒銳 with 神斷青鋒 T3."
+    "description": "20% Red VC HP DMG. Increases to 30% during Lethal with Sacred Sunderpoint T3."
   },
   "BoltQieTao": {
-    "name": "竊桃",
+    "name": "Spoils",
     "duration": 5,
     "maxStack": 1,
     "refresh": true,
-    "description": "Immunity to 歲星竊桃 penalties; 4% Martial Arts HP DMG at T6."
+    "description": "Immunity to Eternal Spoils penalties; 4% Martial Arts HP DMG at T6."
   },
   "BoltTongPan": {
-    "name": "通判",
+    "name": "Judicature",
     "duration": 5,
     "maxStack": 5,
     "refresh": true,
@@ -277,7 +283,7 @@
     "description": "0.6 Physical Penetration per stack."
   },
   "BoltMoonPhase": {
-    "name": "月相",
+    "name": "Moonphase",
     "duration": 5,
     "maxStack": 5,
     "stackEffects": [
@@ -290,14 +296,14 @@
     "description": "1% HP DMG per stack."
   },
   "BoltMoonPull": {
-    "name": "月引",
+    "name": "Moonlure",
     "duration": 5,
     "maxStack": 1,
     "effect": [{ "hpDMGBonus": 0.05, "stat": { "directAffinity": 0.015 } }],
     "description": "5% HP DMG and 1.5% Direct Affinity."
   },
   "BoltMoonDark": {
-    "name": "暗潮",
+    "name": "Undertow",
     "duration": 5,
     "maxStack": 5,
     "stackEffects": [

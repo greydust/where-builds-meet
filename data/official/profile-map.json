@@ -42,7 +42,7 @@
     "48": { "name": "Heart of Fire", "innerWay": "HeartOfFire" },
     "81": { "name": "Morale Chant", "innerWay": "MoraleChant" },
     "82": { "name": "Seasonal Edge", "innerWay": "SeasonalEdge" },
-    "83": { "name": "月湧方圓", "innerWay": "YueYongFangYuan" },
+    "83": { "name": "Moonlit Expanse", "innerWay": "YueYongFangYuan" },
     "101": { "name": "Mountain's Might", "innerWay": "MountainsMight" },
     "102": { "name": "Wildfire Spark", "innerWay": "WildfireSpark" },
     "103": { "name": "Battle Anthem", "innerWay": "BattleAnthem" },
@@ -87,10 +87,10 @@
     "702": { "name": "Skyspeak", "innerWay": "Skyspeak" },
     "703": { "name": "Mistwing", "innerWay": "Mistwing" },
     "704": { "name": "Volutefit", "innerWay": "Volutefit" },
-    "751": { "name": "神斷青鋒", "innerWay": "ShenDuanQingFeng" },
-    "752": { "name": "浮梁一夜", "innerWay": "FuLiangYiYe" },
-    "753": { "name": "明非通判", "innerWay": "MingFeiTongPan" },
-    "754": { "name": "歲星竊桃", "innerWay": "SuiXingQieTao" }
+    "751": { "name": "Sacred Sunderpoint", "innerWay": "ShenDuanQingFeng" },
+    "752": { "name": "Fuliang Nocturne", "innerWay": "FuLiangYiYe" },
+    "753": { "name": "Lucid Judicature", "innerWay": "MingFeiTongPan" },
+    "754": { "name": "Eternal Spoils", "innerWay": "SuiXingQieTao" }
   },
   "weaponSets": {
     "1": { "weaponSet": "Jadeware" },
@@ -119,7 +119,8 @@
     "35": { "armorSet": "Jadeclasp" },
     "51": { "armorSet": "Ebonward" },
     "57": { "armorSet": "Honorbound" },
-    "80": { "armorSet": "Brimflow" }
+    "80": { "armorSet": "Brimflow" },
+    "86": { "armorSet": "Shadecrest" }
   },
   "bowRingSets": {
     "44": { "bowRingSet": "Precision" },

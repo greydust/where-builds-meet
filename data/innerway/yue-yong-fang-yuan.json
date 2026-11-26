@@ -1,58 +1,27 @@
 {
-  "name": "月湧方圓",
+  "name": "Moonlit Expanse",
   "altersTimeline": true,
   "tags": ["BellstrikeSplendor", "BellstrikeUmbra", "BellstrikeBolt"],
-  "sourceEdition": "CN",
+  "sourceEdition": "Global",
   "sourceId": 83,
   "sourceTiers": [
     [
       {
-        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。"
+        "text": "In the moon's phases lie the secrets of waxing and waning. When any direct damage you deal triggers Affinity, you gain #YMoonphase#E for #Y5#E seconds, increasing damage dealt by #Y1%#E. Stacks up to #Y5#E times."
       }
     ],
     [
       {
-        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+        "text": "In the moon's phases lie the secrets of waxing and waning. When any direct damage you deal triggers Affinity, you gain #YMoonphase#E for #Y5#E seconds, increasing damage dealt by #Y1%#E. Stacks up to #Y5#E times.\nWhere the moon meets the sea, the rocks stand sharp as carved stone. While maxed out, all #YMoonphase#E stacks are condensed into #YMoonlure#E, consuming #Y5%#E of your current HP, while increasing damage dealt by #Y5%#E and <Direct Affinity Rate|780|#C|150> by #Y1.5%#E during damage calculation for #Y5#E seconds. During this time, any #YMoonphase#E or #YMoonlure#E gained is consumed by #YMoonlure#E and extends its duration by #Y2#E seconds, up to #Y15#E seconds total."
       }
     ],
     [
       {
-        "text": "<最大外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "text": "Increases <Max Physical Attack|780|#C|15> based on Solo Mode Level.",
         "bullet": true,
         "soloLevelValues": [
           {
-            "referenceTag": "<最大外功攻擊|780|#C|15>",
-            "formats": ["1f"],
-            "levels": [
-              null,
-              null,
-              null,
-              null,
-              14.9,
-              20.3,
-              26.7,
-              33.8,
-              39.6,
-              39.6,
-              39.6,
-              47,
-              54.8,
-              63.9,
-              70.9,
-              74.4,
-              77.9,
-              84,
-              90.6,
-              97.8,
-              105.5,
-              113.1,
-              121.3,
-              null,
-              null
-            ]
-          },
-          {
-            "referenceTag": "<最大外功攻擊|780|#C|15>",
+            "referenceTag": "<Max Physical Attack|780|#C|15>",
             "formats": ["1f"],
             "levels": [
               null,
@@ -87,29 +56,29 @@
     ],
     [
       {
-        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+        "text": "In the moon's phases lie the secrets of waxing and waning. When any direct damage you deal triggers Affinity, you gain #YMoonphase#E for #Y5#E seconds, increasing damage dealt by #Y1%#E. Stacks up to #Y5#E times.\nWhere the moon meets the sea, the rocks stand sharp as carved stone. While maxed out, all #YMoonphase#E stacks are condensed into #YMoonlure#E, consuming #Y5%#E of your current HP, while increasing damage dealt by #Y5%#E and <Direct Affinity Rate|780|#C|150> by #Y1.5%#E during damage calculation for #Y5#E seconds. During this time, any #YMoonphase#E or #YMoonlure#E gained is consumed by #YMoonlure#E and extends its duration by #Y2#E seconds, up to #Y15#E seconds total."
       },
       {
-        "text": "湧潮為滿，天地作勢。#Y月引#E期間，造成直接傷害會為目標附加持續5秒的#Y暗潮#E：來自效果來源的所有傷害，結算時<直接會意率|780|#C|150>提升#Y0.3%#E，最多可疊加5層。",
+        "text": "As the tide swells to its height, heaven and earth gather force. During #YMoonlure#E, dealing direct damage inflicts #YUndertow#E on the target for #Y5#E seconds. For all damage dealt by the source of this effect, <Direct Affinity Rate|780|#C|150> is increased by #Y0.3%#E during damage calculation. Stacks up to #Y5#E times.",
         "bullet": true
       }
     ],
     [
       {
-        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+        "text": "In the moon's phases lie the secrets of waxing and waning. When any direct damage you deal triggers Affinity, you gain #YMoonphase#E for #Y5#E seconds, increasing damage dealt by #Y1%#E. Stacks up to #Y5#E times.\nWhere the moon meets the sea, the rocks stand sharp as carved stone. While maxed out, all #YMoonphase#E stacks are condensed into #YMoonlure#E, consuming #Y5%#E of your current HP, while increasing damage dealt by #Y5%#E and <Direct Affinity Rate|780|#C|150> by #Y1.5%#E during damage calculation for #Y5#E seconds. During this time, any #YMoonphase#E or #YMoonlure#E gained is consumed by #YMoonlure#E and extends its duration by #Y2#E seconds, up to #Y15#E seconds total."
       },
       {
-        "text": "霜雪俱下，聽潮相擊。滿層#Y暗潮#E，會每秒對目標造成一次#Y潮湧#E傷害，並為其添加#Y30#E秒#Y潮信#E印記：持續期間，若#Y暗潮#E狀態結束且再次受到來自印記來源的會意傷害，會重新激活#Y5#E層#Y暗潮#E，並為來源添加#Y月引#E。",
+        "text": "Frost and snow fall together as the tides crash in answer. At max stacks, #YUndertow#E deals #YTidesurge#E damage to the target once per second and applies #YTidemark#E to non-player units for #Y30#E seconds. If #YUndertow#E expires during this time and the target is hit by Affinity damage from the mark's source again, #Y5#E stacks of #YUndertow#E are reactivated and the source gains #YMoonlure#E.",
         "bullet": true
       }
     ],
-    [{ "text": "<直接會意率|780|#C|150>提升2.3%。", "bullet": true }],
+    [{ "text": "Increases <Direct Affinity Rate|780|#C|150> by 2.3%.", "bullet": true }],
     [
       {
-        "text": "盈虛之理，見月虧全。造成的直接傷害觸發會意時，獲得持續#Y5#E秒的#Y月相#E效果：造成的傷害提升#Y1%#E，最多疊加#Y5#E層。\n月會海澨，礁石如削。滿層月相，會以#Y5%#E當前氣血為價，凝為#Y月引#E：造成的傷害提升#Y5%#E，且結算時<直接會意率|780|#C|150>提升#Y1.5%#E，持續#Y5#E秒，期間獲得#Y月相#E與#Y月引#E皆會為#Y月引#E所噬，化作#Y2#E秒延時（月引最高可延長至持續#Y15#E秒）。"
+        "text": "In the moon's phases lie the secrets of waxing and waning. When any direct damage you deal triggers Affinity, you gain #YMoonphase#E for #Y5#E seconds, increasing damage dealt by #Y1%#E. Stacks up to #Y5#E times.\nWhere the moon meets the sea, the rocks stand sharp as carved stone. While maxed out, all #YMoonphase#E stacks are condensed into #YMoonlure#E, consuming #Y5%#E of your current HP, while increasing damage dealt by #Y5%#E and <Direct Affinity Rate|780|#C|150> by #Y1.5%#E during damage calculation for #Y5#E seconds. During this time, any #YMoonphase#E or #YMoonlure#E gained is consumed by #YMoonlure#E and extends its duration by #Y2#E seconds, up to #Y15#E seconds total."
       },
       {
-        "text": "長風濤動，滂沛洶溶。潮波汨起，萬頃蔽日。目標的首次#Y潮湧#E會升級為#Y洪波萬仞#E，可對周圍最多五名敵人造成範圍傷害，其後每#Y10#E次#Y潮湧#E可觸發一次；#Y潮湧#E與#Y洪波萬仞#E對非玩家單位的傷害可基於<生效會意率|780|#C|23>額外提升，最高可提升#Y30%#E，達到提升上限需累積#Y30%#E<生效會意率|780|#C|23>。",
+        "text": "Gales roar, tides surge, and waves rise to blot out the sun. The first #YTidesurge#E against the target will upgrade into #YTowering Tide#E, dealing AOE damage to up to five surrounding enemies, with subsequent triggers occurring every #Y10#E instances of #YTidesurge#E. Damage dealt by #YTidesurge#E and #YTowering Tide#E to non-player units can be further increased based on <Effective Affinity Rate|780|#C|23>, up to a maximum of #Y30%#E at #Y30%#E accumulated <Effective Affinity Rate|780|#C|23>.",
         "bullet": true
       }
     ]

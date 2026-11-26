@@ -1,7 +1,7 @@
 {
   "BoltBlueCharged": {
     "hideFromRotationEditor": true,
-    "name": "挑龍劈馬",
+    "name": "Beastheave Cleave",
     "castTime": 1.2,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -29,7 +29,7 @@
   },
   "BoltBlueQ": {
     "hideFromRotationEditor": true,
-    "name": "英布列甲",
+    "name": "Iron Phalanx",
     "castTime": 1.1,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -42,7 +42,7 @@
   },
   "BoltBlueQFollowup": {
     "hideFromRotationEditor": true,
-    "name": "霸王沉舟",
+    "name": "Overlord's Gambit",
     "castTime": 0.933,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -78,7 +78,7 @@
     "shortName": "Blue Q Follow-up"
   },
   "BoltBlueSpecial": {
-    "name": "龍膽巡坡",
+    "name": "Dragonheart Rush",
     "castTime": 1.2142857142857144,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "Special", "BoltExhaustedRefill", "BoshanQuyueSpear"],
@@ -139,7 +139,7 @@
     "shortName": "Blue Special"
   },
   "BoltBlueTab": {
-    "name": "盜跖踏梁",
+    "name": "Thief's Tread",
     "castTime": 0.85,
     "weapon": "Spear",
     "tags": ["DirectDamage", "MartialArts", "Spear", "Bolt", "DualWeapon", "Tab"],
@@ -171,7 +171,7 @@
   },
   "BoltBlueCounter": {
     "hideFromRotationEditor": true,
-    "name": "霸王破虜",
+    "name": "Foe Vanquisher",
     "castTime": 2.2727272727272725,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -239,7 +239,7 @@
     "shortName": "Blue Counter"
   },
   "BoltBlueVCBase": {
-    "name": "平風掃寶",
+    "name": "Windcalm Plunder",
     "castTime": 1,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -293,7 +293,7 @@
     "shortName": "Blue VC"
   },
   "BoltBlueVCSharp": {
-    "name": "平風掃寶·鋒銳",
+    "name": "Windcalm Plunder: Lethal",
     "castTime": 1.2,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -363,7 +363,7 @@
     "shortName": "Blue VC"
   },
   "BoltBlueVC": {
-    "name": "平風掃寶",
+    "name": "Windcalm Plunder",
     "castTime": 0,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -397,7 +397,7 @@
     "shortName": "Blue VC"
   },
   "BoltEnterFengRui": {
-    "name": "鋒銳啟動",
+    "name": "Lethal Start",
     "castTime": 0,
     "ignorePing": true,
     "tags": ["BoltInternal", "SubAction", "Triggered"],
@@ -424,7 +424,7 @@
     ]
   },
   "BoltEndFengRui": {
-    "name": "鋒銳結束",
+    "name": "Lethal End",
     "castTime": 0,
     "ignorePing": true,
     "tags": ["BoltInternal", "SubAction", "Triggered"],
@@ -448,7 +448,7 @@
     ]
   },
   "BoltEarlyMingGe": {
-    "name": "鳴戈引爆",
+    "name": "Ringing Spear Detonation",
     "castTime": 0,
     "ignorePing": true,
     "tags": ["BoltInternal", "SubAction", "Triggered"],
@@ -459,7 +459,7 @@
     ]
   },
   "BoltZaige": {
-    "name": "載戈",
+    "name": "Poised Thrust",
     "castTime": 0,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -492,7 +492,7 @@
     "modifier": [{ "effect": { "targetCorrectionBonus": 0.5 } }]
   },
   "BoltMingGe": {
-    "name": "鳴戈",
+    "name": "Ringing Spear",
     "castTime": 0,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -519,7 +519,7 @@
   },
   "BoltBlueLight1": {
     "hideFromRotationEditor": true,
-    "name": "撥山輕擊1",
+    "name": "Peakwane Light 1",
     "castTime": 0.89,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -539,7 +539,7 @@
   },
   "BoltBlueLight2": {
     "hideFromRotationEditor": true,
-    "name": "撥山輕擊2",
+    "name": "Peakwane Light 2",
     "castTime": 0.4,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -559,7 +559,7 @@
   },
   "BoltBlueLight3": {
     "hideFromRotationEditor": true,
-    "name": "撥山輕擊3",
+    "name": "Peakwane Light 3",
     "castTime": 0.7043478260869567,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -587,7 +587,7 @@
   },
   "BoltBlueLight4": {
     "hideFromRotationEditor": true,
-    "name": "撥山輕擊4",
+    "name": "Peakwane Light 4",
     "castTime": 0.9910714285714286,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -623,7 +623,7 @@
   },
   "BoltBlueHeavy1": {
     "hideFromRotationEditor": true,
-    "name": "撥山重擊1",
+    "name": "Peakwane Heavy 1",
     "castTime": 0.8,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -643,7 +643,7 @@
   },
   "BoltBlueHeavy2": {
     "hideFromRotationEditor": true,
-    "name": "撥山重擊2",
+    "name": "Peakwane Heavy 2",
     "castTime": 0.7101688199999999,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -663,7 +663,7 @@
   },
   "BoltBlueHeavy3": {
     "hideFromRotationEditor": true,
-    "name": "撥山重擊3",
+    "name": "Peakwane Heavy 3",
     "castTime": 1.1973457850000002,
     "editableCastTime": true,
     "weapon": "Spear",
@@ -682,7 +682,7 @@
     "shortName": "Blue Heavy 3"
   },
   "BoltBlueParrySuccess": {
-    "name": "英布列甲·招架成功",
+    "name": "Iron Phalanx [Parry]",
     "castTime": 0,
     "ignorePing": true,
     "tags": [
@@ -713,15 +713,15 @@
     "weapon": "Spear"
   },
   "BoltQuanWeiExtend": {
-    "name": "泉威延長",
+    "name": "Spring Might Extension",
     "castTime": 0,
     "ignorePing": true,
     "tags": ["BoltInternal", "SubAction", "Triggered"],
     "action": [{ "type": "extend", "target": "target", "value": "BoltQuanWei", "duration": 2 }]
   },
   "BoltMoonTide": {
-    "name": "潮湧",
-    "damageGroup": { "id": "YueYongFangYuan", "name": "月湧方圓" },
+    "name": "Tidesurge",
+    "damageGroup": { "id": "YueYongFangYuan", "name": "Moonlit Expanse" },
     "castTime": 0,
     "ignorePing": true,
     "tags": ["Triggered", "SubAction", "InnerWayProc", "MoonDamage", "DOT", "MoonTide"],
@@ -744,8 +744,8 @@
     ]
   },
   "BoltMoonBurst": {
-    "name": "洪波萬仞",
-    "damageGroup": { "id": "YueYongFangYuan", "name": "月湧方圓" },
+    "name": "Towering Tide",
+    "damageGroup": { "id": "YueYongFangYuan", "name": "Moonlit Expanse" },
     "castTime": 0,
     "ignorePing": true,
     "tags": ["Triggered", "SubAction", "InnerWayProc", "MoonDamage", "DirectDamage"],

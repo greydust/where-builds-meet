@@ -1,59 +1,28 @@
 {
-  "name": "浮梁一夜",
+  "name": "Fuliang Nocturne",
   "altersTimeline": true,
   "tags": ["BellstrikeBolt"],
-  "sourceEdition": "CN",
+  "sourceEdition": "Global",
   "sourceId": 752,
   "sourceTiers": [
     [
       {
-        "text": "初始#Y槍勢#E提升#Y2#E格。<撥山取月槍|781|#C|20205>武學技<英布列甲|781|#C|20205|20205101>成功招架時回復的槍勢提升至#Y1#E格，再次按下可施展<霸王破虜|781|#C|20205|20205401>。"
+        "text": "Increases initial #YSpear Momentum#E by #Y2#E. When <Peakwane Spear|781|#C|20205>'s Martial Art Skill <Iron Phalanx|781|#C|20205|20205101> successfully parries, the Spear Momentum restored is increased to #Y1#E, and pressing again unleashes <Foe Vanquisher|781|#C|20205|20205401>."
       }
     ],
     [
       {
-        "text": "初始#Y槍勢#E提升#Y2#E格。<撥山取月槍|781|#C|20205>武學技<英布列甲|781|#C|20205|20205101>成功招架時回復的槍勢提升至#Y1#E格，再次按下可施展<霸王破虜|781|#C|20205|20205401>。"
+        "text": "Increases initial #YSpear Momentum#E by #Y2#E. When <Peakwane Spear|781|#C|20205>'s Martial Art Skill <Iron Phalanx|781|#C|20205|20205101> successfully parries, the Spear Momentum restored is increased to #Y1#E, and pressing again unleashes <Foe Vanquisher|781|#C|20205|20205401>."
       },
-      { "text": "#Y鋒銳#E狀態結束時可直接回復#Y2#E格#Y槍勢#E。", "bullet": true }
+      { "text": "Instantly restores #Y2#E #YSpear Momentum#E when #YLethal#E ends.", "bullet": true }
     ],
     [
       {
-        "text": "<會意率|780|#C|23>提升，效果隨單人模式等級提升。",
+        "text": "Increases <Affinity Rate|780|#C|23> based on Solo Mode Level.",
         "bullet": true,
         "soloLevelValues": [
           {
-            "referenceTag": "<會意率|780|#C|23>",
-            "formats": ["1%"],
-            "levels": [
-              null,
-              null,
-              null,
-              null,
-              0.008,
-              0.011,
-              0.014,
-              0.018,
-              0.021,
-              0.021,
-              0.021,
-              0.024,
-              0.028,
-              0.033,
-              0.037,
-              0.039,
-              0.04,
-              0.044,
-              0.047,
-              0.051,
-              0.055,
-              0.059,
-              0.063,
-              null,
-              null
-            ]
-          },
-          {
-            "referenceTag": "<會意率|780|#C|23>",
+            "referenceTag": "<Affinity Rate|780|#C|23>",
             "formats": ["1%"],
             "levels": [
               null,
@@ -88,29 +57,29 @@
     ],
     [
       {
-        "text": "初始#Y槍勢#E提升#Y2#E格。<撥山取月槍|781|#C|20205>武學技<英布列甲|781|#C|20205|20205101>成功招架時回復的槍勢提升至#Y1#E格，再次按下可施展<霸王破虜|781|#C|20205|20205401>。"
+        "text": "Increases initial #YSpear Momentum#E by #Y2#E. When <Peakwane Spear|781|#C|20205>'s Martial Art Skill <Iron Phalanx|781|#C|20205|20205101> successfully parries, the Spear Momentum restored is increased to #Y1#E, and pressing again unleashes <Foe Vanquisher|781|#C|20205|20205401>."
       },
       {
-        "text": "非止戈玩法下#Y鋒銳#E持續時間增加至#Y15#E秒。<聽雨斷罪|781|#C|20204|20204201>和<平風掃寶|781|#C|20205|20205201>命中目標可延長目標#Y2#E秒#Y泉威#E並使其強化：受到狀態附加者<聽雨平風系列技能|781|#C|20204|20204201>造成傷害結算的外功傷害和鳴金傷害提升至#Y14%#E。",
+        "text": "#YLethal#E now lasts #Y15#E seconds in non-Arena modes. Hitting a target with <Rainhush Verdict|781|#C|20204|20204201> or <Windcalm Plunder|781|#C|20205|20205201> extends the target's #YSpring Might#E by #Y2#E seconds and enhances it, increasing their Physical damage and Bellstrike damage taken from the caster's <Hush & Calm Series Skills|781|#C|20204|20204201> to #Y14%#E during damage calculation.",
         "bullet": true
       }
     ],
     [
       {
-        "text": "初始#Y槍勢#E提升#Y2#E格。<撥山取月槍|781|#C|20205>武學技<英布列甲|781|#C|20205|20205101>成功招架時回復的槍勢提升至#Y1#E格，再次按下可施展<霸王破虜|781|#C|20205|20205401>。"
+        "text": "Increases initial #YSpear Momentum#E by #Y2#E. When <Peakwane Spear|781|#C|20205>'s Martial Art Skill <Iron Phalanx|781|#C|20205|20205101> successfully parries, the Spear Momentum restored is increased to #Y1#E, and pressing again unleashes <Foe Vanquisher|781|#C|20205|20205401>."
       },
       {
-        "text": "#Y王行#E效果持續期間，造成傷害的<直接會意率|780|#C|150>提升#Y1.5%#E，目標是首領單位時再額外提升#Y1.5%#E。",
+        "text": "While #YSovereign's Stride#E is active, <Direct Affinity Rate|780|#C|150> for damage dealt increases by #Y1.5%#E, with an additional #Y1.5%#E increase when the target is a Boss unit.",
         "bullet": true
       }
     ],
-    [{ "text": "<會意傷害加成|780|#C|156>提升5.2%。", "bullet": true }],
+    [{ "text": "Increases <Affinity DMG Bonus|780|#C|156> by 5.2%.", "bullet": true }],
     [
       {
-        "text": "初始#Y槍勢#E提升#Y2#E格。<撥山取月槍|781|#C|20205>武學技<英布列甲|781|#C|20205|20205101>成功招架時回復的槍勢提升至#Y1#E格，再次按下可施展<霸王破虜|781|#C|20205|20205401>。"
+        "text": "Increases initial #YSpear Momentum#E by #Y2#E. When <Peakwane Spear|781|#C|20205>'s Martial Art Skill <Iron Phalanx|781|#C|20205|20205101> successfully parries, the Spear Momentum restored is increased to #Y1#E, and pressing again unleashes <Foe Vanquisher|781|#C|20205|20205401>."
       },
       {
-        "text": "#Y載戈刺擊#E時可為敵人附加#Y8#E秒最多疊加#Y15#E層的#Y載戈#E狀態，#Y鋒銳#E結束可引爆周圍敵人載戈疊層造成#Y必定會意#E的#Y鳴戈#E傷害，每層載戈可提升其#Y10%#E傷害，#Y鳴戈#E對非玩家單位造成的基礎傷害額外提升#Y60%#E。鋒銳期間也可通過釋放鳴金·霆#Y易武技#E提前引爆觸發鳴戈。鋒銳期間鳴戈總計可被引爆#Y1#E次。",
+        "text": "#YPoised Thrust#E inflicts #YPoised Spear#E on enemies for #Y8#E seconds, stacking up to #Y15#E times. Ending #YLethal#E detonates Poised Spear stacks on surrounding enemies to deal #Yguaranteed Affinity damage#E with #YRinging Spear#E, with each stack increasing this damage by #Y10%#E. #YRinging Spear#E deals an additional #Y60%#E base damage to non-player units. While Lethal is active, casting Bellstrike - Bolt's #YDual-Weapon Skills#E can detonate the stacks early. Ringing Spear can be triggered #Yonce#E per Lethal state.",
         "bullet": true
       }
     ]

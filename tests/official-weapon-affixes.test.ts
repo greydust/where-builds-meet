@@ -68,6 +68,46 @@ describe("official weapon damage affixes", () => {
     ])
   })
 
+  it("imports Global Bolt armor, including its tier-110 rolls and Shadecrest bonus", () => {
+    const parsed = parseOfficialGearExport(
+      {
+        kongfuMain: 20204,
+        kongfuSub: 20205,
+        wearEquipsDetailed: {
+          3: {
+            exVo: {
+              level: 110,
+              rarity: "Gold",
+              baseAffixes: [
+                [11143004, 0.14],
+                [309501, 0.092],
+              ],
+              suffix: 86,
+            },
+          },
+          4: {
+            exVo: {
+              level: 110,
+              rarity: "Gold",
+              baseAffixes: [
+                [11143005, 0.07],
+                [309504, 0.092],
+              ],
+              suffix: 86,
+            },
+          },
+        },
+      },
+      ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+    )
+    expect(parsed.warnings).toEqual([])
+    expect(parsed.exportValue.builds[0].setup.armorSets).toMatchObject({ Shadecrest: 2 })
+    expect(parsed.exportValue.gearItems.map(item => item.attunement)).toEqual([
+      { key: "boltVariedComboBoost", value: 0.092 },
+      { key: "boshanQuyueSpearMartialBoost", value: 0.092 },
+    ])
+  })
+
   const elementalKeys = [
     "minBellstrike",
     "maxBellstrike",

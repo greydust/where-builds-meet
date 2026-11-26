@@ -1,58 +1,27 @@
 {
-  "name": "明非通判",
+  "name": "Lucid Judicature",
   "altersTimeline": true,
   "tags": ["BellstrikeBolt"],
-  "sourceEdition": "CN",
+  "sourceEdition": "Global",
   "sourceId": 753,
   "sourceTiers": [
     [
       {
-        "text": "造成傷害結算時的外攻穿透提升#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的外攻穿透額外提升#Y0.6#E點。"
+        "text": "Increases Physical Penetration during damage calculation by #Y2#E. Dealing Affinity damage grants #YJudicature#E for #Y5#E seconds, stacking up to #Y5#E times: increases Physical Penetration during damage calculation by an additional #Y0.6#E."
       }
     ],
     [
       {
-        "text": "造成傷害結算時的外攻穿透提升#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的外攻穿透額外提升#Y1#E點。"
+        "text": "Increases Physical Penetration during damage calculation by #Y2#E. Dealing Affinity damage grants #YJudicature#E for #Y5#E seconds, stacking up to #Y5#E times: increases Physical Penetration during damage calculation by an additional #Y1#E."
       }
     ],
     [
       {
-        "text": "<外功攻擊|780|#C|15>提升，效果隨單人模式等級提升。",
+        "text": "Increases <Physical Attack|780|#C|15> based on Solo Mode Level.",
         "bullet": true,
         "soloLevelValues": [
           {
-            "referenceTag": "<外功攻擊|780|#C|15>",
-            "formats": ["1f", "1f"],
-            "levels": [
-              null,
-              null,
-              null,
-              null,
-              [4.5, 8.9],
-              [6.1, 12.1],
-              [8, 16],
-              [10.1, 20.3],
-              [11.9, 23.7],
-              [11.9, 23.7],
-              [11.9, 23.7],
-              [14.1, 28.3],
-              [16.5, 32.9],
-              [19.1, 38.3],
-              [21.3, 42.5],
-              [22.3, 44.7],
-              [23.3, 46.7],
-              [25.2, 50.4],
-              [27.2, 54.4],
-              [29.3, 58.7],
-              [31.7, 63.3],
-              [33.9, 67.9],
-              [36.4, 72.8],
-              null,
-              null
-            ]
-          },
-          {
-            "referenceTag": "<外功攻擊|780|#C|15>",
+            "referenceTag": "<Physical Attack|780|#C|15>",
             "formats": ["1f", "1f"],
             "levels": [
               null,
@@ -87,22 +56,22 @@
     ],
     [
       {
-        "text": "造成傷害結算時的所有類型穿透#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點。"
+        "text": "Increases all types of Penetration by #Y2#E during damage calculation. Dealing Affinity damage grants #YJudicature#E for #Y5#E seconds, stacking up to #Y5#E times: increases all types of Penetration during damage calculation by an additional #Y1#E."
       }
     ],
     [
       {
-        "text": "造成傷害結算時的所有類型穿透#Y2#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點。"
+        "text": "Increases all types of Penetration by #Y2#E during damage calculation. Dealing Affinity damage grants #YJudicature#E for #Y5#E seconds, stacking up to #Y5#E times: increases all types of Penetration during damage calculation by an additional #Y1#E."
       },
       {
-        "text": "#Y通判#E持續時間提升至#Y10#E秒，同時#Y輕重擊派生技與其觸發效果#E造成任何類型傷害均可獲得通判效果。\n\n可生效的技能包括：<嗟夫刀法·輕擊派生|781|#C|20401|20401104>、<嗟夫刀法·重擊派生|781|#C|20401|20401114>、<月出驚春|781|#C|10302|20302105>、<彩鳳飛|781|#C|20601|20601101>、<風敲竹|781|#C|20601|20601104>、<泉下凍|781|#C|20801|20801201>、<撥雪尋春|781|#C|20801|20801206>、<鼓樂和|781|#C|21001|21001102>、<煞盡東風|781|#C|10306|20303206>、<聽雨平風系列技能|781|#C|20204|20204201>。",
+        "text": "#YJudicature#E now lasts #Y10#E seconds. Also, #YLight/Heavy Attack Varied Combos and their triggered effects#E can now grant Judicature regardless of the damage type dealt.\n\n\n\nApplicable skills include: <Thundercry Blade: Light Attack Varied Combo|781|#C|20401|20401104>, <Thundercry Blade: Heavy Attack Varied Combo|781|#C|20401|20401114>, <Moonlit Startle|781|#C|10302|20302105>, <Colorful Phoenix|781|#C|20601|20601101>, <Bamboo Breeze|781|#C|20601|20601104>, <Stygian Freeze|781|#C|20801|20801201>, <Snowbreak Spring|781|#C|20801|20801206>, <Rhythm of Accord|781|#C|21001|21001102>, <End of Gale|781|#C|10306|20303206> and the <Hush & Calm Series Skills|781|#C|20204|20204201>.",
         "bullet": true
       }
     ],
-    [{ "text": "<外功傷害加成|780|#C|160>提升2.5%。", "bullet": true }],
+    [{ "text": "<Physical DMG Bonus|780|#C|160> +2.5%.", "bullet": true }],
     [
       {
-        "text": "造成傷害結算時的所有類型穿透#Y5#E點，若造成會意傷害可獲得#Y5#E秒最多疊加#Y5#E層的#Y通判#E效果：造成傷害結算時的所有類型穿透額外提升#Y1#E點，若造成傷害的技能為<聽雨平風系列技能|781|#C|20204|20204201>則所有類型穿透提升至#Y3#E點。"
+        "text": "Increases all types of Penetration by #Y5#E during damage calculation. Dealing Affinity damage grants #YJudicature#E for #Y5#E seconds, stacking up to #Y5#E times: increases all types of Penetration during damage calculation by an additional #Y1#E, or by #Y3#E if the damage is dealt with <Hush & Calm Series Skills|781|#C|20204|20204201>."
       }
     ]
   ],

@@ -2985,6 +2985,33 @@ Drunkslay's Eonpour-refresh lifecycle remain provisional.
 
 ## Bellstrike Bolt preview
 
+### November 26 Global export
+
+The Global export `2026-11-26_02-33-02-122_+0000-xgBtPW` supplies the display
+names Trialedge Spear, Peakwane Spear, and their authored skills. Runtime IDs
+and saved selections retain their existing keys. Inner Way IDs 751–754 and 83
+now have Global source text. Their Solo Level 17–25 T2 amounts match the
+existing runtime tables. The exported cumulative character talent totals at
+142 points match the existing Solo Level 19 entry in `data/system.json`.
+
+Sacred Sunderpoint's Clear Law and Noble Path use `buff_passive_data` rows
+4040101–2 and 4040111–2. The Global T1 and T3 text confirms that the base and
+non-player rows add together. NPC damage therefore receives 20% for an ordinary
+cross-VC buff and 30% for Pierce during Lethal. The Pierce rows are 4040131–2
+and 4040141–2. The bonus remains in the existing HP-damage category.
+
+The Global Frostgleam name uses the saved `HanMang` set key. Shadecrest (set 86) uses the exported level-scaled two-piece Physical Defense bonus. On the
+Bolt pair, its four-piece bonus adds 5% direct incoming damage reduction.
+A Dual-Weapon cast adds another 10% for five seconds on a shared 20-second
+cooldown through the existing set and buff mechanisms.
+
+Use each export route's hit and recovery evidence independently. The latest
+export preserves Cyclone Waltz's hit clocks but omits its full-channel end and
+interrupt values. It does not resolve the selector for Castlink's additional
+0.810-second route. The previously curated clocks remain the runtime evidence.
+
+### Original preview evidence
+
 Bolt (霆 in Chinese) follows Umbra with a Preview badge. It is selectable and
 restorable without Dev mode. Its martial arts are 決獄懸鋒槍
 (`jueyuXuanfengSpear`) and 撥山取月槍 (`boshanQuyueSpear`), both Bellstrike spears.
