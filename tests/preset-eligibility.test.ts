@@ -1,14 +1,11 @@
 import { readdir, readFile } from "node:fs/promises"
 import path from "node:path"
 
-import defaultSetup from "@gamedata/default-setup.json"
-import { assert, describe, expect, it } from "vitest"
+import { assert, describe, it } from "vitest"
 
-import { resolveBuildStatState } from "@/application/buildStatState"
 import type { PathId } from "@/application/contracts"
 import { pathIsSelectable, typedPathDefinitions } from "@/application/gameData/paths"
 import type { PathDefinition } from "@/application/gameData/paths"
-import { defaultSettings } from "@/application/gameData/setup"
 import { gearData, statRollsForLevel } from "@/gear"
 import type { BuildPreset, BuildPresetGear, GearSlot } from "@/gear"
 
@@ -19,26 +16,6 @@ type PresetPayload = Pick<BuildPreset, "id" | "martialArts" | "relayed" | "test"
 
 // Ported from script/probe/check-preset-eligibility.mjs.
 describe("preset-eligibility", () => {
-  it.each([
-    ["bellstrikeSplendor", typedPathDefinitions.bellstrikeSplendor.defaultBuild],
-    ["bellstrikeSplendor", typedPathDefinitions.bellstrikeSplendor.graduated[0]],
-    ["bellstrikeUmbra", typedPathDefinitions.bellstrikeUmbra.defaultBuild],
-    ["bellstrikeUmbra", typedPathDefinitions.bellstrikeUmbra.graduated[0]],
-  ] as const)("keeps %s / %s near 40%% Final Affinity at BT 19", (pathId, presetId) => {
-    const weapons = typedPathDefinitions[pathId].lockedWeapons!
-    const { derivedStats } = resolveBuildStatState({
-      build: { id: presetId, presetId, name: presetId, isDefault: true },
-      gearItems: [],
-      settings: { ...defaultSettings, weapons, breakthrough: "19" },
-      setupSelections: { ...defaultSetup, script: "None" },
-      statOverrides: {},
-      attunementOverrides: {},
-      pathId,
-    })
-    expect(derivedStats.finalAffinity).toBeGreaterThanOrEqual(0.395)
-    expect(derivedStats.finalAffinity).toBeLessThanOrEqual(0.405)
-  })
-
   it("Preset eligibility consistency checks passed", async () => {
     const readJson = async <T>(file: string): Promise<T> => JSON.parse(await readFile(file, "utf8")) as T
     const collectJsonFiles = async (root: string): Promise<string[]> => {

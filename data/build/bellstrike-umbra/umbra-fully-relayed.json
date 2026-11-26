@@ -140,7 +140,7 @@
         "baseAffix": { "key": "maxPhys", "value": 85.16399999999999 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 85.16399999999999 },
-          { "key": "maxVoidAttack", "value": 48.315999999999995 },
+          { "key": "momentum", "value": 53.955999999999996 },
           { "key": "swordDmgBoost", "value": 0.06956 },
           { "key": "power", "value": 53.955999999999996 }
         ],
@@ -198,7 +198,7 @@
           { "key": "maxPhys", "value": 85.16399999999999 },
           { "key": "momentum", "value": 53.955999999999996 },
           { "key": "power", "value": 53.955999999999996 },
-          { "key": "maxBellstrike", "value": 48.315999999999995 }
+          { "key": "affinity", "value": 0.04887999999999999 }
         ],
         "attunement": { "key": "strategicSwordBleedingBoost", "value": 0.07 }
       },
