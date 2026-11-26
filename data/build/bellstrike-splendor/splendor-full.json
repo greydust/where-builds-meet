@@ -156,7 +156,7 @@
         "baseAffix": { "key": "maxPhys", "value": 90.6 },
         "additionalAffixes": [
           { "key": "maxPhys", "value": 90.6 },
-          { "key": "momentum", "value": 57.4 },
+          { "key": "maxBellstrike", "value": 51.4 },
           { "key": "allMartialArts", "value": 0.036 },
           { "key": "power", "value": 57.4 }
         ],
@@ -184,7 +184,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "momentum", "value": 57.4 },
           { "key": "power", "value": 57.4 },
-          { "key": "maxBellstrike", "value": 51.4 }
+          { "key": "affinity", "value": 0.052 }
         ],
         "attunement": { "key": "namelessSwordChargedBoost", "value": 0.07 }
       },
@@ -197,7 +197,7 @@
           { "key": "maxPhys", "value": 90.6 },
           { "key": "momentum", "value": 57.4 },
           { "key": "power", "value": 57.4 },
-          { "key": "maxBellstrike", "value": 51.4 }
+          { "key": "affinity", "value": 0.052 }
         ],
         "attunement": { "key": "namelessSwordChargedBoost", "value": 0.07 }
       },
