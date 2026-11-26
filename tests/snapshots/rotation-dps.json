@@ -2843,6 +2843,64 @@
       "totalHealing": 0,
       "duration": 60
     },
+    "bellstrikeUmbra/dummy-1-min-37-bb-dh/umbra-full-max-mystic/18": {
+      "fixture": {
+        "build": "umbra-full-max-mystic",
+        "rotation": "dummy-1-min-37-bb-dh",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 93199.47252672557,
+      "totalDamage": 5591968.351603534,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-37-bb-dh/umbra-full-max-mystic/19": {
+      "fixture": {
+        "build": "umbra-full-max-mystic",
+        "rotation": "dummy-1-min-37-bb-dh",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 98463.60823356865,
+      "totalDamage": 5907816.494014119,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
     "bellstrikeUmbra/dummy-1-min-37-bb-dh/umbra-full/18": {
       "fixture": {
         "build": "umbra-full",
@@ -2897,6 +2955,64 @@
       },
       "dps": 97995.66658979193,
       "totalDamage": 5879739.995387516,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-37-bb-dh/umbra-fully-relayed-max-mystic/18": {
+      "fixture": {
+        "build": "umbra-fully-relayed-max-mystic",
+        "rotation": "dummy-1-min-37-bb-dh",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 90148.72809773643,
+      "totalDamage": 5408923.685864186,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-37-bb-dh/umbra-fully-relayed-max-mystic/19": {
+      "fixture": {
+        "build": "umbra-fully-relayed-max-mystic",
+        "rotation": "dummy-1-min-37-bb-dh",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 95294.59061128915,
+      "totalDamage": 5717675.436677349,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60
@@ -2959,6 +3075,64 @@
       "totalHealing": 0,
       "duration": 60
     },
+    "bellstrikeUmbra/dummy-1-min-38-bb/umbra-full-max-mystic/18": {
+      "fixture": {
+        "build": "umbra-full-max-mystic",
+        "rotation": "dummy-1-min-38-bb",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 89832.83836358745,
+      "totalDamage": 5389970.301815247,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-38-bb/umbra-full-max-mystic/19": {
+      "fixture": {
+        "build": "umbra-full-max-mystic",
+        "rotation": "dummy-1-min-38-bb",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 94969.9956146497,
+      "totalDamage": 5698199.736878982,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
     "bellstrikeUmbra/dummy-1-min-38-bb/umbra-full/18": {
       "fixture": {
         "build": "umbra-full",
@@ -3013,6 +3187,64 @@
       },
       "dps": 95446.52440664235,
       "totalDamage": 5726791.464398541,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-38-bb/umbra-fully-relayed-max-mystic/18": {
+      "fixture": {
+        "build": "umbra-fully-relayed-max-mystic",
+        "rotation": "dummy-1-min-38-bb",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "18",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 86800.99001015302,
+      "totalDamage": 5208059.400609181,
+      "hps": 0,
+      "totalHealing": 0,
+      "duration": 60
+    },
+    "bellstrikeUmbra/dummy-1-min-38-bb/umbra-fully-relayed-max-mystic/19": {
+      "fixture": {
+        "build": "umbra-fully-relayed-max-mystic",
+        "rotation": "dummy-1-min-38-bb",
+        "martialArts": ["strategicSword", "heavenquakerSpear"],
+        "breakthrough": "19",
+        "ping": 40,
+        "food": "SimmeringFishSlices",
+        "divinecraft": "Fire",
+        "script": "None",
+        "globalDebuffs": {
+          "bossTalent": 0,
+          "draught": "none",
+          "phantomChime": false,
+          "qiImbalance": false,
+          "soulShaken": false,
+          "vulnerable": false,
+          "fearfulBlade": false,
+          "qingyisCharm": "none",
+          "floatingGrace": "none",
+          "silkbindWings": "none"
+        }
+      },
+      "dps": 91817.34324359671,
+      "totalDamage": 5509040.594615803,
       "hps": 0,
       "totalHealing": 0,
       "duration": 60

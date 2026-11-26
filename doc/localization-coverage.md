@@ -1,6 +1,6 @@
 # Localization catalog coverage
 
-Latest terminology source: `2026-11-26_02-33-02-122_+0000-xgBtPW`. Catalog messages: 2180.
+Latest terminology source: `2026-11-26_02-33-02-122_+0000-xgBtPW`. Catalog messages: 2182.
 
 The November 26 export supplies Global English Bolt names for martial arts,
 skills, Inner Ways, effects, attunements, and gear sets. An independent AI
@@ -59,3 +59,8 @@ The new UI wording received independent AI review per language; accepted
 clarifications concern numerical ranges and whole-plan gains, not sums of
 percentages. No new official game terminology, human review, or browser inspection
 is claimed.
+
+The two Umbra Max Mystic preset labels add 22 translated cells using existing
+Mystic Skill and gear relay terminology. Traditional Chinese, Korean, and
+Japanese received independent AI review. All eleven published non-English
+locales cover 2,182 messages. No browser or human language review was performed.
