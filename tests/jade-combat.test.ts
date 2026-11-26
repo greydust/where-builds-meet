@@ -532,7 +532,9 @@ describe("Jade combat", () => {
       )
       const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
       const flowers = casts.filter(row => row.step.skill === "UnfadingFlowerCancel")
-      for (const pursuit of casts.filter(row => row.step.skill === "MoonShatterSpring")) {
+      const pursuits = casts.filter(row => row.step.skill === "MoonShatterSpring")
+      expect(pursuits.map(row => row.buffs.has("Windrider"))).toEqual([true, true, false, true, true, true])
+      for (const pursuit of pursuits) {
         const previous = casts[casts.indexOf(pursuit) - 1]
         expect(pursuit.distance).toBe(Object.values(previous.actionStates).at(-1)?.distance ?? previous.distance)
       }
@@ -568,17 +570,29 @@ describe("Jade combat", () => {
       const jadebreakApplication = lastFanQ.actions.find(
         action => action.type === "apply" && action.value === "Jadebreak",
       )!
-      const jadebreakEnd =
-        lastFanQ.startTime + Number(jadebreakApplication.time) + Number(effectDefinitions.Jadebreak.duration)
-      // The stronger Peak/pursuit ending trades the last sub-second of JB for more damage.
+      const jadebreakRefresh = lastFanQ.startTime + Number(jadebreakApplication.time)
+      const jadebreakEnd = jadebreakRefresh + Number(effectDefinitions.Jadebreak.duration)
+      // The last Fan Q covers all Flower starts and expires during the final Pursuit.
       expect(result.anchorTime + result.duration - jadebreakEnd).toBeGreaterThan(0)
-      expect(result.anchorTime + result.duration - jadebreakEnd).toBeLessThan(1)
+      const lastPursuit = pursuits.at(-1)!
+      const finalHits = lastPursuit.actions.flatMap((action, index) =>
+        action.type === "damage" && result.actionBreakdowns[`${lastPursuit.id}:${index}`]
+          ? [
+              {
+                time: lastPursuit.startTime + Number(action.time),
+                jadebreak: lastPursuit.actionStates[index].buffs.has("Jadebreak"),
+              },
+            ]
+          : [],
+      )
+      expect(finalHits[0].time).toBeLessThan(jadebreakEnd)
+      expect(finalHits.at(-1)!.time).toBeGreaterThanOrEqual(jadebreakEnd)
+      expect(finalHits.map(hit => hit.jadebreak)).toEqual(finalHits.map(hit => hit.time < jadebreakEnd))
       for (const row of result.timeline)
         for (const [index, action] of row.actions.entries()) {
           if (action.type !== "damage" || !result.actionBreakdowns[`${row.id}:${index}`]) continue
           const hitTime = row.startTime + Number(action.time ?? 0)
-          expect(row.actionStates[index].buffs.has("Jadebreak")).toBe(hitTime < jadebreakEnd)
-          if (row.startTime + Number(action.time ?? 0) <= firstBone.startTime + 1.19 + 1e-9) continue
+          if (hitTime <= firstBone.startTime + Number(firstBone.effectiveCastTime) + 1e-9) continue
           expect(row.actionStates[index].debuffs.has("LingeringBone")).toBe(true)
         }
       expect(result.duration).toBe(60)

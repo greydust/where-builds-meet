@@ -1264,3 +1264,20 @@ eighteen cases retain a 60-second duration at 40 ms ping.
 | Previously accepted                 | 92703.46381355003 | 5562207.8288130015 |
 | Smolder–Poet draft                  | 94007.11431640391 |  5640426.858984235 |
 | Accepted Toad sequence              | 94485.51705416893 |  5669131.023250136 |
+
+## Jade Hybrid Pursuit sequence acceptance (November 26, 2026)
+
+Hybrid increases from two to five five-hit Pursuits and retains one three-hit
+Pursuit after the third Flower. It keeps both Spring Away holds and all six
+Flower activations. Ranged Peak cancels enable the first Pursuit and the first
+Pursuit during exhaustion. One-hit Dragon's Breath and Poet leave time for a
+full Fan Q and another Windrider Pursuit during the fourth Flower window.
+
+The approved sequence gains 1.6279–5.8563% DPS across the 18 Hybrid cases at
+breakthroughs 18 and 19. All cases retain a 60-second duration and run at 40 ms
+ping with no cooldown waits.
+
+| Hybrid / Fully Relayed Max / BT19 |               DPS |      Total damage |
+| --------------------------------- | ----------------: | ----------------: |
+| Previously accepted               | 84602.23270496307 | 5076133.962297784 |
+| Accepted Pursuit sequence         | 89509.98775983247 | 5370599.265589948 |

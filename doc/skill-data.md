@@ -1292,25 +1292,20 @@ Qi thresholds follow that depletion duration: 11.652722557 / 17.479083835 /
 next 40% threshold falls beyond Battle End. Retiming these estimates does not
 change DPS for any supported Grounded build at breakthroughs 18/19.
 
-Hybrid uses five pursuits. An ordinary pursuit replaces a charged-light/Deflect
-filler pair after the third Flower, and Peak cancel/pursuit replaces the final
-charged-light/Fan-Q/pursuit ending. All six Flower activations and their Deflect
-follow-ups remain. The last Peak starts in melee, so its preliminary hit lands;
-the earlier ranged Peaks retain their gap-close behavior.
-All Flower activations start with Jadebreak, but replacing the final Fan Q lets
-Jadebreak expire at 59.470005198s. The last pursuit contact and two final Flower
-projectiles land without it. The accepted DPS already includes this short loss
-of coverage; restoring Fan Q to the ending was not the selected candidate.
+Hybrid lands five five-hit Pursuits and one ordinary Pursuit while keeping its
+two Spring Away holds and six Flower activations. Charged Fan light applies
+Lingering Bone at 9m before the first Peak cancel. The first and fourth Flower
+windows use Peak to return to melee and immediately start a five-hit Pursuit.
+The third Flower window uses the shorter three-hit Pursuit before the refill.
+The fourth Flower breaks Qi at 35.984s. After the first Pursuit during
+exhaustion, one-hit Dragon's Breath / Deflect and five-hit Poet lead into a full
+Fan Q and another five-hit Pursuit. The final Peak starts in melee and lands
+its preliminary hit. All six Flowers start with Jadebreak and cancel into
+Deflect. The last Fan Q's Jadebreak expires during the final Pursuit.
 
-At 40ms ping, the minimum observed pursuit gaps are 8.008576347s for Grounded
-and 7.110994872s for Hybrid, both above the six-second cooldown. Peak's minimum
-gaps are 14.233465927s and 19.677718734s, above its shared twelve-second cooldown.
-Both sequences have no cooldown waits across all nine builds at breakthroughs
-18/19. Existing requirement waits for Flower mode remain. These are constrained
-local improvements, not a claim of an exhaustive global optimum or a rule to
-cast pursuit immediately on cooldown. Flying and the 30-second IV preset retain
-their existing sequences. Accepted numerical results are recorded in
-[DPS snapshots](dps-snapshots.md).
+At 40ms ping, all nine Hybrid builds at breakthroughs 18/19 fit these casts in
+60 seconds with no cooldown waits. The simulator retains its requirement waits
+for Flower mode.
 
 Peak's Springless Silence uses the October 30 13:23 export's resolved action 20302101. The full variant uses its 1.1133333333333333s interruption boundary;
 Cancel ends at the 0.557581475s main contact/Windrider application and must be

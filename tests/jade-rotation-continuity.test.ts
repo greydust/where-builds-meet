@@ -43,7 +43,7 @@ describe("Jade one-minute preset continuity", () => {
         break
       case "jade-hybrid":
         expectedFlowers = 6
-        expectedPursuits = 5
+        expectedPursuits = 6
         break
     }
     expect(flowers).toHaveLength(expectedFlowers)
