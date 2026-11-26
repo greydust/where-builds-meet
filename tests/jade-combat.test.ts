@@ -220,7 +220,7 @@ describe("Jade combat", () => {
     expect(projectiles(boosted).damage).toBeGreaterThan(projectiles(plain).damage)
     expect(projectiles(boosted).hits).toBe(projectiles(plain).hits)
   })
-  it("funds Grounded's retained Soaring Spin on a passive dummy", async () => {
+  it("cancels Grounded's Leaping Toad and funds its Soaring Spin on a passive dummy", async () => {
     const fixtures = (await loadDpsSnapshotCases()).filter(entry => entry.id.startsWith("silkbindJade/jade-grounded/"))
     expect(fixtures).toHaveLength(18)
     for (const fixture of fixtures) {
@@ -244,14 +244,18 @@ describe("Jade combat", () => {
       expect(opener.actionStates[firstHit + 1].resources.Vitality).toBe(
         opener.actionStates[firstHit].resources.Vitality,
       )
-      const smolder = result.timeline.find(row => row.step.skill === "DragonsBreathSmolder2")!
-      const poet = result.timeline.find(row => row.step.skill === "DrunkenPoet5HitsCancel")!
-      expect(smolder.buffs.has("Intoxicated")).toBe(false)
-      const impacts = smolder.actions.flatMap((action, index) =>
-        action.type === "damage" && result.actionBreakdowns[`${smolder.id}:${index}`] ? [Number(action.time)] : [],
+      const toad = result.timeline.find(row => row.step.skill === "LeapingToad")!
+      expect(toad.debuffs.has("Exhausted")).toBe(true)
+      const impacts = toad.actions.flatMap((action, index) =>
+        action.type === "damage" && result.actionBreakdowns[`${toad.id}:${index}`] ? [Number(action.time)] : [],
       )
-      expect(new Set(impacts).size).toBe(2)
-      expect(poet.startTime).toBeCloseTo(smolder.startTime + Math.max(...impacts), 8)
+      expect(impacts).toHaveLength(2)
+      const cancel = result.timeline.find(
+        row => row.kind === "rotation" && row.rotationIndex === toad.rotationIndex! + 1,
+      )!
+      expect(cancel.step.skill).toBe("Deflect")
+      expect(cancel.startTime).toBeCloseTo(toad.startTime + Math.max(...impacts), 8)
+      expect(cancel.debuffs.has("ToadVenom")).toBe(true)
       const vitality = result.timeline
         .flatMap(row => [row, ...Object.values(row.actionStates)])
         .map(state => state.resourceRanges?.Vitality?.minimum ?? state.resources.Vitality)

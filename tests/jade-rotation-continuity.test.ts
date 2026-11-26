@@ -39,7 +39,7 @@ describe("Jade one-minute preset continuity", () => {
         break
       case "jade-grounded":
         expectedFlowers = 7
-        expectedPursuits = 6
+        expectedPursuits = 7
         break
       case "jade-hybrid":
         expectedFlowers = 6
@@ -147,8 +147,10 @@ describe("Jade one-minute preset continuity", () => {
       const refillWindow = rows.filter(row => row.startTime > flowers[5].startTime && row.startTime < lastQ.startTime)
       expect(refillWindow.some(row => row.step.event === "Delay" && row.step.automatic === "cooldown")).toBe(false)
       const pursuits = rows.filter(row => row.step.skill === "MoonShatterSpring")
-      expect(pursuits.map(row => row.buffs.has("Windrider"))).toEqual([false, true, true, true, true, true])
-      expect(pursuits[0].debuffs.has("ToadVenom")).toBe(true)
+      expect(pursuits.every(row => row.buffs.has("Windrider"))).toBe(true)
+      const exhaustedPursuit = pursuits.find(row => row.debuffs.has("Exhausted"))!
+      const precedingCast = rows.findLast(row => row.kind === "rotation" && row.startTime < exhaustedPursuit.startTime)
+      expect(precedingCast?.step.skill).toBe("EmeraldBarrier")
     },
   )
 })

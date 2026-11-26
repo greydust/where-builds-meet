@@ -1245,3 +1245,22 @@ category. All durations remain 60 seconds; the 100% PC rotation is unchanged.
 | Fully Relayed Max | 19  | 85994.02082397901 | 85662.43508254348 |
 | Fully Relayed Min | 18  | 83685.26993989614 | 83363.83592025543 |
 | Fully Relayed Min | 19  | 87571.44407882044 | 87235.20669433784 |
+
+## Jade Grounded Toad sequence acceptance (November 26, 2026)
+
+Grounded now lands seven five-hit Pursuits and retains seven Unfading Flower
+activations. After the fourth Flower breaks Qi, full Fan Q enables a Pursuit.
+Leaping Toad / Deflect and two charged Fan lights replace the draft Smolder–Poet
+block. The first charged light cancels into Deflect and the second cancels into
+Peak for another five-hit Pursuit.
+
+The Toad sequence gains 0.0179–1.9533% DPS over the previously accepted Grounded
+snapshots across nine builds at breakthroughs 18 and 19. The comparison uses
+the current Power-roll gear on Fully Relayed Max BP and Graduate Short. All
+eighteen cases retain a 60-second duration at 40 ms ping.
+
+| Grounded / Fully Relayed Max / BT19 |               DPS |       Total damage |
+| ----------------------------------- | ----------------: | -----------------: |
+| Previously accepted                 | 92703.46381355003 | 5562207.8288130015 |
+| Smolder–Poet draft                  | 94007.11431640391 |  5640426.858984235 |
+| Accepted Toad sequence              | 94485.51705416893 |  5669131.023250136 |

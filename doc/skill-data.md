@@ -2929,12 +2929,25 @@ The name describes the refill requirement: the accepted four-Blossom pulses
 actually grant 36 before the cap. It omits the third hit and its resource grant
 at 0.7442s. The existing two-hit variant still ends at 0.53s and grants 32.
 
-Grounded opens with Fan Q [Miss]. Fan Q grants Jadebreak and Windrider while its charge recovers normally. The first Umbrella Q hit starts the clock. The opener uses Q / Heavy / two-hit Colorful Phoenix / Q. Light VC grants 28 Blossoms by its second impact at 0.4442s and 32 after the 0.53s pulse. The second Q fills Blossoms to 100 and benefits from Mistwillow on builds using the set. Toad enables the three-hit pursuit
-in the first UF window and full Fan Q enables the five-hit pursuit in the
-second. Flute cancel follows Forsaken Fame in the third UF window. Q / Heavy / Phoenix refills the fourth UF, which breaks Qi at 28.331s. Saving the Q charge lets the final Umbrella Q start as soon as UF mode ends and input latency clears. Fan Q,
-two-hit Smolder, and five-hit Poet / Deflect follow during exhaustion. Smolder starts sober, so Poet can follow its second impact directly.
-Every UF cancel has an immediate Deflect. Single-Q refills start the fifth
-and seventh UFs at about 60 Blossoms. Poet's fifth hit refunds 4 Vitality. An extra Forsaken Fame cancel / Deflect after the seventh UF fills the time before the final two-hit Soaring Spin on the passive dummy.
+Grounded opens with Fan Q [Miss] to grant Jadebreak and Windrider while its
+charge recovers. The first Umbrella Q hit starts the clock. The Q / Heavy /
+two-hit Colorful Phoenix / Q opener fills Blossoms to 100 and lets the second Q
+benefit from Mistwillow. Light VC grants 28 Blossoms by its second impact at
+0.4442s and 32 after the 0.53s pulse.
+
+The one-minute sequence lands seven five-hit Pursuits. Forsaken Fame marks the
+target for the first Peak cancel and Windrider Pursuit. Full Fan Q enables the
+second, fourth, and sixth Pursuits. Flute cancel follows the third Pursuit.
+The fourth UF breaks Qi at 29.455s. Its Fan Q leads directly into Pursuit during
+exhaustion. Leaping Toad cancels into Deflect on the lunge hit. The first
+charged Fan light cancels into Deflect and the second cancels into Peak, which
+enables another five-hit Pursuit before the fifth refill. The fifth UF window
+still funds two-hit Soaring Spin on a passive dummy.
+
+Every UF cancel has an immediate Deflect. Single-Q refills start the fifth and
+seventh UFs at about 60 Blossoms. Two Forsaken Fame cancel / Deflect pairs
+maintain Lingering Bone through the sixth UF and the seventh refill. Peak
+cancel enables the final Pursuit, whose five hits land before the 60s cutoff.
 
 Forsaken Fame [Cancel] ends at its 1.19-second damage hit, retaining Lingering
 Bone and the 10-Endurance grant at that same timestamp. It saves 0.44 seconds
