@@ -5,7 +5,7 @@ import {
   attunementData,
   gearData,
   gearNameMaxLength,
-  gearAffixKeyForLevel,
+  canonicalGearAffixKey,
   gearLevels,
   maxGearRoll,
   type GearDefinition,
@@ -109,10 +109,7 @@ export function capAndFilterGearDraft(
   const capped = capGearDraft(
     {
       ...draft,
-      additionalAffixes: draft.additionalAffixes.map(affix => ({
-        ...affix,
-        key: gearAffixKeyForLevel(affix.key, draft.level),
-      })),
+      additionalAffixes: draft.additionalAffixes.map(affix => ({ ...affix, key: canonicalGearAffixKey(affix.key) })),
     },
     relayed,
   )

@@ -329,8 +329,14 @@ Dashboard affix IDs are checked against the interpreted initial affixes,
 tuning affixes, and nested attunement entries in the dated
 `local/datamine/` snapshots for tiers 91, 96, 100, 105, 110, and 115.
 Named entries reuse established canonical keys when the source name identifies
-a single stat or attunement. At tier 115, IDs `11693123` and `11694123` are
-Combat Boost Against Boss Units, and `11693124` is Boost Vs. Player Units.
+a single stat or attunement. The Global export uses property 476
+(`ALL_SKILL_QS_ADD`) for the helmet and chestpiece rolls at tiers 100, 105,
+110 and 115. Their maximum rolls are 11.4%, 13.4%, 15.4% and 17.7% respectively.
+Tier 91 (legacy gear) and tier 96 use All Mystic at 8% and 9.8% respectively.
+At tier 115, IDs `11693123` and `11694123` are Combat Boost Against Boss
+Units, and `11693124` is Boost Vs. Player Units. Saved split Mystic rolls migrate to All Mystic at every tier. The old tier-115 Single-Target Mystic entry
+on greaves and bracers migrates to the boss boost, keeping the explicit boss
+roll if the item already has one.
 The tier-115 Bolt and Wings armor attunements use `319501`–`319505` and
 `319651`–`319655` respectively. Tuning metadata, PvP-only mechanics, and
 unnamed entries without an independently confirmed mapping remain unsupported;
@@ -445,10 +451,8 @@ is directly observed in a dashboard export; the remaining ordering follows the
 confirmed category sequence. Stonesplit Might has no Stormbreaker Spear Martial
 Art Skill DMG Boost attunement.
 
-For Tier 91 armor, dashboard ID `9293029` is Area Mystic Skill DMG Boost and
-attunement ID `270204` is Stormbreaker Spear Charged Skill DMG Boost. These IDs
-are confirmed independently from the Tier 96 sequence and must not be inferred
-by merely replacing the tier prefix.
+For Tier 91 armor, legacy Mystic dashboard ID `9293029` maps to All Mystic Skill
+DMG Boost. Attunement ID `270204` is Stormbreaker Spear Charged Skill DMG Boost.
 
 The observed Silkbind - Deluge profile maps martial-art IDs `10301` and `20602`
 to Panacea Fan and Soulshade Umbrella. Inner Way IDs `351`, `44`, and `82` map to
@@ -551,12 +555,8 @@ those selections are session overrides and can be reset individually or with
 the global Reset control. The Build tab does not
 calculate effective stats, rates, or DPS.
 
-The two Mystic affixes use existing skill tags:
-
-- `singleTargetMysticDmgBoost` applies to `SingleTargetMystic`
-- `areaMysticDmgBoost` applies to `AreaMystic`
-
-Both are Category 1 damage bonuses and are stored as decimal ratios.
+All Mystic Skill DMG Boost (`allMysticDmgBoost`) is a Category 1 damage bonus
+for skills tagged `Mystic`. It is stored as a decimal ratio.
 
 Jade Short Fight builds use Rain Whisper and Breaking Point; Long Fight builds
 use Mistwillow and Thunderous Bloom. Max Short Fight retains Power and uses one

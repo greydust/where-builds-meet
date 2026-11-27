@@ -290,7 +290,7 @@
           { "key": "minPhys", "value": 105.6 },
           { "key": "agility", "value": 66.8 },
           { "key": "precision", "value": 0.108 },
-          { "key": "areaMysticDmgBoost", "value": 0.134 }
+          { "key": "allMysticDmgBoost", "value": 0.134 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.08 }
       },
@@ -303,7 +303,7 @@
           { "key": "minPhys", "value": 105.6 },
           { "key": "agility", "value": 66.8 },
           { "key": "precision", "value": 0.108 },
-          { "key": "areaMysticDmgBoost", "value": 0.134 }
+          { "key": "allMysticDmgBoost", "value": 0.134 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.08 }
       },
@@ -396,7 +396,7 @@
           { "key": "minPhys", "value": 121.4 },
           { "key": "agility", "value": 76.8 },
           { "key": "precision", "value": 0.124 },
-          { "key": "areaMysticDmgBoost", "value": 0.154 }
+          { "key": "allMysticDmgBoost", "value": 0.154 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.092 }
       },
@@ -409,7 +409,7 @@
           { "key": "minPhys", "value": 121.4 },
           { "key": "agility", "value": 76.8 },
           { "key": "precision", "value": 0.124 },
-          { "key": "areaMysticDmgBoost", "value": 0.154 }
+          { "key": "allMysticDmgBoost", "value": 0.154 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.092 }
       },
@@ -502,7 +502,7 @@
           { "key": "minPhys", "value": 139.6 },
           { "key": "agility", "value": 88.4 },
           { "key": "precision", "value": 0.144 },
-          { "key": "areaMysticDmgBoost", "value": 0.177 }
+          { "key": "allMysticDmgBoost", "value": 0.177 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.106 }
       },
@@ -515,7 +515,7 @@
           { "key": "minPhys", "value": 139.6 },
           { "key": "agility", "value": 88.4 },
           { "key": "precision", "value": 0.144 },
-          { "key": "areaMysticDmgBoost", "value": 0.177 }
+          { "key": "allMysticDmgBoost", "value": 0.177 }
         ],
         "attunement": { "key": "heavenwillChargedBoost", "value": 0.106 }
       },

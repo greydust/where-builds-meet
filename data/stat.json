@@ -32,8 +32,7 @@
       "fanDmgBoost": 0.052,
       "dualBladesDmgBoost": 0.052,
       "vsBossDmg": 0.026,
-      "singleTargetMysticDmgBoost": 0.08,
-      "areaMysticDmgBoost": 0.08,
+      "allMysticDmgBoost": 0.08,
       "ribbonAndDrumDmgBoost": 0.052
     },
     "attunement": { "physicalPenetration": 9, "formlessPenetration": 10.8, "physicalResistance": 9, "armor": 0.05 }
@@ -71,8 +70,7 @@
       "fanDmgBoost": 0.062,
       "dualBladesDmgBoost": 0.062,
       "vsBossDmg": 0.032,
-      "singleTargetMysticDmgBoost": 0.098,
-      "areaMysticDmgBoost": 0.098,
+      "allMysticDmgBoost": 0.098,
       "maxHp": 2960,
       "physicalDefense": 39,
       "ribbonAndDrumDmgBoost": 0.062
@@ -158,8 +156,7 @@
       "fanDmgBoost": 0.086,
       "dualBladesDmgBoost": 0.086,
       "allMartialArts": 0.042,
-      "areaMysticDmgBoost": 0.134,
-      "singleTargetMysticDmgBoost": 0.134,
+      "allMysticDmgBoost": 0.134,
       "vsBossDmg": 0.044,
       "ribbonAndDrumDmgBoost": 0.086
     },
@@ -204,8 +201,7 @@
       "fanDmgBoost": 0.098,
       "dualBladesDmgBoost": 0.098,
       "allMartialArts": 0.049,
-      "areaMysticDmgBoost": 0.154,
-      "singleTargetMysticDmgBoost": 0.154,
+      "allMysticDmgBoost": 0.154,
       "vsBossDmg": 0.051,
       "ribbonAndDrumDmgBoost": 0.098
     },
@@ -250,8 +246,7 @@
       "fanDmgBoost": 0.113,
       "dualBladesDmgBoost": 0.113,
       "allMartialArts": 0.056,
-      "areaMysticDmgBoost": 0.177,
-      "singleTargetMysticDmgBoost": 0.059,
+      "allMysticDmgBoost": 0.177,
       "vsBossDmg": 0.059,
       "ribbonAndDrumDmgBoost": 0.113
     },

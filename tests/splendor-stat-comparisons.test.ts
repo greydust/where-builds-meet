@@ -13,12 +13,12 @@ it("matches fresh Splendor simulations for stat comparisons, including neutral s
     fixture.build,
   )!
   const baseline = calculateRotationBaseline(bundle)
-  const keys = ["body", "defense", "affinity", "singleTargetMysticDmgBoost"] as const
+  const keys = ["body", "defense", "affinity", "allMysticDmgBoost"] as const
   bundle.statPriority = keys.map(key => ({
     label: key,
     stats: {
       ...bundle.baseStats!,
-      [key]: bundle.baseStats![key] + (key === "affinity" || key === "singleTargetMysticDmgBoost" ? 0.01 : 10),
+      [key]: bundle.baseStats![key] + (key === "affinity" || key === "allMysticDmgBoost" ? 0.01 : 10),
     },
   }))
   const compared = calculateRotationComparisons(bundle, baseline)

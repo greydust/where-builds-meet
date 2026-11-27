@@ -81,15 +81,9 @@ describe("Yaksha Rush", () => {
     expect(rows[1].cooldownWait).toBeCloseTo(COOLDOWN - CAST_TIME, 10)
   })
 
-  it("routes both hits through the single-target mystic boost only", () => {
+  it("routes both hits through the All Mystic boost", () => {
     const skillTags = mystic.YakshaRush.tags ?? []
-    const probeStats: CharacterStats = {
-      ...emptyStats,
-      minPhys: 100,
-      maxPhys: 100,
-      singleTargetMysticDmgBoost: 0.1,
-      areaMysticDmgBoost: 0.2,
-    }
+    const probeStats: CharacterStats = { ...emptyStats, minPhys: 100, maxPhys: 100, allMysticDmgBoost: 0.1 }
     const context: DamageContext = {
       stats: probeStats,
       skillTags: [],
@@ -118,7 +112,7 @@ describe("Yaksha Rush", () => {
             sum + calculateDamageBreakdown(action as DamageAction, { ...context, skillTags: tags }).total,
           0,
         )
-    const untagged = total(["Mystic"])
+    const untagged = total([])
     expect(total(skillTags) / untagged).toBeCloseTo(1.1, 9)
   })
 })

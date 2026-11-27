@@ -1,5 +1,5 @@
-import { DIRECT_CRIT_RATE_CAP } from "../calculations/statCaps"
-import type { CharacterStats, StatDefinition } from "../types"
+import { DIRECT_CRIT_RATE_CAP } from "@/calculations/statCaps"
+import type { CharacterStats, StatDefinition } from "@/types"
 
 export const combatStats: StatDefinition[] = [
   { key: "minPhys", label: "Min Physical Attack" },
@@ -102,20 +102,6 @@ export const defenseStats: StatDefinition[] = [
   {
     key: "allMysticDmgBoost",
     label: "All Mystic Skill DMG Boost",
-    unit: "%",
-    showUnitInLabel: false,
-    showUnitInInput: true,
-  },
-  {
-    key: "singleTargetMysticDmgBoost",
-    label: "Single-Target Mystic Skill DMG Boost",
-    unit: "%",
-    showUnitInLabel: false,
-    showUnitInInput: true,
-  },
-  {
-    key: "areaMysticDmgBoost",
-    label: "Area Mystic Skill DMG Boost",
     unit: "%",
     showUnitInLabel: false,
     showUnitInInput: true,

@@ -382,18 +382,6 @@ export function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
   return 0
 }
 
-function mysticSkillDamageBonus(stats: CharacterStats, skillTags: string[]) {
-  for (const tag of skillTags) {
-    switch (tag) {
-      case "SingleTargetMystic":
-        return stats.singleTargetMysticDmgBoost + stats.allMysticDmgBoost
-      case "AreaMystic":
-        return stats.areaMysticDmgBoost + stats.allMysticDmgBoost
-    }
-  }
-  return skillTags.includes("Mystic") ? stats.allMysticDmgBoost : 0
-}
-
 function calculateDamageBreakdownInternal(
   action: DamageAction,
   context: DamageContext,
@@ -559,7 +547,7 @@ function calculateDamageBreakdownInternal(
   if (import.meta.env.DEV) finishCalculationPhase("damageAttunementAggregation", attunementAggregationStartedAt)
   const sharedMultiplierStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
   const skillWeaponArtBonus = weaponArtBonus(stats, skillTags)
-  const mysticSkillBonus = mysticSkillDamageBonus(stats, skillTags)
+  const mysticSkillBonus = skillTags.includes("Mystic") ? stats.allMysticDmgBoost : 0
   const damageBonusCategory1 =
     stats.vsBossDmg +
     (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +

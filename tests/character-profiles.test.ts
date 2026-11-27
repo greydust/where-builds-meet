@@ -6,12 +6,18 @@ import { defaultGlobalDebuffs } from "@/globalDebuffs"
 describe("character-profiles", () => {
   it("Character profile validation, matching, export, and collision-safe import checks passed", async () => {
     const { characterProfileMatches, exportCharacterProfiles, mergeImportedCharacterProfiles, parseCharacterProfiles } =
-      await import("../src/characterProfiles.ts")
+      await import("@/characterProfiles")
     const parsed = parseCharacterProfiles([
       {
         id: "profile-1",
         name: " Test Profile ",
-        statOverrides: { minPhys: 123, unknownStat: 999, maxPhys: Number.NaN },
+        statOverrides: {
+          minPhys: 123,
+          unknownStat: 999,
+          maxPhys: Number.NaN,
+          areaMysticDmgBoost: 0.08,
+          singleTargetMysticDmgBoost: 0.098,
+        },
         attunementOverrides: { physicalPenetration: 0.051, unknownAttunement: 2 },
         breakthrough: "17",
         innerWays: [
@@ -27,6 +33,7 @@ describe("character-profiles", () => {
       },
     ])
     assert(parsed.length === 1 && parsed[0].name === "Test Profile", "Profiles must load with a trimmed name.")
+    assert(parsed[0].statOverrides.allMysticDmgBoost === 0.098, "The strongest legacy Mystic override must migrate.")
     assert(
       parsed[0].statOverrides.minPhys === 123 &&
         !("unknownStat" in parsed[0].statOverrides) &&
@@ -51,7 +58,7 @@ describe("character-profiles", () => {
     )
     assert(
       characterProfileMatches(parsed[0], {
-        statOverrides: { minPhys: 123 },
+        statOverrides: { minPhys: 123, allMysticDmgBoost: 0.098 },
         attunementOverrides: { physicalPenetration: 0.051 },
         innerWays: parsed[0].innerWays.map(row => ({ ...row })),
         buildSetup: {

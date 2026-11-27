@@ -290,7 +290,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 105.6 },
           { "key": "power", "value": 66.8 },
-          { "key": "areaMysticDmgBoost", "value": 0.134 },
+          { "key": "allMysticDmgBoost", "value": 0.134 },
           { "key": "precision", "value": 0.108 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.08 }
@@ -303,7 +303,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 105.6 },
           { "key": "power", "value": 66.8 },
-          { "key": "areaMysticDmgBoost", "value": 0.134 },
+          { "key": "allMysticDmgBoost", "value": 0.134 },
           { "key": "agility", "value": 66.8 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.08 }
@@ -396,7 +396,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 121.4 },
           { "key": "power", "value": 76.8 },
-          { "key": "areaMysticDmgBoost", "value": 0.154 },
+          { "key": "allMysticDmgBoost", "value": 0.154 },
           { "key": "precision", "value": 0.124 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.092 }
@@ -409,7 +409,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 121.4 },
           { "key": "power", "value": 76.8 },
-          { "key": "areaMysticDmgBoost", "value": 0.154 },
+          { "key": "allMysticDmgBoost", "value": 0.154 },
           { "key": "agility", "value": 76.8 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.092 }
@@ -502,7 +502,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 139.6 },
           { "key": "power", "value": 88.4 },
-          { "key": "areaMysticDmgBoost", "value": 0.177 },
+          { "key": "allMysticDmgBoost", "value": 0.177 },
           { "key": "precision", "value": 0.144 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.106 }
@@ -515,7 +515,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 139.6 },
           { "key": "power", "value": 88.4 },
-          { "key": "areaMysticDmgBoost", "value": 0.177 },
+          { "key": "allMysticDmgBoost", "value": 0.177 },
           { "key": "agility", "value": 88.4 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.106 }

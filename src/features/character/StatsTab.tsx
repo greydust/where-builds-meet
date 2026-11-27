@@ -741,24 +741,6 @@ export function StatsTab({
                   onStatReset={onStatReset}
                 />
               </StatPair>
-              <StatPair>
-                <CalculatedStatField
-                  definition={statDefinition("singleTargetMysticDmgBoost")}
-                  compact
-                  stats={stats}
-                  statOverrides={statOverrides}
-                  onStatChange={onStatChange}
-                  onStatReset={onStatReset}
-                />
-                <CalculatedStatField
-                  definition={statDefinition("areaMysticDmgBoost")}
-                  compact
-                  stats={stats}
-                  statOverrides={statOverrides}
-                  onStatChange={onStatChange}
-                  onStatReset={onStatReset}
-                />
-              </StatPair>
               {showHealingStats ? (
                 <StatPair>
                   <CalculatedStatField

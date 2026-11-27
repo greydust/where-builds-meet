@@ -43,29 +43,62 @@ const sheet = (breakthrough: string) =>
   })
 
 describe("gear progression", () => {
-  it.each(["singleTargetMysticDmgBoost", "areaMysticDmgBoost"])(
-    "migrates stored tier-100 %s without losing the item or its roll",
-    key => {
-      const inventory = {
-        items: [
-          {
-            id: "legacy-mystic",
-            slot: "helmet",
-            definitionId: "helmet",
-            level: 100,
-            rarity: "Gold",
-            baseAffix: { key: "maxHp", value: 1000 },
-            additionalAffixes: [{ key, value: 0.098 }],
-          },
-        ],
-        equipped: { helmet: "legacy-mystic" },
-      }
-      const parsed = parseGearInventory(inventory)!
-      expect(parsed.items).toHaveLength(1)
-      expect(parsed.items[0].additionalAffixes).toEqual([{ key: "allMysticDmgBoost", value: 0.098 }])
-      expect(parsed.equipped).toEqual(inventory.equipped)
-    },
-  )
+  it.each([
+    { level: 91, key: "areaMysticDmgBoost" },
+    { level: 96, key: "singleTargetMysticDmgBoost" },
+    { level: 100, key: "singleTargetMysticDmgBoost" },
+    { level: 100, key: "areaMysticDmgBoost" },
+    { level: 105, key: "singleTargetMysticDmgBoost" },
+    { level: 110, key: "areaMysticDmgBoost" },
+    { level: 115, key: "areaMysticDmgBoost" },
+  ])("migrates stored tier-$level $key without losing the item or its roll", ({ level, key }) => {
+    const inventory = {
+      items: [
+        {
+          id: "legacy-mystic",
+          slot: "helmet",
+          definitionId: "helmet",
+          level,
+          rarity: "Gold",
+          baseAffix: { key: "precision", value: 20 },
+          additionalAffixes: [{ key, value: 0.098 }],
+        },
+      ],
+      equipped: { helmet: "legacy-mystic" },
+    }
+    const parsed = parseGearInventory(inventory)!
+    expect(parsed.items).toHaveLength(1)
+    expect(parsed.items[0].additionalAffixes).toEqual([{ key: "allMysticDmgBoost", value: 0.098 }])
+    expect(parsed.equipped).toEqual(inventory.equipped)
+  })
+
+  it("keeps the canonical tier-115 boss roll when a stored item also has the legacy single-target roll", () => {
+    const parsed = parseGearInventory({
+      items: [
+        {
+          id: "legacy-bracer",
+          slot: "bracer",
+          definitionId: "bracer",
+          level: 115,
+          rarity: "Gold",
+          baseAffix: { key: "maxHp", value: 1000 },
+          additionalAffixes: [
+            { key: "singleTargetMysticDmgBoost", value: 0.059 },
+            { key: "vsBossDmg", value: 0.05 },
+            { key: "crit", value: 10 },
+          ],
+          turnedAffixIndex: 2,
+        },
+      ],
+      equipped: { bracer: "legacy-bracer" },
+    })!
+    expect(parsed.items[0].additionalAffixes).toEqual([
+      { key: "vsBossDmg", value: 0.05 },
+      { key: "crit", value: 10 },
+    ])
+    expect(parsed.items[0].turnedAffixIndex).toBe(1)
+    expect(parsed.equipped.bracer).toBe("legacy-bracer")
+  })
 
   it("materializes valid maximum-roll inventories at every supported preset tier", () => {
     for (const preset of defaultBuildPresets)
@@ -144,11 +177,6 @@ describe("gear progression", () => {
       variant => variant.label === attunementData.physicalPenetration.name,
     )!
     expect(penetration.maxRoll).toBe(maxGearRoll("physicalPenetration", "attunement", false, 100))
-    for (const key of ["singleTargetMysticDmgBoost", "areaMysticDmgBoost"] as const) {
-      expect(
-        bundle.statPriority.some(variant => variant.stats && variant.stats[key] !== subject.build.baseStats[key]),
-      ).toBe(false)
-    }
     expect(
       bundle.statPriority.some(
         variant => variant.stats && variant.stats.allMysticDmgBoost !== subject.build.baseStats.allMysticDmgBoost,
@@ -186,17 +214,28 @@ describe("gear progression", () => {
     )
   })
 
-  it.each([100931001, 100941001])("imports combined Mystic affix %s as a percentage", id => {
+  it.each([
+    { id: 9293029, level: 91, baseId: 9243003, roll: 8, expected: 0.08 },
+    { id: 9794123, level: 96, baseId: 9743001, roll: 9.8, expected: 0.098 },
+    { id: 100931001, level: 100, baseId: 10143001, roll: 11.4, expected: 0.114 },
+    { id: 100941001, level: 100, baseId: 10143001, roll: 11.4, expected: 0.114 },
+    { id: 105931001, level: 105, baseId: 10643001, roll: 13.4, expected: 0.134 },
+    { id: 105941001, level: 105, baseId: 10643001, roll: 13.4, expected: 0.134 },
+    { id: 110931001, level: 110, baseId: 11143001, roll: 15.4, expected: 0.154 },
+    { id: 110941001, level: 110, baseId: 11143001, roll: 15.4, expected: 0.154 },
+    { id: 11693122, level: 115, baseId: 11643001, roll: 17.7, expected: 0.177 },
+    { id: 11694122, level: 115, baseId: 11643001, roll: 17.7, expected: 0.177 },
+  ])("imports combined Mystic affix $id at tier $level", ({ id, level, baseId, roll, expected }) => {
     const imported = parseOfficialGearExport(
       {
         wearEquipsDetailed: {
           3: {
             exVo: {
-              level: 100,
+              level,
               rarity: "Gold",
               baseAffixes: [
-                [10143001, 3444],
-                [id, 11.4],
+                [baseId, 3444],
+                [id, roll],
               ],
             },
           },
@@ -205,7 +244,7 @@ describe("gear progression", () => {
       weapons,
     )
     expect(imported.warnings).toEqual([])
-    expect(imported.exportValue.gearItems[0].additionalAffixes).toEqual([{ key: "allMysticDmgBoost", value: 0.114 }])
+    expect(imported.exportValue.gearItems[0].additionalAffixes).toEqual([{ key: "allMysticDmgBoost", value: expected }])
   })
 
   it("recognizes and imports tier-100 items without changing their rolls", () => {

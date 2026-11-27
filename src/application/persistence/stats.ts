@@ -1,10 +1,11 @@
 import * as v from "valibot"
 
-import type { CharacterStatOverrides } from "../../calculations/statEffects"
-import { allStatDefinitions, emptyStats } from "../../data/statDefinitions"
-import { getPersistentItem } from "../../persistentStorage"
-import { parseJson } from "../../schemas/json"
-import type { CharacterStats } from "../../types"
+import type { CharacterStatOverrides } from "@/calculations/statEffects"
+import { allStatDefinitions, emptyStats } from "@/data/statDefinitions"
+import { getPersistentItem } from "@/persistentStorage"
+import { parseJson } from "@/schemas/json"
+import type { CharacterStats } from "@/types"
+
 import { characterStatsStorageKey, statOverrideStorageKey } from "./keys"
 import { readLegacyCharacterStats } from "./legacy"
 
@@ -19,6 +20,15 @@ export function statDefinition(key: keyof CharacterStats) {
   return definition
 }
 
+export function savedAllMysticBoost(values: Record<string, unknown>): number | undefined {
+  const current = values.allMysticDmgBoost
+  if (typeof current === "number" && Number.isFinite(current)) return current
+  const legacy = [values.areaMysticDmgBoost, values.singleTargetMysticDmgBoost].filter(
+    (value): value is number => typeof value === "number" && Number.isFinite(value),
+  )
+  return legacy.length ? Math.max(...legacy) : undefined
+}
+
 export function loadStats(): CharacterStats {
   const currentSaved = getPersistentItem(characterStatsStorageKey)
   const isLegacy = currentSaved === null
@@ -31,6 +41,7 @@ export function loadStats(): CharacterStats {
   }
   if (!saved) return { ...emptyStats }
   const values = saved as Partial<CharacterStats> & Record<string, unknown> & { attributeDmgBonus?: unknown }
+  const allMysticBoost = savedAllMysticBoost(values)
   const legacyAttributeBonus =
     typeof values.attributeDmgBonus === "number" && Number.isFinite(values.attributeDmgBonus)
       ? values.attributeDmgBonus / (isLegacy ? 100 : 1)
@@ -49,7 +60,10 @@ export function loadStats(): CharacterStats {
   }
   return Object.fromEntries(
     allStatDefinitions.map(({ key }) => {
-      const savedValue = values[key] ?? (legacyPenetrationKeys[key] ? values[legacyPenetrationKeys[key]!] : undefined)
+      const savedValue =
+        key === "allMysticDmgBoost"
+          ? allMysticBoost
+          : (values[key] ?? (legacyPenetrationKeys[key] ? values[legacyPenetrationKeys[key]!] : undefined))
       const hasSavedValue = typeof savedValue === "number" && Number.isFinite(savedValue)
       const value = hasSavedValue ? savedValue : pathBonusKeys.has(key) ? legacyAttributeBonus : 0
       return [key, isLegacy && hasSavedValue && percentageStatKeys.has(key) ? value / 100 : value]
@@ -64,7 +78,7 @@ export function loadStatOverrides(): CharacterStatOverrides {
     if (!values.success) return {}
     return Object.fromEntries(
       allStatDefinitions.flatMap(({ key }) => {
-        const value = values.output[key]
+        const value = key === "allMysticDmgBoost" ? savedAllMysticBoost(values.output) : values.output[key]
         return typeof value === "number" && Number.isFinite(value) ? [[key, value]] : []
       }),
     ) as CharacterStatOverrides

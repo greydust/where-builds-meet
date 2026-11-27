@@ -2,6 +2,7 @@ import defaultSetupJson from "@gamedata/default-setup.json"
 import * as v from "valibot"
 
 import { characterProfileStorageKey } from "./application/persistence/keys"
+import { savedAllMysticBoost } from "./application/persistence/stats"
 import { migrateAttunementValues } from "./calculations/attunementStats"
 import type { AttunementStats } from "./calculations/damage"
 import type { CharacterStatOverrides } from "./calculations/statEffects"
@@ -56,10 +57,13 @@ function parseProfile(value: unknown): CharacterProfile | undefined {
     return undefined
   const innerWays = parseInnerWays(source.innerWays)
   const buildSetup = normalizeBuildSetup(source.buildSetup, defaultBuildSetup)
+  const statOverrides = finiteValues(source.statOverrides, characterStatKeys)
+  const allMysticBoost = savedAllMysticBoost(validated.output.statOverrides ?? {})
+  if (allMysticBoost !== undefined) statOverrides.allMysticDmgBoost = allMysticBoost
   return {
     id: source.id,
     name: source.name.trim(),
-    statOverrides: finiteValues(source.statOverrides, characterStatKeys) as CharacterStatOverrides,
+    statOverrides: statOverrides as CharacterStatOverrides,
     attunementOverrides: finiteValues(
       migrateAttunementValues(source.attunementOverrides),
       attunementKeys,

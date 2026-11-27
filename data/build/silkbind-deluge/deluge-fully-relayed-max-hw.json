@@ -78,7 +78,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 73.132 },
           { "key": "momentum", "value": 46.436 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.09212 },
+          { "key": "allMysticDmgBoost", "value": 0.09212 },
           { "key": "precision", "value": 0.0752 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.06 }
@@ -91,7 +91,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 73.132 },
           { "key": "momentum", "value": 46.436 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.09212 },
+          { "key": "allMysticDmgBoost", "value": 0.09212 },
           { "key": "precision", "value": 0.0752 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.06 }
@@ -290,7 +290,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 99.264 },
           { "key": "momentum", "value": 62.791999999999994 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.12596 },
+          { "key": "allMysticDmgBoost", "value": 0.12596 },
           { "key": "precision", "value": 0.10152 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.08 }
@@ -303,7 +303,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 99.264 },
           { "key": "momentum", "value": 62.791999999999994 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.12596 },
+          { "key": "allMysticDmgBoost", "value": 0.12596 },
           { "key": "precision", "value": 0.10152 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.08 }
@@ -396,7 +396,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 114.116 },
           { "key": "momentum", "value": 72.192 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.14475999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.14475999999999997 },
           { "key": "precision", "value": 0.11656 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.092 }
@@ -409,7 +409,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 114.116 },
           { "key": "momentum", "value": 72.192 },
-          { "key": "singleTargetMysticDmgBoost", "value": 0.14475999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.14475999999999997 },
           { "key": "precision", "value": 0.11656 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.092 }
@@ -502,7 +502,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 131.224 },
           { "key": "momentum", "value": 83.096 },
-          { "key": "areaMysticDmgBoost", "value": 0.16637999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.16637999999999997 },
           { "key": "precision", "value": 0.13535999999999998 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.106 }
@@ -515,7 +515,7 @@
         "additionalAffixes": [
           { "key": "maxPhys", "value": 131.224 },
           { "key": "momentum", "value": 83.096 },
-          { "key": "areaMysticDmgBoost", "value": 0.16637999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.16637999999999997 },
           { "key": "precision", "value": 0.13535999999999998 }
         ],
         "attunement": { "key": "panaceaMartialHealingBoost", "value": 0.106 }

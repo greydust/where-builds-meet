@@ -290,7 +290,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 99.264 },
           { "key": "agility", "value": 62.791999999999994 },
-          { "key": "areaMysticDmgBoost", "value": 0.12596 },
+          { "key": "allMysticDmgBoost", "value": 0.12596 },
           { "key": "crit", "value": 0.11467999999999999 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.08 }
@@ -303,7 +303,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 99.264 },
           { "key": "agility", "value": 62.791999999999994 },
-          { "key": "areaMysticDmgBoost", "value": 0.12596 },
+          { "key": "allMysticDmgBoost", "value": 0.12596 },
           { "key": "crit", "value": 0.11467999999999999 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.08 }
@@ -396,7 +396,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 114.116 },
           { "key": "agility", "value": 72.192 },
-          { "key": "areaMysticDmgBoost", "value": 0.14475999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.14475999999999997 },
           { "key": "crit", "value": 0.1316 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.092 }
@@ -409,7 +409,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 114.116 },
           { "key": "agility", "value": 72.192 },
-          { "key": "areaMysticDmgBoost", "value": 0.14475999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.14475999999999997 },
           { "key": "crit", "value": 0.1316 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.092 }
@@ -502,7 +502,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 131.224 },
           { "key": "agility", "value": 83.096 },
-          { "key": "areaMysticDmgBoost", "value": 0.16637999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.16637999999999997 },
           { "key": "crit", "value": 0.15228 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.106 }
@@ -515,7 +515,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 131.224 },
           { "key": "agility", "value": 83.096 },
-          { "key": "areaMysticDmgBoost", "value": 0.16637999999999997 },
+          { "key": "allMysticDmgBoost", "value": 0.16637999999999997 },
           { "key": "crit", "value": 0.15228 }
         ],
         "attunement": { "key": "museflowWaistDrumSpecialBoost", "value": 0.106 }

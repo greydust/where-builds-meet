@@ -837,7 +837,7 @@ Category 1 currently contains:
 - `vsBossDmg` (the current encounter is treated as a boss)
 - `allMartialArts` for skills tagged `MartialArts`
 - Art of Mo Blade for `MoBlade`, or Art of Heng Blade for `HengBlade`
-- Single-Target Mystic Skill DMG Boost for `SingleTargetMystic`, or Area Mystic Skill DMG Boost for `AreaMystic`
+- All Mystic Skill DMG Boost for skills tagged `Mystic`
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
 
@@ -1409,9 +1409,9 @@ before stat aggregation. Breakthrough 18 uses tier-100 weapon, armor, and
 bow/ring bonuses for both two-piece and four-piece selections; four-piece
 combat mechanics retain their authored behavior.
 
-Tier-100 All Mystic Skill DMG Boost adds to the Mystic damage bonus for all
+All Mystic Skill DMG Boost adds to the Mystic damage bonus for all
 Mystic skills, including both area and single-target skills. It does not affect
-martial arts. The exported affixes are 100931001 and 100941001, property 476
+martial arts. The tier-100 exported affixes are 100931001 and 100941001, property 476
 (`ALL_SKILL_QS_ADD`), with rolls from 0.057 to 0.114. Their display names are
 missing in the export; the application labels them All Mystic Skill DMG Boost.
 

@@ -40,8 +40,6 @@
     "swordDmgBoost": { "name": "Art of Sword", "percentage": true, "aggregation": "max" },
     "fanDmgBoost": { "name": "Art of Fan", "percentage": true, "aggregation": "max" },
     "dualBladesDmgBoost": { "name": "Art of Dual Blades", "percentage": true, "aggregation": "max" },
-    "singleTargetMysticDmgBoost": { "name": "Single-Target Mystic Skill DMG Boost", "percentage": true },
-    "areaMysticDmgBoost": { "name": "Area Mystic Skill DMG Boost", "percentage": true },
     "vsBossDmg": { "name": "vs Boss DMG", "percentage": true },
     "maxHp": { "name": "Max HP", "pickable": false },
     "physicalDefense": { "name": "Physical Defense", "pickable": false },
@@ -2615,8 +2613,7 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "96": [
           "minPhys",
@@ -2635,8 +2632,7 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "100": [
           "power",
@@ -2678,8 +2674,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost",
-          "singleTargetMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "110": [
           "body",
@@ -2702,8 +2697,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost",
-          "singleTargetMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "115": [
           "body",
@@ -2726,7 +2720,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ]
       },
       "attunements": ["Armor"]
@@ -2783,8 +2777,7 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "96": [
           "minPhys",
@@ -2803,8 +2796,7 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "100": [
           "power",
@@ -2846,8 +2838,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost",
-          "singleTargetMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "110": [
           "body",
@@ -2870,8 +2861,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost",
-          "singleTargetMysticDmgBoost"
+          "allMysticDmgBoost"
         ],
         "115": [
           "body",
@@ -2894,7 +2884,7 @@
           "precision",
           "crit",
           "affinity",
-          "areaMysticDmgBoost"
+          "allMysticDmgBoost"
         ]
       },
       "attunements": ["Armor"]
@@ -3046,7 +3036,6 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
           "vsBossDmg"
         ]
       },
@@ -3199,7 +3188,6 @@
           "precision",
           "crit",
           "affinity",
-          "singleTargetMysticDmgBoost",
           "vsBossDmg"
         ]
       },

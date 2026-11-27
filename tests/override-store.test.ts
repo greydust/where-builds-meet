@@ -49,11 +49,12 @@ const profile = {
 describe("override store", () => {
   it("reads the stored overrides, so a saved session resumes with them applied", async () => {
     const { useOverrideStore, restore } = await overrideStore({
-      [statKey]: JSON.stringify({ power: 1200, nonsense: 5 }),
+      [statKey]: JSON.stringify({ power: 1200, nonsense: 5, allMysticDmgBoost: 0, areaMysticDmgBoost: 0.098 }),
       [attunementKey]: JSON.stringify({ physicalPenetration: 8 }),
     })
     try {
       assert(useOverrideStore.getState().statOverrides.power === 1200, "A stored stat override must load.")
+      assert(useOverrideStore.getState().statOverrides.allMysticDmgBoost === 0, "The explicit Mystic override wins.")
       // A key the sheet does not know is dropped rather than carried, so it cannot reach a
       // calculation as a value no definition describes.
       assert(!("nonsense" in useOverrideStore.getState().statOverrides), "An unknown key must not load.")

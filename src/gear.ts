@@ -81,8 +81,7 @@ export type GearItem = {
   attunement?: GearValue
 }
 
-export function gearAffixKeyForLevel(key: string, level: GearLevel) {
-  if (level !== 100) return key
+export function canonicalGearAffixKey(key: string) {
   switch (key) {
     case "singleTargetMysticDmgBoost":
     case "areaMysticDmgBoost":
@@ -505,16 +504,37 @@ function parseGearItem(value: unknown): GearItem | undefined {
   if (candidate.attunement) {
     candidate.attunement = { ...candidate.attunement, key: canonicalAttunementKey(candidate.attunement.key) }
   }
-  if (isGearLevel(candidate.level) && candidate.additionalAffixes) {
-    candidate.additionalAffixes = candidate.additionalAffixes.map(affix => ({
-      ...affix,
-      key: gearAffixKeyForLevel(affix.key, candidate.level!),
-    }))
+  const level = isGearLevel(candidate.level) ? candidate.level : undefined
+  if (level !== undefined && candidate.additionalAffixes) {
+    const affixes = candidate.additionalAffixes
+    const savedKeys = new Set(affixes.map(affix => affix.key))
+    const lowerArmor = candidate.definitionId === "greaves" || candidate.definitionId === "bracer"
+    for (let index = affixes.length - 1; index >= 0; index--) {
+      const affix = affixes[index]
+      const key =
+        level === 115 && lowerArmor && affix.key === "singleTargetMysticDmgBoost"
+          ? "vsBossDmg"
+          : canonicalGearAffixKey(affix.key)
+      if (key === affix.key) continue
+      const retainedIndex = affixes.findIndex(other => other.key === key)
+      if (retainedIndex === -1) {
+        affixes[index] = { key, value: affix.value }
+        continue
+      }
+      if (!savedKeys.has(key) && affix.value > affixes[retainedIndex].value) {
+        affixes[retainedIndex] = { key, value: affix.value }
+      }
+      affixes.splice(index, 1)
+      const turnedIndex = candidate.turnedAffixIndex
+      if (turnedIndex !== undefined) {
+        const nextIndex = turnedIndex === index ? retainedIndex : turnedIndex
+        candidate.turnedAffixIndex = nextIndex > index ? nextIndex - 1 : nextIndex
+      }
+    }
   }
   if (typeof candidate.id !== "string" || !candidate.id) return undefined
   if (typeof candidate.definitionId !== "string") return undefined
   const definition = gearData.gear[candidate.definitionId]
-  const level = isGearLevel(candidate.level) ? candidate.level : undefined
   const rarity = candidate.rarity === "Purple" || candidate.rarity === "Gold" ? candidate.rarity : undefined
   const slot = gearSlots.includes(candidate.slot as GearSlot) ? (candidate.slot as GearSlot) : undefined
   if (!definition || !level || !rarity || (!definition.weapon && (!slot || !definition.slots.includes(slot))))

@@ -67,8 +67,6 @@ export type CharacterStats = {
   fanDmgBoost: number
   dualBladesDmgBoost: number
   allMysticDmgBoost: number
-  singleTargetMysticDmgBoost: number
-  areaMysticDmgBoost: number
 }
 
 export type EnemyProfile = {

@@ -649,13 +649,7 @@ describe("gear", () => {
     }
     assert(invalidImportRejected, "Import must reject files without the build export format identifier.")
 
-    const damageStats = {
-      ...statDefinitions.emptyStats,
-      minPhys: 100,
-      maxPhys: 100,
-      singleTargetMysticDmgBoost: 0.1,
-      areaMysticDmgBoost: 0.2,
-    }
+    const damageStats = { ...statDefinitions.emptyStats, minPhys: 100, maxPhys: 100 }
     const damageContext = {
       stats: damageStats,
       attunement: {
@@ -683,27 +677,6 @@ describe("gear", () => {
       derivedStats: {},
       effects: [{ stat: {} }],
     }
-    const baselineDamage = damage.calculateDamageBreakdown(
-      { phyCoef: 1, attrCoef: 1 },
-      { ...damageContext, skillTags: ["Mystic"] },
-    ).total
-    const singleTargetDamage = damage.calculateDamageBreakdown(
-      { phyCoef: 1, attrCoef: 1 },
-      { ...damageContext, skillTags: ["Mystic", "SingleTargetMystic"] },
-    ).total
-    const areaDamage = damage.calculateDamageBreakdown(
-      { phyCoef: 1, attrCoef: 1 },
-      { ...damageContext, skillTags: ["Mystic", "AreaMystic"] },
-    ).total
-    assert(
-      Math.abs(singleTargetDamage / baselineDamage - 1.1) < 1e-9,
-      "Single-Target Mystic bonus did not apply only to its matching tag.",
-    )
-    assert(
-      Math.abs(areaDamage / baselineDamage - 1.2) < 1e-9,
-      "Area Mystic bonus did not apply only to its matching tag.",
-    )
-
     for (const tags of [["Mystic"], ["Mystic", "SingleTargetMystic"], ["Mystic", "AreaMystic"], ["MartialArt"]]) {
       const base = damage.calculateDamageBreakdown(
         { phyCoef: 1, attrCoef: 1 },
@@ -711,22 +684,10 @@ describe("gear", () => {
       ).total
       const boosted = damage.calculateDamageBreakdown(
         { phyCoef: 1, attrCoef: 1 },
-        {
-          ...damageContext,
-          skillTags: tags,
-          stats: { ...damageStats, singleTargetMysticDmgBoost: 0, areaMysticDmgBoost: 0, allMysticDmgBoost: 0.114 },
-        },
-      ).total
-      const unboosted = damage.calculateDamageBreakdown(
-        { phyCoef: 1, attrCoef: 1 },
-        {
-          ...damageContext,
-          skillTags: tags,
-          stats: { ...damageStats, singleTargetMysticDmgBoost: 0, areaMysticDmgBoost: 0 },
-        },
+        { ...damageContext, skillTags: tags, stats: { ...damageStats, allMysticDmgBoost: 0.114 } },
       ).total
       assert(
-        base > 0 && Math.abs(boosted / unboosted - (tags.includes("Mystic") ? 1.114 : 1)) < 1e-9,
+        base > 0 && Math.abs(boosted / base - (tags.includes("Mystic") ? 1.114 : 1)) < 1e-9,
         "All Mystic must boost every Mystic category and leave martial arts unchanged.",
       )
     }
