@@ -26,7 +26,7 @@ function input(skill = "VileCondemnedEnd4"): TimelineBuildInput {
 }
 const charged = (rows: ReturnType<typeof buildRotationTimeline>) =>
   rows.find(row => row.step.type === "skill" && row.step.skill?.startsWith("VileCondemned"))!
-const lead = 0.775 + 0.04
+const lead = 0.643 + 0.04
 function verifyRelease(data: TimelineBuildInput, releaseTime: number, target: number) {
   const rows = buildRotationTimeline(data),
     row = charged(rows)
@@ -51,8 +51,8 @@ describe("Vile Condemned pre-charge readiness", () => {
   })
   it("does not wait if charging alone reaches the target", () => {
     const data = input()
-    data.initialResources = { HeavensWill: 3.96 }
-    const { rows, row } = verifyRelease(data, 0.455 + 0.04, 4)
+    data.initialResources = { HeavensWill: 3.97 }
+    const { rows, row } = verifyRelease(data, 0.323 + 0.04, 4)
     expect(row.startTime).toBe(0)
     expect(rows.some(row => row.step.type === "event" && row.step.event === "Delay")).toBe(false)
   })

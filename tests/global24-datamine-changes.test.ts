@@ -129,7 +129,7 @@ describe("Global 2.4 Global export mechanics", () => {
       ...innerWayConditionsFor([{ innerWay: "SoaringHigh", tier: "T0" }], undefined, "bamboocutKite"),
     ]
     const row = buildRotationTimeline(data)[0]
-    expect(row.effectiveCastTime).toBeCloseTo(2.8375 + (amount === 3 ? 0.455 : 0.775), 10)
+    expect(row.effectiveCastTime).toBeCloseTo(2.8375 + (amount === 3 ? 0.323 : 0.643), 10)
   })
 
   it("drains Endurance only during Bubbles' hold and uses the shorter release recovery", () => {

@@ -408,7 +408,8 @@
         "attrCoef": 0.81408
       },
       { "type": "consume", "target": "self", "value": "HeavenwillLightCombo", "stack": "all", "time": 0 },
-      { "type": "apply", "target": "self", "value": "HeavenwillLightCombo", "stack": 5, "time": 0 }
+      { "type": "apply", "target": "self", "value": "HeavenwillLightCombo", "stack": 5, "time": 0 },
+      { "type": "consumeResource", "value": "Endurance", "amount": 25, "time": 0 }
     ],
     "modifier": [],
     "tags": ["DirectDamage", "MartialArts", "Special", "Gauntlet", "HeavenwillGauntlets", "AllUnderJustice"],
@@ -458,7 +459,7 @@
   "VileCondemnedCharge": {
     "silent": true,
     "name": "Vile Condemned Charge",
-    "castTime": 0.775,
+    "castTime": 0.643,
     "action": [],
     "modifier": [],
     "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "MartialArtEffect", "SubAction"]
@@ -658,7 +659,7 @@
   "VileCondemnedEndFastCharge": {
     "silent": true,
     "name": "Vile Condemned End [Fast Charge]",
-    "castTime": 0.775,
+    "castTime": 0.643,
     "action": [],
     "modifier": [
       {
@@ -667,7 +668,7 @@
           { "target": "resource", "value": "HeavensWill", "comparison": ">=", "amount": 3 },
           { "operator": "not", "operand": [{ "target": "self", "value": "VileCondemnedEndCooldown" }] }
         ],
-        "effect": { "castTimeMultiplier": 0.5870967741935484 }
+        "effect": { "castTimeModifier": -0.32 }
       }
     ],
     "tags": ["Charged", "Gauntlet", "HeavenwillGauntlets", "VileCondemned", "MartialArtEffect", "SubAction"]

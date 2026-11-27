@@ -189,7 +189,7 @@
       },
       "fallback": 0.4
     },
-    "action": [],
+    "action": [{ "type": "consumeResource", "value": "Endurance", "amount": 15, "time": 0 }],
     "modifier": [],
     "tags": ["General", "Dodge", "PerfectDodge"],
     "attackResponse": {

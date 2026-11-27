@@ -229,7 +229,7 @@ it("clears an action start anchor when replacing its skill with an actionless sk
   await act(async () => vi.advanceTimersByTimeAsync(200))
   const select = container.querySelector<HTMLSelectElement>('select[aria-label="Skill or event"]')!
   await act(async () => {
-    select.value = "Dodge"
+    select.value = "Deflect"
     select.dispatchEvent(new Event("change", { bubbles: true }))
     await vi.advanceTimersByTimeAsync(200)
   })
@@ -237,7 +237,7 @@ it("clears an action start anchor when replacing its skill with an actionless sk
     .reverse()
     .find(value => value?.timeline?.rotation?.name === "Action anchor replacement")
   expect(bundle?.timeline.rotation.start).toEqual({ step: 0 })
-  expect(bundle?.timeline.rotation.steps).toEqual([{ type: "skill", skill: "Dodge" }])
+  expect(bundle?.timeline.rotation.steps).toEqual([{ type: "skill", skill: "Deflect" }])
 })
 
 it("retains generated rows until the latest complete editor revision arrives", async () => {

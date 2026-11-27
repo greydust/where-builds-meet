@@ -7,6 +7,19 @@ Mandate must follow Heavenwill Declared. The BP Dragon Head preset is unchanged.
 
 ## Resource generation and timing
 
+The rotation editor tracks Endurance alongside Heaven's Will. All Under Justice
+spends 25 Endurance at cast start (Global skill resource row 20901108001).
+The ordinary Dodge in the BP rotations spends 15 at cast start. A perfect
+response from Soaring Spin does not create a separate Dodge cast.
+
+Vile Condemned and its End variants release immediately after the modeled
+preparation, with no Endurance drain. The normal prefix is 0.643 seconds
+from the 0.233-second entry gate, 0.01-second transition delay, and 0.4-second
+preparation gate. The fast prefix is 0.323 seconds because the last gate
+is 0.08 seconds. These are source-derived timings. The earlier 0.775-second
+recorded release did not identify the first frame at which release was possible.
+The game's held loop drains 20 Endurance per second (Global parent action 20901006) if the input stays held after preparation.
+
 Each End refunds one Heaven's Will once per cast. Four-bar Ends apply a
 25-second vulnerability after damage, refreshing and stacking it to two stacks.
 The second End receives 8% HP damage and the third and fourth receive 16%.

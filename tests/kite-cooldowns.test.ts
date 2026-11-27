@@ -36,6 +36,27 @@ it.each([
   )
 })
 
+it("Kite spends Endurance on All Under Justice and releases Vile Condemned without a held drain", () => {
+  const skillIds = ["AllUnderJustice", "VileCondemned"]
+  const timeline = buildRotationTimeline({
+    rotation: { name: "Kite Endurance", ping: 0, steps: skillIds.map(skill => ({ type: "skill", skill })) },
+    skills: asSkillRecords(gauntlets),
+    eventDefinitions: {},
+    effectDefinitions: {},
+    dots: {},
+    innerWayConditions: [],
+    innerWayRules: [],
+    setupEffects: [],
+    weapons: ["heavenwill", "skygrasp"],
+    initialResources: { Endurance: 100 },
+    resourceMaximums: { Endurance: 100 },
+    resourceRegeneration: { Endurance: 10 },
+  })
+  const special = timeline.find(row => row.kind === "rotation")!
+  expect(special.resourceConsumption?.Endurance).toBe(25)
+  expect(special.timelineResourceSummary?.Endurance?.consumed).toBe(25)
+})
+
 it("Kite DH lands Dragon Head during Exhausted and its final two-HW hit before cutoff", async () => {
   const cases = (await loadDpsSnapshotCases()).filter(
     entry => entry.pathId === "bamboocutKite" && entry.fixture.rotation === "dummy-1-min-iv-bp-dh",
@@ -62,6 +83,9 @@ it("Kite DH lands Dragon Head during Exhausted and its final two-HW hit before c
     )
     expect(dodge).toBeDefined()
     const casts = result.timeline.filter(row => row.kind === "rotation" && row.step.type === "skill")
+    expect(casts.filter(row => row.step.skill === "Dodge").map(row => row.baseResourceConsumption?.Endurance)).toEqual([
+      15, 15,
+    ])
     const ends = casts.filter(row => row.step.type === "skill" && row.step.skill?.startsWith("VileCondemned"))
     expect(ends).toHaveLength(4)
     expect(ends.map(row => row.resourceConsumption?.HeavensWill)).toEqual([4, 4, 4, 2])

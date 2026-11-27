@@ -143,7 +143,7 @@ describe("vile-condemned", () => {
         { type: "skill", skill: "ObserveHeavensWill" },
       ],
       {
-        initialResources: { HeavensWill: 2.9225 },
+        initialResources: { HeavensWill: 2.94 },
         resourceRegeneration: { HeavensWill: 0.1 },
         innerWayConditions: [
           "SoaringHighT0",
