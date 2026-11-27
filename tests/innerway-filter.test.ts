@@ -33,17 +33,18 @@ describe("Inner Way picker groups", () => {
     )
   })
 
-  it("keeps every path build preset's Inner Ways in its curated group", () => {
+  it("keeps every path build preset's Inner Ways in its curated or experimental groups", () => {
     const missing: string[] = []
     for (const path of Object.values(typedPathDefinitions)) {
       if (!path.lockedWeapons) continue
-      const curatedIds = new Set<string>(innerWayGroupsFor(path).curated.map(([id]) => id))
+      const { curated, experimental } = innerWayGroupsFor(path)
+      const pathInnerWays = new Set<string>([...curated, ...experimental].map(([id]) => id))
       const builds = defaultBuildPresets.filter(build =>
         path.lockedWeapons?.every(weapon => build.martialArts.includes(weapon)),
       )
       for (const build of builds)
         for (const row of build.setup?.innerWays ?? [])
-          if (row.innerWay && !curatedIds.has(row.innerWay)) missing.push(`${build.id}: ${row.innerWay}`)
+          if (row.innerWay && !pathInnerWays.has(row.innerWay)) missing.push(`${build.id}: ${row.innerWay}`)
     }
     expect(missing).toEqual([])
   })

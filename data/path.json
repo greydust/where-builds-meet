@@ -137,15 +137,12 @@
       "EnvigoratedWarrior",
       "FivefoldBleed",
       "FuryHarvest",
-      "InsightfulStrike",
       "LightAndShadowAlike",
-      "MendingLoom",
       "MoraleChant",
-      "RestoringBlossom",
       "RoyalRemedy",
       "SeasonalEdge"
     ],
-    "experimentalInnerWays": ["Mistwing"]
+    "experimentalInnerWays": ["InsightfulStrike", "MendingLoom", "Mistwing", "RestoringBlossom"]
   },
   "silkbindWings": {
     "name": "Wings",
