@@ -1,7 +1,6 @@
 {
   "name": "Blossom Barrage",
   "altersTimeline": true,
-  "tags": ["SilkbindJade"],
   "effect": {
     "BlossomBarrageT0": {},
     "BlossomBarrageT1": {

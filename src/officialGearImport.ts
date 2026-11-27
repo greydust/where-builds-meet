@@ -3,7 +3,8 @@ import officialImportMapJson from "@gamedata/official/import-map.json"
 import officialProfileMapJson from "@gamedata/official/profile-map.json"
 import pathDefinitionsJson from "@gamedata/path.json"
 
-import { innerWayAvailableForTag } from "./data/innerWayDefinitions"
+import { isKnownInnerWay } from "@/data/innerWayDefinitions"
+
 import {
   attunementData,
   attunementsForGearDefinition,
@@ -429,9 +430,7 @@ export function parseOfficialGearExport(value: unknown, weapons: [WeaponId, Weap
   const importedInnerWays = passiveSlotIds.map(id => {
     if (id === "0") return { innerWay: "", tier: "T6" }
     const innerWay = officialProfileMap.innerWays[id]?.innerWay
-    return innerWay && innerWayAvailableForTag(innerWay, categorizedPath?.tag)
-      ? { innerWay, tier: "T6" }
-      : { innerWay: "", tier: "T6" }
+    return innerWay && isKnownInnerWay(innerWay) ? { innerWay, tier: "T6" } : { innerWay: "", tier: "T6" }
   })
   const completeInnerWays =
     importedInnerWays.length === defaultBuildSetup.innerWays.length ? importedInnerWays : undefined

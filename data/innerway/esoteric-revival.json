@@ -1,7 +1,7 @@
 {
   "name": "Esoteric Revival",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "EsotericRevivalT0": {},
     "EsotericRevivalT1": {},

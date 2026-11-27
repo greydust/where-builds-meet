@@ -1,70 +1,50 @@
-import { assert, describe, it } from "vitest"
+import { describe, expect, it } from "vitest"
 
-import { innerWayEffectRulesFor } from "@/application/characterComposition"
-import { typedPathDefinitions } from "@/application/gameData/paths"
-import type { InnerWayDefinition } from "@/data/innerWayDefinitions"
-import { innerWayAvailableForTag, innerWayEntriesForTag } from "@/data/innerWayDefinitions"
+import { innerWayConditionsFor, innerWayEffectRulesFor } from "@/application/characterComposition"
+import { innerWayGroupsFor, typedPathDefinitions } from "@/application/gameData/paths"
+import { innerWayDefinitions } from "@/data/innerWayDefinitions"
 import { defaultBuildPresets } from "@/gear"
 
-import { probeLoad } from "./helpers/probe-loader.js"
+describe("Inner Way picker groups", () => {
+  it("keeps curated selections and applies combat rules to choices from other paths", () => {
+    const groups = innerWayGroupsFor(typedPathDefinitions.bamboocutKite)
+    expect(groups.curated.map(([id]) => id)).toContain("BattleAnthem")
+    expect(groups.experimental.map(([id]) => id)).toContain("Mistwing")
+    expect(groups.others.map(([id]) => id)).toContain("EchoesOfOblivion")
+    expect(groups.passiveOnly.map(([id]) => id)).toContain("EveningSnow")
 
-// Ported from script/probe/check-innerway-filter.mjs.
-describe("innerway-filter", () => {
-  it("lets Kite select Battle Anthem and include its rules in the simulation", () => {
-    const options = innerWayEntriesForTag(typedPathDefinitions.bamboocutKite.tag)
-    assert(options.some(([id]) => id === "BattleAnthem"))
-
-    const rules = innerWayEffectRulesFor([{ innerWay: "BattleAnthem", tier: "T6" }], 17, "bamboocutKite")
-    assert(rules.some(rule => rule.trigger?.event === "damageOutcome"))
-    assert(rules.some(rule => rule.tier === 6 && "dmgBonus" in rule.effect))
+    const selection = [{ innerWay: "Mistwing", tier: "T6" }]
+    expect(innerWayConditionsFor(selection)).toContain("MistwingT6")
+    expect(innerWayEffectRulesFor(selection, 17)).toContainEqual(
+      expect.objectContaining({ source: "Mistwing", tier: 6 }),
+    )
   })
 
-  it("every path build preset uses eligible Inner Ways", () => {
+  it("prioritizes the path lists and places each catalog entry in exactly one group", () => {
+    const groups = innerWayGroupsFor({ curatedInnerWays: ["Volutefit"], experimentalInnerWays: ["BattleAnthem"] })
+    expect(groups.curated.map(([id]) => id)).toEqual(["Volutefit"])
+    expect(groups.experimental.map(([id]) => id)).toEqual(["BattleAnthem"])
+    const allIds = Object.values(groups)
+      .flat()
+      .map(([id]) => id)
+    expect(allIds.toSorted()).toEqual(Object.keys(innerWayDefinitions).toSorted())
+    expect(groups.others.map(([, entry]) => entry.name)).toEqual(
+      groups.others.map(([, entry]) => entry.name).toSorted((left, right) => left.localeCompare(right)),
+    )
+  })
+
+  it("keeps every path build preset's Inner Ways in its curated group", () => {
+    const missing: string[] = []
     for (const path of Object.values(typedPathDefinitions)) {
+      if (!path.lockedWeapons) continue
+      const curatedIds = new Set<string>(innerWayGroupsFor(path).curated.map(([id]) => id))
       const builds = defaultBuildPresets.filter(build =>
         path.lockedWeapons?.every(weapon => build.martialArts.includes(weapon)),
       )
       for (const build of builds)
         for (const row of build.setup?.innerWays ?? [])
-          assert(
-            innerWayAvailableForTag(row.innerWay, path.tag),
-            `${build.id}: ${row.innerWay} must be selectable on ${path.name}`,
-          )
+          if (row.innerWay && !curatedIds.has(row.innerWay)) missing.push(`${build.id}: ${row.innerWay}`)
     }
-  })
-  it("Inner Way filter behavior checks passed", async () => {
-    const { innerWayDefinitions, innerWayEntriesForTag } = await probeLoad<typeof import("@/data/innerWayDefinitions")>(
-      "/src/data/innerWayDefinitions.ts",
-    )
-    // Every tag any Inner Way declares, so each filter is checked against the whole table.
-    const definitions: Record<string, InnerWayDefinition> = innerWayDefinitions
-    const allTags = new Set<string>(Object.values(definitions).flatMap(definition => definition.tags ?? []))
-
-    for (const tag of allTags) {
-      const filtered = innerWayEntriesForTag(tag)
-      assert(filtered.length > 0, `The ${tag} filter must return at least one Inner Way.`)
-      const eligible = Object.entries(definitions).filter(([, definition]) => definition.tags?.includes(tag))
-      assert(
-        filtered.every(([id]) => eligible.some(([eligibleId]) => eligibleId === id)),
-        `The ${tag} filter returned an Inner Way without that tag.`,
-      )
-      for (const [id] of eligible) {
-        assert(
-          filtered.some(([filteredId]) => filteredId === id),
-          `The ${tag} filter omitted eligible Inner Way ${id}.`,
-        )
-      }
-    }
-
-    assert(innerWayEntriesForTag("__unknown_path_tag__").length === 0, "An unknown tag must return no Inner Ways.")
-
-    for (const tag of allTags) {
-      const names = innerWayEntriesForTag(tag).map(([, definition]) => definition.name)
-      assert.deepEqual(
-        names,
-        names.toSorted((left, right) => left.localeCompare(right)),
-        `The ${tag} selector must list Inner Ways in display-name order.`,
-      )
-    }
+    expect(missing).toEqual([])
   })
 })

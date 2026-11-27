@@ -1,16 +1,6 @@
 {
   "name": "Envigorated Warrior",
   "altersTimeline": true,
-  "tags": [
-    "StonesplitStrength",
-    "BamboocutKite",
-    "SilkbindDeluge",
-    "BamboocutWind",
-    "BamboocutDust",
-    "BamboocutDraught",
-    "SilkbindWings",
-    "SilkbindJade"
-  ],
   "effect": {
     "EnvigoratedWarriorT0": {
       "effect": [

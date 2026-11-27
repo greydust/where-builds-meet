@@ -1,7 +1,6 @@
 {
   "name": "Light Anew",
   "altersTimeline": true,
-  "tags": ["BamboocutDust"],
   "effect": {
     "LightAnewT0": {
       "trigger": [

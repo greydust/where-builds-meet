@@ -1,7 +1,6 @@
 {
   "name": "Phantom Rally",
   "altersTimeline": true,
-  "tags": ["BamboocutDust"],
   "effect": {
     "PhantomRallyT0": {},
     "PhantomRallyT1": {},

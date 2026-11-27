@@ -1,7 +1,7 @@
 {
   "name": "Divine Roulette",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "DivineRouletteT0": {},
     "DivineRouletteT1": {},

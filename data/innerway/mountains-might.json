@@ -1,7 +1,6 @@
 {
   "name": "Mountain's Might",
   "altersTimeline": true,
-  "tags": ["BellstrikeSplendor"],
   "effect": {
     "MountainsMightT0": {
       "effect": [

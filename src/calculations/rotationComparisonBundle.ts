@@ -1,7 +1,6 @@
 import {
   attunementAvailableForSettings,
   characterStatAvailableForSettings,
-  innerWayAvailableForPath,
   innerWayConditionsFor,
   innerWayEffectRulesFor,
   selectedSetupEffects,
@@ -24,6 +23,7 @@ import {
 } from "@/application/gameData/setup"
 import { percentageAttunementKeys } from "@/application/persistence/attunements"
 import { correctedAttunement } from "@/calculations/attunementStats"
+import { isKnownInnerWay } from "@/data/innerWayDefinitions"
 import { innerWayDefinitions } from "@/data/innerWayDefinitions"
 import { setupSelectionChangesTimeline } from "@/data/scriptDefinitions"
 import { allStatDefinitions } from "@/data/statDefinitions"
@@ -70,11 +70,7 @@ export function buildRotationComparisonBundle(
   const { buildSetup, gearStatEffect, baseStats: rawCharacterStats, attunement: attunementStats } = subject.build
   const currentGlobalDebuffs = subject.globalDebuffs
   const { script: currentScript, divinecraft: currentDivinecraft } = setupSelections
-  const innerWayEffectRules = innerWayEffectRulesFor(
-    buildSetup.innerWays,
-    breakthroughProfile(settings).soloLevel,
-    pathId,
-  )
+  const innerWayEffectRules = innerWayEffectRulesFor(buildSetup.innerWays, breakthroughProfile(settings).soloLevel)
   const makeTimelineInput = (_rotation: RotationRecord, overrides: TimelineOverrides = {}): TimelineBuildInput =>
     buildRotationTimeline(subject, overrides)
   const applyPriorityStatLine = (key: keyof CharacterStats, amount: number) => {
@@ -93,9 +89,7 @@ export function buildRotationComparisonBundle(
       const amount = maxGearRoll(key, "attunement", false, gearTier)
       return typeof amount === "number" ? [[key, amount] as const] : []
     })
-  const selectedInnerWays = buildSetup.innerWays.filter(
-    row => row.innerWay && innerWayAvailableForPath(row.innerWay, pathId),
-  )
+  const selectedInnerWays = buildSetup.innerWays.filter(row => isKnownInnerWay(row.innerWay))
   // Every setup variant compared for a rotation inherits that rotation's
   // Divinecraft damage flag, so a comparison delta isolates the varying option.
   const setupEffectsForRotation = (overrides: Partial<BuildSetup & SetupSelections> = {}) =>
@@ -170,7 +164,7 @@ export function buildRotationComparisonBundle(
       ? selectedInnerWays.map(selected => {
           const definition = innerWayDefinitions[selected.innerWay as keyof typeof innerWayDefinitions]
           const variantRules = innerWayEffectRules.filter(rule => rule.source !== selected.innerWay)
-          const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay, pathId)
+          const variantConditions = innerWayConditionsFor(buildSetup.innerWays, selected.innerWay)
           const setupEffects = baselineSetupEffects
           return Object.assign(
             { label: definition?.name ?? selected.innerWay },

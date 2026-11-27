@@ -1,7 +1,6 @@
 {
   "name": "Towline Sweep",
   "altersTimeline": true,
-  "tags": ["BamboocutDust"],
   "effect": {
     "TowlineSweepT0": {},
     "TowlineSweepT1": {

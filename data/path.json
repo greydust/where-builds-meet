@@ -8,7 +8,16 @@
     "graduated": ["splendor-full"],
     "defaultRotation": "dummy-1-min-81-waves",
     "lockedWeapons": ["namelessSword", "namelessSpear"],
-    "arsenal": "Bellstrike"
+    "arsenal": "Bellstrike",
+    "curatedInnerWays": [
+      "BattleAnthem",
+      "InsightfulStrike",
+      "MoraleChant",
+      "MountainsMight",
+      "SwordMorph",
+      "YueYongFangYuan"
+    ],
+    "experimentalInnerWays": []
   },
   "bellstrikeUmbra": {
     "name": "Umbra",
@@ -19,7 +28,16 @@
     "graduated": ["umbra-full"],
     "defaultRotation": "dummy-1-min-38-bb",
     "lockedWeapons": ["strategicSword", "heavenquakerSpear"],
-    "arsenal": "Bellstrike"
+    "arsenal": "Bellstrike",
+    "curatedInnerWays": [
+      "BitterSeasons",
+      "InsightfulStrike",
+      "MoraleChant",
+      "SwordHorizon",
+      "WolfchasersArt",
+      "YueYongFangYuan"
+    ],
+    "experimentalInnerWays": []
   },
   "bellstrikeBolt": {
     "name": "Bolt",
@@ -30,7 +48,16 @@
     "graduated": ["bolt-full"],
     "defaultRotation": "bolt-dummy-1-min",
     "arsenal": "Bellstrike",
-    "lockedWeapons": ["jueyuXuanfengSpear", "boshanQuyueSpear"]
+    "lockedWeapons": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
+    "curatedInnerWays": [
+      "FuLiangYiYe",
+      "InsightfulStrike",
+      "MingFeiTongPan",
+      "ShenDuanQingFeng",
+      "SuiXingQieTao",
+      "YueYongFangYuan"
+    ],
+    "experimentalInnerWays": []
   },
   "stonesplitMight": {
     "name": "Might",
@@ -41,7 +68,17 @@
     "graduated": ["might-full-max"],
     "defaultRotation": "dummy-1-min",
     "lockedWeapons": ["thundercry", "stormbreaker"],
-    "arsenal": "Stonesplit"
+    "arsenal": "Stonesplit",
+    "curatedInnerWays": [
+      "AdaptiveSteel",
+      "ArtOfResistance",
+      "BattleAnthem",
+      "BreakingPoint",
+      "ExquisiteScenery",
+      "MoraleChant",
+      "ThroatPiercingArt"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "stonesplitStrength": {
     "name": "Strength",
@@ -52,7 +89,16 @@
     "graduated": ["mixed-full-min", "pure-full-min"],
     "defaultRotation": "mixed-dummy-1-min",
     "lockedWeapons": ["snowparting", "phalanxbane"],
-    "arsenal": "Stonesplit"
+    "arsenal": "Stonesplit",
+    "curatedInnerWays": [
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "FrostCladNight",
+      "MoraleChant",
+      "SteadfastDevotion",
+      "ThroatPiercingArt"
+    ],
+    "experimentalInnerWays": ["EchoesOfOblivion", "Mistwing"]
   },
   "silkbindJade": {
     "name": "Jade",
@@ -63,7 +109,18 @@
     "graduated": ["jade-graduate", "jade-full-bp", "jade-graduate-short"],
     "defaultRotation": "jade-grounded",
     "lockedWeapons": ["vernalUmbrella", "inkwellFan"],
-    "arsenal": "Silkbind"
+    "arsenal": "Silkbind",
+    "curatedInnerWays": [
+      "BitterSeasons",
+      "BlossomBarrage",
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "MoraleChant",
+      "StarReacher",
+      "ThroatPiercingArt",
+      "ThunderousBloom"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "silkbindDeluge": {
     "name": "Deluge",
@@ -74,7 +131,21 @@
     "graduated": ["deluge-full-max-ib"],
     "defaultRotation": "dummy-1-min-wts-team",
     "lockedWeapons": ["panaceaFan", "soulshadeUmbrella"],
-    "arsenal": "Silkbind"
+    "arsenal": "Silkbind",
+    "curatedInnerWays": [
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "FivefoldBleed",
+      "FuryHarvest",
+      "InsightfulStrike",
+      "LightAndShadowAlike",
+      "MendingLoom",
+      "MoraleChant",
+      "RestoringBlossom",
+      "RoyalRemedy",
+      "SeasonalEdge"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "silkbindWings": {
     "name": "Wings",
@@ -85,7 +156,17 @@
     "graduated": ["wings-graduate"],
     "defaultRotation": "wings-dummy-1-min-jadebreaker",
     "lockedWeapons": ["museflowWaistDrum", "willowbendFan"],
-    "arsenal": "Silkbind"
+    "arsenal": "Silkbind",
+    "curatedInnerWays": [
+      "BladesWill",
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "HarmonySong",
+      "InkAndStrings",
+      "MoraleChant",
+      "ZephyrWhispers"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "bamboocutWind": {
     "name": "Wind",
@@ -96,7 +177,19 @@
     "graduated": ["wind-full-min"],
     "defaultRotation": "wind-dummy-1-min-infinite-vitality",
     "lockedWeapons": ["infernalTwinblades", "mortalRopeDart"],
-    "arsenal": "Bamboocut"
+    "arsenal": "Bamboocut",
+    "curatedInnerWays": [
+      "BitterSeasons",
+      "BreakingPoint",
+      "EchoesOfOblivion",
+      "EmpiricalEdge",
+      "EnvigoratedWarrior",
+      "FivefoldBleed",
+      "Mistwing",
+      "MoraleChant",
+      "Vendetta"
+    ],
+    "experimentalInnerWays": []
   },
   "bamboocutDust": {
     "name": "Dust",
@@ -107,7 +200,18 @@
     "graduated": ["dust-full-min"],
     "defaultRotation": "dust-dummy-1-min-100pc",
     "lockedWeapons": ["everspring", "unfettered"],
-    "arsenal": "Bamboocut"
+    "arsenal": "Bamboocut",
+    "curatedInnerWays": [
+      "BitterSeasons",
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "LightAnew",
+      "MoraleChant",
+      "PhantomRally",
+      "SongOfTang",
+      "TowlineSweep"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "bamboocutKite": {
     "name": "Kite",
@@ -118,7 +222,18 @@
     "graduated": ["kite-full-min-bp"],
     "defaultRotation": "dummy-1-min-iv-bp",
     "lockedWeapons": ["heavenwill", "skygrasp"],
-    "arsenal": "Bamboocut"
+    "arsenal": "Bamboocut",
+    "curatedInnerWays": [
+      "BattleAnthem",
+      "BreakingPoint",
+      "EmpiricalEdge",
+      "EnvigoratedWarrior",
+      "MoraleChant",
+      "SeasonalEdge",
+      "SkyGripped",
+      "SoaringHigh"
+    ],
+    "experimentalInnerWays": ["Mistwing"]
   },
   "bamboocutDraught": {
     "name": "Draught",
@@ -129,7 +244,17 @@
     "graduated": ["draught-full-min", "draught-full-max", "draught-full-min-bp", "draught-full-max-bp"],
     "defaultRotation": "draught-dummy-1-min-10ms",
     "lockedWeapons": ["skystrikeGauntlets", "rivenTwinblades"],
-    "arsenal": "Bamboocut"
+    "arsenal": "Bamboocut",
+    "curatedInnerWays": [
+      "BreakingPoint",
+      "EnvigoratedWarrior",
+      "Eonpour",
+      "Mistwing",
+      "MoraleChant",
+      "Skyspeak",
+      "Volutefit"
+    ],
+    "experimentalInnerWays": []
   },
   "mixed": {
     "name": "Mixed",
@@ -137,6 +262,8 @@
     "buildGroup": "mixed",
     "defaultBuild": "empty",
     "graduated": ["empty"],
-    "defaultRotation": "empty"
+    "defaultRotation": "empty",
+    "curatedInnerWays": [],
+    "experimentalInnerWays": []
   }
 }

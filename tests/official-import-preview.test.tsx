@@ -7,7 +7,6 @@ import type { PathId } from "@/application/contracts"
 import { breakthroughProfile } from "@/application/gameData/setup"
 import { sharedGearScope } from "@/application/gearScope"
 import BuildTab from "@/features/build/BuildTab"
-import { officialImportForPath } from "@/features/build/officialImportReview"
 import { defaultBuildPresets, normalizeBuildSetup } from "@/gear"
 import { defaultGlobalDebuffs } from "@/globalDebuffs"
 import { parseOfficialGearExport } from "@/officialGearImport"
@@ -180,9 +179,7 @@ it.each([
     expect(Object.values(state.activeBuildIdsByPath).includes(imported?.id ?? "")).toBe(activate)
     expect(state.scope.buildIdsByPath[target as PathId]?.includes(imported?.id ?? "") ?? false).toBe(Boolean(target))
     expect(imported?.setup).toEqual(
-      target
-        ? officialImportForPath(parseOfficialGearExport(payload, weapons).exportValue, target as PathId).builds[0].setup
-        : undefined,
+      target ? parseOfficialGearExport(payload, weapons).exportValue.builds[0].setup : undefined,
     )
     expect(selectWeapons.mock.calls).toHaveLength(activate ? 1 : 0)
     expect(review.open).toBe(!target)

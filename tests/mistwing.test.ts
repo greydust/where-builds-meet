@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { typedPathDefinitions } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import type { EditableObject, InnerWayEffectRule, TrackedEffect } from "@/calculations/rotationTimeline"
 import type { WeaponId } from "@/types"
@@ -14,8 +15,7 @@ describe("mistwing", () => {
   it("Mistwing missing-HP penetration, enhancement tiers, all-type T4/T6, and path eligibility passed", async () => {
     const mistwing = (await import("@gamedata/innerway/mistwing.json")).default
     const windBuffs = (await import("@gamedata/buff/bamboocut-wind.json")).default
-    const { innerWayAvailableForTag, innerWayDefinitions, innerWayDefinitionForSoloLevel } =
-      await import("@/data/innerWayDefinitions.ts")
+    const { innerWayDefinitions, innerWayDefinitionForSoloLevel } = await import("@/data/innerWayDefinitions.ts")
     const { calculateRotationBaseline } = await probeLoad<typeof import("@/calculations/rotationCalculator")>(
       "/src/calculations/rotationCalculator.ts",
     )
@@ -24,15 +24,11 @@ describe("mistwing", () => {
 
     assert.equal(innerWayDefinitions.Mistwing, mistwing, "Mistwing must be registered as an Inner Way.")
     const definition = innerWayDefinitionForSoloLevel(mistwing, 17)
-    for (const pathTag of ["BamboocutWind", "BamboocutDraught"]) {
-      assert.ok(innerWayAvailableForTag("Mistwing", pathTag), `Mistwing must be selectable on ${pathTag}.`)
-    }
-    assert.ok(
-      !innerWayAvailableForTag("Mistwing", "BamboocutKite"),
-      "Mistwing must stay unavailable where the game does not offer it.",
-    )
-    assert.ok(innerWayAvailableForTag("EmpiricalEdge", "BamboocutWind"), "Empirical Edge must be selectable on Wind.")
-    assert.ok(innerWayAvailableForTag("EmpiricalEdge", "BamboocutKite"), "Empirical Edge must stay selectable on Kite.")
+    assert.ok(typedPathDefinitions.bamboocutWind.curatedInnerWays.includes("Mistwing"))
+    assert.ok(typedPathDefinitions.bamboocutDraught.curatedInnerWays.includes("Mistwing"))
+    assert.ok(!typedPathDefinitions.bamboocutKite.curatedInnerWays.includes("Mistwing"))
+    assert.ok(typedPathDefinitions.bamboocutWind.curatedInnerWays.includes("EmpiricalEdge"))
+    assert.ok(typedPathDefinitions.bamboocutKite.curatedInnerWays.includes("EmpiricalEdge"))
 
     const weapons: WeaponId[] = ["infernalTwinblades", "mortalRopeDart"]
     const stats = { ...emptyStats, minPhys: 1000, maxPhys: 1000, minBamboocut: 1000, maxBamboocut: 1000, precision: 1 }

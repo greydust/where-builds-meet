@@ -50,8 +50,8 @@ function run(
       dots: {},
       setupEffects: [],
       weapons: [...weapons],
-      innerWayConditions: [...innerWayConditionsFor(ways, undefined, "bellstrikeSplendor")],
-      innerWayRules: innerWayEffectRulesFor(ways, 21, "bellstrikeSplendor"),
+      innerWayConditions: [...innerWayConditionsFor(ways, undefined)],
+      innerWayRules: innerWayEffectRulesFor(ways, 21),
       initialBuffs: [
         { name: "Shield", stack: 1, appliedAt: 0 },
         ...(gale ? [{ name: "EndlessGale", stack: 1, appliedAt: 0 }] : []),

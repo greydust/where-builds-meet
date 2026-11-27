@@ -40,7 +40,7 @@ it.each([
   ["SuiXingQieTao", { minVoidAttack: 14.3, maxVoidAttack: 28.5, formlessPenetration: 6 }],
 ])("applies %s T2 and T5 cumulatively through the shared stat pipeline", (innerWay, bonuses) => {
   const resolve = (tier: string) => {
-    const rules = innerWayEffectRulesFor([{ innerWay, tier }], 18, "bellstrikeBolt")
+    const rules = innerWayEffectRulesFor([{ innerWay, tier }], 18)
     return calculateStatsWithEffects(
       emptyStats,
       rules.map(rule => rule.effect as StatEffectContainer),

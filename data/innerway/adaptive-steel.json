@@ -1,7 +1,6 @@
 {
   "name": "Adaptive Steel",
   "altersTimeline": true,
-  "tags": ["StonesplitMight"],
   "effect": {
     "AdaptiveSteelT0": {
       "effect": [{ "requirement": [{ "target": "skillTag", "value": "Charged" }], "effect": { "critDmgBonus": 0.2 } }]

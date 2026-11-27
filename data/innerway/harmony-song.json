@@ -1,7 +1,6 @@
 {
   "name": "Harmony Song",
   "altersTimeline": true,
-  "tags": ["SilkbindWings"],
   "effect": {
     "HarmonySongT0": {},
     "HarmonySongT1": {

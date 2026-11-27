@@ -1,7 +1,7 @@
 {
   "name": "Vital Leech",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "VitalLeechT0": {},
     "VitalLeechT1": {},

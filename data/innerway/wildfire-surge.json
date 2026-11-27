@@ -1,7 +1,7 @@
 {
   "name": "Wildfire Surge",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "WildfireSurgeT0": {},
     "WildfireSurgeT1": {},

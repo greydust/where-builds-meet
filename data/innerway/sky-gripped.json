@@ -1,7 +1,6 @@
 {
   "name": "Sky Gripped",
   "altersTimeline": true,
-  "tags": ["BamboocutKite"],
   "effect": {
     "SkyGrippedT0": {},
     "SkyGrippedT1": { "effect": [{ "target": "HeavensMight", "modify": { "duration": 24 } }] },

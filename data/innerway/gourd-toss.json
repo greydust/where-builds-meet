@@ -1,7 +1,7 @@
 {
   "name": "Gourd Toss",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "GourdTossT0": {},
     "GourdTossT1": {},

@@ -1,7 +1,6 @@
 {
   "name": "Mistwing",
   "altersTimeline": true,
-  "tags": ["BamboocutDraught", "BamboocutWind"],
   "effect": {
     "MistwingT0": {
       "effect": [

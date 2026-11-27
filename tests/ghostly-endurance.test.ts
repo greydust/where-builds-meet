@@ -20,8 +20,8 @@ function run(ghostly: string, gale: boolean, surge = false, delay = 0) {
     dots: {},
     setupEffects: [],
     weapons: ["namelessSword", "namelessSpear"],
-    innerWayConditions: [...innerWayConditionsFor([...ways], undefined, "bellstrikeSplendor")],
-    innerWayRules: innerWayEffectRulesFor([...ways], 17, "bellstrikeSplendor"),
+    innerWayConditions: [...innerWayConditionsFor([...ways], undefined)],
+    innerWayRules: innerWayEffectRulesFor([...ways], 17),
     initialBuffs: [
       { name: "Shield", stack: 1, appliedAt: 0 },
       ...(gale ? [{ name: "EndlessGale", stack: 1, appliedAt: 0 }] : []),

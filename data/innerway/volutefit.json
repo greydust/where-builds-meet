@@ -1,7 +1,7 @@
 {
   "name": "Volutefit",
   "altersTimeline": true,
-  "tags": ["BamboocutDraught"],
+  "passiveOnly": true,
   "effect": {
     "VolutefitT0": {},
     "VolutefitT1": {},

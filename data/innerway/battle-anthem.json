@@ -1,7 +1,6 @@
 {
   "name": "Battle Anthem",
   "altersTimeline": true,
-  "tags": ["StonesplitMight", "BellstrikeSplendor", "BamboocutKite"],
   "effect": {
     "BattleAnthemT0": {
       "effect": [{ "requirement": [{ "target": "skillTag", "value": "Charged" }], "effect": { "dmgBonus": 0.1 } }]

@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest"
 
 import { martialArtDefinitions } from "@/application/gameData/martialArts"
+import { innerWayGroupsFor, typedPathDefinitions } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
 import { calculateRotationBaseline } from "@/calculations/rotationCalculator"
 import { calculateStatsWithEffects } from "@/calculations/statEffects"
-import { innerWayDefinitions, innerWayDefinitionForSoloLevel, innerWayEntriesForTag } from "@/data/innerWayDefinitions"
+import { innerWayDefinitions, innerWayDefinitionForSoloLevel } from "@/data/innerWayDefinitions"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
 import type { WeaponId } from "@/types"
@@ -127,7 +128,7 @@ describe("Wings talent calculations", () => {
 
 describe("Wings Inner Way stat tiers", () => {
   it("resolves level tables once and accumulates T2 and T5 through the shared stat pipeline", () => {
-    expect(innerWayEntriesForTag("SilkbindWings").map(([id]) => id)).toEqual(
+    expect(innerWayGroupsFor(typedPathDefinitions.silkbindWings).curated.map(([id]) => id)).toEqual(
       expect.arrayContaining(["HarmonySong", "ZephyrWhispers", "InkAndStrings", "BladesWill"]),
     )
     const expected = {

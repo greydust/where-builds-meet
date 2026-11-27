@@ -49,8 +49,8 @@ function run(
       dots: { UmbraBleeding: dotDefinitions.UmbraBleeding },
       setupEffects: martialArtEffectsForRank(martialArtDefinitions, ["strategicSword", "heavenquakerSpear"], 13),
       weapons: ["strategicSword", "heavenquakerSpear"],
-      innerWayConditions: [...innerWayConditionsFor([...selectedWays], undefined, "bellstrikeUmbra")],
-      innerWayRules: innerWayEffectRulesFor([...selectedWays], 17, "bellstrikeUmbra"),
+      innerWayConditions: [...innerWayConditionsFor([...selectedWays], undefined)],
+      innerWayRules: innerWayEffectRulesFor([...selectedWays], 17),
 
       initialResources: { Endurance: 100, Vitality: 100, SwordsZenith: zenith * 20 },
       resourceMaximums: { Endurance: 200, Vitality: 100, SwordsZenith: 100 },
@@ -506,7 +506,7 @@ describe("Umbra draft behavior", () => {
       weapons: ["strategicSword", "heavenquakerSpear"],
       initialResources: { SwordsZenith: 100 },
       resourceMaximums: { SwordsZenith: 100 },
-      innerWayConditions: [...innerWayConditionsFor([...ways], undefined, "bellstrikeUmbra")],
+      innerWayConditions: [...innerWayConditionsFor([...ways], undefined)],
     })
     const ticks = rows.filter(row => row.kind === "dot")
     expect(ticks).toHaveLength(31)
@@ -708,8 +708,8 @@ describe("Umbra draft behavior", () => {
       dots: {},
       setupEffects: [],
       weapons: ["strategicSword", "heavenquakerSpear"],
-      innerWayConditions: [...innerWayConditionsFor([...ways], undefined, "bellstrikeUmbra")],
-      innerWayRules: innerWayEffectRulesFor([...ways], 17, "bellstrikeUmbra"),
+      innerWayConditions: [...innerWayConditionsFor([...ways], undefined)],
+      innerWayRules: innerWayEffectRulesFor([...ways], 17),
     })
     const missingSkills = draft.steps.flatMap(step =>
       step.type === "skill" && !allSkillDefinitions[step.skill!] ? [step.skill] : [],

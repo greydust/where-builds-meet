@@ -1,7 +1,7 @@
 {
   "name": "Sandswirl Tail",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "SandswirlTailT0": {},
     "SandswirlTailT1": {},

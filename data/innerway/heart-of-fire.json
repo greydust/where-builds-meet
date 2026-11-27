@@ -1,7 +1,7 @@
 {
   "name": "Heart of Fire",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "HeartOfFireT0": {},
     "HeartOfFireT1": {},

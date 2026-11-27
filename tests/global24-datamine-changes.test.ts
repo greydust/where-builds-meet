@@ -125,9 +125,7 @@ describe("Global 2.4 Global export mechanics", () => {
   it.each([2, 3])("accelerates the eligible End charge at %s Heaven's Will only", amount => {
     const data = input([cast("VileCondemned")])
     data.initialResources!.HeavensWill = amount
-    data.innerWayConditions = [
-      ...innerWayConditionsFor([{ innerWay: "SoaringHigh", tier: "T0" }], undefined, "bamboocutKite"),
-    ]
+    data.innerWayConditions = [...innerWayConditionsFor([{ innerWay: "SoaringHigh", tier: "T0" }], undefined)]
     const row = buildRotationTimeline(data)[0]
     expect(row.effectiveCastTime).toBeCloseTo(2.8375 + (amount === 3 ? 0.323 : 0.643), 10)
   })
@@ -144,9 +142,7 @@ describe("Global 2.4 Global export mechanics", () => {
   it("an explicitly granted Peerless speeds charging, unlocks three waves and is consumed on release", () => {
     const data = input([cast("VagrantSword2"), cast("Observe")])
     data.initialBuffs = [{ name: "PeerlessStance", stack: 1, appliedAt: 0, expiresAt: 3 }]
-    data.innerWayConditions = [
-      ...innerWayConditionsFor([{ innerWay: "SwordMorph", tier: "T0" }], undefined, "bellstrikeSplendor"),
-    ]
+    data.innerWayConditions = [...innerWayConditionsFor([{ innerWay: "SwordMorph", tier: "T0" }], undefined)]
     const rows = buildRotationTimeline(data)
     const sword = rows.find(row => row.step.skill === "VagrantSword2")!
     expect(sword.effectiveCastTime).toBeCloseTo(0.2 + 0.8 + 0.85, 10)
@@ -167,7 +163,6 @@ describe("Global 2.4 Global export mechanics", () => {
               { innerWay: "SwordMorph", tier: "T0" },
             ],
             undefined,
-            "bellstrikeSplendor",
           ),
         ]
         const rows = buildRotationTimeline(data)

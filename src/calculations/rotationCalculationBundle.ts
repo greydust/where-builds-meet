@@ -81,10 +81,9 @@ export function buildRotationTimeline(
   const weapons = settings.weapons
   const definitions = combatDefinitionsFor(previewId)
   const { innerWays } = build.buildSetup
-  const innerWayConditions = overrides.innerWayConditions ?? innerWayConditionsFor(innerWays, undefined, pathId)
+  const innerWayConditions = overrides.innerWayConditions ?? innerWayConditionsFor(innerWays, undefined)
   const innerWayEffectRules =
-    overrides.innerWayRules ??
-    innerWayEffectRulesFor(innerWays, breakthroughProfile(settings).soloLevel, pathId, definitions)
+    overrides.innerWayRules ?? innerWayEffectRulesFor(innerWays, breakthroughProfile(settings).soloLevel, definitions)
   // A rotation carries its own Divinecraft damage flag, so a variant that changes a setup
   // option is measured against the flag it is being compared under.
   const setupEffects =

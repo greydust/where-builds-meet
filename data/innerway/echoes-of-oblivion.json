@@ -1,7 +1,6 @@
 {
   "name": "Echoes of Oblivion",
   "altersTimeline": true,
-  "tags": ["BamboocutWind"],
   "effect": {
     "EchoesOfOblivionT0": {
       "effect": [

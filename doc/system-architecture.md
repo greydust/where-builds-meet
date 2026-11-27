@@ -496,10 +496,10 @@ persistent storage. The Main selectors, character-stat preparation, and rotation
 bundles consume the same selection snapshot; storage is only persistence.
 Character-stat memoization depends explicitly on stat overrides, settings
 (including weapons and breakthrough), equipped gear effects, resolved build
-setup, these three selections, and combat path. Path controls Inner Way and set
-eligibility. `innerWayEntriesForTag` sorts eligible Inner Ways by their data
-display name, so the key order of the `innerWayDefinitions` registry is not a UI
-contract and reordering it cannot reorder a selector. Selection validity, tier
+setup, these three selections, and combat path. Path controls set eligibility and Inner Way picker grouping.
+The Build and Main pickers list Curated, Experimental, Others, and Passive only
+options in data-name order within each group. Every registered Inner Way is
+selectable on every path. Selection validity, tier
 conditions, and calculation are keyed by ID. Resolve this sheet before
 fingerprinting the worker bundle: a new fingerprint cannot repair stale prepared
 stats. Attunement has its own derived pipeline; global buffs/debuffs and
@@ -2338,9 +2338,13 @@ Follow `skill-data.md` for stacking and duration semantics.
 Add its JSON file, import it into `innerWayDefinitions`, and provide cumulative
 tier IDs from T0 through T6. Add the required top-level `altersTimeline`
 boolean; current definitions conservatively use true, while a future false
-value means its removal can reuse baseline event state. Add path eligibility strings to its top-level
-`tags` array. Selection automatically activates all tiers through the selected
-tier, and a tagged path exposes and calculates only Inner Ways carrying its tag.
+value means its removal can reuse baseline event state. Set `passiveOnly: true`
+when only passive stat tiers are modeled. Check for tier conditions in the shared
+skill and system data before setting it. Fury Harvest's combat effects live there.
+Paths in `data/path.json` can list
+Inner Way IDs under `curatedInnerWays` or `experimentalInnerWays`. These lists
+take precedence over the catalog's Passive only and Others groups. Selection
+automatically activates all authored tiers through the selected tier.
 
 Unconditional Inner Way rules may supply `effect.initialResourceBonus`, a map of
 resource names to additive starting amounts. The shared event loop applies these
@@ -2880,13 +2884,10 @@ pair and path availability, independently of Inner Ways. Unlocked paths accept
 any pair; Mixed is available only in developer mode. No matching destination
 blocks confirmation rather than falling back to the currently open path.
 
-Changing the review destination derives a new payload from the original parsed
-export and clears Inner Ways that lack the destination's eligibility tag. Mixed
-has no tag restriction. The shared `BuildOverview` renders both the build display and the review, with
-editing disabled in the review and the same layout and card containers. Its setup
-panels and equipped gear cards show
-this same payload that confirmation stores, so switching destinations does not
-permanently discard selections before import. Activation switches to the selected
+The shared `BuildOverview` renders both the build display and the read-only
+review. Changing the destination updates the Inner Way grouping and preserves
+the imported selections. The setup panels and equipped gear cards show the same
+payload that confirmation stores. Activation switches to the selected
 destination, including an explicitly selected Mixed path, and selects the new
 build after the workspace transition.
 

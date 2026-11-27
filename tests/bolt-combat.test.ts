@@ -148,9 +148,9 @@ it.each([false, true])(
     const bundle = boltBundle()
     if (removed) {
       const selected = preset.setup.innerWays.filter(way => way.innerWay !== "ShenDuanQingFeng")
-      const rules = innerWayEffectRulesFor(selected, 19, "bellstrikeBolt")
+      const rules = innerWayEffectRulesFor(selected, 19)
       const conditions = [
-        ...innerWayConditionsFor(selected, undefined, "bellstrikeBolt"),
+        ...innerWayConditionsFor(selected, undefined),
         ...setupConditionsFor(bundle.timeline.setupEffects),
       ]
       const contributions = [
@@ -227,8 +227,8 @@ it("applies Affinity-triggered 通判 after the triggering hit, including fracti
         dots: {},
         eventDefinitions: {},
         effectDefinitions,
-        innerWayConditions: [...innerWayConditionsFor(innerWays, undefined, "bellstrikeBolt")],
-        innerWayRules: innerWayEffectRulesFor(innerWays, 19, "bellstrikeBolt"),
+        innerWayConditions: [...innerWayConditionsFor(innerWays, undefined)],
+        innerWayRules: innerWayEffectRulesFor(innerWays, 19),
         setupEffects: [],
         weapons: ["jueyuXuanfengSpear", "boshanQuyueSpear"],
       },

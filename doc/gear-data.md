@@ -413,8 +413,8 @@ Way `id` values in `local/datamine/wwm-inner-way-normal.json`, so the Inner Way
 map covers all 65 from the 2026-11-17 snapshot, including the four Wings and
 four Bolt Inner Ways. The payload does not expose tiers, so recognized complete
 four-slot selections import at T6 by policy. A slot holding an ID outside that
-table imports empty, which is also how a path-ineligible or unfilled (`0`) slot
-is represented; a payload without a four-entry `passiveSlots` retains the
+table imports empty, as does an unfilled (`0`) slot. A known Inner Way
+retains its slot regardless of the destination path. A payload without a four-entry `passiveSlots` retains the
 application's default Inner Ways.
 
 Bow slot 21 and ring slot 9 use suffix IDs `44`, `45`, and `46` for

@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { typedPathDefinitions } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import type { RotationSimulationBaseline, RotationSimulationBundle } from "@/calculations/rotationCalculator"
 import type { EffectDefinition, SkillRecord, TimelineBuildInput, TimelineRow } from "@/calculations/rotationTimeline.ts"
@@ -20,7 +21,6 @@ describe("fivefold-bleed", () => {
     const { simulateRotation } = await import("@/calculations/simulationCalculator.ts")
     const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
     const { emptyStats } = await import("@/data/statDefinitions.ts")
-    const { innerWayAvailableForTag } = await import("@/data/innerWayDefinitions.ts")
     const { innerWayDefinitionForSoloLevel } = await import("@/data/innerWayDefinitions.ts")
     const way = innerWayDefinitionForSoloLevel((await import("@gamedata/innerway/fivefold-bleed.json")).default, 17)
     const dots = (await import("@gamedata/dot/innerway.json")).default
@@ -113,7 +113,7 @@ describe("fivefold-bleed", () => {
       times(buildRotationTimeline(inputFor([0, 5]), () => 0)),
       [1.01, 2.01, 3.01, 4.01, 6.01, 7.01, 8.01, 9.01],
     )
-    assert.ok(innerWayAvailableForTag("FivefoldBleed", "SilkbindDeluge"))
+    assert.ok(typedPathDefinitions.silkbindDeluge.curatedInnerWays.includes("FivefoldBleed"))
 
     // Exhaust all proc histories independently of the expected-state algorithm.
     for (const hitTimes of [[0], [0, 1.51], [0, 0, 0, 0, 0, 0], [0, 1.01, 4.7, 5, 6.2, 12]]) {

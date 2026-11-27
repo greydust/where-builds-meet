@@ -26,7 +26,8 @@ import { breakthroughProfile } from "@/application/gameData/setup"
 import { cancelGearOptimization, startGearOptimization } from "@/application/gearOptimization"
 import type { MeasurementContext } from "@/calculations/rotationCalculationBundle"
 import type { RotationRecord } from "@/calculations/rotationTimeline"
-import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
+import { isKnownInnerWay } from "@/data/innerWayDefinitions"
+import { InnerWayOptions } from "@/features/character/InnerWayOptions"
 import { ExportSelection, TransferSelectionDialog } from "@/features/transfer/ExportSelection"
 import { transferItemGroup } from "@/features/transfer/transferItemGroup"
 import {
@@ -93,7 +94,7 @@ import {
   type GearDraft,
 } from "./GearEditor"
 import { GearSuggestions } from "./GearSuggestions"
-import { officialImportForPath, officialImportPaths } from "./officialImportReview"
+import { officialImportPaths } from "./officialImportReview"
 import { BuildSuggestionSummary, suggestionAlternatives, type PresentedItemSuggestion } from "./OptimizationSuggestion"
 import { useBuildSuggestions } from "./useBuildSuggestions"
 import { useBuildThroughputs } from "./useBuildThroughputs"
@@ -133,6 +134,7 @@ type BuildTabProps = {
 }
 
 type BuildManagementProps = {
+  pathId: PathId
   weapons: [WeaponId, WeaponId]
   martialArtTags: string[]
   pathTag?: string
@@ -228,7 +230,7 @@ export default function BuildTab({
   const officialPaths = officialPreview ? officialImportPaths(officialPreview.weapons, devMode) : []
   const reviewedOfficialExport =
     officialPreview && officialTargetPath && officialPaths.includes(officialTargetPath)
-      ? officialImportForPath(officialPreview.exportValue, officialTargetPath)
+      ? officialPreview.exportValue
       : undefined
   const officialInventory = useMemo<GearInventory>(
     () => ({
@@ -962,6 +964,7 @@ export default function BuildTab({
             key={editingEntry.id}
             weapons={weapons}
             martialArtTags={martialArtTags}
+            pathId={pathId}
             pathTag={pathTag}
             inventory={inventory}
             setup={setup}
@@ -1142,13 +1145,11 @@ export default function BuildTab({
                     weapons={officialPreview.weapons}
                     setup={reviewedOfficialExport.builds[0].setup}
                     martialArtTags={officialMartialArtTags}
+                    pathId={officialTargetPath}
                     pathTag={typedPathDefinitions[officialTargetPath].tag}
                     locked
                     suggestions={emptySuggestions}
                   />
-                  {officialPreview.exportValue.builds[0].setup.innerWays.some(
-                    (row, index) => row.innerWay && !reviewedOfficialExport.builds[0].setup.innerWays[index].innerWay,
-                  ) && <p>{t("ui.buildTab.officialImportInnerWaysOmitted")}</p>}
                 </div>
               )}
               {officialPreview.warnings.length > 0 && (
@@ -1169,6 +1170,7 @@ function BuildSetupPanel({
   setup,
   affixSummary,
   martialArtTags,
+  pathId,
   pathTag,
   locked,
   onChange,
@@ -1176,12 +1178,12 @@ function BuildSetupPanel({
   setup: BuildSetup
   affixSummary: GearAffixSummary
   martialArtTags: string[]
+  pathId: PathId
   pathTag?: string
   locked: boolean
   onChange: (setup: BuildSetup) => void
 }) {
   const lockedTitle = locked ? t("ui.buildTab.buildLocked") : undefined
-  const innerWayOptions = innerWayEntriesForTag(pathTag)
   const availableWeaponSets = availableSetEntriesForTags(weaponSetDefinitions, martialArtTags, pathTag)
   const availableArmorSets = availableSetEntriesForTags(armorSetDefinitions, martialArtTags, pathTag)
   const setPanel = (
@@ -1240,7 +1242,7 @@ function BuildSetupPanel({
             <div className="inner-way-row" key={index}>
               <select
                 aria-label={t("ui.buildTab.buildInnerWay", { number: index + 1 })}
-                value={innerWayOptions.some(([value]) => value === row.innerWay) ? row.innerWay : ""}
+                value={isKnownInnerWay(row.innerWay) ? row.innerWay : ""}
                 disabled={locked}
                 title={lockedTitle}
                 onChange={event =>
@@ -1253,15 +1255,7 @@ function BuildSetupPanel({
                 }
               >
                 <option value="">{t("ui.buildTab.none")}</option>
-                {innerWayOptions.map(([value, definition]) => (
-                  <option
-                    key={value}
-                    value={value}
-                    disabled={setup.innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)}
-                  >
-                    {gameText(definition.name)}
-                  </option>
-                ))}
+                <InnerWayOptions pathId={pathId} selections={setup.innerWays} index={index} />
               </select>
               <select
                 aria-label={t("ui.buildTab.buildInnerWayTier", { number: index + 1 })}
@@ -1355,6 +1349,7 @@ function BuildOverview({
   weapons,
   setup,
   martialArtTags,
+  pathId,
   pathTag,
   locked,
   inventoryLocked,
@@ -1368,6 +1363,7 @@ function BuildOverview({
   weapons: [WeaponId, WeaponId]
   setup: BuildSetup
   martialArtTags: string[]
+  pathId: PathId
   pathTag?: string
   locked: boolean
   inventoryLocked?: boolean
@@ -1399,6 +1395,7 @@ function BuildOverview({
         setup={setup}
         affixSummary={affixSummary}
         martialArtTags={martialArtTags}
+        pathId={pathId}
         pathTag={pathTag}
         locked={locked}
         onChange={onSetupChange}
@@ -1445,6 +1442,7 @@ function ignoreSetupChange() {}
 function BuildManagement({
   weapons,
   martialArtTags,
+  pathId,
   pathTag,
   inventory,
   setup,
@@ -1728,6 +1726,7 @@ function BuildManagement({
         weapons={weapons}
         setup={setup}
         martialArtTags={martialArtTags}
+        pathId={pathId}
         pathTag={pathTag}
         locked={locked}
         inventoryLocked={inventoryLocked}

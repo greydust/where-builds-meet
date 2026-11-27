@@ -6,9 +6,7 @@ import { emptyStats } from "@/data/statDefinitions"
 
 it("unlocks Adaptive Steel's Bellstrike stat bonus at T5, retaining it at T6", () => {
   const bonus = (tier: "T4" | "T5" | "T6") => {
-    const effects = innerWayEffectRulesFor([{ innerWay: "AdaptiveSteel", tier }], 17, "stonesplitMight").map(
-      rule => rule.effect,
-    )
+    const effects = innerWayEffectRulesFor([{ innerWay: "AdaptiveSteel", tier }], 17).map(rule => rule.effect)
     return calculateStatsWithEffects(emptyStats, effects, 0).stats.bellstrikeDmgBonus
   }
   expect(bonus("T4")).toBe(0)

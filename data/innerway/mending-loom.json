@@ -1,7 +1,6 @@
 {
   "name": "Mending Loom",
   "altersTimeline": true,
-  "tags": ["SilkbindDeluge"],
   "effect": {
     "MendingLoomT0": {
       "trigger": [

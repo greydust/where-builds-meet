@@ -36,11 +36,11 @@ function timeline(
     dots: {},
     effectDefinitions,
     innerWayConditions: [
-      ...innerWayConditionsFor(innerWays, undefined, "silkbindWings"),
+      ...innerWayConditionsFor(innerWays, undefined),
       ...setupConditionsFor(setupEffects),
       "Cloudshear4P",
     ],
-    innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWings"),
+    innerWayRules: innerWayEffectRulesFor(innerWays, 21),
     setupEffects,
     weapons,
     initialResources: system.initialResources,

@@ -1,7 +1,7 @@
 {
   "name": "Rock Solid",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "RockSolidT0": {},
     "RockSolidT1": {},

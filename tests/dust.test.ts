@@ -1353,8 +1353,8 @@ describe("Phantom Umbrella summons and Resonance", () => {
       ["everspring"],
       13,
     )
-    input.timeline.innerWayRules = innerWayEffectRulesFor(selection, 19, "bamboocutDust")
-    input.timeline.innerWayConditions = [...innerWayConditionsFor(selection, undefined, "bamboocutDust")]
+    input.timeline.innerWayRules = innerWayEffectRulesFor(selection, 19)
+    input.timeline.innerWayConditions = [...innerWayConditionsFor(selection, undefined)]
     input.timeline.rotation.steps = steps
     return calculateRotationBaseline(input)
   }

@@ -1,7 +1,6 @@
 {
   "name": "Thunderous Bloom",
   "altersTimeline": true,
-  "tags": ["SilkbindJade"],
   "effect": {
     "ThunderousBloomT0": {
       "effect": [

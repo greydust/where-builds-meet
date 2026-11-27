@@ -29,8 +29,8 @@ function input(steps: RotationStep[], blossoms = 0): TimelineBuildInput {
     eventDefinitions: {},
     dots: {},
     setupEffects: [],
-    innerWayRules: innerWayEffectRulesFor(selected, 19, "silkbindJade"),
-    innerWayConditions: [...innerWayConditionsFor(selected, undefined, "silkbindJade")],
+    innerWayRules: innerWayEffectRulesFor(selected, 19),
+    innerWayConditions: [...innerWayConditionsFor(selected, undefined)],
     weapons: ["vernalUmbrella", "inkwellFan"],
     initialResources: { Blossoms: blossoms },
     resourceMaximums: { Blossoms: 100 },
@@ -114,8 +114,8 @@ describe("Jade combat", () => {
       cast("StarReacherGrant"),
       cast("Observe"),
     ])
-    data.innerWayConditions = [...innerWayConditionsFor(ways, undefined, "silkbindJade")]
-    data.innerWayRules = innerWayEffectRulesFor(ways, 19, "silkbindJade")
+    data.innerWayConditions = [...innerWayConditionsFor(ways, undefined)]
+    data.innerWayRules = innerWayEffectRulesFor(ways, 19)
     data.skills = {
       ...data.skills,
       Mark: { castTime: 0, action: [{ type: "apply", target: "target", value: "JadeCombo", time: 0 }] },

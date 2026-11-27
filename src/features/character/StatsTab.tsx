@@ -1,11 +1,7 @@
 import { IconRestore, IconX } from "@tabler/icons-react"
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react"
 
-import {
-  attunementAvailableForSettings,
-  availableSetEntriesForSettings,
-  innerWayAvailableForPath,
-} from "@/application/characterComposition"
+import { attunementAvailableForSettings, availableSetEntriesForSettings } from "@/application/characterComposition"
 import type { CharacterState, PathId, SetupSelections } from "@/application/contracts"
 import {
   deltaPrefix,
@@ -15,7 +11,6 @@ import {
   throughputDeltaClass,
 } from "@/application/formatting"
 import { artStatByWeaponFamily, martialArtDefinitions } from "@/application/gameData/martialArts"
-import { typedPathDefinitions } from "@/application/gameData/paths"
 import {
   breakthroughProfile,
   foodAvailableForPath,
@@ -48,7 +43,7 @@ import {
   mergeImportedCharacterProfiles,
   type CharacterProfile,
 } from "@/characterProfiles"
-import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
+import { isKnownInnerWay } from "@/data/innerWayDefinitions"
 import { attunementData, selectSetTier, type BuildSetup, type BuildSetupOverrides } from "@/gear"
 import { globalDebuffRows, type GlobalDebuffState } from "@/globalDebuffs"
 import { dataText, gameText, t } from "@/i18n"
@@ -61,6 +56,7 @@ import { Panel, PanelHeading } from "@/ui/Panel"
 
 import { CalculatedStatField } from "./CalculatedStatField"
 import { GlobalBuffOption } from "./GlobalBuffOption"
+import { InnerWayOptions } from "./InnerWayOptions"
 import { StatPair } from "./StatPair"
 
 const foodCalculationCategories = ["food", "enduranceFood"] as const
@@ -302,16 +298,6 @@ export function StatsTab({
   const penetrationRows = [
     [statDefinition("bellstrikePenetration"), statDefinition("silkbindPenetration")],
     [statDefinition("stonesplitPenetration"), statDefinition("bamboocutPenetration")],
-  ]
-  const innerWayOptions = [
-    ["", t("ui.app.none")],
-    ...innerWayEntriesForTag(typedPathDefinitions[pathId].tag).map(
-      ([value, definition]) =>
-        [value, dataText(`system.innerWay.${value.charAt(0).toLowerCase()}${value.slice(1)}`, definition.name)] as [
-          string,
-          string,
-        ],
-    ),
   ]
   const attunementFields = Object.entries(attunementData)
     .filter(([key]) => attunementAvailableForSettings(key, pathId, settings))
@@ -1070,7 +1056,7 @@ export function StatsTab({
                 <div className="inner-way-row" key={index}>
                   <select
                     aria-label={t("ui.app.innerWayNumber", { number: index + 1 })}
-                    value={innerWayAvailableForPath(row.innerWay, pathId) ? row.innerWay : ""}
+                    value={isKnownInnerWay(row.innerWay) ? row.innerWay : ""}
                     onChange={event => {
                       const next = innerWays.map((item, itemIndex) =>
                         itemIndex === index ? { ...item, innerWay: event.target.value } : item,
@@ -1079,18 +1065,8 @@ export function StatsTab({
                       onInnerWayChange()
                     }}
                   >
-                    {innerWayOptions.map(([value, label]) => (
-                      <option
-                        key={value}
-                        value={value}
-                        disabled={
-                          Boolean(value) &&
-                          innerWays.some((item, itemIndex) => itemIndex !== index && item.innerWay === value)
-                        }
-                      >
-                        {label}
-                      </option>
-                    ))}
+                    <option value="">{t("ui.app.none")}</option>
+                    <InnerWayOptions pathId={pathId} selections={innerWays} index={index} />
                   </select>
                   <select
                     aria-label={t("ui.app.innerWayTierNumber", { number: index + 1 })}

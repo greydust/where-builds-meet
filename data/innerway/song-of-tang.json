@@ -1,7 +1,6 @@
 {
   "name": "Song of Tang",
   "altersTimeline": true,
-  "tags": ["BamboocutDust"],
   "effect": {
     "SongOfTangT0": {
       "trigger": [

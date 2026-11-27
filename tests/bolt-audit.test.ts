@@ -100,11 +100,11 @@ function probe(
       weapons,
       martialArtState: { jueyuXuanfengSpear: { weapon: "Spear" }, boshanQuyueSpear: { weapon: "Spear" } },
       innerWayConditions: [
-        ...innerWayConditionsFor(innerWays, undefined, "bellstrikeBolt"),
+        ...innerWayConditionsFor(innerWays, undefined),
         ...setupConditionsFor(setupEffects),
         ...(options.conditions ?? []),
       ],
-      innerWayRules: innerWayEffectRulesFor(innerWays, 19, "bellstrikeBolt"),
+      innerWayRules: innerWayEffectRulesFor(innerWays, 19),
       setupEffects,
     },
     startAnchor: { rowId: "rotation-0" },

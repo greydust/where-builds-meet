@@ -1,7 +1,7 @@
 {
   "name": "Riptide Reflex",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "RiptideReflexT0": {},
     "RiptideReflexT1": {},

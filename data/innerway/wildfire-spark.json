@@ -1,7 +1,7 @@
 {
   "name": "Wildfire Spark",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "WildfireSparkT0": {},
     "WildfireSparkT1": {},

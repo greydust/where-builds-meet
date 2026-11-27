@@ -1,7 +1,7 @@
 {
   "name": "Shadow Assault",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "ShadowAssaultT0": {},
     "ShadowAssaultT1": {},

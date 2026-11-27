@@ -1,7 +1,6 @@
 {
   "name": "Bitter Seasons",
   "altersTimeline": true,
-  "tags": ["SilkbindJade", "BamboocutWind", "BamboocutDust", "BellstrikeUmbra"],
   "effect": {
     "BitterSeasonsT0": {
       "trigger": [

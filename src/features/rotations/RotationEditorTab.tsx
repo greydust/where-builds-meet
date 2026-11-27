@@ -206,14 +206,14 @@ export function RotationEditorTab({
   const rotationSkillGroups = useMemo(() => selectableRotationSkillGroups(settings.weapons), [settings.weapons])
   const rotationSkillIds = useMemo(() => rotationSkillGroups.flatMap(group => group.skillIds), [rotationSkillGroups])
   const innerWayConditions = useMemo(
-    () => innerWayConditionsFor(buildSetup.innerWays, undefined, pathId),
-    [buildSetup.innerWays, pathId],
+    () => innerWayConditionsFor(buildSetup.innerWays, undefined),
+    [buildSetup.innerWays],
   )
   const soloLevel = breakthroughProfile(settings).soloLevel
   const preview = useMemo(() => combatDefinitionsFor(previewId), [previewId])
   const innerWayEffectRules = useMemo(
-    () => innerWayEffectRulesFor(buildSetup.innerWays, soloLevel, pathId, preview),
-    [buildSetup.innerWays, soloLevel, pathId, preview],
+    () => innerWayEffectRulesFor(buildSetup.innerWays, soloLevel, preview),
+    [buildSetup.innerWays, soloLevel, preview],
   )
   const calculationDefinitions = useMemo(
     () =>

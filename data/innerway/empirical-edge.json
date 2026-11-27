@@ -1,7 +1,6 @@
 {
   "name": "Empirical Edge",
   "altersTimeline": true,
-  "tags": ["BamboocutKite", "BamboocutWind"],
   "effect": {
     "EmpiricalEdgeT0": {
       "effect": [{ "target": "Cognition", "modify": { "maxStack": 3 } }],

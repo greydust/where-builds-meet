@@ -80,7 +80,7 @@ export type InnerWayTierEffect = {
 
 export type InnerWayDefinition = {
   name: string
-  tags?: string[]
+  passiveOnly?: boolean
   altersTimeline: boolean
   effect: Record<string, InnerWayTierEffect>
 }
@@ -153,17 +153,10 @@ export const innerWayDefinitions = {
   Volutefit: volutefit,
 } satisfies Record<string, InnerWayDefinition>
 
-export function innerWayAvailableForTag(innerWay: string, requiredTag?: string) {
-  if (!innerWay || !requiredTag) return true
-  const definition = innerWayDefinitions[innerWay as keyof typeof innerWayDefinitions] as InnerWayDefinition | undefined
-  return definition?.tags?.includes(requiredTag) === true
-}
+export type InnerWayId = keyof typeof innerWayDefinitions
 
-/** Eligible entries for the path selectors, ordered by the data name rather than registry order. */
-export function innerWayEntriesForTag(requiredTag?: string) {
-  return Object.entries(innerWayDefinitions)
-    .filter(([innerWay]) => innerWayAvailableForTag(innerWay, requiredTag))
-    .toSorted(([, left], [, right]) => left.name.localeCompare(right.name))
+export function isKnownInnerWay(id: string): id is InnerWayId {
+  return Object.hasOwn(innerWayDefinitions, id)
 }
 
 /** Resolve authored Solo Level tables before effects enter the shared stat pipeline. */

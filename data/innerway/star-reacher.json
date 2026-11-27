@@ -1,7 +1,6 @@
 {
   "name": "Star Reacher",
   "altersTimeline": true,
-  "tags": ["SilkbindJade"],
   "effect": {
     "StarReacherT0": {
       "trigger": [

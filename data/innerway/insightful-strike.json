@@ -1,7 +1,6 @@
 {
   "name": "Insightful Strike",
   "altersTimeline": true,
-  "tags": ["SilkbindDeluge", "BellstrikeSplendor", "BellstrikeUmbra", "BellstrikeBolt"],
   "effect": {
     "InsightfulStrikeT0": {
       "trigger": [

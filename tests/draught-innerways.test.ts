@@ -2,6 +2,7 @@ import assert from "node:assert/strict"
 
 import { describe, it } from "vitest"
 
+import { innerWayGroupsFor, typedPathDefinitions } from "@/application/gameData/paths"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import type { AttunementStats, DamageContext } from "@/calculations/damage"
 import type { CharacterStats, WeaponId } from "@/types"
@@ -13,9 +14,9 @@ import { asTalentEffects } from "./helpers/shippedData"
 // Ported from script/probe/check-draught-innerways.mjs.
 describe("draught-innerways", () => {
   it("Draught tier progression, damage/healing channels, and attunement override checks passed", async () => {
-    const { innerWayEntriesForTag, innerWayDefinitionForSoloLevel } = await probeLoad<
-      typeof import("@/data/innerWayDefinitions")
-    >("/src/data/innerWayDefinitions.ts")
+    const { innerWayDefinitionForSoloLevel } = await probeLoad<typeof import("@/data/innerWayDefinitions")>(
+      "/src/data/innerWayDefinitions.ts",
+    )
     const { emptyStats } = await import("@/data/statDefinitions.ts")
     const { calculateStatsWithEffects } = await import("@/calculations/statEffects.ts")
     const { calculateDerivedStats } = await import("@/calculations/effectiveStats.ts")
@@ -59,8 +60,8 @@ describe("draught-innerways", () => {
       },
     })
     const close = (actual: number, expected: number, message: string) => assertClose(actual, expected, 1e-8, message)
-    const draught = new Map(
-      innerWayEntriesForTag("BamboocutDraught").map(([id, definition]) => [
+    const draught = new Map<string, ReturnType<typeof innerWayDefinitionForSoloLevel>>(
+      innerWayGroupsFor(typedPathDefinitions.bamboocutDraught).curated.map(([id, definition]) => [
         id,
         innerWayDefinitionForSoloLevel(definition, 17),
       ]),

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 
 import { innerWayConditionsFor, innerWayEffectRulesFor } from "@/application/characterComposition"
+import { innerWayGroupsFor, typedPathDefinitions } from "@/application/gameData/paths"
 import { effectDefinitions } from "@/application/gameData/skills"
 import { emptyAttunementStats } from "@/calculations/attunementStats"
 import { calculateDerivedStats } from "@/calculations/effectiveStats"
@@ -10,7 +11,6 @@ import {
   type RotationSimulationBundle,
 } from "@/calculations/rotationCalculator"
 import { buildRotationTimeline, type EditableObject } from "@/calculations/rotationTimeline"
-import { innerWayEntriesForTag } from "@/data/innerWayDefinitions"
 import { emptyStats } from "@/data/statDefinitions"
 
 function bundle(
@@ -31,8 +31,8 @@ function bundle(
       setupEffects: [],
       weapons: [],
       maxHP: stats.maxHp,
-      innerWayConditions: [...innerWayConditionsFor(selected, undefined, "silkbindDeluge")],
-      innerWayRules: innerWayEffectRulesFor(selected, 21, "silkbindDeluge"),
+      innerWayConditions: [...innerWayConditionsFor(selected, undefined)],
+      innerWayRules: innerWayEffectRulesFor(selected, 21),
     },
     stats,
     derivedStats: calculateDerivedStats(stats, 0),
@@ -60,7 +60,9 @@ const hit = (time: number): EditableObject => ({ type: "damage", time, phyCoef: 
 
 describe("Light and Shadow Alike", () => {
   it("is selectable for Deluge and contributes through its shared rules", () => {
-    expect(innerWayEntriesForTag("SilkbindDeluge").some(([id]) => id === "LightAndShadowAlike")).toBe(true)
+    expect(
+      innerWayGroupsFor(typedPathDefinitions.silkbindDeluge).curated.some(([id]) => id === "LightAndShadowAlike"),
+    ).toBe(true)
     const result = calculateRotationBaseline(bundle(0, [hit(0)]))
     const baseline = calculateRotationBaseline(bundle(0, [hit(0)], undefined, false))
     expect(result.metrics.totalDamage / baseline.metrics.totalDamage).toBeCloseTo(1.03, 12)

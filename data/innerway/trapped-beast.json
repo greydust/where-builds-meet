@@ -1,7 +1,7 @@
 {
   "name": "Trapped Beast",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "TrappedBeastT0": {},
     "TrappedBeastT1": {},

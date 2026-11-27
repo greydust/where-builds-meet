@@ -211,12 +211,12 @@ describe("official-gear-import", () => {
     assert(
       JSON.stringify(delugeTestingSetup.innerWays) ===
         JSON.stringify([
-          { innerWay: "", tier: "T6" },
-          { innerWay: "", tier: "T6" },
+          { innerWay: "ExquisiteScenery", tier: "T6" },
+          { innerWay: "ThroatPiercingArt", tier: "T6" },
           { innerWay: "RoyalRemedy", tier: "T6" },
           { innerWay: "", tier: "T6" },
         ]) && delugeTestingSetup.armorSets.Formbend === 4,
-      "Official imports must preserve empty passive slots, clear path-ineligible Inner Ways, and derive armor sets.",
+      "Official imports must preserve empty passive slots, retain known Inner Ways, and derive armor sets.",
     )
     for (const [label, parsed, arsenal] of [
       ["Kite", kiteSetupShape, "Bamboocut"],

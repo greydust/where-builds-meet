@@ -1,7 +1,6 @@
 {
   "name": "Sword Morph",
   "altersTimeline": true,
-  "tags": ["BellstrikeSplendor"],
   "effect": {
     "SwordMorphT0": {
       "effect": [

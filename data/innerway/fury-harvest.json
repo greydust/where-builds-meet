@@ -1,7 +1,6 @@
 {
   "name": "Fury Harvest",
   "altersTimeline": true,
-  "tags": ["SilkbindDeluge"],
   "effect": {
     "FuryHarvestT0": {},
     "FuryHarvestT1": {},

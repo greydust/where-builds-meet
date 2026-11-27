@@ -1,7 +1,6 @@
 {
   "name": "Seasonal Edge",
   "altersTimeline": true,
-  "tags": ["BamboocutKite", "SilkbindDeluge"],
   "effect": {
     "SeasonalEdgeT0": {
       "trigger": [

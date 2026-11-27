@@ -1,7 +1,6 @@
 {
   "name": "Throat-Piercing Art",
   "altersTimeline": true,
-  "tags": ["StonesplitStrength", "StonesplitMight", "SilkbindJade"],
   "effect": {
     "ThroatPiercingArtT0": {
       "trigger": [

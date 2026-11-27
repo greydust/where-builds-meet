@@ -5,7 +5,7 @@ import {
   type CharacterStatOverrides,
   type StatEffectContainer,
 } from "@/calculations/statEffects"
-import { innerWayAvailableForTag, innerWayDefinitionForSoloLevel } from "@/data/innerWayDefinitions"
+import { isKnownInnerWay, innerWayDefinitionForSoloLevel } from "@/data/innerWayDefinitions"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { effectForSoloLevel } from "@/data/soloLevelEffects"
 import { emptyStats } from "@/data/statDefinitions"
@@ -46,10 +46,6 @@ import {
 } from "./gameData/skills"
 import { loadSelectedPath } from "./persistence/settings"
 
-export function innerWayAvailableForPath(innerWay: string, pathId = loadSelectedPath()) {
-  return innerWayAvailableForTag(innerWay, typedPathDefinitions[pathId].tag)
-}
-
 export function attunementAvailableForSettings(attunement: string, pathId: PathId, settings: CalculatorSettings) {
   const definition = attunementData[attunement]
   if (definition?.tags.includes("Defensive")) return false
@@ -81,14 +77,10 @@ export function selectableRotationSkillGroups(weapons: [WeaponId, WeaponId]) {
   }))
 }
 
-export function innerWayConditionsFor(
-  selectedInnerWays: BuildSetup["innerWays"],
-  excludedInnerWay?: string,
-  pathId = loadSelectedPath(),
-) {
+export function innerWayConditionsFor(selectedInnerWays: BuildSetup["innerWays"], excludedInnerWay?: string) {
   const conditions = new Set<string>()
   for (const row of selectedInnerWays) {
-    if (!row.innerWay || row.innerWay === excludedInnerWay || !innerWayAvailableForPath(row.innerWay, pathId)) continue
+    if (!row.innerWay || row.innerWay === excludedInnerWay || !isKnownInnerWay(row.innerWay)) continue
     const tierNumber = Number(row.tier.slice(1))
     for (let tier = 0; tier <= tierNumber; tier += 1) conditions.add(`${row.innerWay}T${tier}`)
   }
@@ -98,13 +90,12 @@ export function innerWayConditionsFor(
 export function innerWayEffectRulesFor(
   selectedInnerWays: BuildSetup["innerWays"],
   soloLevel: number,
-  pathId = loadSelectedPath(),
   definitions: CombatDefinitions = currentCombatDefinitions,
 ): InnerWayEffectRule[] {
-  const selected = selectedInnerWays.filter(({ innerWay }) => innerWayAvailableForPath(innerWay, pathId))
-  return selected.flatMap(({ innerWay, tier }) => {
-    const innerWayDefinition = innerWay ? definitions.innerWayDefinitions[innerWay] : undefined
-    if (!innerWay || !innerWayDefinition) return []
+  return selectedInnerWays.flatMap(({ innerWay, tier }) => {
+    if (!isKnownInnerWay(innerWay)) return []
+    const innerWayDefinition = definitions.innerWayDefinitions[innerWay]
+    if (!innerWayDefinition) return []
     const definition = innerWayDefinitionForSoloLevel(innerWayDefinition, soloLevel) as {
       effect?: Record<string, { effect?: unknown[]; trigger?: unknown[]; listen?: unknown[] }>
     }
@@ -238,7 +229,6 @@ export function globalStatEffects(
   const innerWayStatEffects = innerWayEffectRulesFor(
     buildSetup.innerWays,
     breakthroughProfile(settings).soloLevel,
-    pathId,
     definitions,
   )
     .filter(

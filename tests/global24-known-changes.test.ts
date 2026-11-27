@@ -25,7 +25,6 @@ function input(
   steps: TimelineBuildInput["rotation"]["steps"],
   innerWay = "SoaringHigh",
   tier = "T6",
-  path = "bamboocutKite" as Parameters<typeof innerWayEffectRulesFor>[2],
 ): TimelineBuildInput {
   const selected = [{ innerWay, tier }]
   return {
@@ -41,8 +40,8 @@ function input(
     dots: definitions.dotDefinitions,
     eventDefinitions: {},
     setupEffects: [],
-    innerWayConditions: [...innerWayConditionsFor(selected, undefined, path)],
-    innerWayRules: innerWayEffectRulesFor(selected, 19, path, definitions),
+    innerWayConditions: [...innerWayConditionsFor(selected, undefined)],
+    innerWayRules: innerWayEffectRulesFor(selected, 19, definitions),
     weapons: ["heavenwill", "inkwellFan", "namelessSword", "namelessSpear"],
     resourceMaximums: { HeavensWill: 4 },
     initialResources: { HeavensWill: 0 },
@@ -88,7 +87,7 @@ describe("Global 2.4 known balance changes", () => {
   it.each([0.2, 0.5])("replaces low-Qi pursuit crit rate with crit damage at %s Qi", qi => {
     const totals = [0.5, qi].map(targetQi => {
       const definitions = current
-      const data = input(definitions, [cast("Mark"), cast("Hit")], "ThunderousBloom", "T0", "silkbindJade")
+      const data = input(definitions, [cast("Mark"), cast("Hit")], "ThunderousBloom", "T0")
       data.innerWayRules = []
       data.innerWayConditions = []
       data.skills.Mark = { castTime: 0, action: [{ type: "setQi", targetQiRatio: targetQi, time: 0 }] }
@@ -115,7 +114,6 @@ describe("Global 2.4 known balance changes", () => {
       [cast("BladeboundThreadCancel"), delay(19), cast("Observe"), delay(2), cast("Observe")],
       "EchoesOfOblivion",
       "T0",
-      "bamboocutWind",
     )
     data.weapons = ["mortalRopeDart", "infernalTwinblades"]
     data.setupEffects = martialArtEffectsForRank(current.martialArtDefinitions, ["mortalRopeDart"], 19)
@@ -130,7 +128,6 @@ describe("Global 2.4 known balance changes", () => {
         [cast("Mark"), cast("QiankunsLockCancel"), delay(11), cast("Observe")],
         "MountainsMight",
         "T0",
-        "bellstrikeSplendor",
       )
       data.skills.Mark = { castTime: 0, action: [{ type: "apply", target: "self", value: "Jadeware", time: 0 }] }
       const observe = buildRotationTimeline(data).find(row => row.step.skill === "Observe")!
@@ -140,7 +137,7 @@ describe("Global 2.4 known balance changes", () => {
   })
 
   it.each(["QiankunsLock", "QiankunsLockCancel"])("requires Nameless Sword to gain Endless Gale from %s", skill => {
-    const data = input(current, [cast(skill), cast("Observe")], "MountainsMight", "T0", "bellstrikeSplendor")
+    const data = input(current, [cast(skill), cast("Observe")], "MountainsMight", "T0")
     data.weapons = ["namelessSpear"]
     expect(buildRotationTimeline(data).at(-1)!.buffs.has("EndlessGale")).toBe(false)
     data.weapons.push("namelessSword")
@@ -152,7 +149,7 @@ describe("Global 2.4 known balance changes", () => {
     ["T1", 5, 10],
     ["T4", 5, 20],
   ] as const)("applies Thunderous Bloom %s's stack cap and penetration", (tier, cap, penetration) => {
-    const data = input(current, [cast("Grant"), cast("Hit")], "ThunderousBloom", tier, "silkbindJade")
+    const data = input(current, [cast("Grant"), cast("Hit")], "ThunderousBloom", tier)
     const result = simulate(data)
     const row = result.timeline.find(row => row.step.skill === "Hit")!
     expect(row.buffs.get("SpringThunder")?.maxStack).toBe(cap)
@@ -174,7 +171,6 @@ describe("Global 2.4 known balance changes", () => {
         [cast("Mark"), cast("Hit"), cast("Observe"), cast("Hit"), cast("Observe")],
         "ThunderousBloom",
         "T6",
-        "silkbindJade",
       )
       data.skills.Mark = {
         castTime: 0,

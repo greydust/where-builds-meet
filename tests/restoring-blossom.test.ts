@@ -33,7 +33,7 @@ function bundle(tier = 4, times = [0.1, 1, 2], groupSize: 1 | 5 | 10 = 1): Rotat
       effectDefinitions: {},
       eventDefinitions: {},
       dots: {},
-      innerWayRules: innerWayEffectRulesFor([{ innerWay: "RestoringBlossom", tier: `T${tier}` }], 17, "silkbindDeluge"),
+      innerWayRules: innerWayEffectRulesFor([{ innerWay: "RestoringBlossom", tier: `T${tier}` }], 17),
       innerWayConditions: [],
       weapons: ["panaceaFan", "soulshadeUmbrella"],
       maxHP: 10000,
@@ -192,9 +192,7 @@ describe("Restoring Blossom", () => {
       "deluge-full-max-ib",
     )!
     const baseline = calculateRotationBaseline(input)
-    input.timeline.innerWayRules.push(
-      ...innerWayEffectRulesFor([{ innerWay: "RestoringBlossom", tier: "T6" }], 19, "silkbindDeluge"),
-    )
+    input.timeline.innerWayRules.push(...innerWayEffectRulesFor([{ innerWay: "RestoringBlossom", tier: "T6" }], 19))
     const actual = calculateRotationBaseline(input)
     expect(actual.duration).toBeCloseTo(60, 0)
     expect(actual.metrics.hps).toBeGreaterThan(baseline.metrics.hps)

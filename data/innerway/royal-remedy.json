@@ -1,7 +1,6 @@
 {
   "name": "Royal Remedy",
   "altersTimeline": true,
-  "tags": ["SilkbindDeluge"],
   "effect": {
     "RoyalRemedyT0": {
       "effect": [

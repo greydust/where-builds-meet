@@ -1,7 +1,6 @@
 {
   "name": "Zephyr Whispers",
   "altersTimeline": true,
-  "tags": ["SilkbindWings"],
   "effect": {
     "ZephyrWhispersT0": {},
     "ZephyrWhispersT1": {

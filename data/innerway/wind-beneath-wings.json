@@ -1,7 +1,7 @@
 {
   "name": "Wind Beneath Wings",
   "altersTimeline": true,
-  "tags": [],
+  "passiveOnly": true,
   "effect": {
     "WindBeneathWingsT0": {},
     "WindBeneathWingsT1": {},

@@ -56,11 +56,8 @@ function calculate(
       maxHP: stats.maxHp,
       initialResources: { NobleWill: 0 },
       resourceMaximums: { NobleWill: 100 },
-      innerWayConditions: [
-        ...innerWayConditionsFor(innerWays, undefined, "silkbindWings"),
-        ...setupConditionsFor(setupEffects),
-      ],
-      innerWayRules: innerWayEffectRulesFor(innerWays, 21, "silkbindWings"),
+      innerWayConditions: [...innerWayConditionsFor(innerWays, undefined), ...setupConditionsFor(setupEffects)],
+      innerWayRules: innerWayEffectRulesFor(innerWays, 21),
     },
     stats,
     derivedStats: calculateDerivedStats(stats, 0),

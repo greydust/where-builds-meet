@@ -1,7 +1,6 @@
 {
   "name": "Vendetta",
   "altersTimeline": true,
-  "tags": ["BamboocutWind"],
   "effect": {
     "VendettaT0": {
       "effect": [

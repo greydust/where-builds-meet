@@ -1,7 +1,6 @@
 {
   "name": "Soaring High",
   "altersTimeline": true,
-  "tags": ["BamboocutKite"],
   "effect": {
     "SoaringHighT0": {
       "effect": [

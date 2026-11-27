@@ -1,7 +1,6 @@
 {
   "name": "Sword Horizon",
   "altersTimeline": true,
-  "tags": ["BellstrikeUmbra"],
   "effect": {
     "SwordHorizonT0": {},
     "SwordHorizonT1": {},
