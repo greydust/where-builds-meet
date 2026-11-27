@@ -41,6 +41,7 @@ import { TIMELINE_TIME_EPSILON, type InnerWayEffectRule, type EditableObject } f
 import type { RotationRecord, RotationStep, SkillRecord, TimelineRow } from "@/calculations/rotationTimeline"
 import { martialArtEffectsForRank } from "@/data/martialArtTalents"
 import { emptyStats } from "@/data/statDefinitions"
+import { readableRotationText } from "@/readableRotation"
 
 import { castStep, delayStep } from "./helpers/rotationSteps"
 import { asEffectDefinitions, asSkillRecords } from "./helpers/shippedData"
@@ -656,6 +657,10 @@ describe("Dust mechanics", () => {
     expect(cyclones[0].effectiveCastTime).toBeCloseTo(2.816, 10)
     expect(result.actionBreakdowns[`${cyclones[0].id}:10`]).toBeUndefined()
     expect(result.actionBreakdowns[`${cyclones[1].id}:10`].total).toBeGreaterThan(0)
+    const readable = readableRotationText(result.timeline, input.startAnchor, result.anchorTime)
+    expect(readable.match(/\bQ \(14 Throws\b/g)).toHaveLength(3)
+    expect(readable).toContain("Special (8 Hits)")
+    expect(readable).toContain("Special (9 Hits)")
     const secondReturn = result.timeline.filter(
       row => row.kind === "rotation" && row.step.skill === "CycloneWaltzReturnNoHit",
     )[1]
