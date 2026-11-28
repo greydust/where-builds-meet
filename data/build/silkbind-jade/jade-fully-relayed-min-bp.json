@@ -39,7 +39,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 73.13199999999999 },
           { "key": "agility", "value": 46.43599999999999 },
-          { "key": "power", "value": 46.43599999999999 },
+          { "key": "crit", "value": 0.0846 },
           { "key": "maxSilkbind", "value": 41.548 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
@@ -53,7 +53,7 @@
           { "key": "minPhys", "value": 73.13199999999999 },
           { "key": "agility", "value": 46.43599999999999 },
           { "key": "allMartialArts", "value": 0.03008 },
-          { "key": "crit", "value": 0.0846 }
+          { "key": "maxSilkbind", "value": 41.548 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 11 }
       },
@@ -78,7 +78,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 73.13199999999999 },
           { "key": "agility", "value": 46.43599999999999 },
-          { "key": "power", "value": 46.43599999999999 },
+          { "key": "minSilkbind", "value": 41.548 },
           { "key": "maxSilkbind", "value": 41.548 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.06 }
@@ -145,7 +145,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 85.16399999999999 },
           { "key": "agility", "value": 53.955999999999996 },
-          { "key": "power", "value": 53.955999999999996 },
+          { "key": "crit", "value": 0.09775999999999999 },
           { "key": "maxSilkbind", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
@@ -159,7 +159,7 @@
           { "key": "minPhys", "value": 85.16399999999999 },
           { "key": "agility", "value": 53.955999999999996 },
           { "key": "allMartialArts", "value": 0.033839999999999995 },
-          { "key": "crit", "value": 0.09775999999999999 }
+          { "key": "maxSilkbind", "value": 48.315999999999995 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 12.8 }
       },
@@ -184,7 +184,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 85.16399999999999 },
           { "key": "agility", "value": 53.955999999999996 },
-          { "key": "power", "value": 53.955999999999996 },
+          { "key": "maxSilkbind", "value": 48.315999999999995 },
           { "key": "allMysticDmgBoost", "value": 0.10715999999999999 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.07 }
@@ -251,7 +251,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 99.264 },
           { "key": "agility", "value": 62.791999999999994 },
-          { "key": "power", "value": 62.791999999999994 },
+          { "key": "crit", "value": 0.11467999999999999 },
           { "key": "maxSilkbind", "value": 56.211999999999996 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 14.6 }
@@ -265,7 +265,7 @@
           { "key": "minPhys", "value": 99.264 },
           { "key": "agility", "value": 62.791999999999994 },
           { "key": "allMartialArts", "value": 0.03948 },
-          { "key": "crit", "value": 0.11467999999999999 }
+          { "key": "maxSilkbind", "value": 56.211999999999996 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 14.6 }
       },
@@ -290,7 +290,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 99.264 },
           { "key": "agility", "value": 62.791999999999994 },
-          { "key": "power", "value": 62.791999999999994 },
+          { "key": "maxSilkbind", "value": 56.211999999999996 },
           { "key": "allMysticDmgBoost", "value": 0.12596 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.08 }
@@ -357,7 +357,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 114.116 },
           { "key": "agility", "value": 72.192 },
-          { "key": "power", "value": 72.192 },
+          { "key": "crit", "value": 0.1316 },
           { "key": "maxSilkbind", "value": 64.672 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 16.8 }
@@ -371,7 +371,7 @@
           { "key": "minPhys", "value": 114.116 },
           { "key": "agility", "value": 72.192 },
           { "key": "allMartialArts", "value": 0.04606 },
-          { "key": "crit", "value": 0.1316 }
+          { "key": "maxSilkbind", "value": 64.672 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 16.8 }
       },
@@ -396,7 +396,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 114.116 },
           { "key": "agility", "value": 72.192 },
-          { "key": "power", "value": 72.192 },
+          { "key": "maxSilkbind", "value": 64.672 },
           { "key": "allMysticDmgBoost", "value": 0.14475999999999997 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.092 }
@@ -463,7 +463,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 131.224 },
           { "key": "agility", "value": 83.096 },
-          { "key": "power", "value": 83.096 },
+          { "key": "crit", "value": 0.15228 },
           { "key": "maxSilkbind", "value": 74.448 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 19.4 }
@@ -477,7 +477,7 @@
           { "key": "minPhys", "value": 131.224 },
           { "key": "agility", "value": 83.096 },
           { "key": "allMartialArts", "value": 0.05264 },
-          { "key": "crit", "value": 0.15228 }
+          { "key": "maxSilkbind", "value": 74.448 }
         ],
         "attunement": { "key": "physicalPenetration", "value": 19.4 }
       },
@@ -502,7 +502,7 @@
         "additionalAffixes": [
           { "key": "minPhys", "value": 131.224 },
           { "key": "agility", "value": 83.096 },
-          { "key": "power", "value": 83.096 },
+          { "key": "maxSilkbind", "value": 74.448 },
           { "key": "allMysticDmgBoost", "value": 0.16637999999999997 }
         ],
         "attunement": { "key": "vernalProjectile280304Boost", "value": 0.106 }
