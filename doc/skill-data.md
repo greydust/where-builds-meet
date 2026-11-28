@@ -230,15 +230,12 @@ resource units, or mode-specific behavior from a damage baseline alone.
 
 - Skill `byLevel` arrays use **level minus one**, including leading nulls.
   `aggregated` contains level-independent values. Implemented offensive
-  Mystics use **level 76** (array index 75). Smolder, Dragon Head - Tide,
-  and Ghostly Steps - Umbra use their established enlightenment baseline,
-  not the regular curve. In the current schema-2 Mystic export, those known
-  baselines are normal-variant `unassignedLevels` rows 171 at level 71 and
-  176 at level 76. Row 171 reproduces the confirmed prior values before
-  importing row 176; this is a narrow exception to ignoring `versions`, not
-  a generic fallback for unidentified source routes. Ghostly Steps has the
-  same values at both levels. Preserve each authored hit multiplier when
-  replacing coefficients and flat bonuses. Martial-art coefficients resolve from the normal
+  Mystics use **level 81** (array index 80) from the November 26 Global export.
+  Smolder, Dragon Head - Tide, and Ghostly Steps - Umbra use their established
+  Enlightenment baselines from normal-variant `unassignedLevels` row 181.
+  Row 176 reproduces the level-76 values for these routes. Ghostly Steps has
+  identical damage values at levels 76 and 81. Preserve each authored hit
+  multiplier when replacing coefficients and flat bonuses. Martial-art coefficients resolve from the normal
   curve's `SKILL_POWER_PRO_ATK` / `SKILL_POWER_PRO_HEAL`, with
   `SKILL_ADD_W_ATK` as `phyBonus` and `SKILL_ADD_WX_PRO_ATK` as `attrBonus`,
   read at **level 100** (array index 99) unless the value is `aggregated`.
@@ -271,9 +268,9 @@ not a second catalog of current values:
 - Smolder's tick factor remains **0.0532**, confirmed by observed damage;
   the exported **0.045** conflicts with that evidence. DOT flat bonuses remain
   inactive under the current damage formula.
-- Dragon Head - Tide retains its confirmed enlightenment route. Its level-76
-  pre-multiplier physical/attribute coefficient is **16.3600856603774** and
-  physical bonus is **2596.71698113208**, followed by the existing upgrade/
+- Dragon Head - Tide retains its confirmed enlightenment route. Its level-81
+  pre-multiplier physical/attribute coefficient is **16.3610290566038** and
+  physical bonus is **2709.92452830189**, followed by the existing upgrade/
   enlightenment factors. The source's level-71 row reproduces the previously
   confirmed 16.3591422641509 / 2483.50943396226 baseline; the regular curve
   is a different route and must not replace it.
