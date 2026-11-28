@@ -1,6 +1,6 @@
 {
   "id": "deluge-fully-relayed-max-hw",
-  "name": "Fully Relayed Max Build Hawkwing",
+  "name": "Fully Relayed Max Hawkwing Build",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,

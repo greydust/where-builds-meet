@@ -1,5 +1,5 @@
 {
-  "name": "Dummy 1 Min Infinite Vitality",
+  "name": "Dummy 1 Min IV",
   "martialArts": ["infernalTwinblades", "mortalRopeDart"],
   "ping": 30,
   "targetType": "DummyAttack",

@@ -1,6 +1,11 @@
 # Localization catalog coverage
 
-Latest terminology source: `2026-11-26_02-33-02-122_+0000-xgBtPW`. Catalog messages: 2182.
+Latest terminology source: `2026-11-26_02-33-02-122_+0000-xgBtPW`. Catalog messages: 2185.
+
+Existing translations carry over to the aligned preset names. New infinite
+Vitality modifiers reuse the localized setting label. The two Strength EW
+build labels use the localized Envigorated Warrior name in all eleven
+published non-English locales.
 
 The November 26 export supplies Global English Bolt names for martial arts,
 skills, Inner Ways, effects, attunements, and gear sets. An independent AI

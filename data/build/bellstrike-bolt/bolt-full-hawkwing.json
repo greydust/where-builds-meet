@@ -1,6 +1,6 @@
 {
   "id": "bolt-full-hawkwing",
-  "name": "Full Max Build Hawkwing",
+  "name": "Full Max Hawkwing Build",
   "order": 11,
   "martialArts": ["jueyuXuanfengSpear", "boshanQuyueSpear"],
   "relayed": false,

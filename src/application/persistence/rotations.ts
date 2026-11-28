@@ -20,6 +20,18 @@ import type { WeaponId } from "@/types"
 import { rotationListStorageKey } from "./keys"
 import { readLegacyRotation } from "./legacy"
 
+const renamedPresetLabels = new Map([
+  ["Dummy 1 Min Infinite Vitality", "Dummy 1 Min IV"],
+  ["Dummy 1 Min 37 BB DH", "Dummy 1 Min IV 37 BB DH"],
+  ["Dummy 1 Min 39 BB", "Dummy 1 Min IV 39 BB"],
+  ["Dummy 1 Min Dawnsun", "Dummy 1 Min IV Dawnsun"],
+  ["Dummy 1 Min Jadebreaker", "Dummy 1 Min IV Jadebreaker"],
+  ["Dummy 1 min", "Dummy 1 Min IV"],
+  ["Mixed Mhysa 5 Min", "Mixed Mhysa Dummy 5 Mins IV"],
+  ["Pure Mhysa 5 Min", "Pure Mhysa Dummy 5 Mins IV"],
+  ["Mixed Dummy 1 Min", "Mixed Dummy 1 Min IV"],
+])
+
 export function loadRotationEntries(
   previewId: PreviewId | null = null,
   currentEntries?: RotationEntry[],
@@ -50,7 +62,16 @@ export function loadRotationEntries(
     }
     const preserveFormerDefault = (rotation: RotationRecord) => {
       const migrated = migrateRotation(rotation)
-      if (defaultRotationEntries.some(entry => JSON.stringify(migrated) === JSON.stringify(entry.rotation))) return
+      const payload = JSON.stringify(migrated)
+      const currentName = renamedPresetLabels.get(migrated.name)
+      const renamedPayload = currentName ? JSON.stringify({ ...migrated, name: currentName }) : payload
+      if (
+        defaultRotationEntries.some(entry => {
+          const preset = JSON.stringify(entry.rotation)
+          return preset === payload || preset === renamedPayload
+        })
+      )
+        return
       addCustom("migrated-default-rotation", { ...migrated, name: `${migrated.name || defaultRotation.name} Copy` })
     }
     if (saved.success) {

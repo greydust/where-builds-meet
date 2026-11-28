@@ -1,6 +1,6 @@
 {
   "id": "deluge-fully-relayed-max-ib",
-  "name": "Fully Relayed Max Build Ivorybloom",
+  "name": "Fully Relayed Max Ivorybloom Build",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,

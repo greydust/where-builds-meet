@@ -1,6 +1,6 @@
 {
   "id": "jade-bp-min",
-  "name": "Fully Relayed Min BP",
+  "name": "Fully Relayed Min BP Build",
   "order": 11,
   "martialArts": ["vernalUmbrella", "inkwellFan"],
   "relayed": true,

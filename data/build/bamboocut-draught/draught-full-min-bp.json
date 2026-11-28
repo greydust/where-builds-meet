@@ -1,6 +1,6 @@
 {
   "id": "draught-full-min-bp",
-  "name": "Full Min Build BP",
+  "name": "Full Min BP Build",
   "order": 110,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "setup": {

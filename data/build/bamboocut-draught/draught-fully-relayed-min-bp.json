@@ -1,6 +1,6 @@
 {
   "id": "draught-fully-relayed-min-bp",
-  "name": "Fully Relayed Min Build BP",
+  "name": "Fully Relayed Min BP Build",
   "order": 10,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "relayed": true,

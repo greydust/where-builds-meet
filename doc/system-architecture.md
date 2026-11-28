@@ -31,6 +31,13 @@ If both old and new keys exist in a map, the new key takes precedence.
 
 ## Rotation preset ordering
 
+English build preset names put the path-specific type first when needed,
+followed by Fully Relayed or Full, the stat focus, any variant suffix, and Build.
+Rotation preset names put any path-specific type and credited author before the
+target, then list the duration and modifiers. Use Min for one minute, Mins for
+multiple minutes, and IV for infinite Vitality. Empty presets use placeholder
+labels. Preset IDs are independent of display names.
+
 Rotation JSON files may define numeric `order` metadata. The catalog places
 ordinary presets before test presets, then sorts by ascending order and file
 path. An omitted order sorts after explicit orders. The picker puts custom

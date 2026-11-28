@@ -1,6 +1,6 @@
 {
   "id": "wings-graduate",
-  "name": "Graduate Build",
+  "name": "Full Min Build",
   "order": 5,
   "martialArts": ["museflowWaistDrum", "willowbendFan"],
   "relayed": false,

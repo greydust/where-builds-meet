@@ -1,6 +1,6 @@
 {
   "id": "deluge-fully-relayed-max-affinity",
-  "name": "Fully Relayed Max Build Affinity",
+  "name": "Fully Relayed Max Affinity Build",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,

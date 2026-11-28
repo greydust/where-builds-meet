@@ -1,6 +1,6 @@
 {
   "id": "draught-full-max-bp",
-  "name": "Full Max Build BP",
+  "name": "Full Max BP Build",
   "order": 111,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "setup": {

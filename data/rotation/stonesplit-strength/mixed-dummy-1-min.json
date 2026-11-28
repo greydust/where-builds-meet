@@ -1,6 +1,6 @@
 {
   "order": 0,
-  "name": "Mixed Dummy 1 Min",
+  "name": "Mixed Dummy 1 Min IV",
   "martialArts": ["snowparting", "phalanxbane"],
   "eventTimeReference": "battleStart",
   "start": { "step": 9, "action": 5 },

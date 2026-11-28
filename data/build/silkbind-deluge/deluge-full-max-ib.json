@@ -1,6 +1,6 @@
 {
   "id": "deluge-full-max-ib",
-  "name": "Full Max Build Ivorybloom",
+  "name": "Full Max Ivorybloom Build",
   "order": 2,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "setup": {

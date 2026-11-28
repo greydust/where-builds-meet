@@ -1064,6 +1064,15 @@ function currentPresetId(id: string) {
   }
 }
 
+function migratePresetBuildName(preset: BuildPreset, savedName: unknown) {
+  if (typeof savedName !== "string" || !savedName.trim()) return preset.name
+  if (preset.id === "wings-graduate" && savedName === "Graduate Build") return preset.name
+  const alignedName = savedName.includes(" Build ")
+    ? savedName.replace(" Build ", " ") + " Build"
+    : savedName + " Build"
+  return alignedName === preset.name ? preset.name : savedName
+}
+
 export function loadBuildState(): BuildState {
   try {
     const savedValue = getPersistentItem(buildListStorageKey)
@@ -1089,7 +1098,7 @@ export function loadBuildState(): BuildState {
       ) as { name?: unknown } | undefined
       return {
         id: preset.id,
-        name: typeof savedDefault?.name === "string" && savedDefault.name.trim() ? savedDefault.name : preset.name,
+        name: migratePresetBuildName(preset, savedDefault?.name),
         isDefault: true,
         presetId: preset.id,
         martialArts: [...preset.martialArts],

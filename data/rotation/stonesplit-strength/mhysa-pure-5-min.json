@@ -1,5 +1,5 @@
 {
-  "name": "Pure Mhysa 5 Min",
+  "name": "Pure Mhysa Dummy 5 Mins IV",
   "steps": [
     { "type": "skill", "skill": "PhalanxbaneSpecial" },
     { "type": "skill", "skill": "DrunkenPoetDrinkCancel" },

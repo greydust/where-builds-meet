@@ -1,6 +1,6 @@
 {
   "id": "deluge-fully-relayed-min-ib",
-  "name": "Fully Relayed Min Build Ivorybloom",
+  "name": "Fully Relayed Min Ivorybloom Build",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,

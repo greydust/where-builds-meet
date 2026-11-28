@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 
-import { loadAttunementStats } from "../src/application/persistence/attunements"
-import { loadPathSelectionIds } from "../src/application/persistence/pathSelection"
-import { loadRotationEntries } from "../src/application/persistence/rotations"
-import { loadStats } from "../src/application/persistence/stats"
+import { loadAttunementStats } from "@/application/persistence/attunements"
+import { loadPathSelectionIds } from "@/application/persistence/pathSelection"
+import { loadRotationEntries } from "@/application/persistence/rotations"
+import { loadStats } from "@/application/persistence/stats"
+import { loadBuildState } from "@/gear"
+
 import { windowWithStorage } from "./helpers/domStubs"
 
 class MemoryStorage implements Storage {
@@ -96,9 +98,39 @@ describe("legacy persistence adapters", () => {
     expect(loadRotationEntries().some(entry => entry.id === "migrated-default-rotation")).toBe(true)
   })
 
+  it("loads renamed presets by ID and preserves user-authored names", () => {
+    const buildId = "pure-fully-relayed-min-ew"
+    const oldBuildName = "Pure Fully Relayed Min Build EW"
+    localStorage.setItem(
+      "wwm-build-list-v1",
+      JSON.stringify([
+        { id: buildId, name: oldBuildName, isDefault: true },
+        { id: "custom-build", name: oldBuildName, martialArts: ["snowparting", "phalanxbane"] },
+      ]),
+    )
+    const builds = loadBuildState().entries
+    expect(builds.find(entry => entry.id === buildId)?.name).toBe("Pure Fully Relayed Min EW Build")
+    expect(builds.find(entry => entry.id === "custom-build")?.name).toBe(oldBuildName)
+
+    const preset = loadRotationEntries().find(entry => entry.id === "mixed-dummy-1-min")!
+    const oldRotation = { ...preset.rotation, name: "Mixed Dummy 1 Min" }
+    localStorage.setItem(
+      "wwm-rotation-list-session-v1",
+      JSON.stringify([
+        { ...preset, rotation: oldRotation },
+        { id: "custom-rotation", rotation: oldRotation, martialArts: preset.martialArts },
+      ]),
+    )
+    const rotations = loadRotationEntries()
+    expect(rotations.find(entry => entry.id === preset.id)?.rotation.name).toBe("Mixed Dummy 1 Min IV")
+    expect(rotations.filter(entry => !entry.isDefault).map(entry => [entry.id, entry.rotation.name])).toEqual([
+      ["custom-rotation", oldRotation.name],
+    ])
+  })
+
   it("discards a stored placeholder selection so a WIP path resolves its configured default", async () => {
-    const { defaultBuildIdForPath, defaultRotationIdForPath } = await import("../src/application/gameData/paths")
-    const { resolvePathWorkspaceSelection } = await import("../src/pathWorkspace")
+    const { defaultBuildIdForPath, defaultRotationIdForPath } = await import("@/application/gameData/paths")
+    const { resolvePathWorkspaceSelection } = await import("@/pathWorkspace")
     const pathId = "bamboocutDust"
     localStorage.setItem("wwm-active-build-by-path-v1", JSON.stringify({ [pathId]: "empty" }))
     localStorage.setItem("wwm-active-rotation-by-path-v1", JSON.stringify({ [pathId]: "empty" }))

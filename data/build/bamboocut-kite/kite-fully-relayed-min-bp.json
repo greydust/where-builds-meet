@@ -1,6 +1,6 @@
 {
   "id": "kite-fully-relayed-min-bp",
-  "name": "Fully Relayed Min Build BP",
+  "name": "Fully Relayed Min BP Build",
   "order": 1,
   "martialArts": ["heavenwill", "skygrasp"],
   "relayed": true,

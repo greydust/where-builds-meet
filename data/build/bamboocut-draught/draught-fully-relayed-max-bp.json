@@ -1,6 +1,6 @@
 {
   "id": "draught-fully-relayed-max-bp",
-  "name": "Fully Relayed Max Build BP",
+  "name": "Fully Relayed Max BP Build",
   "order": 11,
   "martialArts": ["skystrikeGauntlets", "rivenTwinblades"],
   "relayed": true,

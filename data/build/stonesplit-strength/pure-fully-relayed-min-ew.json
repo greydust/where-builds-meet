@@ -1,0 +1,551 @@
+{
+  "id": "pure-fully-relayed-min-ew",
+  "name": "Pure Fully Relayed Min EW Build",
+  "order": 1,
+  "martialArts": ["snowparting", "phalanxbane"],
+  "relayed": true,
+  "setup": {
+    "innerWays": [
+      { "innerWay": "FrostCladNight", "tier": "T6" },
+      { "innerWay": "MoraleChant", "tier": "T6" },
+      { "innerWay": "EnvigoratedWarrior", "tier": "T6" },
+      { "innerWay": "ThroatPiercingArt", "tier": "T6" }
+    ],
+    "weaponSets": { "Cleftpeak": 4, "RainWhisper": 0 },
+    "armorSets": { "Formbend": 0 },
+    "bowRingSet": "Precision",
+    "arsenal": "Stonesplit"
+  },
+  "gearByTier": {
+    "96": {
+      "leftWeapon": {
+        "definitionId": "hengBlade",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "hengBladeDmgBoost", "value": 0.05828 },
+          { "key": "maxStonesplit", "value": 41.548 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "rightWeapon": {
+        "definitionId": "moBlade",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "crit", "value": 0.0846 },
+          { "key": "maxStonesplit", "value": 41.548 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "allMartialArts", "value": 0.03008 },
+          { "key": "crit", "value": 0.0846 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 73.132 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "allMartialArts", "value": 0.03008 },
+          { "key": "crit", "value": 0.0846 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 11 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "precision", "value": 0.0752 },
+          { "key": "maxStonesplit", "value": 41.548 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.06 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "precision", "value": 0.0752 },
+          { "key": "maxStonesplit", "value": 41.548 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.06 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "vsBossDmg", "value": 0.03008 },
+          { "key": "precision", "value": 0.0752 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.06 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 96,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.0846 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 73.132 },
+          { "key": "agility", "value": 46.436 },
+          { "key": "vsBossDmg", "value": 0.03008 },
+          { "key": "maxStonesplit", "value": 41.548 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.06 }
+      }
+    },
+    "100": {
+      "leftWeapon": {
+        "definitionId": "hengBlade",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "hengBladeDmgBoost", "value": 0.06956 },
+          { "key": "maxStonesplit", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "rightWeapon": {
+        "definitionId": "moBlade",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "crit", "value": 0.09775999999999999 },
+          { "key": "maxStonesplit", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "allMartialArts", "value": 0.033839999999999995 },
+          { "key": "crit", "value": 0.09775999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 85.16399999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "allMartialArts", "value": 0.033839999999999995 },
+          { "key": "crit", "value": 0.09775999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 12.8 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "precision", "value": 0.08836 },
+          { "key": "maxStonesplit", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.07 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "precision", "value": 0.08836 },
+          { "key": "maxStonesplit", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.07 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "vsBossDmg", "value": 0.035719999999999995 },
+          { "key": "precision", "value": 0.08836 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.07 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 100,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.09775999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 85.16399999999999 },
+          { "key": "agility", "value": 53.955999999999996 },
+          { "key": "vsBossDmg", "value": 0.035719999999999995 },
+          { "key": "maxStonesplit", "value": 48.315999999999995 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.07 }
+      }
+    },
+    "105": {
+      "leftWeapon": {
+        "definitionId": "hengBlade",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "hengBladeDmgBoost", "value": 0.08084 },
+          { "key": "maxStonesplit", "value": 56.211999999999996 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "rightWeapon": {
+        "definitionId": "moBlade",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "crit", "value": 0.11467999999999999 },
+          { "key": "maxStonesplit", "value": 56.211999999999996 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "allMartialArts", "value": 0.03948 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 99.264 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "allMartialArts", "value": 0.03948 },
+          { "key": "crit", "value": 0.11467999999999999 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 14.6 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "precision", "value": 0.10152 },
+          { "key": "maxStonesplit", "value": 56.211999999999996 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.08 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "precision", "value": 0.10152 },
+          { "key": "maxStonesplit", "value": 56.211999999999996 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.08 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "vsBossDmg", "value": 0.04135999999999999 },
+          { "key": "precision", "value": 0.10152 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.08 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 105,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.11467999999999999 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 99.264 },
+          { "key": "agility", "value": 62.791999999999994 },
+          { "key": "vsBossDmg", "value": 0.04135999999999999 },
+          { "key": "maxStonesplit", "value": 56.211999999999996 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.08 }
+      }
+    },
+    "110": {
+      "leftWeapon": {
+        "definitionId": "hengBlade",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "hengBladeDmgBoost", "value": 0.09212000000000001 },
+          { "key": "maxStonesplit", "value": 64.672 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "rightWeapon": {
+        "definitionId": "moBlade",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "crit", "value": 0.1316 },
+          { "key": "maxStonesplit", "value": 64.672 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "allMartialArts", "value": 0.04606 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 114.116 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "allMartialArts", "value": 0.04606 },
+          { "key": "crit", "value": 0.1316 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 16.8 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "precision", "value": 0.11656 },
+          { "key": "maxStonesplit", "value": 64.672 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.092 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "precision", "value": 0.11656 },
+          { "key": "maxStonesplit", "value": 64.672 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.092 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "vsBossDmg", "value": 0.04793999999999999 },
+          { "key": "precision", "value": 0.11656 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.092 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 110,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.1316 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 114.116 },
+          { "key": "agility", "value": 72.192 },
+          { "key": "vsBossDmg", "value": 0.04793999999999999 },
+          { "key": "maxStonesplit", "value": 64.672 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.092 }
+      }
+    },
+    "115": {
+      "leftWeapon": {
+        "definitionId": "hengBlade",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "hengBladeDmgBoost", "value": 0.10622000000000001 },
+          { "key": "maxStonesplit", "value": 74.448 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "rightWeapon": {
+        "definitionId": "moBlade",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "crit", "value": 0.15228 },
+          { "key": "maxStonesplit", "value": 74.448 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "disc": {
+        "definitionId": "disc",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "allMartialArts", "value": 0.05264 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "pendant": {
+        "definitionId": "pendant",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "minPhys", "value": 131.224 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "allMartialArts", "value": 0.05264 },
+          { "key": "crit", "value": 0.15228 }
+        ],
+        "attunement": { "key": "physicalPenetration", "value": 19.4 }
+      },
+      "helmet": {
+        "definitionId": "helmet",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "precision", "value": 0.13535999999999998 },
+          { "key": "maxStonesplit", "value": 74.448 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.106 }
+      },
+      "chestpiece": {
+        "definitionId": "chestpiece",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "precision", "value": 0.13535999999999998 },
+          { "key": "maxStonesplit", "value": 74.448 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.106 }
+      },
+      "greaves": {
+        "definitionId": "greaves",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "vsBossDmg", "value": 0.05545999999999999 },
+          { "key": "precision", "value": 0.13535999999999998 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.106 }
+      },
+      "bracer": {
+        "definitionId": "bracer",
+        "level": 115,
+        "rarity": "Gold",
+        "baseAffix": { "key": "crit", "value": 0.15228 },
+        "additionalAffixes": [
+          { "key": "minPhys", "value": 131.224 },
+          { "key": "agility", "value": 83.096 },
+          { "key": "vsBossDmg", "value": 0.05545999999999999 },
+          { "key": "maxStonesplit", "value": 74.448 }
+        ],
+        "attunement": { "key": "snowpartingVariedComboBoost", "value": 0.106 }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "Mixed Mhysa 5 Min",
+  "name": "Mixed Mhysa Dummy 5 Mins IV",
   "steps": [
     { "type": "event", "event": "Move", "before": { "action": "start" }, "distance": 19 },
     { "type": "skill", "skill": "PhalanxbaneSpecial" },

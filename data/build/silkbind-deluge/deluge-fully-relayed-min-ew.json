@@ -1,6 +1,6 @@
 {
   "id": "deluge-fully-relayed-min-ew",
-  "name": "Fully Relayed Min Build Etherwrath",
+  "name": "Fully Relayed Min Etherwrath Build",
   "order": 1,
   "martialArts": ["panaceaFan", "soulshadeUmbrella"],
   "relayed": true,
