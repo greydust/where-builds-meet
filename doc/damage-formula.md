@@ -318,7 +318,7 @@ Every damage action is evaluated as four possible outcomes and then rate weighte
 
 | Outcome  | Physical attack   | Attribute attack  | Outcome bonus      |
 | -------- | ----------------- | ----------------- | ------------------ |
-| Abrasion | effective minimum | effective minimum | none               |
+| Abrasion | effective minimum | effective minimum | Abrasion DMG Bonus |
 | Normal   | effective average | effective average | none               |
 | Critical | effective average | effective average | Critical DMG Bonus |
 | Affinity | effective maximum | effective maximum | Affinity DMG Bonus |
@@ -514,7 +514,7 @@ For an action with physical coefficient `Cp` (`phyCoef`), attribute coefficient 
 
 ```text
 Adjusted Enemy Defense = Enemy Defense × (1 + sum(active defenseBonus))
-Base Physical = Cp × (P − Adjusted Enemy Defense) + Bp
+Base Physical = Cp × max(P − Adjusted Enemy Defense, 0.1 × Effective Min Physical Attack) + Bp
 Base Attribute i = Ca × Ai + (Ba when i is the primary path, otherwise 0)
 ```
 
@@ -674,25 +674,25 @@ Silkbind Healing =
   × (1 + Silkbind Healing Bonus)
 ```
 
-Healing uses `phyCoef` for Physical and `silkbindCoef` for Silkbind, with omitted coefficients treated as zero. It does not use `attrCoef` or other attribute attacks. It always resolves at the average of each attack range, which its `averageAttack` field records.
+Healing uses `phyCoef` for Physical and `silkbindCoef` for Silkbind, with omitted coefficients treated as zero. It does not use `attrCoef` or other attribute attacks. Each attack range supplies its mean before any sampled fluctuation.
 
 Calculation-time Physical and Silkbind Attack Bonus effects multiply their
 respective average attack before the coefficient. Matching healing attunements
 contribute General Healing Bonus: Martial Art Skill requires the owning martial
 art, Special Skill additionally requires `Special`, and Panacea Fan Healing
 Skill requires `Heavy`. Physical
-Penetration combines its Weapon attunement value with matching calculation-time
-effects. Silkbind Penetration combines its resolved character-stat value with
-matching calculation-time effects. Formless Penetration sums its raw character-stat and matching attunement
-contributions once, then converts to the equipped
-path's primary attribute before healing is resolved, so it contributes to
-Silkbind Healing when Silkbind is the primary attribute.
+and Silkbind each combine ordinary penetration from stats and effects with
+matching correctable penetration from Weapon attunements. The correctable terms
+use the recipient's healing-penetration divisor, which defaults to 1 for
+simulated party members. Healing uses the combined value divided by 200.
+Formless Penetration contributes to Silkbind Healing when Silkbind is the
+equipped primary attribute.
 
 Healing has only Normal and Critical outcomes, which is the `healing` rate route:
 
 ```text
 Healing Critical Rate =
-  clamp(Effective Critical Rate + Direct Critical Rate, 0, 1)
+  clamp(clamp(Critical / (1 + J) + Effective Critical Bonus, 0, 0.8) + Direct Critical Rate, 0, 1)
 
 Expected Critical Multiplier =
   1 + Healing Critical Rate × (0.5 + Critical Healing Bonus)
@@ -750,9 +750,10 @@ bracket and `C`/`N` are Concentration/Nurturing bonuses; multiplying independent
 average stacks would lose the shared-critical contribution. Sampled fights use
 each recipient's actual critical outcome through the same healing calculator.
 Simulation independently rolls each recipient's Normal or Critical result and
-a uniform final-healing multiplier from `0.92` through `1.08`. This fluctuation
-is applied after the outcome and healing-bonus multipliers. It does not affect
-deterministic expected healing or the Rotation Editor. Group-heal outcome counts
+a uniform multiplier from `0.9` through `1.1` on each channel's mean attack.
+Physical and Silkbind use separate rolls. The skill coefficient scales the
+rolled attack before the flat healing term enters, and the final heal retains
+its fractional value. Expected healing and the Rotation Editor use the mean attack. Group-heal outcome counts
 are weighted by recipient count, and each DPS-ranked simulation record also
 reports its sampled HPS and healing outcome percentages.
 
@@ -840,6 +841,14 @@ Category 1 currently contains:
 - All Mystic Skill DMG Boost for skills tagged `Mystic`
 - active `dmgBonus` effects
 - active `hpDMGBonus` effects whose requirements pass
+
+The first four entries are the modeled weapon-, skill-, and monster-type
+bonuses. Divide their sum by the target's `typeBonusDivisor` before adding the
+active effects. Global 15.3 `monster_attrs` rows 10022–10023 store 1.15.
+CN Normal and Grey layer-1 rows 10024–10025 store 1.3225, which supplies the
+BT24–25 profiles alongside their existing defense values. Earlier profiles
+use 1. The two recovered Global damage copies put `AA.DAMAGE_UP` in different
+brackets. The current effect mapping follows the existing target-correction model.
 
 Bolt's 載戈 debuff adds 10% per stack to this category for 鳴戈 only.
 Its 60% NPC correction uses `targetCorrectionBonus`, while active 鋒銳's
@@ -1023,7 +1032,8 @@ Other attacks receive neither bonus. No Category 2 multiplier is introduced.
 ### Outcome multiplier
 
 ```text
-Abrasion or Normal = 1
+Abrasion = 1 + abrasionDamageBonus (base CS_ITS = 1)
+Normal   = 1
 Critical = clamp(1 + Effective Critical DMG Bonus + active critDmgBonus effects, 1.35, 2.50)
 Affinity = clamp(1 + Affinity DMG Bonus + active affinityDmgBonus effects, 1.20, 2.30)
 ```
@@ -1076,10 +1086,11 @@ When penetration is greater than or equal to resistance:
 Penetration Multiplier = 1 + (Penetration − Resistance) / 200
 ```
 
-When penetration is lower than resistance:
+When resistance exceeds penetration, let `gap = Resistance − Penetration`:
 
 ```text
-Penetration Multiplier = 1 + (Penetration − Resistance) / 100
+gap ≤ 75: Penetration Multiplier = 1 − gap / 100
+gap > 75: Penetration Multiplier = 100 / (100 + 4 × gap)
 ```
 
 Physical penetration consists of the character's Physical Penetration stat, matching attunement Physical Penetration,
@@ -1132,14 +1143,16 @@ baseline.
 For Judgement Resistance `J`:
 
 ```text
-Effective Precision = min(1, (Precision − 0.65) / (1 + J) + 0.65)
-Effective Critical  = min(0.8, Critical / (1 + J) + Effective Critical Bonus)
-Effective Affinity  = min(0.4, Affinity / (1 + J))
+Effective Precision = clamp((Precision − 0.65) / (1 + J) + 0.65 + Effective Precision Bonus − Added Precision Resistance, 0.05, 1)
+Effective Critical  = clamp(Critical / (1 + J) + Effective Critical Bonus − Added Critical Resistance, 0, 0.8)
+Effective Affinity  = clamp(Affinity / (1 + J) + Effective Affinity Bonus − Added Affinity Resistance, 0, 0.4)
 Final Affinity = clamp(Effective Affinity + Direct Affinity, 0, 1)
 ```
 
-The Precision baseline is always `0.65`; only the denominator changes with
-Judgement Resistance, including at breakthrough 18 (`J = 0.85`).
+Precision uses a fixed baseline of `0.65`. Judgement Resistance changes the
+denominator, including at breakthrough 18 (`J = 0.85`). Target added
+resistances apply to damage. Healing uses the precap Critical Bonus and the
+80% Critical cap before Direct Critical.
 
 Effective Critical Bonus is added after Judgement Resistance and shares the
 80% Effective Critical cap. Flamelash contributes `0.1` and Ivorybloom's
@@ -1176,6 +1189,12 @@ Abrasion Rate = (1 − Effective Precision) × (1 − Final Affinity)
 Normal Rate   = max(0, 1 − Abrasion Rate − Affinity Rate − Critical Rate)
 ```
 
+Abrasion immunity uses an outcome-rate conversion from `abrasionRate` to
+`normalRate` after Critical and Affinity are resolved. A conversion with
+`ratio: 1` moves all eligible Abrasion probability to Normal. Set the
+conversion's optional `fraction` for a partial transfer. Converted hits use
+the Normal attack range.
+
 `GuaranteedCrit` is an unconditional rate override: Critical Rate becomes 100% and every other outcome rate becomes zero.
 
 `SteadfastGuaranteedCrit` is a separate conditional rate override and only applies to skills tagged `BurningHeart` or `AnxiSoldier`:
@@ -1184,6 +1203,11 @@ Normal Rate   = max(0, 1 − Abrasion Rate − Affinity Rate − Critical Rate)
 - Otherwise, 15% Direct Critical is added and the rates are recalculated; this fallback does not guarantee a critical hit.
 
 The associated 10% Critical DMG effects are represented separately as `critDmgBonus: 0.1` in effect data; they are not part of the rate function.
+
+In sampled ordinary damage, the client settles the combined hit with
+`ceil(max(0, total))`. The simulator allocates that result proportionally across
+its component breakdown. Expected damage uses unrounded outcome values at the
+representative attacks above.
 
 ## Expected action damage
 
@@ -1346,10 +1370,11 @@ When outcome rates and other multipliers remain fixed, expected damage is affine
 in the effective minimum and maximum attack of each channel. Abrasion contributes
 to the minimum coefficient, Affinity to the maximum coefficient, and Normal and
 Critical split their contributions equally between minimum and maximum.
-Flat skill attack and enemy defense are constant terms. The comparison evaluates
+Flat skill attack and enemy defense are constant terms. While the physical
+floor is active, each affected outcome responds to 10% of the minimum attack. The comparison evaluates
 `baselineDamage + sum(coefficient * attackDelta)` after preparing the coefficients
 through the same damage formula. It applies only within the baseline's physical
-zero-clamp and attack normalization region, with attack-dependent formulas and
+defense-floor, zero-clamp, and attack normalization region, with attack-dependent formulas and
 combat feedback excluded. Per-hit prepared expressions can separately reevaluate
 outcome rates and attack ranges when the rotation-wide affine shortcut is ineligible.
 See [Prepared attack comparisons](system-architecture.md#prepared-attack-comparisons).
@@ -1363,14 +1388,13 @@ baseline and variant shared multipliers to remain positive; otherwise the ordina
 formula resolves physical zero clamps directly.
 
 Pure physical/formless penetration attunements also have affine comparison
-coefficients within one resistance branch: below resistance the penetration
-multiplier slope is `1 / 100`, and at or above resistance it is `1 / 200`.
+coefficients within each linear resistance branch. For a deficit up to 75
+the multiplier slope is `1 / 100`, and at or above resistance it is `1 / 200`.
 Preparation uses the ordinary outcome/channel formula, including flat bonuses,
 expected effects, and the primary-attribute restriction for Formless Penetration.
-Physical penetration additionally requires a positive multiplier so its zero clamp
-stays in the same region. Resistance crossings or zero-multiplier crossings use
-the full calculation. Recorded replays propagate these coefficients with their
-ordinary source weights. Baseline and sampled arithmetic remain unchanged.
+Variants that cross a breakpoint or start on the nonlinear branch use the full
+calculation. Recorded replays propagate coefficients with their ordinary source
+weights.
 
 For fixed attack ranges and damage multipliers, each hit's channel damage is
 `abrasionRate * abrasionDamage + normalRate * normalDamage + critRate * critDamage + affinityRate * affinityDamage`.

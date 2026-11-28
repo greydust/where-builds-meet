@@ -33,7 +33,13 @@ export const rateStatFields = new Set([
   "affinity",
   "directCrit",
   "directAffinity",
+  "effectivePrecisionBonus",
   "effectiveCritBonus",
+  "effectiveAffinityBonus",
+  "uncappedPrecision",
+  "uncappedCrit",
+  "uncappedAffinity",
+  "directAffinityInput",
   "effectivePrecision",
   "effectiveCrit",
   "effectiveAffinity",
@@ -172,7 +178,6 @@ export class RotationDamageResponse {
     return (this.attunementCoefficients.get(key) ?? 0) * delta
   }
 
-  private bounds = new Map<number, { lower: number; upper: number }>()
   private ranges = new Map<
     string,
     { weights: Partial<Record<AttackStatField, number>>; lower: number; upper: number }
@@ -187,7 +192,6 @@ export class RotationDamageResponse {
     for (const [key, lower] of other.attunementBounds)
       this.attunementBounds.set(key, Math.max(this.attunementBounds.get(key) ?? -Infinity, lower))
     for (const [key, response] of other.penetration) this.addPenetration(key, response, weight)
-    for (const [minimumWeight, bound] of other.bounds) this.bound(minimumWeight, bound.lower, bound.upper)
     for (const bound of other.ranges.values()) this.range(bound.weights, bound.lower, bound.upper)
   }
 
@@ -209,14 +213,6 @@ export class RotationDamageResponse {
     const previous = this.ranges.get(key)
     this.ranges.set(key, {
       weights,
-      lower: Math.max(previous?.lower ?? -Infinity, lower),
-      upper: Math.min(previous?.upper ?? Infinity, upper),
-    })
-  }
-
-  private bound(minimumWeight: number, lower: number, upper: number) {
-    const previous = this.bounds.get(minimumWeight)
-    this.bounds.set(minimumWeight, {
       lower: Math.max(previous?.lower ?? -Infinity, lower),
       upper: Math.min(previous?.upper ?? Infinity, upper),
     })
@@ -302,16 +298,15 @@ export class RotationDamageResponse {
       }
       if (channel === "physical") physicalMaximumUsesMinimum = maximumUsesMinimum
     }
-    for (const bound of response.physicalBounds)
-      this.bound(physicalMaximumUsesMinimum ? 1 : bound.minimumWeight, bound.lower, bound.upper)
+    for (const { minimumWeight, maximumWeight, lower, upper } of response.physicalBounds) {
+      const weights = physicalMaximumUsesMinimum
+        ? { minPhys: minimumWeight + maximumWeight }
+        : { minPhys: minimumWeight, maxPhys: maximumWeight }
+      this.range(weights, lower, upper)
+    }
   }
 
   evaluate(delta: Partial<Record<AttackStatField, number>>): number | undefined {
-    for (const [minimumWeight, { lower, upper }] of this.bounds) {
-      const change = (delta.minPhys ?? 0) * minimumWeight + (delta.maxPhys ?? 0) * (1 - minimumWeight)
-      // Strict interior avoids zero-damage transitions that could alter outcome-trigger feedback.
-      if (!(change > lower && change < upper)) return undefined
-    }
     for (const { weights, lower, upper } of this.ranges.values()) {
       const fields = Object.keys(weights) as AttackStatField[]
       if (!fields.some(field => field in delta)) continue

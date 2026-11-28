@@ -63,7 +63,7 @@ describe("defense-resistance-effects", () => {
       () => 0.5,
     ).physical
     assert(
-      closeTo(simulatedCombined / simulatedBaseline, combined / baseline),
+      closeTo(simulatedCombined, Math.ceil(combined)) && closeTo(simulatedBaseline, Math.ceil(baseline)),
       "The simulator must use the same defense and resistance adjustments.",
     )
   })

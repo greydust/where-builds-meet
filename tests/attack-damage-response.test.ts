@@ -96,7 +96,7 @@ describe("prepared damage responses", () => {
       [],
       [{ GuaranteedCrit: true }],
       [{ GuaranteedAffinity: true }],
-      [{ NoAbrasion: true }],
+      [{ convert: { from: "abrasionRate", to: "normalRate", ratio: 1 } }],
       [{ convert: { from: "effectiveCrit", to: "effectiveAffinity", ratio: 0.25 } }],
     ]) {
       for (let i = 0; i < 20; i++) {
@@ -371,7 +371,7 @@ describe("cached outcome channel coefficients", () => {
       [],
       [{ GuaranteedCrit: true }],
       [{ GuaranteedAffinity: true }],
-      [{ NoAbrasion: true }],
+      [{ convert: { from: "abrasionRate", to: "normalRate", ratio: 1 } }],
       [{ convert: { from: "effectiveCrit", to: "effectiveAffinity", ratio: 0.25 } }],
     ]) {
       for (const rateRoute of [undefined, "healing", "divinecraft"]) {

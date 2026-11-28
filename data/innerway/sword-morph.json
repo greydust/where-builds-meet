@@ -56,7 +56,7 @@
             { "target": "skillTag", "value": "SwordEnergy" },
             { "target": "target", "value": "Exhausted" }
           ],
-          "effect": { "NoAbrasion": true }
+          "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 } }
         }
       ]
     },

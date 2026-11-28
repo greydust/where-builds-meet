@@ -73,11 +73,10 @@ describe("damage outcome factor limits", () => {
         input.effects = [{ GuaranteedAffinity: true, affinityDmgBonus: effect }]
         break
     }
-    for (const result of [
-      calculateDamageBreakdown(action, input),
-      calculateSimulatedDamageBreakdown(action, input, () => 0.5),
-      prepareDamageFormula(action, input).evaluate(input.derivedStats),
-    ]) {
+    const expectedDamage = calculateDamageBreakdown(action, input)
+    const sampled = calculateSimulatedDamageBreakdown(action, input, () => 0.5)
+    expect(sampled.total).toBe(Math.ceil(expectedDamage.total))
+    for (const result of [expectedDamage, prepareDamageFormula(action, input).evaluate(input.derivedStats)]) {
       expect(result.physical / normal.physical).toBeCloseTo(expected, 10)
       expect(result.bellstrike / normal.bellstrike).toBeCloseTo(expected, 10)
     }

@@ -145,9 +145,9 @@ describe("Ivorybloom critical healing retention", () => {
     const input = bundle(5)
     let rolls = 0
     const result = calculateSimulatedRotationRun(input, () => {
-      // Each recipient rolls outcome then fluctuation; only the second recipient crits.
+      // Each recipient rolls outcome then two attack multipliers; only the second recipient crits.
       const index = rolls++
-      return index === 2 ? 0.1 : 0.9
+      return index === 3 ? 0.1 : 0.9
     })
     const firstHeal = result.resolvedSequence.find(({ entry }) => entry.id === "rotation-0:1")!
     expect(firstHeal.breakdown.recipientHealing![0].outcome).toBe("normal")

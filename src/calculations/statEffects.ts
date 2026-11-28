@@ -31,7 +31,7 @@ export type SegmentStatValue = {
 export type StatEffectValues = Partial<Record<keyof CharacterStats, number | FormulaStatValue | SegmentStatValue>>
 export type StatEffectContainer = { rawStat?: StatEffectValues; stat?: StatEffectValues; statStage?: "talent" | "food" }
 export type EffectiveStatEffectContainer = { effectiveStat?: StatEffectValues }
-export type StatConversion = { from: string; to: string; ratio: number; max?: number }
+export type StatConversion = { from: string; to: string; ratio: number; max?: number; fraction?: number }
 export type StatConversionEffectContainer = { convert?: StatConversion | StatConversion[] }
 
 const normalizeInternalValue = (value: number) => Math.round(value * 1_000_000_000) / 1_000_000_000
@@ -67,7 +67,11 @@ export function applyStatConversions<T extends Record<string, number>>(
       targetMaximum !== undefined && conversion.ratio > 0
         ? Math.max(0, targetMaximum - target) / conversion.ratio
         : Number.POSITIVE_INFINITY
-    const convertedAmount = Math.min(Math.max(0, source), maximum, targetCapacity)
+    const fraction =
+      typeof conversion.fraction === "number" && Number.isFinite(conversion.fraction)
+        ? Math.min(1, Math.max(0, conversion.fraction))
+        : 1
+    const convertedAmount = Math.min(Math.max(0, source) * fraction, maximum, targetCapacity)
     convertedStats[conversion.from] = normalizeInternalValue(source - convertedAmount)
     convertedStats[conversion.to] = normalizeInternalValue(
       Math.min(targetMaximum ?? Number.POSITIVE_INFINITY, target + convertedAmount * conversion.ratio),

@@ -20,6 +20,10 @@ export type DerivedStats = {
   effectivePrecision: number
   effectiveCrit: number
   effectiveAffinity: number
+  uncappedPrecision?: number
+  uncappedCrit?: number
+  uncappedAffinity?: number
+  directAffinityInput?: number
   effectiveCritDmgBonus: number
   directCrit: number
   finalCrit: number
@@ -78,6 +82,10 @@ export function mainAttributeForWeapons(weapons: WeaponId[]) {
     }
   }
   if (hasBamboocutWeapon) return "bamboocut" as const
+}
+
+export function clampEffectivePrecision(value: number) {
+  return Math.min(1, Math.max(0.05, value))
 }
 
 export function calculateRates(
@@ -169,7 +177,7 @@ export function calculateDerivedStats(
 ): DerivedStats {
   const effectiveMax = (min: number, max: number) => Math.max(min, max)
   const effectiveValue = (key: keyof CharacterStats) =>
-    stats[key] + (typeof effectiveStat[key] === "number" ? effectiveStat[key]! : 0)
+    (stats[key] ?? 0) + (typeof effectiveStat[key] === "number" ? effectiveStat[key]! : 0)
   const minPhys = effectiveValue("minPhys")
   const maxPhys = effectiveValue("maxPhys")
   const minBellstrike = effectiveValue("minBellstrike")
@@ -203,12 +211,15 @@ export function calculateDerivedStats(
   const affinity = effectiveValue("affinity")
   const directCrit = Math.min(DIRECT_CRIT_RATE_CAP, Math.max(0, effectiveValue("directCrit")))
   const directAffinity = effectiveValue("directAffinity")
-  const effectivePrecision = Math.min(
-    1,
-    (precision - PRECISION_BASELINE) / (1 + judgementResistance) + PRECISION_BASELINE,
-  )
-  const effectiveCrit = Math.min(0.8, crit / (1 + judgementResistance) + effectiveCritBonus)
-  const effectiveAffinity = Math.min(0.4, affinity / (1 + judgementResistance))
+  const uncappedPrecision =
+    (precision - PRECISION_BASELINE) / (1 + judgementResistance) +
+    PRECISION_BASELINE +
+    effectiveValue("effectivePrecisionBonus")
+  const uncappedCrit = crit / (1 + judgementResistance) + effectiveCritBonus
+  const uncappedAffinity = affinity / (1 + judgementResistance) + effectiveValue("effectiveAffinityBonus")
+  const effectivePrecision = clampEffectivePrecision(uncappedPrecision)
+  const effectiveCrit = Math.min(0.8, Math.max(0, uncappedCrit))
+  const effectiveAffinity = Math.min(0.4, Math.max(0, uncappedAffinity))
   const rates = calculateRates({ effectivePrecision, effectiveCrit, effectiveAffinity, directCrit, directAffinity })
 
   return {
@@ -225,6 +236,10 @@ export function calculateDerivedStats(
     effectivePrecision,
     effectiveCrit,
     effectiveAffinity,
+    uncappedPrecision,
+    uncappedCrit,
+    uncappedAffinity,
+    directAffinityInput: directAffinity,
     effectiveCritDmgBonus: effectiveValue("critDmgBonus"),
     directCrit,
     finalCrit: rates.finalCrit,

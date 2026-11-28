@@ -2,10 +2,12 @@ export type CharacterStats = {
   minPhys: number
   maxPhys: number
   precision: number
+  effectivePrecisionBonus: number
   crit: number
   /** Hit-scoped bonus added after Judgement Resistance but before the 80% Effective Critical cap. */
   effectiveCritBonus: number
   affinity: number
+  effectiveAffinityBonus: number
   directCrit: number
   directAffinity: number
   power: number
@@ -72,6 +74,10 @@ export type CharacterStats = {
 export type EnemyProfile = {
   specificSkillDamageDivisor?: number
   correctablePenetrationDivisor?: number
+  typeBonusDivisor?: number
+  addedPrecisionResistance?: number
+  addedCriticalResistance?: number
+  addedAffinityResistance?: number
   name: string
   level: number
   defense: number

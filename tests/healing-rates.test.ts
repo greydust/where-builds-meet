@@ -56,7 +56,8 @@ describe("healing rates", () => {
   })
 
   it.each([
-    [-0.2, 0.1, 0],
+    [-0.2, 0.1, 0.1],
+    [0.9, 0.1, 0.9],
     [0.9, 0.2, 1],
   ])("clamps critical probability for effective %s and direct %s", (effectiveCrit, directCrit, critRate) => {
     expect(restrictedOutcomeRates("healing", { effectiveCrit, directCrit })).toEqual({

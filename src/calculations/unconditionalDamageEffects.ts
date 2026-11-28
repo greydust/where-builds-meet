@@ -33,6 +33,7 @@ export const unconditionalDamageEffectFields = [
   "physicalResistance",
   "critDmgBonus",
   "affinityDmgBonus",
+  "abrasionDamageBonus",
   "attributeDMGBonus",
 ] as const
 

@@ -85,8 +85,10 @@ it.each([
     result.metrics.breakdown.skills.find(entry => entry.id === skill)!.damage
   expect(damage(boosted.expected, id) / damage(plain.expected, id)).toBeCloseTo(1.00725, 12)
   expect(damage(boosted.expected, "Foreign")).toBe(damage(plain.expected, "Foreign"))
-  expect(boosted.sampled.resolvedSequence.reduce((sum, hit) => sum + hit.breakdown.total, 0)).toBeCloseTo(
-    boosted.expected.metrics.totalDamage,
-    10,
+  const expectedSettlements = Object.values(boosted.expected.actionBreakdowns)
+    .filter(hit => hit.total > 0)
+    .map(hit => Math.ceil(hit.total))
+  expect(boosted.sampled.resolvedSequence.map(hit => hit.breakdown.total).filter(total => total > 0)).toEqual(
+    expectedSettlements,
   )
 })

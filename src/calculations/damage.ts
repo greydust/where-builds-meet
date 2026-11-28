@@ -5,7 +5,7 @@ import { matchingAttunementEntries } from "./attunementStats"
 import { finishCalculationPhase, startCalculationPhase } from "./calculationBenchmark"
 import { DEFAULT_TARGET_HP_RATIO } from "./combatDefaults"
 import { resolveMultiplyValue, resolveSegmentValue } from "./dynamicValues"
-import { calculateRates, mainAttributeForWeapons } from "./effectiveStats"
+import { calculateRates, clampEffectivePrecision, mainAttributeForWeapons } from "./effectiveStats"
 import type { DerivedStats } from "./effectiveStats"
 import { restrictedOutcomeRates, restrictedRateRouteFor, type OutcomeRates } from "./rateRoutes"
 import {
@@ -144,6 +144,7 @@ export type DamageContext = {
   weapons: WeaponId[]
   buffs: string[]
   enemy: EnemyProfile
+  healingTarget?: { healingPenetrationDivisor?: number; typeBonusDivisor?: number }
   derivedStats: DerivedStats
   effects: Record<string, unknown>[]
   unconditionalDamageEffects?: UnconditionalDamageEffects
@@ -302,12 +303,7 @@ function evaluateAdditiveBonusResponse(response: AdditiveBonusResponse, unresolv
     )
       bonus += damageEffectValue(effect.hpDMGBonus, context)
   }
-  const category =
-    stats.vsBossDmg +
-    (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +
-    skillWeaponArtBonus +
-    mysticSkillBonus +
-    bonus
+  const category = typeDamageBonus(stats, skillTags, skillWeaponArtBonus, mysticSkillBonus, context.enemy) + bonus
   const physicalShared =
     damageScale *
     (1 + resolvedEffects.baseDmgBonus) *
@@ -351,7 +347,23 @@ function evaluateAdditiveBonusResponse(response: AdditiveBonusResponse, unresolv
 const numberValue = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : 0)
 
 function penetrationMultiplier(penetration: number, resistance = 0) {
-  return penetration >= resistance ? 1 + (penetration - resistance) / 200 : 1 + (penetration - resistance) / 100
+  const gap = resistance - penetration
+  if (gap <= 0) return 1 - gap / 200
+  if (gap <= 75) return 1 - gap / 100
+  return 100 / (100 + 4 * gap)
+}
+
+function typeDamageBonus(
+  stats: CharacterStats,
+  skillTags: string[],
+  weaponBonus: number,
+  mysticBonus: number,
+  enemy: EnemyProfile,
+) {
+  return (
+    (stats.vsBossDmg + (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) + weaponBonus + mysticBonus) /
+    (enemy.typeBonusDivisor ?? 1)
+  )
 }
 
 export function weaponArtBonus(stats: CharacterStats, skillTags: string[]) {
@@ -435,6 +447,7 @@ function calculateDamageBreakdownInternal(
     physicalResistance: unconditional.physicalResistance ?? 0,
     critDmgBonus: unconditional.critDmgBonus ?? 0,
     affinityDmgBonus: unconditional.affinityDmgBonus ?? 0,
+    abrasionDamageBonus: unconditional.abrasionDamageBonus ?? 0,
     attributeDmgBonus: unconditional.attributeDMGBonus ?? 0,
     flatMaxPhysicalAttack: unconditional.flatMaxPhysicalAttack ?? 0,
     flatAttackBonus: unconditional.flatAttackBonus ?? 0,
@@ -481,6 +494,7 @@ function calculateDamageBreakdownInternal(
     resolvedEffects.physicalResistance += effectValue(effect.physicalResistance)
     resolvedEffects.critDmgBonus += effectValue(effect.critDmgBonus)
     resolvedEffects.affinityDmgBonus += effectValue(effect.affinityDmgBonus)
+    resolvedEffects.abrasionDamageBonus += effectValue(effect.abrasionDamageBonus)
     resolvedEffects.attributeDmgBonus += effectValue(effect.attributeDMGBonus)
   }
   if (import.meta.env.DEV) finishCalculationPhase("damageEffectRemainingScan", remainingScanStartedAt)
@@ -549,11 +563,7 @@ function calculateDamageBreakdownInternal(
   const skillWeaponArtBonus = weaponArtBonus(stats, skillTags)
   const mysticSkillBonus = skillTags.includes("Mystic") ? stats.allMysticDmgBoost : 0
   const damageBonusCategory1 =
-    stats.vsBossDmg +
-    (skillTags.includes("MartialArts") ? stats.allMartialArts : 0) +
-    skillWeaponArtBonus +
-    mysticSkillBonus +
-    resolvedEffects.innerWayDmgBonus
+    typeDamageBonus(stats, skillTags, skillWeaponArtBonus, mysticSkillBonus, enemy) + resolvedEffects.innerWayDmgBonus
   const damageScale = action.damageScale === undefined ? 1 : numberValue(action.damageScale)
   const physicalSharedBonus =
     damageScale *
@@ -623,6 +633,7 @@ function calculateDamageBreakdownInternal(
   const affinityBonus = Math.min(1.3, Math.max(0.2, stats.affinityDmgBonus + resolvedEffects.affinityDmgBonus))
   const hitMaxPhysicalAttack = (snapshot: DerivedStats) =>
     snapshot.effectiveMaxPhys + resolvedEffects.flatMaxPhysicalAttack
+  const physicalAttackFloor = (snapshot: DerivedStats) => (snapshot.effectiveMinPhys * physicalAttackMultiplier) / 10
   const calculateVariant = (damageType: AttackRollMode, specialBonus: number, snapshot = derivedStats) => {
     const variantStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
     const physicalChannelStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
@@ -632,7 +643,7 @@ function calculateDamageBreakdownInternal(
       damageType,
     )
     const physicalDamage =
-      (coefficient * (physicalAttack - adjustedEnemyDefense) + physicalBonus) *
+      (coefficient * Math.max(physicalAttack - adjustedEnemyDefense, physicalAttackFloor(snapshot)) + physicalBonus) *
       physicalPenetrationMultiplier *
       physicalDamageMultiplier
     const physicalMultiplier = physicalSharedBonus * (1 + specialBonus) * (1 + resolvedEffects.dotDamageBonus)
@@ -661,26 +672,45 @@ function calculateDamageBreakdownInternal(
     (effect): effect is Record<string, unknown> & StatConversionEffectContainer => effect.convert !== undefined,
   )
   const GuaranteedAffinity = effects.some(effect => effect.GuaranteedAffinity === true)
-  const NoAbrasion = effects.some(effect => effect.NoAbrasion === true)
+  const abrasionDamageBonus = resolvedEffects.abrasionDamageBonus
+  const rateRoute = restrictedRateRouteFor(action.rateRoute)
   const GuaranteedCrit = effects.some(effect => effect.GuaranteedCrit === true)
   const SteadfastGuaranteedCrit =
     effects.some(effect => effect.SteadfastGuaranteedCrit === true) &&
     (skillTags.includes("BurningHeart") || skillTags.includes("AnxiSoldier"))
   const resolveRates = (snapshot: DerivedStats) => {
+    if (rateRoute) return restrictedOutcomeRates(rateRoute, snapshot)
+    const effectivePrecision = enemy.addedPrecisionResistance
+      ? clampEffectivePrecision(
+          (snapshot.uncappedPrecision ?? snapshot.effectivePrecision) - enemy.addedPrecisionResistance,
+        )
+      : snapshot.effectivePrecision
+    const effectiveCrit = enemy.addedCriticalResistance
+      ? Math.min(0.8, Math.max(0, (snapshot.uncappedCrit ?? snapshot.effectiveCrit) - enemy.addedCriticalResistance))
+      : snapshot.effectiveCrit
+    const effectiveAffinity = enemy.addedAffinityResistance
+      ? Math.min(
+          0.4,
+          Math.max(0, (snapshot.uncappedAffinity ?? snapshot.effectiveAffinity) - enemy.addedAffinityResistance),
+        )
+      : snapshot.effectiveAffinity
     const rateStats = {
-      effectivePrecision: snapshot.effectivePrecision,
-      effectiveCrit: snapshot.effectiveCrit,
-      effectiveAffinity: snapshot.effectiveAffinity,
+      effectivePrecision,
+      effectiveCrit,
+      effectiveAffinity,
       directCrit: snapshot.directCrit,
       directAffinity: snapshot.finalAffinity - snapshot.effectiveAffinity,
-      finalAffinity: snapshot.finalAffinity,
+      finalAffinity: enemy.addedAffinityResistance
+        ? effectiveAffinity + (snapshot.directAffinityInput ?? snapshot.finalAffinity - snapshot.effectiveAffinity)
+        : snapshot.finalAffinity,
     }
     const convertedRateStats =
       conversionEffects.length > 0 ? applyStatConversions(rateStats, conversionEffects) : rateStats
-    const calculatedRates = calculateRates(
-      NoAbrasion ? { ...convertedRateStats, effectivePrecision: 1 } : convertedRateStats,
-      { GuaranteedCrit, GuaranteedAffinity, SteadfastGuaranteedCrit },
-    )
+    const calculatedRates = calculateRates(convertedRateStats, {
+      GuaranteedCrit,
+      GuaranteedAffinity,
+      SteadfastGuaranteedCrit,
+    })
     const convertedRates =
       conversionEffects.length > 0 ? applyStatConversions(calculatedRates, conversionEffects) : calculatedRates
     let normalRates = convertedRates
@@ -702,10 +732,7 @@ function calculateDamageBreakdownInternal(
       default:
         break
     }
-    // The healing and Divinecraft routes cannot roll every outcome, so they replace the normal rates.
-    const rateRoute = restrictedRateRouteFor(action.rateRoute)
-    const rates = rateRoute ? restrictedOutcomeRates(rateRoute, rateStats) : normalRates
-    return rates
+    return normalRates
   }
   const initialRates = resolveRates(derivedStats)
   const rates = initialRates
@@ -733,7 +760,7 @@ function calculateDamageBreakdownInternal(
     let selectedDamage: ReturnType<typeof calculateVariant>
     switch (outcome) {
       case "abrasion":
-        selectedDamage = calculateVariant("min", 0)
+        selectedDamage = calculateVariant("min", abrasionDamageBonus)
         break
       case "affinity":
         selectedDamage = calculateVariant("max", affinityBonus)
@@ -746,14 +773,22 @@ function calculateDamageBreakdownInternal(
         break
     }
     const outcomeAssemblyStartedAt = import.meta.env.DEV ? startCalculationPhase() : 0
+    const rawTotal =
+      selectedDamage.physical +
+      selectedDamage.bellstrike +
+      selectedDamage.stonesplit +
+      selectedDamage.silkbind +
+      selectedDamage.bamboocut
+    const total = rateRoute ? rawTotal : Math.ceil(Math.max(rawTotal, 0))
+    // The client settles the combined hit. Allocate the result proportionally for the breakdown.
+    const settlement = rawTotal === 0 ? 0 : total / rawTotal
     const result = {
-      ...selectedDamage,
-      total:
-        selectedDamage.physical +
-        selectedDamage.bellstrike +
-        selectedDamage.stonesplit +
-        selectedDamage.silkbind +
-        selectedDamage.bamboocut,
+      physical: selectedDamage.physical * settlement,
+      bellstrike: selectedDamage.bellstrike * settlement,
+      stonesplit: selectedDamage.stonesplit * settlement,
+      silkbind: selectedDamage.silkbind * settlement,
+      bamboocut: selectedDamage.bamboocut * settlement,
+      total,
       outcome,
       outcomeRates: {
         abrasion: outcome === "abrasion" ? 1 : 0,
@@ -782,7 +817,7 @@ function calculateDamageBreakdownInternal(
         outcomeCritBonus = snapshot.effectiveCritDmgBonus
       }
       outcomeDamage = [
-        calculateVariant("min", 0, snapshot),
+        calculateVariant("min", abrasionDamageBonus, snapshot),
         calculateVariant("average", 0, snapshot),
         calculateVariant("average", criticalBonusFor(snapshot), snapshot),
         calculateVariant("max", affinityBonus, snapshot),
@@ -836,7 +871,9 @@ function calculateDamageBreakdownInternal(
         GuaranteedCrit,
         GuaranteedAffinity,
         SteadfastGuaranteedCrit,
-        NoAbrasion,
+        enemy.addedPrecisionResistance,
+        enemy.addedCriticalResistance,
+        enemy.addedAffinityResistance,
         conversionEffects,
         action.rateRoute,
       ]),
@@ -856,7 +893,7 @@ function calculateDamageBreakdownInternal(
       const physicalBounds: Array<{ minimumWeight: number; maximumWeight: number; lower: number; upper: number }> = []
       const penetrationResponse = (difference: number): PenetrationDamageResponse => ({
         coefficient: 0,
-        lower: difference >= 0 ? -difference : -Infinity,
+        lower: difference < -75 ? Infinity : (difference >= 0 ? 0 : -75) - difference,
         upper: difference >= 0 ? Infinity : -difference,
       })
       const physicalDifference =
@@ -865,18 +902,17 @@ function calculateDamageBreakdownInternal(
         resolvedEffects.physicalPenetration -
         (enemy.physicalResistance + resolvedEffects.physicalResistance)
       const physicalPenetration = penetrationResponse(physicalDifference)
-      // Positive penetration multipliers preserve the physical zero-clamp region.
-      physicalPenetration.lower =
-        physicalPenetrationMultiplier > 0 ? Math.max(physicalPenetration.lower, -100 - physicalDifference) : Infinity
       const primaryRange = preparedAttributeRanges.find(range => range.attribute === path)
       const primaryDifference = primaryRange
         ? attributeRanges.find(range => range[4] === path)![2] +
           attunementFormlessPenetration -
           attributeRanges.find(range => range[4] === path)![5]
         : 0
-      const formlessPenetration = penetrationResponse(primaryDifference)
+      const formlessPenetration = primaryRange
+        ? penetrationResponse(primaryDifference)
+        : { coefficient: 0, lower: -Infinity, upper: Infinity }
       const outcomes = [
-        [1, 0, rates.abrasionRate, 0],
+        [1, 0, rates.abrasionRate, abrasionDamageBonus],
         [0.5, 0.5, rates.normalRate, 0],
         [0.5, 0.5, rates.critRate, criticalBonusFor(derivedStats)],
         [0, 1, rates.affinityRate, affinityBonus],
@@ -897,16 +933,30 @@ function calculateDamageBreakdownInternal(
         const attack =
           (derivedStats.effectiveMinPhys * minimumWeight + hitMaxPhysicalAttack(derivedStats) * maximumWeight) *
           physicalAttackMultiplier
-        const unclamped =
-          (coefficient * (attack - enemy.defense * (1 + resolvedEffects.defenseBonus)) + physicalBonus) * physicalFactor
+        const defenseAdjusted = attack - adjustedEnemyDefense
+        const floor = physicalAttackFloor(derivedStats)
+        const usesFloor = defenseAdjusted < floor
+        if (coefficient !== 0 && physicalAttackMultiplier !== 0) {
+          const floorBoundary = (floor - defenseAdjusted) / physicalAttackMultiplier
+          const aboveBoundary = usesFloor === physicalAttackMultiplier < 0
+          physicalBounds.push({
+            minimumWeight: minimumWeight - 0.1,
+            maximumWeight,
+            lower: aboveBoundary ? floorBoundary : -Infinity,
+            upper: aboveBoundary ? Infinity : floorBoundary,
+          })
+        }
+        const unclamped = (coefficient * Math.max(defenseAdjusted, floor) + physicalBonus) * physicalFactor
         const slope = coefficient * physicalAttackMultiplier * physicalFactor
+        const physicalMinimumWeight = usesFloor ? 0.1 : minimumWeight
+        const physicalMaximumWeight = usesFloor ? 0 : maximumWeight
         if (slope !== 0) {
           const boundary = -unclamped / slope
           const increasing = slope > 0
           const positive = unclamped > 0
           physicalBounds.push({
-            minimumWeight,
-            maximumWeight,
+            minimumWeight: physicalMinimumWeight,
+            maximumWeight: physicalMaximumWeight,
             lower: increasing === positive ? boundary : -Infinity,
             upper: increasing === positive ? Infinity : boundary,
           })
@@ -928,8 +978,8 @@ function calculateDamageBreakdownInternal(
           formlessPenetration.coefficient += (unpenetrated * probability) / (primaryDifference >= 0 ? 200 : 100)
         }
         if (unclamped > 0) {
-          coefficients.effectiveMinPhys += slope * minimumWeight * probability
-          coefficients.effectiveMaxPhys += slope * maximumWeight * probability
+          coefficients.effectiveMinPhys += slope * physicalMinimumWeight * probability
+          coefficients.effectiveMaxPhys += slope * physicalMaximumWeight * probability
         }
         for (const [, , penetration, damageBonus, attribute, resistance] of attributeRanges) {
           const factor =
@@ -1036,7 +1086,9 @@ export const preparedDamageStatFields = new Set([
   "affinity",
   "directCrit",
   "directAffinity",
+  "effectivePrecisionBonus",
   "effectiveCritBonus",
+  "effectiveAffinityBonus",
   "critDmgBonus",
 ])
 
@@ -1048,6 +1100,10 @@ export function createPreparedDamageCalculator() {
     "effectivePrecision",
     "effectiveCrit",
     "effectiveAffinity",
+    "uncappedPrecision",
+    "uncappedCrit",
+    "uncappedAffinity",
+    "directAffinityInput",
     "effectiveCritDmgBonus",
     "finalCrit",
     "finalAffinity",

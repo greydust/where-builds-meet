@@ -257,7 +257,11 @@ describe("seasonal-edge", () => {
     closeTo(flareSimulation[2].breakdown.total, 100, "The cooldown-blocked Conversion must not reroll Flare")
     const yieldSimulation = calculateRotationDamageSequence(result.baseline, () => 0.6)
     closeTo(yieldSimulation[0].breakdown.total, 100, "Yield must not increase Martial Art damage")
-    closeTo(yieldSimulation[1].breakdown.total, 110, "A simulated Yield branch must increase Mystic Skill damage")
+    closeTo(
+      yieldSimulation[1].breakdown.total,
+      Math.ceil(100 * 1.1),
+      "A simulated Yield branch must increase Mystic Skill damage",
+    )
     closeTo(yieldSimulation[2].breakdown.total, 100, "The cooldown-blocked Conversion must not reroll Yield")
   })
 })

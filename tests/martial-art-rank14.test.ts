@@ -77,7 +77,7 @@ describe("rank-14 martial-art talents", () => {
       const sampled = calculateSimulatedDamageBreakdown(action, modified, () => 0.5)
       expect(damage.physical).toBeCloseTo(expected.physical, 10)
       expect(damage.bellstrike).toBeCloseTo(expected.bellstrike, 10)
-      expect(sampled.total).toBeCloseTo(damage.total, 10)
+      expect(sampled.total).toBe(Math.ceil(damage.total))
       const coefficientOnly = calculateDamageBreakdown({ phyCoef: 2, attrCoef: 3, phyBonus: 0, attrBonus: 0 }, modified)
       expect(coefficientOnly.physical).toBeCloseTo(2 * 80 * 1.00725, 10)
       expect(coefficientOnly.bellstrike).toBeCloseTo(3 * 50 * 1.00725 * 1.5, 10)
@@ -186,9 +186,11 @@ describe("rank-14 martial-art talents", () => {
     const expectedDelta = (40 + 20 * 1.5) * 0.0725 + (80 + 50 * 1.5) * 0.00725
     expect(next.metrics.totalDamage - old.metrics.totalDamage).toBeCloseTo(expectedDelta, 10)
     const sampled = calculateSimulatedRotationRun(makeBundle(14), () => 0.5)
-    expect(sampled.resolvedSequence.reduce((total, hit) => total + hit.breakdown.total, 0)).toBeCloseTo(
-      next.metrics.totalDamage,
-      10,
+    const expectedSettlements = Object.values(next.actionBreakdowns)
+      .filter(hit => hit.total > 0)
+      .map(hit => Math.ceil(hit.total))
+    expect(sampled.resolvedSequence.map(hit => hit.breakdown.total).filter(total => total > 0)).toEqual(
+      expectedSettlements,
     )
   })
 })

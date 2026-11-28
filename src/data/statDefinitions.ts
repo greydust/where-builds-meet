@@ -125,7 +125,9 @@ export const defenseStats: StatDefinition[] = [
 export const allStatDefinitions = [...combatStats, ...survivalStats, ...martialArtsStats, ...defenseStats]
 
 export const emptyStats = Object.fromEntries(allStatDefinitions.map(({ key }) => [key, 0])) as CharacterStats
+emptyStats.effectivePrecisionBonus = 0
 emptyStats.effectiveCritBonus = 0
+emptyStats.effectiveAffinityBonus = 0
 emptyStats.heavensWillRegen = 0
 emptyStats.physicalPenetration = 0
 emptyStats.formlessPenetration = 0

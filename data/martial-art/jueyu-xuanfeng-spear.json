@@ -175,7 +175,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -211,7 +211,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -247,7 +247,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -291,7 +291,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -327,7 +327,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -363,7 +363,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -403,7 +403,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -443,7 +443,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -479,7 +479,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -515,7 +515,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -563,7 +563,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -611,7 +611,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -659,7 +659,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -707,7 +707,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -755,7 +755,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -803,7 +803,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [
@@ -851,7 +851,7 @@
               { "target": "skillTag", "value": "BoltVCSeries" },
               { "target": "self", "value": "BoltFengRui" }
             ],
-            "effect": { "NoAbrasion": true, "affinityDmgBonus": 0.1 }
+            "effect": { "convert": { "from": "abrasionRate", "to": "normalRate", "ratio": 1 }, "affinityDmgBonus": 0.1 }
           },
           {
             "requirement": [

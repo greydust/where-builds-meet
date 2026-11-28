@@ -164,7 +164,8 @@
     "soloLevel": 22,
     "gearTier": 110,
     "specificSkillDamageDivisor": 1.15,
-    "correctablePenetrationDivisor": 1.15
+    "correctablePenetrationDivisor": 1.15,
+    "typeBonusDivisor": 1.15
   },
   "23": {
     "name": "23",
@@ -194,7 +195,8 @@
     "soloLevel": 23,
     "gearTier": 110,
     "specificSkillDamageDivisor": 1.15,
-    "correctablePenetrationDivisor": 1.15
+    "correctablePenetrationDivisor": 1.15,
+    "typeBonusDivisor": 1.15
   },
   "24": {
     "name": "24",
@@ -225,7 +227,8 @@
     "gearTier": 115,
     "enemyProfileSource": "fixedDummy",
     "specificSkillDamageDivisor": 1.3225,
-    "correctablePenetrationDivisor": 1.3225
+    "correctablePenetrationDivisor": 1.3225,
+    "typeBonusDivisor": 1.3225
   },
   "25": {
     "name": "25",
@@ -255,6 +258,7 @@
     "soloLevel": 25,
     "gearTier": 115,
     "specificSkillDamageDivisor": 1.3225,
-    "correctablePenetrationDivisor": 1.3225
+    "correctablePenetrationDivisor": 1.3225,
+    "typeBonusDivisor": 1.3225
   }
 }

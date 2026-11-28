@@ -12,7 +12,7 @@ import { resolveFormulaValue, type StatFormula } from "./statEffects"
 type AttunementDefinition = { effect?: AttunementTagFilter & { stat?: Record<string, number> } }
 
 const attunementDefinitions = attunementJson as Record<string, AttunementDefinition>
-const SIMULATED_HEALING_FLUCTUATION = 0.08
+const HEALING_ATTACK_FLUCTUATION = 0.1
 
 export type HealingBreakdown = {
   physical: number
@@ -125,37 +125,37 @@ function calculateHealingBreakdownInternal(
   }
 
   const attunement = matchingAttunementStats(context)
-  physicalPenetration += attunement.physicalPenetration
+  // Build attunements arrive with the damage target's correctable penetration divisor applied.
+  const healingCorrection =
+    (context.enemy.correctablePenetrationDivisor ?? 1) / (context.healingTarget?.healingPenetrationDivisor ?? 1)
+  physicalPenetration += attunement.physicalPenetration * healingCorrection
   if (mainAttributeForWeapons(context.weapons) === "silkbind") {
-    silkbindPenetration += stats.formlessPenetration + attunement.formlessPenetration
+    silkbindPenetration += stats.formlessPenetration + attunement.formlessPenetration * healingCorrection
   }
   healingBonus += attunement.healingBonus
 
-  const coefficient = numberValue(action.phyCoef)
-  const silkbindCoefficient = numberValue(action.silkbindCoef)
-  const physical =
-    (averagePhysicalAttack * coefficient + numberValue(action.phyBonus)) *
-    (1 + physicalPenetration / 200) *
-    (1 + stats.physicalHealingBonus)
-  const silkbind =
-    (averageSilkbindAttack * silkbindCoefficient + numberValue(action.attrBonus)) *
-    (1 + silkbindPenetration / 200) *
-    (1 + stats.silkbindHealingBonus)
-  // A healing action always resolves at the average of its attack range; the shared
-  // route keeps that fact in one place instead of repeating the rates here.
   const rates = restrictedOutcomeRates(restrictedRateRouteFor(action.rateRoute) ?? "healing", derivedStats)
   const criticalRate = rates.critRate
   const outcome = random && random() < criticalRate ? "critical" : "normal"
+  const attackRoll = (attack: number) =>
+    random ? attack * (1 - HEALING_ATTACK_FLUCTUATION + random() * HEALING_ATTACK_FLUCTUATION * 2) : attack
+  const coefficient = numberValue(action.phyCoef)
+  const silkbindCoefficient = numberValue(action.silkbindCoef)
+  const physical =
+    (attackRoll(averagePhysicalAttack) * coefficient + numberValue(action.phyBonus)) *
+    (1 + physicalPenetration / 200) *
+    (1 + stats.physicalHealingBonus)
+  const silkbind =
+    (attackRoll(averageSilkbindAttack) * silkbindCoefficient + numberValue(action.attrBonus)) *
+    (1 + silkbindPenetration / 200) *
+    (1 + stats.silkbindHealingBonus)
   let criticalMultiplier = 1 + criticalRate * (stats.criticalHealingBonus + criticalHealingBonus)
   if (random) criticalMultiplier = outcome === "critical" ? 1 + stats.criticalHealingBonus + criticalHealingBonus : 1
-  const fluctuationMultiplier = random
-    ? 1 - SIMULATED_HEALING_FLUCTUATION + random() * SIMULATED_HEALING_FLUCTUATION * 2
-    : 1
   const martialArtHealingBonus = context.skillTags.includes("MartialArts")
     ? stats.allMartialArts + weaponArtBonus(stats, context.skillTags)
     : 0
-  const generalMultiplier = 1 + healingBonus + martialArtHealingBonus
-  const finalMultiplier = criticalMultiplier * generalMultiplier * fluctuationMultiplier * (1 + healingReceivedBonus)
+  const generalMultiplier = 1 + healingBonus + martialArtHealingBonus / (context.healingTarget?.typeBonusDivisor ?? 1)
+  const finalMultiplier = criticalMultiplier * generalMultiplier * (1 + healingReceivedBonus)
 
   return {
     physical: Math.max(0, physical * finalMultiplier) + percentageHealing,

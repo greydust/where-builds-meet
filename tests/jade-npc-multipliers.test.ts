@@ -94,11 +94,13 @@ describe("Jade NPC hit factors and distinct boost eligibility", () => {
         factor,
         12,
       )
-      for (const roll of [0.1, 0.6, 0.99])
-        expect(
-          calculateSimulatedDamageBreakdown(action, ctx, () => roll).total /
-            calculateSimulatedDamageBreakdown(base, ctx, () => roll).total,
-        ).toBeCloseTo(factor, 12)
+      for (const roll of [0.1, 0.6, 0.99]) {
+        const sampled = calculateSimulatedDamageBreakdown(action, ctx, () => roll)
+        const rawBasis = calculateSimulatedDamageBreakdown(base, ctx, () => roll).total
+        // Independent ceilings on the two sampled hits bound the allowable ratio.
+        expect(sampled.total).toBeGreaterThanOrEqual(Math.ceil((rawBasis - 1) * factor))
+        expect(sampled.total).toBeLessThanOrEqual(Math.ceil(rawBasis * factor))
+      }
     }
   })
   it("retains Combo and both Jadebreak branches for UF", () => {

@@ -184,7 +184,7 @@ describe("fivefold-bleed-tiers", () => {
     const rolled = calculateSimulatedRotationRun(bundleFor(inputFor(3)), () => 0.05)
     close(
       skillResult(rolled, "PiercingDamage").total,
-      (100 + 62.3 * 0.05) * 2,
+      Math.ceil((100 + 62.3 * 0.05) * 2),
       "Expiration burst receives T1 and T2 in simulations",
     )
 

@@ -75,15 +75,16 @@ it.each([0, 100])(
       setupComparisons: {},
     }
     const result = calculateRotationBaseline(input)
-    for (const random of [undefined, () => 0.5]) {
-      const hits = calculateRotationDamageSequence(result.baseline, random)
-      const first = hits[0].breakdown
-      for (const [index, stack] of [0, 1, 2, 3, 4, 5, 5, 0].entries()) {
-        expect(hits[index].expectedBuffStacks?.Hawkwing).toBe(stack)
-        expect(hits[index].breakdown.physical / first.physical).toBeCloseTo(1 + stack * 0.018, 12)
-        expect(hits[index].breakdown.bellstrike / first.bellstrike).toBeCloseTo(1 + stack * 0.018, 12)
-        expect(hits[index].breakdown.silkbind).toBe(first.silkbind)
-      }
+    const hits = calculateRotationDamageSequence(result.baseline)
+    const sampled = calculateRotationDamageSequence(result.baseline, () => 0.5)
+    const first = hits[0].breakdown
+    for (const [index, stack] of [0, 1, 2, 3, 4, 5, 5, 0].entries()) {
+      expect(hits[index].expectedBuffStacks?.Hawkwing).toBe(stack)
+      expect(sampled[index].expectedBuffStacks?.Hawkwing).toBe(stack)
+      expect(hits[index].breakdown.physical / first.physical).toBeCloseTo(1 + stack * 0.018, 12)
+      expect(hits[index].breakdown.bellstrike / first.bellstrike).toBeCloseTo(1 + stack * 0.018, 12)
+      expect(hits[index].breakdown.silkbind).toBe(first.silkbind)
+      expect(sampled[index].breakdown.total).toBe(Math.ceil(hits[index].breakdown.total))
     }
   },
 )

@@ -117,7 +117,7 @@ describe("Restoring Blossom", () => {
     const input = bundle(4, [0.1, 1], 5)
     input.stats.crit = 0.3
     let rolls = 0
-    const result = calculateSimulatedRotationRun(input, () => (rolls++ === 2 ? 0.1 : 0.5))
+    const result = calculateSimulatedRotationRun(input, () => (rolls++ === 3 ? 0.1 : 0.5))
     const actual = result.resolvedSequence.filter(value => value.breakdown.healing)
     expect(actual[0].breakdown.recipientHealing![1].outcome).toBe("critical")
     expect(actual[0].breakdown.healing!.total).toBeCloseTo(500, 12)
@@ -236,8 +236,8 @@ describe("Restoring Blossom", () => {
       let calls = 0
       const sample = calculateSimulatedRotationRun(input, () => {
         const call = calls++
-        if (call % 2) return 0.5
-        return mask & (1 << (call / 2)) ? 0 : 0.999
+        if (call % 3) return 0.5
+        return mask & (1 << (call / 3)) ? 0 : 0.999
       }).resolvedSequence.filter(value => value.breakdown.healing)
       let weight = 1
       sample.forEach((value, index) => {

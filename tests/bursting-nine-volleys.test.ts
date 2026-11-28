@@ -33,24 +33,22 @@ it.each([
         judgementResistance: 0,
       },
     }
-    for (const calculate of [
-      calculateDamageBreakdown,
-      (action: Parameters<typeof calculateDamageBreakdown>[0], input: typeof context) =>
-        calculateSimulatedDamageBreakdown(action, input, () => 0.5),
-    ]) {
-      const single = mystic[singleId].action.filter(action => action.type === "damage")
-      const double = mystic[doubleId].action.filter(action => action.type === "damage")
-      expect(single).toHaveLength(arrows)
-      expect(double).toHaveLength(arrows * 2)
-      const volleys = [double.slice(0, arrows), double.slice(arrows)]
-      const firstArrow = calculate(single[0], context)
-      for (const channel of ["physical", "bellstrike"] as const) {
-        const total = (actions: typeof single) =>
-          actions.reduce((sum, action) => sum + calculate(action, context)[channel], 0)
-        expect(total(single) / firstArrow[channel]).toBeCloseTo(damageRatio, 12)
-        expect(total(volleys[0])).toBeCloseTo(total(single), 10)
-        expect(total(volleys[1]) / total(volleys[0])).toBeCloseTo(0.5, 12)
-      }
+    const single = mystic[singleId].action.filter(action => action.type === "damage")
+    const double = mystic[doubleId].action.filter(action => action.type === "damage")
+    expect(single).toHaveLength(arrows)
+    expect(double).toHaveLength(arrows * 2)
+    const volleys = [double.slice(0, arrows), double.slice(arrows)]
+    const firstArrow = calculateDamageBreakdown(single[0], context)
+    for (const channel of ["physical", "bellstrike"] as const) {
+      const total = (actions: typeof single) =>
+        actions.reduce((sum, action) => sum + calculateDamageBreakdown(action, context)[channel], 0)
+      expect(total(single) / firstArrow[channel]).toBeCloseTo(damageRatio, 12)
+      expect(total(volleys[0])).toBeCloseTo(total(single), 10)
+      expect(total(volleys[1]) / total(volleys[0])).toBeCloseTo(0.5, 12)
+    }
+    for (const action of [...single, ...double]) {
+      const expected = calculateDamageBreakdown(action, context)
+      expect(calculateSimulatedDamageBreakdown(action, context, () => 0.5).total).toBe(Math.ceil(expected.total))
     }
   },
 )

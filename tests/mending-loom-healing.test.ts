@@ -54,12 +54,12 @@ describe("Mending Loom's two healing components", () => {
   })
 
   it.each([false, true])(
-    "rolls the attack component once without multiplying the percentage part (critical=%s)",
+    "rolls the two attack channels without multiplying the percentage part (critical=%s)",
     critical => {
-      const rolls = [critical ? 0.25 : 0.75, 0.5]
+      const rolls = [critical ? 0.25 : 0.75, 0.5, 0.5]
       let calls = 0
       const result = calculateSimulatedHealingBreakdown(action, context(), () => rolls[calls++])
-      expect(calls).toBe(2)
+      expect(calls).toBe(3)
       expect(result.outcome).toBe(critical ? "critical" : "normal")
       expect(result.total).toBeCloseTo(10000 + 2.04 * (critical ? 1.5 : 1), 10)
     },
@@ -70,7 +70,7 @@ describe("Mending Loom's two healing components", () => {
     input.effects.push({ healingReceivedBonus: 0.3 })
     expect(calculateHealingBreakdown(action, input).total).toBeCloseTo(10000 + 2.04 * 1.25 * 1.3, 10)
     const sampled = calculateSimulatedHealingBreakdown(action, input, () => 0)
-    expect(sampled.total).toBeCloseTo(10000 + 2.04 * 1.5 * 1.3 * 0.92, 10)
+    expect(sampled.total).toBeCloseTo(10000 + 2.04 * 1.5 * 1.3 * 0.9, 10)
   })
 
   it("still supports a pure percentage recovery without inventing a critical-heal event", () => {

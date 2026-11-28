@@ -274,7 +274,7 @@ not a second catalog of current values:
   enlightenment factors. The source's level-71 row reproduces the previously
   confirmed 16.3591422641509 / 2483.50943396226 baseline; the regular curve
   is a different route and must not replace it.
-  Its unconditional `NoAbrasion` modifier prevents Abrasion on every combat path,
+  Its unconditional outcome-rate conversion prevents Abrasion on every combat path,
   independently of Deluge's Mystic Precision talent.
 - Panacea's extra **Mystic Precision Enhancement** talent is intentional despite
   its absence from the rank-13 source list; see the talent audit.
@@ -489,8 +489,8 @@ use `resolveAt: "skillStart"`.
 
 | Type                                            | Important semantics                                                                                                                                                                                                                                                                        |
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `damage`                                        | Independent `phyCoef` and `attrCoef`; omitted coefficients are zero. `attrBonus` applies only to the primary attribute. `rateRoute` selects the outcome set and `averageAttack` pins the attack to the range average; see [damage formula](damage-formula.md#per-outcome-damage).          |
-| `heal`                                          | Uses `phyCoef` and `silkbindCoef`; restores Self HP and reports excess as overhealing. Always resolves at the average of each attack range and rolls the healing route. `HOT` identifies healing over time.                                                                                |
+| `damage`                                        | Independent `phyCoef` and `attrCoef`; omitted coefficients are zero. `attrBonus` applies only to the primary attribute. `rateRoute` selects the outcome set and `averageAttack` pins the attack to the range average. See [damage formula](damage-formula.md#per-outcome-damage).          |
+| `heal`                                          | Uses `phyCoef` and `silkbindCoef`; restores Self HP and reports excess as overhealing. Uses mean attack for expected healing and separate channel rolls when sampled. `HOT` identifies healing over time.                                                                                  |
 | `apply`                                         | `value` is an effect ID; `target` is `self`, `target`, or `player`. Default stack is one, capped by the definition. Action duration overrides definition duration. A `target` application before the fight-start anchor is rejected.                                                       |
 | `consume`                                       | Removes one stack by default, or all with `stack: "all"`. `value: { operator: "first", operand: [...] }` selects the first available effect.                                                                                                                                               |
 | `extend`                                        | Adds `duration` to an existing expiry; missing, expired, or permanent states are unchanged. Use `duration`, not `extension`.                                                                                                                                                               |
@@ -1628,8 +1628,9 @@ Remaining mechanics:
 Damage actions may declare `modifier` using the same requirement/effect structure
 as skill modifiers. These resolve against each hit's live state, and participate
 in the effect cache identity, so a third-hit modifier cannot leak into earlier
-hits. `GuaranteedAffinity` forces the Affinity outcome; `NoAbrasion` resolves
-rates with full precision while preserving Affinity and Critical inputs.
+hits. `GuaranteedAffinity` forces the Affinity outcome. Abrasion immunity
+uses `convert` with `from: "abrasionRate"`, `to: "normalRate"`, and `ratio: 1`.
+The optional `fraction` limits how much of the source rate is transferred.
 
 Mountain's Might T1 applies Qi Imbalance on damaging Splendor Martial Art hits;
 Sword Q cancel uses this same hit trigger. Spear Q and its cancel restore

@@ -49,6 +49,12 @@ export function deserializeSkillOverrides(value: unknown): SkillOverrides {
     const record = Object.fromEntries(
       Object.entries(entry).map(([key, child]) => [migrateSkillId(key), migrate(child)]),
     )
+    if (record.NoAbrasion === true) {
+      const prior = Array.isArray(record.convert) ? record.convert : record.convert ? [record.convert] : []
+      const conversion = { from: "abrasionRate", to: "normalRate", ratio: 1 }
+      record.convert = prior.length > 0 ? [...prior, conversion] : conversion
+    }
+    delete record.NoAbrasion
     if (typeof record.value === "string") record.value = migrateSkillId(record.value)
     if (typeof record.fallback === "string") record.fallback = migrateSkillId(record.fallback)
     if (Array.isArray(record.tags))
@@ -98,8 +104,7 @@ export function deserializeSkillOverrides(value: unknown): SkillOverrides {
         if (!currentCoefficients && record.attrCoef === undefined) record.attrCoef = record.phyCoef ?? 0
         break
       case "heal":
-        // Healing has always resolved at the average of its attack range; stored
-        // overrides written before the field existed inherit that contract.
+        // Keep the legacy averageAttack field default on saved healing actions.
         if (record.averageAttack === undefined) record.averageAttack = true
         if (!currentCoefficients && record.silkbindCoef === undefined) record.silkbindCoef = record.phyCoef ?? 0
         break

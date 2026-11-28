@@ -296,9 +296,14 @@ describe("weapon-set-four-piece", () => {
     const sampled = (tier: number) =>
       calculateSimulatedRotationRun(bundle("Swallowcall", tier, simulatedOptions), () => 0.5)
     close(
-      finalSampledTotal(4) / finalSampledTotal(2),
-      1.12 * 1.06,
+      finalSampledTotal(4),
+      Math.ceil(damage(run("Swallowcall", 4, simulatedOptions)).total),
       "Simulation applies the same Swallowcall multipliers",
+    )
+    close(
+      finalSampledTotal(2),
+      Math.ceil(damage(run("Swallowcall", 2, simulatedOptions)).total),
+      "Simulation settles the baseline hit consistently",
     )
     console.log(
       "Weapon four-piece checks passed: HP/Qi boundaries, damage channels, critical healing, Deflect selection/expiry, martial-art scope, and simulation.",

@@ -1149,7 +1149,7 @@ channels. Preparation is lazy and cached privately against the original worker
 baseline. Outcome mixtures and replay source contributions retain their weights;
 Mystic contributions retain the baseline Vitality scale. Evaluation uses the
 baseline damage plus the dot product of attack deltas and the coefficients.
-The response records physical zero-clamp and attack-range normalization bounds.
+The response records physical defense-floor, zero-clamp, and attack-range normalization bounds.
 Both sides of attack normalization are supported, including maximum attack that
 follows minimum attack. Void minimum/maximum deltas contribute to the equipped
 primary attribute. The response records separate weighted bounds for normalization
@@ -1905,7 +1905,7 @@ updates every retained result immediately without changing fingerprint status.
 Custom row choices persist in browser storage; simulation history itself
 remains component memory and is not stored.
 Healing simulations independently sample each recipient's Normal/Critical
-outcome and uniform ±8% final-healing fluctuation. They publish HPS plus
+outcome and independent uniform ±10% rolls on the mean Physical and Silkbind attacks. They publish HPS plus
 recipient-weighted Normal and Critical healing percentages on the same
 DPS-ranked run records. Damage outcomes publish shares of the run's total
 damage, with replay damage credited to normal, so the four always total 100%.

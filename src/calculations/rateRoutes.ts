@@ -25,7 +25,10 @@ export function restrictedRateRouteFor(value: unknown): RestrictedRateRoute | un
 export function restrictedOutcomeRates(route: RestrictedRateRoute, derivedStats: CriticalRateStats): OutcomeRates {
   switch (route) {
     case "healing": {
-      const critRate = Math.min(1, Math.max(0, derivedStats.effectiveCrit + derivedStats.directCrit))
+      const critRate = Math.min(
+        1,
+        Math.max(0, Math.min(0.8, Math.max(0, derivedStats.effectiveCrit)) + derivedStats.directCrit),
+      )
       return { abrasionRate: 0, normalRate: 1 - critRate, critRate, affinityRate: 0 }
     }
     case "divinecraft":
